@@ -370,9 +370,7 @@ impl Game {
         let phyrexian_symbols_paid_with_life =
             Self::phyrexian_symbols_paid_with_life(choices.mana_payment())
                 .expect("validated casting choices carry a valid flexible-mana payment");
-        // A standing cast offer is the permission that made this signature
-        // legal, so keep it through validation and consume it atomically
-        // before paying costs or moving the card.
+        // Keep the standing offer through validation; consume it before costs or movement.
         let targets = signature.iter_targets().copied().collect::<Vec<_>>();
         let x = signature.x();
         let offer = self
@@ -387,15 +385,10 @@ impl Game {
             sacrifices,
         );
         let alternative_kind = self.cast_alternative_kind(player, card_id, &signature, offer);
-        let granted_by_permission = self.spend_graveyard_cast_permission(
-            player,
-            card_id,
-            &signature,
-            source_zone,
-            alternative_kind,
-        );
+        let (granted_by_permission, cast_via_suspend) =
+            self.spend_cast_permissions(player, card_id, &signature, source_zone, alternative_kind);
         self.take_answered_cast_offer(card_id);
-        // Both exile the card rather than burying it wherever it would otherwise have gone.
+        // Both exile the card rather than putting it in its ordinary destination.
         let cast_via_flashback = matches!(
             alternative_kind,
             Some(AlternativeCastKindDef::Flashback | AlternativeCastKindDef::WithoutPayingManaCost)
@@ -421,6 +414,7 @@ impl Game {
             cast_via_flashback,
             face_down,
         );
+        stack_object.cast_via_suspend = cast_via_suspend;
         stack_object.phyrexian_symbols_paid_with_life = phyrexian_symbols_paid_with_life;
         // "If you do, it gains ...": the permission that allowed this cast
         // hands the spell what the permanent it becomes will carry, which
@@ -547,6 +541,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback,
+            cast_via_suspend: false,
             cast_at_instant_speed,
             cast_from_zone: Some(source_zone),
             face_down,
@@ -721,18 +716,22 @@ impl Game {
     /// A cast from a graveyard that is not one of the card's own printed ways
     /// of being cast is happening under somebody's permission, and a
     /// permission that allows only so many spends one here.
-    fn spend_graveyard_cast_permission(
+    fn spend_cast_permissions(
         &mut self,
         player: PlayerId,
         card_id: GameObjectId,
         signature: &CastSignature,
         source_zone: CastSourceZone,
         alternative_kind: Option<AlternativeCastKindDef>,
-    ) -> Option<(AbilitySourceRef, &'static AppliedEffectDef)> {
+    ) -> (Option<(AbilitySourceRef, &'static AppliedEffectDef)>, bool) {
+        let grants_haste = self.exile_cast_grants_haste(card_id, player);
         if source_zone != CastSourceZone::Graveyard || alternative_kind.is_some() {
-            return None;
+            return (None, grants_haste);
         }
-        self.record_graveyard_permission_use_for_cast(player, card_id, signature)
+        (
+            self.record_graveyard_permission_use_for_cast(player, card_id, signature),
+            grants_haste,
+        )
     }
 
     fn record_graveyard_permission_use_for_cast(

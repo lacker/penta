@@ -84,6 +84,9 @@ pub enum ObjectPredicateDef {
     /// control with a +1/+1 counter on it". Read live, so a creature that
     /// loses its last counter stops matching.
     HasCounter(CounterKind),
+    /// Carries one or more counters of any kind. Used when a later
+    /// resolution choice names which existing kind to adjust.
+    HasAnyCounter,
     /// How many counters of one kind it carries, against a printed number.
     /// The counting form of [`Self::HasCounter`], for the clauses that name
     /// a bound rather than asking whether there is one at all -- a level
@@ -229,6 +232,10 @@ pub enum TargetChooserDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityTargetPredicate {
     AnyTarget,
+    /// Any target matching one complete alternative. Each branch owns its
+    /// object predicate, zones, and player relations, so a restriction from
+    /// one side of a printed "or" cannot leak into another.
+    AnyOf(&'static [AbilityTargetPredicate]),
     /// "Target player who controls more creatures than they do": a player
     /// in this relation to whoever is choosing, who controls more matching
     /// objects than that chooser does. The comparison is per candidate,

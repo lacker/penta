@@ -463,7 +463,7 @@ fn parse_may_cast_granted_continuation(
     let ability = catalog_ability(&game.catalog, locator)
         .ok_or("checkpoint granted-cast ability is absent from this catalog")?;
     if !game
-        .temporary_ability_grants
+        .nonbattlefield_ability_grants
         .get(grant)
         .is_some_and(|candidate| candidate.object == card && candidate.ability == ability)
     {

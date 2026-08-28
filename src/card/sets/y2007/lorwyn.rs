@@ -319,6 +319,8 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
             EffectDef::MayPlayWithoutPaying(FreePlayDef {
                 objects: ObjectSetDef::LinkedExiles(ObjectPredicateDef::Any),
                 duration: FreePlayDurationDef::WhileResolving,
+                mandatory: false,
+                grants_haste: false,
             }),
         )
         .with_activation_condition(&A_LIBRARY_IS_NEARLY_EMPTY),

@@ -1,6 +1,23 @@
 use super::*;
 use crate::{FlexibleManaPayment, ManaPaymentChoice};
 
+#[test]
+fn suspend_actions_publish_the_card_ability_and_chosen_x() {
+    let action = action_json(&Action::Suspend {
+        card: GameObjectId(42),
+        ability: AbilityOrigin::Printed {
+            definition: crate::card::cards::MISHRA_S_FACTORY,
+            part: crate::CardPartId::PRIMARY,
+            ability: crate::AbilityId(2),
+        },
+        x: 3,
+    });
+    assert_eq!(action["type"], "Suspend");
+    assert_eq!(action["card"], 42);
+    assert_eq!(action["ability"]["kind"], "printed");
+    assert_eq!(action["x"], 3);
+}
+
 /// Both optional members are absent unless the ability offers the choice
 /// they answer, so an old consumer reading an ordinary mana ability sees the
 /// wire shape it always saw.

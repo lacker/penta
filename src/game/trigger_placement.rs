@@ -177,20 +177,13 @@ impl Game {
         trigger: &PendingTrigger,
         target: AbilityTargetDef,
     ) -> Vec<Target> {
-        let candidates = self
-            .targets_owned_by_target_player(
-                target.predicate,
-                &trigger.targets,
-                trigger.source.object,
-            )
-            .unwrap_or_else(|| {
-                self.ability_targets_matching(
-                    target.predicate,
-                    Self::target_chooser(trigger, target),
-                    trigger.source.object,
-                    trigger.context.trigger,
-                )
-            });
+        let candidates = self.ability_targets_matching_with_selections(
+            target.predicate,
+            &trigger.targets,
+            Self::target_chooser(trigger, target),
+            trigger.source.object,
+            trigger.context.trigger,
+        );
         Self::without_excluded_source(&target, trigger.source.object, candidates)
     }
 
@@ -508,6 +501,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            cast_via_suspend: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
             face_down: None,

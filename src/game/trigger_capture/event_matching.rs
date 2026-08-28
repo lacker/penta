@@ -142,6 +142,40 @@ impl Game {
                     )
             }
             (
+                TriggerEventDef::CountersRemoved {
+                    object: predicate,
+                    kind,
+                },
+                CommittedTriggerEvent::CountersRemoved {
+                    object,
+                    kind: removed,
+                    ..
+                },
+            ) => {
+                kind == *removed
+                    && self.trigger_object_matches_for_controller(
+                        predicate, object, source, false, controller,
+                    )
+            }
+            (
+                TriggerEventDef::LastCounterRemoved {
+                    object: predicate,
+                    kind,
+                },
+                CommittedTriggerEvent::CountersRemoved {
+                    object,
+                    kind: removed,
+                    remaining,
+                    ..
+                },
+            ) => {
+                *remaining == 0
+                    && kind == *removed
+                    && self.trigger_object_matches_for_controller(
+                        predicate, object, source, false, controller,
+                    )
+            }
+            (
                 TriggerEventDef::BecomesBlocked(predicate),
                 CommittedTriggerEvent::BecomesBlocked { object, .. },
             )

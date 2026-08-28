@@ -2,7 +2,7 @@ use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
 
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardBehavior,
-    CardSupertype, CardType, ConditionDef, CounterKind, EffectDef, ImplementationStatus,
+    CardSupertype, CardType, ConditionDef, CounterKind, EffectDef, ImplementationStatus, ManaCost,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
 };
@@ -56,9 +56,10 @@ pub enum SpellResolutionDestinationDef {
     /// later from exile, as the creature it is on the other half. Only the
     /// alternate half of an Adventure card resolves this way.
     ExileOnAdventure,
-    /// Exile the card and put these counters on its new object. A zone change
-    /// happens before the counters are added, so prior-zone counters cannot
-    /// leak into exile.
+    /// Exile the resolving spell and put these counters on the successor card.
+    /// This remains a destination-level sequencing primitive: ordinary effect
+    /// composition cannot name the new object after the stack-to-exile move,
+    /// and adding the counters to the old spell would lose them at zone change.
     ExileWithCounters(&'static [(CounterKind, u16)]),
     /// Move the card to its owner's library, then shuffle it. The shuffle is
     /// still part of the resolution when another effect replaces the move, or

@@ -237,6 +237,9 @@ impl Game {
             }
             permanent.cast_at_instant_speed = object.cast_at_instant_speed;
             permanent.cast_from_zone = object.cast_from_zone;
+            if object.cast_via_suspend {
+                permanent.suspend_haste = true;
+            }
             permanent.text_changes = object.text_changes;
             permanent.attached_to = aura_host;
             permanent.attached_player = aura_player;

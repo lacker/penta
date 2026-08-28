@@ -226,10 +226,13 @@ fn granted_card_cost_flashback_combines_with_buyback_and_exiles_mists() {
     let mists = card(95_300, cards::CONSTANT_MISTS, PlayerId::One);
     let mists_id = mists.id;
     game.players[PlayerId::One.index()].graveyard.push(mists);
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: mists_id,
-        ability: CARD_COST_FLASHBACK,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: mists_id,
+            ability: CARD_COST_FLASHBACK,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
     give_constant_mists_mana(&mut game);
     let land = creature(95_301, cards::FOREST, PlayerId::One);
     let land_id = land.card.id;
@@ -309,10 +312,13 @@ fn granted_card_cost_flashback_adds_sprout_swarm_mana_buyback_and_exiles() {
     let sprout = card(95_400, cards::SPROUT_SWARM, PlayerId::One);
     let sprout_id = sprout.id;
     game.players[PlayerId::One.index()].graveyard.push(sprout);
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: sprout_id,
-        ability: CARD_COST_FLASHBACK,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: sprout_id,
+            ability: CARD_COST_FLASHBACK,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
     game.players[PlayerId::One.index()].mana_pool.green = 1;
     game.players[PlayerId::One.index()].mana_pool.colorless = 3;
 

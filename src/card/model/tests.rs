@@ -680,7 +680,10 @@ fn noncreature_with_only_an_unimplemented_clause_is_metadata_only() {
 fn no_mana_cost_is_distinct_from_a_printed_zero_cost() {
     let rules = CardRules::new_sorcery(ManaCost::default());
     let zero = CardPart::new(CardPartId::PRIMARY, "Zero", rules);
-    let no_cost_rules = CardRules::new_sorcery_without_mana_cost();
+    let no_cost_rules = CardRules::base(
+        CardTypeSet::single(CardType::Sorcery),
+        PrintedManaCost::None,
+    );
     let none = CardPart::new(CardPartId::PRIMARY, "None", no_cost_rules);
 
     assert_eq!(

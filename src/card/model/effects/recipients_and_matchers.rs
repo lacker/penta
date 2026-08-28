@@ -197,6 +197,8 @@ impl EffectRecipientDef {
     pub const TriggeringObject: Self = Self::object(ObjectRefDef::TriggeringObject);
     pub const TriggeringZoneChangeResult: Self =
         Self::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject);
+    pub const TriggeringZoneChangeResultSuccessor: Self =
+        Self::zone_change_successor(ZoneChangeReferenceDef::TriggeringZoneChangeResult);
     pub const DamagedObject: Self = Self::object(ObjectRefDef::DamagedObject);
     pub const ControllerOfTriggeringObject: Self =
         Self::player(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject));

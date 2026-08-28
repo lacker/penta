@@ -196,7 +196,8 @@ fn validate_effect_target_shapes(
             validate_object_predicate_shape(object, targets)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
-        EffectDef::SearchZonesAndExileRest { player, .. }
+        EffectDef::ChooseEffect { player, .. }
+        | EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }
@@ -380,7 +381,9 @@ fn validate_effect_target_shapes(
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
-        | EffectDef::Endure { object, .. } => {
+        | EffectDef::Endure { object, .. }
+        | EffectDef::ChooseCounterKind { object, .. }
+        | EffectDef::ModifyCounters { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::CopyStackObject(copy) => {
@@ -522,13 +525,20 @@ fn validate_effect_target_shapes(
                     targets,
                     triggering_object_zone,
                 )
-                && (duration != ResolvedEffectDurationDef::UntilEndOfTurn
-                    || !nonbattlefield_ability_grants_are_supported(effect)
-                    || !recipient_nonbattlefield_zones_support_flashback(
-                        recipient,
-                        targets,
-                        triggering_object_zone,
-                    ))
+                && !match duration {
+                    ResolvedEffectDurationDef::UntilEndOfTurn => {
+                        nonbattlefield_ability_grants_are_flashback(effect)
+                            && recipient_nonbattlefield_zones_support_flashback(
+                                recipient,
+                                targets,
+                                triggering_object_zone,
+                            )
+                    }
+                    ResolvedEffectDurationDef::Permanent => {
+                        nonbattlefield_ability_grants_are_suspend(effect)
+                    }
+                    _ => false,
+                }
             {
                 return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
             }

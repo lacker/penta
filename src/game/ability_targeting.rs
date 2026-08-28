@@ -61,23 +61,137 @@ impl Game {
         Some(self.targets_owned_by_player_matching(object, zones, owner, source))
     }
 
-    /// The same, considered at a particular X. A spell being cast has no
-    /// stack object yet, so a predicate that reads its chosen X -- "target
-    /// creature with power X or less" -- has nothing to read it from; the
-    /// enumerator already walks one X at a time, so it says which.
-    pub(super) fn ability_targets_matching_at(
+    fn targets_controlled_by_target_of(
         &self,
         predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        controller: PlayerId,
+        source: GameObjectId,
+        source_is_spell: bool,
+    ) -> Option<Vec<Target>> {
+        let AbilityTargetPredicate::ControlledByTargetOf {
+            object,
+            slot: other,
+        } = predicate
+        else {
+            return None;
+        };
+        let target_controller = selections
+            .iter()
+            .find(|selection| selection.slot().index() == other.index())
+            .and_then(|selection| selection.targets().first().copied())
+            .and_then(|target| match target {
+                Target::Player(player) => Some(player),
+                Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
+                    self.current_or_last_known_controller(id)
+                }
+            })?;
+        Some(
+            self.battlefield
+                .iter()
+                .filter(|permanent| permanent.controller == target_controller)
+                .filter(|permanent| {
+                    self.trigger_object_matches(
+                        object,
+                        &self.trigger_event_object(permanent),
+                        source,
+                        false,
+                    ) && self.permanent_can_be_targeted_by(
+                        permanent,
+                        controller,
+                        source,
+                        source_is_spell,
+                    )
+                })
+                .map(|permanent| Target::Permanent(permanent.card.id))
+                .collect(),
+        )
+    }
+
+    fn ability_targets_matching_with_selections_for(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+        source_is_spell: bool,
+    ) -> Vec<Target> {
+        if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
+            let mut targets = Vec::new();
+            for predicate in predicates {
+                for target in self.ability_targets_matching_with_selections_for(
+                    *predicate,
+                    selections,
+                    controller,
+                    source,
+                    context,
+                    source_is_spell,
+                ) {
+                    if !targets.contains(&target) {
+                        targets.push(target);
+                    }
+                }
+            }
+            return targets;
+        }
+        self.targets_controlled_by_target_of(
+            predicate,
+            selections,
+            controller,
+            source,
+            source_is_spell,
+        )
+        .or_else(|| self.targets_owned_by_target_player(predicate, selections, source))
+        .unwrap_or_else(|| {
+            self.ability_targets_matching_for(
+                predicate,
+                controller,
+                source,
+                context,
+                source_is_spell,
+            )
+        })
+    }
+
+    pub(super) fn ability_targets_matching_with_selections_at(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
         controller: PlayerId,
         source: GameObjectId,
         context: TriggerContext,
         x: u16,
     ) -> Vec<Target> {
         let previous = self.prospective_x.replace(Some(x));
-        let targets =
-            self.ability_targets_matching_for(predicate, controller, source, context, true);
+        let targets = self.ability_targets_matching_with_selections_for(
+            predicate, selections, controller, source, context, true,
+        );
         self.prospective_x.set(previous);
         targets
+    }
+
+    pub(super) fn ability_targets_matching_with_selections(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+    ) -> Vec<Target> {
+        let source_is_spell = self
+            .stack
+            .iter()
+            .find(|object| object.id == source)
+            .is_some_and(|object| object.kind == StackObjectKind::Spell);
+        self.ability_targets_matching_with_selections_for(
+            predicate,
+            selections,
+            controller,
+            source,
+            context,
+            source_is_spell,
+        )
     }
 
     /// "Any other target": the ability's own source is dropped from what a
@@ -94,6 +208,7 @@ impl Game {
         targets
     }
 
+    #[cfg(test)]
     pub(super) fn ability_targets_matching(
         &self,
         predicate: AbilityTargetPredicate,
@@ -106,7 +221,14 @@ impl Game {
             .iter()
             .find(|object| object.id == source)
             .is_some_and(|object| object.kind == StackObjectKind::Spell);
-        self.ability_targets_matching_for(predicate, controller, source, context, source_is_spell)
+        self.ability_targets_matching_with_selections_for(
+            predicate,
+            &[],
+            controller,
+            source,
+            context,
+            source_is_spell,
+        )
     }
 
     /// How many matching objects this player has in these zones: what they
@@ -192,6 +314,9 @@ impl Game {
         source_is_spell: bool,
     ) -> Vec<Target> {
         match predicate {
+            AbilityTargetPredicate::AnyOf(_) => {
+                unreachable!("target alternatives are expanded before leaf matching")
+            }
             AbilityTargetPredicate::AnyTarget => {
                 let mut targets = [PlayerId::One, PlayerId::Two]
                     .into_iter()
@@ -517,6 +642,9 @@ impl Game {
         // object ID in a zone. Recurse here as well so a named predicate
         // remains correct when composed with another card characteristic.
         match predicate {
+            ObjectPredicateDef::HasAnyCounter => {
+                return !card.counters.is_empty();
+            }
             ObjectPredicateDef::Named(name) => {
                 return self
                     .catalog

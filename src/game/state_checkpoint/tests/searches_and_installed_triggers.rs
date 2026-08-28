@@ -90,12 +90,14 @@ fn uncataloged_executable_state_fails_closed() {
     let mut game = Game::new(catalog, [deck.clone(), deck], 47).expect("game starts");
     let player = PlayerId::One;
     let card = game.players[player.index()].hand[0].id;
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
+    game.nonbattlefield_ability_grants.push(NonbattlefieldAbilityGrant {
         object: card,
         ability: crate::card::AbilityDef::static_ability(
             "An intentionally uncataloged test ability.",
             crate::card::EffectDef::None,
         ),
+        expiration: ContinuousEffectExpiration::EndOfTurn,
+        source: None,
     });
 
     let checkpoint = game.checkpoint_json(player);

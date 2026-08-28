@@ -55,7 +55,7 @@ EffectDef::RevealAtRandomFromHand { .. } | EffectDef::RevealHand { .. } |
 EffectDef::SearchZone { .. } | EffectDef::ChooseCards { .. } |
 EffectDef::ReplaceNextDrawThisTurn { .. } | EffectDef::IfFormat { .. } |
 EffectDef::Counter { .. } |
-EffectDef::PutSpellIntoOwnersLibrary { .. } | EffectDef::CopyStackObject(_) | EffectDef::AddCounters { .. } | EffectDef::RemoveCounters { .. } |
+EffectDef::PutSpellIntoOwnersLibrary { .. } | EffectDef::CopyStackObject(_) | EffectDef::AddCounters { .. } | EffectDef::ChooseCounterKind { .. } | EffectDef::ChooseEffect { .. } | EffectDef::ModifyCounters { .. } | EffectDef::RemoveCounters { .. } |
 EffectDef::ChangeTextBasicLandType { .. } | EffectDef::ChooseColor { .. } |
 EffectDef::BecomeCopyOf { .. } | EffectDef::May { .. } |
 EffectDef::CannotBeForcedToSacrifice | EffectDef::CannotBeForcedToDiscard |

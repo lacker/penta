@@ -370,6 +370,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            cast_via_suspend: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
             face_down: None,
@@ -496,6 +497,13 @@ impl Game {
             // for: the resolution recorded it before enqueueing the entry.
             ReplacementConditionDef::SourceCastWith(kind) => {
                 entry.permanent.card.id == source && entry.permanent.cast_alternative == Some(kind)
+            }
+            ReplacementConditionDef::SourceNotCastFrom(zone) => {
+                entry.permanent.card.id == source
+                    && entry
+                        .permanent
+                        .cast_from_zone
+                        .is_none_or(|from| from.zone() != zone)
             }
             ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
             // Hand and library sizes are facts about a draw, so nothing

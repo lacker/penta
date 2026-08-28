@@ -80,10 +80,13 @@ fn graveyard_only_granted_flashback_does_not_follow_the_card_into_exile() {
     let bolt = card(20_021, cards::LIGHTNING_BOLT, PlayerId::One);
     let graveyard_id = bolt.id;
     game.players[PlayerId::One.index()].graveyard.push(bolt);
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: graveyard_id,
-        ability: CARD_COST_FLASHBACK,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: graveyard_id,
+            ability: CARD_COST_FLASHBACK,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
 
     let (exiled, destination) = game
         .move_card_from_nonbattlefield_zone(

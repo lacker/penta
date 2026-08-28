@@ -224,6 +224,15 @@ pub enum Action {
     Plot {
         card: GameObjectId,
     },
+    /// Exile a card from hand with time counters by paying its suspend cost.
+    /// Suspend is a special action and does not use the stack (CR 702.62a).
+    Suspend {
+        card: GameObjectId,
+        ability: AbilityOrigin,
+        /// The announced value for a variable suspend cost; zero for fixed
+        /// suspend abilities.
+        x: u16,
+    },
     /// Unlock a locked door of a Room you control by paying that door's mana
     /// cost (CR 714.4a). A special action like the two above: no stack,
     /// nothing to respond to, and only in your own main phase.

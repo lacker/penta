@@ -38,6 +38,8 @@ struct StackObject {
     /// leaving the stack. This is frozen at cast time because the permission
     /// lived on the previous graveyard object.
     cast_via_flashback: bool,
+    /// The free-cast permission came from suspend's last-counter trigger.
+    cast_via_suspend: bool,
     /// Whether this spell was cast at a time a sorcery could not have been.
     /// Recorded as the cast happens, because nothing afterwards can tell.
     cast_at_instant_speed: bool,

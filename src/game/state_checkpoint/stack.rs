@@ -1,9 +1,9 @@
 use super::model::{
     AppliedStackEffectSnapshot, BasicLandTypeChangeSnapshot, CastSignatureSnapshot,
-    DecisionCardOriginSnapshot, DetachedStackSnapshot, EffectResolutionContextSnapshot,
-    ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot, StackAbilitySnapshot,
-    StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot, TargetSnapshot,
-    TriggerContextSnapshot,
+    CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot,
+    EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
+    StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
+    TargetSnapshot, TriggerContextSnapshot,
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
@@ -186,6 +186,7 @@ pub(super) fn detached_stack_snapshot_allowing(
         colors_of_mana_spent: object.colors_of_mana_spent.to_flags(),
         phyrexian_symbols_paid_with_life: object.phyrexian_symbols_paid_with_life,
         cast_via_flashback: object.cast_via_flashback,
+        cast_via_suspend: object.cast_via_suspend,
         cast_at_instant_speed: object.cast_at_instant_speed,
         cast_from_zone: object.cast_from_zone.map(|zone| zone.label().to_owned()),
         face_down,
@@ -317,6 +318,7 @@ pub(super) fn effect_resolution_context_snapshot(
 ) -> EffectResolutionContextSnapshot {
     EffectResolutionContextSnapshot {
         trigger: trigger_context_snapshot(context.trigger),
+        chosen_counter: context.chosen_counter.map(CounterKindSnapshot),
         single_objects: std::array::from_fn(|index| {
             context.single_objects()[index].map(target_snapshot)
         }),
@@ -493,6 +495,7 @@ pub(super) fn parse_stack(
             colors_of_mana_spent: color_set_from_flags(state.colors_of_mana_spent),
             phyrexian_symbols_paid_with_life: state.phyrexian_symbols_paid_with_life,
             cast_via_flashback: state.cast_via_flashback,
+            cast_via_suspend: state.cast_via_suspend,
             cast_at_instant_speed: state.cast_at_instant_speed,
             cast_from_zone: state
                 .cast_from_zone
@@ -589,6 +592,7 @@ pub(super) fn parse_detached_stack(
         colors_of_mana_spent: color_set_from_flags(state.colors_of_mana_spent),
         phyrexian_symbols_paid_with_life: state.phyrexian_symbols_paid_with_life,
         cast_via_flashback: state.cast_via_flashback,
+        cast_via_suspend: state.cast_via_suspend,
         cast_at_instant_speed: state.cast_at_instant_speed,
         cast_from_zone: state
             .cast_from_zone
@@ -757,13 +761,15 @@ pub(super) fn parse_trigger_context(
 pub(super) fn parse_effect_resolution_context(
     value: EffectResolutionContextSnapshot,
 ) -> Result<EffectResolutionContext, String> {
-    Ok(EffectResolutionContext::from_bindings(
+    let mut context = EffectResolutionContext::from_bindings(
         parse_trigger_context(value.trigger)?,
         value.single_objects.map(|object| object.map(parse_target)),
         value
             .object_groups
             .map(|objects| objects.into_iter().map(parse_target).collect()),
-    ))
+    );
+    context.chosen_counter = value.chosen_counter.map(|kind| kind.0);
+    Ok(context)
 }
 
 pub(super) fn parse_target_selection(

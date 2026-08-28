@@ -91,6 +91,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::ToughnessExactly(_)
         | ObjectPredicateDef::TotalPowerAndToughnessAtMost(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
             | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::ControlledBy(_)
         | ObjectPredicateDef::OwnedBy(_)
@@ -158,6 +159,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::PowerLessThan(_)
         | ObjectPredicateDef::ToughnessGreaterThanItsPower
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
             | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::ControlledBy(_)
         | ObjectPredicateDef::OwnedBy(_)
@@ -439,6 +441,8 @@ fn validate_trigger_event_references(
         | TriggerEventDef::CountersPlaced {
             object: predicate, ..
         }
+        | TriggerEventDef::CountersRemoved { object: predicate, .. }
+        | TriggerEventDef::LastCounterRemoved { object: predicate, .. }
         | TriggerEventDef::Transforms(predicate) => {
             validate_trigger_object_predicate(predicate, event, target_count, scope)
         }

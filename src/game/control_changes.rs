@@ -105,6 +105,7 @@ impl Game {
             permanent.control_requires_source_attached = false;
             if let Some(previous) = permanent.control_reverts_to.take() {
                 permanent.controller = previous;
+                permanent.suspend_haste = false;
                 permanent.entered_controller_turn = self.turns_started[previous.index()];
             }
         }
@@ -134,6 +135,7 @@ impl Game {
                     .control_reverts_to
                     .get_or_insert(permanent.controller);
                 permanent.controller = claim.controller;
+                permanent.suspend_haste = false;
                 permanent.entered_controller_turn = self.turns_started[claim.controller.index()];
             }
             permanent.control_source = Some(claim.source);
@@ -187,6 +189,7 @@ impl Game {
                     .get_or_insert(permanent.controller);
             }
             permanent.controller = controller;
+            permanent.suspend_haste = false;
             permanent.control_source = holder.map(|(id, _)| id);
             permanent.control_requires_source_tapped = holder.is_some_and(|(_, tapped)| tapped);
             permanent.control_requires_source_attached = false;
@@ -249,6 +252,7 @@ impl Game {
                 continue;
             };
             permanent.controller = controller;
+            permanent.suspend_haste = false;
             // An exchange lasts indefinitely, so nothing is recorded for
             // cleanup to give back. It is still a new controller who has not
             // had it since their turn began, which is what makes it

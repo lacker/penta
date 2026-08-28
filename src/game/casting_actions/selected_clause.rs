@@ -231,7 +231,7 @@ impl Game {
         option: &PlayOptionDef,
         required: Option<usize>,
     ) -> Option<(AbilityDef, AlternativeCastAbilityDef, ManaCost)> {
-        let resolve = |grant: &TemporaryAbilityGrant| {
+        let resolve = |grant: &NonbattlefieldAbilityGrant| {
             (grant.object == card).then_some(())?;
             if !grant.ability.is_executable() {
                 return None;
@@ -251,8 +251,8 @@ impl Game {
             .then_some((grant.ability, alternative))
         };
         let temporary = match required {
-            Some(grant) => self.temporary_ability_grants.get(grant).and_then(resolve),
-            None => self.temporary_ability_grants.iter().find_map(resolve),
+            Some(grant) => self.nonbattlefield_ability_grants.get(grant).and_then(resolve),
+            None => self.nonbattlefield_ability_grants.iter().find_map(resolve),
         };
         let (ability, alternative) = temporary.or_else(|| {
             if required.is_some() {

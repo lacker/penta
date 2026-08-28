@@ -127,6 +127,9 @@ struct Permanent {
     turn_up_for_mana_cost: bool,
     destroy_at_end: bool,
     temporary_keywords: Vec<KeywordAbility>,
+    /// Suspend grants haste until this permanent's controller loses control
+    /// of it, rather than merely until cleanup.
+    suspend_haste: bool,
     /// Resolved noncopiable characteristic changes and rules modifications,
     /// in creation order.
     resolved_continuous_effects: Vec<ResolvedContinuousEffect>,
@@ -313,6 +316,7 @@ impl Permanent {
             turn_up_for_mana_cost: false,
             destroy_at_end: false,
             temporary_keywords: Vec::new(),
+            suspend_haste: false,
             resolved_continuous_effects: Vec::new(),
             activations_this_turn: Vec::new(),
             exhausted: Vec::new(),

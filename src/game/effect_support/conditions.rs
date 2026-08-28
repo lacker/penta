@@ -425,24 +425,30 @@ impl Game {
                 TriggerConditionDef::LinkedExilesMatch { object: predicate } => {
                     !self.linked_exile_targets(*predicate, source).is_empty()
                 }
-                TriggerConditionDef::SourceMatches { object: predicate } => self
-                    .battlefield
-                    .iter()
-                    .find(|permanent| permanent.card.id == source)
-                    .or_else(|| match self.retired_objects.get(&source) {
-                        Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {
-                            Some(permanent.as_ref())
-                        }
-                        _ => None,
-                    })
-                    .is_some_and(|permanent| {
+                TriggerConditionDef::SourceMatches { object: predicate } => {
+                    if let Some(permanent) = self
+                        .battlefield
+                        .iter()
+                        .find(|permanent| permanent.card.id == source)
+                        .or_else(|| match self.retired_objects.get(&source) {
+                            Some(crate::game::RetiredObject::Permanent { permanent, .. }) => {
+                                Some(permanent.as_ref())
+                            }
+                            _ => None,
+                        })
+                    {
                         self.trigger_object_matches(
                             *predicate,
                             &self.trigger_event_object(permanent),
                             source,
                             false,
                         )
-                    }),
+                    } else {
+                        self.card_in_nonbattlefield_zone(source).is_some_and(|(zone, card)| {
+                            self.card_object_matches(*predicate, card, zone, source)
+                        })
+                    }
+                }
                 TriggerConditionDef::AttachedPermanentMatches { object: predicate } => self
                     .current_or_last_known_attached_host(source)
                     .and_then(|host| {

@@ -139,6 +139,7 @@ impl HandcraftedPolicy {
             // The same bargain as foretell, paid the other way round: the
             // card costs nothing later, so it is worth a little more.
             Action::Plot { .. } => 140,
+            Action::Suspend { .. } => 145,
             // Three mana for a card that was never in the deck. Worth more
             // than either of the two above, and still not worth skipping a
             // turn's real play for.

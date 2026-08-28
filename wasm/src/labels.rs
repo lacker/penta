@@ -221,6 +221,7 @@ impl WebGame {
             | Action::TurnFaceUp { .. }
             | Action::Foretell { .. }
             | Action::Plot { .. }
+            | Action::Suspend { .. }
             | Action::TakeCompanion { .. }
             | Action::UnlockDoor { .. }
             | Action::PassPriority
@@ -508,6 +509,14 @@ impl WebGame {
             }
             Action::Plot { card } => {
                 format!("Plot {}", self.instance_name(observation, *card))
+            }
+            Action::Suspend { card, x, .. } => {
+                let suffix = if *x > 0 {
+                    format!(" for X={x}")
+                } else {
+                    String::new()
+                };
+                format!("Suspend {}{suffix}", self.instance_name(observation, *card))
             }
             // Named for the card rather than for the keyword: what the
             // button does is fetch that card, and it is the only one out

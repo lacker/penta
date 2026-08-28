@@ -358,6 +358,9 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
         | EffectDef::CopyStackObject(_)
         | EffectDef::AddCounters { .. }
+        | EffectDef::ChooseCounterKind { .. }
+        | EffectDef::ChooseEffect { .. }
+        | EffectDef::ModifyCounters { .. }
         | EffectDef::RemoveCounters { .. }
         | EffectDef::ChangeTextBasicLandType { .. }
         | EffectDef::ChooseColor { .. }

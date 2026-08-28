@@ -14,7 +14,7 @@ impl Game {
         affected: &Permanent,
         prospective: Option<&Permanent>,
     ) -> bool {
-        self.static_object_predicate_matches_lazily(predicate, source, affected, prospective)
+        self.lazy_match(predicate, source, affected, prospective)
             .unwrap_or_else(|| {
                 self.trigger_object_matches(
                     predicate,
@@ -80,7 +80,7 @@ impl Game {
         }
     }
 
-    fn static_object_predicate_matches_lazily(
+    fn lazy_match(
         &self,
         predicate: ObjectPredicateDef,
         source: &Permanent,
@@ -91,6 +91,7 @@ impl Game {
         {
             return Some(answer);
         }
+        let nested = |predicate| self.lazy_match(predicate, source, affected, prospective);
         match predicate {
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
                 self.static_basic_land_type_matches(land_types, affected, prospective)
@@ -98,8 +99,7 @@ impl Game {
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
                 .map(|types| types.contains(card_type)),
-            // A static recipient is always a battlefield permanent, never a
-            // spell, matching the `is_spell = false` general matcher call.
+            // A static recipient is a permanent, never a spell.
             ObjectPredicateDef::Spell | ObjectPredicateDef::NoncreatureSpell => Some(false),
             ObjectPredicateDef::Color(color) => {
                 let rules = self.effective_rules(affected)?;
@@ -118,8 +118,7 @@ impl Game {
                 );
                 Some(subtypes.contains(&subtype))
             }
-            // Supertypes currently have no continuous operation. Read the
-            // same copied/printed rules used to construct a trigger snapshot.
+            // Supertypes use the same copied/printed rules as triggers.
             ObjectPredicateDef::Supertype(supertype) => self
                 .effective_rules(affected)
                 .map(|rules| rules.has_supertype(supertype)),
@@ -138,9 +137,7 @@ impl Game {
                     prospective,
                     true,
                 ),
-            ObjectPredicateDef::Not(predicate) => self
-                .static_object_predicate_matches_lazily(*predicate, source, affected, prospective)
-                .map(|matches| !matches),
+            ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
             ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
             | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -154,6 +151,7 @@ impl Game {
             | ObjectPredicateDef::PowerLessThan(_)
             | ObjectPredicateDef::ToughnessGreaterThanItsPower
             | ObjectPredicateDef::HasCounter(_)
+            | ObjectPredicateDef::HasAnyCounter
             | ObjectPredicateDef::CounterCount { .. }
             | ObjectPredicateDef::ControlledBy(_)
             | ObjectPredicateDef::OwnedBy(_)
@@ -178,12 +176,8 @@ impl Game {
             | ObjectPredicateDef::CameUnderControlThisTurn
             | ObjectPredicateDef::EnteredThisTurn
             | ObjectPredicateDef::AttackedDuringControllersLastTurn
-            // Both read something the layers own -- a chosen scalar, or the
-            // targets a stack object already has -- so they take the complete
-            // snapshot rather than a shortcut.
-            // Answered by the leaf helper before this match, and named here
-            // so a new one has to be classified rather than falling through
-            // silently.
+            // These need the complete snapshot, or were answered by the leaf
+            // helper, and are listed so new predicates cannot fall through.
             | ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::Token
@@ -208,7 +202,7 @@ impl Game {
     ) -> Option<bool> {
         let mut needs_snapshot = false;
         for predicate in predicates {
-            match self.static_object_predicate_matches_lazily(
+            match self.lazy_match(
                 *predicate,
                 source,
                 affected,

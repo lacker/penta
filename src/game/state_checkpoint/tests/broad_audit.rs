@@ -234,7 +234,7 @@ fn categories(game: &Game, wire: &Value) -> Vec<&'static str> {
     note(!game.pending_events.is_empty(), "pending-events");
     note(!game.emblems.is_empty(), "emblems");
     note(
-        !game.temporary_ability_grants.is_empty(),
+        !game.nonbattlefield_ability_grants.is_empty(),
         "temporary-ability-grants",
     );
     note(

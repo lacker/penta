@@ -150,7 +150,7 @@ fn it_casts_a_one_mana_spell_for_free() {
         "and nothing was spent on it",
     );
     assert!(
-        game.temporary_ability_grants.is_empty(),
+        game.nonbattlefield_ability_grants.is_empty(),
         "accepting the offer returns its temporary grant"
     );
 }
@@ -197,10 +197,13 @@ fn the_offer_exposes_only_the_granted_alternative_cost() {
 fn the_offer_selects_its_exact_grant_among_same_kind_definitions() {
     let (mut game, arcanist) = staged(&[cards::LIGHTNING_BOLT]);
     let card = game.players[0].graveyard[0].id;
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: card,
-        ability: OTHER_SAME_KIND_GRANT,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: card,
+            ability: OTHER_SAME_KIND_GRANT,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
 
     attack(&mut game, arcanist, Some(cards::LIGHTNING_BOLT));
 
@@ -219,11 +222,13 @@ fn the_offer_selects_its_exact_grant_among_same_kind_definitions() {
 fn declining_removes_only_the_exact_grant_behind_the_offer() {
     let (mut game, _) = staged(&[cards::LIGHTNING_BOLT]);
     let card = game.players[0].graveyard[0].id;
-    let existing = TemporaryAbilityGrant {
+    let existing = NonbattlefieldAbilityGrant {
         object: card,
         ability: IDENTICAL_FREE_GRANT,
+        expiration: ContinuousEffectExpiration::EndOfTurn,
+        source: None,
     };
-    game.temporary_ability_grants.push(existing);
+    game.nonbattlefield_ability_grants.push(existing);
     game.offer_granted_cast(PlayerId::One, card, &IDENTICAL_FREE_GRANT);
 
     let decision = game
@@ -239,7 +244,7 @@ fn declining_removes_only_the_exact_grant_behind_the_offer() {
     )
     .expect("declining the exact offer is legal");
 
-    assert_eq!(game.temporary_ability_grants, vec![existing]);
+    assert_eq!(game.nonbattlefield_ability_grants, vec![existing]);
 }
 
 #[test]

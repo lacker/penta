@@ -17,6 +17,7 @@ use super::{
     TriggerEventObject, ZoneKind,
 };
 
+mod exile;
 mod graveyard;
 include!("trigger_capture/drawing.rs");
 
@@ -345,6 +346,7 @@ impl Game {
             });
         }
         self.extend_with_graveyard_trigger_listeners(&mut listeners);
+        self.extend_with_exile_trigger_listeners(&mut listeners);
         // Installed triggers listen the same way, minus a permanent to hang
         // on; they are appended last so a permanent's own triggers keep the
         // relative order they had before any existed.

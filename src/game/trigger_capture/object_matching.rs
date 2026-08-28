@@ -21,7 +21,7 @@ impl Game {
         })
     }
 
-    fn object_has_ability(
+    pub(super) fn object_has_ability(
         &self,
         object: GameObjectId,
         predicate: AbilityPredicateDef,
@@ -33,7 +33,7 @@ impl Game {
         }
 
         if self
-            .temporary_ability_grants
+            .nonbattlefield_ability_grants
             .iter()
             .any(|grant| grant.object == object && predicate.matches(&grant.ability))
         {
@@ -519,6 +519,15 @@ impl Game {
             // computed the way a keyword or a stat could.
             ObjectPredicateDef::HasCounter(kind) => {
                 self.current_or_last_known_counters(object.id, kind) > 0
+            }
+            ObjectPredicateDef::HasAnyCounter => {
+                self.battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == object.id)
+                    .is_some_and(|permanent| !permanent.counters.is_empty())
+                    || self
+                        .card_in_nonbattlefield_zone(object.id)
+                        .is_some_and(|(_, card)| !card.counters.is_empty())
             }
             // The same reading with a bound on it, which is what a level
             // band asks: at least this many, or fewer than that many.

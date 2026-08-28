@@ -4,6 +4,92 @@
 // module's.
 
 impl Game {
+    pub(super) fn add_exile_ability_actions(&self, player: PlayerId, actions: &mut Vec<Action>) {
+        for card in &self.players[player.index()].exile {
+            if self.nonbattlefield_ability_activation_is_prohibited(
+                player,
+                card,
+                &CharacteristicContext::Exile,
+            ) {
+                continue;
+            }
+            self.for_each_printed_card_ability(card, &CharacteristicContext::Exile, |effective| {
+                let ability = effective.ability;
+                let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
+                    return;
+                };
+                if !ability.is_executable()
+                    || definition.procedure != AbilityProcedureDef::Shared
+                    || !definition.source_zones.contains(&ZoneKind::Exile)
+                    || !self.activation_timing_allows(player, definition.timing)
+                    || definition.condition.is_some_and(|condition| {
+                        !self.trigger_condition_holds(
+                            condition,
+                            card.id,
+                            player,
+                            TriggerContext::empty(),
+                            Some(effective.origin),
+                            None,
+                        )
+                    })
+                {
+                    return;
+                }
+                let mut sacrifice = None;
+                for cost in &definition.costs {
+                    match cost {
+                        AbilityCostDef::SacrificePermanent { object, controller }
+                            if sacrifice.is_none() =>
+                        {
+                            sacrifice = Some((*object, *controller));
+                        }
+                        _ => return,
+                    }
+                }
+                let Some((predicate, relation)) = sacrifice else {
+                    return;
+                };
+                let payers = self
+                    .battlefield
+                    .iter()
+                    .filter(|permanent| {
+                        self.player_relation_matches(
+                            permanent.controller,
+                            relation,
+                            player,
+                            TriggerContext::empty(),
+                        ) && self.trigger_object_matches(
+                            predicate,
+                            &self.trigger_event_object(permanent),
+                            card.id,
+                            false,
+                        )
+                    })
+                    .map(|permanent| permanent.card.id)
+                    .collect::<Vec<_>>();
+                for targets in self.legal_ability_target_selections(
+                    definition.targets,
+                    player,
+                    card.id,
+                    TriggerContext::empty(),
+                    0,
+                ) {
+                    for payer in &payers {
+                        actions.push(Action::ActivateAbility {
+                            source: card.id,
+                            ability: effective.origin,
+                            targets: targets.clone(),
+                            cost_objects: vec![*payer],
+                            x: 0,
+                            modes: Vec::new(),
+                            mana_payment: None,
+                        });
+                    }
+                }
+            });
+        }
+    }
+
     /// What an activation from hand costs in mana, or nothing at all when
     /// the ability's cost names something a card in a hand cannot spend.
     fn hand_activation_mana_cost(definition: &ActivatedAbilityDef) -> Option<ManaCost> {

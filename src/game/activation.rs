@@ -9,6 +9,8 @@ use super::{
 
 use crate::ManaPaymentChoice;
 
+mod nonbattlefield;
+
 /// What one activation announced about paying its cost: the value of X, the
 /// objects its costs spend, what the mana is being raised for, and how any
 /// flexible symbol in it is being paid.
@@ -499,6 +501,17 @@ impl Game {
             self.check_state_based_actions();
             return;
         }
+        if self.activate_exile_ability(
+            player,
+            source,
+            ability,
+            targets.clone(),
+            cost_objects,
+            x,
+            modes,
+        ) {
+            return;
+        }
         if let Some(source_card) = self.players[player.index()]
             .graveyard
             .iter()
@@ -760,24 +773,7 @@ impl Game {
                     // The cost names as many cards as it prints, and the
                     // activation carried every one of them.
                     AbilityCostDef::MoveToZone(movement) => {
-                        debug_assert_eq!(movement.from, ZoneKind::Graveyard);
-                        debug_assert_eq!(movement.to, ZoneKind::Exile);
-                        // One move for the whole cost, however many cards it
-                        // spends, which is what "one or more" reads.
-                        let mut moved = Vec::new();
-                        for chosen in cost_objects {
-                            if let Some(card) =
-                                remove_card(&mut self.players[player.index()].graveyard, *chosen)
-                            {
-                                let (card, _zone_change) = self.zone_change_card(card);
-                                self.players[player.index()].exile.push(card.clone());
-                                moved.push(card);
-                            }
-                        }
-                        if !moved.is_empty() {
-                            self.capture_cards_exiled(&moved, crate::card::ZoneKind::Graveyard);
-                            self.note_card_left_graveyard(player);
-                        }
+                        self.pay_nonbattlefield_move_cost(player, *movement, cost_objects);
                     }
                     AbilityCostDef::Loyalty(change) => {
                         self.pay_loyalty_cost(source, *change);
@@ -785,7 +781,6 @@ impl Game {
                     AbilityCostDef::DiscardCardsAtRandom(amount) => {
                         self.discard_at_random(player, usize::from(*amount));
                     }
-                    // Every card at once, and nobody chooses which.
                     AbilityCostDef::DiscardHand => {
                         let hand = self.players[player.index()]
                             .hand

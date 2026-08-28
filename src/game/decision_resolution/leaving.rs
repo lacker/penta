@@ -20,6 +20,7 @@ impl Game {
             matches!(
                 pending.continuation,
                 DecisionContinuation::MayCastExiled { card, .. }
+                    | DecisionContinuation::CastSuspended { card, .. }
                     | DecisionContinuation::CascadeCast { card, .. }
                     | DecisionContinuation::MayCastGranted { card, .. }
                     | DecisionContinuation::MayCastAlternative { card, .. } if card == cast

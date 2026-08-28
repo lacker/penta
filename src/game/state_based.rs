@@ -437,6 +437,7 @@ impl Game {
             permanent.control_requires_source_attached = false;
             if let Some(owner) = permanent.control_reverts_to.take() {
                 permanent.controller = owner;
+                permanent.suspend_haste = false;
                 permanent.entered_controller_turn = self.turns_started[owner.index()];
             }
         }

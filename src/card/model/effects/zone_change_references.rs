@@ -10,6 +10,10 @@ pub enum ZoneChangeReferenceDef {
     AttachedToSource,
     Target(TargetIndex),
     TriggeringObject,
+    /// The destination object produced by the triggering zone change. This
+    /// lets a resolving trigger move that card again and name the immediate
+    /// successor created by the second move.
+    TriggeringZoneChangeResult,
     SourceOfTargetedStackObject(TargetIndex),
 }
 
@@ -24,6 +28,9 @@ impl ZoneChangeReferenceDef {
             Self::AttachedToSource => ObjectRefDef::AttachedToSource,
             Self::Target(target) => ObjectRefDef::Target(target),
             Self::TriggeringObject => ObjectRefDef::TriggeringObject,
+            Self::TriggeringZoneChangeResult => {
+                ObjectRefDef::ZoneChangeResultOfTriggeringObject
+            }
             Self::SourceOfTargetedStackObject(target) => {
                 ObjectRefDef::SourceOfTargetedStackObject(target)
             }

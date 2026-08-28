@@ -67,6 +67,8 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         | TriggerEventDef::StepBegins { .. }
         | TriggerEventDef::LandPlayed { .. }
         | TriggerEventDef::DamageDealt(_)
+        | TriggerEventDef::CountersRemoved { .. }
+        | TriggerEventDef::LastCounterRemoved { .. }
         | TriggerEventDef::StateCondition
         | TriggerEventDef::LifeGained(_)
         | TriggerEventDef::BecomesMonarch(_)
@@ -82,6 +84,13 @@ fn target_matches_expectation(
     predicate: AbilityTargetPredicate,
     expected: RecipientExpectation,
 ) -> bool {
+    if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
+        return !predicates.is_empty()
+            && predicates
+                .iter()
+                .copied()
+                .all(|predicate| target_matches_expectation(predicate, expected));
+    }
     match expected {
         RecipientExpectation::Any => true,
         RecipientExpectation::Object => matches!(
@@ -96,6 +105,13 @@ fn target_matches_expectation(
 }
 
 fn target_can_project(predicate: AbilityTargetPredicate, expected: RecipientExpectation) -> bool {
+    if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
+        return !predicates.is_empty()
+            && predicates
+                .iter()
+                .copied()
+                .all(|predicate| target_can_project(predicate, expected));
+    }
     match expected {
         RecipientExpectation::Any => true,
         RecipientExpectation::Object => !matches!(predicate, AbilityTargetPredicate::Player(_)),
@@ -577,12 +593,12 @@ fn applied_effect_adds_ability(effect: AppliedEffectDef) -> bool {
     }
 }
 
-fn nonbattlefield_ability_grants_are_supported(effect: AppliedEffectDef) -> bool {
+fn nonbattlefield_ability_grants_are_flashback(effect: AppliedEffectDef) -> bool {
     match effect {
         AppliedEffectDef::Composite(effects) => effects
             .iter()
             .copied()
-            .all(nonbattlefield_ability_grants_are_supported),
+            .all(nonbattlefield_ability_grants_are_flashback),
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
             AbilityOperationDef::Add(ability),
         )) => {
@@ -597,17 +613,49 @@ fn nonbattlefield_ability_grants_are_supported(effect: AppliedEffectDef) -> bool
     }
 }
 
+fn nonbattlefield_ability_grants_are_suspend(effect: AppliedEffectDef) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => effects
+            .iter()
+            .copied()
+            .all(nonbattlefield_ability_grants_are_suspend),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::Add(ability),
+        )) => {
+            ability.is_executable()
+                && matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Suspend(
+                        crate::card::SuspendAbilityDef::Granted
+                    ))
+                )
+        }
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => true,
+    }
+}
+
 fn target_may_name_nonbattlefield_object(
     target: TargetIndex,
     targets: &[AbilityTargetDef],
 ) -> bool {
     targets.get(target.index()).is_none_or(|definition| {
-        matches!(
-            definition.predicate,
-            AbilityTargetPredicate::Object { zones, .. }
-                if zones.iter().any(|zone| *zone != ZoneKind::Battlefield)
-        )
+        target_predicate_may_name_nonbattlefield_object(definition.predicate)
     })
+}
+
+fn target_predicate_may_name_nonbattlefield_object(
+    predicate: AbilityTargetPredicate,
+) -> bool {
+    match predicate {
+        AbilityTargetPredicate::AnyOf(predicates) => predicates
+            .iter()
+            .copied()
+            .any(target_predicate_may_name_nonbattlefield_object),
+        AbilityTargetPredicate::Object { zones, .. } => zones
+            .iter()
+            .any(|zone| *zone != ZoneKind::Battlefield),
+        _ => false,
+    }
 }
 
 fn recipient_may_name_nonbattlefield_object(
@@ -677,22 +725,16 @@ fn recipient_nonbattlefield_zones_support_flashback(
     targets: &[AbilityTargetDef],
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
-    let supported_zones = |zones: &[ZoneKind]| {
-        zones
-            .iter()
-            .all(|zone| matches!(zone, ZoneKind::Battlefield | ZoneKind::Graveyard))
-    };
     match recipient.0 {
         EffectRecipientSetDef::LegalTargets(target)
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::LegalTargets(target) | ObjectSetDef::One(ObjectRefDef::Target(target)),
         ) => targets.get(target.index()).is_some_and(|definition| {
-            matches!(
-                definition.predicate,
-                AbilityTargetPredicate::Object { zones, .. } if supported_zones(zones)
-            )
+            target_predicate_zones_support_flashback(definition.predicate)
         }),
-        EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => supported_zones(query.zones),
+        EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
+            zones_support_flashback(query.zones)
+        }
         EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::TriggeringObject)) => {
             matches!(
                 triggering_object_zone,
@@ -731,6 +773,26 @@ fn recipient_nonbattlefield_zones_support_flashback(
         | EffectRecipientSetDef::DefenderOf(_)
         | EffectRecipientSetDef::Players(_) => true,
     }
+}
+
+fn target_predicate_zones_support_flashback(predicate: AbilityTargetPredicate) -> bool {
+    match predicate {
+        AbilityTargetPredicate::AnyOf(predicates) => {
+            !predicates.is_empty()
+                && predicates
+                    .iter()
+                    .copied()
+                    .all(target_predicate_zones_support_flashback)
+        }
+        AbilityTargetPredicate::Object { zones, .. } => zones_support_flashback(zones),
+        _ => false,
+    }
+}
+
+fn zones_support_flashback(zones: &[ZoneKind]) -> bool {
+    zones
+        .iter()
+        .all(|zone| matches!(zone, ZoneKind::Battlefield | ZoneKind::Graveyard))
 }
 
 /// Which player sets a static play rule may name. A resolving one may name

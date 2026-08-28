@@ -296,6 +296,7 @@ mod static_keyword_predicates;
 mod storage_lands;
 mod street_spasm;
 mod subtype_protection;
+mod suspend;
 mod switched_stats;
 mod target_toughness;
 mod targeted_answers;

@@ -486,6 +486,9 @@ impl HandcraftedPolicy {
             | EffectDef::RemoveCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
             | EffectDef::ChooseColor { .. }
+            | EffectDef::ChooseCounterKind { .. }
+            | EffectDef::ChooseEffect { .. }
+            | EffectDef::ModifyCounters { .. }
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard

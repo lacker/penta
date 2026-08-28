@@ -98,6 +98,8 @@ pub(super) struct ExilePlayPermission {
     /// this way" is one permission over several cards: casting any of them
     /// spends it, so the rest go with it.
     pub(super) group: Option<GameObjectId>,
+    /// A creature cast through this permission receives suspend's haste.
+    pub(super) grants_haste: bool,
 }
 
 impl ExilePlayCost {
@@ -203,6 +205,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -263,6 +266,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -301,6 +305,7 @@ impl Game {
             zone: ZoneKind::Exile,
             group: None,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -325,6 +330,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -349,6 +355,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -375,6 +382,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -415,6 +423,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -440,6 +449,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -464,6 +474,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -496,6 +507,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -520,6 +532,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -546,6 +559,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 
@@ -600,6 +614,11 @@ impl Game {
     pub(super) fn exile_play_surcharge(&self, card: GameObjectId, player: PlayerId) -> ManaCost {
         self.exile_play_permission(card, player)
             .map_or_else(ManaCost::default, |permission| permission.surcharge)
+    }
+
+    pub(super) fn exile_cast_grants_haste(&self, card: GameObjectId, player: PlayerId) -> bool {
+        self.exile_play_permission(card, player)
+            .is_some_and(|permission| permission.grants_haste)
     }
 
     /// The energy `player` owes to cast `card` from exile, if that is how the
@@ -662,6 +681,7 @@ impl Game {
             group: None,
             hidden_from_owner: false,
             lands_may_be_played: true,
+            grants_haste: false,
         });
     }
 

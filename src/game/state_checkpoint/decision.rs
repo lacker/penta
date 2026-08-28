@@ -20,13 +20,14 @@ use super::super::{
 };
 use super::model::{
     AbilityLocator, AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot,
-    BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot, DecisionCardOriginSnapshot,
-    DecisionCardSnapshot, DecisionContinuationSnapshot, DecisionOptionSnapshot,
-    DecisionPreferenceSnapshot, DecisionStateSnapshot, DecisionZoneSnapshot,
-    DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DiscardChoiceSnapshot,
-    EffectContinuationSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
+    BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot, CounterKindSnapshot,
+    DecisionCardOriginSnapshot, DecisionCardSnapshot, DecisionContinuationSnapshot,
+    DecisionOptionSnapshot, DecisionPreferenceSnapshot, DecisionStateSnapshot,
+    DecisionZoneSnapshot, DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot,
+    DiscardChoiceSnapshot, EffectContinuationSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
     PregameAbilityActionSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
-    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneMoveCauseSnapshot,
+    ZonePlacementSnapshot,
 };
 mod option;
 use option::parse_option;
@@ -403,6 +404,7 @@ fn continuation_snapshot(
             object,
             context,
             definition,
+            ..
         } => {
             let continuation = effect_continuation_snapshot(
                 game,
@@ -419,6 +421,12 @@ fn continuation_snapshot(
                 ability: continuation.ability,
                 context: continuation.context,
                 definition: continuation.effect,
+            }
+        }
+        DecisionContinuation::CastSuspended { player, card } => {
+            DecisionContinuationSnapshot::CastSuspended {
+                player: player.index(),
+                card: card.0,
             }
         }
         DecisionContinuation::ChooseForEffect {
@@ -761,6 +769,39 @@ fn continuation_snapshot(
                 visible_rebindings,
             )?),
             targets: targets.iter().copied().map(target_snapshot).collect(),
+        },
+        DecisionContinuation::ChooseCounter {
+            object,
+            context,
+            scoped,
+            target,
+            kinds,
+            ..
+        } => DecisionContinuationSnapshot::ChooseCounter {
+            continuation: Box::new(effect_continuation_snapshot(
+                game,
+                viewer,
+                object,
+                context,
+                *scoped,
+                visible_rebindings,
+            )?),
+            target: target_snapshot(*target),
+            kinds: kinds.iter().copied().map(CounterKindSnapshot).collect(),
+        },
+        DecisionContinuation::ChooseEffect {
+            object,
+            context,
+            scoped,
+        } => DecisionContinuationSnapshot::ChooseEffect {
+            continuation: Box::new(effect_continuation_snapshot(
+                game,
+                viewer,
+                object,
+                context,
+                *scoped,
+                visible_rebindings,
+            )?),
         },
         DecisionContinuation::ChosenColorMana {
             controller,

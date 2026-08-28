@@ -2,12 +2,13 @@ use std::borrow::Cow;
 
 use super::{
     CardInstance, CardPartId, CastOffer, CastOfferCost, CastSourceZone, CharacteristicContext,
-    CharacteristicSource, ColorSet, CounterKind, DecisionContinuation, DecisionKind,
-    DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeclarativeAbilityDef, EffectResolutionContext, Game, ManaCost, ObjectCharacteristics,
-    PendingDecision, PlayerId, ResolvedEffectPayment, ScopedEffect, StackObject, Target,
-    TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerContext, ZoneKind, ZoneMoveCause,
-    ZonePlacement, flatten_target_selections, target_combinations,
+    CharacteristicSource, ColorSet, ContinuousEffectExpiration, CounterKind, DecisionContinuation,
+    DecisionKind, DecisionObservation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, DeclarativeAbilityDef, EffectResolutionContext, Game, ManaCost,
+    NonbattlefieldAbilityGrant, ObjectCharacteristics, PendingDecision, PlayerId,
+    ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TargetSlotId,
+    TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement, flatten_target_selections,
+    target_combinations,
 };
 use crate::card::{
     AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,
@@ -584,6 +585,7 @@ impl Game {
         &mut self,
         player: PlayerId,
         card: GameObjectId,
+        mandatory: bool,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
@@ -623,28 +625,40 @@ impl Game {
         }
         self.queue_decision(
             player,
-            format!("Play {name} from exile, or decline"),
+            if mandatory {
+                format!("Play {name} from exile")
+            } else {
+                format!("Play {name} from exile, or decline")
+            },
             DecisionVisibility::Public,
             DecisionPreference::PreferOption(0),
-            1..=1,
+            if mandatory { 0..=0 } else { 1..=1 },
             false,
-            vec![DecisionOption {
-                id: 0,
-                label: "Decline".into(),
-                card: Some((
+            if mandatory {
+                Vec::new()
+            } else {
+                vec![DecisionOption {
+                    id: 0,
+                    label: "Decline".into(),
+                    card: Some((
+                        card,
+                        ObjectCharacteristics::card(printed, CardPartId::PRIMARY),
+                    )),
+                    members: Vec::new(),
+                    ability_text: None,
+                    zone: DecisionZone::Exile,
+                }]
+            },
+            if mandatory {
+                DecisionContinuation::CastSuspended { player, card }
+            } else {
+                DecisionContinuation::MayCastExiled {
+                    player,
                     card,
-                    ObjectCharacteristics::card(printed, CardPartId::PRIMARY),
-                )),
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::Exile,
-            }],
-            DecisionContinuation::MayCastExiled {
-                player,
-                card,
-                object: Box::new(object.clone()),
-                context: context.clone(),
-                definition: scoped,
+                    object: Box::new(object.clone()),
+                    context: context.clone(),
+                    definition: scoped,
+                }
             },
         );
     }
@@ -684,12 +698,14 @@ impl Game {
             .catalog
             .get(printed)
             .map_or_else(|| "that card".to_owned(), |card| card.name.clone());
-        let grant = TemporaryAbilityGrant {
+        let grant = NonbattlefieldAbilityGrant {
             object: card,
             ability: *ability,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
         };
-        let grant_index = self.temporary_ability_grants.len();
-        self.temporary_ability_grants.push(grant);
+        let grant_index = self.nonbattlefield_ability_grants.len();
+        self.nonbattlefield_ability_grants.push(grant);
         let DeclarativeAbilityDef::AlternativeCast(_) = ability.definition else {
             self.revoke_temporary_grant(grant_index, card, ability);
             return;
@@ -818,11 +834,11 @@ impl Game {
         ability: &AbilityDef,
     ) {
         if self
-            .temporary_ability_grants
+            .nonbattlefield_ability_grants
             .get(grant)
             .is_some_and(|candidate| candidate.object == card && candidate.ability == *ability)
         {
-            self.temporary_ability_grants.remove(grant);
+            self.nonbattlefield_ability_grants.remove(grant);
         }
     }
 

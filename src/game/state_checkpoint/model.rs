@@ -26,7 +26,6 @@ impl<'de> Deserialize<'de> for CounterKindSnapshot {
     }
 }
 
-#[allow(clippy::struct_excessive_bools)]
 mod balance;
 mod continuation;
 mod continuous;
@@ -196,7 +195,8 @@ pub(super) struct GameSnapshot {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(super) successors: Vec<SuccessorSnapshot>,
     pub(super) pending_events: Vec<PendingEventSnapshot>,
-    pub(super) temporary_ability_grants: Vec<TemporaryAbilityGrantSnapshot>,
+    #[serde(rename = "temporaryAbilityGrants")]
+    pub(super) nonbattlefield_ability_grants: Vec<NonbattlefieldAbilityGrantSnapshot>,
     /// Resolved duration-scoped effects that expose an activated ability.
     /// Additive: checkpoints written before these effects existed restore
     /// with none, which is the state of every game without one.
@@ -230,9 +230,17 @@ pub(super) enum TurnPhaseResumeSnapshot {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct TemporaryAbilityGrantSnapshot {
+pub(super) struct NonbattlefieldAbilityGrantSnapshot {
     pub(super) object: u32,
     pub(super) ability: AbilityLocator,
+    #[serde(default = "default_nonbattlefield_grant_expiration")]
+    pub(super) expiration: ContinuousEffectExpirationSnapshot,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) source: Option<AbilityOriginSnapshot>,
+}
+
+const fn default_nonbattlefield_grant_expiration() -> ContinuousEffectExpirationSnapshot {
+    ContinuousEffectExpirationSnapshot::EndOfTurn
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -483,6 +491,8 @@ pub(super) struct PermanentSnapshot {
     pub(super) deathtouch_damage: bool,
     pub(super) created_by: Option<u32>,
     pub(super) temporary_keywords: Vec<KeywordSnapshot>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) suspend_haste: bool,
     pub(super) keywords_until_upkeep_of: Vec<UpkeepKeywordSnapshot>,
     pub(super) resolved_continuous_effects: Vec<ResolvedContinuousEffectSnapshot>,
     pub(super) activations_this_turn: Vec<AbilityActivationSnapshot>,
@@ -806,6 +816,8 @@ include!("model_trigger_context.rs");
 #[serde(rename_all = "camelCase")]
 pub(super) struct EffectResolutionContextSnapshot {
     pub(super) trigger: TriggerContextSnapshot,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_counter: Option<CounterKindSnapshot>,
     pub(super) single_objects: [Option<TargetSnapshot>; crate::ObjectBindingIndex::COUNT],
     pub(super) object_groups: [Vec<TargetSnapshot>; crate::ObjectSetBindingIndex::COUNT],
 }

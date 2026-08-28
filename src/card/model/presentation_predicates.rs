@@ -79,6 +79,7 @@ pub(super) fn object_predicate_implies(
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::Not(_)
@@ -142,6 +143,7 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -208,6 +210,7 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -274,6 +277,7 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -345,6 +349,7 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -413,6 +418,7 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -480,6 +486,7 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -547,6 +554,7 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)

@@ -528,6 +528,7 @@ pub(in crate::game) fn spell(
         text_changes: Vec::new(),
         colors: None,
         cast_via_flashback: false,
+        cast_via_suspend: false,
         cast_at_instant_speed: false,
         cast_from_zone: None,
         face_down: None,

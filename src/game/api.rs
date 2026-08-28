@@ -163,27 +163,33 @@ impl Game {
         let mut actions = vec![Action::Concede];
         if let Some(decision) = self.pending_decisions.first() {
             if decision.observation.player == player {
+                let mut offered_casts = Vec::new();
+                if let Some(offer) = decision.continuation.cast_offer()
+                    && offer.player == player
+                {
+                    self.add_offered_cast_actions(offer, &mut offered_casts);
+                }
+                let must_take_cast =
+                    decision.continuation.cast_offer_is_mandatory() && !offered_casts.is_empty();
                 // Bounded selections are represented by the decision observation rather
                 // than by an eagerly-expanded Cartesian product. Callers submit the
                 // selected option IDs through `ChooseDecision`; `apply` validates the
                 // selection directly against this schema.
-                actions.push(Action::ChooseDecision {
-                    decision: decision.observation.id,
-                    options: Vec::new(),
-                });
-                if decision.observation.cancellable {
-                    actions.push(Action::CancelDecision {
+                if !must_take_cast {
+                    actions.push(Action::ChooseDecision {
                         decision: decision.observation.id,
+                        options: Vec::new(),
                     });
+                    if decision.observation.cancellable {
+                        actions.push(Action::CancelDecision {
+                            decision: decision.observation.id,
+                        });
+                    }
                 }
                 // "You may cast that card" is answered by casting it, not by
                 // answering the decision, so the cast stands beside the
                 // decline rather than behind it.
-                if let Some(offer) = decision.continuation.cast_offer()
-                    && offer.player == player
-                {
-                    self.add_offered_cast_actions(offer, &mut actions);
-                }
+                actions.append(&mut offered_casts);
                 if let Some(pregame) = decision.continuation.pregame_actions(player) {
                     actions.extend(pregame.iter().map(PregameAbilityAction::action));
                 }
@@ -290,6 +296,7 @@ impl Game {
         self.add_foretell_actions(player, &mut actions);
         self.add_companion_actions(player, &mut actions);
         self.add_plot_actions(player, &mut actions);
+        self.add_suspend_actions(player, &mut actions);
         self.add_unlock_door_actions(player, &mut actions);
         actions
     }
@@ -439,6 +446,7 @@ impl Game {
             Action::Foretell { card } => self.foretell(player, card),
             Action::TakeCompanion { card } => self.take_companion(player, card),
             Action::Plot { card } => self.plot(player, card),
+            Action::Suspend { card, ability, x } => self.suspend(player, card, ability, x),
             Action::UnlockDoor { room, door } => self.unlock_door(player, room, door),
             _ => unreachable!("the caller admits only special actions"),
         }
@@ -471,6 +479,7 @@ impl Game {
             | Action::Foretell { .. }
             | Action::TakeCompanion { .. }
             | Action::Plot { .. }
+            | Action::Suspend { .. }
             | Action::UnlockDoor { .. } => self.take_special_action(player, &action),
             Action::PassPriority => self.pass_priority(player),
             Action::PlayLand { card, option } => self.play_land(player, card, option),
@@ -579,6 +588,15 @@ impl Game {
             };
             let observation = &pending.observation;
             if observation.player != player || observation.id != *decision {
+                return false;
+            }
+            if pending.continuation.cast_offer_is_mandatory()
+                && pending.continuation.cast_offer().is_some_and(|offer| {
+                    let mut castable = Vec::new();
+                    self.add_offered_cast_actions(offer, &mut castable);
+                    !castable.is_empty()
+                })
+            {
                 return false;
             }
             let available = observation

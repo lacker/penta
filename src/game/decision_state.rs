@@ -1,7 +1,7 @@
 use crate::action::{AbilityOrigin, Target};
 use crate::card::{
     AbilityDef, BattlefieldEntryScalarChoiceDef, CardTypeSet, ColorChoiceOperationDef, ColorSet,
-    EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    CounterKind, EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
     ReplacementEffectDef, SelectionDestinationDef, TopCardSelectionDef, TurnKindDef, ZoneKind,
     ZonePlacement,
 };
@@ -341,6 +341,21 @@ pub(super) enum DecisionContinuation {
         operation: ColorChoiceOperationDef,
         duration: ResolvedEffectDurationDef,
     },
+    /// Choose one counter kind currently on an object, then continue the
+    /// nested effect with that kind bound in its resolution context.
+    ChooseCounter {
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        scoped: ScopedEffect,
+        target: Target,
+        kinds: Vec<CounterKind>,
+    },
+    /// Choose one labelled effect branch during resolution.
+    ChooseEffect {
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        scoped: ScopedEffect,
+    },
     /// One mana of a colour the controller is choosing, out of a run of
     /// them. "Add one mana of any color for each charge counter removed"
     /// names each mana separately, so the run is answered one colour at a
@@ -417,6 +432,12 @@ pub(super) enum DecisionContinuation {
         /// that a rebuilt decision can check it is still the clause it says
         /// it is instead of trusting a detached fragment.
         definition: ScopedEffect,
+    },
+    /// Suspend's last-counter instruction. Casting the card answers this
+    /// standing decision; there is no decline while a legal cast exists.
+    CastSuspended {
+        player: PlayerId,
+        card: GameObjectId,
     },
     /// "Put that card back on top of your library or into your graveyard."
     /// The counter is already on the creature by the time this is asked, so
@@ -707,14 +728,14 @@ impl DecisionContinuation {
 
     pub(super) fn cast_offer(&self) -> Option<CastOffer> {
         match self {
-            Self::MayCastExiled { player, card, .. } | Self::CascadeCast { player, card, .. } => {
-                Some(CastOffer {
-                    player: *player,
-                    card: *card,
-                    source_zone: CastSourceZone::Exile,
-                    cost: CastOfferCost::Any,
-                })
-            }
+            Self::MayCastExiled { player, card, .. }
+            | Self::CastSuspended { player, card }
+            | Self::CascadeCast { player, card, .. } => Some(CastOffer {
+                player: *player,
+                card: *card,
+                source_zone: CastSourceZone::Exile,
+                cost: CastOfferCost::Any,
+            }),
             Self::MayCastGranted {
                 player,
                 card,
@@ -739,6 +760,10 @@ impl DecisionContinuation {
             }),
             _ => None,
         }
+    }
+
+    pub(super) fn cast_offer_is_mandatory(&self) -> bool {
+        matches!(self, Self::CastSuspended { .. })
     }
 }
 

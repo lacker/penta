@@ -173,6 +173,22 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_choose(choice)
                 && shared_stack_effect_at_position(*choice.then, true)
         }
+        EffectDef::ChooseCounterKind { object, then } => {
+            deferred_decision_allowed
+                && shared_effect_recipient(object)
+                && shared_stack_effect_at_position(*then, true)
+        }
+        EffectDef::ChooseEffect { player, choices } => {
+            deferred_decision_allowed
+                && shared_effect_recipient(player)
+                && !choices.is_empty()
+                && choices
+                    .iter()
+                    .all(|choice| {
+                        choice.effect == EffectDef::None
+                            || shared_stack_effect_at_position(choice.effect, true)
+                    })
+        }
         EffectDef::SimultaneousChoose(choice) => {
             deferred_decision_allowed
                 && !choice.one_of_each.is_empty()
@@ -494,6 +510,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::Detain { object }
         | EffectDef::GainControl { object, .. }
         | EffectDef::AddCounters { object, .. }
+        | EffectDef::ModifyCounters { object, .. }
         | EffectDef::RemoveCounters { object, .. }
         | EffectDef::Attach { object }
         | EffectDef::AttachToSource { object }

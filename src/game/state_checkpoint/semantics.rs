@@ -793,6 +793,15 @@ pub(super) fn child_abilities(ability: &AbilityDef) -> Vec<&AbilityDef> {
     {
         children.extend(modal.modes);
     }
+    if matches!(
+        ability.definition,
+        DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Suspend(_))
+    ) {
+        children.extend([
+            &crate::card::abilities::SUSPEND_UPKEEP_ABILITY,
+            &crate::card::abilities::SUSPEND_LAST_COUNTER_ABILITY,
+        ]);
+    }
     match ability.effect.definition {
         AbilityProgramDef::Effects(effect) => collect_effect_abilities(effect, &mut children),
         AbilityProgramDef::Replacement(effect) => {

@@ -29,6 +29,12 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         DecisionContinuation::ChooseColor {
             object, context, ..
         }
+        | DecisionContinuation::ChooseCounter {
+            object, context, ..
+        }
+        | DecisionContinuation::ChooseEffect {
+            object, context, ..
+        }
         | DecisionContinuation::OptionalEffect {
             object, context, ..
         }
@@ -48,6 +54,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             object, context, ..
         } => extend_stack_continuation_ids(&mut ids, object, context),
         DecisionContinuation::DrawActionWindow { card }
+        | DecisionContinuation::CastSuspended { card, .. }
         | DecisionContinuation::MayCastAlternative { card, .. }
         | DecisionContinuation::MayCastGranted { card, .. } => ids.push(*card),
         DecisionContinuation::ChooseForEffect {

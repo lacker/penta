@@ -171,9 +171,9 @@ pub enum TriggerConditionDef {
     /// form of the morbid value, for the intervening-ifs that ask rather than
     /// pick an amount.
     CreatureDiedThisTurn,
-    /// Whether the ability's own source matches. The mirror of
-    /// [`Self::AttachedPermanentMatches`] pointed at the source itself, for
-    /// the intervening-ifs that ask what the permanent has been doing.
+    /// Whether the ability's own source matches in its current zone, or by
+    /// last-known information after it leaves. This includes nonbattlefield
+    /// card sources such as a card whose exile ability asks what it has.
     SourceMatches { object: ObjectPredicateDef },
     /// Whether what the ability's source is attached to matches. This is what
     /// "as long as equipped creature is a Human" asks, and it is read live so

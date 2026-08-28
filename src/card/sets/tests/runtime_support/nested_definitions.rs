@@ -103,6 +103,8 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         }
         TriggerEventDef::BecomesBlocked(object)
         | TriggerEventDef::CountersPlaced { object, .. }
+        | TriggerEventDef::CountersRemoved { object, .. }
+        | TriggerEventDef::LastCounterRemoved { object, .. }
         | TriggerEventDef::Transforms(object) => {
             shared_object_predicate(object)
         }

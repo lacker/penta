@@ -6,6 +6,25 @@ pub enum EffectDef {
         kind: CounterKind,
         amount: ValueDef,
     },
+    /// Choose one kind of counter currently on the recipient, bind that kind
+    /// for the nested effect, then continue resolving it.
+    ChooseCounterKind {
+        object: EffectRecipientDef,
+        then: &'static EffectDef,
+    },
+    /// Add or remove a resolved amount of one fixed or previously chosen kind
+    /// of counter.
+    ModifyCounters {
+        object: EffectRecipientDef,
+        kind: CounterKindDef,
+        operation: CounterOperationDef,
+        amount: ValueDef,
+    },
+    /// Let the named player choose one labelled effect branch on resolution.
+    ChooseEffect {
+        player: EffectRecipientDef,
+        choices: &'static [EffectChoiceDef],
+    },
     AddMana(AddManaEffectDef),
     /// Adds mana of one colour, however much a value says. Mana abilities use
     /// [`Self::AddMana`] with a fixed amount so the mana planner can read

@@ -1,4 +1,5 @@
 include!("pregame_continuation.rs");
+include!("counter_choice_continuation.rs");
 
 #[allow(clippy::too_many_lines)]
 fn parse_continuation(
@@ -440,8 +441,13 @@ fn parse_continuation(
             }
             let definition = catalog_scoped_effect(&game.catalog, ability, definition)
                 .ok_or("cast-offer locator is absent from this catalog")?;
-            if !matches!(definition.effect, EffectDef::ExileTopAndMayCast { .. }) {
-                return Err("cast-offer locator does not identify an offered cast".into());
+            match definition.effect {
+                EffectDef::ExileTopAndMayCast { .. }
+                | EffectDef::MayPlayWithoutPaying(crate::card::FreePlayDef {
+                    mandatory: false,
+                    ..
+                }) => {}
+                _ => return Err("cast-offer locator does not identify an offered cast".into()),
             }
             DecisionContinuation::MayCastExiled {
                 player: caster,
@@ -449,6 +455,19 @@ fn parse_continuation(
                 object,
                 context: parse_effect_resolution_context(context.clone())?,
                 definition,
+            }
+        }
+        DecisionContinuationSnapshot::CastSuspended {
+            player: caster,
+            card,
+        } => {
+            let caster = player(*caster)?;
+            if caster != observation.player {
+                return Err("Suspend cast names a player other than the deciding one".into());
+            }
+            DecisionContinuation::CastSuspended {
+                player: caster,
+                card: GameObjectId(*card),
             }
         }
         DecisionContinuationSnapshot::ChooseForEffect {
@@ -896,27 +915,14 @@ fn parse_continuation(
         DecisionContinuationSnapshot::ChooseColor {
             continuation,
             targets,
-        } => {
-            let followup = parse_effect_continuation(continuation, game)?;
-            // The operation and the duration live on the effect itself,
-            // which the locator already found; storing them again would be
-            // two places for one fact to disagree.
-            let EffectDef::ChooseColor {
-                operation,
-                duration,
-                ..
-            } = followup.effect.effect
-            else {
-                return Err("a color choice located a different effect".to_owned());
-            };
-            DecisionContinuation::ChooseColor {
-                object: followup.object,
-                context: followup.context,
-                scoped: followup.effect,
-                targets: targets.iter().copied().map(parse_target).collect(),
-                operation,
-                duration,
-            }
+        } => parse_choose_color_continuation(continuation, targets, game)?,
+        DecisionContinuationSnapshot::ChooseCounter {
+            continuation,
+            target,
+            kinds,
+        } => parse_choose_counter_continuation(continuation, *target, kinds, game)?,
+        DecisionContinuationSnapshot::ChooseEffect { continuation } => {
+            parse_choose_effect_continuation(continuation, game)?
         }
         DecisionContinuationSnapshot::SacrificeOfChoice {
             followup,
@@ -986,8 +992,7 @@ fn parse_continuation(
                 source: GameObjectId(*source),
             }
         }
-        // What a prospective battlefield entry can suspend on is a family of
-        // its own, and reads next door.
+        // Prospective battlefield-entry continuations read next door.
         entry => parse_battlefield_entry_continuation(entry, observation, hidden, game)?,
     })
 }

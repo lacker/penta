@@ -717,6 +717,7 @@ fn parse_permanent(
         .copied()
         .map(parse_keyword)
         .collect();
+    permanent.suspend_haste = state.suspend_haste;
     permanent.keywords_until_upkeep_of = state
         .keywords_until_upkeep_of
         .iter()

@@ -55,6 +55,7 @@ pub(in super::super) fn shared_activated_costs(
     let battlefield = source_zones == [ZoneKind::Battlefield];
     let hand = source_zones == [ZoneKind::Hand];
     let graveyard = source_zones == [ZoneKind::Graveyard];
+    let exile = source_zones == [ZoneKind::Exile];
     let sacrifice_choices = costs
         .iter()
         .filter(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
@@ -91,15 +92,17 @@ pub(in super::super) fn shared_activated_costs(
             // from and a predicate the shared walk can read.
             // The many-at-once form is paid by a decision rather than by
             // enumeration, which asks the same question of the same walk.
-            AbilityCostDef::SacrificePermanent { object, .. }
-            | AbilityCostDef::SacrificePermanents { object, .. }
+            AbilityCostDef::SacrificePermanent { object, .. } => {
+                (battlefield || exile) && shared_object_predicate(*object)
+            }
+            AbilityCostDef::SacrificePermanents { object, .. }
             | AbilityCostDef::DiscardCardMatching(object)
             | AbilityCostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }
             AbilityCostDef::MoveToZone(movement) => {
                 battlefield
-                    && movement.from == ZoneKind::Graveyard
+                    && matches!(movement.from, ZoneKind::Hand | ZoneKind::Graveyard)
                     && movement.to == ZoneKind::Exile
                     && movement.count > 0
                     && movement.binding.is_none_or(|_| movement.count == 1)

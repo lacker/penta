@@ -11,7 +11,7 @@ use super::{
     Game, GameEvent, ManaCost, PileChoice, PileSplit, PlayerId, ReplaceableEvent, Target,
     TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
-use crate::card::{BattlefieldEntryChoiceDestinationDef, ReplacementEffectDef};
+use crate::card::{BattlefieldEntryChoiceDestinationDef, EffectDef, ReplacementEffectDef};
 
 impl Game {
     #[allow(clippy::too_many_lines)]
@@ -402,6 +402,9 @@ impl Game {
                 self.consume_exile_play_permission(card);
                 self.resolve_declined_cast(&object, context, definition);
             }
+            DecisionContinuation::CastSuspended { card, .. } => {
+                self.consume_exile_play_permission(card);
+            }
             DecisionContinuation::MayCastAlternative { .. } => {
                 // Answering the standing decision is the decline. Its
                 // permission is the decision itself, so removing it is all
@@ -438,6 +441,41 @@ impl Game {
             } => {
                 if options.contains(&1) {
                     self.resolve_effect_def(effect, &object, context);
+                }
+            }
+            DecisionContinuation::ChooseCounter {
+                object,
+                mut context,
+                scoped,
+                kinds,
+                ..
+            } => {
+                if let Some(kind) = options
+                    .first()
+                    .and_then(|option| usize::try_from(*option).ok())
+                    .and_then(|index| kinds.get(index))
+                    .copied()
+                    && let EffectDef::ChooseCounterKind { then, .. } = scoped.effect
+                {
+                    context.chosen_counter = Some(kind);
+                    self.resolve_effect_def(scoped.with_effect(*then), &object, context);
+                }
+            }
+            DecisionContinuation::ChooseEffect {
+                object,
+                context,
+                scoped,
+            } => {
+                if let Some(effect) = options
+                    .first()
+                    .and_then(|option| usize::try_from(*option).ok())
+                    .and_then(|index| match scoped.effect {
+                        EffectDef::ChooseEffect { choices, .. } => choices.get(index),
+                        _ => None,
+                    })
+                    .map(|choice| choice.effect)
+                {
+                    self.resolve_effect_def(scoped.with_effect(effect), &object, context);
                 }
             }
             DecisionContinuation::ChooseForEffect {

@@ -32,6 +32,12 @@ pub fn action_json(action: &Action) -> Value {
         Action::Plot { card } => {
             json!({ "type": "Plot", "card": card.0 })
         }
+        Action::Suspend { card, ability, x } => json!({
+            "type": "Suspend",
+            "card": card.0,
+            "ability": ability_origin_json(*ability),
+            "x": x,
+        }),
         Action::TakeCompanion { card } => {
             json!({ "type": "TakeCompanion", "card": card.0 })
         }

@@ -7,6 +7,10 @@ impl Game {
             | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
             | AbilityTargetPredicate::PlayerWithMoreObjectsThanChooser { .. }
             | AbilityTargetPredicate::Player(_) => false,
+            AbilityTargetPredicate::AnyOf(predicates) => predicates
+                .iter()
+                .copied()
+                .any(Self::ability_target_uses_custom_predicate),
             AbilityTargetPredicate::Object { object, .. }
             | AbilityTargetPredicate::StackObject { object, .. } => {
                 Self::object_predicate_uses_custom_predicate(object)
@@ -77,6 +81,7 @@ impl Game {
             | ObjectPredicateDef::HasKeyword(_)
             | ObjectPredicateDef::HasAbility(_)
             | ObjectPredicateDef::HasCounter(_)
+            | ObjectPredicateDef::HasAnyCounter
             | ObjectPredicateDef::CounterCount { .. }
             | ObjectPredicateDef::HasNonManaActivatedAbility => false,
         }

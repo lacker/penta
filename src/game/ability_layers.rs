@@ -193,6 +193,12 @@ impl Game {
                 ability: AbilityDef::keyword("Granted keyword ability", keyword),
             });
         }
+        if permanent.suspend_haste {
+            abilities.push(EffectiveAbility {
+                origin: Self::authored_ability_origin(source, AbilityId::PRIMARY),
+                ability: AbilityDef::keyword("Suspend haste", KeywordAbility::Haste),
+            });
+        }
         abilities
     }
 

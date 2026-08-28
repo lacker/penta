@@ -144,6 +144,7 @@ impl Game {
                             ))
             }
             AbilityTargetPredicate::AnyTarget
+            | AbilityTargetPredicate::AnyOf(_)
             | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
             | AbilityTargetPredicate::ControlledByTargetOf { .. }
             | AbilityTargetPredicate::OwnedByTargetPlayer { .. }

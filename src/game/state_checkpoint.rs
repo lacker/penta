@@ -8,17 +8,17 @@ use super::{
     CopiableAbility, CopiableCharacteristics, CounterKind, DamageSourceGroupDef,
     DoubleFacedCopiableCharacteristics, EffectResolutionContext, EntryCompletion,
     EnumeratedActions, ExilePlayCost, ExilePlayPermission, Game, GameEvent, GameObjectId,
-    GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaSource, ObjectBacking,
-    ObjectInstance, ObjectKind, PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect,
-    Permanent, PlayerId, PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent,
-    ReplacementEffectContext, ReplayRng, ResolvedAbilityOperation, ResolvedAttackRestriction,
-    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedDamagePrevention,
-    ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
-    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
-    ResolvedOngoingEffect, ResolvedPlayPermission, ResolvedPlayRestriction,
-    ResolvedPlayerProtection, ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect,
-    StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step,
-    TemporaryAbilityGrant, TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause,
+    GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaSource,
+    NonbattlefieldAbilityGrant, ObjectBacking, ObjectInstance, ObjectKind, PendingBattlefieldEntry,
+    PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerState, Pregame,
+    RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext, ReplayRng,
+    ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
+    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
+    ResolvedDamageSourceMatcher, ResolvedOngoingEffect, ResolvedPlayPermission,
+    ResolvedPlayRestriction, ResolvedPlayerProtection, ResolvedPowerToughnessOperation,
+    RetiredObject, ScopedEffect, StackAbilityPayload, StackAbilityResolver, StackObject,
+    StackObjectKind, Step, TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause,
     cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
@@ -75,12 +75,12 @@ use model::{
     CopiableAbilitySnapshot, CopiableCharacteristicsSnapshot, CopiedFromSnapshot,
     CounterKindSnapshot, CounterSnapshot, DetachedCardSnapshot, DetachedPermanentSnapshot,
     DoubleFacedCopiableCharacteristicsSnapshot, EntryCompletionSnapshot, GameSnapshot,
-    ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot, ObjectKindSnapshot,
-    PendingBattlefieldEntrySnapshot, PendingEventSnapshot, PendingReplacementEffectSnapshot,
-    PermanentSnapshot, PregameSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
-    ResolvedContinuousEffectSnapshot, ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot,
-    SetOperationSnapshot, SuccessorSnapshot, TemporaryAbilityGrantSnapshot,
-    TurnPhaseResumeSnapshot, TurnPhaseSnapshot, ZoneKindSnapshot,
+    ManaColorSnapshot, ManaSnapshot, ManaSourceSnapshot, NonbattlefieldAbilityGrantSnapshot,
+    ObjectKindSnapshot, PendingBattlefieldEntrySnapshot, PendingEventSnapshot,
+    PendingReplacementEffectSnapshot, PermanentSnapshot, PregameSnapshot,
+    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedContinuousEffectSnapshot,
+    ResolvedContinuousOperationSnapshot, RetiredObjectSnapshot, SetOperationSnapshot,
+    SuccessorSnapshot, TurnPhaseResumeSnapshot, TurnPhaseSnapshot, ZoneKindSnapshot,
 };
 use model_keyword::UpkeepKeywordSnapshot;
 use ongoing_effect::{ongoing_effect_snapshot, parse_ongoing_effect};
@@ -342,18 +342,20 @@ impl Game {
             .filter_map(|pending| pending_event_snapshot(&self.catalog, pending))
             .collect::<Vec<_>>();
         let has_unsupported_event = pending_events.len() != self.pending_events.len();
-        let temporary_ability_grants = self
-            .temporary_ability_grants
+        let nonbattlefield_ability_grants = self
+            .nonbattlefield_ability_grants
             .iter()
             .filter_map(|grant| {
-                Some(TemporaryAbilityGrantSnapshot {
+                Some(NonbattlefieldAbilityGrantSnapshot {
                     object: grant.object.0,
                     ability: ability_locator(&self.catalog, |ability| *ability == grant.ability)?,
+                    expiration: expiration_snapshot(grant.expiration),
+                    source: grant.source.map(ability_origin_snapshot),
                 })
             })
             .collect::<Vec<_>>();
-        let has_unlocated_temporary_ability_grant =
-            temporary_ability_grants.len() != self.temporary_ability_grants.len();
+        let has_unlocated_nonbattlefield_ability_grant =
+            nonbattlefield_ability_grants.len() != self.nonbattlefield_ability_grants.len();
         let ongoing_effects = self
             .ongoing_effects
             .iter()
@@ -617,14 +619,14 @@ impl Game {
             retired_objects,
             successors,
             pending_events,
-            temporary_ability_grants,
+            nonbattlefield_ability_grants,
             ongoing_effects,
             next_installed_trigger_id: self.next_installed_trigger_id,
             installed_triggers,
             pending_triggers,
             pending_procedures,
             decision_state,
-            has_deferred_state: has_unlocated_temporary_ability_grant
+            has_deferred_state: has_unlocated_nonbattlefield_ability_grant
                 || has_unlocated_ongoing_effect
                 || has_unlocated_installed_trigger
                 || has_unsupported_decision

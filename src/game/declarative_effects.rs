@@ -165,6 +165,9 @@ impl Game {
                 self.resolve_player_state_effect(scoped, object, &context);
             }
             EffectDef::AddCounters { .. }
+            | EffectDef::ChooseCounterKind { .. }
+            | EffectDef::ChooseEffect { .. }
+            | EffectDef::ModifyCounters { .. }
             | EffectDef::DoubleCounters { .. }
             | EffectDef::RemoveCounters { .. }
             | EffectDef::RemoveAllCounters { .. }

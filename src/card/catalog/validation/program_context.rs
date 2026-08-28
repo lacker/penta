@@ -872,7 +872,8 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::ToughnessExactly(_)
         | ObjectPredicateDef::TotalPowerAndToughnessAtMost(_)
         | ObjectPredicateDef::HasCounter(_)
-            | ObjectPredicateDef::CounterCount { .. }
+        | ObjectPredicateDef::HasAnyCounter
+        | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
         | ObjectPredicateDef::HasName(ObjectRefDef::Source)

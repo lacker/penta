@@ -14,9 +14,170 @@ use super::rare_states::{
 use crate::card::cards;
 use crate::game::DecisionContinuation;
 use crate::game::tests::{
-    activated_ability_for, card, cast_action, creature, mana_ability_for, ready_game,
+    activated_ability_for, card, cast_action, choose_decision_by_label, creature, mana_ability_for,
+    pass_priority_pair, ready_game,
 };
-use crate::{Action, ManaColor, Target};
+use crate::{Action, CounterKind, ManaColor, Target};
+
+#[test]
+fn a_mandatory_suspend_cast_offer_reconstructs() {
+    let mut game = ready_game();
+    let definition = game
+        .catalog
+        .find_by_name("Durkwood Baloth")
+        .expect("Durkwood Baloth is cataloged");
+    let mut baloth = card(10_900, definition, PlayerId::One);
+    baloth.counters.add(CounterKind::named("time"), 1);
+    let id = baloth.id;
+    game.players[0].exile.push(baloth);
+
+    game.remove_counters_from_object(Target::Card(id), CounterKind::named("time"), 1);
+    for _ in 0..8 {
+        if !game.pending_decisions.is_empty() {
+            break;
+        }
+        let player = game.priority;
+        game.apply(player, Action::PassPriority)
+            .expect("the Suspend trigger advances");
+    }
+
+    assert!(
+        game.stack.is_empty(),
+        "Suspend offer retained {} stack objects",
+        game.stack.len()
+    );
+    assert!(game.pending_triggers.is_empty());
+
+    let (_, rebuilt) =
+        super::super::tests::rebuild_current_checkpoint(&game, PlayerId::One, 10_901);
+    assert!(matches!(
+        rebuilt.pending_decisions[0].continuation,
+        DecisionContinuation::CastSuspended {
+            card,
+            ..
+        } if card == id
+    ));
+    let actions = rebuilt.legal_actions(PlayerId::One);
+    assert!(
+        actions
+            .iter()
+            .any(|action| matches!(action, Action::CastSpell { card, .. } if *card == id))
+    );
+    assert!(
+        !actions
+            .iter()
+            .any(|action| matches!(action, Action::ChooseDecision { .. }))
+    );
+}
+
+#[test]
+fn granted_suspend_and_its_generated_trigger_reconstruct() {
+    let mut game = ready_game();
+    let jhoira_definition = game
+        .catalog
+        .find_by_name("Jhoira of the Ghitu")
+        .expect("Jhoira is cataloged");
+    let bolt_definition = game
+        .catalog
+        .find_by_name("Lightning Bolt")
+        .expect("Lightning Bolt is cataloged");
+    let jhoira = creature(10_910, jhoira_definition, PlayerId::One);
+    let jhoira_id = jhoira.card.id;
+    game.battlefield.push(jhoira);
+    let bolt = card(10_911, bolt_definition, PlayerId::One);
+    let bolt_id = bolt.id;
+    game.players[0].hand.push(bolt);
+    fill_mana(&mut game, PlayerId::One, 2);
+
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source, cost_objects, .. }
+                    if *source == jhoira_id && cost_objects == &[bolt_id]
+            )
+        })
+        .expect("Jhoira can suspend the card");
+    game.apply(PlayerId::One, activation).unwrap();
+    resolve_top_of_stack(&mut game);
+
+    let (_, mut rebuilt) =
+        super::super::tests::rebuild_current_checkpoint(&game, PlayerId::One, 10_912);
+    let suspended = rebuilt.players[0].exile[0].id;
+    assert!(rebuilt.is_suspended(suspended));
+    rebuilt.remove_counters_from_object(Target::Card(suspended), CounterKind::named("time"), 4);
+    for _ in 0..8 {
+        if !rebuilt.pending_decisions.is_empty() {
+            break;
+        }
+        let player = rebuilt.priority;
+        rebuilt
+            .apply(player, Action::PassPriority)
+            .expect("the granted Suspend trigger advances");
+    }
+    let (_, rebuilt) =
+        super::super::tests::rebuild_current_checkpoint(&rebuilt, PlayerId::One, 10_913);
+    assert!(matches!(
+        rebuilt.pending_decisions[0].continuation,
+        DecisionContinuation::CastSuspended { card, .. } if card == suspended
+    ));
+}
+
+#[test]
+fn chosen_counter_kind_reconstructs_before_the_operation_choice() {
+    let mut game = ready_game();
+    let clock = card(
+        10_920,
+        game.catalog
+            .find_by_name("Clockspinning")
+            .expect("Clockspinning is cataloged"),
+        PlayerId::One,
+    );
+    let clock_id = clock.id;
+    game.players[0].hand.push(clock);
+    let mut target = creature(10_921, cards::SAVANNAH_LIONS, PlayerId::One);
+    let target_id = target.card.id;
+    target.add_counters(CounterKind::named("charge"), 2);
+    game.battlefield.push(target);
+    fill_mana(&mut game, PlayerId::One, 1);
+
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| match action {
+            Action::CastSpell { card, choices, .. } => {
+                *card == clock_id
+                    && choices
+                        .iter_targets()
+                        .copied()
+                        .eq([Target::Permanent(target_id)])
+            }
+            _ => false,
+        })
+        .expect("Clockspinning can target the countered permanent");
+    game.apply(PlayerId::One, cast).unwrap();
+    pass_priority_pair(&mut game);
+    choose_decision_by_label(&mut game, PlayerId::One, "Choose a charge counter");
+
+    let (_, mut rebuilt) =
+        super::super::tests::rebuild_current_checkpoint(&game, PlayerId::One, 10_922);
+    choose_decision_by_label(
+        &mut rebuilt,
+        PlayerId::One,
+        "Put another of the chosen counter",
+    );
+    assert_eq!(
+        rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == target_id)
+            .expect("the target remains")
+            .counters(CounterKind::named("charge")),
+        3
+    );
+}
 
 /// Mishra's Workshop pays for artifacts and nothing else. Unspent restricted
 /// mana is the case where the public pool and the engine's units disagree in

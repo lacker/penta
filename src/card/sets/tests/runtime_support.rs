@@ -78,6 +78,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::Tapped
@@ -196,6 +197,7 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             | KeywordAbility::Infect
             | KeywordAbility::Devoid
             | KeywordAbility::Compleated
+            | KeywordAbility::Suspend(_)
             | KeywordAbility::SplitSecond
     )
 }
@@ -706,6 +708,9 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::PutSpellIntoOwnersLibrary { .. }
                     | EffectDef::CopyStackObject(_)
                     | EffectDef::AddCounters { .. }
+                    | EffectDef::ChooseCounterKind { .. }
+                    | EffectDef::ChooseEffect { .. }
+                    | EffectDef::ModifyCounters { .. }
                     | EffectDef::RemoveCounters { .. }
                     | EffectDef::ChangeTextBasicLandType { .. }
                     | EffectDef::ChooseColor { .. }
@@ -761,7 +766,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
         DeclarativeAbilityDef::Activated(definition) => {
             matches!(
                     definition.source_zones,
-                    [ZoneKind::Battlefield | ZoneKind::Hand | ZoneKind::Graveyard]
+                    [ZoneKind::Battlefield | ZoneKind::Hand | ZoneKind::Graveyard | ZoneKind::Exile]
                 ) && definition.procedure == AbilityProcedureDef::Shared
                     && shared_activated_costs(definition.source_zones, definition.costs.as_slice())
                     // Only the mana path enumerates one activation per
@@ -801,17 +806,18 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
             // would trigger on every state-based check forever.
             let condition_is_required = definition.event != TriggerEventDef::StateCondition
                 || definition.condition.is_some();
-            // A trigger listens from the battlefield, from a graveyard, or
-            // -- for the one clause no single walk sees -- from both. A
-            // permanent that dies is captured off a snapshot taken before it
-            // left, when the graveyard walk cannot see it yet; a card
-            // discarded or milled is captured after it lands, when the
-            // battlefield walk never held it. Every other event is found
-            // from whichever zone the card is in, so claiming both would be
-            // an authoring mistake rather than a listener.
+            // A trigger listens from the battlefield, graveyard, or exile,
+            // or -- for the one clause no single walk sees -- from the first
+            // two together. A permanent that dies is captured off a snapshot
+            // taken before it left, when the graveyard walk cannot see it
+            // yet; a card discarded or milled is captured after it lands,
+            // when the battlefield walk never held it. Exile has its own
+            // listener walk for Suspend and printed exile abilities. Every
+            // other event is found from whichever one zone the card is in,
+            // so claiming multiple zones would be an authoring mistake.
             (matches!(
                 definition.source_zones,
-                [ZoneKind::Battlefield | ZoneKind::Graveyard]
+                [ZoneKind::Battlefield | ZoneKind::Graveyard | ZoneKind::Exile]
             ) || matches!(
                 (definition.source_zones, definition.event),
                 (

@@ -4,14 +4,14 @@ use super::{
     CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
     ContinuousEffectExpiration, ContinuousEffectTimestamp, ControlFlow, CounterKind,
     EffectRecipientDef, EffectRecipientSetDef, EffectResolutionContext, Game, GameObjectId,
-    GrantId, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, Permanent,
-    PlayerId, PlayerRefDef, PlayerSetDef, PowerToughnessOperationDef, QuantifierDef,
-    ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
-    ResolvedContinuousEffectKind, ResolvedDamageRedirect, ResolvedEffectDurationDef,
-    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPlayerProtection,
-    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackObject, StackObjectKind,
-    Target, TargetIndex, TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerConditionDef,
-    TriggerContext, ZoneKind, abilities,
+    GrantId, ManaColor, NonbattlefieldAbilityGrant, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, Permanent, PlayerId, PlayerRefDef, PlayerSetDef,
+    PowerToughnessOperationDef, QuantifierDef, ResolvedAbilityOperation, ResolvedAttackRestriction,
+    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedDamageRedirect,
+    ResolvedEffectDurationDef, ResolvedPlayPermission, ResolvedPlayRestriction,
+    ResolvedPlayerProtection, ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect,
+    StackObject, StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId,
+    TriggerConditionDef, TriggerContext, ZoneKind, abilities,
 };
 use crate::card::TargetChooserDef;
 
@@ -227,18 +227,22 @@ impl Game {
         &mut self,
         target: Target,
         ability: &'static AbilityDef,
+        expiration: ContinuousEffectExpiration,
+        source: Option<AbilityOrigin>,
     ) {
         let Target::Card(target) = target else {
             return;
         };
-        let grant = TemporaryAbilityGrant {
+        let grant = NonbattlefieldAbilityGrant {
             object: target,
             ability: *ability,
+            expiration,
+            source,
         };
         if self.card_in_nonbattlefield_zone(target).is_some()
-            && !self.temporary_ability_grants.contains(&grant)
+            && !self.nonbattlefield_ability_grants.contains(&grant)
         {
-            self.temporary_ability_grants.push(grant);
+            self.nonbattlefield_ability_grants.push(grant);
         }
     }
 
@@ -515,7 +519,21 @@ impl Game {
         if let CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(ability)) = operation
             && matches!(target, Target::Card(_))
         {
-            self.apply_nonbattlefield_granted_ability(target, ability);
+            let expiration = Self::continuous_effect_expiration(
+                resolution.duration,
+                resolution.object.controller,
+                self.turns_started[resolution.object.controller.index()],
+            );
+            self.apply_nonbattlefield_granted_ability(
+                target,
+                ability,
+                expiration,
+                resolution
+                    .object
+                    .ability
+                    .as_ref()
+                    .map(|ability| ability.origin),
+            );
             return;
         }
         if let (Target::Spell(target), CharacteristicOperationDef::Colors(operation)) =
@@ -795,27 +813,6 @@ impl Game {
                 Target::Spell(id) => self.stack.iter().any(|candidate| candidate.id == id),
             };
         }
-        if let AbilityTargetPredicate::OwnedByTargetPlayer {
-            object: predicate,
-            zones,
-            slot: owner_slot,
-        } = definition.predicate
-        {
-            let Some(owner) = ability
-                .targets
-                .get(owner_slot.index())
-                .and_then(|selection| selection.targets().first())
-                .and_then(|target| match target {
-                    Target::Player(player) => Some(*player),
-                    Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                })
-            else {
-                return false;
-            };
-            return self
-                .targets_owned_by_player_matching(predicate, zones, owner, source)
-                .contains(&target);
-        }
         // Measured against whoever chose, which for almost every ability is
         // its controller. A slot the clause handed to somebody else is still
         // theirs on resolution: legality asks the same question it asked
@@ -831,8 +828,9 @@ impl Game {
         Self::without_excluded_source(
             definition,
             source,
-            self.ability_targets_matching(
+            self.ability_targets_matching_with_selections(
                 definition.predicate,
+                &ability.targets,
                 chooser,
                 source,
                 ability.context.trigger,

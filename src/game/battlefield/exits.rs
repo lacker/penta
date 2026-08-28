@@ -215,6 +215,7 @@ impl Game {
                         // it enters, and hand or library size as a draw would
                         // happen; none is a question about leaving.
                         ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::ControllerHandAtMost(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty => false,
                     }
@@ -367,6 +368,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            cast_via_suspend: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
             face_down: None,

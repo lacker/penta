@@ -67,6 +67,8 @@ static UGIN_MAY_CAST_THEM: EffectDef = EffectDef::MayPlayWithoutPaying(FreePlayD
     objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
     // "Until end of turn" is printed, so this one outlives its resolution.
     duration: FreePlayDurationDef::UntilEndOfTurn,
+    mandatory: false,
+    grants_haste: false,
 });
 
 /// "Any number": the bound is the library, so the search offers everything

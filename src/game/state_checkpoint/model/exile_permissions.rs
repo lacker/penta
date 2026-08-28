@@ -60,6 +60,9 @@ pub(in crate::game::state_checkpoint) struct ExilePlayPermissionSnapshot {
     /// covers one card, which is all of them but a pile's.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) group: Option<u32>,
+    /// Whether a creature cast through this permission receives suspend's haste.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(in crate::game::state_checkpoint) grants_haste: bool,
     /// Whether this permission names a card in a graveyard rather than one
     /// in exile. Absent for every permission written before Emry's, all of
     /// which were about exile.

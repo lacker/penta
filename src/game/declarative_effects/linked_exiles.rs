@@ -180,10 +180,19 @@ impl Game {
                 continue;
             };
             self.permit_free_play_this_turn(card, player);
+            if permission.grants_haste
+                && let Some(granted) = self
+                    .exile_play_permissions
+                    .iter_mut()
+                    .rev()
+                    .find(|granted| granted.card == card && granted.player == player)
+            {
+                granted.grants_haste = true;
+            }
             if permission.duration == crate::card::FreePlayDurationDef::UntilEndOfTurn {
                 continue;
             }
-            self.offer_permitted_play(player, card, object, context, scoped);
+            self.offer_permitted_play(player, card, permission.mandatory, object, context, scoped);
         }
     }
 }

@@ -192,7 +192,7 @@ impl Game {
             phased_out: Vec::new(),
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
-            temporary_ability_grants: Vec::new(),
+            nonbattlefield_ability_grants: Vec::new(),
             ongoing_effects: Vec::new(),
             next_object_id,
             next_continuous_effect_timestamp: u64::from(next_object_id),
@@ -343,6 +343,8 @@ impl Game {
         mut card: CardInstance,
     ) -> (CardInstance, ZoneChangeOutcome) {
         let previous = card.id;
+        self.nonbattlefield_ability_grants
+            .retain(|grant| grant.object != previous);
         self.retired_objects
             .entry(previous)
             .or_insert_with(|| RetiredObject::Card(card.clone()));

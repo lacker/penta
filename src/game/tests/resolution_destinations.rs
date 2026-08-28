@@ -111,10 +111,13 @@ fn flashback_replaces_white_suns_zeniths_move_but_not_its_shuffle() {
         card(40_202, cards::COUNTERSPELL, PlayerId::One),
         card(40_203, cards::MOUNTAIN, PlayerId::One),
     ];
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: zenith.id,
-        ability: CARD_COST_FLASHBACK,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: zenith.id,
+            ability: CARD_COST_FLASHBACK,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
     game.players[0].mana_pool.white = 2;
     game.players[0].mana_pool.colorless = 1;
 
@@ -147,10 +150,13 @@ fn reality_strobe_keeps_its_time_counters_when_flashback_resolves() {
     let target_id = target.card.id;
     game.players[0].graveyard.push(strobe.clone());
     game.battlefield.push(target);
-    game.temporary_ability_grants.push(TemporaryAbilityGrant {
-        object: strobe.id,
-        ability: CARD_COST_FLASHBACK,
-    });
+    game.nonbattlefield_ability_grants
+        .push(NonbattlefieldAbilityGrant {
+            object: strobe.id,
+            ability: CARD_COST_FLASHBACK,
+            expiration: ContinuousEffectExpiration::EndOfTurn,
+            source: None,
+        });
     game.players[0].mana_pool.blue = 2;
     game.players[0].mana_pool.colorless = 4;
 

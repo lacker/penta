@@ -161,7 +161,12 @@ static VEHICLE_SUBTYPES: &[&str] = &["Vehicle"];
 const VEHICLE: &[u8] = b"Vehicle";
 
 impl CardRules {
-    const fn base(card_types: CardTypeSet, printed_mana_cost: PrintedManaCost) -> Self {
+    /// The characteristic-level constructor used when a typed convenience
+    /// constructor cannot represent a card face exactly.
+    pub(in crate::card) const fn base(
+        card_types: CardTypeSet,
+        printed_mana_cost: PrintedManaCost,
+    ) -> Self {
         let mana_cost = match printed_mana_cost {
             PrintedManaCost::None => ManaCost::new(0, 0),
             PrintedManaCost::Cost(cost) => cost,
@@ -455,14 +460,6 @@ impl CardRules {
         Self::base(
             CardTypeSet::single(CardType::Sorcery),
             PrintedManaCost::Cost(mana_cost),
-        )
-    }
-
-    #[must_use]
-    pub const fn new_sorcery_without_mana_cost() -> Self {
-        Self::base(
-            CardTypeSet::single(CardType::Sorcery),
-            PrintedManaCost::None,
         )
     }
 

@@ -2,16 +2,16 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AddManaEffectDef,
-    AppliedEffectDef, ArrivalAttachmentDef, CardArt, CardRules, CardSet, CardType, CounterKind,
-    CreatureStats, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
+    ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
+    CounterKind, CreatureStats, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ObjectBindingIndex, TargetIndex, mana_cost};
 
 // FUT 43 — Reality Strobe
-// Audit: partial — Its spell effect and self-exile with time counters are executable, but suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.
 static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::named("time"), 3)];
 
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
@@ -19,9 +19,9 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
     "Reality Strobe",
     CardArt::new("8e6d881a-f7b1-471f-bc0b-64a79bb491c9", "Dan Murayama Scott"),
     CardSet::FutureSight,
-    CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_ability(
+    CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Return target permanent to its owner's hand. Exile Reality Strobe with three time counters on it.\n\nSuspend 3—{2}{U} (Rather than cast this card from your hand, you may pay {2}{U} and exile it with three time counters on it. At the beginning of your upkeep, remove a time counter. When the last is removed, you may cast it without paying its mana cost.)",
+            "Return target permanent to its owner's hand. Exile Reality Strobe with three time counters on it.",
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
             EffectDef::MoveToZone {
                 counters: None,
@@ -31,16 +31,51 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
                 arrival_effect: None,
                 attachment: None,
                 controller: None,
-                            tapped: false,
-},
+                tapped: false,
+            },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
             &REALITY_STROBE_TIME_COUNTERS,
-        ))
-        .with_coverage(AbilityCoverageDef::partial(
-            "Suspend's upkeep counter removal and free cast from exile need the shared exile-casting lifecycle.",
         )),
-    ),
+        abilities::suspend("Suspend 3—{2}{U}", 3, &mana_cost!("{2}{U}")),
+    ]),
+);
+
+// FUT 47 — Venser's Diffusion
+pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fbedfc40-7c2f-4a6e-8157-219cafca3548"),
+    "Venser's Diffusion",
+    CardArt::new("fbedfc40-7c2f-4a6e-8157-219cafca3548", "Hideaki Takamura"),
+    CardSet::FutureSight,
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target nonland permanent or suspended card to its owner's hand.",
+        &[AbilityTargetDef::exactly_one(
+            crate::card::AbilityTargetPredicate::AnyOf(&[
+                crate::card::AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                crate::card::AbilityTargetPredicate::Object {
+                    object: abilities::SUSPENDED_CARD,
+                    zones: &[ZoneKind::Exile],
+                    controller: None,
+                    owner: None,
+                },
+            ]),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            counters: None,
+            tapped: false,
+        },
+    )),
 );
 
 // FUT 54 — Narcomoeba
@@ -139,10 +174,35 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
                 arrival_effect: None,
                 attachment: None,
                 counters: None,
-                            tapped: false,
-},
+                tapped: false,
+            },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
+);
+
+// FUT 94 — Arc Blade
+static ARC_BLADE_TIME: [(CounterKind, u16); 1] = [(CounterKind::named("time"), 3)];
+pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("4d1c04fb-213f-4be1-9bba-94c737826bf8"),
+    "Arc Blade",
+    CardArt::new("4d1c04fb-213f-4be1-9bba-94c737826bf8", "Shishizaru"),
+    CardSet::FutureSight,
+    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Arc Blade deals 2 damage to any target. Exile Arc Blade with three time counters on it.",
+            &[AbilityTargetDef::exactly_one(
+                crate::card::AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
+            &ARC_BLADE_TIME,
+        )),
+        abilities::suspend("Suspend 3—{2}{R}", 3, &mana_cost!("{2}{R}")),
     ]),
 );
 
@@ -160,6 +220,46 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
             EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1),
         ),
     ]),
+);
+
+// FUT 157 — Jhoira of the Ghitu
+static JHOIRA_COST: [AbilityCostDef; 3] = [
+    AbilityCostDef::Mana(mana_cost!("{2}")),
+    AbilityCostDef::TapSource,
+    AbilityCostDef::MoveToZone(
+        crate::card::MoveToZoneCostDef::new(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            ZoneKind::Hand,
+            ZoneKind::Exile,
+            1,
+        )
+        .binding(ObjectBindingIndex::PRIMARY),
+    ),
+];
+static JHOIRA_GRANTS_SUSPEND: [EffectDef; 2] = [
+    EffectDef::AddCounters {
+        object: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+        kind: CounterKind::named("time"),
+        amount: ValueDef::Constant(4),
+    },
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+];
+pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1f437128-3a87-4958-97d0-3940d8761cba"),
+    "Jhoira of the Ghitu",
+    CardArt::new("1f437128-3a87-4958-97d0-3940d8761cba", "Kev Walker"),
+    CardSet::FutureSight,
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Human", "Wizard"], 2, 2)
+        .with_supertype(crate::card::CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated(
+            "{2}, Exile a nonland card from your hand: Put four time counters on the exiled card. If it doesn't have suspend, it gains suspend.",
+            &JHOIRA_COST,
+            EffectDef::Sequence(&JHOIRA_GRANTS_SUSPEND),
+        )),
 );
 
 // FUT 161 — Coalition Relic
@@ -208,6 +308,57 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
                 player: PlayerRelation::You,
             },
             EffectDef::Sequence(&RELIC_CASHES_IN),
+        ),
+    ]),
+);
+
+// FUT 162 — Epochrasite
+static EPOCHRASITE_RETURNS: [EffectDef; 3] = [
+    EffectDef::MoveToZone {
+        object: EffectRecipientDef::TriggeringZoneChangeResult,
+        zone: ZoneKind::Exile,
+        placement: ZonePlacement::Top,
+        controller: None,
+        arrival_effect: None,
+        attachment: None,
+        counters: None,
+        tapped: false,
+    },
+    EffectDef::AddCounters {
+        object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+        kind: CounterKind::named("time"),
+        amount: ValueDef::Constant(3),
+    },
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+];
+pub(in crate::card::sets) static EPOCHRASITE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7971f6a6-c26c-4f8f-8de7-afc40563967d"),
+    "Epochrasite",
+    CardArt::new("7971f6a6-c26c-4f8f-8de7-afc40563967d", "Michael Bruinsma"),
+    CardSet::FutureSight,
+    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Construct"], 1, 1).with_abilities(&[
+        AbilityDef::as_enters_if(
+            "This creature enters with three +1/+1 counters on it if you didn't cast it from your hand.",
+            ReplacementConditionDef::SourceNotCastFrom(ZoneKind::Hand),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "When this creature dies, exile it with three time counters on it and it gains suspend.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::Sequence(&EPOCHRASITE_RETURNS),
         ),
     ]),
 );
@@ -351,11 +502,15 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
+    &VENSERS_DIFFUSION,
     &NARCOMOEBA,
     &SHIMIAN_SPECTER,
     &BRIDGE_FROM_BELOW,
+    &ARC_BLADE,
     &SPROUT_SWARM,
+    &JHOIRA_OF_THE_GHITU,
     &COALITION_RELIC,
+    &EPOCHRASITE,
     &SWORD_OF_THE_MEEK,
     &DARKSTEEL_GARRISON,
     &DRYAD_ARBOR,

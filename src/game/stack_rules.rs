@@ -152,6 +152,9 @@ impl Game {
             | EffectDef::PutSpellIntoOwnersLibrary { .. }
             | EffectDef::CopyStackObject(_)
             | EffectDef::AddCounters { .. }
+            | EffectDef::ChooseCounterKind { .. }
+            | EffectDef::ChooseEffect { .. }
+            | EffectDef::ModifyCounters { .. }
             | EffectDef::RemoveCounters { .. }
             | EffectDef::ChangeTextBasicLandType { .. }
             | EffectDef::ChooseColor { .. }

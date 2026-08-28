@@ -25,6 +25,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::SplitIntoPiles(partition) => vec![*partition.then],
         EffectDef::ForEachInBinding { effect, .. }
         | EffectDef::May { effect, .. }
+        | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::BindMatching { then: effect, .. }
@@ -35,6 +36,9 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ExileLinkedToSource {
             then: Some(effect), ..
         } => vec![*effect],
+        EffectDef::ChooseEffect { choices, .. } => {
+            choices.iter().map(|choice| choice.effect).collect()
+        }
         EffectDef::Destroy {
             then: Some(follow_up),
             ..
@@ -142,6 +146,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ModifyCost(_)
         | EffectDef::Regenerate { .. }
         | EffectDef::DoubleCounters { .. }
+        | EffectDef::ModifyCounters { .. }
         | EffectDef::RemoveAllCounters { .. }
         | EffectDef::RemoveCounters { .. }
         | EffectDef::Explore { .. }

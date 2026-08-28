@@ -215,12 +215,17 @@ pub(super) struct AbilityLayerOperation {
     pub(super) kind: AbilityLayerOperationKind,
 }
 
-/// An ability granted to one non-battlefield object until cleanup. The object
-/// identity naturally makes the grant end if that card changes zones.
+/// An ability granted to one non-battlefield object. The object identity
+/// naturally makes the grant end if that card changes zones; the expiration
+/// handles any shorter printed duration.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) struct TemporaryAbilityGrant {
+pub(super) struct NonbattlefieldAbilityGrant {
     pub(super) object: GameObjectId,
     pub(super) ability: AbilityDef,
+    pub(super) expiration: ContinuousEffectExpiration,
+    /// The authored ability that created this grant, when it resolved from a
+    /// cataloged source. Generated abilities use this provenance too.
+    pub(super) source: Option<AbilityOrigin>,
 }
 
 /// A resolved duration-scoped effect that can be activated from outside every

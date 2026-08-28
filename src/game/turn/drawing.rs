@@ -254,6 +254,7 @@ impl Game {
                     text_changes: Vec::new(),
                     colors: None,
                     cast_via_flashback: false,
+                    cast_via_suspend: false,
                     cast_at_instant_speed: false,
                     cast_from_zone: None,
                     face_down: None,
@@ -289,6 +290,7 @@ impl Game {
             .library
             .is_empty(),
             ReplacementConditionDef::SourceCastWith(_)
+            | ReplacementConditionDef::SourceNotCastFrom(_)
             | ReplacementConditionDef::ControllerHandAtMost(_) => false,
         }
     }
@@ -501,6 +503,7 @@ impl Game {
                         ReplacementConditionDef::SourceTapped
                         | ReplacementConditionDef::CreatureDiedThisTurn
                         | ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty,
                     ) => false,
                 };

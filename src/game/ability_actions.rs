@@ -167,6 +167,7 @@ impl Game {
             text_changes: Vec::new(),
             colors: None,
             cast_via_flashback: false,
+            cast_via_suspend: false,
             cast_at_instant_speed: false,
             cast_from_zone: None,
             face_down: None,
@@ -491,14 +492,18 @@ impl Game {
                     // The one cost that can name more than one card, so every
                     // combination of that many is its own activation.
                     Some(AbilityCostDef::MoveToZone(movement)) => {
-                        let candidates: Vec<GameObjectId> = self.players[player.index()]
-                            .graveyard
+                        let candidates = match movement.from {
+                            ZoneKind::Hand => &self.players[player.index()].hand,
+                            ZoneKind::Graveyard => &self.players[player.index()].graveyard,
+                            _ => return,
+                        };
+                        let candidates: Vec<GameObjectId> = candidates
                             .iter()
                             .filter(|card| {
                                 self.card_object_matches(
                                     movement.object,
                                     card,
-                                    ZoneKind::Graveyard,
+                                    movement.from,
                                     permanent.card.id,
                                 )
                             })
@@ -692,6 +697,7 @@ impl Game {
         }
         self.add_hand_ability_actions(player, actions);
         self.add_graveyard_ability_actions(player, actions);
+        self.add_exile_ability_actions(player, actions);
         self.add_ongoing_effect_ability_actions(player, actions);
     }
 

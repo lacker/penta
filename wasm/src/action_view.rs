@@ -419,6 +419,7 @@ pub(super) fn animated_action_kind(action: &Action) -> &'static str {
         | Action::TurnFaceUp { .. }
         | Action::Foretell { .. }
         | Action::Plot { .. }
+        | Action::Suspend { .. }
         | Action::TakeCompanion { .. }
         | Action::UnlockDoor { .. } => "ability",
         Action::DeclareAttacker { .. }

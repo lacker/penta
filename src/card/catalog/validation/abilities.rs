@@ -521,7 +521,7 @@ fn trigger_source_zones_are_discoverable(
     event: crate::card::TriggerEventDef,
 ) -> bool {
     match source_zones {
-        [ZoneKind::Battlefield | ZoneKind::Graveyard] => true,
+        [ZoneKind::Battlefield | ZoneKind::Graveyard | ZoneKind::Exile] => true,
         [ZoneKind::Battlefield, ZoneKind::Graveyard] => matches!(
             event,
             crate::card::TriggerEventDef::ZoneChanged(matcher)

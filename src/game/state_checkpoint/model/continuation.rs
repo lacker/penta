@@ -9,13 +9,13 @@ use serde::{Deserialize, Serialize};
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot,
     ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, BalancePhaseSnapshot,
-    BalanceTaskSnapshot, DecisionOptionSnapshot, DeferredBeginTurnEffectSnapshot,
-    DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
-    EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
-    PendingTriggerSnapshot, PileSplitSnapshot, ReplacementEffectContextSnapshot,
-    ReplacementEffectLocator, ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot,
-    TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot,
-    ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    BalanceTaskSnapshot, CounterKindSnapshot, DecisionOptionSnapshot,
+    DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DetachedStackSnapshot,
+    DiscardChoiceSnapshot, DrawReplacementSnapshot, EffectContinuationSnapshot,
+    EffectResolutionContextSnapshot, ManaSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
+    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedEffectPaymentSnapshot,
+    ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot,
+    TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -188,6 +188,10 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         context: EffectResolutionContextSnapshot,
         definition: ScopedEffectSnapshot,
     },
+    CastSuspended {
+        player: usize,
+        card: u32,
+    },
     ChooseForEffect {
         continuation: EffectContinuationSnapshot,
     },
@@ -330,6 +334,14 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ChooseColor {
         continuation: Box<EffectContinuationSnapshot>,
         targets: Vec<TargetSnapshot>,
+    },
+    ChooseCounter {
+        continuation: Box<EffectContinuationSnapshot>,
+        target: TargetSnapshot,
+        kinds: Vec<CounterKindSnapshot>,
+    },
+    ChooseEffect {
+        continuation: Box<EffectContinuationSnapshot>,
     },
     ChosenColorMana {
         controller: usize,

@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ValueDef, ZoneKind, abilities,
+    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // PLC 25 — Mana Tithe
 pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_legacy_id(
@@ -31,6 +31,45 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// PLC 128 — Fungal Behemoth
+// Audit: partial — Suspend X and the exile trigger are executable; the characteristic-defining aggregate +1/+1 counter value is not yet modeled.
+pub(in crate::card::sets) static FUNGAL_BEHEMOTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("53c1910b-9475-4551-b9a0-4b24511a6f98"),
+    "Fungal Behemoth",
+    CardArt::new("53c1910b-9475-4551-b9a0-4b24511a6f98", "Mark Tedin"),
+    CardSet::PlanarChaos,
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Fungus"], 0, 0).with_abilities(&[
+        AbilityDef::not_implemented(
+            "Fungal Behemoth's power and toughness are each equal to the number of +1/+1 counters on creatures you control.",
+            "Needs a characteristic-defining aggregate of counters across matching permanents.",
+        ),
+        abilities::suspend_x(
+            "Suspend X—{X}{G}{G}. X can't be 0.",
+            &mana_cost!("{X}{G}{G}"),
+            1,
+        ),
+        AbilityDef::triggered_with_targets(
+            "Whenever a time counter is removed from this card while it's exiled, you may put a +1/+1 counter on target creature.",
+            TriggerEventDef::CountersRemoved {
+                object: ObjectPredicateDef::Source,
+                kind: CounterKind::named("time"),
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Exile]),
+    ]),
+);
+
 // PLC 165 — Urborg, Tomb of Yawgmoth
 pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -53,7 +92,11 @@ pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord =
             )),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&MANA_TITHE, &SUNLANCE, &URBORG_TOMB_OF_YAWGMOTH];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &MANA_TITHE,
+    &SUNLANCE,
+    &FUNGAL_BEHEMOTH,
+    &URBORG_TOMB_OF_YAWGMOTH,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

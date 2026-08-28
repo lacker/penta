@@ -22,6 +22,53 @@ pub enum BandingQuality {
     WolvesOfTheHunt,
 }
 
+/// The number of time counters a suspend special action places.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SuspendTimeDef {
+    Fixed(u16),
+    /// The X paid in the suspend cost. Some printed instances prohibit zero.
+    ChosenX { minimum: u16 },
+}
+
+/// The forms of suspend represented by one keyword ability (CR 702.62a).
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum SuspendAbilityDef {
+    /// A printed hand action, including the time counters and cost it names.
+    Hand {
+        time: SuspendTimeDef,
+        /// Kept by reference so adding a parameterized keyword does not inflate
+        /// every predicate, trigger, and effect that can mention a keyword.
+        cost: &'static ManaCost,
+    },
+    /// Suspend granted to a card already in exile. It has no hand action of
+    /// its own; the granting effect separately moves the card and adds time
+    /// counters.
+    Granted,
+}
+
+impl SuspendAbilityDef {
+    #[must_use]
+    pub const fn fixed(time: u16, cost: &'static ManaCost) -> Self {
+        Self::Hand {
+            time: SuspendTimeDef::Fixed(time),
+            cost,
+        }
+    }
+
+    #[must_use]
+    pub const fn chosen_x(cost: &'static ManaCost, minimum: u16) -> Self {
+        Self::Hand {
+            time: SuspendTimeDef::ChosenX { minimum },
+            cost,
+        }
+    }
+
+    #[must_use]
+    pub const fn granted() -> Self {
+        Self::Granted
+    }
+}
+
 impl BandingQuality {
     /// Every printed quality, for the rules that have to try each one.
     pub const ALL: [Self; 2] = [Self::LegendaryCreatures, Self::WolvesOfTheHunt];
@@ -137,6 +184,9 @@ pub enum KeywordAbility {
     /// with two fewer loyalty counters per such symbol. The payment count is
     /// recorded on the spell rather than inferred from mana spent.
     Compleated,
+    /// CR 702.62. A special action from hand plus two triggered abilities in
+    /// exile. The parameter owns both the time-counter count and its cost.
+    Suspend(SuspendAbilityDef),
 }
 
 impl KeywordAbility {
@@ -189,6 +239,7 @@ impl KeywordAbility {
             // Never granted, never removed, and never asked about as part of
             // a set: split second is read off the one spell that has it.
             | Self::SplitSecond
+            | Self::Suspend(_)
             | Self::BandsWithOther(_) => return None,
         })
     }

@@ -258,7 +258,9 @@ fn validate_effect_references(
         | EffectDef::PutIntoLibraryBeneathTop { object, .. }
         | EffectDef::Counter { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }
-        | EffectDef::Endure { object, .. } => {
+        | EffectDef::Endure { object, .. }
+        | EffectDef::ChooseCounterKind { object, .. }
+        | EffectDef::ModifyCounters { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
         }
         EffectDef::CopyStackObject(copy) => {
@@ -388,7 +390,8 @@ fn validate_effect_references(
                 .with_object_set(choice.unchosen)?;
             validate_effect_references(*choice.then, target_count, nested)
         }
-        EffectDef::SearchZonesAndExileRest { player, .. }
+        EffectDef::ChooseEffect { player, .. }
+        | EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
         | EffectDef::ManifestDread { player }

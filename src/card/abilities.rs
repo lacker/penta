@@ -11,15 +11,16 @@ use super::model::{
     ComparisonDef, ConditionDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef,
     CostAmountDef, CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef, ObjectCountConditionDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
+    InstalledTriggerLifetimeDef, KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef,
+    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     ScaledValueDef, SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
-    SpellResolutionDestinationDef, SplitIntoPilesDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
+    SpellResolutionDestinationDef, SplitIntoPilesDef, SuspendAbilityDef, TopCardSelectionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
@@ -897,4 +898,5 @@ include!("abilities/keyword_mechanics.rs");
 include!("abilities/convoke_buyback.rs");
 include!("abilities/attachment.rs");
 include!("abilities/named_cards.rs");
+include!("abilities/suspend.rs");
 include!("abilities/tests.rs");

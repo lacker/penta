@@ -124,6 +124,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::HasKeyword(_)
         | ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasCounter(_)
+        | ObjectPredicateDef::HasAnyCounter
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
@@ -388,6 +389,13 @@ fn append_relation_suffix(label: &mut String, suffix: &'static str) {
 
 fn presentation_target_predicate(predicate: AbilityTargetPredicate) -> Option<TargetPredicate> {
     match predicate {
+        AbilityTargetPredicate::AnyOf(predicates) => {
+            let mut predicates = predicates.iter().copied();
+            let first = presentation_target_predicate(predicates.next()?)?;
+            predicates
+                .all(|predicate| presentation_target_predicate(predicate) == Some(first))
+                .then_some(first)
+        }
         // A client has no slot kind narrower than every damage target, which
         // is closer than presenting only the player half of this predicate.
         AbilityTargetPredicate::AnyTarget | AbilityTargetPredicate::PlayerOrPlaneswalker(_) => {
@@ -437,6 +445,23 @@ impl AbilityTargetDef {
     /// English for an unfamiliar predicate combination.
     pub(crate) fn label(self) -> String {
         match self.predicate {
+            AbilityTargetPredicate::AnyOf(predicates) => {
+                let alternatives = predicates
+                    .iter()
+                    .map(|predicate| {
+                        let label = Self {
+                            predicate: *predicate,
+                            ..self
+                        }
+                        .label();
+                        label
+                            .strip_prefix("target ")
+                            .unwrap_or(label.as_str())
+                            .to_string()
+                    })
+                    .collect::<Vec<_>>();
+                format!("target {}", alternatives.join(" or "))
+            }
             AbilityTargetPredicate::AnyTarget => "any target".into(),
             AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => {
                 player_or_planeswalker_target_label(relation).into()

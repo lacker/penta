@@ -96,6 +96,9 @@ pub enum ReplacementConditionDef {
     /// Impending's counters are put on as the permanent enters and only when
     /// it was paid for that way, so the entry has to ask.
     SourceCastWith(AlternativeCastKindDef),
+    /// The source was not cast from the named zone. This is also true when
+    /// it was put onto the battlefield without being cast at all.
+    SourceNotCastFrom(ZoneKind),
     /// A creature died at some point this turn, which is what morbid asks.
     /// Read as the replacement applies, so a creature dying in response
     /// changes the answer.

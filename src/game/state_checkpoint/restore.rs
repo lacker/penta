@@ -136,14 +136,16 @@ impl Game {
         });
 
         let turns_started = checkpoint.turns_started;
-        let temporary_ability_grants = checkpoint
-            .temporary_ability_grants
+        let nonbattlefield_ability_grants = checkpoint
+            .nonbattlefield_ability_grants
             .iter()
             .map(|grant| {
-                Ok(TemporaryAbilityGrant {
+                Ok(NonbattlefieldAbilityGrant {
                     object: GameObjectId(grant.object),
                     ability: catalog_ability(&catalog, &grant.ability)
-                        .ok_or("temporary ability grant locator is absent from this catalog")?,
+                        .ok_or("nonbattlefield ability grant locator is absent from this catalog")?,
+                    expiration: parse_expiration(grant.expiration)?,
+                    source: grant.source.map(ability_origin_from_snapshot),
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;
@@ -223,7 +225,7 @@ impl Game {
             phased_out: Vec::new(),
             stack: GameStack::default(),
             retired_objects: BTreeMap::new(),
-            temporary_ability_grants,
+            nonbattlefield_ability_grants,
             ongoing_effects: Vec::new(),
             next_object_id,
             next_continuous_effect_timestamp: checkpoint.next_continuous_effect_timestamp,

@@ -141,6 +141,7 @@ pub(super) fn permanent_snapshot(
             .copied()
             .map(keyword_snapshot)
             .collect(),
+        suspend_haste: permanent.suspend_haste,
         keywords_until_upkeep_of: permanent
             .keywords_until_upkeep_of
             .iter()

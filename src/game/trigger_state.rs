@@ -2,8 +2,8 @@ use std::borrow::Cow;
 
 use crate::action::{AbilityOrigin, Target};
 use crate::card::{
-    AbilityTargetDef, CardSupertype, CardTypeSet, EffectDef, ModalSpellDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ZoneKind,
+    AbilityTargetDef, CardSupertype, CardTypeSet, CounterKind, EffectDef, ModalSpellDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind,
 };
 use crate::casting::TargetSelection;
 use crate::ids::{GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
@@ -63,6 +63,8 @@ pub(super) struct EffectResolutionContext {
     /// same resolution reads back. Cabal Therapy names one and then discards
     /// every copy of it.
     pub(super) chosen_name: Option<String>,
+    /// A counter kind selected by a nested counter-choice effect.
+    pub(super) chosen_counter: Option<CounterKind>,
     single_objects: [Option<Target>; ObjectBindingIndex::COUNT],
     object_groups: [Vec<Target>; ObjectSetBindingIndex::COUNT],
 }
@@ -76,6 +78,7 @@ impl EffectResolutionContext {
             matched_card_types: None,
             matched_mana_value: None,
             chosen_name: None,
+            chosen_counter: None,
             single_objects: [None; ObjectBindingIndex::COUNT],
             object_groups: std::array::from_fn(|_| Vec::new()),
         }
@@ -130,6 +133,7 @@ impl EffectResolutionContext {
             matched_card_types: None,
             matched_mana_value: None,
             chosen_name: None,
+            chosen_counter: None,
             single_objects,
             object_groups,
         }
@@ -391,6 +395,12 @@ pub(super) enum CommittedTriggerEvent {
         kind: crate::card::CounterKind,
         amount: u16,
     },
+    CountersRemoved {
+        object: TriggerEventObject,
+        kind: crate::card::CounterKind,
+        amount: u16,
+        remaining: u16,
+    },
     /// A player committed a crime. Only who did it is carried: the printed
     /// clauses ask whether it was you, never what you pointed at.
     CommittedCrime {
@@ -589,7 +599,8 @@ impl CommittedTriggerEvent {
                 amount: Some(i32::from(*amount)),
                 damaged_object: None,
             },
-            Self::CountersPlaced { object, amount, .. } => TriggerContext {
+            Self::CountersPlaced { object, amount, .. }
+            | Self::CountersRemoved { object, amount, .. } => TriggerContext {
                 object: Some(object.id),
                 zone_change_result: None,
                 object_controller: Some(object.controller),

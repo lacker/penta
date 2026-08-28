@@ -112,7 +112,7 @@ impl Game {
         // standing decision and declining takes it straight back.
         if permission == crate::card::ExiledCastPermissionDef::FreeWhileResolving {
             for card in pile {
-                self.offer_permitted_play(caster, card, object, context, scoped);
+                self.offer_permitted_play(caster, card, false, object, context, scoped);
             }
         }
     }
@@ -164,12 +164,12 @@ impl Game {
             crate::card::ExiledCastPermissionDef::EnergyEqualToManaValue => {
                 self.permit_energy_cast(exiled, caster);
                 self.restrict_exile_permission_to_casting(exiled);
-                self.offer_permitted_play(caster, exiled, object, context, scoped);
+                self.offer_permitted_play(caster, exiled, false, object, context, scoped);
             }
             crate::card::ExiledCastPermissionDef::FreeWhileResolving => {
                 self.permit_free_play_this_turn(exiled, caster);
                 self.restrict_exile_permission_to_casting(exiled);
-                self.offer_permitted_play(caster, exiled, object, context, scoped);
+                self.offer_permitted_play(caster, exiled, false, object, context, scoped);
             }
         }
     }

@@ -184,14 +184,13 @@ impl Game {
                     Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
                     Target::Player(_) => None,
                 }),
-            ObjectRefDef::ZoneChangeResultOfTriggeringObject => context
-                .trigger
-                .zone_change_result
-                .and_then(|result| self.live_object_target(result))
-                .and_then(|target| match target {
-                    Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
-                    Target::Player(_) => None,
-                }),
+            // Preserve the exact event result even after this resolution has
+            // moved it again. An enclosing ZoneChangeSuccessor reference
+            // needs the retired identity in order to follow that one new
+            // transition edge; a direct target lookup still requires it live.
+            ObjectRefDef::ZoneChangeResultOfTriggeringObject => {
+                context.trigger.zone_change_result
+            }
             ObjectRefDef::AbilityGrantSource => {
                 object.ability_origin().and_then(|origin| match origin {
                     crate::AbilityOrigin::Granted { source, .. }

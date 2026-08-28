@@ -230,6 +230,16 @@ pub enum TriggerEventDef {
         object: ObjectPredicateDef,
         kind: crate::card::CounterKind,
     },
+    /// One or more counters of this kind were removed from a matching object.
+    CountersRemoved {
+        object: ObjectPredicateDef,
+        kind: crate::card::CounterKind,
+    },
+    /// The removal left the matching object with none of that counter kind.
+    LastCounterRemoved {
+        object: ObjectPredicateDef,
+        kind: crate::card::CounterKind,
+    },
     /// "When you cycle this card" (CR 702.29b). Cycling is an activation, so
     /// this fires when the ability is activated rather than when it resolves,
     /// and the card is already in the graveyard by then. Only the cycled card

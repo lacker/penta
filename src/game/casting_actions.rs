@@ -1,15 +1,15 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, AbilityTargetPredicate, Action,
-    AdditionalCostId, AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId,
-    CardBehavior, CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType,
-    CardTypeSet, CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature,
-    CastSourceZone, ControlFlow, CostConfiguration, CounterKind, DeclarativeAbilityDef,
-    DividedTotal, Game, GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId,
+    AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, Action, AdditionalCostId,
+    AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
+    CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet,
+    CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature, CastSourceZone,
+    ControlFlow, CostConfiguration, CounterKind, DeclarativeAbilityDef, DividedTotal, Game,
+    GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, NonbattlefieldAbilityGrant,
     ObjectCharacteristics, OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef,
     PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
-    StackAbilityResolver, Target, TargetSelection, TargetSlotDef, TargetSlotId,
-    TemporaryAbilityGrant, TriggerContext, add_generic, add_mana_cost, extra_target_cost,
-    mode_id_selections, positive_compositions, target_combinations,
+    StackAbilityResolver, TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext,
+    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
+    target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm, ZoneKind};
@@ -876,70 +876,51 @@ impl Game {
         for (index, slot) in slots.iter().enumerate() {
             let id = TargetSlotId::from_index(index)
                 .expect("validated ability targets fit the runtime slot space");
-            // A slot that reads an earlier slot's choice has to be enumerated
-            // once per prefix, because its candidates are different for each.
-            if matches!(
-                slot.predicate,
-                AbilityTargetPredicate::ControlledByTargetOf { .. }
-            ) {
-                selections = self.controlled_target_selections(
-                    &selections,
-                    *slot,
-                    id,
-                    controller,
-                    source,
-                    x,
-                );
-                continue;
-            }
-            if matches!(
-                slot.predicate,
-                AbilityTargetPredicate::OwnedByTargetPlayer { .. }
-            ) {
-                selections = self.linked_owner_target_selections(&selections, *slot, id, source, x);
-                continue;
-            }
-            let candidates = Self::without_excluded_source(
-                slot,
-                source,
-                self.ability_targets_matching_at(slot.predicate, controller, source, context, x),
-            );
-            let mut choices = Vec::new();
-            if let Some(total) = slot.divided_total {
-                let total = match total {
-                    DividedTotal::Fixed(total) => total,
-                    DividedTotal::ChosenX => u8::try_from(x).unwrap_or(u8::MAX),
-                };
-                // Every chosen target takes at least one, so the number of
-                // targets follows from how the total is split.
-                for count in 1..=usize::from(total).min(candidates.len()) {
-                    for targets in target_combinations(&candidates, count) {
-                        for amounts in positive_compositions(total, count) {
-                            choices.push(TargetSelection::divided(id, targets.clone(), amounts));
-                        }
-                    }
-                }
-                let mut combined = Vec::new();
-                for prefix in &selections {
-                    for choice in &choices {
-                        let mut selected = prefix.clone();
-                        selected.push(choice.clone());
-                        combined.push(selected);
-                    }
-                }
-                selections = combined;
-                continue;
-            }
-            let (minimum, maximum) = slot.count_bounds(x);
-            for count in minimum..=maximum {
-                choices.extend(
-                    target_combinations(&candidates, usize::from(count))
-                        .into_iter()
-                        .map(|targets| TargetSelection::new(id, targets)),
-                );
-            }
             let mut combined = Vec::new();
             for prefix in &selections {
+                // A complete target alternative may depend on an earlier
+                // slot, so candidates are always evaluated per prefix.
+                let candidates = Self::without_excluded_source(
+                    slot,
+                    source,
+                    self.ability_targets_matching_with_selections_at(
+                        slot.predicate,
+                        prefix,
+                        controller,
+                        source,
+                        context,
+                        x,
+                    ),
+                );
+                let mut choices = Vec::new();
+                if let Some(total) = slot.divided_total {
+                    let total = match total {
+                        DividedTotal::Fixed(total) => total,
+                        DividedTotal::ChosenX => u8::try_from(x).unwrap_or(u8::MAX),
+                    };
+                    // Every chosen target takes at least one, so the number
+                    // of targets follows from how the total is split.
+                    for count in 1..=usize::from(total).min(candidates.len()) {
+                        for targets in target_combinations(&candidates, count) {
+                            for amounts in positive_compositions(total, count) {
+                                choices.push(TargetSelection::divided(
+                                    id,
+                                    targets.clone(),
+                                    amounts,
+                                ));
+                            }
+                        }
+                    }
+                } else {
+                    let (minimum, maximum) = slot.count_bounds(x);
+                    for count in minimum..=maximum {
+                        choices.extend(
+                            target_combinations(&candidates, usize::from(count))
+                                .into_iter()
+                                .map(|targets| TargetSelection::new(id, targets)),
+                        );
+                    }
+                }
                 for choice in &choices {
                     // "Another" is a restriction on the declaration, so a
                     // repeat is never offered rather than being caught later.
@@ -956,8 +937,6 @@ impl Game {
         selections
     }
 }
-
-include!("casting_actions/dependent_target_selections.rs");
 
 /// Whether a slot's choice names anything the slots before it already did.
 fn names_an_earlier_target(prefix: &[TargetSelection], choice: &TargetSelection) -> bool {

@@ -11,6 +11,7 @@ impl Game {
             match spell.targets().get(target.index())?.predicate {
                 AbilityTargetPredicate::Player(relation) => Some(relation),
                 AbilityTargetPredicate::AnyTarget
+                | AbilityTargetPredicate::AnyOf(_)
                 | AbilityTargetPredicate::PlayerOrPlaneswalker(_)
                 | AbilityTargetPredicate::ControlledByTargetOf { .. }
                 | AbilityTargetPredicate::OwnedByTargetPlayer { .. }

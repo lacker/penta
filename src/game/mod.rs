@@ -123,6 +123,7 @@ mod stack_rules;
 mod state_based;
 mod state_checkpoint;
 mod static_animation;
+mod suspend;
 mod targeting;
 mod tokens;
 mod trigger_capture;
@@ -174,11 +175,11 @@ use combat_state::CombatDamageStage;
 use continuous_state::{
     AbilityLayerOperation, AbilityLayerOperationKind, AppliedAttackRestriction,
     AppliedPlayRestriction, AppliedRuleEffect, ContinuousEffectExpiration,
-    ContinuousEffectTimestamp, ResolvedAbilityOperation, ResolvedAttackRestriction,
-    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedOngoingEffect,
-    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPlayerProtection,
-    ResolvedPowerToughnessOperation, StaticAppliedEffect, StaticEffectTraversal,
-    TemporaryAbilityGrant,
+    ContinuousEffectTimestamp, NonbattlefieldAbilityGrant, ResolvedAbilityOperation,
+    ResolvedAttackRestriction, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
+    ResolvedOngoingEffect, ResolvedPlayPermission, ResolvedPlayRestriction,
+    ResolvedPlayerProtection, ResolvedPowerToughnessOperation, StaticAppliedEffect,
+    StaticEffectTraversal,
 };
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
@@ -553,8 +554,8 @@ pub struct Game {
     phased_out: Vec<Permanent>,
     stack: GameStack,
     retired_objects: BTreeMap<GameObjectId, RetiredObject>,
-    /// Abilities granted to non-battlefield object incarnations until cleanup.
-    temporary_ability_grants: Vec<TemporaryAbilityGrant>,
+    /// Abilities granted to non-battlefield object incarnations.
+    nonbattlefield_ability_grants: Vec<NonbattlefieldAbilityGrant>,
     /// Duration-scoped effects with activated abilities. They use command-zone
     /// source semantics as a documented approximation, but remain distinct
     /// from both permanents and emblems and are not targetable game pieces.

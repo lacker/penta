@@ -374,6 +374,12 @@ pub struct FreePlayDef {
     /// a search bound, or the ones exiled with a source.
     pub objects: ObjectSetDef,
     pub duration: FreePlayDurationDef,
+    /// Whether the card must be played if doing so is legal. Most authored
+    /// permissions say "may"; Suspend's last-counter instruction does not.
+    pub mandatory: bool,
+    /// A creature cast through this permission gains haste until its
+    /// controller loses control of it, as suspend requires.
+    pub grants_haste: bool,
 }
 
 /// How long a "without paying its mana cost" permission lasts.

@@ -1397,6 +1397,8 @@ static VOIDWALKER_TAKES_ONE: EffectDef = EffectDef::Choose(ChooseDef {
     then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
         objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
         duration: FreePlayDurationDef::WhileResolving,
+        mandatory: false,
+        grants_haste: false,
     }),
 });
 

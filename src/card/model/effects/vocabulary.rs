@@ -25,6 +25,8 @@ pub enum AbilityPredicateDef {
     Keyword(KeywordAbility),
     /// A flashback alternative-cast ability, whatever cost it names.
     Flashback,
+    /// Suspend, whatever time and mana parameters its hand action names.
+    Suspend,
     /// Every "bands with other" ability, whatever quality it names. Two cards
     /// strip them all at once, and neither says which qualities it means.
     AnyBandsWithOther,
@@ -44,6 +46,10 @@ impl AbilityPredicateDef {
                 ability.definition,
                 DeclarativeAbilityDef::AlternativeCast(alternative)
                     if alternative.kind == AlternativeCastKindDef::Flashback
+            ),
+            Self::Suspend => matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Keyword(KeywordAbility::Suspend(_))
             ),
             Self::AnyBandsWithOther => matches!(
                 ability.definition,
@@ -83,6 +89,28 @@ impl TurnKindDef {
 pub enum ChoiceVisibilityDef {
     Public,
     Private,
+}
+
+/// How an effect changes a counter count.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CounterOperationDef {
+    Add,
+    Remove,
+}
+
+/// Where a counter-modification effect gets the counter kind it changes.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CounterKindDef {
+    Fixed(CounterKind),
+    /// The kind selected by an enclosing [`EffectDef::ChooseCounterKind`].
+    Chosen,
+}
+
+/// One labelled branch of a resolution-time effect choice.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct EffectChoiceDef {
+    pub label: &'static str,
+    pub effect: EffectDef,
 }
 
 /// What a fixed or live cost adjustment adds or subtracts.

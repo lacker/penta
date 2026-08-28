@@ -152,15 +152,13 @@ impl Game {
                     let candidates = Self::without_excluded_source(
                         slot,
                         spell.id,
-                        self.targets_owned_by_target_player(slot.predicate, prefix, spell.id)
-                            .unwrap_or_else(|| {
-                                self.ability_targets_matching(
-                                    slot.predicate,
-                                    player,
-                                    spell.id,
-                                    context,
-                                )
-                            }),
+                        self.ability_targets_matching_with_selections(
+                            slot.predicate,
+                            prefix,
+                            player,
+                            spell.id,
+                            context,
+                        ),
                     );
                     let mut replacements = target_combinations(
                         &candidates,
@@ -260,15 +258,13 @@ impl Game {
                 let candidates = Self::without_excluded_source(
                     slot,
                     source,
-                    self.targets_owned_by_target_player(slot.predicate, prefix, source)
-                        .unwrap_or_else(|| {
-                            self.ability_targets_matching(
-                                slot.predicate,
-                                player,
-                                source,
-                                payload.context.trigger,
-                            )
-                        }),
+                    self.ability_targets_matching_with_selections(
+                        slot.predicate,
+                        prefix,
+                        player,
+                        source,
+                        payload.context.trigger,
+                    ),
                 );
                 let mut replacements =
                     target_combinations(&candidates, selection.targets().len())

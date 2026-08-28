@@ -679,7 +679,8 @@ impl Game {
     }
 
     pub(super) fn finish_cleanup(&mut self) {
-        self.temporary_ability_grants.clear();
+        self.nonbattlefield_ability_grants
+            .retain(|grant| grant.expiration.survives_cleanup());
         // These resolving permissions and restrictions last only until the
         // cleanup step. A later phase can still be inserted into this turn,
         // but it must not revive an expired Quicken or Aurelia's Fury effect.
@@ -747,6 +748,7 @@ impl Game {
                 && let Some(owner) = permanent.control_reverts_to.take()
             {
                 permanent.controller = owner;
+                permanent.suspend_haste = false;
             }
             permanent.destroy_at_end = false;
             permanent.regeneration_shields = 0;

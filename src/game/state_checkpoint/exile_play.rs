@@ -33,6 +33,7 @@ pub(super) fn permission_snapshot(permission: &ExilePlayPermission) -> ExilePlay
             .map(|(player, turn)| (player.index(), turn)),
         group: permission.group.map(|group| group.0),
         from_graveyard: permission.zone == ZoneKind::Graveyard,
+        grants_haste: permission.grants_haste,
     }
 }
 
@@ -80,5 +81,6 @@ pub(super) fn parse_permission(
         },
         hidden_from_owner: permission.hidden_from_owner,
         lands_may_be_played: !permission.cast_only,
+        grants_haste: permission.grants_haste,
     })
 }

@@ -111,7 +111,6 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_l
                 effect: &EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     controller: None,
                     placement: ZonePlacement::Top,
@@ -700,7 +699,6 @@ pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
@@ -970,7 +968,6 @@ pub(in crate::card::sets) static TIME_EBB: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             controller: None,
             placement: ZonePlacement::Top,
@@ -1289,7 +1286,6 @@ pub(in crate::card::sets) static CORPSE_HAULER: CardRecord = CardRecord::new_wit
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -3024,7 +3020,6 @@ pub(in crate::card::sets) static SCAVENGING_OOZE: CardRecord = CardRecord::new_w
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,

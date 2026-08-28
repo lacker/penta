@@ -64,7 +64,6 @@ static TITANIA_ABILITIES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             controller: None,

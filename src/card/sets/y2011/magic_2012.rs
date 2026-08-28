@@ -72,7 +72,6 @@ pub(in crate::card::sets) static ARCHON_OF_JUSTICE: CardRecord = CardRecord::new
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -136,7 +135,6 @@ pub(in crate::card::sets) static CELESTIAL_PURGE: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             counters: None,
@@ -505,7 +503,6 @@ pub(in crate::card::sets) static AETHER_ADEPT: CardRecord = CardRecord::new(
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -1180,7 +1177,6 @@ pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord:
             &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::object(ObjectRefDef::Source),
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 controller: None,
@@ -1922,7 +1918,6 @@ pub(in crate::card::sets) static RECLAIM: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,

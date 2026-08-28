@@ -441,6 +441,8 @@ impl Game {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(
                     ObjectRefDef::Binding(_)
+                    | ObjectRefDef::ZoneChangeSuccessor(_)
+                    | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                     | ObjectRefDef::ResolvingObject
                     | ObjectRefDef::AdditionalCostObject(_)
                     | ObjectRefDef::AbilityGrantSource

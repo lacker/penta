@@ -67,7 +67,6 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
@@ -246,7 +245,6 @@ static EMPEROR_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
@@ -591,7 +589,6 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,

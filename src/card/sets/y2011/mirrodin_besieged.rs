@@ -100,7 +100,6 @@ pub(in crate::card::sets) static BANISHMENT_DECREE: CardRecord = CardRecord::new
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,
@@ -627,7 +626,6 @@ pub(in crate::card::sets) static QUICKSILVER_GEYSER: CardRecord = CardRecord::ne
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Battlefield),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -714,7 +712,6 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
                 )],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -1043,7 +1040,6 @@ pub(in crate::card::sets) static MORBID_PLUNDER: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Graveyard),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -1513,7 +1509,6 @@ pub(in crate::card::sets) static INTO_THE_CORE: CardRecord = CardRecord::new(
         }],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Battlefield),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             counters: None,
@@ -1972,7 +1967,6 @@ pub(in crate::card::sets) static PRAETOR_S_COUNSEL: CardRecord = CardRecord::new
                     &[ZoneKind::Graveyard],
                     PlayerRelation::You,
                 ),
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -2144,7 +2138,6 @@ pub(in crate::card::sets) static GLISSA_THE_TRAITOR: CardRecord = CardRecord::ne
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: Some(ZoneKind::Graveyard),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                         counters: None,
@@ -3168,8 +3161,7 @@ pub(in crate::card::sets) static SPINE_OF_ISH_SAH: CardRecord = CardRecord::new(
         abilities::dies_trigger(
             "When this artifact is put into a graveyard from the battlefield, return it to its owner's hand.",
             EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                from: Some(ZoneKind::Graveyard),
+                object: EffectRecipientDef::SourceZoneChangeSuccessor,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -3302,7 +3294,6 @@ pub(in crate::card::sets) static THOPTER_ASSEMBLY: CardRecord = CardRecord::new(
                 EffectDef::Sequence(&[
                     EffectDef::MoveToZone {
                         object: EffectRecipientDef::Source,
-                        from: Some(ZoneKind::Battlefield),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                         counters: None,

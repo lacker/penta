@@ -173,7 +173,6 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             controller: None,

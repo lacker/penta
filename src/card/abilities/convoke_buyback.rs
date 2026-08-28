@@ -147,7 +147,6 @@ static DASH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Source,
-        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,

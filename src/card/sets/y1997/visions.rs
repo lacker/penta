@@ -746,7 +746,6 @@ static NECROMANCY_REANIMATES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Battlefield,
         placement: ZonePlacement::Top,
         controller: Some(PlayerRelation::You),

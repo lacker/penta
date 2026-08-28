@@ -626,10 +626,6 @@ pub enum EffectDef {
     },
     MoveToZone {
         object: EffectRecipientDef,
-        /// When present, move the object only if it is still in this zone.
-        /// This keeps a resolving instruction from following a zone-change
-        /// successor out of the zone the card text named.
-        from: Option<ZoneKind>,
         zone: ZoneKind,
         /// Which end of a library the card lands on. Meaningless for every
         /// other destination.

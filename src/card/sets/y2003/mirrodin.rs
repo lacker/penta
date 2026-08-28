@@ -76,7 +76,6 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 controller: None,

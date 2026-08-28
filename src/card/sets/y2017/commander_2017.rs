@@ -34,7 +34,6 @@ static FRACTURED_IDENTITY_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

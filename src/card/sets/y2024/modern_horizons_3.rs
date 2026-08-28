@@ -1089,7 +1089,6 @@ static SIX_TAKEN_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 static SIX_TAKES_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(SIX_TAKEN_LAND)),
-    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,
@@ -1196,7 +1195,6 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             controller: None,
             placement: ZonePlacement::Top,
@@ -2050,7 +2048,6 @@ static A_SPELL_OR_NONLAND_PERMANENT_OF_THEIRS: [AbilityTargetDef; 1] =
 static STUPOR_RETURNS_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     arrival_effect: None,
@@ -2342,7 +2339,6 @@ static TAMIYO_RETURNS_AND_REBATES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,

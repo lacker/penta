@@ -1477,7 +1477,6 @@ static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-            from: None,
             zone: ZoneKind::Exile,
             controller: None,
             placement: ZonePlacement::Top,

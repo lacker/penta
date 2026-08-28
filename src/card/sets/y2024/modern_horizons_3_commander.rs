@@ -54,7 +54,6 @@ static A_MILLED_CREATURE_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
 static BARROWGOYF_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
-    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,
@@ -253,7 +252,6 @@ static TALON_GATES_ABILITIES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Source,
-            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             arrival_effect: None,

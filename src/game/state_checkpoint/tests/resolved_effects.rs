@@ -476,12 +476,11 @@ fn pending_and_retired_permanents_round_trip_resolved_continuous_effects() {
     assert_eq!(permanent.resolved_continuous_effects, vec![effect]);
 }
 
-/// A trigger already on the stack names the object that was on the
-/// battlefield, and "return it" has to reach the card that object became.
-/// Without the link the checkpoint would restore a game where the return
-/// quietly does nothing.
+/// An ordinary reference keeps naming the retired battlefield object, while
+/// an explicit "return it" reference uses the one zone-change edge. Both
+/// meanings must survive reconstruction without being conflated.
 #[test]
-fn a_dying_creatures_successor_survives_a_checkpoint() {
+fn exact_identity_and_a_zone_change_successor_survive_a_checkpoint() {
     let mut game = crate::game::tests::ready_game();
     let strider = game
         .put_onto_battlefield(PlayerId::One, crate::card::cards::MORTUS_STRIDER)
@@ -500,10 +499,15 @@ fn a_dying_creatures_successor_survives_a_checkpoint() {
     assert_eq!(
         rebuilt.live_object_target(strider),
         game.live_object_target(strider),
-        "and the restored game reaches the same card",
+        "ordinary live-object lookup preserves exact identity",
     );
     assert!(
-        rebuilt.live_object_target(strider).is_some(),
-        "which is the card it became, not nothing",
+        rebuilt.live_object_target(strider).is_none(),
+        "the retired permanent is not silently replaced with its card",
+    );
+    assert_eq!(
+        rebuilt.zone_change_successor_target(strider),
+        game.zone_change_successor_target(strider),
+        "the explicit one-zone-change reference reaches the same card",
     );
 }

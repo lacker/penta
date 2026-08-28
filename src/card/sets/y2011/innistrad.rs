@@ -71,7 +71,6 @@ static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matchi
 /// move creates and follows its hand-zone successor.
 static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    from: Some(ZoneKind::Graveyard),
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
@@ -181,7 +180,6 @@ pub(in crate::card::sets) static ANGEL_OF_FLIGHT_ALABASTER: CardRecord = CardRec
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -934,7 +932,6 @@ pub(in crate::card::sets) static PURIFY_THE_GRAVE: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -1037,7 +1034,6 @@ pub(in crate::card::sets) static SILVERCHASE_FOX: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -1336,9 +1332,9 @@ pub(in crate::card::sets) static BACK_FROM_THE_BRINK: CardRecord = CardRecord::n
                 ),
             ],
             EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
-                object: &EffectRecipientDef::object(ObjectRefDef::Binding(
+                object: &EffectRecipientDef::binding_zone_change_successor(
                     ObjectBindingIndex::PRIMARY,
-                )),
+                ),
                 exceptions: CopyExceptionsDef::NONE,
             }),
         )
@@ -1726,7 +1722,6 @@ pub(in crate::card::sets) static GRASP_OF_PHANTOMS: CardRecord = CardRecord::new
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Library,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -1806,7 +1801,6 @@ pub(in crate::card::sets) static LANTERN_SPIRIT: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -1841,7 +1835,6 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex(1)),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -1956,7 +1949,6 @@ pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex(1)),
-                    from: None,
                     zone: ZoneKind::Library,
                     placement: ZonePlacement::Top,
                     controller: None,
@@ -2023,7 +2015,6 @@ static MIRROR_MAD_STEPS: [EffectDef; 3] = [
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
-        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
@@ -2152,7 +2143,6 @@ pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Exile),
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
@@ -2236,7 +2226,6 @@ pub(in crate::card::sets) static SILENT_DEPARTURE: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -3014,7 +3003,6 @@ static GHOULCALLERS_CHANT_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
@@ -3029,7 +3017,6 @@ static GHOULCALLERS_CHANT_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
@@ -3467,7 +3454,6 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -3611,7 +3597,6 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 controller: None,
                 placement: ZonePlacement::Top,

@@ -109,7 +109,6 @@ static RAGAVAN_IS_EXILED_AT_END_OF_COMBAT: EffectDef =
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                 ObjectSetBindingIndex::PRIMARY,
             )),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,

@@ -35,7 +35,6 @@ static SUNFALL_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,

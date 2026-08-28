@@ -23,42 +23,20 @@ impl Game {
         scoped: ScopedEffect,
     ) -> Option<Target> {
         match reference {
-            // An ability activated from the graveyard or from hand has a
-            // card, not a permanent, as its source, and "return this card to
-            // your hand" has to name it as one. A source that is on the
-            // battlefield, or that has left every zone, still answers as a
-            // permanent: that is the last-known information every
-            // "sacrifice this" clause reads after the thing is already gone.
-            ObjectRefDef::Source => object.source.map(|source| {
-                if self
-                    .battlefield
-                    .iter()
-                    .any(|permanent| permanent.card.id == source)
-                {
-                    return Target::Permanent(source);
-                }
-                if self.card_in_nonbattlefield_zone(source).is_some() {
-                    return Target::Card(source);
-                }
-                // A cast trigger's source is the spell still waiting beneath
-                // it. Copying storm or replicate therefore names a stack
-                // object, not last-known permanent information.
-                if self.stack.iter().any(|stack| stack.id == source) {
-                    return Target::Spell(source);
-                }
-                // A dies-trigger names the permanent that was standing there,
-                // and the card it became on the way out has a different
-                // identity. "Return it to the battlefield" means that card,
-                // so follow the move rather than pointing at a permanent
-                // nothing can find.
-                match self
-                    .final_successor(source)
-                    .filter(|successor| self.card_in_nonbattlefield_zone(*successor).is_some())
-                {
-                    Some(successor) => Target::Card(successor),
-                    None => Target::Permanent(source),
-                }
-            }),
+            // The source is the exact game object from which the spell or
+            // ability originated. If it has left its zone, keep naming that
+            // retired incarnation for last-known-information reads; never
+            // silently substitute the new object it became.
+            ObjectRefDef::Source => object
+                .source
+                .and_then(|source| self.object_target_with_lki(source)),
+            ObjectRefDef::ZoneChangeSuccessor(reference) => self
+                .object_reference_id(reference.exact(), object, context, scoped)
+                .and_then(|referenced| self.zone_change_successor_target(referenced)),
+            ObjectRefDef::ZoneChangeResultOfTriggeringObject => context
+                .trigger
+                .object
+                .and_then(|triggering| self.zone_change_result_target(triggering)),
             // A granted ability freezes the exact object that supplied the
             // grant. Do not follow a zone-change successor here: this is the
             // last-known permanent the ability names even after sacrificing
@@ -81,17 +59,7 @@ impl Game {
                 .signature
                 .as_ref()
                 .and_then(|_| object.chosen_permanents.get(index.index()).copied())
-                .and_then(|paid| {
-                    self.live_object_target(paid).or_else(|| {
-                        self.retired_objects.get(&paid).map(|retired| match retired {
-                            crate::game::RetiredObject::Card(_) => Target::Card(paid),
-                            crate::game::RetiredObject::Permanent { .. } => {
-                                Target::Permanent(paid)
-                            }
-                            crate::game::RetiredObject::Stack(_) => Target::Spell(paid),
-                        })
-                    })
-                }),
+                .and_then(|paid| self.object_target_with_lki(paid)),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
                 .map(Target::Permanent),
@@ -109,11 +77,11 @@ impl Game {
             ObjectRefDef::TriggeringObject => context
                 .trigger
                 .object
-                .and_then(|triggering| self.live_object_target(triggering)),
+                .and_then(|triggering| self.object_target_with_lki(triggering)),
             ObjectRefDef::DamagedObject => context
                 .trigger
                 .damaged_object
-                .and_then(|damaged| self.live_object_target(damaged)),
+                .and_then(|damaged| self.object_target_with_lki(damaged)),
         }
     }
 
@@ -209,6 +177,21 @@ impl Game {
     ) -> Option<GameObjectId> {
         match reference {
             ObjectRefDef::Source => object.source,
+            ObjectRefDef::ZoneChangeSuccessor(reference) => self
+                .object_reference_id(reference.exact(), object, context, scoped)
+                .and_then(|referenced| self.zone_change_successor_target(referenced))
+                .and_then(|target| match target {
+                    Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+                    Target::Player(_) => None,
+                }),
+            ObjectRefDef::ZoneChangeResultOfTriggeringObject => context
+                .trigger
+                .object
+                .and_then(|triggering| self.zone_change_result_target(triggering))
+                .and_then(|target| match target {
+                    Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+                    Target::Player(_) => None,
+                }),
             ObjectRefDef::AbilityGrantSource => {
                 object.ability_origin().and_then(|origin| match origin {
                     crate::AbilityOrigin::Granted { source, .. }

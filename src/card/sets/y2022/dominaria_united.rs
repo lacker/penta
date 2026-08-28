@@ -205,7 +205,6 @@ static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 static TEAR_ASUNDER_EXILES: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     arrival_effect: None,
@@ -354,8 +353,7 @@ static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::dies_trigger(
 static PARAGON_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
-        object: EffectRecipientDef::Source,
-        from: Some(ZoneKind::Graveyard),
+        object: EffectRecipientDef::SourceZoneChangeSuccessor,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

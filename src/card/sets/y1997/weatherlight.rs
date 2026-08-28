@@ -1717,7 +1717,6 @@ static FURNACE_EXILE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
@@ -1748,7 +1747,6 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
                 object: EffectRecipientDef::objects(ObjectSetDef::BottomOfGraveyard(
                     PlayerRefDef::Target(TargetIndex::PRIMARY),
                 )),
-                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,

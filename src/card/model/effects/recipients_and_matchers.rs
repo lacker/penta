@@ -3,6 +3,24 @@
 pub enum ObjectRefDef {
     /// The game object from which the resolving spell or ability originated.
     Source,
+    /// The object created by the named reference's next zone change,
+    /// provided that exact successor still exists.
+    ///
+    /// Ordinary references never follow a zone change: the successor is a
+    /// new game object. This explicit reference is for printed instructions
+    /// such as a dies trigger's "return it", which are allowed to find the
+    /// card created by that particular move. It follows one move only, so a
+    /// card that moves again before resolution is no longer found.
+    ZoneChangeSuccessor(ZoneChangeReferenceDef),
+    /// The destination object produced by the triggering zone change,
+    /// provided that exact object still exists.
+    ///
+    /// Zone-change events preserve the characteristics needed to match their
+    /// printed trigger and expose the newly created object here. This is the
+    /// event-relative counterpart of [`Self::ZoneChangeSuccessor`],
+    /// for instructions that act on a different object whose move caused the
+    /// trigger. A later move is still a new object and is not followed.
+    ZoneChangeResultOfTriggeringObject,
     /// The object whose continuous effect granted the resolving ability.
     ///
     /// This deliberately names that exact battlefield incarnation rather than
@@ -163,6 +181,8 @@ pub struct EffectRecipientDef(pub EffectRecipientSetDef);
 #[allow(non_snake_case, non_upper_case_globals)]
 impl EffectRecipientDef {
     pub const Source: Self = Self::object(ObjectRefDef::Source);
+    pub const SourceZoneChangeSuccessor: Self =
+        Self::zone_change_successor(ZoneChangeReferenceDef::Source);
     pub const AttachedPermanent: Self = Self::object(ObjectRefDef::AttachedToSource);
     pub const Controller: Self = Self::player(PlayerRefDef::EffectController);
     pub const EnchantedPlayer: Self = Self::player(PlayerRefDef::EnchantedPlayer);
@@ -174,6 +194,10 @@ impl EffectRecipientDef {
         )),
     );
     pub const TriggeringObject: Self = Self::object(ObjectRefDef::TriggeringObject);
+    pub const TriggeringZoneChangeResult: Self =
+        Self::object(ObjectRefDef::ZoneChangeResultOfTriggeringObject);
+    pub const DamagedObjectZoneChangeSuccessor: Self =
+        Self::zone_change_successor(ZoneChangeReferenceDef::DamagedObject);
     pub const ControllerOfTriggeringObject: Self =
         Self::player(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject));
     pub const EventPlayer: Self = Self::player(PlayerRefDef::EventPlayer);
@@ -184,6 +208,16 @@ impl EffectRecipientDef {
     #[must_use]
     pub const fn object(object: ObjectRefDef) -> Self {
         Self(EffectRecipientSetDef::Objects(ObjectSetDef::One(object)))
+    }
+
+    #[must_use]
+    pub const fn zone_change_successor(reference: ZoneChangeReferenceDef) -> Self {
+        Self::object(ObjectRefDef::ZoneChangeSuccessor(reference))
+    }
+
+    #[must_use]
+    pub const fn binding_zone_change_successor(binding: ObjectBindingIndex) -> Self {
+        Self::zone_change_successor(ZoneChangeReferenceDef::Binding(binding))
     }
 
     #[must_use]
@@ -276,6 +310,8 @@ impl EffectRecipientDef {
             Some(ObjectRefDef::Binding(binding)) => Some(binding),
             Some(
                 ObjectRefDef::Source
+                | ObjectRefDef::ZoneChangeSuccessor(_)
+                | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AdditionalCostObject(_)

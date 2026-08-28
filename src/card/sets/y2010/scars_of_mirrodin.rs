@@ -449,7 +449,6 @@ pub(in crate::card::sets) static REVOKE_EXISTENCE: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             counters: None,
@@ -490,7 +489,6 @@ pub(in crate::card::sets) static SALVAGE_SCOUT: CardRecord = CardRecord::new(
             }],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -760,7 +758,6 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
         ),
         EffectDef::MoveToZone {
             object: EffectRecipientDef::TriggeringObject,
-            from: Some(ZoneKind::Battlefield),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -841,7 +838,6 @@ pub(in crate::card::sets) static LUMENGRID_DRAKE: CardRecord = CardRecord::new(
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: Some(ZoneKind::Battlefield),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -1455,7 +1451,6 @@ pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord
                 EffectDef::Sequence(&[
                     EffectDef::MoveToZone {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: Some(ZoneKind::Graveyard),
                         zone: ZoneKind::Battlefield,
                         placement: ZonePlacement::Top,
                         counters: None,
@@ -1710,7 +1705,6 @@ static PSYCHIC_MIASMA_RETURN: EffectDef = EffectDef::IfCondition {
     condition: &PSYCHIC_MIASMA_DISCARDED_LAND,
     then: &EffectDef::MoveToZone {
         object: EffectRecipientDef::Source,
-        from: Some(ZoneKind::Stack),
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         counters: None,
@@ -2275,7 +2269,6 @@ pub(in crate::card::sets) static KULDOTHA_PHOENIX: CardRecord = CardRecord::new(
             &[AbilityCostDef::Mana(mana_cost!("{4}"))],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -3062,7 +3055,6 @@ static VENSER_EMBLEM_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
     )],
     EffectDef::MoveToZone {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: Some(ZoneKind::Battlefield),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         counters: None,
@@ -3393,7 +3385,6 @@ pub(in crate::card::sets) static CORPSE_CUR: CardRecord = CardRecord::new(
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: Some(ZoneKind::Graveyard),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                         counters: None,
@@ -4522,7 +4513,6 @@ pub(in crate::card::sets) static NEUROK_REPLICA: CardRecord = CardRecord::new(
             )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: Some(ZoneKind::Battlefield),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -4554,7 +4544,6 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
                     &[ZoneKind::Graveyard],
                     TargetIndex::PRIMARY,
                 ),
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 counters: None,

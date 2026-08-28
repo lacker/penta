@@ -145,7 +145,6 @@ pub(in crate::card::sets) static DISPATCH: CardRecord = CardRecord::new(
                 condition: &METALCRAFT,
                 then: &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -245,7 +244,6 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
                 &[AbilityCostDef::Mana(mana_cost!("{2}{W}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -467,7 +465,6 @@ static REMEMBER_THE_FALLEN_MODES: [AbilityDef; 2] = [
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Graveyard),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -489,7 +486,6 @@ static REMEMBER_THE_FALLEN_MODES: [AbilityDef; 2] = [
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Graveyard),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -664,7 +660,6 @@ static ARM_WITH_AETHER_BOUNCE: AbilityDef = AbilityDef::triggered_with_targets(
         player: EffectRecipientDef::Controller,
         effect: &EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Battlefield),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -1193,7 +1188,6 @@ pub(in crate::card::sets) static VAPOR_SNAG: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 counters: None,
@@ -1484,7 +1478,6 @@ static ENTOMBER_EXARCH_MODES: [AbilityDef; 2] = [
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Graveyard),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             counters: None,
@@ -1586,8 +1579,7 @@ pub(in crate::card::sets) static GLISTENING_OIL: CardRecord = CardRecord::new(
             abilities::dies_trigger(
                 "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
                 EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    from: Some(ZoneKind::Graveyard),
+                    object: EffectRecipientDef::SourceZoneChangeSuccessor,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -1876,7 +1868,6 @@ pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardReco
                 })],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: Some(ZoneKind::Graveyard),
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -2643,7 +2634,6 @@ static BRUTALIZER_EXARCH_MODES: [AbilityDef; 2] = [
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: Some(ZoneKind::Battlefield),
             zone: ZoneKind::Library,
             placement: ZonePlacement::Bottom,
             counters: None,
@@ -2941,7 +2931,6 @@ pub(in crate::card::sets) static NOXIOUS_REVIVAL: CardRecord = CardRecord::new(
         )],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             counters: None,
@@ -3195,7 +3184,6 @@ pub(in crate::card::sets) static BATTERSKULL: CardRecord = CardRecord::new(
                 &[AbilityCostDef::Mana(mana_cost!("{3}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
-                    from: Some(ZoneKind::Battlefield),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,
@@ -3263,7 +3251,6 @@ pub(in crate::card::sets) static CONVERSION_CHAMBER: CardRecord = CardRecord::ne
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: Some(ZoneKind::Graveyard),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                     counters: None,

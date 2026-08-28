@@ -203,7 +203,6 @@ pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new_with_le
         EffectDef::MoveToZone {
             counters: None,
             object: ENCHANTMENTS_IN_YOUR_GRAVEYARD,
-            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             arrival_effect: None,

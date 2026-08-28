@@ -1347,7 +1347,6 @@ static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         arrival_effect: None,

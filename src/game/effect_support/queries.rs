@@ -56,16 +56,10 @@ impl Game {
             ZoneRelativePositionDef::Above(reference)
             | ZoneRelativePositionDef::Below(reference) => reference,
         };
-        let Some(mut anchor) =
-            self.query_reference_object(reference, source, context, effect_context)
+        let Some(anchor) = self.query_reference_object(reference, source, context, effect_context)
         else {
             return false;
         };
-        if self.ordered_zone_position(anchor).is_none()
-            && let Some(successor) = self.final_successor(anchor)
-        {
-            anchor = successor;
-        }
         let (Some(candidate), Some(anchor)) = (
             self.ordered_zone_position(candidate),
             self.ordered_zone_position(anchor),

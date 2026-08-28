@@ -9,8 +9,8 @@ use super::{
     ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
     ResolvedContinuousEffectKind, ResolvedDamageRedirect, ResolvedEffectDurationDef,
     ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPlayerProtection,
-    ResolvedPowerToughnessOperation, ScopedEffect, StackObject, StackObjectKind, Target,
-    TargetIndex, TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerConditionDef,
+    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackObject, StackObjectKind,
+    Target, TargetIndex, TargetSelection, TargetSlotId, TemporaryAbilityGrant, TriggerConditionDef,
     TriggerContext, ZoneKind, abilities,
 };
 use crate::card::TargetChooserDef;
@@ -696,31 +696,45 @@ impl Game {
         if self.card_in_nonbattlefield_zone(object).is_some() {
             return Some(Target::Card(object));
         }
-        // A trigger captured on the battlefield names the object that was
-        // standing there, and the card it became on the way out has a
-        // different identity. "Return it to its owner's hand" means that
-        // card, so follow the move rather than finding nothing.
-        let successor = self.final_successor(object)?;
-        self.card_in_nonbattlefield_zone(successor)
-            .is_some()
-            .then_some(Target::Card(successor))
+        None
     }
 
-    /// Where an object's card ended up, following every zone change it has
-    /// made since. One hop is enough for a permanent that died, but a card
-    /// cast from hand has made two by the time it is exiled -- hand to
-    /// stack, stack to exile -- and both moves are the same physical card.
-    pub(super) fn final_successor(&self, object: GameObjectId) -> Option<GameObjectId> {
-        let mut current = *self.successors.get(&object)?;
-        // Bounded rather than trusting the chain to be acyclic: nothing
-        // constructs a cycle, and a corrupted one must not hang the game.
-        for _ in 0..self.successors.len() {
-            match self.successors.get(&current) {
-                Some(next) => current = *next,
-                None => break,
-            }
+    /// The exact object incarnation a reference names, including a retired
+    /// representation when last-known information still remembers it.
+    pub(super) fn object_target_with_lki(&self, object: GameObjectId) -> Option<Target> {
+        self.live_object_target(object)
+            .or_else(|| match self.retired_objects.get(&object) {
+                Some(RetiredObject::Card(_)) => Some(Target::Card(object)),
+                Some(RetiredObject::Permanent { .. }) => Some(Target::Permanent(object)),
+                Some(RetiredObject::Stack(_)) => Some(Target::Spell(object)),
+                None => None,
+            })
+    }
+
+    /// The live object created by exactly one zone change of `object`.
+    /// Following one edge, rather than the whole physical-card chain, is the
+    /// identity rule behind printed "return it" exceptions: a second move
+    /// makes another new object and breaks the reference again.
+    pub(super) fn zone_change_successor_target(&self, object: GameObjectId) -> Option<Target> {
+        let successor = *self.successors.get(&object)?;
+        self.live_object_target(successor)
+    }
+
+    /// The destination object named by a zone-change event. Battlefield-exit
+    /// events carry the retired permanent's identity and reach the one live
+    /// successor; other arrivals carry the destination identity directly.
+    /// In either representation, a result that moved again is no longer live
+    /// and is not followed through a second edge.
+    pub(super) fn zone_change_result_target(&self, object: GameObjectId) -> Option<Target> {
+        if let Some(target) = self.live_object_target(object) {
+            return Some(target);
         }
-        Some(current)
+        matches!(
+            self.retired_objects.get(&object),
+            Some(RetiredObject::Permanent { .. })
+        )
+        .then(|| self.zone_change_successor_target(object))
+        .flatten()
     }
 
     /// How much of a divided total one target takes, read off the selection

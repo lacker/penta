@@ -11,7 +11,6 @@ static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::DiscardCards {
 
 static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: Some(ZoneKind::Hand),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     controller: None,
@@ -314,7 +313,6 @@ static WHEEL_STEPS: [EffectDef; 3] = [
             &[ZoneKind::Hand, ZoneKind::Graveyard],
             PlayerRelation::Any,
         ),
-        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         arrival_effect: None,

@@ -144,7 +144,6 @@ static WINDS_SINGLE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
@@ -189,7 +188,6 @@ static WINDS_OVERLOADED_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,
@@ -860,7 +858,6 @@ static WRENN_ABILITIES: [AbilityDef; 3] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,

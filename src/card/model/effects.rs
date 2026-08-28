@@ -35,6 +35,7 @@ use super::{
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary
 // consumed by both resolving and continuously applied effects below.
+include!("effects/zone_change_references.rs");
 include!("effects/recipients_and_matchers.rs");
 include!("effects/applied.rs");
 include!("effects/vocabulary.rs");

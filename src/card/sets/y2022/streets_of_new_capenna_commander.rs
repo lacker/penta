@@ -56,7 +56,6 @@ static CHOSEN_IS_NOT_A_LAND: TriggerConditionDef = TriggerConditionDef::Not(&CHO
 /// where a card exiled from a graveyard belongs however it got to exile.
 static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Graveyard,
     placement: ZonePlacement::Top,
     controller: None,

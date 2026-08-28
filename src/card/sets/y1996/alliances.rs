@@ -1728,7 +1728,6 @@ static GLACIERS_RETURN: EffectDef =
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Source,
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,

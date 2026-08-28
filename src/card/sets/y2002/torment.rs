@@ -698,7 +698,6 @@ static ICHORID_IS_IN_GRAVEYARD: TriggerConditionDef =
 static ICHORID_EXILE_CHOSEN_CREATURE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
@@ -709,7 +708,6 @@ static ICHORID_EXILE_CHOSEN_CREATURE: [EffectDef; 2] = [
     },
     EffectDef::MoveToZone {
         object: EffectRecipientDef::Source,
-        from: Some(ZoneKind::Graveyard),
         zone: ZoneKind::Battlefield,
         placement: ZonePlacement::Top,
         controller: None,

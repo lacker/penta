@@ -131,7 +131,6 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
                 &GEMSTONE_CAVERNS_OPENING_COST,
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
-                    from: Some(ZoneKind::Hand),
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                     controller: None,

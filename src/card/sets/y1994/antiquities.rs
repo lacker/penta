@@ -51,7 +51,6 @@ pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord =
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -247,7 +246,6 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new_wi
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 TargetIndex::PRIMARY,
             ),
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,
@@ -287,7 +285,6 @@ pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new_wi
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1162,7 +1159,6 @@ static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
             &[ZoneKind::Graveyard],
             PlayerRelation::You,
         ),
-        from: None,
         zone: ZoneKind::Library,
         controller: None,
         placement: ZonePlacement::Top,
@@ -1406,7 +1402,6 @@ pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::ne
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1473,7 +1468,6 @@ static RAKALITE_SHIELD: [EffectDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Source,
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,

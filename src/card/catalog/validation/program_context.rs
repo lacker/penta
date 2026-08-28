@@ -724,6 +724,8 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         ObjectSetDef::LegalTargets(_)
         | ObjectSetDef::One(
             ObjectRefDef::ResolvingObject
+            | ObjectRefDef::ZoneChangeSuccessor(_)
+            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::Binding(_)
             | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::AbilityGrantSource
@@ -837,6 +839,8 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::HasName(
             ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ZoneChangeSuccessor(_)
+            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::ResolvingObject
             | ObjectRefDef::AttachedToSource
             | ObjectRefDef::Target(_)

@@ -41,6 +41,8 @@ impl Game {
                 | AbilityOrigin::IntrinsicCounter(_) => None,
             },
             ObjectRefDef::ResolvingObject
+            | ObjectRefDef::ZoneChangeSuccessor(_)
+            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::Binding(_)
             | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::AttachedToSource
@@ -72,7 +74,11 @@ impl Game {
                 Some((movement.binding?, *chosen_permanents.last()?))
             })
         }) {
-            context.bind_single_object(binding, self.live_object_target(chosen));
+            // The chosen payment object is already gone by the time the
+            // stack object is built. Bind the exact retired incarnation;
+            // effects that name the card it became ask for its zone-change
+            // successor explicitly.
+            context.bind_single_object(binding, self.object_target_with_lki(chosen));
         }
         self.push_activated_ability_with_context(
             source,

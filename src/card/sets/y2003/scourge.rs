@@ -214,7 +214,6 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 controller: None,
@@ -1125,7 +1124,6 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Source,
-                        from: Some(ZoneKind::Graveyard),
                         zone: ZoneKind::Battlefield,
                         controller: Some(PlayerRelation::You),
                         placement: ZonePlacement::Top,

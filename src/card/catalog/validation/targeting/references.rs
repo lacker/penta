@@ -167,6 +167,8 @@ fn validate_object_reference(
             }
         }
         ObjectRefDef::Source
+        | ObjectRefDef::ZoneChangeSuccessor(_)
+        | ObjectRefDef::ZoneChangeResultOfTriggeringObject
         | ObjectRefDef::AbilityGrantSource
         | ObjectRefDef::ResolvingObject
         | ObjectRefDef::AdditionalCostObject(_)

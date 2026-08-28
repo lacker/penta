@@ -51,7 +51,6 @@ static OUTCOME_RETURN_AND_DRAW: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         controller: None,

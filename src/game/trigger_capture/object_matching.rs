@@ -95,6 +95,8 @@ impl Game {
             ObjectRefDef::TriggeringObject => event.context().object,
             ObjectRefDef::DamagedObject => event.context().damaged_object,
             ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ZoneChangeSuccessor(_)
+            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::ResolvingObject
             | ObjectRefDef::Binding(_)
             | ObjectRefDef::AdditionalCostObject(_)

@@ -339,7 +339,6 @@ pub(in crate::card::sets) static ERASE: CardRecord = CardRecord::new_with_legacy
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -820,7 +819,6 @@ pub(in crate::card::sets) static ARCHAEOMANCER: CardRecord = CardRecord::new_wit
             })], EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1341,7 +1339,6 @@ static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::CHOSEN_PILE,
-        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         arrival_effect: None,
@@ -1352,7 +1349,6 @@ static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: abilities::UNCHOSEN_PILE,
-        from: None,
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
         arrival_effect: None,
@@ -1802,7 +1798,6 @@ pub(in crate::card::sets) static DISENTOMB: CardRecord = CardRecord::new_with_le
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -2165,7 +2160,6 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Battlefield,
             controller: Some(PlayerRelation::You),
             placement: ZonePlacement::Top,
@@ -2291,7 +2285,6 @@ pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -3090,7 +3083,6 @@ pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new_with_le
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                from: Some(ZoneKind::Battlefield),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 controller: None,
@@ -3105,7 +3097,6 @@ pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new_with_le
                     &[ZoneKind::Hand, ZoneKind::Graveyard],
                     PlayerRelation::Any,
                 ),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 controller: None,
@@ -3657,7 +3648,6 @@ pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new_with_legac
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,

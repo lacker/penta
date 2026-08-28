@@ -109,9 +109,9 @@ fn the_slaver_reanimates_what_it_killed_as_a_black_zombie() {
     );
 }
 
-/// Mortus Strider shipped with the same trap: "return it to its owner's
-/// hand" names an object that stopped existing on the way to the graveyard,
-/// and without following the move it quietly returned nothing.
+/// Mortus Strider's printed "return it" explicitly finds the card created by
+/// the death's one zone change; an ordinary source reference would keep
+/// naming the retired permanent instead.
 #[test]
 fn a_dying_creature_that_returns_itself_finds_its_own_card() {
     let mut game = ready();
@@ -131,6 +131,48 @@ fn a_dying_creature_that_returns_itself_finds_its_own_card() {
     assert!(
         game.players[PlayerId::One.index()].graveyard.is_empty(),
         "and did not stay in the graveyard",
+    );
+}
+
+/// The exception crosses the death event only. Moving the card again makes
+/// another new object, so the pending trigger cannot chase it into exile.
+#[test]
+fn a_return_trigger_does_not_follow_a_second_zone_change() {
+    let mut game = ready();
+    let strider = creature(10_000, cards::MORTUS_STRIDER, PlayerId::One);
+    let strider_id = strider.card.id;
+    game.battlefield.push(strider);
+    let hand_before = game.players[PlayerId::One.index()].hand.len();
+
+    game.move_permanents_to_graveyard(&[strider_id]);
+    let graveyard_id = game.players[PlayerId::One.index()]
+        .graveyard
+        .iter()
+        .find(|card| card.definition == cards::MORTUS_STRIDER)
+        .expect("the death created a graveyard card")
+        .id;
+    game.move_target_to_zone(
+        Target::Card(graveyard_id),
+        ZoneKind::Exile,
+        ZoneMoveCause::Effect {
+            controller: PlayerId::Two,
+        },
+        None,
+        ZonePlacement::Top,
+    );
+    drain_pending(&mut game);
+
+    assert!(
+        game.players[PlayerId::One.index()]
+            .exile
+            .iter()
+            .any(|card| card.definition == cards::MORTUS_STRIDER),
+        "the trigger did not follow the card's second move",
+    );
+    assert_eq!(
+        game.players[PlayerId::One.index()].hand.len(),
+        hand_before,
+        "the card was not returned to hand",
     );
 }
 

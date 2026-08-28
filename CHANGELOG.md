@@ -1261,6 +1261,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Object references stop at zone changes.** Source, triggering-object, and
+  damaged-object references now preserve exact identity just as targets and
+  bindings already did, with retired objects available only for last-known
+  information. Printed exceptions such as a dies trigger's "return it" use
+  explicit one-zone-change references, which find the card created by that
+  move but do not chase it through another. `MoveToZone` consequently no
+  longer needs a destination-time `from` guard. These are internal card-model
+  semantics over the existing successor links, so protocol 29, replay version
+  2, and checkpoint format 9 are unchanged.
+
 - **Same-name permanents stay visually distinct when their game state does.**
   The browser's battlefield piles now compare the complete public permanent
   presentation, token status, and an engine-supplied conservative marker for

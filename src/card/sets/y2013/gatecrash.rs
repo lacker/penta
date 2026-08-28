@@ -118,7 +118,6 @@ pub(in crate::card::sets) static ANGELIC_EDICT: CardRecord = CardRecord::new_wit
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -470,7 +469,6 @@ pub(in crate::card::sets) static LUMINATE_PRIMORDIAL: CardRecord = CardRecord::n
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -678,7 +676,6 @@ pub(in crate::card::sets) static AGORAPHOBIA: CardRecord = CardRecord::new_with_
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Source,
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -836,7 +833,6 @@ pub(in crate::card::sets) static INCURSION_SPECIALIST: CardRecord = CardRecord::
 static KEYMASTER_ROGUE_BOUNCE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
@@ -1163,7 +1159,6 @@ pub(in crate::card::sets) static TOTALLY_LOST: CardRecord = CardRecord::new_with
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1676,7 +1671,6 @@ pub(in crate::card::sets) static SEPULCHRAL_PRIMORDIAL: CardRecord = CardRecord:
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 controller: Some(PlayerRelation::You),
                 placement: ZonePlacement::Top,
@@ -2934,7 +2928,6 @@ pub(in crate::card::sets) static WILDWOOD_REBIRTH: CardRecord = CardRecord::new_
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -3279,7 +3272,6 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new_wi
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -3859,8 +3851,7 @@ pub(in crate::card::sets) static MORTUS_STRIDER: CardRecord = CardRecord::new_wi
             "When this creature dies, return it to its owner's hand.",
             EffectDef::MoveToZone {
                 counters: None,
-                object: EffectRecipientDef::TriggeringObject,
-                from: None,
+                object: EffectRecipientDef::SourceZoneChangeSuccessor,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -4198,7 +4189,6 @@ pub(in crate::card::sets) static SIMIC_CHARM: CardRecord = CardRecord::new_with_
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -4332,7 +4322,6 @@ pub(in crate::card::sets) static TREASURY_THRULL: CardRecord = CardRecord::new_w
                 effect: &EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -4519,7 +4508,6 @@ pub(in crate::card::sets) static BECKON_APPARITION: CardRecord = CardRecord::new
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -4743,7 +4731,6 @@ pub(in crate::card::sets) static SHATTERING_BLOW: CardRecord = CardRecord::new_w
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,

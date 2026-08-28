@@ -1277,7 +1277,6 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
                 effect: &EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -1701,7 +1700,6 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1780,7 +1778,6 @@ pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new_with
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -2134,7 +2131,6 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_
 static SPECIES_GORGER_RETURN: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Hand,
     controller: None,
     placement: ZonePlacement::Top,
@@ -2544,7 +2540,6 @@ pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_fuse_w
                     EffectDef::MoveToZone {
                         counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: None,
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                         arrival_effect: None,
@@ -2575,7 +2570,6 @@ pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_fuse_wit
                     EffectDef::MoveToZone {
                         counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: None,
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                         arrival_effect: None,

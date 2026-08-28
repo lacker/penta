@@ -741,7 +741,6 @@ static NIGHTMARE_COST: [AbilityCostDef; 2] = [
 static NIGHTMARE_REANIMATES: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: Some(ZoneKind::Graveyard),
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     arrival_effect: None,

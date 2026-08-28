@@ -845,7 +845,6 @@ impl Game {
             } => self.resolve_applied_effect(recipient, effect, duration, object, &context, scoped),
             EffectDef::MoveToZone {
                 object: recipient,
-                from,
                 zone,
                 controller,
                 placement,
@@ -856,7 +855,6 @@ impl Game {
             } => self.resolve_move_to_zone(
                 MoveToZoneClause {
                     recipient,
-                    from,
                     zone,
                     controller,
                     placement,

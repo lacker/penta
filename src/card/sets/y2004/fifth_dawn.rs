@@ -78,7 +78,6 @@ static WITNESS_MAY_RETURN: EffectDef = EffectDef::May {
     effect: &EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
         controller: None,

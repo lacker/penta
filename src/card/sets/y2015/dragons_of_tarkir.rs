@@ -73,7 +73,6 @@ static KOLAGHAN_COMMAND_MODES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             controller: None,

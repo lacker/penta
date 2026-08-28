@@ -45,7 +45,6 @@ fn battlefield_arrival(
 #[derive(Clone, Copy)]
 pub(super) struct MoveToZoneClause {
     pub(super) recipient: EffectRecipientDef,
-    pub(super) from: Option<ZoneKind>,
     pub(super) zone: ZoneKind,
     pub(super) controller: Option<PlayerRelation>,
     pub(super) placement: ZonePlacement,
@@ -75,14 +74,8 @@ impl Game {
         })
     }
 
-    fn batch_exile_permanents(
-        &mut self,
-        recipients: &[Target],
-        from: Option<ZoneKind>,
-        zone: ZoneKind,
-    ) -> bool {
-        let batch =
-            zone == ZoneKind::Exile && from.is_none_or(|from| from == ZoneKind::Battlefield);
+    fn batch_exile_permanents(&mut self, recipients: &[Target], zone: ZoneKind) -> bool {
+        let batch = zone == ZoneKind::Exile;
         if !batch {
             return false;
         }
@@ -106,7 +99,6 @@ impl Game {
     ) {
         let MoveToZoneClause {
             recipient,
-            from,
             zone,
             controller,
             placement,
@@ -139,34 +131,27 @@ impl Game {
         // the same number for everything the clause moves.
         let arriving_counters = self.resolved_arrival_counters(counters, object, context, scoped);
         let recipients = self.effect_recipients(recipient, object, context, scoped);
-        let batch_exile = self.batch_exile_permanents(&recipients, from, zone);
+        let batch_exile = self.batch_exile_permanents(&recipients, zone);
         for target in recipients {
             if batch_exile && matches!(target, Target::Permanent(_)) {
                 continue;
             }
-            let (actual_zone, owner) = match target {
+            let owner = match target {
                 Target::Permanent(id) => self
                     .battlefield
                     .iter()
                     .find(|permanent| permanent.card.id == id)
-                    .map_or((None, None), |permanent| {
-                        (Some(ZoneKind::Battlefield), Some(permanent.card.owner))
-                    }),
+                    .map(|permanent| permanent.card.owner),
                 Target::Spell(id) => self
                     .stack
                     .iter()
                     .find(|candidate| candidate.id == id)
-                    .map_or((None, None), |candidate| {
-                        (Some(ZoneKind::Stack), Some(candidate.card.owner))
-                    }),
+                    .map(|candidate| candidate.card.owner),
                 Target::Card(id) => self
                     .card_in_nonbattlefield_zone(id)
-                    .map_or((None, None), |(zone, card)| (Some(zone), Some(card.owner))),
-                Target::Player(_) => (None, None),
+                    .map(|(_, card)| card.owner),
+                Target::Player(_) => None,
             };
-            if from.is_some_and(|expected| actual_zone != Some(expected)) {
-                continue;
-            }
             // An Aura whose host is gone stays where it is; anything else
             // that attaches arrives bare.
             if lost_its_host && self.moving_card_is_an_aura(target) {

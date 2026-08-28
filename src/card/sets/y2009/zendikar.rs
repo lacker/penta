@@ -116,7 +116,6 @@ pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::MoveToZone {
                         object: EffectRecipientDef::Source,
-                        from: Some(ZoneKind::Graveyard),
                         zone: ZoneKind::Battlefield,
                         placement: ZonePlacement::Top,
                         controller: None,

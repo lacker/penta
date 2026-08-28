@@ -50,7 +50,6 @@ pub(in crate::card::sets) static ARCLIGHT_PHOENIX: CardRecord = CardRecord::new(
             &ARCLIGHT_PHOENIX_RETURN_CONDITION,
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
-                from: Some(ZoneKind::Graveyard),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 controller: None,

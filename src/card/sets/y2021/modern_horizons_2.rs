@@ -33,7 +33,6 @@ static ENDING_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMat
 static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: None,
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     controller: None,
@@ -90,7 +89,6 @@ static SOLITUDE_EXILES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
@@ -1046,7 +1044,6 @@ static KAVU_MODES: [AbilityDef; 2] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1097,8 +1094,7 @@ static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
     }),
     EffectDef::MoveToZone {
         counters: None,
-        object: EffectRecipientDef::object(ObjectRefDef::DamagedObject),
-        from: None,
+        object: EffectRecipientDef::DamagedObjectZoneChangeSuccessor,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

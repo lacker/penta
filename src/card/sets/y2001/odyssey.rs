@@ -1219,7 +1219,6 @@ pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new_with_leg
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1511,7 +1510,6 @@ static ECHOES_EXILE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,
@@ -1526,7 +1524,6 @@ static ECHOES_EXILE: EffectDef = EffectDef::Sequence(&[
             player: PlayerRefDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Library,
         }),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

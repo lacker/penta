@@ -82,7 +82,6 @@ mod tests {
         assert!(matches!(
             *exile.then,
             EffectDef::MoveToZone {
-                from: Some(ZoneKind::Hand),
                 zone: ZoneKind::Exile,
                 ..
             }

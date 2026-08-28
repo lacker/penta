@@ -26,7 +26,6 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -47,7 +46,6 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
 // FUT 54 — Narcomoeba
 static NARCOMOEBA_ENTERS: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::Source,
-    from: Some(ZoneKind::Graveyard),
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: None,
@@ -135,7 +133,6 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
             &BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD,
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 controller: None,
@@ -232,7 +229,6 @@ static A_ONE_ONE_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Source,
-    from: None,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: None,

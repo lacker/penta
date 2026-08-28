@@ -390,7 +390,6 @@ impl HandcraftedPolicy {
             // same way, so the policy weighs it as one.
             EffectDef::MoveToZone {
                 object,
-                from: Some(ZoneKind::Stack),
                 zone: ZoneKind::Hand,
                 ..
             }
@@ -418,7 +417,6 @@ impl HandcraftedPolicy {
             }
             EffectDef::MoveToZone {
                 object,
-                from: None,
                 zone: ZoneKind::Exile,
                 ..
             } if object.legal_target().is_some_and(|target| {

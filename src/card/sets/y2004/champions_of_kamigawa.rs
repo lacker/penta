@@ -117,7 +117,6 @@ static TOP_DRAWS_AND_LEAVES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Source,
-        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,

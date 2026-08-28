@@ -21,7 +21,6 @@ static PATH_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: None,
         zone: ZoneKind::Exile,
         controller: None,
         placement: ZonePlacement::Top,

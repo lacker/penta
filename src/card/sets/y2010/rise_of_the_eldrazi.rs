@@ -21,7 +21,6 @@ static EMRAKUL_SHUFFLES_GRAVEYARD: [EffectDef; 2] = [
             &[ZoneKind::Graveyard],
             PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
         ))),
-        from: None,
         zone: ZoneKind::Library,
         controller: None,
         placement: ZonePlacement::Top,

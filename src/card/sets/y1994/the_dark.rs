@@ -350,7 +350,6 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -816,7 +815,6 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_wi
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,
@@ -956,7 +954,6 @@ pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new_wit
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Exile,
                     controller: None,
                     placement: ZonePlacement::Top,
@@ -2433,7 +2430,6 @@ pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -2491,7 +2487,6 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new_wit
                 &[ZoneKind::Graveyard],
                 TargetIndex::PRIMARY,
             ),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,

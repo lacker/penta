@@ -176,7 +176,6 @@ pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Bottom,
                 arrival_effect: None,
@@ -549,7 +548,6 @@ pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new_wi
                     then: &EffectDef::MoveToZone {
                         counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        from: None,
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
                         arrival_effect: None,
@@ -863,7 +861,6 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_leg
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
-                from: None,
                 zone: ZoneKind::Library,
                 controller: None,
                 placement: ZonePlacement::Bottom,
@@ -1362,7 +1359,6 @@ pub(in crate::card::sets) static INTO_THE_VOID: CardRecord = CardRecord::new_wit
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1469,7 +1465,6 @@ pub(in crate::card::sets) static MIST_RAVEN: CardRecord = CardRecord::new_with_l
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1557,7 +1552,6 @@ pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -1568,7 +1562,6 @@ pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex(1)),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -1776,7 +1769,6 @@ pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new_with_l
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1955,7 +1947,6 @@ pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new_wit
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -2100,8 +2091,7 @@ pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with
             "Whenever a creature dealt damage by this creature this turn dies, return it to the battlefield under your control. That creature is a black Zombie in addition to its other colors and types.",
             EffectDef::MoveToZone {
                 counters: None,
-                object: EffectRecipientDef::TriggeringObject,
-                from: None,
+                object: EffectRecipientDef::TriggeringZoneChangeResult,
                 zone: ZoneKind::Battlefield,
                 controller: Some(PlayerRelation::You),
                 placement: ZonePlacement::Top,
@@ -2131,7 +2121,6 @@ pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::ne
             })], EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -2601,7 +2590,6 @@ pub(in crate::card::sets) static ARCHWING_DRAGON: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Source,
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -4800,7 +4788,6 @@ pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord
             })], EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Bottom,
                 arrival_effect: None,

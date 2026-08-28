@@ -32,7 +32,6 @@ static MYSTIC_CONFLUENCE_MODES: [AbilityDef; 3] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             controller: None,

@@ -326,7 +326,6 @@ static SOUL_GUIDE_LANTERN_ABILITIES: [AbilityDef; 3] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -348,7 +347,6 @@ static SOUL_GUIDE_LANTERN_ABILITIES: [AbilityDef; 3] = [
                 &[ZoneKind::Graveyard],
                 PlayerRelation::Opponent,
             ),
-            from: None,
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
             arrival_effect: None,

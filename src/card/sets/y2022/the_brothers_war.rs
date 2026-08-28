@@ -149,7 +149,6 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
             &A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT,
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 controller: None,
                 placement: ZonePlacement::Top,
@@ -309,7 +308,6 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: Some(&AS_A_PHYREXIAN),

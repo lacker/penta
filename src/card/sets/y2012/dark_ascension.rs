@@ -82,7 +82,6 @@ static ARCHANGELS_LIGHT_EFFECTS: [EffectDef; 3] = [
             &[ZoneKind::Graveyard],
             PlayerRelation::You,
         ),
-        from: None,
         zone: ZoneKind::Library,
         controller: None,
         placement: ZonePlacement::Top,
@@ -642,7 +641,6 @@ pub(in crate::card::sets) static THRABEN_HERETIC: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -879,7 +877,6 @@ pub(in crate::card::sets) static GRIPTIDE: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -978,7 +975,6 @@ pub(in crate::card::sets) static MYSTIC_RETRIEVAL: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1049,7 +1045,6 @@ pub(in crate::card::sets) static SAVING_GRASP: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,

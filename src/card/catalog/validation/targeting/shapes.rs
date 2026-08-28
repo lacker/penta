@@ -626,7 +626,10 @@ fn recipient_may_name_nonbattlefield_object(
             .any(|zone| *zone != ZoneKind::Battlefield),
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
-                ObjectRefDef::Binding(_) | ObjectRefDef::AdditionalCostObject(_),
+                ObjectRefDef::Binding(_)
+                | ObjectRefDef::AdditionalCostObject(_)
+                | ObjectRefDef::ZoneChangeSuccessor(_)
+                | ObjectRefDef::ZoneChangeResultOfTriggeringObject,
             )
             | ObjectSetDef::Binding(_)
             | ObjectSetDef::MatchingBinding { .. }
@@ -711,6 +714,8 @@ fn recipient_nonbattlefield_zones_support_flashback(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
                 ObjectRefDef::Source
+                | ObjectRefDef::ZoneChangeSuccessor(_)
+                | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AttachedToSource

@@ -411,7 +411,7 @@ static REBOUND_OFFER: AbilityDef = AbilityDef::triggered(
         player: PlayerRelation::You,
     },
     EffectDef::MayCastTargetWithoutPaying {
-        object: EffectRecipientDef::Source,
+        object: EffectRecipientDef::SourceZoneChangeSuccessor,
         ability: &REBOUND_FREE_CAST,
     },
 );
@@ -473,7 +473,7 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
 static ETERNALIZE_ADDED_TYPES: [&str; 1] = ["Zombie"];
 
 static ETERNALIZE_COPY: crate::card::TokenCopyDef = crate::card::TokenCopyDef {
-    object: &EffectRecipientDef::Source,
+    object: &EffectRecipientDef::SourceZoneChangeSuccessor,
     exceptions: CopyExceptionsDef::undead(
         4,
         4,

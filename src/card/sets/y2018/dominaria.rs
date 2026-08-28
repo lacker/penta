@@ -51,7 +51,6 @@ static YOUR_SILVER_CARDS: ObjectQueryDef = ObjectQueryDef::owned_by(
 static KARN_RETURNS_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,
@@ -185,7 +184,6 @@ static TEFERI_TUCK_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 static TEFERI_TUCKS_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: Some(ZoneKind::Battlefield),
     zone: ZoneKind::Library,
     placement: ZonePlacement::FromTop(3),
     controller: None,
@@ -197,7 +195,6 @@ static TEFERI_TUCKS_IT: EffectDef = EffectDef::MoveToZone {
 static TEFERI_EMBLEM_EXILES_IT: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    from: Some(ZoneKind::Battlefield),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
     controller: None,

@@ -43,8 +43,7 @@ static IT_WAS_A_CREATURE: TriggerConditionDef = TriggerConditionDef::SourceMatch
 
 static INNOCENCE_RETURNS: EffectDef = EffectDef::MoveToZone {
     counters: None,
-    object: EffectRecipientDef::Source,
-    from: None,
+    object: EffectRecipientDef::SourceZoneChangeSuccessor,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: None,
@@ -181,7 +180,6 @@ static A_NON_AVATAR_CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredica
 static OVERLORD_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
     controller: None,

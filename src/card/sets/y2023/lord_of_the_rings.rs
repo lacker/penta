@@ -151,7 +151,6 @@ static REPRIEVE_TARGET: [AbilityTargetDef; 1] =
 static REPRIEVE_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        from: Some(ZoneKind::Stack),
         zone: ZoneKind::Hand,
         controller: None,
         placement: ZonePlacement::Top,

@@ -43,7 +43,6 @@ pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
 static SERUM_POWDER_EXILE_AND_DRAW: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        from: Some(ZoneKind::Hand),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,

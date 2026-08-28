@@ -178,7 +178,7 @@ fn reassembling_skeleton_activates_from_the_graveyard_and_returns_tapped() {
 }
 
 #[test]
-fn a_zone_guarded_move_does_not_follow_its_source_out_of_the_graveyard() {
+fn an_exact_source_reference_does_not_follow_a_card_out_of_the_graveyard() {
     let mut game = ready();
     let skeleton = put_in_graveyard(
         &mut game,

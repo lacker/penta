@@ -122,7 +122,6 @@ static JACE_ULTIMATE: [EffectDef; 3] = [
         object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
             THE_TARGET_PLAYERS_LIBRARY,
         )),
-        from: None,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         controller: None,
@@ -135,7 +134,6 @@ static JACE_ULTIMATE: [EffectDef; 3] = [
         object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
             THE_TARGET_PLAYERS_HAND,
         )),
-        from: None,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
@@ -175,7 +173,6 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             controller: None,

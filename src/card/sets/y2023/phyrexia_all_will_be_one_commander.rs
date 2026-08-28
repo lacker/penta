@@ -91,7 +91,6 @@ static OTHARRI_ABILITIES: [AbilityDef; 5] = [
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Source,
-            from: None,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             controller: None,

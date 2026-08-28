@@ -885,7 +885,6 @@ pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1327,8 +1326,7 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
             // is the one already in the graveyard.
             abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
                     counters: None,
-                    object: EffectRecipientDef::TriggeringObject,
-                    from: None,
+                    object: EffectRecipientDef::SourceZoneChangeSuccessor,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,

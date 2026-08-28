@@ -481,7 +481,6 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
         | EffectDef::DiscardCards { object }
         | EffectDef::MoveToZone {
             object,
-            from: None,
             zone: ZoneKind::Graveyard | ZoneKind::Exile,
             ..
         } => recipient_uses_binding(object, binding),
@@ -554,7 +553,6 @@ fn effect_matches_group_operation(
     match effect {
         EffectDef::MoveToZone {
             object,
-            from: None,
             zone: ZoneKind::Hand,
             ..
         } if matches!(operation, GroupOperation::MoveToHand) => recipient_matches(object),

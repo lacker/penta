@@ -32,7 +32,6 @@ pub const fn begin_game_on_battlefield(text: &'static str) -> AbilityDef {
         text,
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Source,
-            from: Some(ZoneKind::Hand),
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
             controller: None,

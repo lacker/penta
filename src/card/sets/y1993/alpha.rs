@@ -809,7 +809,6 @@ pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new_with
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -932,7 +931,6 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -1853,7 +1851,6 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1979,7 +1976,6 @@ static ANIMATE_DEAD_REANIMATES: EffectDef = EffectDef::MoveToZone {
     // "Return enchanted creature card": what the Aura is already attached
     // to, which is the card its own spell targeted.
     object: EffectRecipientDef::AttachedPermanent,
-    from: None,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: Some(PlayerRelation::You),
@@ -2507,7 +2503,6 @@ pub(in crate::card::sets) static NETHER_SHADOW: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
-                    from: Some(ZoneKind::Graveyard),
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                     controller: None,
@@ -2680,7 +2675,6 @@ pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new_with_l
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -4629,7 +4623,6 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new_with_leg
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             controller: None,
             placement: ZonePlacement::Top,

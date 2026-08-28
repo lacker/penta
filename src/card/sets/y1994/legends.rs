@@ -990,7 +990,6 @@ pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new_with_le
         EffectDef::MoveToZone {
             counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            from: None,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
             arrival_effect: None,
@@ -1182,7 +1181,6 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -1909,8 +1907,7 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
             "When this creature dies, exile it.",
             EffectDef::MoveToZone {
                 counters: None,
-                object: EffectRecipientDef::Source,
-                from: None,
+                object: EffectRecipientDef::SourceZoneChangeSuccessor,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -2153,7 +2150,6 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new_w
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -2645,7 +2641,6 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,
@@ -4160,7 +4155,6 @@ pub(in crate::card::sets) static SUBDUE: CardRecord = CardRecord::new_with_legac
 static SYLVAN_PUT_BACK: EffectDef = EffectDef::MoveToZone {
     counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    from: None,
     zone: ZoneKind::Library,
     placement: ZonePlacement::Top,
     arrival_effect: None,
@@ -4406,7 +4400,6 @@ pub(in crate::card::sets) static ADUN_OAKENSHIELD: CardRecord = CardRecord::new_
             EffectDef::MoveToZone {
                 counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                from: None,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,
@@ -6147,7 +6140,6 @@ pub(in crate::card::sets) static KARAKAS: CardRecord = CardRecord::new_with_lega
                 EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    from: None,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,

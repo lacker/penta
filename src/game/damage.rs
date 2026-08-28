@@ -393,6 +393,8 @@ impl Game {
                 self.current_or_last_known_attached_host(effect_source)
             }
             ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::ZoneChangeSuccessor(_)
+            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::Binding(_)
             | ObjectRefDef::AdditionalCostObject(_)
             | ObjectRefDef::Target(_)

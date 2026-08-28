@@ -445,6 +445,71 @@ impl Game {
             .saturating_add(u16::try_from(died).unwrap_or(u16::MAX));
     }
 
+    /// Installs every destination object for one simultaneous exit batch and
+    /// returns the post-move snapshots in the same order as `removed`.
+    fn install_battlefield_exit_destinations(
+        &mut self,
+        removed: &[RemovedBattlefieldObject],
+    ) -> Vec<Option<TriggerEventObject>> {
+        let mut after = Vec::with_capacity(removed.len());
+        for (permanent, _, _, to, _, _) in removed {
+            let exit = match to.zone {
+                ZoneKind::Exile => BattlefieldExit::Exile,
+                ZoneKind::Graveyard => BattlefieldExit::Graveyard,
+                ZoneKind::Hand => BattlefieldExit::Hand,
+                ZoneKind::Library => BattlefieldExit::LibraryTop,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
+            };
+            self.record_battlefield_exit(permanent, exit);
+            // 111.7: a token that leaves the battlefield ceases to exist. The
+            // exit and everything watching for it still happened.
+            if permanent.card.definition.is_token() {
+                after.push(None);
+                continue;
+            }
+            let owner = permanent.card.owner;
+            let (mut card, _zone_change) = self.zone_change_card(
+                permanent
+                    .card
+                    .clone()
+                    .into_card()
+                    .expect("a nontoken permanent is backed by a card definition"),
+            );
+            // The card is a new object in its new zone, so the counter goes
+            // on after the identity change rather than before it.
+            if let Some((kind, amount)) = to.counters {
+                card.add_counters(kind, amount);
+            }
+            let context = match to.zone {
+                ZoneKind::Library => CharacteristicContext::Library,
+                ZoneKind::Hand => CharacteristicContext::Hand,
+                ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                ZoneKind::Exile => CharacteristicContext::Exile,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
+            };
+            after.push(self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &context,
+            ));
+            match to.zone {
+                ZoneKind::Exile => self.players[owner.index()].exile.push(card),
+                ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
+                ZoneKind::Hand => self.players[owner.index()].hand.push(card),
+                ZoneKind::Library => self.players[owner.index()].library.push(card),
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
+            }
+        }
+        after
+    }
+
     fn commit_battlefield_exit_batch(&mut self, batch: PendingBattlefieldExitBatch) {
         let completion = batch.completion;
         let mut listeners = self.battlefield_trigger_listeners();
@@ -503,62 +568,7 @@ impl Game {
         // triggers. Each event can then name both the permanent that left and
         // the exact new card that arrived, while the listener snapshot above
         // still preserves every battlefield ability that existed beforehand.
-        let mut after = Vec::with_capacity(removed.len());
-        for (permanent, _, _, to, _, _) in &removed {
-            let exit = match to.zone {
-                ZoneKind::Exile => BattlefieldExit::Exile,
-                ZoneKind::Graveyard => BattlefieldExit::Graveyard,
-                ZoneKind::Hand => BattlefieldExit::Hand,
-                ZoneKind::Library => BattlefieldExit::LibraryTop,
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
-                    unreachable!("unsupported battlefield-exit replacement destination")
-                }
-            };
-            self.record_battlefield_exit(&permanent, exit);
-            // 111.7: a token that leaves the battlefield ceases to exist. The
-            // exit and everything watching for it still happened.
-            if permanent.card.definition.is_token() {
-                after.push(None);
-                continue;
-            }
-            let owner = permanent.card.owner;
-            let (mut card, _zone_change) = self.zone_change_card(
-                permanent
-                    .card
-                    .clone()
-                    .into_card()
-                    .expect("a nontoken permanent is backed by a card definition"),
-            );
-            // The card is a new object in its new zone, so the counter goes
-            // on after the identity change rather than before it.
-            if let Some((kind, amount)) = to.counters {
-                card.add_counters(kind, amount);
-            }
-            let context = match to.zone {
-                ZoneKind::Library => CharacteristicContext::Library,
-                ZoneKind::Hand => CharacteristicContext::Hand,
-                ZoneKind::Graveyard => CharacteristicContext::Graveyard,
-                ZoneKind::Exile => CharacteristicContext::Exile,
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
-                    unreachable!("unsupported battlefield-exit replacement destination")
-                }
-            };
-            after.push(self.printed_trigger_event_object(
-                card.id,
-                card.definition,
-                owner,
-                &context,
-            ));
-            match to.zone {
-                ZoneKind::Exile => self.players[owner.index()].exile.push(card),
-                ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
-                ZoneKind::Hand => self.players[owner.index()].hand.push(card),
-                ZoneKind::Library => self.players[owner.index()].library.push(card),
-                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
-                    unreachable!("unsupported battlefield-exit replacement destination")
-                }
-            }
-        }
+        let after = self.install_battlefield_exit_destinations(&removed);
 
         let events = Self::battlefield_exit_events(&removed, &after);
         for (((_, _, _, destination, _, _), after), event) in

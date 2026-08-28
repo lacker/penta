@@ -34,10 +34,10 @@ impl Game {
         Some(matcher.observation)
     }
 
-    fn zone_change_event_object<'a>(
+    fn zone_change_event_object(
         definition: TriggerEventDef,
-        event: &'a CommittedTriggerEvent,
-    ) -> Option<&'a TriggerEventObject> {
+        event: &CommittedTriggerEvent,
+    ) -> Option<&TriggerEventObject> {
         let CommittedTriggerEvent::ZoneChanged { before, after, .. } = event else {
             return None;
         };

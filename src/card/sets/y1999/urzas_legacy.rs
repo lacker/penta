@@ -1324,7 +1324,7 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
             // this fires whether the creature was answered or the Aura was.
             // It is the same trigger either way, and the card that comes back
             // is the one already in the graveyard.
-            abilities::battlefield_to_graveyard_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
+            abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
                     counters: None,
                     object: EffectRecipientDef::TriggeringZoneChangeResult,
                     zone: ZoneKind::Hand,

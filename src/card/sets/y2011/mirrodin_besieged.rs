@@ -1756,7 +1756,7 @@ pub(in crate::card::sets) static FANGREN_MARAUDER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f5cf62a2-d03a-495d-924a-bf79524175fa", "James Ryman"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{5}{G}"), &["Beast"], 5, 5).with_ability(
-        abilities::battlefield_to_graveyard_trigger_matching(
+        abilities::dies_trigger_matching(
             "Whenever an artifact is put into a graveyard from the battlefield, you may gain 5 life.",
             ObjectPredicateDef::HasType(CardType::Artifact),
             EffectDef::May {
@@ -2570,7 +2570,7 @@ pub(in crate::card::sets) static MAGNETIC_MINE: CardRecord = CardRecord::new(
     "Magnetic Mine",
     crate::card::CardArt::new("5ed2f7dc-3ada-4490-8c1f-1d03bd4840f5", "David Rapoza"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_artifact(mana_cost!("{4}")).with_ability(abilities::battlefield_to_graveyard_trigger_matching(
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(abilities::dies_trigger_matching(
         "Whenever another artifact is put into a graveyard from the battlefield, this artifact deals 2 damage to that artifact's controller.",
         ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Artifact),
@@ -3158,7 +3158,7 @@ pub(in crate::card::sets) static SPINE_OF_ISH_SAH: CardRecord = CardRecord::new(
                 then: None,
             },
         ),
-        abilities::battlefield_to_graveyard_trigger(
+        abilities::dies_trigger(
             "When this artifact is put into a graveyard from the battlefield, return it to its owner's hand.",
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::TriggeringZoneChangeResult,

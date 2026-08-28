@@ -1,4 +1,4 @@
-// Reusable trigger shapes for creatures dying.
+// Reusable enters-the-battlefield and battlefield-to-graveyard trigger shapes.
 //
 // Included textually into `abilities.rs`, so these constructors share its
 // model imports and remain in the public `card::abilities` namespace.
@@ -28,77 +28,35 @@ pub const fn enters_trigger_with_targets(
     )
 }
 
-/// A source creature's own dies trigger.
+/// A source permanent's own battlefield-to-graveyard trigger ("dies" for a creature).
 #[must_use]
 pub const fn dies_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {
-    battlefield_to_graveyard_trigger(text, effect)
+    dies_trigger_matching(text, ObjectPredicateDef::Source, effect)
 }
 
-/// A targeted source creature's own dies trigger.
+/// The targeted form of [`dies_trigger`].
 #[must_use]
 pub const fn dies_trigger_with_targets(
     text: &'static str,
     targets: &'static [AbilityTargetDef],
     effect: EffectDef,
 ) -> AbilityDef {
-    battlefield_to_graveyard_trigger_with_targets(text, targets, effect)
+    dies_trigger_matching_with_targets(text, ObjectPredicateDef::Source, targets, effect)
 }
 
-/// A dies trigger for any creature matching `object`.
+/// A battlefield-to-graveyard trigger for any permanent matching `object`.
 #[must_use]
 pub const fn dies_trigger_matching(
     text: &'static str,
     object: ObjectPredicateDef,
     effect: EffectDef,
 ) -> AbilityDef {
-    battlefield_to_graveyard_trigger_matching(text, object, effect)
+    dies_trigger_matching_with_targets(text, object, &[], effect)
 }
 
-/// A targeted dies trigger for any creature matching `object`.
+/// The targeted form of [`dies_trigger_matching`].
 #[must_use]
 pub const fn dies_trigger_matching_with_targets(
-    text: &'static str,
-    object: ObjectPredicateDef,
-    targets: &'static [AbilityTargetDef],
-    effect: EffectDef,
-) -> AbilityDef {
-    battlefield_to_graveyard_trigger_matching_with_targets(text, object, targets, effect)
-}
-
-/// A source permanent's own battlefield-to-graveyard trigger.
-#[must_use]
-pub const fn battlefield_to_graveyard_trigger(text: &'static str, effect: EffectDef) -> AbilityDef {
-    battlefield_to_graveyard_trigger_matching(text, ObjectPredicateDef::Source, effect)
-}
-
-/// A targeted source permanent's own battlefield-to-graveyard trigger.
-#[must_use]
-pub const fn battlefield_to_graveyard_trigger_with_targets(
-    text: &'static str,
-    targets: &'static [AbilityTargetDef],
-    effect: EffectDef,
-) -> AbilityDef {
-    battlefield_to_graveyard_trigger_matching_with_targets(
-        text,
-        ObjectPredicateDef::Source,
-        targets,
-        effect,
-    )
-}
-
-/// A battlefield-to-graveyard trigger for any permanent matching `object`.
-#[must_use]
-pub const fn battlefield_to_graveyard_trigger_matching(
-    text: &'static str,
-    object: ObjectPredicateDef,
-    effect: EffectDef,
-) -> AbilityDef {
-    battlefield_to_graveyard_trigger_matching_with_targets(text, object, &[], effect)
-}
-
-/// A targeted battlefield-to-graveyard trigger for any matching permanent.
-#[must_use]
-pub const fn battlefield_to_graveyard_trigger_matching_with_targets(
     text: &'static str,
     object: ObjectPredicateDef,
     targets: &'static [AbilityTargetDef],

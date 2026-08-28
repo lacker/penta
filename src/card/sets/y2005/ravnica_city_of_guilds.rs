@@ -1,11 +1,13 @@
 //! Ravnica: City of Guilds cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::abilities;
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, PlayerRelation,
-    TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    AbilityDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, MoveObjectsDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement,
 };
-use crate::mana_cost;
+use crate::{ObjectSetBindingIndex, mana_cost};
 
 // RAV 81 — Dark Confidant
 /// "You lose life equal to its mana value." The card is in your hand by the
@@ -19,28 +21,25 @@ static CONFIDANT_PAYMENT: EffectDef = EffectDef::LoseLife {
 /// One card off the top, shown to everybody, into your hand. Nothing is
 /// chosen and nothing may be declined: the minimum and the maximum are both
 /// the one card the trigger names.
-static CONFIDANT_REVEAL: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: true,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&CONFIDANT_PAYMENT),
-};
+const CONFIDANT_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+static CONFIDANT_PUT_IN_HAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(CONFIDANT_CARD),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &CONFIDANT_PAYMENT,
+});
+static CONFIDANT_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(CONFIDANT_CARD),
+    then: &CONFIDANT_PUT_IN_HAND,
+});
+static CONFIDANT_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    CONFIDANT_CARD,
+    &CONFIDANT_REVEAL,
+);
 
 pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94f7a441-bf2d-46fb-a7b6-9bd6137f86d9"),
@@ -58,11 +57,7 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &CONFIDANT_REVEAL,
-            },
+            CONFIDANT_EFFECT,
         ),
     ),
 );

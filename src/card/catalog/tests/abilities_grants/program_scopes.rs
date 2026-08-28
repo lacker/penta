@@ -725,17 +725,15 @@ fn merged_effect_vocabulary_preserves_local_target_bounds() {
                 out_of_range,
             ),
         },
-        EffectDef::SplitIntoPiles(SplitIntoPilesDef {
-            items: PartitionItemsDef::Objects(ObjectSetDef::Query(ObjectQueryDef::new(
+        EffectDef::PartitionGroup(crate::card::PartitionGroupDef {
+            actor: PlayerRefDef::ControllerOf(ObjectRefDef::Target(out_of_range)),
+            input: ObjectSetDef::Query(ObjectQueryDef::new(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Battlefield],
-            ))),
-            divider: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                out_of_range,
-            ))),
-            chooser: PlayerSetDef::One(PlayerRefDef::EffectController),
-            chosen: ObjectSetBindingIndex::PRIMARY,
-            unchosen: ObjectSetBindingIndex::new(1),
+            )),
+            first: ObjectSetBindingIndex::PRIMARY,
+            second: ObjectSetBindingIndex::new(1),
+            visibility: ChoiceVisibilityDef::Public,
             then: &EffectDef::None,
         }),
         EffectDef::Mill {
@@ -773,58 +771,6 @@ fn merged_effect_vocabulary_preserves_local_target_bounds() {
     ];
     super::validate_ability_targets(&TARGETS, EffectDef::Sequence(&VALID_SEQUENCE))
         .expect("implicit divided values and target-free combat effects add no slot reference");
-}
-
-#[test]
-fn pile_roles_reject_player_sets_that_can_resolve_to_multiple_players() {
-    let partition = |divider, chooser| {
-        EffectDef::SplitIntoPiles(SplitIntoPilesDef {
-            items: PartitionItemsDef::Objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                ObjectPredicateDef::Any,
-                &[ZoneKind::Battlefield],
-            ))),
-            divider,
-            chooser,
-            chosen: ObjectSetBindingIndex::PRIMARY,
-            unchosen: ObjectSetBindingIndex::new(1),
-            then: &EffectDef::None,
-        })
-    };
-
-    assert_eq!(
-        super::validate_ability_targets(
-            &[],
-            partition(
-                PlayerSetDef::All,
-                PlayerSetDef::One(PlayerRefDef::EffectController),
-            ),
-        ),
-        Err(GrantedAbilityValidationError::InvalidPileRole {
-            role: "divider",
-            players: PlayerSetDef::All,
-        })
-    );
-    assert_eq!(
-        super::validate_ability_targets(
-            &[],
-            partition(
-                PlayerSetDef::One(PlayerRefDef::EffectController),
-                PlayerSetDef::Related(PlayerRelation::Any),
-            ),
-        ),
-        Err(GrantedAbilityValidationError::InvalidPileRole {
-            role: "chooser",
-            players: PlayerSetDef::Related(PlayerRelation::Any),
-        })
-    );
-    super::validate_ability_targets(
-        &[],
-        partition(
-            PlayerSetDef::Related(PlayerRelation::Opponent),
-            PlayerSetDef::One(PlayerRefDef::EffectController),
-        ),
-    )
-    .expect("an opponent relation and a single player reference are singleton roles");
 }
 
 #[test]

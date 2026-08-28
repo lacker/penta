@@ -82,6 +82,7 @@ impl Game {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_linked_exile_effect(
         &mut self,
         scoped: ScopedEffect,
@@ -104,6 +105,34 @@ impl Game {
                     context,
                     scoped,
                 );
+            }
+            EffectDef::PermitLookAtExiled {
+                object: recipient,
+                player,
+                then,
+            } => {
+                let Some(player) = self.effect_player_reference(player, object, context, scoped)
+                else {
+                    return;
+                };
+                for target in self.effect_recipients(recipient, object, context, scoped) {
+                    let Target::Card(card) = target else {
+                        continue;
+                    };
+                    let exiled = self
+                        .card_in_nonbattlefield_zone(card)
+                        .is_some_and(|(zone, _)| zone == crate::card::ZoneKind::Exile)
+                        .then_some(card)
+                        .or_else(|| self.successors.get(&card).copied());
+                    if let Some(exiled) = exiled
+                        && self
+                            .card_in_nonbattlefield_zone(exiled)
+                            .is_some_and(|(zone, _)| zone == crate::card::ZoneKind::Exile)
+                    {
+                        self.permit_look_while_exiled(exiled, player);
+                    }
+                }
+                self.resolve_effect_def(scoped.with_effect(*then), object, context.clone());
             }
             EffectDef::ExileGrantingOwnerPlay {
                 object: recipient,

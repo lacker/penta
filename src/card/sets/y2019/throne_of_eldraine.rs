@@ -11,8 +11,8 @@ use crate::card::{
     EffectRecipientDef, ExilePlayConditionDef, ExilePlayDurationDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, tokens,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, tokens,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
@@ -438,29 +438,6 @@ static A_CREATURE_OR_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&
     ObjectPredicateDef::HasType(CardType::Land),
 ]);
 
-static ONCE_UPON_A_TIME_DIGS: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(5),
-    object: Some(A_CREATURE_OR_LAND_CARD),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 /// The spell asking is counted as it goes on the stack, so a spell that is
 /// the first one asks about a tally still standing at zero.
 static NOTHING_CAST_YET: ValueComparisonDef = ValueComparisonDef {
@@ -494,11 +471,12 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
             "Look at the top five cards of your library. You may reveal a creature or land card \
              from among them and put it into your hand. Put the rest on the bottom of your \
              library in a random order.",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &ONCE_UPON_A_TIME_DIGS,
-            },
+            abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                ValueDef::Constant(5),
+                A_CREATURE_OR_LAND_CARD,
+                0,
+                1,
+            ),
         ),
     ]),
 );

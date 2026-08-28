@@ -5,10 +5,10 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef,
     CostAmountDef, CounterKind, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, SpellCastQueryDef,
-    SpellCostConditionDef, TokenCharacteristics, TopCardSelectionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    InstalledTriggerDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    RevealObjectsDef, SpellCastQueryDef, SpellCostConditionDef, TokenCharacteristics,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -16,28 +16,52 @@ use crate::mana_cost;
 // DOM 1 — Karn, Scion of Urza
 /// The opponent chooses which of the two you keep, so what Karn draws is
 /// always the worse half -- and the better one waits in exile for his minus.
-static KARN_REVEALS_TWO: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(2),
-    object: None,
+const KARN_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const KARN_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const KARN_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const KARN_EXILED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static KARN_ADD_SILVER: EffectDef = EffectDef::AddCounters {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(KARN_EXILED)),
+    kind: CounterKind::named("silver"),
+    amount: ValueDef::Constant(1),
+};
+static KARN_EXILE_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(KARN_REST),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Exile,
+    placement: ZonePlacement::Top,
+    moved: Some(KARN_EXILED),
+    then: &KARN_ADD_SILVER,
+});
+static KARN_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(KARN_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &KARN_EXILE_REST,
+});
+static KARN_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
+    unchosen: Some(KARN_REST),
+    chooser: PlayerRefDef::Opponent,
+    candidates: ObjectSetDef::Binding(KARN_INSPECTED),
+    exclude: None,
     minimum: 1,
     maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Exile,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: Some((CounterKind::named("silver"), 1)),
-    selected_order_follows_choice: false,
-    then: None,
-};
+    visibility: ChoiceVisibilityDef::Public,
+    then: &KARN_PUT_CHOSEN,
+});
+static KARN_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(KARN_INSPECTED),
+    then: &KARN_CHOOSE,
+});
+static KARN_REVEALS_TWO: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(2),
+    KARN_INSPECTED,
+    &KARN_REVEAL,
+);
 
 /// "A card you own with a silver counter on it from exile": the counter is
 /// what makes the pile nameable at all, since exile holds everything anybody
@@ -83,11 +107,7 @@ static KARN_ABILITIES: [AbilityDef; 3] = [
         "+1: Reveal the top two cards of your library. An opponent chooses one of them. Put that \
          card into your hand and exile the other with a silver counter on it.",
         &[AbilityCostDef::Loyalty(1)],
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Opponent,
-            selection: &KARN_REVEALS_TWO,
-        },
+        KARN_REVEALS_TWO,
     ),
     AbilityDef::activated(
         "\u{2212}1: Put a card you own with a silver counter on it from exile into your hand.",

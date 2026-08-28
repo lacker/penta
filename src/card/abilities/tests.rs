@@ -1,26 +1,30 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        banding, bloodrush, check_land_enters, creature_damaged_by_source_dies_trigger,
+        banding, bind_top_cards_then, bind_top_cards_through_first_matching_then, bloodrush,
+        check_land_enters, creature_damaged_by_source_dies_trigger,
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
         enters_trigger, enters_trigger_with_targets, exile_and_return_transformed,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
-        flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
+        flashback_for_card_mana_cost, flying, intimidate, living_weapon, look_at_top_cards,
+        look_at_top_cards_choose_to_hand_rest_bottom, look_at_top_cards_then, overload, pain_land,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
-        reveal_hand_and_exile_chosen_card, shock_land_enters, storm, tap_for, EQUIP_TARGET, equip,
+        reveal_hand_and_exile_chosen_card,
+        reveal_top_cards_put_matching_in_hand_rest_graveyard, shock_land_enters, storm, tap_for,
+        EQUIP_TARGET, equip,
     };
     use crate::card::{
         AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
-        DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef, EffectRecipientDef, KeywordAbility,
-        ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
-        PlayerSetDef, ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef,
-        ZoneKind,
+        CollectionInspectionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
+        EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectCollectionSourceDef,
+        ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+        ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
     };
-    use crate::ids::ObjectBindingIndex;
+    use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
     use crate::TargetIndex;
     use crate::mana_cost;
 
@@ -37,6 +41,103 @@ mod tests {
             "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
         );
         assert!(ability.is_executable());
+    }
+
+    #[test]
+    fn look_at_top_cards_hides_collection_plumbing_for_pure_looks() {
+        static THEN: EffectDef = EffectDef::Special("after the look");
+        let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
+
+        let EffectDef::LookAtObjects(look) =
+            look_at_top_cards(player, ValueDef::Constant(3))
+        else {
+            panic!("the helper should build one information action")
+        };
+        assert_eq!(look.actor, PlayerRefDef::EffectController);
+        assert_eq!(
+            look.source,
+            ObjectCollectionSourceDef::TopCards {
+                player,
+                count: ValueDef::Constant(3),
+            },
+        );
+        assert_eq!(*look.then, EffectDef::None);
+
+        let EffectDef::LookAtObjects(look) =
+            look_at_top_cards_then(player, ValueDef::Constant(5), &THEN)
+        else {
+            panic!("the continuation helper should use the same information action")
+        };
+        assert_eq!(look.then, &THEN);
+    }
+
+    #[test]
+    fn collection_helpers_distinguish_fixed_and_predicate_bounded_sources() {
+        static THEN: EffectDef = EffectDef::Special("after binding");
+        let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
+        let binding = ObjectSetBindingIndex::PRIMARY;
+
+        let EffectDef::BindObjects(fixed) =
+            bind_top_cards_then(player, ValueDef::Constant(4), binding, &THEN)
+        else {
+            panic!("fixed top cards should use the generic binding stage")
+        };
+        assert_eq!(
+            fixed.source,
+            ObjectCollectionSourceDef::TopCards {
+                player,
+                count: ValueDef::Constant(4),
+            }
+        );
+
+        let stop = ObjectPredicateDef::HasType(CardType::Land);
+        let EffectDef::BindObjects(bounded) =
+            bind_top_cards_through_first_matching_then(player, stop, binding, &THEN)
+        else {
+            panic!("a reveal-until source should use the same generic binding stage")
+        };
+        assert_eq!(
+            bounded.source,
+            ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                player,
+                object: stop,
+            }
+        );
+        assert_eq!(bounded.then, &THEN);
+    }
+
+    #[test]
+    fn ordinary_top_card_workflows_are_single_semantic_effects() {
+        let predicate = ObjectPredicateDef::HasType(CardType::Instant);
+        let EffectDef::ChooseCardsFromCollection(choice) =
+            look_at_top_cards_choose_to_hand_rest_bottom(
+                ValueDef::Constant(4),
+                predicate,
+                0,
+                1,
+            )
+        else {
+            panic!("an ordinary dig should not expose its binding pipeline")
+        };
+        assert_eq!(choice.inspection, CollectionInspectionDef::Look);
+        assert_eq!(choice.object, predicate);
+        assert_eq!((choice.minimum, choice.maximum), (0, 1));
+
+        let EffectDef::RevealAndClassifyCards(classify) =
+            reveal_top_cards_put_matching_in_hand_rest_graveyard(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::HasType(CardType::Land),
+            )
+        else {
+            panic!("a mandatory split should be one classification procedure")
+        };
+        assert_eq!(
+            classify.source,
+            ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(4),
+            },
+        );
     }
 
     #[test]

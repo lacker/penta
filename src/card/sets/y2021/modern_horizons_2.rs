@@ -12,9 +12,8 @@ use crate::card::{
     MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SetOperationDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    SetOperationDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -486,8 +485,6 @@ static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::Al
     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
 ]);
 
-static CHANNELER_SURVEIL: TopCardSelectionDef = abilities::surveil(1, None);
-
 /// Four card types among the cards in your own graveyard, which the surveil
 /// above is what fills: the look is the cost of nothing and the delirium is
 /// what it buys.
@@ -530,11 +527,7 @@ static CHANNELER_ABILITIES: [AbilityDef; 2] = [
         "Whenever you cast a noncreature spell, surveil 1. (Look at the top card of your library. \
          You may put that card into your graveyard.)",
         TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &CHANNELER_SURVEIL,
-        },
+        abilities::surveil(ValueDef::Constant(1)),
     ),
     // "As long as", so it is asked live rather than once: the 3/3 flier is
     // a 1/1 again the moment the fourth card type leaves the graveyard.

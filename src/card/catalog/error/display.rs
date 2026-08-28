@@ -347,16 +347,6 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} binds {binding:?} from a choice requiring at least {minimum} objects and allowing at most {maximum}"
             ),
-            Self::InvalidAbilityPileRole {
-                definition,
-                part,
-                ability,
-                role,
-                players,
-            } => write!(
-                formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} uses {players:?} for pile {role}, but that role must select at most one player"
-            ),
             Self::InvalidAbilityPaymentPayer {
                 definition,
                 part,

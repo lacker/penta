@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, ScaledValueDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // OTJ 45 — Duelist of the Mind
 /// "Draw a card. If you do, discard a card." A draw from an empty library
@@ -111,28 +111,25 @@ static BRONCO_PAYMENT_SEQUENCE: EffectDef = EffectDef::Sequence(&BRONCO_PAYMENT)
 
 /// The reveal itself: one card off the top, shown to everybody, into your
 /// hand, and then the clause above reads what it cost.
-static BRONCO_REVEAL: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: true,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&BRONCO_PAYMENT_SEQUENCE),
-};
+const BRONCO_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+static BRONCO_PUT_IN_HAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(BRONCO_CARD),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &BRONCO_PAYMENT_SEQUENCE,
+});
+static BRONCO_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(BRONCO_CARD),
+    then: &BRONCO_PUT_IN_HAND,
+});
+static BRONCO_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    BRONCO_CARD,
+    &BRONCO_REVEAL,
+);
 
 pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9a268ba-c442-4fe4-90b4-2810c8474f4e"),
@@ -148,11 +145,7 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                  into your hand. You lose life equal to that card's mana value if this creature \
                  isn't saddled. Otherwise, each opponent loses that much life.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::LookAtTopAndSelect {
-                    player: EffectRecipientDef::Controller,
-                    looker: EffectRecipientDef::Controller,
-                    selection: &BRONCO_REVEAL,
-                },
+                BRONCO_EFFECT,
             ),
             abilities::saddle(
                 3,
@@ -241,32 +234,6 @@ static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 static TWICE_YOUR_LANDS: ScaledValueDef =
     ScaledValueDef::new(ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL), 2);
 
-/// One card of however many were seen, and the rest go to the bottom in a
-/// random order: the looker has seen them, so the order they return in is
-/// the game's to decide rather than the order they came out.
-static PILLAGE_THE_BOG_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Scaled(&TWICE_YOUR_LANDS),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa3b415f-7901-4ab4-84fe-60b90d40ac90"),
     "Pillage the Bog",
@@ -280,11 +247,12 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
             "Look at the top X cards of your library, where X is twice the number of lands you \
              control. Put one of them into your hand and the rest on the bottom of your library \
              in a random order.",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &PILLAGE_THE_BOG_LOOK,
-            },
+            abilities::look_at_top_cards_choose_to_hand_rest_random_bottom(
+                ValueDef::Scaled(&TWICE_YOUR_LANDS),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
         ),
         abilities::plot(mana_cost!("{1}{B}{G}")),
     ]),

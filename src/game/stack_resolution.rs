@@ -1,9 +1,9 @@
 use super::{
-    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CardType,
-    CopiableCharacteristics, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DoubleFacedCopiableCharacteristics, EntryCompletion, Game,
-    GameEvent, GameObjectId, PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId,
-    ResolvedAbility, StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
+    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CopiableCharacteristics,
+    CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameEvent,
+    GameObjectId, PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
+    StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
 use crate::card::{
@@ -772,37 +772,6 @@ impl Game {
             } else {
                 self.queue_tetravus_assemble(object.controller, source);
             }
-            return;
-        }
-        if behavior == CardBehavior::AugurOfBolas {
-            let controller = object.controller;
-            let revealed = self.take_top_of_library(controller, 3);
-            let eligible = revealed
-                .iter()
-                .filter(|card| {
-                    self.catalog.get(card.definition).is_some_and(|definition| {
-                        definition.rules.has_type(CardType::Instant)
-                            || definition.rules.has_type(CardType::Sorcery)
-                    })
-                })
-                .cloned()
-                .collect::<Vec<_>>();
-            let options = self.card_decision_options(&eligible, DecisionZone::Library);
-            // "You may reveal": taking nothing is a real choice, so the minimum
-            // is zero even when something qualifies.
-            self.queue_decision(
-                controller,
-                "Put an instant or sorcery card into your hand",
-                DecisionVisibility::Public,
-                DecisionPreference::HigherCardValue,
-                0..=1,
-                false,
-                options,
-                DecisionContinuation::AugurOfBolas {
-                    player: controller,
-                    revealed,
-                },
-            );
         }
     }
 

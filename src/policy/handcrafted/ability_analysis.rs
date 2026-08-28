@@ -316,7 +316,6 @@ impl HandcraftedPolicy {
                 .iter()
                 .chain(payment.otherwise.iter())
                 .any(|effect| Self::effect_is_a_wash(**effect)),
-            EffectDef::SplitIntoPiles(partition) => Self::effect_is_a_wash(*partition.then),
             EffectDef::ExileLinkedToSource {
                 object: EffectRecipientDef::Source,
                 then,
@@ -453,17 +452,6 @@ impl HandcraftedPolicy {
                         .find_map(|effect| Self::target_condition_in(**effect))
                 })
             }
-            EffectDef::SplitIntoPiles(partition) => {
-                let item_condition = match partition.items {
-                    crate::card::PartitionItemsDef::Objects(objects) => {
-                        Self::target_condition_in_object_set(objects)
-                    }
-                    crate::card::PartitionItemsDef::TopOfLibrary { count, .. } => {
-                        Self::target_condition_in_value(count)
-                    }
-                };
-                item_condition.or_else(|| Self::target_condition_in(*partition.then))
-            }
             EffectDef::May { effect, .. } | EffectDef::IfCondition { then: effect, .. } => {
                 Self::target_condition_in(*effect)
             }
@@ -500,6 +488,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::LegalAttachmentHosts(_)
             | crate::card::ObjectSetDef::LinkedExiles(_)
             | crate::card::ObjectSetDef::CardsDrawnThisTurnInHand(_)
+            | crate::card::ObjectSetDef::PermanentsControlledBy(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)
             | crate::card::ObjectSetDef::LegalTargets(_)
             | crate::card::ObjectSetDef::SharingNameWith(_)

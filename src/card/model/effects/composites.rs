@@ -7,7 +7,7 @@
 use super::super::{
     AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardTypeSet,
     ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, ValueDef, ZoneKind,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
@@ -74,28 +74,6 @@ pub enum ColorChoiceOperationDef {
     ProtectionFromChosenColorOrColorless,
     /// Become the chosen colour, replacing whatever colours it had.
     BecomesChosenColor,
-}
-
-/// The objects divided by a pile-splitting procedure.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum PartitionItemsDef {
-    Objects(ObjectSetDef),
-    TopOfLibrary {
-        player: PlayerRefDef,
-        count: ValueDef,
-    },
-}
-
-/// Divide objects into two piles, choose one pile, bind both results, and then
-/// continue the effect.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct SplitIntoPilesDef {
-    pub items: PartitionItemsDef,
-    pub divider: PlayerSetDef,
-    pub chooser: PlayerSetDef,
-    pub chosen: ObjectSetBindingIndex,
-    pub unchosen: ObjectSetBindingIndex,
-    pub then: &'static EffectDef,
 }
 
 /// How long an effect-created triggered ability listens from outside every

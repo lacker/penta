@@ -452,6 +452,24 @@ fn jace_lets_an_opponent_split_the_top_three_and_takes_the_pile_he_likes() {
     )
     .unwrap();
 
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("Jace's controller orders the losing pile");
+    let answer = order
+        .options
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: answer,
+        },
+    )
+    .unwrap();
+
     // Changing zones makes a new object, so these are compared by what the
     // cards are rather than by identity.
     assert_eq!(

@@ -118,6 +118,22 @@ impl EffectResolutionContext {
         self.object_groups[binding.index()] = objects;
     }
 
+    /// Remove object incarnations consumed by a group action from every
+    /// earlier binding. A later stage that needs the zone-change successors
+    /// receives them through the action's explicit output binding; retaining
+    /// the stale hidden-zone identities would make unrelated earlier groups
+    /// part of every later decision and checkpoint.
+    pub(super) fn consume_bound_objects(&mut self, objects: &[Target]) {
+        for binding in &mut self.single_objects {
+            if binding.is_some_and(|object| objects.contains(&object)) {
+                *binding = None;
+            }
+        }
+        for group in &mut self.object_groups {
+            group.retain(|object| !objects.contains(object));
+        }
+    }
+
     pub(super) fn single_objects(&self) -> &[Option<Target>; ObjectBindingIndex::COUNT] {
         &self.single_objects
     }

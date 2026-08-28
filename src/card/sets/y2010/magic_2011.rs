@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, TopCardSelectionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -58,39 +58,6 @@ pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
 );
 
 // M11 70 — Preordain
-static PREORDAIN_DRAW: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-};
-
-/// The reminder text picks out the cards going to the bottom; this picks out
-/// the ones staying on top, which is the same partition read from the other
-/// end. Selecting the kept half is what makes "the rest on top in any order"
-/// a decision: with two cards kept, the order they were chosen in is the
-/// order they go back. What falls to the bottom has no observable order.
-static PREORDAIN_SCRY: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(2),
-    object: None,
-    minimum: 0,
-    maximum: 2,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: true,
-    then: Some(&PREORDAIN_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_legacy_id(
     2130,
     "Preordain",
@@ -98,11 +65,13 @@ pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_le
     CardSet::Magic2011,
     CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Scry 2, then draw a card.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &PREORDAIN_SCRY,
-        },
+        EffectDef::Sequence(&[
+            abilities::scry(ValueDef::Constant(2)),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 

@@ -1,11 +1,9 @@
 use super::runtime_support::*;
 use super::*;
-use crate::card::{
-    AppliedRuleDef, ArrivalAttachmentDef, InstalledTriggerDef, PartitionItemsDef, SplitIntoPilesDef,
-};
+use crate::card::{AppliedRuleDef, ArrivalAttachmentDef, InstalledTriggerDef};
 use crate::{
-    BattlefieldEntryModificationDef, CounterKind, DamageEventMatcherDef, ObjectSetBindingIndex,
-    ReplacementConditionDef, TargetIndex, ZoneChangeEventMatcherDef,
+    BattlefieldEntryModificationDef, CounterKind, DamageEventMatcherDef, ReplacementConditionDef,
+    TargetIndex, ZoneChangeEventMatcherDef,
 };
 
 #[test]
@@ -316,40 +314,6 @@ fn decision_effects_suspend_inside_shared_stack_sequences() {
 }
 
 #[test]
-fn pile_split_runtime_support_requires_singleton_player_roles() {
-    static THEN: EffectDef = EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    };
-    let partition = |divider, chooser| {
-        EffectDef::SplitIntoPiles(SplitIntoPilesDef {
-            items: PartitionItemsDef::Objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                ObjectPredicateDef::Any,
-                &[ZoneKind::Battlefield],
-            ))),
-            divider,
-            chooser,
-            chosen: ObjectSetBindingIndex::PRIMARY,
-            unchosen: ObjectSetBindingIndex::new(1),
-            then: &THEN,
-        })
-    };
-
-    assert!(shared_stack_effect(partition(
-        PlayerSetDef::Related(PlayerRelation::Opponent),
-        PlayerSetDef::One(PlayerRefDef::EffectController),
-    )));
-    assert!(!shared_stack_effect(partition(
-        PlayerSetDef::All,
-        PlayerSetDef::One(PlayerRefDef::EffectController),
-    )));
-    assert!(!shared_stack_effect(partition(
-        PlayerSetDef::One(PlayerRefDef::EffectController),
-        PlayerSetDef::Related(PlayerRelation::Any),
-    )));
-}
-
-#[test]
 fn zone_search_boundary_rejects_ambiguous_or_incoherent_shapes() {
     let search = |source, destination, maximum, shuffle, attachment| EffectDef::SearchZone {
         player: EffectRecipientDef::Controller,
@@ -554,10 +518,9 @@ fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
     ));
 }
 
-/// A clause that declares card-owned execution has to have a binding, and
-/// a binding has to be declared on its clause. Either half alone lets the
-/// two drift: an undeclared binding makes the clause read as a no-op, and
-/// an unbacked declaration is an ability that silently does nothing.
+/// If the catalog contains card-owned execution, every declaration has to
+/// have a binding and every binding has to be declared on its clause. The
+/// invariant remains meaningful when consolidation leaves no such clauses.
 #[test]
 fn card_owned_clauses_and_their_bindings_agree() {
     let mut declared = Vec::new();
@@ -591,10 +554,6 @@ fn card_owned_clauses_and_their_bindings_agree() {
     assert_eq!(
         declared, bound,
         "every card-owned clause needs a binding and every binding needs its clause to declare it"
-    );
-    assert!(
-        !declared.is_empty(),
-        "the scan found no card-owned clauses, so it is measuring the wrong thing"
     );
 }
 

@@ -51,10 +51,20 @@ impl Game {
                 );
             }
             EffectDef::None | EffectDef::Randomized { .. } | EffectDef::Choose(_) |
+EffectDef::ChooseCardsFromCollection(_) |
+EffectDef::LookAtObjects(_) | EffectDef::ChooseObjectOrder(_) |
+EffectDef::ClassifyObjects(_) | EffectDef::RevealAndClassifyCards(_) |
+EffectDef::ChooseOneOfEach(_) |
+EffectDef::CombineObjects(_) |
+EffectDef::ChooseGroup(_) | EffectDef::BindObjects(_) |
+EffectDef::IfNoObjects(_) |
+EffectDef::PartitionGroup(_) | EffectDef::RandomizeObjectOrder(_) |
+EffectDef::RevealObjects(_) | EffectDef::MoveObjects(_) |
+EffectDef::PutObjectsOntoBattlefieldFaceDown(_) |
 EffectDef::SimultaneousChoose(_) | EffectDef::ChooseCardName { .. } |
-EffectDef::BindMatching { .. } | EffectDef::SelectAtRandomFromZone { .. } |
+EffectDef::SelectAtRandomFromZone { .. } |
 EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) |
-EffectDef::SplitIntoPiles(_) | EffectDef::PreventDamage { .. } |
+EffectDef::PreventDamage { .. } |
 EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
 EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
 EffectDef::Fight { .. } | EffectDef::DrainLife { .. } |
@@ -72,10 +82,10 @@ EffectDef::Untap { .. } | EffectDef::Saddle { .. } | EffectDef::Destroy { .. }
 EffectDef::ExileTopOfLibraryToPlay { .. } | EffectDef::ExileTopAndMayCast { ..
 } | EffectDef::MayCastTargetWithoutPaying { .. } | EffectDef::Mill { .. } |
 EffectDef::SearchZonesAndExileRest { .. } | EffectDef::MillUntil { .. } |
-EffectDef::ExileFromTopUntil { .. } | EffectDef::ManifestDread { .. } |
+EffectDef::ExileFromTopUntil { .. } |
 EffectDef::Cascade | EffectDef::Proliferate | EffectDef::Explore { .. } |
-EffectDef::LookAtTopAndSelect { .. } | EffectDef::LookAtTopAndDistribute { ..
-} | EffectDef::LookAtHand { .. } | EffectDef::LookAtRandomCardInHand { .. } |
+EffectDef::LookAtHand { .. } |
+EffectDef::LookAtRandomCardInHand { .. } |
 EffectDef::ExileOneFromEachZone(_) |
 EffectDef::PermitCastFromGraveyardThisTurn { .. } |
 EffectDef::MillWhileMatching(_) |
@@ -89,7 +99,6 @@ EffectDef::BecomeCopyOf { .. } | EffectDef::May { .. } |
 EffectDef::CannotBeForcedToSacrifice | EffectDef::CannotBeForcedToDiscard |
 EffectDef::GainClassLevel { .. } |
 EffectDef::SetLifeTotal { .. } |
-EffectDef::Scry { .. } |
 EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. } |
 EffectDef::CreateEmblem { .. } | EffectDef::CreateOngoingEffect(_) |
 EffectDef::PutOntoBattlefieldThen { .. } | EffectDef::Transform { .. } |
@@ -98,6 +107,7 @@ EffectDef::PutSourceOntoBattlefieldAttacking | EffectDef::BecomeMonarch { .. }
 | EffectDef::VoteForPermanentToExile { .. } |
 EffectDef::DamageCannotBePreventedThisTurn |
 EffectDef::GrantFlashToNextSorcery | EffectDef::ExileLinkedToSource { .. } |
+EffectDef::PermitLookAtExiled { .. } |
 EffectDef::MayPlayWithoutPaying { .. } | EffectDef::ExileGrantingOwnerPlay { .. } |
 EffectDef::ExileGrantingControllerPlayThisTurn { .. } |
 EffectDef::ReturnLinkedExiles { .. } | EffectDef::Detain { .. } |

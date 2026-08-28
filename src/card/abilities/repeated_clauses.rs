@@ -280,11 +280,11 @@ static INSTALL_END_OF_COMBAT_DESTROY_TRIGGER: EffectDef =
 /// event after the later step-begin event replaces the trigger context.
 #[must_use]
 pub const fn destroy_triggering_object_at_end_of_combat() -> EffectDef {
-    EffectDef::BindMatching {
-        objects: ObjectSetDef::One(ObjectRefDef::TriggeringObject),
-        binding: END_OF_COMBAT_DESTROY_BINDING,
-        then: &INSTALL_END_OF_COMBAT_DESTROY_TRIGGER,
-    }
+    bind_objects_then(
+        ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(ObjectRefDef::TriggeringObject)),
+        END_OF_COMBAT_DESTROY_BINDING,
+        &INSTALL_END_OF_COMBAT_DESTROY_TRIGGER,
+    )
 }
 
 /// The wheel: each player shuffles their hand and graveyard into their

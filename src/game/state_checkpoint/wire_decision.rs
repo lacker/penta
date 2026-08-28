@@ -237,27 +237,6 @@ fn rebind_visible_hidden_collection(
 }
 
 fn detached_decision_cards(continuation: &DecisionContinuationSnapshot) -> BTreeSet<GameObjectId> {
-    // A selection that asks once per card type has two detached piles: the
-    // cards still on the table and the ones an earlier type already took.
-    // Both are out of the library and neither is anybody's hypothesis.
-    if let DecisionContinuationSnapshot::DistributedTopCardSelection { remaining, .. } =
-        continuation
-    {
-        return remaining
-            .iter()
-            .map(|card| GameObjectId(card.object_id))
-            .collect();
-    }
-    if let DecisionContinuationSnapshot::TypedTopCardSelection {
-        revealed, taken, ..
-    } = continuation
-    {
-        return revealed
-            .iter()
-            .chain(taken)
-            .map(|card| GameObjectId(card.object_id))
-            .collect();
-    }
     if let DecisionContinuationSnapshot::ScryTop { top, bottom, .. } = continuation {
         return top
             .iter()
@@ -266,10 +245,7 @@ fn detached_decision_cards(continuation: &DecisionContinuationSnapshot) -> BTree
             .collect();
     }
     let cards = match continuation {
-        DecisionContinuationSnapshot::ScryBottom { revealed, .. }
-        | DecisionContinuationSnapshot::GrislySalvage { revealed, .. }
-        | DecisionContinuationSnapshot::AugurOfBolas { revealed, .. }
-        | DecisionContinuationSnapshot::TopCardSelection { revealed, .. } => revealed.as_slice(),
+        DecisionContinuationSnapshot::ScryBottom { revealed, .. } => revealed.as_slice(),
         _ => &[],
     };
     cards

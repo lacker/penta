@@ -130,6 +130,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+            | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
             | ObjectSetDef::SharingNameWith(_)
@@ -655,13 +656,24 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
                     | EffectDef::Choose(_)
+                    | EffectDef::ChooseCardsFromCollection(_)
+                    | EffectDef::LookAtObjects(_)
+                    | EffectDef::ChooseObjectOrder(_)
+                    | EffectDef::ClassifyObjects(_)
+                    | EffectDef::RevealAndClassifyCards(_)
+                    | EffectDef::CombineObjects(_)
+                    | EffectDef::ChooseOneOfEach(_)
+                    | EffectDef::ChooseGroup(_)
+                    | EffectDef::BindObjects(_)
+                    | EffectDef::PartitionGroup(_)
+                    | EffectDef::RandomizeObjectOrder(_)
+                    | EffectDef::RevealObjects(_)
+                    | EffectDef::MoveObjects(_)
                     | EffectDef::SimultaneousChoose(_)
                     | EffectDef::ChooseCardName { .. }
-                    | EffectDef::BindMatching { .. }
                     | EffectDef::SelectAtRandomFromZone { .. }
                     | EffectDef::ForEachInBinding { .. }
                     | EffectDef::PayOr(_)
-                    | EffectDef::SplitIntoPiles(_)
                     | EffectDef::PreventDamage { .. }
                     | EffectDef::May { .. }
                     | EffectDef::None
@@ -675,7 +687,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::SetLifeTotal { .. }
                     | EffectDef::AddPlayerCounters { .. }
                     | EffectDef::DrawCards { .. }
-                    | EffectDef::Scry { .. }
                     | EffectDef::Discard { .. }
                     | EffectDef::DiscardCards { .. }
                     | EffectDef::ShuffleLibrary { .. }
@@ -712,13 +723,13 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::SearchZonesAndExileRest { .. }
                     | EffectDef::MillUntil { .. }
                     | EffectDef::ExileFromTopUntil { .. }
-                    | EffectDef::ManifestDread { .. }
                     | EffectDef::PutOntoBattlefieldThen { .. }
                     | EffectDef::Cascade
                     | EffectDef::Proliferate
                     | EffectDef::Explore { .. }
-                    | EffectDef::LookAtTopAndSelect { .. }
-                    | EffectDef::LookAtTopAndDistribute { .. }
+                    | EffectDef::IfNoObjects(_)
+                    | EffectDef::PutObjectsOntoBattlefieldFaceDown(_)
+                    | EffectDef::PermitLookAtExiled { .. }
                     | EffectDef::LookAtHand { .. }
                     | EffectDef::ExileOneFromEachZone(_)
                     | EffectDef::MillWhileMatching(_)

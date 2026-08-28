@@ -7,8 +7,8 @@ use crate::card::{
     CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef, CopyExceptionsDef, CounterKind,
     CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, TopCardSelectionDef, TopOfLibraryCostDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, ResolvedEffectDurationDef, TopOfLibraryCostDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -90,32 +90,6 @@ static A_NONCREATURE_NONLAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
 ]);
 
-/// "You may reveal": taking nothing is a legal answer, and what is left
-/// goes to the bottom in a random order rather than in the order it was
-/// seen -- so the four cards are not a free look at the next four draws.
-static NARSET_DIGS: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(A_NONCREATURE_NONLAND_CARD),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 static NARSET_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::static_ability(
         "Each opponent can't draw more than one card each turn.",
@@ -129,11 +103,12 @@ static NARSET_ABILITIES: [AbilityDef; 2] = [
          nonland card from among them and put it into your hand. Put the rest on the bottom of \
          your library in a random order.",
         &[AbilityCostDef::Loyalty(-2)],
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &NARSET_DIGS,
-        },
+        abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+            ValueDef::Constant(4),
+            A_NONCREATURE_NONLAND_CARD,
+            0,
+            1,
+        ),
     ),
 ];
 
@@ -409,49 +384,6 @@ static TAMIYO_PROTECTIONS: [EffectDef; 2] = [
     EffectDef::CannotBeForcedToSacrifice,
 ];
 
-/// The name is chosen before the four cards are seen, so the reveal cannot
-/// be used to pick a name that is already there.
-static TAMIYO_SORT_THE_FOUR: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(ObjectPredicateDef::HasChosenName),
-    minimum: 0,
-    maximum: 4,
-    select_all_matching: true,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Graveyard,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
-static TAMIYO_REVEAL: EffectDef = EffectDef::LookAtTopAndSelect {
-    player: EffectRecipientDef::Controller,
-    looker: EffectRecipientDef::Controller,
-    selection: &TAMIYO_SORT_THE_FOUR,
-};
-
-/// The binding the name-choice makes is unused here: what matches is decided
-/// among the four revealed cards rather than across a whole zone, so the
-/// selection reads the name itself.
-static TAMIYO_NAME_THEN_REVEAL: EffectDef = EffectDef::ChooseCardName {
-    chooser: PlayerRefDef::EffectController,
-    nonland_only: true,
-    matched_in: PlayerRefDef::EffectController,
-    zone: ZoneKind::Library,
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &TAMIYO_REVEAL,
-};
-
 static TAMIYO_RETURN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::Any,
@@ -469,7 +401,17 @@ static TAMIYO_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "+1: Choose a nonland card name, then reveal the top four cards of your library. Put all cards with the chosen name from among them into your hand and the rest into your graveyard.",
         &[AbilityCostDef::Loyalty(1)],
-        TAMIYO_NAME_THEN_REVEAL,
+        EffectDef::ChooseCardName {
+            chooser: PlayerRefDef::EffectController,
+            nonland_only: true,
+            matched_in: PlayerRefDef::EffectController,
+            zone: ZoneKind::Library,
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::HasChosenName,
+            ),
+        },
     ),
     AbilityDef::activated_with_targets(
         "\u{2212}3: Return target card from your graveyard to your hand.",

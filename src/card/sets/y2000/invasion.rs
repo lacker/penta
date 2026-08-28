@@ -17,11 +17,12 @@ use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    StackTargetKindDef, TopCardSelectionDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef,
+    PlayerRelation, RevealObjectsDef, StackTargetKindDef, TriggerConditionDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // INV 1 — Alabaster Leech
 // Audit: metadata-only — Card rules have not been implemented.
@@ -556,18 +557,55 @@ pub(in crate::card::sets) static EXCLUDE: CardRecord = CardRecord::new(
 );
 
 // INV 57 — Fact or Fiction
-static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: abilities::CHOSEN_PILE,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: abilities::UNCHOSEN_PILE,
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-    },
-]);
+const FACT_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const FACT_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const FACT_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const FACT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const FACT_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+
+static FACT_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(FACT_UNCHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Graveyard,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static FACT_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(FACT_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &FACT_PUT_UNCHOSEN,
+});
+static FACT_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
+    actor: PlayerRefDef::EffectController,
+    first: ObjectSetDef::Binding(FACT_FIRST),
+    second: ObjectSetDef::Binding(FACT_SECOND),
+    chosen: FACT_CHOSEN,
+    unchosen: FACT_UNCHOSEN,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &FACT_PUT_CHOSEN,
+});
+static FACT_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
+    actor: PlayerRefDef::Opponent,
+    input: ObjectSetDef::Binding(FACT_INSPECTED),
+    first: FACT_FIRST,
+    second: FACT_SECOND,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &FACT_CHOOSE,
+});
+static FACT_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(FACT_INSPECTED),
+    then: &FACT_PARTITION,
+});
+static FACT_OR_FICTION_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(5),
+    FACT_INSPECTED,
+    &FACT_REVEAL,
+);
 
 pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
     277,
@@ -579,10 +617,7 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
     CardSet::Invasion,
     CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
         "Reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.",
-        abilities::split_top_of_library_into_piles(
-            ValueDef::Constant(5),
-            &FACT_OR_FICTION_PILE_MOVES,
-        ),
+        FACT_OR_FICTION_EFFECT,
     )),
 );
 
@@ -647,34 +682,6 @@ pub(in crate::card::sets) static METATHRAN_ZOMBIE: CardRecord = CardRecord::new(
 );
 
 // INV 64 — Opt
-static OPT_DRAW: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-};
-
-static OPT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Bottom,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&OPT_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new_with_legacy_id(
     312,
     "Opt",
@@ -682,11 +689,13 @@ pub(in crate::card::sets) static OPT: CardRecord = CardRecord::new_with_legacy_i
     CardSet::Invasion,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Scry 1.\nDraw a card.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &OPT_SELECTION,
-        },
+        EffectDef::Sequence(&[
+            abilities::scry(ValueDef::Constant(1)),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 

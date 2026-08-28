@@ -11,8 +11,8 @@ use crate::card::{
     PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRelation,
     QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1150,31 +1150,15 @@ pub(in crate::card::sets) static TOWER_GEIST: CardRecord = CardRecord::new_with_
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Spirit"], 2, 2).with_abilities(&[
         abilities::flying(),
-        abilities::enters_trigger("When this creature enters, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.", EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &TopCardSelectionDef {
-                    count: ValueDef::Constant(2),
-                    object: None,
-                    minimum: 1,
-                    maximum: 1,
-                    select_all_matching: false,
-                    select_one_of_each_type: false,
-                    reveal_inspected: false,
-                    reveal_selected: false,
-                    counted: None,
-                    selected_zone: ZoneKind::Hand,
-                    selected_placement: ZonePlacement::Top,
-                    rest_zone: ZoneKind::Graveyard,
-                    rest_placement: ZonePlacement::Top,
-                    rest_random_order: false,
-                    rest_counters: None,
-                    selected_order_follows_choice: false,
-                    then: None,
-                selected_hidden: false,
-                selected_linked_to_source: false,
-                selected_face_down: None,},
-            }),
+        abilities::enters_trigger(
+            "When this creature enters, look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.",
+            abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(2),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
+        ),
     ]),
 );
 

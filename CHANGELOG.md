@@ -164,6 +164,26 @@ distinguishes snapshots of the covered source and build inputs.
   and `triggeredMana` remains its aggregate compatibility projection; protocol
   29, checkpoint format 9, and replay version 2 are unchanged.
 
+- **Card handling is a chain of collection operations rather than a
+  top-of-library grab bag.** Shared effects can freeze cards into named
+  collections from an existing object set, a fixed number of top cards, or the
+  top of a library through its first matching card; later stages classify or
+  partition them, let the appropriate player choose or order them, reveal or
+  randomize them, and then run ordinary effects on the resulting objects.
+  Existing object-set bindings use the same producer instead of the former
+  `BindMatching` special case, while the bounded top-card source supplies the
+  non-mutating collection step needed by Cascade and reveal-until cards.
+  Pure looks source top cards directly without a throwaway binding. This covers
+  ordered multi-card zone movement and player-control handoffs without baking
+  destinations into the choice itself. Augur of Bolas, Grisly Salvage, Mulch,
+  Fact or Fiction, Liliana of the Veil, Scry, Surveil, Hideaway, and Manifest
+  Dread now use that common workflow. The same ordering contract lets each
+  owner arrange a Terminus batch before its simultaneous battlefield exit
+  commits. Checkpoint format 10 replaces the superseded selection and pile
+  object-collection continuations and is advertised as
+  `reconstruction.checkpoint.v10`;
+  protocol 29 and replay version 2 are unchanged.
+
 - **Permanents that arrive together arrive at the same time.** Tokens made
   by one instruction entered the battlefield one at a time, so a clause
   watching arrivals saw each of them against a board the rest had not joined

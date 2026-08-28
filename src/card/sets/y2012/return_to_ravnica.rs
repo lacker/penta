@@ -4,17 +4,19 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
-    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef,
-    ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseGroupDef,
+    ChooseObjectOrderDef, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
+    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PartitionGroupDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    SacrificedAmountDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
+    abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -1066,10 +1068,7 @@ static JACE_ARCHITECT_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "−2: Reveal the top three cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other on the bottom of your library in any order.",
         &[AbilityCostDef::Loyalty(-2)],
-        abilities::split_top_of_library_into_piles(
-            ValueDef::Constant(3),
-            &JACE_ARCHITECT_PILE_MOVES,
-        ),
+        JACE_ARCHITECT_PILES,
     ),
     AbilityDef::not_implemented(
         "−8: For each player, search that player's library for a nonland card and exile it, then that player shuffles. You may cast those cards without paying their mana costs.",
@@ -1077,18 +1076,64 @@ static JACE_ARCHITECT_ABILITIES: [AbilityDef; 3] = [
     ),
 ];
 
-static JACE_ARCHITECT_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: abilities::CHOSEN_PILE,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: abilities::UNCHOSEN_PILE,
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Bottom,
-    },
-]);
+const JACE_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const JACE_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const JACE_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const JACE_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const JACE_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+const JACE_ORDERED_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
+
+static JACE_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(JACE_ORDERED_UNCHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Bottom,
+    moved: None,
+    then: &EffectDef::None,
+});
+static JACE_ARRANGE_UNCHOSEN: EffectDef = EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
+    actor: PlayerRefDef::EffectController,
+    input: ObjectSetDef::Binding(JACE_UNCHOSEN),
+    ordered: JACE_ORDERED_UNCHOSEN,
+    placement: ZonePlacement::Bottom,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &JACE_PUT_UNCHOSEN,
+});
+static JACE_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(JACE_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &JACE_ARRANGE_UNCHOSEN,
+});
+static JACE_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
+    actor: PlayerRefDef::EffectController,
+    first: ObjectSetDef::Binding(JACE_FIRST),
+    second: ObjectSetDef::Binding(JACE_SECOND),
+    chosen: JACE_CHOSEN,
+    unchosen: JACE_UNCHOSEN,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &JACE_PUT_CHOSEN,
+});
+static JACE_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
+    actor: PlayerRefDef::Opponent,
+    input: ObjectSetDef::Binding(JACE_INSPECTED),
+    first: JACE_FIRST,
+    second: JACE_SECOND,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &JACE_CHOOSE,
+});
+static JACE_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(JACE_INSPECTED),
+    then: &JACE_PARTITION,
+});
+static JACE_ARCHITECT_PILES: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(3),
+    JACE_INSPECTED,
+    &JACE_REVEAL,
+);
 
 pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -3743,19 +3788,23 @@ pub(in crate::card::sets) static GOLGARI_CHARM: CardRecord = CardRecord::new_wit
 );
 
 // RTR 165 — Grisly Salvage
-// Audit: custom — Needs declarative top-five selection of a creature or land with the unchosen cards moved to the graveyard.
 pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new_with_legacy_id(
     173,
     "Grisly Salvage",
     CardArt::new("dcb5eb2a-ae7a-4416-970c-6e9306689c88", "Dave Kendall"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{B}{G}")).with_ability(
-        AbilityDef::custom_full(
-            "Reveal the top five cards of your library. You may put a creature or land card from among them into your hand. Put the rest into your graveyard.",
-            CardBehavior::GrislySalvage,
-            "Implemented by the named card-local special behavior.",
+    CardRules::new_instant(mana_cost!("{B}{G}")).with_ability(AbilityDef::spell(
+        "Reveal the top five cards of your library. You may put a creature or land card from among them into your hand. Put the rest into your graveyard.",
+        abilities::reveal_top_cards_choose_to_hand_rest_graveyard(
+            ValueDef::Constant(5),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+            0,
+            1,
         ),
-    ),
+    )),
 );
 
 // RTR 166 — Havoc Festival

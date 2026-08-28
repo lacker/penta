@@ -1,3 +1,17 @@
+fn resolve_declarative_spell(game: &mut Game, object: &StackObject, definition: CardDefinitionId) {
+    let effect = game
+        .catalog
+        .get(definition)
+        .and_then(|card| card.rules.ability_clauses().first())
+        .and_then(|ability| ability.declarative_effect())
+        .expect("the spell has a declarative primary effect");
+    game.resolve_effect_def(
+        ScopedEffect::primary(effect),
+        object,
+        TriggerContext::empty(),
+    );
+}
+
 #[test]
 fn mulch_keeps_the_lands_and_bins_the_rest() {
     let mut game = ready_game();
@@ -15,7 +29,16 @@ fn mulch_keeps_the_lands_and_bins_the_rest() {
     let before_hand = game.players[0].hand.len();
 
     let cast = spell(10_000, cards::MULCH, PlayerId::One, 0);
-    game.resolve_spell_effect(&cast, CardBehavior::Mulch);
+    resolve_declarative_spell(&mut game, &cast, cards::MULCH);
+
+    assert_eq!(
+        game.events
+            .iter()
+            .filter(|event| matches!(event, GameEvent::CardRevealed { .. }))
+            .count(),
+        4,
+        "the inspected cards are publicly revealed",
+    );
 
     assert_eq!(
         game.players[0].hand.len(),
@@ -43,7 +66,16 @@ fn grisly_salvage_may_keep_one_creature_or_land() {
     ]);
 
     let cast = spell(10_000, cards::GRISLY_SALVAGE, PlayerId::One, 0);
-    game.resolve_spell_effect(&cast, CardBehavior::GrislySalvage);
+    resolve_declarative_spell(&mut game, &cast, cards::GRISLY_SALVAGE);
+
+    assert_eq!(
+        game.events
+            .iter()
+            .filter(|event| matches!(event, GameEvent::CardRevealed { .. }))
+            .count(),
+        5,
+        "the whole inspected group is revealed",
+    );
 
     let decision = game.observe(PlayerId::One).decision.expect("a choice");
     assert_eq!(decision.options.len(), 2, "the creature and the land");
@@ -96,7 +128,7 @@ fn grisly_salvage_can_decline_and_bin_everything() {
         .extend((0..5).map(|i| card(10_100 + i, cards::SAVANNAH_LIONS, PlayerId::One)));
 
     let cast = spell(10_000, cards::GRISLY_SALVAGE, PlayerId::One, 0);
-    game.resolve_spell_effect(&cast, CardBehavior::GrislySalvage);
+    resolve_declarative_spell(&mut game, &cast, cards::GRISLY_SALVAGE);
     let decision = game.observe(PlayerId::One).decision.expect("a choice");
     game.apply(
         PlayerId::One,
@@ -112,6 +144,177 @@ fn grisly_salvage_can_decline_and_bin_everything() {
         game.players[0].graveyard.len(),
         5,
         "and no revealed card was lost on the way"
+    );
+}
+
+#[test]
+fn augur_choice_shows_every_card_that_was_looked_at() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    stack_library(
+        &mut game,
+        &[
+            (10_101, cards::MOUNTAIN),
+            (10_102, cards::COUNTERSPELL),
+            (10_103, cards::SAVANNAH_LIONS),
+        ],
+    );
+
+    let augur = spell(10_100, cards::AUGUR_OF_BOLAS, PlayerId::One, 0);
+    resolve_declarative_spell(&mut game, &augur, cards::AUGUR_OF_BOLAS);
+
+    let decision = game.observe(PlayerId::One).decision.expect("a private choice");
+    assert_eq!(decision.options.len(), 1, "only the instant is eligible");
+    assert_eq!(
+        decision.options[0]
+            .members
+            .iter()
+            .filter_map(|(_, characteristics)| characteristics.card_definition())
+            .collect::<Vec<_>>(),
+        vec![
+            cards::MOUNTAIN,
+            cards::COUNTERSPELL,
+            cards::SAVANNAH_LIONS,
+        ],
+        "the choice displays the complete inspected group, not only eligible cards",
+    );
+    assert!(
+        game.observe(PlayerId::Two).decision.is_none(),
+        "the opponent does not see a private look",
+    );
+}
+
+#[test]
+fn augur_without_a_match_still_shows_the_looked_at_cards() {
+    let mut game = ready_game();
+    game.players[0].library.clear();
+    stack_library(
+        &mut game,
+        &[
+            (10_111, cards::MOUNTAIN),
+            (10_112, cards::SAVANNAH_LIONS),
+            (10_113, cards::BLACK_LOTUS),
+        ],
+    );
+
+    let augur = spell(10_110, cards::AUGUR_OF_BOLAS, PlayerId::One, 0);
+    resolve_declarative_spell(&mut game, &augur, cards::AUGUR_OF_BOLAS);
+
+    let decision = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the private look needs an acknowledgement");
+    assert_eq!((decision.minimum, decision.maximum), (0, 0));
+    assert_eq!(decision.options.len(), 1);
+    assert_eq!(decision.options[0].members.len(), 3);
+
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: Vec::new(),
+        },
+    )
+    .expect("the player can finish looking");
+
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("all three cards still have to be ordered for the bottom");
+    assert_eq!(order.options.len(), 3);
+    assert_eq!(
+        order.order_semantics,
+        Some(DecisionOrderSemantics::Resolution),
+    );
+}
+
+#[test]
+fn terminus_asks_each_owner_in_apnap_order_then_bottoms_the_batches() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.players[0].library = vec![card(10_100, cards::MOUNTAIN, PlayerId::One)];
+    game.players[1].library = vec![card(10_101, cards::MOUNTAIN, PlayerId::Two)];
+    let mut stolen_angel = creature(10_002, cards::SERRA_ANGEL, PlayerId::One);
+    stolen_angel.controller = PlayerId::Two;
+    game.battlefield.extend([
+        creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One),
+        stolen_angel,
+        creature(10_003, cards::JUZAM_DJINN, PlayerId::Two),
+        creature(10_004, cards::VAMPIRE_NIGHTHAWK, PlayerId::Two),
+    ]);
+
+    let cast = spell(10_000, cards::TERMINUS, PlayerId::One, 0);
+    resolve_declarative_spell(&mut game, &cast, cards::TERMINUS);
+
+    let first = game.observe(PlayerId::One).decision.expect("active owner orders first");
+    assert_eq!(first.order_semantics, Some(DecisionOrderSemantics::Resolution));
+    assert_eq!(first.visibility, DecisionVisibility::Private);
+    assert!(game.observe(PlayerId::Two).decision.is_none());
+    let first_order = [cards::SERRA_ANGEL, cards::SAVANNAH_LIONS]
+        .iter()
+        .map(|definition| {
+            first
+                .options
+                .iter()
+                .find(|option| {
+                    option.card.is_some_and(|(_, characteristics)| {
+                        characteristics.card_definition() == Some(*definition)
+                    })
+                })
+                .expect("owned creature is offered")
+                .id
+        })
+        .collect();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: first.id,
+            options: first_order,
+        },
+    )
+    .expect("first owner can arrange their cards");
+
+    let second = game.observe(PlayerId::Two).decision.expect("nonactive owner orders next");
+    let second_order = [cards::VAMPIRE_NIGHTHAWK, cards::JUZAM_DJINN]
+        .iter()
+        .map(|definition| {
+            second
+                .options
+                .iter()
+                .find(|option| {
+                    option.card.is_some_and(|(_, characteristics)| {
+                        characteristics.card_definition() == Some(*definition)
+                    })
+                })
+                .expect("owned creature is offered")
+                .id
+        })
+        .collect();
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: second.id,
+            options: second_order,
+        },
+    )
+    .expect("second owner can arrange their cards");
+
+    assert!(game.battlefield.is_empty(), "the simultaneous batch has committed");
+    assert_eq!(
+        game.players[0]
+            .library
+            .iter()
+            .map(|card| card.definition)
+            .collect::<Vec<_>>(),
+        vec![cards::SERRA_ANGEL, cards::SAVANNAH_LIONS, cards::MOUNTAIN],
+    );
+    assert_eq!(
+        game.players[1]
+            .library
+            .iter()
+            .map(|card| card.definition)
+            .collect::<Vec<_>>(),
+        vec![cards::VAMPIRE_NIGHTHAWK, cards::JUZAM_DJINN, cards::MOUNTAIN],
     );
 }
 

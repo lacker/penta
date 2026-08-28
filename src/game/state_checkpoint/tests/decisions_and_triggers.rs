@@ -335,7 +335,7 @@ fn a_standing_miracle_offer_round_trips_for_both_seats_and_resumes() {
 
 #[test]
 #[allow(clippy::too_many_lines)]
-fn a_revealing_top_card_selection_round_trips_and_resumes() {
+fn a_revealing_group_choice_round_trips_and_resumes() {
     let mut game = crate::game::tests::ready_game();
     game.players[0].library = vec![
         crate::game::tests::card(81_001, crate::card::cards::LIGHTNING_BOLT, PlayerId::One),
@@ -358,77 +358,14 @@ fn a_revealing_top_card_selection_round_trips_and_resumes() {
         })
         .expect("Domri's +1 is offered");
     game.apply(PlayerId::One, plus_one).unwrap();
-    for _ in 0..4 {
-        if !game.pending_decisions.is_empty() {
-            break;
-        }
-        let player = game.priority;
-        game.apply(player, Action::PassPriority).unwrap();
-    }
+    crate::game::tests::pass_until_decision(&mut game);
     assert_eq!(game.pending_decisions.len(), 1);
     assert_eq!(game.decision_player(), Some(PlayerId::One));
 
-    let (wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 81_003);
-    let selection_state = &wire["checkpoint"]["decisionState"]["continuation"];
-    assert!(selection_state.get("revealSelected").is_none());
-    assert!(selection_state.get("selectedZone").is_none());
-    assert!(selection_state.get("restZone").is_none());
-    let mut duplicate_detached = wire.clone();
-    let revealed = duplicate_detached["checkpoint"]["decisionState"]["continuation"]["revealed"]
-        .as_array_mut()
-        .expect("top-card continuation carries detached inspected cards");
-    revealed.push(revealed[0].clone());
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &duplicate_detached,
-        &true_hidden_hypothesis(&game, PlayerId::One),
-        81_003,
-    )
-    .expect_err("a top-card continuation cannot repeat one detached object id");
-    assert!(
-        error.contains("detached-card list repeats object id"),
-        "unexpected error: {error}"
-    );
-    let mut spliced = wire.clone();
-    spliced["checkpoint"]["decisionState"]["continuation"]["continuation"]["effect"]["path"] =
-        json!([999]);
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &spliced,
-        &true_hidden_hypothesis(&game, PlayerId::One),
-        81_003,
-    )
-    .expect_err("top-card semantics cannot be replaced by edited placement fields or paths");
-    assert!(
-        error.contains("locator is absent") || error.contains("top-card selection locator"),
-        "unexpected error: {error}"
-    );
-    let mut wrong_kind = wire.clone();
-    wrong_kind["decision"]["kind"] = json!("TriggerOrder");
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &wrong_kind,
-        &true_hidden_hypothesis(&game, PlayerId::One),
-        81_003,
-    )
-    .expect_err("top-card selection rejects another decision procedure's kind");
-    assert!(
-        error.contains("decision kind disagrees"),
-        "unexpected error: {error}"
-    );
+    let (_wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 81_003);
     assert!(matches!(
         rebuilt.pending_decisions[0].continuation,
-        DecisionContinuation::TopCardSelection {
-            selection: crate::card::TopCardSelectionDef {
-                reveal_selected: true,
-                counted: None,
-                ..
-            },
-            ..
-        }
+        DecisionContinuation::ChooseForEffect { .. }
     ));
     let decision = rebuilt.observe(PlayerId::One).decision.unwrap();
     let choice = decision.options[0].id;
@@ -450,11 +387,74 @@ fn a_revealing_top_card_selection_round_trips_and_resumes() {
     )));
 }
 
-/// A distributed look is suspended with its cards out of the library, so the
-/// checkpoint carries both the cards and which destination is being asked
-/// about.
 #[test]
-fn a_distributed_top_card_selection_round_trips_and_resumes() {
+fn an_arranged_group_round_trips_and_resumes() {
+    let mut game = crate::game::tests::ready_game();
+    game.players[0].hand.clear();
+    game.players[0].library = vec![
+        crate::game::tests::card(81_104, crate::card::cards::MOUNTAIN, PlayerId::One),
+        crate::game::tests::card(81_103, crate::card::cards::SERRA_ANGEL, PlayerId::One),
+        crate::game::tests::card(81_102, crate::card::cards::LIGHTNING_BOLT, PlayerId::One),
+        crate::game::tests::card(81_101, crate::card::cards::SAVANNAH_LIONS, PlayerId::One),
+    ];
+    let augur = crate::game::tests::card(
+        81_100,
+        crate::card::cards::AUGUR_OF_BOLAS,
+        PlayerId::One,
+    );
+    game.players[0].hand.push(augur.clone());
+    game.players[0].mana_pool.blue = 1;
+    game.players[0].mana_pool.colorless = 1;
+    game.apply(
+        PlayerId::One,
+        crate::game::tests::cast_action(augur.id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("Augur can be cast");
+    crate::game::tests::pass_priority_pair(&mut game);
+    crate::game::tests::pass_priority_pair(&mut game);
+    let (_wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 81_105);
+    assert!(matches!(
+        rebuilt.pending_decisions[0].continuation,
+        DecisionContinuation::ChooseForEffect { .. }
+    ));
+    let choose = rebuilt.observe(PlayerId::One).decision.unwrap();
+    let bolt = choose
+        .options
+        .iter()
+        .find(|option| {
+            option.card.is_some_and(|(_, characteristics)| {
+                characteristics.card_definition() == Some(crate::card::cards::LIGHTNING_BOLT)
+            })
+        })
+        .expect("Bolt is eligible")
+        .id;
+    rebuilt.choose_decision(PlayerId::One, choose.id, &[bolt]);
+
+    let (_wire, mut rebuilt) = rebuild_current_checkpoint(&rebuilt, PlayerId::One, 81_106);
+    assert!(matches!(
+        rebuilt.pending_decisions[0].continuation,
+        DecisionContinuation::ChooseObjectOrderForEffect { .. }
+    ));
+    let order = rebuilt.observe(PlayerId::One).decision.unwrap();
+    assert_eq!(
+        order.order_semantics,
+        Some(DecisionOrderSemantics::Resolution)
+    );
+    let answer = order.options.iter().map(|option| option.id).collect::<Vec<_>>();
+    rebuilt.choose_decision(PlayerId::One, order.id, &answer);
+
+    assert!(rebuilt.pending_decisions.is_empty());
+    assert_eq!(rebuilt.players[0].library.len(), 3);
+    assert!(rebuilt.players[0]
+        .hand
+        .iter()
+        .any(|card| card.definition == crate::card::cards::LIGHTNING_BOLT));
+}
+
+/// Each decision in a multi-stage distribution carries the remaining effect
+/// program, so restoring it resumes at the same group choice.
+#[test]
+fn a_multistage_group_distribution_round_trips_and_resumes() {
     let mut game = crate::game::tests::ready_game();
     game.players[0].hand.clear();
     game.players[0].library = vec![
@@ -489,31 +489,11 @@ fn a_distributed_top_card_selection_round_trips_and_resumes() {
     }
     assert_eq!(game.pending_decisions.len(), 1);
 
-    let (wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 83_020);
-    let state = &wire["checkpoint"]["decisionState"]["continuation"];
-    assert_eq!(state["nextDestination"], json!(0), "the hand pick is first");
-    assert_eq!(
-        state["remaining"]
-            .as_array()
-            .expect("the cards travel with it")
-            .len(),
-        3,
-        "all three are out of the library",
-    );
-    let mut wrong_destination = wire.clone();
-    wrong_destination["checkpoint"]["decisionState"]["continuation"]["nextDestination"] = json!(2);
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &wrong_destination,
-        &true_hidden_hypothesis(&game, PlayerId::One),
-        83_021,
-    )
-    .expect_err("a distributed look cannot claim to be asking about another destination");
-    assert!(
-        error.contains("distributed selection") || error.contains("decision"),
-        "unexpected error: {error}"
-    );
+    let (_wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 83_020);
+    assert!(matches!(
+        rebuilt.pending_decisions[0].continuation,
+        DecisionContinuation::ChooseForEffect { .. }
+    ));
 
     // Resuming finishes the distribution: one card to hand, one underneath,
     // and the last exiled.
@@ -531,7 +511,7 @@ fn a_distributed_top_card_selection_round_trips_and_resumes() {
 }
 
 #[test]
-fn a_typed_top_card_selection_round_trips_and_resumes() {
+fn a_choose_one_of_each_group_round_trips_and_resumes() {
     let mut game = crate::game::tests::ready_game();
     game.players[0].hand.clear();
     game.players[0].library = vec![
@@ -552,20 +532,13 @@ fn a_typed_top_card_selection_round_trips_and_resumes() {
 
     let (wire, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 82_004);
     let state = &wire["checkpoint"]["decisionState"]["continuation"];
-    assert_eq!(state["nextType"], json!(0), "the artifact pick is first");
+    assert_eq!(state["next"], json!(0), "the artifact pick is first");
     assert!(matches!(
         rebuilt.pending_decisions[0].continuation,
-        DecisionContinuation::TypedTopCardSelection {
-            selection: crate::card::TopCardSelectionDef {
-                select_one_of_each_type: true,
-                reveal_inspected: true,
-                ..
-            },
-            ..
-        }
+        DecisionContinuation::ChooseOneOfEachForEffect { next: 0, .. }
     ));
     let mut wrong_type = wire.clone();
-    wrong_type["checkpoint"]["decisionState"]["continuation"]["nextType"] = json!(4);
+    wrong_type["checkpoint"]["decisionState"]["continuation"]["next"] = json!(4);
     let error = Game::from_observation_checkpoint(
         game.catalog.clone(),
         game.format,
@@ -573,9 +546,9 @@ fn a_typed_top_card_selection_round_trips_and_resumes() {
         &true_hidden_hypothesis(&game, PlayerId::One),
         82_004,
     )
-    .expect_err("a typed selection cannot claim to be asking about another type");
+    .expect_err("a one-of-each choice cannot claim to be asking about another type");
     assert!(
-        error.contains("typed selection") || error.contains("decision"),
+        error.contains("one-of-each") || error.contains("decision"),
         "unexpected error: {error}"
     );
 

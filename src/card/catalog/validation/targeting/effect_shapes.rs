@@ -1,3 +1,22 @@
+fn validate_object_collection_shape(
+    collection: crate::card::ObjectCollectionSourceDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    match collection {
+        crate::card::ObjectCollectionSourceDef::ObjectSet(input) => {
+            validate_object_set_shape(input, targets)
+        }
+        crate::card::ObjectCollectionSourceDef::TopCards { player, count } => {
+            validate_player_reference_shape(player, targets)?;
+            validate_value_shape(count, targets)
+        }
+        crate::card::ObjectCollectionSourceDef::TopCardsThroughFirstMatching { player, object } => {
+            validate_player_reference_shape(player, targets)?;
+            validate_object_predicate_shape(object, targets)
+        }
+    }
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_effect_target_shapes(
     effect: EffectDef,
@@ -57,14 +76,6 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
-        EffectDef::BindMatching { objects, then, .. } => {
-            validate_recipient_shape(
-                EffectRecipientDef::objects(objects),
-                targets,
-                RecipientExpectation::Object,
-            )?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
-        }
         EffectDef::ChooseCardName { chooser, then, .. } => {
             validate_player_reference_shape(chooser, targets)?;
             validate_effect_target_shapes(*then, targets, None)
@@ -76,6 +87,87 @@ fn validate_effect_target_shapes(
                 validate_object_reference_shape(excluded, targets)?;
             }
             validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
+        }
+        EffectDef::ChooseCardsFromCollection(choice) => {
+            validate_object_collection_shape(choice.source, targets)?;
+            validate_player_reference_shape(choice.actor, targets)?;
+            validate_object_predicate_shape(choice.object, targets)?;
+            validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
+        }
+        EffectDef::BindObjects(definition) => {
+            validate_object_collection_shape(definition.source, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::IfNoObjects(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(
+                *definition.if_empty,
+                targets,
+                triggering_object_zone,
+            )?;
+            validate_effect_target_shapes(*definition.otherwise, targets, triggering_object_zone)
+        }
+        EffectDef::ClassifyObjects(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_object_predicate_shape(definition.object, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::RevealAndClassifyCards(definition) => {
+            validate_object_collection_shape(definition.source, targets)?;
+            validate_object_predicate_shape(definition.object, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::CombineObjects(definition) => {
+            for input in definition.inputs {
+                validate_object_set_shape(*input, targets)?;
+            }
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::RandomizeObjectOrder(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::RevealObjects(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::MoveObjects(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
+            validate_object_set_shape(definition.input, targets)?;
+            validate_player_reference_shape(definition.controller, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::ChooseObjectOrder(definition) => {
+            validate_player_reference_shape(definition.actor, targets)?;
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::LookAtObjects(definition) => {
+            validate_player_reference_shape(definition.actor, targets)?;
+            validate_object_collection_shape(definition.source, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::PartitionGroup(definition) => {
+            validate_player_reference_shape(definition.actor, targets)?;
+            validate_object_set_shape(definition.input, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::ChooseGroup(definition) => {
+            validate_player_reference_shape(definition.actor, targets)?;
+            validate_object_set_shape(definition.first, targets)?;
+            validate_object_set_shape(definition.second, targets)?;
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
+        }
+        EffectDef::ChooseOneOfEach(definition) => {
+            validate_player_reference_shape(definition.actor, targets)?;
+            validate_object_set_shape(definition.input, targets)?;
+            for predicate in definition.predicates {
+                validate_object_predicate_shape(*predicate, targets)?;
+            }
+            validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
         }
         EffectDef::ForEachInBinding { effect, .. } => {
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
@@ -107,20 +199,6 @@ fn validate_effect_target_shapes(
                 validate_effect_target_shapes(**effect, targets, triggering_object_zone)?;
             }
             Ok(())
-        }
-        EffectDef::SplitIntoPiles(partition) => {
-            validate_player_set_shape(partition.divider, targets)?;
-            validate_player_set_shape(partition.chooser, targets)?;
-            match partition.items {
-                crate::card::PartitionItemsDef::Objects(objects) => {
-                    validate_object_set_shape(objects, targets)?;
-                }
-                crate::card::PartitionItemsDef::TopOfLibrary { player, count } => {
-                    validate_player_reference_shape(player, targets)?;
-                    validate_value_shape(count, targets)?;
-                }
-            }
-            validate_effect_target_shapes(*partition.then, targets, triggering_object_zone)
         }
         EffectDef::PreventDamage { prevention, .. } => {
             validate_damage_matcher_shape(prevention.matcher, targets)?;
@@ -200,10 +278,6 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
             validate_value_shape(total, targets)
         }
-        EffectDef::Scry { player, count } => {
-            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            validate_value_shape(count, targets)
-        }
         EffectDef::Discard {
             recipient,
             amount,
@@ -250,8 +324,7 @@ fn validate_effect_target_shapes(
         | EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
-        | EffectDef::ManifestDread { player }
-        |         EffectDef::ShuffleLibrary { player }
+        | EffectDef::ShuffleLibrary { player }
         | EffectDef::BuryGraveyard { player }
         | EffectDef::EmptyManaPool { player }
         | EffectDef::LoseTheGame { player }
@@ -284,80 +357,6 @@ fn validate_effect_target_shapes(
             validate_object_predicate_shape(object, targets)?;
             validate_value_shape(count, targets)?;
             for effect in then.into_iter().chain(otherwise) {
-                validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
-            }
-            Ok(())
-        }
-        EffectDef::LookAtTopAndDistribute {
-            player,
-            count,
-            destinations,
-        } => {
-            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            // Each destination takes one card, so the look has to be exactly
-            // as deep as the list is long: a shorter one would leave a card
-            // nowhere, and a longer one a destination with nothing to fill
-            // it that the card never printed.
-            if destinations.is_empty()
-                || i32::try_from(destinations.len())
-                    .is_ok_and(|length| count != ValueDef::Constant(length))
-                || !destinations.iter().all(|destination| {
-                    matches!(
-                        destination.zone,
-                        ZoneKind::Hand | ZoneKind::Library | ZoneKind::Graveyard | ZoneKind::Exile
-                    ) && (!destination.playable_this_turn
-                        || destination.zone == ZoneKind::Exile)
-                })
-            {
-                return Err(
-                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                        context: "resolving",
-                        operation: "LookAtTopAndDistribute with unsupported destinations",
-                    },
-                );
-            }
-            validate_value_shape(count, targets)
-        }
-        EffectDef::LookAtTopAndSelect {
-            player,
-            looker,
-            selection,
-        } => {
-            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            validate_recipient_shape(looker, targets, RecipientExpectation::Player)?;
-            if selection.minimum > selection.maximum
-                // Two ways of asking, and a selection is one or the other:
-                // every match taken without a question, or one pick per card
-                // type. Both at once has no reading.
-                || (selection.select_all_matching && selection.select_one_of_each_type)
-                // What was taken may also arrive on the battlefield. What was
-                // left behind may not: a card nobody chose has no reason to
-                // be put anywhere but back into a zone.
-                || !matches!(
-                    selection.selected_zone,
-                    ZoneKind::Hand
-                        | ZoneKind::Library
-                        | ZoneKind::Graveyard
-                        | ZoneKind::Exile
-                        | ZoneKind::Battlefield
-                )
-                || !matches!(
-                    selection.rest_zone,
-                    ZoneKind::Hand | ZoneKind::Library | ZoneKind::Graveyard | ZoneKind::Exile
-                )
-            {
-                return Err(
-                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                        context: "resolving",
-                        operation: "LookAtTopAndSelect with invalid bounds or unsupported destination zones",
-                    },
-                );
-            }
-            validate_value_shape(selection.count, targets)?;
-            if let Some(predicate) = selection.object {
-                validate_object_predicate_shape(predicate, targets)?;
-            }
-            if let Some(effect) = selection.then {
                 validate_effect_target_shapes(*effect, targets, triggering_object_zone)?;
             }
             Ok(())
@@ -399,6 +398,15 @@ fn validate_effect_target_shapes(
                 }
                 None => Ok(()),
             }
+        }
+        EffectDef::PermitLookAtExiled {
+            object,
+            player,
+            then,
+        } => {
+            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
+            validate_player_reference_shape(player, targets)?;
+            validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
         EffectDef::DiscardCards { object }
         | EffectDef::Explore { object }
@@ -714,7 +722,7 @@ mod recipient_shape_tests {
     use super::*;
     use crate::card::{
         BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef, PlayRestrictionDef,
-        ResolvedEffectDurationDef, TopCardSelectionDef, ZonePlacement,
+        ResolvedEffectDurationDef,
     };
 
     const PLAYER_TARGET: AbilityTargetDef =
@@ -906,73 +914,6 @@ mod recipient_shape_tests {
                 destination: choice.destination,
             }),
         );
-    }
-
-    #[test]
-    fn top_card_selections_reject_invalid_bounds_and_unsupported_destinations() {
-        static INVALID_BOUNDS: TopCardSelectionDef = TopCardSelectionDef {
-            count: ValueDef::Constant(2),
-            object: None,
-            minimum: 2,
-            maximum: 1,
-            select_all_matching: false,
-            select_one_of_each_type: false,
-            reveal_inspected: false,
-            reveal_selected: false,
-            counted: None,
-            selected_zone: ZoneKind::Hand,
-            selected_placement: ZonePlacement::Top,
-            rest_zone: ZoneKind::Library,
-            rest_placement: ZonePlacement::Bottom,
-            rest_random_order: false,
-            rest_counters: None,
-            selected_order_follows_choice: false,
-            then: None,
-        selected_hidden: false,
-        selected_linked_to_source: false,
-        selected_face_down: None,};
-        static INVALID_ZONE: TopCardSelectionDef = TopCardSelectionDef {
-            count: ValueDef::Constant(1),
-            object: None,
-            minimum: 0,
-            maximum: 1,
-            select_all_matching: false,
-            select_one_of_each_type: false,
-            reveal_inspected: false,
-            reveal_selected: false,
-            counted: None,
-            selected_zone: ZoneKind::Hand,
-            selected_placement: ZonePlacement::Top,
-            // The battlefield is a fine place for what was taken and not for
-            // what was left behind.
-            rest_zone: ZoneKind::Battlefield,
-            rest_placement: ZonePlacement::Bottom,
-            rest_random_order: false,
-            rest_counters: None,
-            selected_order_follows_choice: false,
-            then: None,
-        selected_hidden: false,
-        selected_linked_to_source: false,
-        selected_face_down: None,};
-
-        for selection in [&INVALID_BOUNDS, &INVALID_ZONE] {
-            assert_eq!(
-                validate_ability_targets(
-                    &[],
-                    EffectDef::LookAtTopAndSelect {
-                        player: EffectRecipientDef::Controller,
-                        looker: EffectRecipientDef::Controller,
-                        selection,
-                    },
-                ),
-                Err(
-                    GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                        context: "resolving",
-                        operation: "LookAtTopAndSelect with invalid bounds or unsupported destination zones",
-                    }
-                ),
-            );
-        }
     }
 
     #[test]

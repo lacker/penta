@@ -4,38 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, BasicLandType, CardArt, CardRules, CardSet,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, TopCardSelectionDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ObjectQueryDef, PlayerRelation, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::mana_cost;
 
 // DFT 67 — Stock Up
-/// Impulse's shape, one card deeper and one card wider. The rest going to
-/// the bottom rather than the graveyard is what keeps it from being a
-/// self-mill, which matters to the decks that play it.
-static STOCK_UP_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(5),
-    object: None,
-    minimum: 2,
-    maximum: 2,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_legacy_id(
     2179,
     "Stock Up",
@@ -45,11 +19,12 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_leg
     // to find them is what puts it in a deck built around one or two cards.
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Look at the top five cards of your library. Put two of them into your hand and the rest on the bottom of your library in any order.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &STOCK_UP_SELECTION,
-        },
+        abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+            ValueDef::Constant(5),
+            ObjectPredicateDef::Any,
+            2,
+            2,
+        ),
     )),
 );
 

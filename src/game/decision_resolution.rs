@@ -1,15 +1,14 @@
 mod battlefield_entry;
 mod chosen_cards;
 mod leaving;
-mod top_cards;
 mod triggers;
 
 use super::decision_search_resolution::SearchResolution;
 use super::{
     BalanceAction, BasicLandType, BasicLandTypeChange, BattlefieldArrival,
-    BattlefieldExitCompletion, CardRuntime, CounterKind, DecisionContinuation, DecisionOption,
-    Game, GameEvent, ManaCost, PileChoice, PileSplit, PlayerId, ReplaceableEvent, Target,
-    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    BattlefieldExitCompletion, CounterKind, DecisionContinuation, DecisionOption, Game, GameEvent,
+    ManaCost, PlayerId, ReplaceableEvent, Target, TargetSelection, ZoneKind, ZoneMoveCause,
+    ZonePlacement, remove_card,
 };
 use crate::card::{BattlefieldEntryChoiceDestinationDef, EffectDef, ReplacementEffectDef};
 
@@ -212,32 +211,6 @@ impl Game {
                     Target::Player(_) | Target::Card(_) => {}
                 }
             }
-            DecisionContinuation::AugurOfBolas { player, revealed } => {
-                let kept = pending
-                    .observation
-                    .options
-                    .iter()
-                    .find(|option| options.contains(&option.id))
-                    .and_then(|option| option.card)
-                    .map(|(card, _)| card);
-                let (to_hand, to_bottom): (Vec<_>, Vec<_>) =
-                    revealed.into_iter().partition(|card| Some(card.id) == kept);
-                for card in to_hand {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[player.index()].hand.push(card);
-                }
-                // "In any order" -- printed order is as good as any, and the
-                // rest of the library is already unknown to everyone.
-                for card in to_bottom {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[player.index()].library.push(card);
-                }
-            }
-            continuation @ (DecisionContinuation::TopCardSelection { .. }
-            | DecisionContinuation::DistributedTopCardSelection { .. }
-            | DecisionContinuation::TypedTopCardSelection { .. }) => {
-                self.resolve_top_card_continuation(continuation, &pending_options, options);
-            }
             continuation @ (DecisionContinuation::BattlefieldEntryReplacement { .. }
             | DecisionContinuation::BattlefieldEntryExile { .. }
             | DecisionContinuation::BattlefieldEntryOptional { .. }
@@ -246,6 +219,9 @@ impl Game {
             | DecisionContinuation::BattlefieldEntryCopy { .. }
             | DecisionContinuation::BattlefieldEntryScalarChoice { .. }) => {
                 self.resolve_battlefield_entry_decision(continuation, &pending_options, options);
+            }
+            DecisionContinuation::BattlefieldExitOrder { batch, remaining } => {
+                self.complete_battlefield_exit_order(batch, remaining, &pending_options, options);
             }
             DecisionContinuation::PayOr {
                 player,
@@ -385,22 +361,6 @@ impl Game {
                         player, spell, colors, true, "the copy", remaining,
                     );
                 }
-            }
-            DecisionContinuation::GrislySalvage { player, revealed } => {
-                let kept = pending
-                    .observation
-                    .options
-                    .iter()
-                    .find(|option| options.contains(&option.id))
-                    .and_then(|option| option.card)
-                    .map(|(card, _)| card);
-                let (to_hand, to_graveyard): (Vec<_>, Vec<_>) =
-                    revealed.into_iter().partition(|card| Some(card.id) == kept);
-                for card in to_hand {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[player.index()].hand.push(card);
-                }
-                self.bury_cards(player, to_graveyard);
             }
             DecisionContinuation::ExploredCardPlacement { player, revealed } => {
                 self.place_explored_card(player, revealed, options.contains(&1));
@@ -547,25 +507,61 @@ impl Game {
                 // "The rest" is whatever was offered and not taken, bound
                 // before the chosen half so the two are one partition of the
                 // same candidates.
-                if let crate::card::EffectDef::Choose(choice) = definition.effect
-                    && let Some(unchosen) = choice.unchosen
-                {
-                    let rest = candidates
-                        .iter()
-                        .filter(|candidate| !selected.contains(candidate))
-                        .copied()
-                        .collect();
-                    context.bind_object_group(unchosen, rest);
+                match definition.effect {
+                    crate::card::EffectDef::Choose(choice) => {
+                        if let Some(unchosen) = choice.unchosen {
+                            let rest = candidates
+                                .iter()
+                                .filter(|candidate| !selected.contains(candidate))
+                                .copied()
+                                .collect();
+                            context.bind_object_group(unchosen, rest);
+                        }
+                    }
+                    crate::card::EffectDef::ChooseCardsFromCollection(choice) => {
+                        let rest = context
+                            .object_group(choice.remainder)
+                            .iter()
+                            .filter(|candidate| !selected.contains(candidate))
+                            .copied()
+                            .collect();
+                        context.bind_object_group(choice.remainder, rest);
+                    }
+                    _ => {}
                 }
                 Self::bind_effect_choice(&mut context, binding, selected);
                 self.resolve_nested_effect_before_later(effect, &object, context);
             }
-            DecisionContinuation::SplitForEffect {
+            DecisionContinuation::ChooseObjectOrderForEffect {
                 definition,
-                chooser,
-                items,
+                candidates,
+                object,
+                mut context,
+                effect,
+            } => {
+                let ordered = options
+                    .iter()
+                    .filter_map(|option| usize::try_from(*option).ok())
+                    .filter_map(|index| candidates.get(index))
+                    .copied()
+                    .collect::<Vec<_>>();
+                if let crate::card::EffectDef::ChooseObjectOrder(arrange) = definition.effect {
+                    context.bind_object_group(arrange.ordered, ordered);
+                    self.resolve_nested_effect_before_later(effect, &object, context);
+                }
+            }
+            DecisionContinuation::LookAtObjectsForEffect {
+                definition: _,
                 object,
                 context,
+                effect,
+            } => self.resolve_nested_effect_before_later(effect, &object, context),
+            DecisionContinuation::PartitionGroupForEffect {
+                definition,
+                items,
+                object,
+                mut context,
+                effect,
             } => {
                 let (first, second) = items.into_iter().enumerate().fold(
                     (Vec::new(), Vec::new()),
@@ -578,93 +574,63 @@ impl Game {
                         (first, second)
                     },
                 );
-                self.queue_effect_pile_choice(chooser, first, second, object, context, definition);
+                if let crate::card::EffectDef::PartitionGroup(partition) = definition.effect {
+                    context.bind_object_group(partition.first, first);
+                    context.bind_object_group(partition.second, second);
+                    self.resolve_nested_effect_before_later(effect, &object, context);
+                }
             }
-            DecisionContinuation::ChoosePileForEffect {
-                definition: _,
+            DecisionContinuation::ChooseGroupForEffect {
+                definition,
                 first,
                 second,
-                chosen,
-                unchosen,
                 object,
                 mut context,
                 effect,
             } => {
-                let choose_first = options.first().copied() == Some(0);
-                let (chosen_objects, unchosen_objects) = if choose_first {
+                let (chosen, unchosen) = if options.first().copied() == Some(0) {
                     (first, second)
                 } else {
                     (second, first)
                 };
-                context.bind_object_group(chosen, chosen_objects);
-                context.bind_object_group(unchosen, unchosen_objects);
-                self.resolve_nested_effect_before_later(effect, &object, context);
+                if let crate::card::EffectDef::ChooseGroup(choice) = definition.effect {
+                    context.bind_object_group(choice.chosen, chosen);
+                    context.bind_object_group(choice.unchosen, unchosen);
+                    self.resolve_nested_effect_before_later(effect, &object, context);
+                }
+            }
+            DecisionContinuation::ChooseOneOfEachForEffect {
+                definition,
+                next,
+                candidates,
+                mut remaining,
+                mut chosen,
+                object,
+                context,
+            } => {
+                if let Some(selected) = options
+                    .first()
+                    .and_then(|option| usize::try_from(*option).ok())
+                    .and_then(|index| candidates.get(index))
+                    .copied()
+                    && let Some(index) = remaining.iter().position(|target| *target == selected)
+                {
+                    chosen.push(remaining.remove(index));
+                }
+                self.queue_next_one_of_each(
+                    definition,
+                    next + 1,
+                    remaining,
+                    chosen,
+                    &object,
+                    context,
+                    true,
+                );
             }
             DecisionContinuation::DrawActionWindow { card } => {
                 if options.contains(&1) {
                     self.reveal_miracle(player, card);
                 }
-            }
-            DecisionContinuation::SeparateIntoPiles {
-                resolving_controller,
-                subject,
-                items,
-                on_complete,
-            } => {
-                let first = items
-                    .iter()
-                    .filter(|option| options.contains(&option.id))
-                    .cloned()
-                    .collect();
-                let second = items
-                    .iter()
-                    .filter(|option| !options.contains(&option.id))
-                    .cloned()
-                    .collect();
-                let mut runtime = CardRuntime { game: self };
-                on_complete.run(
-                    &mut runtime,
-                    PileSplit {
-                        resolving_controller,
-                        subject,
-                        first,
-                        second,
-                    },
-                );
-            }
-            DecisionContinuation::ChoosePile { piles, on_complete } => {
-                let chosen = if options.contains(&0) {
-                    &piles.first
-                } else {
-                    &piles.second
-                };
-                let unchosen = if options.contains(&0) {
-                    &piles.second
-                } else {
-                    &piles.first
-                };
-                let object_ids = |pile: &[DecisionOption]| {
-                    pile.iter()
-                        .flat_map(|option| {
-                            if option.members.is_empty() {
-                                option.card.into_iter().collect::<Vec<_>>()
-                            } else {
-                                option.members.clone()
-                            }
-                        })
-                        .map(|(id, _)| id)
-                        .collect::<Vec<_>>()
-                };
-                let mut runtime = CardRuntime { game: self };
-                on_complete.run(
-                    &mut runtime,
-                    PileChoice {
-                        resolving_controller: piles.resolving_controller,
-                        subject: piles.subject,
-                        chosen: object_ids(chosen),
-                        unchosen: object_ids(unchosen),
-                    },
-                );
             }
             DecisionContinuation::SearchZonesAndExileRest {
                 player,

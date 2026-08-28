@@ -4,8 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, TopCardSelectionDef, TriggerEventDef, ValueDef, ZoneKind,
-    abilities,
+    ObjectQueryDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -120,16 +119,6 @@ pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::
 );
 
 // MID 44 — Consider
-static CONSIDER_DRAWS: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-};
-
-/// The draw waits behind the look rather than beside it: the surveil is
-/// answered by a decision, and what the card draws is the card the answer
-/// left on top.
-static CONSIDER_SURVEILS: TopCardSelectionDef = abilities::surveil(1, Some(&CONSIDER_DRAWS));
-
 pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b3f40a0-5f58-4157-aed9-b1a52e922c3c"),
     "Consider",
@@ -140,11 +129,13 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)\n\
          Draw a card.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &CONSIDER_SURVEILS,
-        },
+        EffectDef::Sequence(&[
+            abilities::surveil(ValueDef::Constant(1)),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 

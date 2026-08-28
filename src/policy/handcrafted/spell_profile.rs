@@ -346,14 +346,60 @@ impl HandcraftedPolicy {
             EffectDef::Choose(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
+            EffectDef::ChooseCardsFromCollection(choice) => {
+                Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
+            }
+            EffectDef::LookAtObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::ChooseObjectOrder(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::ClassifyObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::RevealAndClassifyCards(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::CombineObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::ChooseOneOfEach(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::ChooseGroup(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::BindObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::IfNoObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.if_empty, x, targets, profile);
+                Self::collect_spell_effect_profile(*definition.otherwise, x, targets, profile);
+            }
+            EffectDef::PartitionGroup(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::RandomizeObjectOrder(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::RevealObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::MoveObjects(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
+            EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
+                Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
+            }
             EffectDef::SimultaneousChoose(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
             EffectDef::ChooseCardName { then, .. }
+            | EffectDef::PermitLookAtExiled { then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::BindMatching { then, .. }
             | EffectDef::SelectAtRandomFromZone { then, .. } => {
                 Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
@@ -361,9 +407,6 @@ impl HandcraftedPolicy {
                 for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
                     Self::collect_spell_effect_profile(**effect, x, targets, profile);
                 }
-            }
-            EffectDef::SplitIntoPiles(partition) => {
-                Self::collect_spell_effect_profile(*partition.then, x, targets, profile);
             }
             // An optional effect is worth what it would do if taken. Iteration
             // has the same child profile; multiplicity is intentionally not a
@@ -489,12 +532,9 @@ impl HandcraftedPolicy {
             | EffectDef::SearchZonesAndExileRest { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
-            | EffectDef::ManifestDread { .. }
             | EffectDef::Cascade
             | EffectDef::Proliferate
             | EffectDef::Explore { .. }
-            | EffectDef::LookAtTopAndSelect { .. }
-            | EffectDef::LookAtTopAndDistribute { .. }
             | EffectDef::LookAtHand { .. }
             | EffectDef::ExileOneFromEachZone(_)
             | EffectDef::PermitCastFromGraveyardThisTurn { .. }
@@ -526,7 +566,6 @@ impl HandcraftedPolicy {
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
             | EffectDef::SetLifeTotal { .. }
-            | EffectDef::Scry { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn

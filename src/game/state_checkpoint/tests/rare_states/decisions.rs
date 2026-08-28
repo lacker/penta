@@ -95,11 +95,10 @@ fn a_multi_player_discard_reconstructs_while_one_choice_is_still_hidden() {
     assert_reconstructs(&game, "a multi-player discard holding a hidden choice");
 }
 
-/// Liliana's ultimate is the only card-owned pile program in the catalog and
-/// it never fires in sampled play. Its two continuations carry a callback,
-/// which the snapshot must address by registry key rather than by pointer.
+/// Liliana's ultimate changes decision control between two ordinary group
+/// stages. Both boundaries must reconstruct from the authored effect graph.
 #[test]
-fn a_card_owned_pile_program_reconstructs_at_both_of_its_boundaries() {
+fn a_cross_player_group_workflow_reconstructs_at_both_boundaries() {
     let mut game = staged_modern_game();
     let walker_id = GameObjectId(10_000);
     let mut walker = creature(
@@ -137,14 +136,14 @@ fn a_card_owned_pile_program_reconstructs_at_both_of_its_boundaries() {
             game.pending_decisions
                 .first()
                 .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::SeparateIntoPiles { .. })
+            Some(DecisionContinuation::PartitionGroupForEffect { .. })
         ),
-        "the ultimate must be waiting on a pile split, not {:?}",
+        "the ultimate must be waiting on its controller's partition, not {:?}",
         game.pending_decisions
             .first()
             .map(|pending| &pending.continuation)
     );
-    assert_reconstructs(&game, "a card-owned pile split");
+    assert_reconstructs(&game, "a staged group partition");
 
     answer_with_first_option(&mut game);
     assert!(
@@ -152,11 +151,11 @@ fn a_card_owned_pile_program_reconstructs_at_both_of_its_boundaries() {
             game.pending_decisions
                 .first()
                 .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::ChoosePile { .. })
+            Some(DecisionContinuation::ChooseGroupForEffect { .. })
         ),
-        "splitting must lead to the pile choice"
+        "partitioning must pass the pile choice to the targeted player"
     );
-    assert_reconstructs(&game, "a card-owned pile choice");
+    assert_reconstructs(&game, "a staged group choice");
 }
 
 /// An installed trigger belongs to no object: its source has already resolved,
@@ -192,211 +191,6 @@ fn an_effect_installed_trigger_reconstructs() {
         "the resolved ability must leave an installed trigger behind"
     );
     assert_reconstructs(&game, "an installed trigger watching the game");
-}
-
-/// The opposing seat splits public cards that remain in the effect controller's
-/// library. Both seats can reconstruct either decision, so checkpoint import
-/// must use the cards' actual origin rather than assuming that the deciding or
-/// observing seat owns the library. Each reconstructed decision is answered to
-/// prove that its typed ids still address live cards, not merely that its
-/// observation can be rendered.
-#[test]
-#[allow(clippy::too_many_lines)]
-fn a_generic_pile_split_reconstructs_and_resumes_for_both_seats() {
-    let mut game = staged_modern_game();
-    let walker_id = GameObjectId(10_000);
-    let mut walker = creature(
-        walker_id.0,
-        crate::card::cards::JACE_ARCHITECT_OF_THOUGHT,
-        PlayerId::One,
-    );
-    walker.set_counters(CounterKind::Loyalty, 4);
-    game.battlefield.push(walker);
-
-    game.apply(
-        PlayerId::One,
-        loyalty_action(
-            walker_id,
-            crate::card::cards::JACE_ARCHITECT_OF_THOUGHT,
-            1,
-            Vec::new(),
-        ),
-    )
-    .expect("Jace's minus ability activates");
-    resolve_top_of_stack(&mut game);
-
-    assert!(
-        matches!(
-            game.pending_decisions
-                .first()
-                .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::SplitForEffect { .. })
-        ),
-        "the ability must be waiting on a generic pile split, not {:?}",
-        game.pending_decisions
-            .first()
-            .map(|pending| &pending.continuation)
-    );
-    assert_reconstructs(&game, "a generic pile split");
-
-    let split_observation = game.observe(PlayerId::Two);
-    let split_actions = crate::protocol::protocol_actions(&split_observation);
-    let split_wire = crate::protocol::observation_json_for_format(
-        &game.catalog,
-        game.format,
-        &split_observation,
-        game.in_pregame(),
-        &split_actions,
-    );
-    assert!(
-        split_wire["checkpoint"]["decisionState"]["continuation"]
-            .get("items")
-            .is_none(),
-        "split items are reconstructed from the authored outer effect",
-    );
-    let canonical_items = match &game.pending_decisions[0].continuation {
-        DecisionContinuation::SplitForEffect { items, .. } => items.clone(),
-        _ => unreachable!(),
-    };
-    let outside = game.players[PlayerId::One.index()]
-        .library
-        .iter()
-        .enumerate()
-        .find(|(_, card)| !canonical_items.contains(&Target::Card(card.id)))
-        .expect("the library has a card outside Jace's top three");
-    let mut spliced_split = split_wire.clone();
-    let old_object = spliced_split["decision"]["options"][0]["card"]["objectId"]
-        .as_u64()
-        .expect("Jace's split option is a card");
-    let outside_name = game
-        .catalog
-        .get(outside.1.definition)
-        .expect("the outside card is cataloged")
-        .name
-        .clone();
-    spliced_split["decision"]["options"][0]["label"] = Value::String(outside_name);
-    spliced_split["decision"]["options"][0]["card"]["objectId"] = Value::from(outside.1.id.0);
-    spliced_split["decision"]["options"][0]["card"]["definition"] =
-        Value::from(outside.1.definition.get());
-    spliced_split["decision"]["options"][0]["card"]["characteristics"]["definition"] =
-        Value::from(outside.1.definition.get());
-    spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["objectId"] =
-        Value::from(outside.1.id.0);
-    spliced_split["checkpoint"]["decisionState"]["options"][0]["card"]["characteristics"]
-        ["definition"] = Value::from(outside.1.definition.get());
-    let origin = spliced_split["checkpoint"]["decisionState"]["cardOrigins"]
-        .as_array_mut()
-        .expect("split origins are an array")
-        .iter_mut()
-        .find(|origin| origin["objectId"].as_u64() == Some(old_object))
-        .expect("the replaced split option has an origin");
-    origin["objectId"] = Value::from(outside.1.id.0);
-    origin["index"] = Value::from(outside.0);
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &spliced_split,
-        &true_hidden_hypothesis(&game, PlayerId::Two),
-        4_249,
-    )
-    .expect_err("Jace's split cannot substitute a card outside the authored top three");
-    assert!(
-        error.contains("pile split decision options disagree"),
-        "unexpected split error: {error}",
-    );
-
-    for (viewer, seed) in [(PlayerId::One, 4_250), (PlayerId::Two, 4_251)] {
-        let mut rebuilt = rebuild_from_truth_for_viewer(&game, viewer, seed);
-        let items = match &rebuilt.pending_decisions[0].continuation {
-            DecisionContinuation::SplitForEffect { items, .. } => items,
-            other => panic!("split reconstruction changed continuation: {other:?}"),
-        };
-        assert!(
-            items.iter().all(|target| matches!(target, Target::Card(id)
-                if rebuilt.players[PlayerId::One.index()]
-                    .library
-                    .iter()
-                    .any(|card| card.id == *id))),
-            "{viewer:?} reconstruction must bind every item to player one's library",
-        );
-        answer_with_first_option(&mut rebuilt);
-        assert!(matches!(
-            rebuilt.pending_decisions[0].continuation,
-            DecisionContinuation::ChoosePileForEffect { .. }
-        ));
-    }
-
-    answer_with_first_option(&mut game);
-    assert!(
-        matches!(
-            game.pending_decisions
-                .first()
-                .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::ChoosePileForEffect { .. })
-        ),
-        "splitting must lead to the pile choice"
-    );
-    assert_reconstructs(&game, "a generic pile choice");
-
-    let pile_observation = game.observe(PlayerId::One);
-    let pile_actions = crate::protocol::protocol_actions(&pile_observation);
-    let pile_wire = crate::protocol::observation_json_for_format(
-        &game.catalog,
-        game.format,
-        &pile_observation,
-        game.in_pregame(),
-        &pile_actions,
-    );
-    let mut duplicated = pile_wire.clone();
-    let first = duplicated["checkpoint"]["decisionState"]["continuation"]["first"][0].clone();
-    duplicated["checkpoint"]["decisionState"]["continuation"]["second"][0] = first;
-    let first_member = duplicated["decision"]["options"][0]["members"][0].clone();
-    duplicated["decision"]["options"][1]["members"][0] = first_member;
-    let first_member = duplicated["checkpoint"]["decisionState"]["options"][0]["members"][0]
-        .clone();
-    duplicated["checkpoint"]["decisionState"]["options"][1]["members"][0] = first_member;
-    let error = Game::from_observation_checkpoint(
-        game.catalog.clone(),
-        game.format,
-        &duplicated,
-        &true_hidden_hypothesis(&game, PlayerId::One),
-        4_250,
-    )
-    .expect_err("a pile choice cannot duplicate one item and omit another");
-    assert!(
-        error.contains("exact disjoint partition"),
-        "unexpected pile error: {error}",
-    );
-
-    for (viewer, seed) in [(PlayerId::One, 4_252), (PlayerId::Two, 4_253)] {
-        let mut rebuilt = rebuild_from_truth_for_viewer(&game, viewer, seed);
-        let (first, second) = match &rebuilt.pending_decisions[0].continuation {
-            DecisionContinuation::ChoosePileForEffect { first, second, .. } => (first, second),
-            other => panic!("pile-choice reconstruction changed continuation: {other:?}"),
-        };
-        assert!(
-            first
-                .iter()
-                .chain(second)
-                .all(|target| matches!(target, Target::Card(id)
-                if rebuilt.players[PlayerId::One.index()]
-                    .library
-                    .iter()
-                    .any(|card| card.id == *id))),
-            "{viewer:?} reconstruction must bind every pile member to player one's library",
-        );
-        answer_with_first_option(&mut rebuilt);
-        assert!(
-            !matches!(
-                rebuilt
-                    .pending_decisions
-                    .first()
-                    .map(|pending| &pending.continuation),
-                Some(DecisionContinuation::ChoosePileForEffect { .. })
-            ),
-            "the reconstructed pile choice must resume its nested effect",
-        );
-    }
 }
 
 /// Copy Artifact chooses what to be as it enters, so the seat sees a

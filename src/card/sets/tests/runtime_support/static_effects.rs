@@ -217,6 +217,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::LinkedExiles(_)
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                    | ObjectSetDef::PermanentsControlledBy(_)
                     | ObjectSetDef::BottomOfGraveyard(_)
                     | ObjectSetDef::LegalTargets(_)
                     | ObjectSetDef::PermanentsTargetedBy(_)
@@ -277,11 +278,9 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Choose(_)
         | EffectDef::SimultaneousChoose(_)
         | EffectDef::ChooseCardName { .. }
-        | EffectDef::BindMatching { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
         | EffectDef::PayOr(_)
-        | EffectDef::SplitIntoPiles(_)
         | EffectDef::PreventDamage { .. }
         | EffectDef::Apply { .. }
         | EffectDef::May { .. }
@@ -305,7 +304,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::SetLifeTotal { .. }
         | EffectDef::AddPlayerCounters { .. }
         | EffectDef::DrawCards { .. }
-        | EffectDef::Scry { .. }
         | EffectDef::Discard { .. }
         | EffectDef::DiscardCards { .. }
         | EffectDef::ShuffleLibrary { .. }
@@ -341,13 +339,26 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::SearchZonesAndExileRest { .. }
         | EffectDef::MillUntil { .. }
         | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade
         | EffectDef::Proliferate
         | EffectDef::Explore { .. }
-        | EffectDef::LookAtTopAndSelect { .. }
-        | EffectDef::LookAtTopAndDistribute { .. }
         | EffectDef::LookAtHand { .. }
+        | EffectDef::ChooseCardsFromCollection(_)
+        | EffectDef::LookAtObjects(_)
+        | EffectDef::ChooseObjectOrder(_)
+        | EffectDef::ClassifyObjects(_)
+        | EffectDef::RevealAndClassifyCards(_)
+        | EffectDef::CombineObjects(_)
+        | EffectDef::ChooseOneOfEach(_)
+        | EffectDef::ChooseGroup(_)
+        | EffectDef::BindObjects(_)
+        | EffectDef::IfNoObjects(_)
+        | EffectDef::PartitionGroup(_)
+        | EffectDef::RandomizeObjectOrder(_)
+        | EffectDef::RevealObjects(_)
+        | EffectDef::MoveObjects(_)
+        | EffectDef::PutObjectsOntoBattlefieldFaceDown(_)
+        | EffectDef::PermitLookAtExiled { .. }
         | EffectDef::ExileOneFromEachZone(_)
         | EffectDef::MillWhileMatching(_)
         | EffectDef::LookAtRandomCardInHand { .. }

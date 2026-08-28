@@ -886,15 +886,6 @@ pub(super) struct DeferredBeginTurnEffectSnapshot {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct PileSplitSnapshot {
-    pub(super) resolving_controller: usize,
-    pub(super) subject: usize,
-    pub(super) first: Vec<DecisionOptionSnapshot>,
-    pub(super) second: Vec<DecisionOptionSnapshot>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub(super) struct EffectContinuationSnapshot {
     pub(super) object: DetachedStackSnapshot,
     pub(super) ability: AbilityLocator,

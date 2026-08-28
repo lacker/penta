@@ -697,6 +697,16 @@ impl Game {
                 };
                 self.cards_drawn_this_turn_in_hand(player)
             }
+            ObjectSetDef::PermanentsControlledBy(player) => {
+                let Some(player) = self.player_reference(player, object, context, scoped) else {
+                    return Vec::new();
+                };
+                self.battlefield
+                    .iter()
+                    .filter(|permanent| permanent.controller == player)
+                    .map(|permanent| Target::Permanent(permanent.card.id))
+                    .collect()
+            }
             ObjectSetDef::MatchingBinding {
                 binding,
                 object: predicate,

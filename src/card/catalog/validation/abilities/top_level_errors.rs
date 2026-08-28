@@ -204,15 +204,6 @@ fn top_level_ability_error(
             minimum: *minimum,
             maximum: *maximum,
         },
-        GrantedAbilityValidationError::InvalidPileRole { role, players } => {
-            CatalogError::InvalidAbilityPileRole {
-                definition: definition.id,
-                part,
-                ability,
-                role,
-                players: *players,
-            }
-        }
         GrantedAbilityValidationError::InvalidPaymentPayer { players } => {
             CatalogError::InvalidAbilityPaymentPayer {
                 definition: definition.id,

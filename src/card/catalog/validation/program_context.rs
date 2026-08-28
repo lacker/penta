@@ -743,6 +743,7 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::LegalAttachmentHosts(_)
         | ObjectSetDef::LinkedExiles(_)
         | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+        | ObjectSetDef::PermanentsControlledBy(_)
         | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::SharingNameWith(_)
         | ObjectSetDef::SharingNameWithBinding { .. }

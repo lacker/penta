@@ -76,6 +76,25 @@ impl Game {
         let Target::Card(id) = target else {
             return None;
         };
+        let (moved, actual_destination) =
+            self.move_card_target_to_zone(id, zone, cause, arriving_controller, placement)?;
+        (actual_destination == ZoneKind::Battlefield)
+            .then_some(moved)
+            .and(self.arrived.take())
+    }
+
+    /// Move a card outside the battlefield while retaining the identity it
+    /// becomes. Group workflows need that successor to bind the result for a
+    /// later stage; the older single-object entrypoint intentionally returns
+    /// only battlefield arrivals.
+    pub(super) fn move_card_target_to_zone(
+        &mut self,
+        id: GameObjectId,
+        zone: ZoneKind,
+        cause: ZoneMoveCause,
+        arriving_controller: Option<BattlefieldArrival>,
+        placement: ZonePlacement,
+    ) -> Option<(GameObjectId, ZoneKind)> {
         let from = self
             .card_in_nonbattlefield_zone(id)
             .map(|(from, _card)| from)?;
@@ -87,7 +106,7 @@ impl Game {
             let library = &mut self.players[owner.index()].library;
             let index = placement.library_index(library.len());
             library.insert(index, card);
-            return None;
+            return Some((id, ZoneKind::Library));
         }
         let (moved, actual_destination) =
             self.move_card_from_nonbattlefield_zone(id, from, zone, cause, arriving_controller)?;
@@ -102,9 +121,7 @@ impl Game {
             let index = placement.library_index(library.len());
             library.insert(index, card);
         }
-        (actual_destination == ZoneKind::Battlefield)
-            .then_some(())
-            .and(self.arrived.take())
+        Some((moved.id, actual_destination))
     }
 
     /// One card in a hand or library, as a simulation sees it.

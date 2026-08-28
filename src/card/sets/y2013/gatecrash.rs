@@ -7,18 +7,19 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SumValueDef,
-    TargetChooserDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ColorChoiceOperationDef,
+    ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind,
+    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal,
+    EffectDef, EffectRecipientDef, IfNoObjectsDef, InstalledTriggerDef, KeywordAbility,
+    LookAtObjectsDef, ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, QuantifierDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    SacrificedAmountDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
@@ -3285,36 +3286,63 @@ static DOMRI_RADE_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_abilit
     },
 )];
 
+const DOMRI_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const DOMRI_CREATURE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const DOMRI_OTHER: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const DOMRI_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static DOMRI_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(DOMRI_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static DOMRI_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(DOMRI_CHOSEN),
+    then: &DOMRI_PUT_CHOSEN,
+});
+static DOMRI_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(DOMRI_CHOSEN),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(DOMRI_CREATURE),
+    exclude: None,
+    minimum: 0,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &DOMRI_REVEAL,
+});
+static DOMRI_LOOK_AT_INELIGIBLE: EffectDef = EffectDef::LookAtObjects(LookAtObjectsDef {
+    actor: PlayerRefDef::EffectController,
+    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(DOMRI_INSPECTED)),
+    visibility: ChoiceVisibilityDef::Private,
+    then: &EffectDef::None,
+});
+static DOMRI_BRANCH: EffectDef = EffectDef::IfNoObjects(IfNoObjectsDef {
+    input: ObjectSetDef::Binding(DOMRI_CREATURE),
+    if_empty: &DOMRI_LOOK_AT_INELIGIBLE,
+    otherwise: &DOMRI_CHOOSE,
+});
+static DOMRI_CLASSIFY: EffectDef = EffectDef::ClassifyObjects(ClassifyObjectsDef {
+    input: ObjectSetDef::Binding(DOMRI_INSPECTED),
+    object: ObjectPredicateDef::HasType(CardType::Creature),
+    matching: DOMRI_CREATURE,
+    remainder: DOMRI_OTHER,
+    then: &DOMRI_BRANCH,
+});
+static DOMRI_LOOK: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    DOMRI_INSPECTED,
+    &DOMRI_CLASSIFY,
+);
+
 static DOMRI_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::activated(
         "+1: Look at the top card of your library. If it's a creature card, you may reveal it and put it into your hand.",
         &[AbilityCostDef::Loyalty(1)],
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &TopCardSelectionDef {
-                count: ValueDef::Constant(1),
-                object: Some(ObjectPredicateDef::HasType(CardType::Creature)),
-                minimum: 0,
-                maximum: 1,
-                select_all_matching: false,
-                select_one_of_each_type: false,
-                reveal_inspected: false,
-                reveal_selected: true,
-                counted: None,
-                selected_zone: ZoneKind::Hand,
-                selected_placement: ZonePlacement::Top,
-                rest_zone: ZoneKind::Library,
-                rest_placement: ZonePlacement::Top,
-                rest_random_order: false,
-                rest_counters: None,
-                selected_order_follows_choice: false,
-                then: None,
-                selected_hidden: false,
-                selected_linked_to_source: false,
-                selected_face_down: None,
-            },
-        },
+        DOMRI_LOOK,
     ),
     AbilityDef::activated_with_targets(
         "−2: Target creature you control fights another target creature.",

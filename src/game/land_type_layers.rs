@@ -460,6 +460,7 @@ impl Game {
                 | ObjectSetDef::LegalAttachmentHosts(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::SharingNameWith(_)
                 | ObjectSetDef::SharingNameWithBinding { .. }

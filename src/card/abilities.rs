@@ -6,21 +6,23 @@
 use super::model::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef,
-    CardChoiceSourceDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ConditionDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    AppliedRuleDef, BandingQuality, BasicLandType, BattlefieldEntryModificationDef, BindObjectsDef,
+    CardChoiceSourceDef, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
+    ChooseDef, ChooseObjectOrderDef, CollectionInspectionDef, ColorSet, ComparisonDef,
+    ConditionDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef,
+    CostModificationDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
-    InstalledTriggerLifetimeDef, KeywordAbility, ManaColor, ManaCost, ObjectChoiceBindingDef,
-    ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PartitionItemsDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
-    SpellResolutionDestinationDef, SplitIntoPilesDef, SuspendAbilityDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement,
+    InstalledTriggerLifetimeDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost,
+    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCountConditionDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef, ScaledValueDef,
+    SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
+    SpellResolutionDestinationDef, SuspendAbilityDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 
@@ -572,6 +574,8 @@ pub const fn connive() -> EffectDef {
     EffectDef::Sequence(&CONNIVE_STEPS)
 }
 
+include!("abilities/object_collections.rs");
+
 static CONNIVE_STEPS: [EffectDef; 2] = [
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,
@@ -846,37 +850,6 @@ pub const fn counter_triggering_spell_unless_paid(amount: ValueDef) -> EffectDef
         amount,
         &COUNTER_TRIGGERING_SPELL,
     )
-}
-
-const CHOSEN_PILE_BINDING: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-const UNCHOSEN_PILE_BINDING: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-/// The pile selected by the chooser in [`split_top_of_library_into_piles`].
-pub const CHOSEN_PILE: EffectRecipientDef =
-    EffectRecipientDef::objects(ObjectSetDef::Binding(CHOSEN_PILE_BINDING));
-
-/// The pile declined by the chooser in [`split_top_of_library_into_piles`].
-pub const UNCHOSEN_PILE: EffectRecipientDef =
-    EffectRecipientDef::objects(ObjectSetDef::Binding(UNCHOSEN_PILE_BINDING));
-
-/// Reveal cards from the effect controller's library, let an opponent divide
-/// them, and let the controller choose a pile before continuing.
-#[must_use]
-pub const fn split_top_of_library_into_piles(
-    count: ValueDef,
-    then: &'static EffectDef,
-) -> EffectDef {
-    EffectDef::SplitIntoPiles(SplitIntoPilesDef {
-        items: PartitionItemsDef::TopOfLibrary {
-            player: PlayerRefDef::EffectController,
-            count,
-        },
-        divider: PlayerSetDef::Related(PlayerRelation::Opponent),
-        chooser: PlayerSetDef::One(PlayerRefDef::EffectController),
-        chosen: CHOSEN_PILE_BINDING,
-        unchosen: UNCHOSEN_PILE_BINDING,
-        then,
-    })
 }
 
 /// The printed static "this creature can't be blocked".

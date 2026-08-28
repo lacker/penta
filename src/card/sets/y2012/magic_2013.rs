@@ -16,19 +16,20 @@ use crate::card::sets::{
     y2011::innistrad,
 };
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardBehavior,
-    CardRules, CardSet, CardSupertype, CardType, ColorSet, ComparisonDef, ControlDurationDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, ComparisonDef, ControlDurationDef,
     CostModificationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectExecutionDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
+    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 /// The largest power among your creatures, which is one creature's size
@@ -856,7 +857,6 @@ pub(in crate::card::sets) static ARCTIC_AVEN: CardRecord = CardRecord::new_with_
 );
 
 // M13 43 — Augur of Bolas
-// Audit: custom — Needs declarative top-three selection of an instant or sorcery with the unchosen cards ordered onto the library bottom.
 pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new_with_legacy_id(
     135,
     "Augur of Bolas",
@@ -868,13 +868,18 @@ pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new_wi
         1,
         3,
     )
-    .with_abilities(&[
-        abilities::enters_trigger("When this creature enters, look at the top three cards of your library. You may reveal an instant or sorcery card from among them and put it into your hand. Put the rest on the bottom of your library in any order.", EffectDef::None)
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::AugurOfBolas))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The trigger uses the shared stack and a card-local library-selection resolver.",
-        )),
-    ]),
+    .with_ability(abilities::enters_trigger(
+        "When this creature enters, look at the top three cards of your library. You may reveal an instant or sorcery card from among them and put it into your hand. Put the rest on the bottom of your library in any order.",
+        abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+            ValueDef::Constant(3),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]),
+            0,
+            1,
+        ),
+    )),
 );
 
 // M13 44 — Battle of Wits
@@ -1325,18 +1330,55 @@ pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
 );
 
 // M13 69 — Sphinx of Uthuun
-static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: abilities::CHOSEN_PILE,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: abilities::UNCHOSEN_PILE,
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-    },
-]);
+const SPHINX_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const SPHINX_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const SPHINX_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const SPHINX_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const SPHINX_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+
+static SPHINX_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(SPHINX_UNCHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Graveyard,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static SPHINX_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(SPHINX_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &SPHINX_PUT_UNCHOSEN,
+});
+static SPHINX_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
+    actor: PlayerRefDef::EffectController,
+    first: ObjectSetDef::Binding(SPHINX_FIRST),
+    second: ObjectSetDef::Binding(SPHINX_SECOND),
+    chosen: SPHINX_CHOSEN,
+    unchosen: SPHINX_UNCHOSEN,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &SPHINX_PUT_CHOSEN,
+});
+static SPHINX_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
+    actor: PlayerRefDef::Opponent,
+    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
+    first: SPHINX_FIRST,
+    second: SPHINX_SECOND,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &SPHINX_CHOOSE,
+});
+static SPHINX_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
+    then: &SPHINX_PARTITION,
+});
+static SPHINX_OF_UTHUUN_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(5),
+    SPHINX_INSPECTED,
+    &SPHINX_REVEAL,
+);
 
 pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_with_legacy_id(
     1354,
@@ -1345,10 +1387,10 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Sphinx"], 5, 6).with_abilities(&[
         abilities::flying(),
-        abilities::enters_trigger("When this creature enters, reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.", abilities::split_top_of_library_into_piles(
-                ValueDef::Constant(5),
-                &SPHINX_OF_UTHUUN_PILE_MOVES,
-            )),
+        abilities::enters_trigger(
+            "When this creature enters, reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.",
+            SPHINX_OF_UTHUUN_EFFECT,
+        ),
     ]),
 );
 

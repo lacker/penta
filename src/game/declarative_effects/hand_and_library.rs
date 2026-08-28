@@ -10,32 +10,6 @@ use super::super::{
 };
 use crate::card::{ArrivalAttachmentDef, ObjectPredicateDef};
 
-/// Manifest dread (CR 701.34, 702.169): look at the top two, one goes down
-/// face down as a 2/2 and the other goes to the graveyard. The procedure is
-/// fixed, so the card names the keyword and this states it once.
-static MANIFEST_DREAD: crate::card::TopCardSelectionDef = crate::card::TopCardSelectionDef {
-    count: crate::card::ValueDef::Constant(2),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Battlefield,
-    selected_placement: crate::card::ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: Some(crate::card::face_down::manifest()),
-    rest_zone: ZoneKind::Graveyard,
-    rest_placement: crate::card::ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 impl Game {
     /// "Target opponent exiles the top card of their library, a card at
     /// random from their graveyard, and a card at random from their hand."
@@ -328,21 +302,6 @@ impl Game {
                     }
                 }
             }
-            EffectDef::Scry {
-                player: recipient,
-                count,
-            } => {
-                let count = self
-                    .effect_value(count, object, context, scoped)
-                    .max(0)
-                    .try_into()
-                    .unwrap_or(usize::MAX);
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.queue_scry(player, count);
-                    }
-                }
-            }
             EffectDef::DrawCards { recipient, amount } => {
                 let amount = self
                     .effect_value(amount, object, context, scoped)
@@ -526,20 +485,6 @@ impl Game {
                 self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::Cascade => self.cascade(object),
-            EffectDef::ManifestDread { player: recipient } => {
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.queue_top_card_selection(
-                            player,
-                            player,
-                            &MANIFEST_DREAD,
-                            object,
-                            context.clone(),
-                            scoped,
-                        );
-                    }
-                }
-            }
             EffectDef::ExileFromTopUntil {
                 player: recipient,
                 object: predicate,
@@ -761,56 +706,6 @@ impl Game {
                     }
                 }
                 self.resolve_effect_def(scoped.with_effect(*then), object, context);
-            }
-            EffectDef::LookAtTopAndSelect {
-                player: recipient,
-                looker,
-                selection,
-            } => {
-                // The looker is resolved first and once: a spy that has left
-                // the table still finishes looking, but nobody else does it
-                // for them.
-                let Some(Target::Player(looker)) = self
-                    .effect_recipients(looker, object, context, scoped)
-                    .into_iter()
-                    .next()
-                else {
-                    return;
-                };
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.queue_top_card_selection(
-                            player,
-                            looker,
-                            selection,
-                            object,
-                            context.clone(),
-                            scoped,
-                        );
-                    }
-                }
-            }
-            EffectDef::LookAtTopAndDistribute {
-                player: recipient,
-                count,
-                destinations,
-            } => {
-                let looked = self.effect_value(count, object, context, scoped).max(0);
-                let Ok(looked) = usize::try_from(looked) else {
-                    return;
-                };
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        self.queue_distributed_selection_start(
-                            player,
-                            looked,
-                            destinations,
-                            object,
-                            context.clone(),
-                            scoped,
-                        );
-                    }
-                }
             }
             EffectDef::SearchZone {
                 player: recipient,

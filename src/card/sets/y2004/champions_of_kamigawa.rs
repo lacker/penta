@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
@@ -90,32 +90,6 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
 );
 
 // CHK 268 — Sensei's Divining Top
-/// Every card looked at is selected, which is what makes the choice an
-/// ordering rather than a filter: all three go back on top, in the order
-/// they were named.
-static TOP_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(3),
-    object: None,
-    minimum: 3,
-    maximum: 3,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: true,
-    then: None,
-};
-
 /// The draw and the trip back to the library are one clause: the Top is on
 /// the battlefield as the card is drawn and gone by the time anything could
 /// answer it, which is why it is never really spent.
@@ -143,11 +117,10 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
         AbilityDef::activated(
             "{1}: Look at the top three cards of your library, then put them back in any order.",
             &[AbilityCostDef::Mana(mana_cost!("{1}"))],
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &TOP_LOOK,
-            },
+            abilities::look_at_top_cards_and_reorder(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(3),
+            ),
         ),
         AbilityDef::activated(
             "{T}: Draw a card, then put this artifact on top of its owner's library.",

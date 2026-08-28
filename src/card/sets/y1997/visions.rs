@@ -10,8 +10,8 @@ use crate::card::{
     ArrivalAttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRefDef,
     PlayerRelation, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::card::{
     AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CounterKind,
@@ -348,29 +348,6 @@ pub(in crate::card::sets) static FORESHADOW: CardRecord = CardRecord::new(
 );
 
 // VIS 34 — Impulse
-static IMPULSE_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static IMPULSE: CardRecord = CardRecord::new_with_legacy_id(
     310,
     "Impulse",
@@ -378,11 +355,12 @@ pub(in crate::card::sets) static IMPULSE: CardRecord = CardRecord::new_with_lega
     CardSet::Visions,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
         "Look at the top four cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &IMPULSE_SELECTION,
-        },
+        abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+            ValueDef::Constant(4),
+            ObjectPredicateDef::Any,
+            1,
+            1,
+        ),
     )),
 );
 

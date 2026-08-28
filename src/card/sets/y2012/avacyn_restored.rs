@@ -839,7 +839,6 @@ pub(in crate::card::sets) static SPECTRAL_GATEGUARDS: CardRecord = CardRecord::n
 );
 
 // AVR 38 — Terminus
-// Audit: partial — Permanents move to library one at a time, and the engine does not offer each owner the required ordering choice for multiple cards put on the bottom.
 pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_legacy_id(
     225,
     "Terminus",
@@ -849,14 +848,15 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_leg
         AbilityDef::spell(
             "Put all creatures on the bottom of their owners' libraries.",
             EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Bottom,
-},
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "Permanents move to library one at a time, and the engine does not offer each owner the required ordering choice for multiple cards put on the bottom.",
-        )),
+            },
+        ),
         abilities::miracle(mana_cost!("{W}")),
     ]),
 );

@@ -1,8 +1,8 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
-    DamageAssignment, DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone,
-    Game, GameEvent, GameObjectId, ObjectCharacteristics, ObjectPredicateDef, PlayerId,
-    StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    CounteredSpellZone, DamageAssignment, DecisionContinuation, DecisionPreference,
+    DecisionVisibility, DecisionZone, Game, GameEvent, GameObjectId, ObjectCharacteristics,
+    ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -45,46 +45,10 @@ impl Game {
                     self.exile_permanent(target);
                 }
             }
-            CardBehavior::Mulch => {
-                let player = object.controller;
-                let revealed = self.take_top_of_library(player, 4);
-                let (lands, rest): (Vec<_>, Vec<_>) = revealed.into_iter().partition(|card| {
-                    self.catalog
-                        .get(card.definition)
-                        .is_some_and(|definition| definition.rules.has_type(CardType::Land))
-                });
-                for card in lands {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    self.players[player.index()].hand.push(card);
+            CardBehavior::Negate | CardBehavior::EssenceScatter => {
+                if let Some(Target::Spell(target)) = object.first_target() {
+                    self.counter_spell_into(target, CounteredSpellZone::Graveyard);
                 }
-                self.bury_cards(player, rest);
-            }
-            CardBehavior::GrislySalvage => {
-                let player = object.controller;
-                let revealed = self.take_top_of_library(player, 5);
-                let eligible = revealed
-                    .iter()
-                    .filter(|card| {
-                        self.catalog.get(card.definition).is_some_and(|definition| {
-                            definition.rules.has_type(CardType::Creature)
-                                || definition.rules.has_type(CardType::Land)
-                        })
-                    })
-                    .cloned()
-                    .collect::<Vec<_>>();
-                let options = self.card_decision_options(&eligible, DecisionZone::Library);
-                // "You may put ... into your hand": taking nothing is a real
-                // choice, so the minimum is zero even when something qualifies.
-                self.queue_decision(
-                    player,
-                    "Put a creature or land card into your hand",
-                    DecisionVisibility::Public,
-                    DecisionPreference::HigherCardValue,
-                    0..=1,
-                    false,
-                    options,
-                    DecisionContinuation::GrislySalvage { player, revealed },
-                );
             }
             CardBehavior::Balance => self.resolve_balance(object.controller),
             CardBehavior::Recall => {

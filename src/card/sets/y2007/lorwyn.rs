@@ -5,8 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef,
     FreePlayDef, FreePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TopCardSelectionDef, TriggerConditionDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -83,48 +83,6 @@ pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
 );
 
 // LRW 79 — Ponder
-/// The shuffle is the caster's call and comes after the look: having seen
-/// the three, you decide whether to keep the arrangement or wash it away.
-/// The draw is last either way, so a shuffled Ponder still finds a card.
-static PONDER_SHUFFLE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &EffectDef::ShuffleLibrary {
-            player: EffectRecipientDef::Controller,
-        },
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-]);
-
-/// Every card looked at is selected, which is what makes the choice an
-/// ordering rather than a filter: all three go back on top, in the order
-/// they were named.
-static PONDER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(3),
-    object: None,
-    minimum: 3,
-    maximum: 3,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: true,
-    then: Some(&PONDER_SHUFFLE_AND_DRAW),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legacy_id(
     2241,
     "Ponder",
@@ -135,11 +93,22 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legac
     CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Look at the top three cards of your library, then put them back in any order. You may \
          shuffle.\nDraw a card.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &PONDER_LOOK,
-        },
+        EffectDef::Sequence(&[
+            abilities::look_at_top_cards_and_reorder(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(3),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::Controller,
+                },
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -231,32 +200,6 @@ pub(in crate::card::sets) static THORN_OF_AMETHYST: CardRecord = CardRecord::new
 );
 
 // LRW 272 — Shelldock Isle
-/// Hideaway's look: four cards, one of them exiled face down and linked to
-/// the land that took it, and the rest back under the library in an order
-/// nobody knows.
-static HIDEAWAY_FOUR: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Exile,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: true,
-    selected_linked_to_source: true,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 /// "If a library has twenty or fewer cards in it" -- either library, which
 /// is why the two are asked separately rather than counted together.
 static A_LIBRARY_IS_NEARLY_EMPTY: TriggerConditionDef = TriggerConditionDef::AnyOf(&[
@@ -292,11 +235,7 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "Hideaway 4 (When this land enters, look at the top four cards of your library, \
              exile one face down, then put the rest on the bottom in a random order.)",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &HIDEAWAY_FOUR,
-            },
+            abilities::hideaway(ValueDef::Constant(4)),
         ),
         abilities::enters_tapped("This land enters tapped."),
         AbilityDef::activated_mana(

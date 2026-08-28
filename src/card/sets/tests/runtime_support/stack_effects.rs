@@ -1,11 +1,33 @@
 use super::*;
 use crate::card::{
     ArrivalAttachmentDef, ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef,
-    PartitionItemsDef, SplitIntoPilesDef, ValueDef,
+    ValueDef,
 };
 
 pub(in super::super) fn shared_stack_effect(effect: EffectDef) -> bool {
     shared_stack_effect_at_position(effect, true)
+}
+
+fn shared_object_collection_continuation(
+    effect: EffectDef,
+    deferred_decision_allowed: bool,
+) -> bool {
+    effect == EffectDef::None || shared_stack_effect_at_position(effect, deferred_decision_allowed)
+}
+
+fn shared_object_collection(collection: crate::card::ObjectCollectionSourceDef) -> bool {
+    match collection {
+        crate::card::ObjectCollectionSourceDef::ObjectSet(input) => {
+            shared_effect_recipient(EffectRecipientDef::objects(input))
+        }
+        crate::card::ObjectCollectionSourceDef::TopCards { player, .. } => {
+            shared_effect_recipient(EffectRecipientDef::player(player))
+        }
+        crate::card::ObjectCollectionSourceDef::TopCardsThroughFirstMatching { player, object } => {
+            shared_effect_recipient(EffectRecipientDef::player(player))
+                && shared_object_predicate(object)
+        }
+    }
 }
 
 fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
@@ -27,28 +49,6 @@ fn shared_choose(choice: ChooseDef) -> bool {
         && choice
             .exclude
             .is_none_or(|object| shared_effect_recipient(EffectRecipientDef::object(object)))
-}
-
-fn shared_partition(partition: SplitIntoPilesDef) -> bool {
-    let items_are_shared = match partition.items {
-        PartitionItemsDef::Objects(objects) => {
-            shared_effect_recipient(EffectRecipientDef::objects(objects))
-        }
-        PartitionItemsDef::TopOfLibrary { player, .. } => {
-            shared_effect_recipient(EffectRecipientDef::player(player))
-        }
-    };
-    items_are_shared
-        && !matches!(
-            partition.divider,
-            PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
-        )
-        && !matches!(
-            partition.chooser,
-            PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
-        )
-        && shared_effect_recipient(EffectRecipientDef::players(partition.divider))
-        && shared_effect_recipient(EffectRecipientDef::players(partition.chooser))
 }
 
 fn shared_damage_prevention(prevention: crate::card::DamagePreventionDef) -> bool {
@@ -90,41 +90,6 @@ fn shared_damage_prevention(prevention: crate::card::DamagePreventionDef) -> boo
 /// Resolving sequences preserve their unprocessed tail, so a queued decision
 /// may suspend at any sequence component. Other callers still pass false when
 /// their own continuation cannot be suspended.
-/// The effects whose whole procedure is a decision the shared runtime
-/// asks for. Their callers have already established that a deferred
-/// decision is allowed where they sit; this checks only their arguments.
-fn shared_decision_effect(effect: EffectDef) -> bool {
-    match effect {
-        EffectDef::LookAtTopAndSelect {
-            player,
-            looker,
-            selection,
-        } => {
-            let supported_zone = |zone| {
-                matches!(
-                    zone,
-                    ZoneKind::Hand | ZoneKind::Library | ZoneKind::Graveyard | ZoneKind::Exile
-                )
-            };
-            shared_effect_recipient(player)
-                && shared_effect_recipient(looker)
-                && selection.object.is_none_or(shared_object_predicate)
-                && selection.minimum <= selection.maximum
-                // What was taken may also arrive on the battlefield, under
-                // the player who looked. What was left behind may not: a
-                // card nobody chose has no reason to be put anywhere but
-                // back into a zone.
-                && (supported_zone(selection.selected_zone)
-                    || selection.selected_zone == ZoneKind::Battlefield)
-                && supported_zone(selection.rest_zone)
-                && selection
-                    .then
-                    .is_none_or(|effect| shared_stack_effect_at_position(*effect, true))
-        }
-        _ => false,
-    }
-}
-
 /// The chooser is a player and the choices are their own battlefield, so
 /// only the predicate needs checking. The follow-up runs inside the
 /// sacrifice's continuation, which can establish a fresh decision.
@@ -189,6 +154,102 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                             || shared_stack_effect_at_position(choice.effect, true)
                     })
         }
+        EffectDef::BindObjects(definition) => {
+            shared_object_collection(definition.source)
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::ChooseCardsFromCollection(definition) => {
+            deferred_decision_allowed
+                && definition.maximum > 0
+                && definition.minimum <= definition.maximum
+                && shared_object_collection(definition.source)
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_object_predicate(definition.object)
+                && shared_object_collection_continuation(*definition.then, true)
+        }
+        EffectDef::RevealAndClassifyCards(definition) => {
+            shared_object_collection(definition.source)
+                && shared_object_predicate(definition.object)
+                && shared_object_collection_continuation(
+                    *definition.then,
+                    deferred_decision_allowed,
+                )
+        }
+        EffectDef::IfNoObjects(definition) => {
+            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.if_empty, deferred_decision_allowed)
+                && shared_object_collection_continuation(*definition.otherwise, deferred_decision_allowed)
+        }
+        EffectDef::ClassifyObjects(definition) => {
+            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_predicate(definition.object)
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::CombineObjects(definition) => {
+            definition.inputs.iter().copied().all(|input| {
+                shared_effect_recipient(EffectRecipientDef::objects(input))
+            }) && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::RandomizeObjectOrder(definition) => {
+            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::RevealObjects(definition) => {
+            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::MoveObjects(definition) => {
+            matches!(
+                definition.zone,
+                ZoneKind::Battlefield
+                    | ZoneKind::Hand
+                    | ZoneKind::Graveyard
+                    | ZoneKind::Exile
+                    | ZoneKind::Library
+            ) && shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
+            shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_effect_recipient(EffectRecipientDef::player(definition.controller))
+                && shared_object_collection_continuation(*definition.then, deferred_decision_allowed)
+        }
+        EffectDef::ChooseObjectOrder(definition) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.then, true)
+        }
+        EffectDef::LookAtObjects(definition) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_object_collection(definition.source)
+                && shared_object_collection_continuation(*definition.then, true)
+        }
+        EffectDef::PartitionGroup(definition) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && shared_object_collection_continuation(*definition.then, true)
+        }
+        EffectDef::ChooseGroup(definition) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_effect_recipient(EffectRecipientDef::objects(definition.first))
+                && shared_effect_recipient(EffectRecipientDef::objects(definition.second))
+                && shared_object_collection_continuation(*definition.then, true)
+        }
+        EffectDef::ChooseOneOfEach(definition) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(definition.actor))
+                && shared_effect_recipient(EffectRecipientDef::objects(definition.input))
+                && definition
+                    .predicates
+                    .iter()
+                    .copied()
+                    .all(shared_object_predicate)
+                && shared_object_collection_continuation(*definition.then, true)
+        }
         EffectDef::SimultaneousChoose(choice) => {
             deferred_decision_allowed
                 && !choice.one_of_each.is_empty()
@@ -227,11 +288,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     .chain(payment.otherwise.iter())
                     .all(|effect| shared_stack_effect_at_position(**effect, true))
         }
-        EffectDef::SplitIntoPiles(partition) => {
-            deferred_decision_allowed
-                && shared_partition(partition)
-                && shared_stack_effect_at_position(*partition.then, true)
-        }
         // A spell copying itself asks its chooser for targets, which is a
         // decision window like any other. Proliferate asks over permanents
         // and players at once, which is the same kind of window and reads
@@ -243,8 +299,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Naming a card is a decision window, and what follows it is bound by
         // the same rule as anything after one.
         EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone { then: Some(then), .. }
-        | EffectDef::BindMatching { then, .. } => {
+        | EffectDef::SearchZone { then: Some(then), .. } => {
             deferred_decision_allowed && shared_stack_effect_at_position(*then, true)
         }
         EffectDef::SelectAtRandomFromZone {
@@ -325,7 +380,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::WinTheGame { player: recipient }
         | EffectDef::LookAtHand { player: recipient }
         | EffectDef::LookAtRandomCardInHand { player: recipient }
-        | EffectDef::ManifestDread { player: recipient }
         | EffectDef::RevealHand { player: recipient } => shared_effect_recipient(recipient),
         EffectDef::Discard {
             recipient,
@@ -383,13 +437,14 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }
         EffectDef::SacrificeOfChoice { .. } => shared_sacrifice_of_choice(effect),
-        EffectDef::LookAtTopAndSelect { .. } => {
-            deferred_decision_allowed && shared_decision_effect(effect)
-        }
-        // Every destination but the last asks a question, so the whole
-        // distribution needs a place a decision may be deferred to.
-        EffectDef::Scry { player, .. } | EffectDef::LookAtTopAndDistribute { player, .. } => {
-            deferred_decision_allowed && shared_effect_recipient(player)
+        EffectDef::PermitLookAtExiled {
+            object,
+            player,
+            then,
+        } => {
+            shared_effect_recipient(object)
+                && shared_effect_recipient(EffectRecipientDef::player(player))
+                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
         }
         EffectDef::SearchZone {
             player,

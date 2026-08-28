@@ -41,6 +41,7 @@ type RemovedBattlefieldObject = (
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct BattlefieldExitDestination {
     zone: ZoneKind,
+    placement: ZonePlacement,
     counters: Option<(CounterKind, u16)>,
 }
 
@@ -154,7 +155,158 @@ impl Game {
                 break;
             }
         }
-        self.commit_battlefield_exit_batch(batch);
+        self.queue_battlefield_exit_ordering(batch);
+    }
+
+    /// After replacements have finalized the simultaneous event, ask each
+    /// owner to arrange two or more nontoken cards headed to the same
+    /// position in their library (CR 401.4). Players make these choices in
+    /// APNAP order while every permanent is still on the battlefield.
+    fn queue_battlefield_exit_ordering(&mut self, batch: PendingBattlefieldExitBatch) {
+        let mut groups = Vec::new();
+        for owner in [self.active_player, self.active_player.opponent()] {
+            let mut placements = Vec::new();
+            for proposed in &batch.moves {
+                let Some(permanent) = self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == proposed.object)
+                else {
+                    continue;
+                };
+                if !proposed.replaced_with_nothing
+                    && proposed.destination == ZoneKind::Library
+                    && permanent.card.owner == owner
+                    && !permanent.card.definition.is_token()
+                    && !placements.contains(&proposed.placement)
+                {
+                    placements.push(proposed.placement);
+                }
+            }
+            for placement in placements {
+                let group = batch
+                    .moves
+                    .iter()
+                    .filter(|proposed| {
+                        !proposed.replaced_with_nothing
+                            && proposed.destination == ZoneKind::Library
+                            && proposed.placement == placement
+                            && self.battlefield.iter().any(|permanent| {
+                                permanent.card.id == proposed.object
+                                    && permanent.card.owner == owner
+                                    && !permanent.card.definition.is_token()
+                            })
+                    })
+                    .map(|proposed| proposed.object)
+                    .collect::<Vec<_>>();
+                if group.len() > 1 {
+                    groups.push(group);
+                }
+            }
+        }
+        self.queue_next_battlefield_exit_order(batch, groups);
+    }
+
+    fn queue_next_battlefield_exit_order(
+        &mut self,
+        batch: PendingBattlefieldExitBatch,
+        mut groups: Vec<Vec<GameObjectId>>,
+    ) {
+        if groups.is_empty() {
+            self.commit_battlefield_exit_batch(batch);
+            return;
+        }
+        let group = groups.remove(0);
+        let Some((owner, placement)) = group.first().and_then(|first| {
+            let owner = self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == *first)?
+                .card
+                .owner;
+            let placement = batch
+                .moves
+                .iter()
+                .find(|proposed| proposed.object == *first)?
+                .placement;
+            Some((owner, placement))
+        }) else {
+            self.queue_next_battlefield_exit_order(batch, groups);
+            return;
+        };
+        let options = group
+            .iter()
+            .enumerate()
+            .filter_map(|(index, object)| {
+                let permanent = self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == *object)?;
+                Some(DecisionOption {
+                    id: u32::try_from(index).ok()?,
+                    label: self
+                        .presentation_name(Self::effective_rules_source(permanent))
+                        .unwrap_or_else(|| "Card".into())
+                        .into_owned(),
+                    card: Some((*object, Self::effective_rules_source(permanent))),
+                    members: Vec::new(),
+                    ability_text: None,
+                    zone: DecisionZone::Battlefield,
+                })
+            })
+            .collect::<Vec<_>>();
+        let count = options.len();
+        self.queue_decision(
+            owner,
+            Self::library_order_prompt(placement),
+            DecisionVisibility::Private,
+            DecisionPreference::Neutral,
+            count..=count,
+            false,
+            options,
+            DecisionContinuation::BattlefieldExitOrder {
+                batch,
+                remaining: groups,
+            },
+        );
+        if let Some(decision) = self.pending_decisions.last_mut() {
+            decision.observation.order_semantics = Some(DecisionOrderSemantics::Resolution);
+        }
+    }
+
+    pub(super) fn complete_battlefield_exit_order(
+        &mut self,
+        mut batch: PendingBattlefieldExitBatch,
+        remaining: Vec<Vec<GameObjectId>>,
+        offered: &[DecisionOption],
+        answer: &[u32],
+    ) {
+        let ordered = answer
+            .iter()
+            .filter_map(|chosen| offered.iter().find(|option| option.id == *chosen))
+            .filter_map(|option| option.card.map(|(card, _)| card))
+            .collect::<Vec<_>>();
+        let positions = batch
+            .moves
+            .iter()
+            .enumerate()
+            .filter(|(_, proposed)| ordered.contains(&proposed.object))
+            .map(|(index, _)| index)
+            .collect::<Vec<_>>();
+        let ordered_moves = ordered
+            .iter()
+            .filter_map(|object| {
+                batch
+                    .moves
+                    .iter()
+                    .find(|proposed| proposed.object == *object)
+                    .cloned()
+            })
+            .collect::<Vec<_>>();
+        for (position, proposed) in positions.into_iter().zip(ordered_moves) {
+            batch.moves[position] = proposed;
+        }
+        self.queue_next_battlefield_exit_order(batch, remaining);
     }
 
     /// Whether the permanent about to leave is one this replacement's
@@ -325,6 +477,7 @@ impl Game {
             }
             ReplacementEffectDef::MoveToZone(zone) => {
                 batch.moves[move_index].destination = zone;
+                batch.moves[move_index].placement = ZonePlacement::Top;
             }
             ReplacementEffectDef::Perform(effect) => {
                 self.perform_battlefield_exit_replacement_effect(context, *effect);
@@ -454,12 +607,16 @@ impl Game {
         removed: &[RemovedBattlefieldObject],
     ) -> Vec<Option<TriggerEventObject>> {
         let mut after = Vec::with_capacity(removed.len());
+        let mut library_arrivals = Vec::new();
         for (permanent, _, _, to, _, _) in removed {
             let exit = match to.zone {
                 ZoneKind::Exile => BattlefieldExit::Exile,
                 ZoneKind::Graveyard => BattlefieldExit::Graveyard,
                 ZoneKind::Hand => BattlefieldExit::Hand,
-                ZoneKind::Library => BattlefieldExit::LibraryTop,
+                ZoneKind::Library => match to.placement {
+                    ZonePlacement::Bottom => BattlefieldExit::LibraryBottom,
+                    ZonePlacement::Top | ZonePlacement::FromTop(_) => BattlefieldExit::LibraryTop,
+                },
                 ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
@@ -503,13 +660,36 @@ impl Game {
                 ZoneKind::Exile => self.players[owner.index()].exile.push(card),
                 ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
                 ZoneKind::Hand => self.players[owner.index()].hand.push(card),
-                ZoneKind::Library => self.players[owner.index()].library.push(card),
+                ZoneKind::Library => library_arrivals.push((owner, to.placement, card)),
                 ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             }
         }
+        self.install_library_arrivals(library_arrivals);
         after
+    }
+
+    fn install_library_arrivals(
+        &mut self,
+        mut arrivals: Vec<(PlayerId, ZonePlacement, CardInstance)>,
+    ) {
+        while let Some((owner, placement, _)) = arrivals.first().cloned() {
+            let mut cards = Vec::new();
+            let mut index = 0;
+            while index < arrivals.len() {
+                if arrivals[index].0 == owner && arrivals[index].1 == placement {
+                    cards.push(arrivals.remove(index).2);
+                } else {
+                    index += 1;
+                }
+            }
+            for card in cards.into_iter().rev() {
+                let library = &mut self.players[owner.index()].library;
+                let index = placement.library_index(library.len());
+                library.insert(index, card);
+            }
+        }
     }
 
     fn commit_battlefield_exit_batch(&mut self, batch: PendingBattlefieldExitBatch) {
@@ -533,6 +713,7 @@ impl Game {
                             damage_sources,
                             BattlefieldExitDestination {
                                 zone: proposed.destination,
+                                placement: proposed.placement,
                                 counters: proposed.counters,
                             },
                             self.returns_from_death_with(permanent),

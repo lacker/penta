@@ -690,7 +690,7 @@ fn liliana_ultimate_allows_an_empty_pile() {
         .expect("the target player chooses between the empty and full piles");
     assert!(pile_choice.options[0].members.is_empty());
     assert_eq!(pile_choice.options[1].members.len(), 2);
-    assert!(pile_choice.options[0].label.contains("Empty pile"));
+    assert!(pile_choice.options[0].label.contains("empty"));
 
     choose_options(&mut game, PlayerId::Two, vec![0]);
     assert!(

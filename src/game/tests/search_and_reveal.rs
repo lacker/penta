@@ -12,6 +12,27 @@ pub(super) fn stack_library(game: &mut Game, library: &[(u32, CardDefinitionId)]
     }
 }
 
+fn option_ids_for_cards(
+    decision: &DecisionObservation,
+    definitions: &[CardDefinitionId],
+) -> Vec<u32> {
+    definitions
+        .iter()
+        .map(|definition| {
+            decision
+                .options
+                .iter()
+                .find(|option| {
+                    option.card.is_some_and(|(_, characteristics)| {
+                        characteristics.card_definition() == Some(*definition)
+                    })
+                })
+                .expect("the requested card is offered")
+                .id
+        })
+        .collect()
+}
+
 #[test]
 fn augur_of_bolas_digs_three_deep_when_it_enters() {
     let mut game = ready_game();
@@ -35,6 +56,7 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
         cast_action(augur.id, Vec::new(), Vec::new(), 0),
     )
     .unwrap();
+
     pass_priority_pair(&mut game);
 
     assert_eq!(game.stack.len(), 1);
@@ -65,6 +87,31 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
         },
     )
     .unwrap();
+    assert!(game.events.iter().any(|event| matches!(
+        event,
+        GameEvent::CardRevealed {
+            definition: cards::LIGHTNING_BOLT,
+            ..
+        }
+    )));
+
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the two remaining cards are ordered for the bottom");
+    assert_eq!(
+        order.order_semantics,
+        Some(DecisionOrderSemantics::Resolution)
+    );
+    let bottom_order = option_ids_for_cards(&order, &[cards::SERRA_ANGEL, cards::SAVANNAH_LIONS]);
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: bottom_order,
+        },
+    )
+    .unwrap();
 
     assert!(
         game.players[0]
@@ -81,9 +128,9 @@ fn augur_of_bolas_digs_three_deep_when_it_enters() {
     assert_eq!(
         library,
         vec![
-            cards::JUZAM_DJINN,
+            cards::SERRA_ANGEL,
             cards::SAVANNAH_LIONS,
-            cards::SERRA_ANGEL
+            cards::JUZAM_DJINN,
         ]
     );
 }
@@ -165,6 +212,7 @@ fn augur_of_bolas_may_decline_and_bottom_all_three() {
         cast_action(augur.id, Vec::new(), Vec::new(), 0),
     )
     .unwrap();
+
     pass_priority_pair(&mut game);
 
     assert_eq!(game.stack.len(), 1);
@@ -184,6 +232,27 @@ fn augur_of_bolas_may_decline_and_bottom_all_three() {
     )
     .unwrap();
 
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("declining still requires a bottom order");
+    let bottom_order = option_ids_for_cards(
+        &order,
+        &[
+            cards::JUZAM_DJINN,
+            cards::LIGHTNING_BOLT,
+            cards::SERRA_ANGEL,
+        ],
+    );
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: bottom_order,
+        },
+    )
+    .unwrap();
+
     assert!(game.players[0].hand.is_empty());
     let library: Vec<_> = game.players[0]
         .library
@@ -193,10 +262,10 @@ fn augur_of_bolas_may_decline_and_bottom_all_three() {
     assert_eq!(
         library,
         vec![
-            cards::SAVANNAH_LIONS,
+            cards::JUZAM_DJINN,
             cards::LIGHTNING_BOLT,
             cards::SERRA_ANGEL,
-            cards::JUZAM_DJINN
+            cards::SAVANNAH_LIONS,
         ]
     );
 }

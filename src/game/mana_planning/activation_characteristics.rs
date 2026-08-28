@@ -29,9 +29,6 @@ impl Game {
                 .iter()
                 .chain(payment.otherwise.iter())
                 .any(|effect| Self::effect_animates_source(Some(**effect))),
-            Some(EffectDef::SplitIntoPiles(partition)) => {
-                Self::effect_animates_source(Some(*partition.then))
-            }
             _ => false,
         }
     }

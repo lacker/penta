@@ -216,6 +216,34 @@ impl Game {
         true
     }
 
+    fn move_simultaneous_library_batch(
+        &mut self,
+        recipients: &[Target],
+        clause: MoveToZoneClause,
+        attachment: Option<ArrivalAttachment>,
+    ) -> bool {
+        if clause.zone != ZoneKind::Library
+            || clause.controller.is_some()
+            || !clause.modifications.is_empty()
+            || attachment.is_some()
+            || clause.counters.is_some()
+        {
+            return false;
+        }
+        let Some(permanents) = recipients
+            .iter()
+            .map(|target| match target {
+                Target::Permanent(id) => Some(*id),
+                Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
+            })
+            .collect::<Option<Vec<_>>>()
+        else {
+            return false;
+        };
+        self.move_permanents_to_zone(&permanents, clause.zone, clause.placement);
+        true
+    }
+
     pub(super) fn resolve_move_to_zone(
         &mut self,
         clause: MoveToZoneClause,
@@ -257,6 +285,13 @@ impl Game {
         let arriving_counters = self.resolved_arrival_counters(counters, object, context, scoped);
         let recipients = self.effect_recipients(recipient, object, context, scoped);
         let batch_exile = self.batch_exile_permanents(&recipients, zone);
+        // A library sweep is one simultaneous event, not a run of unrelated
+        // one-object moves. Keep the whole prospective batch together so
+        // replacement effects see the same battlefield and CR 401.4 can ask
+        // each owner for the relative order at the instructed position.
+        if self.move_simultaneous_library_batch(&recipients, clause, attachment) {
+            return;
+        }
         for target in recipients {
             if batch_exile && matches!(target, Target::Permanent(_)) {
                 continue;

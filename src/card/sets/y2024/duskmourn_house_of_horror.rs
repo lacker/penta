@@ -13,9 +13,8 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
-    SpellAdditionalCostDef, SpendModeDef, TokenCountersDef, TopCardSelectionDef,
-    TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    SpellAdditionalCostDef, SpendModeDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
+    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -144,9 +143,7 @@ static OCULUS_ABILITIES: [AbilityDef; 3] = [
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::Opponent,
         },
-        EffectDef::ManifestDread {
-            player: EffectRecipientDef::Controller,
-        },
+        abilities::manifest_dread(),
     ),
 ];
 
@@ -549,16 +546,8 @@ static KAITO_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
 static KAITO_EMBLEM: EmblemCharacteristics =
     EmblemCharacteristics::new("Kaito, Bane of Nightmares emblem", &KAITO_EMBLEM_ABILITIES);
 
-/// Surveil 2, and the draw it pays for.
-static KAITO_SURVEILS: TopCardSelectionDef = abilities::surveil(2, Some(&KAITO_DRAWS));
-
 /// "A card for each opponent who lost life this turn" is a count of players
 /// rather than of life, which in a two-player game is one card or none.
-static KAITO_DRAWS: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::OpponentsWhoLostLifeThisTurn,
-};
-
 static KAITO_STUNS: [EffectDef; 2] = [
     EffectDef::Tap {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -606,11 +595,13 @@ static KAITO_ABILITIES: [AbilityDef; 5] = [
     AbilityDef::activated(
         "0: Surveil 2. Then draw a card for each opponent who lost life this turn.",
         &[AbilityCostDef::Loyalty(0)],
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &KAITO_SURVEILS,
-        },
+        EffectDef::Sequence(&[
+            abilities::surveil(ValueDef::Constant(2)),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::OpponentsWhoLostLifeThisTurn,
+            },
+        ]),
     ),
     AbilityDef::activated_with_targets(
         "\u{2212}2: Tap target creature. Put two stun counters on it.",

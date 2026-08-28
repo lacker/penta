@@ -62,6 +62,24 @@ fn impulse_offers_the_top_four_and_bottoms_the_rest() {
 
     choose_decision_by_label(&mut game, PlayerId::One, "Lightning Bolt");
 
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the other three cards need a bottom order");
+    let answer = order
+        .options
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: answer,
+        },
+    )
+    .expect("the bottom order is accepted");
+
     assert!(
         game.players[0]
             .hand

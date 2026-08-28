@@ -4,17 +4,16 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ControlDurationDef, CopyExceptionsDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
+    AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ControlDurationDef,
+    CopyExceptionsDef, CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
@@ -1103,7 +1102,7 @@ pub(in crate::card::sets) static PSYCHIC_BARRIER: CardRecord = CardRecord::new(
 );
 
 // NPH 44 — Psychic Surgery
-// Audit: metadata-only — Needs a library-shuffled trigger event; LookAtTopAndDistribute also cannot make the exile optional or let the looker reorder the unchosen cards on that opponent's library.
+// Audit: metadata-only — Needs a library-shuffled trigger event plus an optional exile stage and an arrangement stage over the unchosen cards of another player's library.
 pub(in crate::card::sets) static PSYCHIC_SURGERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51ea9a6d-d6ca-48cb-adac-958ad0e7440c"),
     "Psychic Surgery",
@@ -3728,30 +3727,6 @@ pub(in crate::card::sets) static SHRINE_OF_LOYAL_LEGIONS: CardRecord = CardRecor
 );
 
 // NPH 156 — Shrine of Piercing Vision
-// Audit: partial — The shared top-card selection moves the unchosen cards in their existing order; it cannot let the player arrange those cards on the bottom in any order.
-static SHRINE_OF_PIERCING_VISION_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::CountersOnSource(CounterKind::named("charge")),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b150924-f83c-410e-aaab-ff2d06c9d356"),
     "Shrine of Piercing Vision",
@@ -3785,15 +3760,13 @@ pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRec
                 AbilityCostDef::TapSource,
                 AbilityCostDef::SacrificeSource,
             ],
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &SHRINE_OF_PIERCING_VISION_SELECTION,
-            },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The selected card is put into hand and the rest go to the bottom, but the shared selection procedure preserves their existing order instead of asking the player to arrange them.",
-        )),
+            abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+                ValueDef::CountersOnSource(CounterKind::named("charge")),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
+        ),
     ]),
 );
 

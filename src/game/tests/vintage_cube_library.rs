@@ -490,6 +490,24 @@ fn preordain_can_bury_both_cards_it_looked_at() {
     )
     .expect("keeping nothing is allowed");
 
+    let order = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("two bottom cards still need an order");
+    let answer = order
+        .options
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: answer,
+        },
+    )
+    .expect("the bottom order is accepted");
+
     assert!(
         game.players[0]
             .hand

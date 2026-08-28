@@ -1,8 +1,9 @@
 use super::{
     AbilityCostDef, AbilityOrigin, CardDefinitionId, CardTypeSet, DecisionOption,
-    DeclarativeAbilityDef, DeclarativeSpellProfile, GameObjectId, HandcraftedPolicy,
-    ObjectCharacteristics, PlayerObservation, Step, Target,
+    DeclarativeAbilityDef, DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId,
+    HandcraftedPolicy, ObjectCharacteristics, PlayerObservation, Step, Target,
 };
+use crate::{EffectRecipientSetDef, ObjectSetDef, PlayerRefDef};
 
 impl HandcraftedPolicy {
     pub(super) fn activated_target_score(
@@ -122,7 +123,7 @@ impl HandcraftedPolicy {
         observation: &PlayerObservation,
         targets: &[crate::TargetSelection],
         declarative: Option<DeclarativeSpellProfile>,
-        card_owned_hint_score: i32,
+        structural_hint_score: i32,
         target_score: i32,
         cost: i8,
     ) -> i32 {
@@ -150,8 +151,8 @@ impl HandcraftedPolicy {
             8_000
         } else if declarative.is_some_and(|profile| profile.damage.is_some()) {
             7_200 + target_score
-        } else if card_owned_hint_score != 0 {
-            6_800 + card_owned_hint_score
+        } else if structural_hint_score != 0 {
+            6_800 + structural_hint_score
         } else if declarative.is_some_and(|profile| profile.has(DeclarativeSpellProfile::APPLIES)) {
             5_200 + target_score
         } else {
@@ -245,41 +246,86 @@ impl HandcraftedPolicy {
         first
     }
 
-    pub(super) fn card_owned_hint_score(
+    fn target_player_partitioned_for_sacrifice(effect: EffectDef) -> Option<crate::TargetIndex> {
+        let EffectDef::PartitionGroup(partition) = effect else {
+            return None;
+        };
+        let ObjectSetDef::PermanentsControlledBy(PlayerRefDef::Target(target)) = partition.input
+        else {
+            return None;
+        };
+        let EffectDef::ChooseGroup(choice) = *partition.then else {
+            return None;
+        };
+        if choice.first != ObjectSetDef::Binding(partition.first)
+            || choice.second != ObjectSetDef::Binding(partition.second)
+        {
+            return None;
+        }
+        let EffectDef::Sacrifice { object } = *choice.then else {
+            return None;
+        };
+        (object
+            == EffectRecipientDef(EffectRecipientSetDef::Objects(ObjectSetDef::Binding(
+                choice.chosen,
+            ))))
+        .then_some(target)
+    }
+
+    /// Score the reusable "partition, let the target choose, sacrifice that
+    /// group" workflow from its declarative structure. Strategic meaning
+    /// stays with the shared construct rather than card-local policy metadata.
+    pub(super) fn structural_hint_score(
         &self,
         observation: &PlayerObservation,
         ability: AbilityOrigin,
         targets: &[crate::TargetSelection],
     ) -> i32 {
-        self.card_owned_policy_hint(ability)
-            .map_or(0, |hint| match hint {
-                crate::card::AbilityPolicyHint::TargetPlayerSacrificesOneOfTwoPermanentPiles {
-                    target,
-                } => targets
-                    .iter()
-                    .find(|selection| selection.slot() == target)
-                    .into_iter()
-                    .flat_map(crate::TargetSelection::targets)
-                    .filter_map(|target| match target {
-                        Target::Player(player) => Some(player),
-                        Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
-                    })
-                    .map(|player| {
-                        let value = observation
-                            .battlefield
-                            .iter()
-                            .filter(|permanent| permanent.controller == *player)
-                            .map(|permanent| self.characteristics_value(permanent.characteristics))
-                            .sum::<i32>()
-                            / 2;
-                        if *player == observation.viewer {
-                            -value
-                        } else {
-                            500 + value
-                        }
-                    })
-                    .sum(),
+        let AbilityOrigin::Printed {
+            definition,
+            part,
+            ability,
+        } = ability
+        else {
+            return 0;
+        };
+        let Some(target) = self
+            .catalog
+            .get(definition)
+            .and_then(|card| card.part(part))
+            .and_then(|part| part.rules.ability(ability))
+            .and_then(|ability| ability.declarative_effect())
+            .and_then(Self::target_player_partitioned_for_sacrifice)
+        else {
+            return 0;
+        };
+        let Some(target) = crate::TargetSlotId::from_index(target.index()) else {
+            return 0;
+        };
+        targets
+            .iter()
+            .find(|selection| selection.slot() == target)
+            .into_iter()
+            .flat_map(crate::TargetSelection::targets)
+            .filter_map(|target| match target {
+                Target::Player(player) => Some(player),
+                Target::Card(_) | Target::Permanent(_) | Target::Spell(_) => None,
             })
+            .map(|player| {
+                let value = observation
+                    .battlefield
+                    .iter()
+                    .filter(|permanent| permanent.controller == *player)
+                    .map(|permanent| self.characteristics_value(permanent.characteristics))
+                    .sum::<i32>()
+                    / 2;
+                if *player == observation.viewer {
+                    -value
+                } else {
+                    500 + value
+                }
+            })
+            .sum()
     }
 
     fn activated_source_profile(
@@ -337,14 +383,14 @@ impl HandcraftedPolicy {
             .map(|characteristics| self.characteristics_value(characteristics))
             .sum::<i32>();
         let discard_source_cost = self.discard_source_cost(source_definition, ability);
-        let card_owned_hint_score = self.card_owned_hint_score(observation, ability, targets);
+        let structural_hint_score = self.structural_hint_score(observation, ability, targets);
         let loyalty_cost = self.loyalty_cost_of(source_definition, ability);
         if let Some(cost) = loyalty_cost {
             return Self::score_loyalty_ability(
                 observation,
                 targets,
                 declarative,
-                card_owned_hint_score,
+                structural_hint_score,
                 target_score,
                 cost,
             ) - sacrifice_cost
@@ -410,27 +456,6 @@ impl HandcraftedPolicy {
         {
             return -1_000;
         }
-        score + card_owned_hint_score - sacrifice_cost - discard_source_cost
-    }
-
-    pub(super) fn card_owned_policy_hint(
-        &self,
-        origin: AbilityOrigin,
-    ) -> Option<crate::card::AbilityPolicyHint> {
-        let AbilityOrigin::Printed {
-            definition,
-            part,
-            ability,
-        } = origin
-        else {
-            return None;
-        };
-        let actual = self
-            .catalog
-            .get(definition)?
-            .part(part)?
-            .rules
-            .ability(ability)?;
-        crate::card::ability_binding(origin, actual).and_then(|binding| binding.policy_hint())
+        score + structural_hint_score - sacrifice_cost - discard_source_cost
     }
 }

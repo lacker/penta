@@ -65,11 +65,13 @@ static APPARITION_NAMES_WHAT_IT_TOOK: EffectDef = EffectDef::ForEachInBinding {
     effect: &APPARITION_PAYS_FOR_IT,
 };
 
-static APPARITION_LEAVES: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::LinkedExiles(ObjectPredicateDef::Any),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &APPARITION_NAMES_WHAT_IT_TOOK,
-};
+static APPARITION_LEAVES: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LinkedExiles(
+        ObjectPredicateDef::Any,
+    )),
+    ObjectSetBindingIndex::PRIMARY,
+    &APPARITION_NAMES_WHAT_IT_TOOK,
+);
 
 static SKYCLAVE_APPARITION_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_trigger_with_targets(

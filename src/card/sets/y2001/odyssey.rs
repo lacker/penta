@@ -1535,18 +1535,20 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
     CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Exile all cards from target player's graveyard other than basic land cards. For each card exiled this way, search that player's library for all cards with the same name as that card and exile them. Then that player shuffles.",
         &ECHOES_TARGET,
-        EffectDef::BindMatching {
-            objects: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+        abilities::bind_objects_then(
+            crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                ObjectQueryDef::owned_by(
                 ObjectPredicateDef::Not(&ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Supertype(CardSupertype::Basic),
                     ObjectPredicateDef::HasType(CardType::Land),
                 ])),
                 &[ZoneKind::Graveyard],
                 PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ),
             )),
-            binding: ObjectSetBindingIndex::PRIMARY,
-            then: &ECHOES_EXILE,
-        },
+            ObjectSetBindingIndex::PRIMARY,
+            &ECHOES_EXILE,
+        ),
     )),
 );
 

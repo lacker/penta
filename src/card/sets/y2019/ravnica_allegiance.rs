@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    PlayerRelation, TriggerEventDef, TurnStepDef, ValueDef, abilities,
+    AbilityDef, CardArt, CardRules, CardSet, EffectDef, InstalledTriggerDef, PlayerRelation,
+    TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::mana_cost;
 
@@ -13,10 +13,7 @@ static SPHINX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
         step: TurnStepDef::Upkeep,
         player: PlayerRelation::You,
     },
-    EffectDef::Scry {
-        player: EffectRecipientDef::Controller,
-        count: ValueDef::Constant(3),
-    },
+    abilities::scry(ValueDef::Constant(3)),
 );
 
 // RNA 55 — Sphinx of Foresight
@@ -37,10 +34,7 @@ pub(in crate::card::sets) static SPHINX_OF_FORESIGHT: CardRecord = CardRecord::n
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::Scry {
-                player: EffectRecipientDef::Controller,
-                count: ValueDef::Constant(1),
-            },
+            abilities::scry(ValueDef::Constant(1)),
         ),
     ]),
 );

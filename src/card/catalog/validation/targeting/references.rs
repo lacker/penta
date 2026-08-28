@@ -267,20 +267,6 @@ fn validate_player_set(
     }
 }
 
-fn validate_pile_role(
-    role: &'static str,
-    players: PlayerSetDef,
-) -> Result<(), GrantedAbilityValidationError> {
-    if matches!(
-        players,
-        PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
-    ) {
-        Err(GrantedAbilityValidationError::InvalidPileRole { role, players })
-    } else {
-        Ok(())
-    }
-}
-
 fn validate_query(
     query: ObjectQueryDef,
     target_count: usize,
@@ -436,6 +422,7 @@ fn validate_object_set_target_references(
         ObjectSetDef::LinkedExiles(_) => Ok(()),
         ObjectSetDef::BottomOfGraveyard(player)
             | ObjectSetDef::CardsDrawnThisTurnInHand(player)
+            | ObjectSetDef::PermanentsControlledBy(player)
             | ObjectSetDef::SharingNameWithBinding { player, .. }
             | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
             validate_player_reference(player, target_count, scope)

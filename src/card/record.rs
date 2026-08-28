@@ -3,7 +3,7 @@ use super::{
     DoubleFacedKind,
 };
 use crate::game::CardAbilityResolver;
-use crate::{AbilityId, CardDefinitionId, CardPartId, TargetSlotId};
+use crate::{AbilityId, CardDefinitionId, CardPartId};
 use sha2::{Digest, Sha256};
 
 type CompositionBuilder = fn() -> CardComposition;
@@ -47,13 +47,6 @@ impl PrintingAnchor {
     }
 }
 
-/// Strategic meaning used to evaluate a card-owned ability without making its
-/// runtime procedure part of the public rules model.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub(crate) enum AbilityPolicyHint {
-    TargetPlayerSacrificesOneOfTwoPermanentPiles { target: TargetSlotId },
-}
-
 /// Internal runtime metadata attached to one printed ability.
 ///
 /// `expected` guards the positional identity: if a card's abilities are
@@ -65,12 +58,12 @@ pub(crate) struct CardAbilityBinding {
     pub(crate) ability: AbilityId,
     pub(crate) expected: AbilityDef,
     resolver: &'static CardAbilityResolver,
-    policy_hint: Option<AbilityPolicyHint>,
 }
 
 impl CardAbilityBinding {
     #[must_use]
     #[allow(clippy::large_types_passed_by_value)]
+    #[allow(dead_code)] // Card-owned resolution remains an extension boundary.
     pub(crate) const fn new(
         part: CardPartId,
         ability: AbilityId,
@@ -82,24 +75,12 @@ impl CardAbilityBinding {
             ability,
             expected,
             resolver,
-            policy_hint: None,
         }
-    }
-
-    #[must_use]
-    pub(crate) const fn with_policy_hint(mut self, hint: AbilityPolicyHint) -> Self {
-        self.policy_hint = Some(hint);
-        self
     }
 
     #[must_use]
     pub(crate) const fn resolver(self) -> &'static CardAbilityResolver {
         self.resolver
-    }
-
-    #[must_use]
-    pub(crate) const fn policy_hint(self) -> Option<AbilityPolicyHint> {
-        self.policy_hint
     }
 }
 
@@ -365,6 +346,7 @@ impl CardRecord {
     /// Attaches card-owned runtime procedures without changing the public
     /// rules value produced by this record.
     #[must_use]
+    #[allow(dead_code)] // Card-owned resolution remains an extension boundary.
     pub(crate) const fn with_ability_bindings(
         mut self,
         bindings: &'static [CardAbilityBinding],

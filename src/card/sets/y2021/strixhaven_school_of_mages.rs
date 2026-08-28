@@ -4,11 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, SelectionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
 // STX 17 — Elite Spellbinder
@@ -159,11 +159,59 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
 /// nothing left to decide. Exiling it is the payoff rather than the cost --
 /// it is playable for the rest of the turn, which is why the spell is two
 /// cards for two mana as long as the mana holds out.
-static ITERATION_DESTINATIONS: [SelectionDestinationDef; 3] = [
-    SelectionDestinationDef::new(ZoneKind::Hand, ZonePlacement::Top),
-    SelectionDestinationDef::new(ZoneKind::Library, ZonePlacement::Bottom),
-    SelectionDestinationDef::new(ZoneKind::Exile, ZonePlacement::Top).playable_this_turn(),
-];
+const ITERATION_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const ITERATION_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const ITERATION_AFTER_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const ITERATION_BOTTOM: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const ITERATION_EXILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+
+static ITERATION_EXILE_AND_PLAY: EffectDef = EffectDef::ExileGrantingControllerPlayThisTurn {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ITERATION_EXILE)),
+};
+static ITERATION_PUT_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ITERATION_BOTTOM),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Bottom,
+    moved: None,
+    then: &ITERATION_EXILE_AND_PLAY,
+});
+static ITERATION_PUT_HAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ITERATION_HAND),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &ITERATION_PUT_BOTTOM,
+});
+static ITERATION_CHOOSE_BOTTOM: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
+    unchosen: Some(ITERATION_EXILE),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &ITERATION_PUT_HAND,
+});
+static ITERATION_CHOOSE_HAND: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
+    unchosen: Some(ITERATION_AFTER_HAND),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(ITERATION_INSPECTED),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &ITERATION_CHOOSE_BOTTOM,
+});
+static ITERATION_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(3),
+    ITERATION_INSPECTED,
+    &ITERATION_CHOOSE_HAND,
+);
 
 pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31b770cc-09e7-4c0b-b2a4-462ab4f7200d"),
@@ -179,11 +227,7 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
         "Look at the top three cards of your library. Put one of them into your hand, put one of \
          them on the bottom of your library, and exile one of them. You may play the exiled card \
          this turn.",
-        EffectDef::LookAtTopAndDistribute {
-            player: EffectRecipientDef::Controller,
-            count: ValueDef::Constant(3),
-            destinations: &ITERATION_DESTINATIONS,
-        },
+        ITERATION_EFFECT,
     )),
 );
 

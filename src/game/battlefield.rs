@@ -3,14 +3,14 @@ use std::borrow::Cow;
 use super::{
     AbilitySourceRef, ApplicableZoneMoveReplacement, AppliedRuleDef, BattlefieldArrival,
     BattlefieldExit, BattlefieldExitCompletion, BattlefieldExitSnapshot, CardInstance, CardPartId,
-    CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectDef, EffectResolutionContext,
-    EntryCompletion, FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility,
-    ObjectInstance, PendingBattlefieldEntry, PendingBattlefieldExitBatch,
-    PendingBattlefieldExitMove, Permanent, PlayerId, ReplacementConditionDef,
-    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Step, Target, TargetSlotId, TriggerContext,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
+    CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption,
+    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EffectDef, EffectResolutionContext, EntryCompletion,
+    FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance,
+    PendingBattlefieldEntry, PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent,
+    PlayerId, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
+    ReplacementEventDef, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target,
+    TargetSlotId, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
 use crate::ObjectSetBindingIndex;
 
@@ -306,7 +306,7 @@ impl Game {
     /// event. A global exile must freeze all listeners before any source
     /// leaves, just as a global destroy or sacrifice does.
     pub(super) fn exile_permanents(&mut self, ids: &[GameObjectId]) {
-        self.move_permanents_to_zone_then(ids, ZoneKind::Exile, None);
+        self.move_permanents_to_zone_then(ids, ZoneKind::Exile, ZonePlacement::Top, None);
     }
 
     pub(super) fn move_permanents_to_graveyard_then(
@@ -314,13 +314,26 @@ impl Game {
         ids: &[GameObjectId],
         completion: Option<BattlefieldExitCompletion>,
     ) {
-        self.move_permanents_to_zone_then(ids, ZoneKind::Graveyard, completion);
+        self.move_permanents_to_zone_then(ids, ZoneKind::Graveyard, ZonePlacement::Top, completion);
     }
 
-    fn move_permanents_to_zone_then(
+    /// Proposes one simultaneous batch toward the same destination. Library
+    /// placement travels with every member because CR 401.4 may suspend the
+    /// event for each owner to arrange cards sharing that exact position.
+    pub(super) fn move_permanents_to_zone(
         &mut self,
         ids: &[GameObjectId],
         destination: ZoneKind,
+        placement: ZonePlacement,
+    ) {
+        self.move_permanents_to_zone_then(ids, destination, placement, None);
+    }
+
+    pub(super) fn move_permanents_to_zone_then(
+        &mut self,
+        ids: &[GameObjectId],
+        destination: ZoneKind,
+        placement: ZonePlacement,
         completion: Option<BattlefieldExitCompletion>,
     ) {
         let mut seen = Vec::new();
@@ -354,6 +367,7 @@ impl Game {
                         } else {
                             destination
                         },
+                        placement,
                         counters: None,
                         replaced_with_nothing: false,
                         applied: Vec::new(),
@@ -624,56 +638,14 @@ impl Game {
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
     }
 
-    /// Puts a permanent on top of its owner's library. The exit is the same
-    /// procedure a bounce uses; only the destination differs.
+    /// Puts a permanent at one end of its owner's library through the shared
+    /// simultaneous-exit and replacement procedure.
     pub(super) fn return_permanent_to_library(
         &mut self,
         id: GameObjectId,
         placement: ZonePlacement,
     ) {
-        let listeners = self.battlefield_trigger_listeners();
-        let Some(index) = self
-            .battlefield
-            .iter()
-            .position(|permanent| permanent.card.id == id)
-        else {
-            return;
-        };
-        let damage_sources = self.battlefield[index].damage_sources.clone();
-        let snapshot = self.battlefield_exit_snapshot(&self.battlefield[index]);
-        let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
-        self.record_battlefield_exit(&permanent, BattlefieldExit::LibraryTop);
-        let after = if permanent.card.definition.is_token() {
-            None
-        } else {
-            let owner = permanent.card.owner;
-            let (card, _zone_change) = self.zone_change_card(
-                permanent
-                    .card
-                    .clone()
-                    .into_card()
-                    .expect("a nontoken permanent is backed by a card definition"),
-            );
-            let after = self.printed_trigger_event_object(
-                card.id,
-                card.definition,
-                owner,
-                &crate::CharacteristicContext::Library,
-            );
-            let library = &mut self.players[owner.index()].library;
-            let index = placement.library_index(library.len());
-            library.insert(index, card);
-            after
-        };
-        let event = CommittedTriggerEvent::ZoneChanged {
-            before: Some(snapshot.object),
-            after,
-            from: ZoneKind::Battlefield,
-            to: ZoneKind::Library,
-            damage_sources,
-        };
-        self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
-        self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
+        self.move_permanents_to_zone(&[id], ZoneKind::Library, placement);
     }
 }
 

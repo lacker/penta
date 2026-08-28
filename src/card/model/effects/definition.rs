@@ -136,6 +136,15 @@ pub enum EffectDef {
         chooser: PlayerRefDef,
     },
     Choose(ChooseDef),
+    /// Inspect one collection, make one bounded card choice from it, and
+    /// continue with bindings for the chosen cards and everything else.
+    ChooseCardsFromCollection(super::ChooseCardsFromCollectionDef),
+    /// Show a collection to one player, then continue after that player
+    /// acknowledges it.
+    LookAtObjects(super::LookAtObjectsDef),
+    /// Arrange every member of a frozen collection, preserving the submitted
+    /// order in a new binding for a later effect.
+    ChooseObjectOrder(super::ChooseObjectOrderDef),
     /// Choose owned cards from one or more places without performing the
     /// keyword action "search." Ring of Ma'rûf uses this for outside-game
     /// cards, and Old School expands the same choice to exile.
@@ -168,18 +177,21 @@ pub enum EffectDef {
         /// other destination, the same way it is for a plain move.
         placement: ZonePlacement,
     },
-    /// Saves a set of objects for the rest of this resolution and continues.
-    /// Nothing is asked and nothing moves: Haunting Echoes needs to know
-    /// which cards it exiled from a graveyard *before* it empties one, so
-    /// that what it then hunts through the library is the set it took.
-    BindMatching {
-        objects: ObjectSetDef,
-        binding: ObjectSetBindingIndex,
-        then: &'static EffectDef,
-    },
-    /// Picks up to `amount` matching cards from a player's zone with the recorded RNG,
-    /// without replacement, binds them, and continues. The continuation moves them;
-    /// an empty selection is still bound and continued.
+    /// Classify a frozen collection by a predicate without asking a player.
+    ClassifyObjects(super::ClassifyObjectsDef),
+    /// Reveal a materialized collection and classify all of it in one
+    /// mandatory instruction.
+    RevealAndClassifyCards(super::RevealAndClassifyCardsDef),
+    /// Concatenate previously bound collections in authored order.
+    CombineObjects(super::CombineObjectsDef),
+    /// Choose one distinct member for each of several predicates.
+    ChooseOneOfEach(super::ChooseOneOfEachDef),
+    /// Choose between two previously bound groups.
+    ChooseGroup(super::ChooseGroupDef),
+    /// Picks one matching card from a player's zone with the recorded RNG,
+    /// binds that card, and continues. Nothing moves: the continuation says
+    /// what happens to the selected card. When nothing matches, it binds an
+    /// empty set and still continues.
     SelectAtRandomFromZone {
         player: EffectRecipientDef,
         source: ZoneKind,
@@ -372,6 +384,14 @@ pub enum EffectDef {
         until_source_leaves: bool,
         then: Option<&'static EffectDef>,
     },
+    /// Let one player look at cards already in exile. This is information,
+    /// not a play permission; it normally follows an effect that put a linked
+    /// card there face down.
+    PermitLookAtExiled {
+        object: EffectRecipientDef,
+        player: PlayerRefDef,
+        then: &'static EffectDef,
+    },
     /// Exiles, and leaves the card's own owner able to play it from there
     /// for as long as it stays exiled -- for a surcharge, which is what
     /// distinguishes the clause from plain theft.
@@ -452,10 +472,6 @@ pub enum EffectDef {
         zones: &'static [ZoneKind],
         count: u8,
     },
-    Scry {
-        player: EffectRecipientDef,
-        count: ValueDef,
-    },
     /// "Put target nonland permanent into its owner's library just beneath
     /// the top N cards of that library." Neither top nor bottom: the depth
     /// is the whole point, and it is chosen as the spell is cast. A depth
@@ -463,13 +479,6 @@ pub enum EffectDef {
     PutIntoLibraryBeneathTop {
         object: EffectRecipientDef,
         depth: ValueDef,
-    },
-    /// One look and several destinations, each taking one card in printed
-    /// order. [`SelectionDestinationDef`] says the rest.
-    LookAtTopAndDistribute {
-        player: EffectRecipientDef,
-        count: ValueDef,
-        destinations: &'static [SelectionDestinationDef],
     },
     /// Ninjutsu's payoff (CR 702.49b): put the card this ability came from
     /// onto the battlefield from its owner's hand, tapped and attacking the
@@ -493,6 +502,11 @@ pub enum EffectDef {
     },
     /// Installs a triggered ability that listens from outside every zone.
     InstallTrigger(InstalledTriggerDef),
+    /// Freeze the top cards of a library as a named collection before subsequent
+    /// selection, partition, arrangement, or ordinary effects.
+    BindObjects(super::BindObjectsDef),
+    /// Branch according to whether a previously frozen collection is empty.
+    IfNoObjects(super::IfNoObjectsDef),
     /// A static effect that turns off one landwalk for blocking purposes:
     /// creatures with it can be blocked as though they did not have it. The
     /// keyword is untouched -- anything else reading it still sees it -- so
@@ -502,19 +516,6 @@ pub enum EffectDef {
     /// decision follows; the looking player simply knows.
     LookAtHand {
         player: EffectRecipientDef,
-    },
-    /// Look privately at the top cards of a library, choose a bounded subset,
-    /// place both groups, optionally reveal the selected cards, then continue
-    /// resolving. A predicate restricts what may be selected without hiding
-    /// the rest of the inspected group.
-    LookAtTopAndSelect {
-        /// Whose library is inspected.
-        player: EffectRecipientDef,
-        /// Who looks at the cards and makes the choice. Digging through your
-        /// own library names the same player twice, which is the ordinary
-        /// case; a spy names someone else's library and keeps the looking.
-        looker: EffectRecipientDef,
-        selection: &'static TopCardSelectionDef,
     },
     LoseLife {
         recipient: EffectRecipientDef,
@@ -559,18 +560,6 @@ pub enum EffectDef {
         /// whom: the permission always belongs to the effect's controller,
         /// which is what lets Etali cast out of somebody else's library.
         permission: ExiledCastPermissionDef,
-    },
-    /// Manifest dread (CR 701.34, 702.169). Look at the top two cards of
-    /// your library, put one onto the battlefield face down as a 2/2
-    /// creature, and put the other into your graveyard.
-    ///
-    /// One effect rather than a top-card selection with a flag, because
-    /// what it puts down is not a card arriving in a zone but a body: the
-    /// permanent has no name, no types beyond creature, and no abilities
-    /// while it is face down, and what turns it up is its own mana cost
-    /// rather than anything the selection could say.
-    ManifestDread {
-        player: EffectRecipientDef,
     },
     /// Cascade (CR 702.85). Exile cards from the top of the controller's
     /// library until a nonland card with mana value less than this spell's
@@ -814,6 +803,18 @@ pub enum EffectDef {
     /// what each chosen thing gets is read off what is already on it rather
     /// than named by the card.
     Proliferate,
+    /// Freely divide a frozen collection into two groups. A later stage decides
+    /// whether anyone chooses between them.
+    PartitionGroup(super::PartitionGroupDef),
+    /// Shuffle the order of a frozen collection without moving its members.
+    RandomizeObjectOrder(super::RandomizeObjectOrderDef),
+    /// Reveal every card in a frozen collection before continuing.
+    RevealObjects(super::RevealObjectsDef),
+    /// Move a frozen collection in order and bind the objects it becomes.
+    MoveObjects(super::MoveObjectsDef),
+    /// Put a frozen collection onto the battlefield with face-down copiable
+    /// values, binding the permanents it becomes.
+    PutObjectsOntoBattlefieldFaceDown(super::PutObjectsOntoBattlefieldFaceDownDef),
     /// Returns everything this ability's source exiled, to the named zone.
     /// A returned permanent keeps `grant` until end of turn, which is how
     /// Obzedat comes back ready to attack.
@@ -950,7 +951,6 @@ pub enum EffectDef {
     /// not yet represent. The surrounding costs, targets, and timing can still
     /// remain declarative; clause coverage records whether and how it executes.
     Special(&'static str),
-    SplitIntoPiles(SplitIntoPilesDef),
     /// A continuous or rules-modifying effect derived live from a static
     /// ability. Its lifetime is the ability's own applicability rather than a
     /// stored duration.

@@ -4,12 +4,13 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, PlayerSetDef, SpellAdditionalCostDef, SpendModeDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef,
+    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, RandomizeObjectOrderDef,
+    SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 // THB 20 — Heliod's Pilgrim
@@ -38,45 +39,53 @@ static ORACLE_WINS_THE_GAME: EffectDef = EffectDef::WinTheGame {
     player: EffectRecipientDef::Controller,
 };
 
-/// Looking is the smaller half. The rest going to the bottom in a random
-/// order is written as an ordinary bottom placement: nothing in the pool
-/// looks at the bottom of a library, so the order there is unobservable.
-static ORACLE_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::DevotionTo(ManaColor::Blue),
-    object: None,
+const ORACLE_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const ORACLE_TOP: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const ORACLE_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const ORACLE_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static ORACLE_CHECK_WIN: EffectDef = EffectDef::IfCondition {
+    condition: &ORACLE_WINS,
+    then: &ORACLE_WINS_THE_GAME,
+};
+static ORACLE_PUT_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ORACLE_RANDOMIZED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Bottom,
+    moved: None,
+    then: &ORACLE_CHECK_WIN,
+});
+static ORACLE_RANDOMIZE_REST: EffectDef =
+    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+        input: ObjectSetDef::Binding(ORACLE_REST),
+        randomized: ORACLE_RANDOMIZED,
+        then: &ORACLE_PUT_REST,
+    });
+static ORACLE_PUT_TOP: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ORACLE_TOP),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &ORACLE_RANDOMIZE_REST,
+});
+static ORACLE_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(ORACLE_TOP),
+    unchosen: Some(ORACLE_REST),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(ORACLE_INSPECTED),
+    exclude: None,
     minimum: 0,
     maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
-/// The look happens first and moves nothing out of the library, so the
-/// comparison reads the same number either way round.
-static ORACLE_ENTERS: [EffectDef; 2] = [
-    EffectDef::LookAtTopAndSelect {
-        player: EffectRecipientDef::Controller,
-        looker: EffectRecipientDef::Controller,
-        selection: &ORACLE_LOOK,
-    },
-    EffectDef::IfCondition {
-        condition: &ORACLE_WINS,
-        then: &ORACLE_WINS_THE_GAME,
-    },
-];
+    visibility: ChoiceVisibilityDef::Private,
+    then: &ORACLE_PUT_TOP,
+});
+static ORACLE_LOOK: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::DevotionTo(ManaColor::Blue),
+    ORACLE_INSPECTED,
+    &ORACLE_CHOOSE,
+);
 
 pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_with_legacy_id(
     2212,
@@ -86,7 +95,7 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_wi
     // Two blue mana and an empty library is the whole card. The looking is
     // what it does when the library is not empty yet.
     CardRules::new_creature(mana_cost!("{U}{U}"), &["Merfolk", "Wizard"], 1, 3).with_ability(
-        abilities::enters_trigger("When this creature enters, look at the top X cards of your library, where X is your devotion to blue. Put up to one of them on top of your library and the rest on the bottom of your library in a random order. If X is greater than or equal to the number of cards in your library, you win the game.", EffectDef::Sequence(&ORACLE_ENTERS)),
+        abilities::enters_trigger("When this creature enters, look at the top X cards of your library, where X is your devotion to blue. Put up to one of them on top of your library and the rest on the bottom of your library in a random order. If X is greater than or equal to the number of cards in your library, you win the game.", ORACLE_LOOK),
     ),
 );
 

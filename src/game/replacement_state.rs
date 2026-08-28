@@ -1,4 +1,6 @@
-use crate::card::{ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpendModeDef, ZoneKind};
+use crate::card::{
+    ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpendModeDef, ZoneKind, ZonePlacement,
+};
 use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
 
 use super::{
@@ -54,6 +56,11 @@ pub(super) struct PendingBattlefieldExitMove {
     pub(super) object: GameObjectId,
     pub(super) controller: PlayerId,
     pub(super) destination: ZoneKind,
+    /// The exact position used when the final destination is a library.
+    /// Replacement effects that redirect the move to a different zone reset
+    /// this to the ordinary top placement when that zone later becomes a
+    /// library again.
+    pub(super) placement: ZonePlacement,
     /// A counter the replacement puts on the card as it leaves, which the
     /// card carries into its new zone. Dauthi Voidwalker's void counter is
     /// the only one printed this way.

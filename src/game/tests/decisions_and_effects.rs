@@ -1,6 +1,5 @@
 use super::*;
-use crate::ObjectSetBindingIndex;
-use crate::card::{PartitionItemsDef, SplitIntoPilesDef};
+use crate::card::ObjectCollectionSourceDef;
 
 fn resolve_demonic_tutor(game: &mut Game, tutor: &StackObject) {
     let effect = game
@@ -19,62 +18,68 @@ fn resolve_demonic_tutor(game: &mut Game, tutor: &StackObject) {
 }
 
 #[test]
-fn pile_split_resolution_requires_exactly_one_player_for_each_role() {
-    static GAIN_LIFE: EffectDef = EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    };
-    let partition = |divider, chooser| {
-        EffectDef::SplitIntoPiles(SplitIntoPilesDef {
-            items: PartitionItemsDef::Objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                ObjectPredicateDef::Any,
-                &[ZoneKind::Battlefield],
-            ))),
-            divider,
-            chooser,
-            chosen: ObjectSetBindingIndex::PRIMARY,
-            unchosen: ObjectSetBindingIndex::new(1),
-            then: &GAIN_LIFE,
-        })
-    };
-    let source = spell(10_000, cards::LIGHTNING_BOLT, PlayerId::One, 0);
-
-    for effect in [
-        partition(
-            PlayerSetDef::All,
-            PlayerSetDef::One(PlayerRefDef::EffectController),
-        ),
-        partition(
-            PlayerSetDef::One(PlayerRefDef::EffectController),
-            PlayerSetDef::Related(PlayerRelation::Any),
-        ),
-    ] {
-        let mut game = ready_game();
-        game.resolve_effect_def(
-            ScopedEffect::primary(effect),
-            &source,
-            TriggerContext::empty(),
-        );
-
-        assert_eq!(
-            game.players[0].life, 20,
-            "an ambiguous role aborts the split"
-        );
-        assert!(game.pending_decisions.is_empty());
-    }
-
+fn predicate_bounded_collection_includes_the_first_match_without_revealing_or_moving() {
     let mut game = ready_game();
-    game.resolve_effect_def(
-        ScopedEffect::primary(partition(
-            PlayerSetDef::Related(PlayerRelation::Opponent),
-            PlayerSetDef::One(PlayerRefDef::EffectController),
-        )),
-        &source,
-        TriggerContext::empty(),
-    );
+    game.players[0].library.clear();
+    // Libraries are bottom-first. The observed top-first sequence is Bolt,
+    // Bears, Mountain, Lotus.
+    game.players[0].library.extend([
+        card(10_004, cards::BLACK_LOTUS, PlayerId::One),
+        card(10_003, cards::MOUNTAIN, PlayerId::One),
+        card(10_002, cards::GRIZZLY_BEARS, PlayerId::One),
+        card(10_001, cards::LIGHTNING_BOLT, PlayerId::One),
+    ]);
+    let source = spell(10_000, cards::DEMONIC_TUTOR, PlayerId::One, 0);
+    let scoped = ScopedEffect::primary(EffectDef::None);
+    let event_count = game.events.len();
+
+    let collection = game
+        .effect_object_collection(
+            ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                player: PlayerRefDef::EffectController,
+                object: ObjectPredicateDef::HasType(CardType::Land),
+            },
+            &source,
+            &EffectResolutionContext::empty(),
+            scoped,
+        )
+        .expect("the controller names one library");
+
     assert_eq!(
-        game.players[0].life, 21,
-        "the production opponent/single-player shape remains valid"
+        collection,
+        vec![
+            Target::Card(GameObjectId(10_001)),
+            Target::Card(GameObjectId(10_002)),
+            Target::Card(GameObjectId(10_003)),
+        ],
+    );
+    assert_eq!(game.players[0].library.len(), 4);
+    assert_eq!(
+        game.events.len(),
+        event_count,
+        "collection production is not reveal",
+    );
+
+    let exhausted = game
+        .effect_object_collection(
+            ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                player: PlayerRefDef::EffectController,
+                object: ObjectPredicateDef::Named("No Such Card"),
+            },
+            &source,
+            &EffectResolutionContext::empty(),
+            scoped,
+        )
+        .expect("the same library is still addressable");
+    assert_eq!(
+        exhausted,
+        vec![
+            Target::Card(GameObjectId(10_001)),
+            Target::Card(GameObjectId(10_002)),
+            Target::Card(GameObjectId(10_003)),
+            Target::Card(GameObjectId(10_004)),
+        ],
+        "without a match the source is the whole library in top-first order",
     );
 }
 

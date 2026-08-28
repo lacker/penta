@@ -11,7 +11,7 @@ use crate::card::{
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef,
-    TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -406,29 +406,6 @@ static EXILE_X_BLUE_CARDS: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
 .counted_in_x()
 .spent(SpendModeDef::Exile);
 
-static FLASH_OF_INSIGHT_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::ChosenX,
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_with_legacy_id(
     2064,
     "Flash of Insight",
@@ -439,11 +416,12 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
     CardRules::new_instant(mana_cost!("{X}{1}{U}")).with_abilities(&[
         AbilityDef::spell(
             "Look at the top X cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &FLASH_OF_INSIGHT_LOOK,
-            },
+            abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+                ValueDef::ChosenX,
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
         ),
         AbilityDef::alternative_cast(
             mana_cost!("{1}{U}"),

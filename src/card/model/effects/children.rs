@@ -16,24 +16,40 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         } => vec![*on_success, *on_failure],
         EffectDef::MillWhileMatching(mill) => vec![*mill.body, *mill.on_match],
         EffectDef::Choose(choice) => vec![*choice.then],
+        EffectDef::ChooseCardsFromCollection(choice) => vec![*choice.then],
+        EffectDef::LookAtObjects(definition) => vec![*definition.then],
+        EffectDef::ChooseObjectOrder(definition) => vec![*definition.then],
+        EffectDef::ClassifyObjects(definition) => vec![*definition.then],
+        EffectDef::RevealAndClassifyCards(definition) => vec![*definition.then],
+        EffectDef::CombineObjects(definition) => vec![*definition.then],
+        EffectDef::ChooseOneOfEach(definition) => vec![*definition.then],
+        EffectDef::ChooseGroup(definition) => vec![*definition.then],
+        EffectDef::BindObjects(definition) => vec![*definition.then],
+        EffectDef::IfNoObjects(definition) => {
+            vec![*definition.if_empty, *definition.otherwise]
+        }
+        EffectDef::PartitionGroup(definition) => vec![*definition.then],
+        EffectDef::RandomizeObjectOrder(definition) => vec![*definition.then],
+        EffectDef::RevealObjects(definition) => vec![*definition.then],
+        EffectDef::MoveObjects(definition) => vec![*definition.then],
+        EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => vec![*definition.then],
         EffectDef::PayOr(payment) => payment
             .if_paid
             .into_iter()
             .chain(payment.otherwise)
             .copied()
             .collect(),
-        EffectDef::SplitIntoPiles(partition) => vec![*partition.then],
         EffectDef::ForEachInBinding { effect, .. }
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::BindMatching { then: effect, .. }
         | EffectDef::SelectAtRandomFromZone { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::WithBattlefieldArrival { effect, .. }
+        | EffectDef::PermitLookAtExiled { then: effect, .. }
         | EffectDef::ExileLinkedToSource {
             then: Some(effect), ..
         } => vec![*effect],
@@ -51,9 +67,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::SacrificeOfChoice {
             then, otherwise, ..
         } => then.into_iter().chain(otherwise).copied().collect(),
-        EffectDef::LookAtTopAndSelect { selection, .. } => {
-            selection.then.into_iter().copied().collect()
-        }
         EffectDef::CreateToken { created, .. } => {
             created.into_iter().map(|created| *created.then).collect()
         }
@@ -75,8 +88,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
 
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
-        EffectDef::LookAtTopAndDistribute { .. }
-        | EffectDef::AddCounters { .. }
+        EffectDef::AddCounters { .. }
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::GainClassLevel { .. }
@@ -124,7 +136,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::SetLifeTotal { .. }
         | EffectDef::GrantFlashToNextSorcery
         | EffectDef::SearchZonesAndExileRest { .. }
-        | EffectDef::Scry { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
@@ -139,7 +150,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::LoseTheGame { .. }
         | EffectDef::WinTheGame { .. }
         | EffectDef::ExileFromTopUntil { .. }
-        | EffectDef::ManifestDread { .. }
         | EffectDef::Cascade
         | EffectDef::ExileTopOfLibraryToPlay { .. }
         | EffectDef::MayCastTargetWithoutPaying { .. }

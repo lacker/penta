@@ -47,13 +47,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::PayOr {
             object, context, ..
         }
-        | DecisionContinuation::TopCardSelection {
-            object, context, ..
-        }
-        | DecisionContinuation::TypedTopCardSelection {
-            object, context, ..
-        }
-        | DecisionContinuation::DistributedTopCardSelection {
+        | DecisionContinuation::LookAtObjectsForEffect {
             object, context, ..
         } => extend_stack_continuation_ids(&mut ids, object, context),
         DecisionContinuation::DrawActionWindow { card }
@@ -65,11 +59,17 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             context,
             candidates,
             ..
+        }
+        | DecisionContinuation::ChooseObjectOrderForEffect {
+            object,
+            context,
+            candidates,
+            ..
         } => {
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied().filter_map(target_object_id));
         }
-        DecisionContinuation::SplitForEffect {
+        DecisionContinuation::PartitionGroupForEffect {
             object,
             context,
             items,
@@ -78,7 +78,7 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(items.iter().copied().filter_map(target_object_id));
         }
-        DecisionContinuation::ChoosePileForEffect {
+        DecisionContinuation::ChooseGroupForEffect {
             object,
             context,
             first,
@@ -90,6 +90,24 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
                 first
                     .iter()
                     .chain(second)
+                    .copied()
+                    .filter_map(target_object_id),
+            );
+        }
+        DecisionContinuation::ChooseOneOfEachForEffect {
+            object,
+            context,
+            candidates,
+            remaining,
+            chosen,
+            ..
+        } => {
+            extend_stack_continuation_ids(&mut ids, object, context);
+            ids.extend(
+                candidates
+                    .iter()
+                    .chain(remaining)
+                    .chain(chosen)
                     .copied()
                     .filter_map(target_object_id),
             );
@@ -131,6 +149,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         }
         DecisionContinuation::BattlefieldExitReplacement { batch, candidates } => {
             extend_battlefield_exit_ids(&mut ids, batch, candidates);
+        }
+        DecisionContinuation::BattlefieldExitOrder { batch, .. } => {
+            extend_battlefield_exit_ids(&mut ids, batch, &[]);
         }
         DecisionContinuation::ActivationCostSacrifice {
             pending, chosen, ..
@@ -229,16 +250,12 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::RecallDiscard { .. }
         | DecisionContinuation::RecallReturn { .. }
         | DecisionContinuation::SpellLibraryEnd { .. }
-        | DecisionContinuation::SeparateIntoPiles { .. }
-        | DecisionContinuation::ChoosePile { .. }
         | DecisionContinuation::SacrificeOfChoice { followup: None, .. }
-        | DecisionContinuation::GrislySalvage { .. }
         | DecisionContinuation::Balance { .. }
         | DecisionContinuation::SearchZonesAndExileRest { .. }
         | DecisionContinuation::Vote { .. }
         | DecisionContinuation::TetravusDetach { .. }
         | DecisionContinuation::TetravusAssemble { .. }
-        | DecisionContinuation::AugurOfBolas { .. }
         | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
         | DecisionContinuation::BattlefieldEntryCopy { .. } => {}
     }
@@ -514,72 +531,6 @@ pub(super) fn decision_option_snapshot(
             .collect::<Option<Vec<_>>>()?,
         ability_text: option.ability_text.clone(),
         zone: decision_zone_snapshot(option.zone),
-    })
-}
-
-pub(super) fn parse_decision_option_snapshot(
-    catalog: &CardCatalog,
-    snapshot: &DecisionOptionSnapshot,
-) -> Result<DecisionOption, String> {
-    let card = |card: &DecisionCardSnapshot| {
-        Ok((
-            GameObjectId(card.object_id),
-            object_characteristics_from_snapshot(catalog, &card.characteristics).ok_or_else(
-                || "decision card characteristics are absent from this catalog".to_owned(),
-            )?,
-        ))
-    };
-    Ok(DecisionOption {
-        id: snapshot.id,
-        label: snapshot.label.clone(),
-        card: snapshot.card.as_ref().map(card).transpose()?,
-        members: snapshot
-            .members
-            .iter()
-            .map(card)
-            .collect::<Result<Vec<_>, String>>()?,
-        ability_text: snapshot.ability_text.clone(),
-        zone: parse_decision_zone_snapshot(snapshot.zone),
-    })
-}
-
-pub(super) fn pile_split_snapshot(
-    catalog: &CardCatalog,
-    piles: &PileSplit,
-) -> Option<PileSplitSnapshot> {
-    Some(PileSplitSnapshot {
-        resolving_controller: piles.resolving_controller.index(),
-        subject: piles.subject.index(),
-        first: piles
-            .first
-            .iter()
-            .map(|option| decision_option_snapshot(catalog, option))
-            .collect::<Option<Vec<_>>>()?,
-        second: piles
-            .second
-            .iter()
-            .map(|option| decision_option_snapshot(catalog, option))
-            .collect::<Option<Vec<_>>>()?,
-    })
-}
-
-pub(super) fn parse_pile_split_snapshot(
-    snapshot: &PileSplitSnapshot,
-    catalog: &CardCatalog,
-) -> Result<PileSplit, String> {
-    Ok(PileSplit {
-        resolving_controller: player(snapshot.resolving_controller)?,
-        subject: player(snapshot.subject)?,
-        first: snapshot
-            .first
-            .iter()
-            .map(|option| parse_decision_option_snapshot(catalog, option))
-            .collect::<Result<Vec<_>, String>>()?,
-        second: snapshot
-            .second
-            .iter()
-            .map(|option| parse_decision_option_snapshot(catalog, option))
-            .collect::<Result<Vec<_>, String>>()?,
     })
 }
 

@@ -7,7 +7,7 @@ use crate::card::{
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet,
     CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -75,32 +75,6 @@ static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_perman
     ObjectPredicateDef::HasType(CardType::Creature),
 )];
 
-/// "You may put that card on the bottom." One card looked at, none or one
-/// selected, and what is selected goes to the bottom while what is not goes
-/// back where it came from.
-static FATESEAL_ONE: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Bottom,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 /// Their whole library, named by owner rather than by relation: the ultimate
 /// points at a player and empties that one.
 static THE_TARGET_PLAYERS_LIBRARY: ObjectQueryDef = ObjectQueryDef::owned_by(
@@ -143,11 +117,10 @@ static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
          bottom of that player's library.",
         &[AbilityCostDef::Loyalty(2)],
         &A_PLAYER,
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            looker: EffectRecipientDef::Controller,
-            selection: &FATESEAL_ONE,
-        },
+        abilities::fateseal(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(1),
+        ),
     ),
     AbilityDef::activated(
         "0: Draw three cards, then put two cards from your hand on top of your library in any \

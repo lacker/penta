@@ -1,14 +1,13 @@
 use crate::card::{
     ChooseDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, ObjectChoiceBindingDef,
-    ObjectSetDef, PartitionItemsDef, SplitIntoPilesDef, ZoneKind,
+    ObjectSetDef, ZoneKind,
 };
 use crate::{GameObjectId, ObjectSetBindingIndex};
 
 use super::decision_offers::effect_choice_visibility;
 use super::{
-    CardPartId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, EffectResolutionContext, Game, ObjectCharacteristics, ScopedEffect, StackObject,
-    Target,
+    CardPartId, DecisionContinuation, DecisionOption, DecisionPreference, DecisionZone,
+    EffectResolutionContext, Game, ObjectCharacteristics, ScopedEffect, StackObject, Target,
 };
 
 pub(super) struct EffectChoiceDecisionState {
@@ -16,18 +15,6 @@ pub(super) struct EffectChoiceDecisionState {
     pub(super) candidates: Vec<Target>,
     pub(super) minimum: usize,
     pub(super) maximum: usize,
-    pub(super) options: Vec<DecisionOption>,
-    pub(super) preference: DecisionPreference,
-}
-
-pub(super) struct EffectPileSplitState {
-    pub(super) divider: super::PlayerId,
-    pub(super) chooser: super::PlayerId,
-    pub(super) items: Vec<Target>,
-    pub(super) options: Vec<DecisionOption>,
-}
-
-pub(super) struct EffectPileChoiceState {
     pub(super) options: Vec<DecisionOption>,
     pub(super) preference: DecisionPreference,
 }
@@ -63,16 +50,11 @@ impl Game {
         // because declining is itself the player's choice even with one
         // candidate -- but not with none, where there is nothing to decline
         // and the only legal answer is the empty one.
-        let ordering_matters = matches!(
-            definition.binding,
-            ObjectChoiceBindingDef::OrderedObjects(_)
-        ) && state.candidates.len() > 1;
-        if state.candidates.is_empty()
-            || (!ordering_matters
-                && definition.minimum > 0
-                && state.candidates.len() <= definition.minimum)
-        {
+        if effect_choice_resolves_automatically(definition, state.candidates.len()) {
             let mut context = context;
+            if let Some(unchosen) = definition.unchosen {
+                context.bind_object_group(unchosen, Vec::new());
+            }
             Self::bind_effect_choice(&mut context, definition.binding, state.candidates);
             self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
             return;
@@ -80,7 +62,7 @@ impl Game {
 
         self.queue_decision(
             state.chooser,
-            "Choose objects",
+            effect_choice_prompt(*definition.then, definition.binding),
             effect_choice_visibility(definition.visibility),
             state.preference,
             state.minimum..=state.maximum,
@@ -166,179 +148,7 @@ impl Game {
         }
     }
 
-    /// Starts a public two-decision partition procedure. Top-of-library cards
-    /// remain in their library throughout: the continuations retain typed
-    /// references, not detached `CardInstance`s.
-    pub(super) fn queue_effect_pile_split(
-        &mut self,
-        definition: SplitIntoPilesDef,
-        object: &StackObject,
-        mut context: EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) {
-        let Some(state) = self.effect_pile_split_state(definition, object, &context, scoped) else {
-            return;
-        };
-
-        if state.items.is_empty() {
-            context.bind_object_group(definition.chosen, Vec::new());
-            context.bind_object_group(definition.unchosen, Vec::new());
-            self.resolve_effect_def(scoped.with_effect(*definition.then), object, context);
-            return;
-        }
-
-        self.queue_decision(
-            state.divider,
-            "Separate the objects into two piles",
-            DecisionVisibility::Public,
-            DecisionPreference::BalancedPartition,
-            0..=state.items.len(),
-            false,
-            state.options,
-            DecisionContinuation::SplitForEffect {
-                definition: scoped,
-                chooser: state.chooser,
-                items: state.items,
-                object: Box::new(object.clone()),
-                context,
-            },
-        );
-    }
-
-    pub(super) fn effect_pile_split_state(
-        &self,
-        definition: SplitIntoPilesDef,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) -> Option<EffectPileSplitState> {
-        let dividers = self.effect_players(definition.divider, object, context, scoped);
-        let [divider] = dividers.as_slice() else {
-            return None;
-        };
-        let choosers = self.effect_players(definition.chooser, object, context, scoped);
-        let [chooser] = choosers.as_slice() else {
-            return None;
-        };
-        let items = match definition.items {
-            PartitionItemsDef::Objects(objects) => {
-                self.effect_objects(objects, object, context, scoped)
-            }
-            PartitionItemsDef::TopOfLibrary { player, count } => {
-                let player = self.effect_player_reference(player, object, context, scoped)?;
-                let count =
-                    usize::try_from(self.effect_value(count, object, context, scoped).max(0))
-                        .ok()?;
-                self.players[player.index()]
-                    .library
-                    .iter()
-                    .rev()
-                    .take(count)
-                    .map(|card| Target::Card(card.id))
-                    .collect()
-            }
-        };
-        let options = items
-            .iter()
-            .copied()
-            .enumerate()
-            .map(|(index, item)| self.effect_target_option(index, item))
-            .collect();
-        Some(EffectPileSplitState {
-            divider: *divider,
-            chooser: *chooser,
-            items,
-            options,
-        })
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn queue_effect_pile_choice(
-        &mut self,
-        chooser: super::PlayerId,
-        first: Vec<Target>,
-        second: Vec<Target>,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        definition: ScopedEffect,
-    ) {
-        let EffectDef::SplitIntoPiles(authored) = definition.effect else {
-            return;
-        };
-        let state = self.effect_pile_choice_state(&first, &second, authored, definition);
-        self.queue_decision(
-            chooser,
-            "Choose a pile",
-            DecisionVisibility::Public,
-            state.preference,
-            1..=1,
-            false,
-            state.options,
-            DecisionContinuation::ChoosePileForEffect {
-                definition,
-                first,
-                second,
-                chosen: authored.chosen,
-                unchosen: authored.unchosen,
-                object,
-                context,
-                effect: definition.with_effect(*authored.then),
-            },
-        );
-    }
-
-    pub(super) fn effect_pile_choice_state(
-        &self,
-        first: &[Target],
-        second: &[Target],
-        definition: SplitIntoPilesDef,
-        scoped: ScopedEffect,
-    ) -> EffectPileChoiceState {
-        let options = [first, second]
-            .into_iter()
-            .enumerate()
-            .map(|(index, pile)| {
-                let names = pile
-                    .iter()
-                    .copied()
-                    .map(|target| self.effect_target_option(0, target).label)
-                    .collect::<Vec<_>>();
-                DecisionOption {
-                    id: u32::try_from(index).unwrap_or(u32::MAX),
-                    label: format!(
-                        "Choose pile {} ({})",
-                        index + 1,
-                        if names.is_empty() {
-                            "empty".into()
-                        } else {
-                            names.join(", ")
-                        }
-                    ),
-                    card: None,
-                    members: pile
-                        .iter()
-                        .filter_map(|target| self.effect_target_card(*target))
-                        .collect(),
-                    ability_text: None,
-                    zone: DecisionZone::None,
-                }
-            })
-            .collect();
-        let effect = scoped.with_effect(*definition.then);
-        let preference = if effect_moves_group_to_hand(effect.effect, definition.chosen) {
-            DecisionPreference::HigherCardValue
-        } else if effect_sacrifices_group(effect.effect, definition.chosen) {
-            DecisionPreference::LowerCardValue
-        } else {
-            DecisionPreference::Neutral
-        };
-        EffectPileChoiceState {
-            options,
-            preference,
-        }
-    }
-
-    fn effect_target_option(&self, index: usize, target: Target) -> DecisionOption {
+    pub(super) fn effect_target_option(&self, index: usize, target: Target) -> DecisionOption {
         let (label, card, zone) = match target {
             Target::Permanent(id) => self
                 .battlefield
@@ -423,7 +233,10 @@ impl Game {
         }
     }
 
-    fn effect_target_card(&self, target: Target) -> Option<(GameObjectId, ObjectCharacteristics)> {
+    pub(super) fn effect_target_card(
+        &self,
+        target: Target,
+    ) -> Option<(GameObjectId, ObjectCharacteristics)> {
         match target {
             Target::Permanent(id) => self
                 .battlefield
@@ -443,6 +256,54 @@ impl Game {
             }),
             Target::Player(_) => None,
         }
+    }
+}
+
+pub(super) fn effect_choice_resolves_automatically(
+    definition: ChooseDef,
+    candidate_count: usize,
+) -> bool {
+    let ordering_matters = matches!(
+        definition.binding,
+        ObjectChoiceBindingDef::OrderedObjects(_)
+    ) && candidate_count > 1;
+    candidate_count == 0
+        || (!ordering_matters && definition.minimum > 0 && candidate_count <= definition.minimum)
+}
+
+pub(super) fn effect_choice_prompt(
+    effect: EffectDef,
+    binding: ObjectChoiceBindingDef,
+) -> &'static str {
+    let (ObjectChoiceBindingDef::Objects(binding)
+    | ObjectChoiceBindingDef::OrderedObjects(binding)) = binding
+    else {
+        return "Choose objects";
+    };
+    match effect {
+        EffectDef::MoveObjects(definition)
+            if definition.input == ObjectSetDef::Binding(binding) =>
+        {
+            match (definition.zone, definition.placement) {
+                (ZoneKind::Hand, _) => "Put a card into your hand",
+                (ZoneKind::Library, crate::card::ZonePlacement::Top) => {
+                    "Put a card on top of your library"
+                }
+                (ZoneKind::Library, crate::card::ZonePlacement::Bottom) => {
+                    "Put a card on the bottom of your library"
+                }
+                (ZoneKind::Graveyard, _) => "Put a card into your graveyard",
+                (ZoneKind::Exile, _) => "Exile a card",
+                _ => "Choose objects",
+            }
+        }
+        _ => crate::card::child_effects(effect)
+            .into_iter()
+            .find_map(|child| {
+                let prompt = effect_choice_prompt(child, ObjectChoiceBindingDef::Objects(binding));
+                (prompt != "Choose objects").then_some(prompt)
+            })
+            .unwrap_or("Choose objects"),
     }
 }
 
@@ -516,7 +377,6 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
                     .otherwise
                     .is_some_and(|effect| effect_removes_binding(*effect, binding))
         }
-        EffectDef::SplitIntoPiles(definition) => effect_removes_binding(*definition.then, binding),
         EffectDef::May { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
@@ -536,11 +396,14 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
     }
 }
 
-fn effect_moves_group_to_hand(effect: EffectDef, binding: ObjectSetBindingIndex) -> bool {
+pub(super) fn effect_moves_group_to_hand(
+    effect: EffectDef,
+    binding: ObjectSetBindingIndex,
+) -> bool {
     effect_matches_group_operation(effect, binding, GroupOperation::MoveToHand)
 }
 
-fn effect_sacrifices_group(effect: EffectDef, binding: ObjectSetBindingIndex) -> bool {
+pub(super) fn effect_sacrifices_group(effect: EffectDef, binding: ObjectSetBindingIndex) -> bool {
     effect_matches_group_operation(effect, binding, GroupOperation::Sacrifice)
 }
 
@@ -564,53 +427,57 @@ fn effect_matches_group_operation(
             zone: ZoneKind::Hand,
             ..
         } if matches!(operation, GroupOperation::MoveToHand) => recipient_matches(object),
+        EffectDef::MoveObjects(definition)
+            if matches!(operation, GroupOperation::MoveToHand)
+                && definition.zone == ZoneKind::Hand =>
+        {
+            definition.input == ObjectSetDef::Binding(binding)
+        }
         EffectDef::Sacrifice { object } if matches!(operation, GroupOperation::Sacrifice) => {
             recipient_matches(object)
-        }
-        EffectDef::Sequence(effects) => effects
-            .iter()
-            .copied()
-            .any(|effect| effect_matches_group_operation(effect, binding, operation)),
-        EffectDef::Randomized {
-            on_success,
-            on_failure,
-            ..
-        } => {
-            effect_matches_group_operation(*on_success, binding, operation)
-                || effect_matches_group_operation(*on_failure, binding, operation)
-        }
-        EffectDef::Choose(definition) => {
-            effect_matches_group_operation(*definition.then, binding, operation)
-        }
-        EffectDef::PayOr(definition) => {
-            definition
-                .if_paid
-                .is_some_and(|effect| effect_matches_group_operation(*effect, binding, operation))
-                || definition.otherwise.is_some_and(|effect| {
-                    effect_matches_group_operation(*effect, binding, operation)
-                })
-        }
-        EffectDef::SplitIntoPiles(definition) => {
-            effect_matches_group_operation(*definition.then, binding, operation)
-        }
-        EffectDef::May { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
-            effect_matches_group_operation(*effect, binding, operation)
         }
         EffectDef::InstallTrigger(installed) => installed
             .ability
             .declarative_effect()
             .is_some_and(|effect| effect_matches_group_operation(effect, binding, operation)),
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        } => {
-            effect_matches_group_operation(*then, binding, operation)
-                || effect_matches_group_operation(*otherwise, binding, operation)
+        _ => crate::card::child_effects(effect)
+            .into_iter()
+            .any(|child| effect_matches_group_operation(child, binding, operation)),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::card::{ChoiceVisibilityDef, PlayerRefDef};
+
+    fn required_pair(binding: ObjectChoiceBindingDef) -> ChooseDef {
+        ChooseDef {
+            binding,
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+            exclude: None,
+            minimum: 2,
+            maximum: 2,
+            visibility: ChoiceVisibilityDef::Private,
+            then: &EffectDef::None,
         }
-        EffectDef::SacrificeOfChoice {
-            then: Some(effect), ..
-        } => effect_matches_group_operation(*effect, binding, operation),
-        _ => false,
+    }
+
+    #[test]
+    fn a_required_ordered_pair_still_asks_for_its_order() {
+        assert!(effect_choice_resolves_automatically(
+            required_pair(ObjectChoiceBindingDef::Objects(
+                ObjectSetBindingIndex::PRIMARY,
+            )),
+            2,
+        ));
+        assert!(!effect_choice_resolves_automatically(
+            required_pair(ObjectChoiceBindingDef::OrderedObjects(
+                ObjectSetBindingIndex::PRIMARY,
+            )),
+            2,
+        ));
     }
 }

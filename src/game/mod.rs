@@ -26,11 +26,10 @@ use crate::card::{
     PlayActionKind, PlayOptionDef, PlayRestriction, PlayerRefDef, PlayerRelation, PlayerSetDef,
     PowerToughnessOperationDef, PregameConditionDef, PregameTimingDef, QuantifierDef,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SelectionDestinationDef, SetOperationDef,
-    SpellResolutionDestinationDef, StackTargetKindDef, TapPurposeDef, TargetPredicate,
-    TargetSlotDef, TokenCharacteristics, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef,
-    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities, applicable_part_ids,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellResolutionDestinationDef,
+    StackTargetKindDef, TapPurposeDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities, applicable_part_ids,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -78,6 +77,7 @@ mod damage;
 mod decision;
 mod decision_arriving_attacker;
 mod decision_doomsday;
+mod decision_object_collections;
 mod decision_offers;
 mod decision_permanent_choice;
 mod decision_piles;
@@ -162,10 +162,7 @@ pub use observation::{
     StackObservation, ZoneCard, ZoneError,
 };
 
-pub(crate) use card_runtime::{
-    CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
-    ResolvedAbility,
-};
+pub(crate) use card_runtime::{CardAbilityResolver, CardRuntime, ResolvedAbility};
 
 use observation::{LastSeenHand, PublicCard};
 
@@ -194,9 +191,9 @@ use continuous_state::{
 };
 use decision_state::{
     ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
-    DecisionContinuation, DeferredBeginTurnEffect, DiscardFollowUp, DistributedSelectionProgress,
-    PendingDecision, Pregame, PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined,
-    SacrificeFollowup, SearchFollowUp, TypedSelectionProgress, ZoneMoveCause,
+    DecisionContinuation, DeferredBeginTurnEffect, DiscardFollowUp, PendingDecision, Pregame,
+    PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup,
+    SearchFollowUp, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{

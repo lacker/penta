@@ -25,7 +25,20 @@ fn visible_decision_card_origins(
             .collect::<Vec<_>>(),
         _ => Vec::new(),
     };
-    for object in option_objects.chain(continuation_objects) {
+    // A chained choice may currently offer only one slice of a group that an
+    // earlier stage revealed in full. Those other revealed cards remain safe
+    // to rebind even though they are not options in this particular question.
+    let revealed_context_objects = decision_referenced_object_ids(&pending.continuation)
+        .into_iter()
+        .filter(|object| {
+            game.events.iter().any(|event| {
+                matches!(event, GameEvent::CardRevealed { card, .. } if card == object)
+            })
+        });
+    for object in option_objects
+        .chain(continuation_objects)
+        .chain(revealed_context_objects)
+    {
         if origins
             .iter()
             .any(|origin: &DecisionCardOriginSnapshot| origin.object_id == object.0)

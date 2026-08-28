@@ -41,7 +41,6 @@ mod y2026;
 use super::record::{CardAbilityBinding, CardRecord, PrintingAnchor, PrintingRecord};
 use crate::AbilityOrigin;
 use crate::card::{AbilityDef, CardBehavior, CardDefinition, CardPrinting, CardRules, CardSet};
-use crate::game::{PileChosen, PilesSeparated};
 
 static UNSUPPORTED_RULES: CardRules = CardRules::unsupported();
 
@@ -956,7 +955,6 @@ pub(super) fn additional_printings() -> Vec<CardPrinting> {
 }
 
 pub(super) use legacy::rules;
-pub(crate) use legacy::{pile_chosen_resolver, piles_separated_resolver};
 
 #[cfg(test)]
 mod tests;

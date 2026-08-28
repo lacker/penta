@@ -4,30 +4,26 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2007::lorwyn as catalog_lrw;
 use crate::card::sets::{y1993::alpha, y2002::onslaught, y2009::zendikar};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPolicyHint, AbilityPredicateDef,
-    AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ColorSet, ComparisonDef,
-    ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef, CounterKind,
-    CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    MillUntilDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
-    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
-};
-use crate::game::{
-    CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
-    ResolvedAbility,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef,
+    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ChooseGroupDef,
+    ClassifyObjectsDef, ColorSet, ComparisonDef, ConditionalValueDef, ControlDurationDef,
+    CopyExceptionsDef, CostModificationDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef, IfNoObjectsDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PartitionGroupDef, PayOrDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    RoundingDef, SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TargetConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{
-    AbilityId, AdditionalCostObjectIndex, CardPartId, ObjectBindingIndex, ObjectSetBindingIndex,
-    TargetIndex, TargetSlotId,
+    AdditionalCostObjectIndex, ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex,
 };
 use crate::mana_cost;
 
@@ -1485,45 +1481,70 @@ pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardReco
 );
 
 // ISD 51 — Delver of Secrets // Insectile Aberration
-static DELVER_REVEALED_INSTANT_OR_SORCERY: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&crate::card::ValueComparisonDef {
-        left: ValueDef::MatchedCount,
-        comparison: ComparisonDef::GreaterOrEqual,
-        right: ValueDef::Constant(1),
-    });
-
-static DELVER_TRANSFORM: EffectDef = EffectDef::IfCondition {
-    condition: &DELVER_REVEALED_INSTANT_OR_SORCERY,
-    then: &EffectDef::Transform {
-        object: EffectRecipientDef::Source,
-    },
+static DELVER_TRANSFORM: EffectDef = EffectDef::Transform {
+    object: EffectRecipientDef::Source,
 };
 
-static DELVER_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: None,
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: Some(ObjectPredicateDef::AnyOf(&[
+const DELVER_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const DELVER_REVEALED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const DELVER_MATCHING: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const DELVER_NONMATCHING: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static DELVER_SETTLE_WITHOUT_TRANSFORM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_REVEALED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static DELVER_REVEAL_WITHOUT_TRANSFORM: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_REVEALED),
+    then: &DELVER_SETTLE_WITHOUT_TRANSFORM,
+});
+static DELVER_SETTLE_AND_TRANSFORM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_REVEALED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &DELVER_TRANSFORM,
+});
+static DELVER_REVEAL_AND_TRANSFORM: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_REVEALED),
+    then: &DELVER_SETTLE_AND_TRANSFORM,
+});
+static DELVER_BRANCH: EffectDef = EffectDef::IfNoObjects(IfNoObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_MATCHING),
+    if_empty: &DELVER_REVEAL_WITHOUT_TRANSFORM,
+    otherwise: &DELVER_REVEAL_AND_TRANSFORM,
+});
+static DELVER_CLASSIFY: EffectDef = EffectDef::ClassifyObjects(ClassifyObjectsDef {
+    input: ObjectSetDef::Binding(DELVER_REVEALED),
+    object: ObjectPredicateDef::AnyOf(&[
         ObjectPredicateDef::HasType(CardType::Instant),
         ObjectPredicateDef::HasType(CardType::Sorcery),
-    ])),
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&DELVER_TRANSFORM),
-};
+    ]),
+    matching: DELVER_MATCHING,
+    remainder: DELVER_NONMATCHING,
+    then: &DELVER_BRANCH,
+});
+static DELVER_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(DELVER_REVEALED),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(DELVER_INSPECTED),
+    exclude: None,
+    minimum: 0,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &DELVER_CLASSIFY,
+});
+static DELVER_LOOK: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    DELVER_INSPECTED,
+    &DELVER_CHOOSE,
+);
 
 const fn delver_of_secrets_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{U}"), &["Human", "Wizard"], 1, 1).with_ability(
@@ -1533,11 +1554,7 @@ const fn delver_of_secrets_rules() -> CardRules {
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &DELVER_LOOK,
-            },
+            DELVER_LOOK,
         ),
     )
 }
@@ -1617,29 +1634,6 @@ pub(in crate::card::sets) static DREAM_TWIST: CardRecord = CardRecord::new_with_
 );
 
 // ISD 55 — Forbidden Alchemy
-static FORBIDDEN_ALCHEMY_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Graveyard,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static FORBIDDEN_ALCHEMY: CardRecord = CardRecord::new_with_legacy_id(
     876,
     "Forbidden Alchemy",
@@ -1648,11 +1642,12 @@ pub(in crate::card::sets) static FORBIDDEN_ALCHEMY: CardRecord = CardRecord::new
     CardRules::new_instant(mana_cost!("{2}{U}")).with_abilities(&[
         AbilityDef::spell(
             "Look at the top four cards of your library. Put one of them into your hand and the rest into your graveyard.",
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &FORBIDDEN_ALCHEMY_SELECTION,
-            },
+            abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
         ),
         abilities::flashback(mana_cost!("{6}{B}")),
     ]),
@@ -3055,11 +3050,24 @@ pub(in crate::card::sets) static HEARTLESS_SUMMONING: CardRecord = CardRecord::n
 );
 
 // ISD 105 — Liliana of the Veil
-// Audit: custom — Needs declarative pile separation, opponent pile choice, and simultaneous sacrifice of the chosen pile.
-static LILIANA_ULTIMATE_RESOLVER: CardAbilityResolver = CardAbilityResolver::new(
-    "innistrad/liliana-of-the-veil/ultimate",
-    resolve_liliana_ultimate,
-);
+const LILIANA_FIRST_PILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const LILIANA_SECOND_PILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const LILIANA_CHOSEN_PILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const LILIANA_UNCHOSEN_PILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+
+static LILIANA_SACRIFICE_CHOSEN: EffectDef = EffectDef::Sacrifice {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(LILIANA_CHOSEN_PILE)),
+};
+
+static LILIANA_CHOOSE_PILE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
+    actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+    first: ObjectSetDef::Binding(LILIANA_FIRST_PILE),
+    second: ObjectSetDef::Binding(LILIANA_SECOND_PILE),
+    chosen: LILIANA_CHOSEN_PILE,
+    unchosen: LILIANA_UNCHOSEN_PILE,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &LILIANA_SACRIFICE_CHOSEN,
+});
 
 const LILIANA_ULTIMATE_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
     "−6: Separate all permanents target player controls into two piles. That player sacrifices all permanents in the pile of their choice.",
@@ -3067,62 +3075,15 @@ const LILIANA_ULTIMATE_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
     &[AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Player(PlayerRelation::Any),
     )],
-    EffectDef::None,
-)
-.with_effect_execution(EffectExecutionDef::CardOwned)
-.with_coverage(AbilityCoverageDef::explained_complete(
-    "Pile separation, pile choice, and the chosen-pile sacrifice are composed by Liliana's card-owned resolver from shared runtime primitives.",
-));
-
-static LILIANA_ABILITY_BINDINGS: [CardAbilityBinding; 1] = [CardAbilityBinding::new(
-    CardPartId::PRIMARY,
-    AbilityId(2),
-    LILIANA_ULTIMATE_ABILITY,
-    &LILIANA_ULTIMATE_RESOLVER,
-)
-.with_policy_hint(
-    AbilityPolicyHint::TargetPlayerSacrificesOneOfTwoPermanentPiles {
-        target: TargetSlotId(0),
-    },
-)];
-
-fn resolve_liliana_ultimate(runtime: &mut CardRuntime<'_>, ability: &ResolvedAbility) {
-    let Some(victim) = ability.target_player(TargetIndex::PRIMARY) else {
-        return;
-    };
-    let permanents = runtime.controlled_permanents(victim);
-    runtime.queue_permanent_partition(
-        ability.controller(),
-        ability.controller(),
-        victim,
-        &permanents,
-        LILIANA_PILES_SEPARATED,
-    );
-}
-
-pub(in crate::card) static LILIANA_PILES_SEPARATED: PilesSeparated =
-    PilesSeparated::new("lilianaOfTheVeil.pilesSeparated", liliana_piles_separated);
-
-pub(in crate::card) static LILIANA_PILE_CHOSEN: PileChosen =
-    PileChosen::new("lilianaOfTheVeil.pileChosen", liliana_pile_chosen);
-
-fn liliana_piles_separated(runtime: &mut CardRuntime<'_>, piles: PileSplit) {
-    let victim = piles.subject();
-    runtime.queue_pile_choice(
-        victim,
-        piles,
-        "Choose a pile to sacrifice",
-        "Sacrifice pile",
-        LILIANA_PILE_CHOSEN,
-    );
-}
-
-fn liliana_pile_chosen(runtime: &mut CardRuntime<'_>, choice: PileChoice) {
-    let victim = choice.subject();
-    let resolving_controller = choice.resolving_controller();
-    let (chosen, _unchosen) = choice.into_parts();
-    runtime.sacrifice_permanents_simultaneously(&chosen, victim, resolving_controller);
-}
+    EffectDef::PartitionGroup(PartitionGroupDef {
+        actor: PlayerRefDef::EffectController,
+        input: ObjectSetDef::PermanentsControlledBy(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+        first: LILIANA_FIRST_PILE,
+        second: LILIANA_SECOND_PILE,
+        visibility: ChoiceVisibilityDef::Public,
+        then: &LILIANA_CHOOSE_PILE,
+    }),
+);
 
 pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::new_with_legacy_id(
     184,
@@ -3160,8 +3121,7 @@ pub(in crate::card::sets) static LILIANA_OF_THE_VEIL: CardRecord = CardRecord::n
             ),
             LILIANA_ULTIMATE_ABILITY,
         ]),
-)
-.with_ability_bindings(&LILIANA_ABILITY_BINDINGS);
+);
 
 // ISD 106 — Manor Skeleton
 pub(in crate::card::sets) static MANOR_SKELETON: CardRecord = CardRecord::new_with_legacy_id(
@@ -5528,19 +5488,18 @@ pub(in crate::card::sets) static MOONMIST: CardRecord = CardRecord::new(
 );
 
 // ISD 196 — Mulch
-// Audit: custom — Needs declarative top-N reveal that moves all matching lands to hand and the remainder to the graveyard.
 pub(in crate::card::sets) static MULCH: CardRecord = CardRecord::new_with_legacy_id(
     188,
     "Mulch",
     CardArt::new("52a1dabd-82df-4814-9d64-bf7bf9c1018d", "Christopher Moeller"),
     CardSet::Innistrad,
-    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(
-        AbilityDef::custom_full(
-            "Reveal the top four cards of your library. Put all land cards revealed this way into your hand and the rest into your graveyard.",
-            CardBehavior::Mulch,
-            "Implemented by the named card-local special behavior.",
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
+        "Reveal the top four cards of your library. Put all land cards revealed this way into your hand and the rest into your graveyard.",
+        abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(
+            ValueDef::Constant(4),
+            ObjectPredicateDef::HasType(CardType::Land),
         ),
-    ),
+    )),
 );
 
 // ISD 197 — Naturalize (reprint)

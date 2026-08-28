@@ -1,3 +1,25 @@
+fn validate_object_collection_references(
+    collection: crate::card::ObjectCollectionSourceDef,
+    target_count: usize,
+    scope: BindingScope,
+) -> Result<(), GrantedAbilityValidationError> {
+    match collection {
+        crate::card::ObjectCollectionSourceDef::ObjectSet(input) => validate_recipient_target_references(
+            EffectRecipientDef::objects(input),
+            target_count,
+            scope,
+        ),
+        crate::card::ObjectCollectionSourceDef::TopCards { player, count } => {
+            validate_player_reference(player, target_count, scope)?;
+            validate_value_target_references(count, target_count, scope)
+        }
+        crate::card::ObjectCollectionSourceDef::TopCardsThroughFirstMatching { player, object } => {
+            validate_player_reference(player, target_count, scope)?;
+            validate_object_predicate_references(object, target_count, scope)
+        }
+    }
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_effect_references(
     effect: EffectDef,
@@ -50,19 +72,6 @@ fn validate_effect_references(
         EffectDef::RevealAtRandomFromHand { player, then, .. } => {
             validate_recipient_target_references(player, target_count, scope)?;
             validate_effect_references(*then, target_count, scope)
-        }
-        EffectDef::BindMatching {
-            objects,
-            binding,
-            then,
-        } => {
-            validate_recipient_target_references(
-                EffectRecipientDef::objects(objects),
-                target_count,
-                scope,
-            )?;
-            let nested = scope.with_object_set(binding)?;
-            validate_effect_references(*then, target_count, nested)
         }
         EffectDef::SelectAtRandomFromZone {
             player,
@@ -140,6 +149,180 @@ fn validate_effect_references(
             };
             validate_effect_references(*choice.then, target_count, nested)
         }
+        EffectDef::ChooseCardsFromCollection(choice) => {
+            validate_object_collection_references(choice.source, target_count, scope)?;
+            validate_player_reference(choice.actor, target_count, scope)?;
+            validate_object_predicate_references(choice.object, target_count, scope)?;
+            if choice.minimum > choice.maximum {
+                return Err(GrantedAbilityValidationError::InvalidObjectChoiceBounds {
+                    binding: crate::card::ObjectChoiceBindingDef::Objects(choice.chosen),
+                    minimum: choice.minimum,
+                    maximum: choice.maximum,
+                });
+            }
+            let nested = scope
+                .with_object_set(choice.chosen)?
+                .with_object_set(choice.remainder)?;
+            validate_effect_references(*choice.then, target_count, nested)
+        }
+        EffectDef::BindObjects(definition) => {
+            validate_object_collection_references(definition.source, target_count, scope)?;
+            validate_effect_references(
+                *definition.then,
+                target_count,
+                scope.with_object_set(definition.binding)?,
+            )
+        }
+        EffectDef::IfNoObjects(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_effect_references(*definition.if_empty, target_count, scope)?;
+            validate_effect_references(*definition.otherwise, target_count, scope)
+        }
+        EffectDef::ClassifyObjects(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_object_predicate_references(definition.object, target_count, scope)?;
+            let nested = scope
+                .with_object_set(definition.matching)?
+                .with_object_set(definition.remainder)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::RevealAndClassifyCards(definition) => {
+            validate_object_collection_references(definition.source, target_count, scope)?;
+            validate_object_predicate_references(definition.object, target_count, scope)?;
+            let nested = scope
+                .with_object_set(definition.matching)?
+                .with_object_set(definition.remainder)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::CombineObjects(definition) => {
+            for input in definition.inputs {
+                validate_recipient_target_references(
+                    EffectRecipientDef::objects(*input),
+                    target_count,
+                    scope,
+                )?;
+            }
+            validate_effect_references(
+                *definition.then,
+                target_count,
+                scope.with_object_set(definition.combined)?,
+            )
+        }
+        EffectDef::RandomizeObjectOrder(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_effect_references(
+                *definition.then,
+                target_count,
+                scope.with_object_set(definition.randomized)?,
+            )
+        }
+        EffectDef::RevealObjects(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_effect_references(*definition.then, target_count, scope)
+        }
+        EffectDef::MoveObjects(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            let nested = match definition.moved {
+                Some(binding) => scope.with_object_set(binding)?,
+                None => scope,
+            };
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_player_reference(definition.controller, target_count, scope)?;
+            let nested = match definition.moved {
+                Some(binding) => scope.with_object_set(binding)?,
+                None => scope,
+            };
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::ChooseObjectOrder(definition) => {
+            validate_player_reference(definition.actor, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            validate_effect_references(
+                *definition.then,
+                target_count,
+                scope.with_object_set(definition.ordered)?,
+            )
+        }
+        EffectDef::LookAtObjects(definition) => {
+            validate_player_reference(definition.actor, target_count, scope)?;
+            validate_object_collection_references(definition.source, target_count, scope)?;
+            validate_effect_references(*definition.then, target_count, scope)
+        }
+        EffectDef::PartitionGroup(definition) => {
+            validate_player_reference(definition.actor, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            let nested = scope
+                .with_object_set(definition.first)?
+                .with_object_set(definition.second)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::ChooseGroup(definition) => {
+            validate_player_reference(definition.actor, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.first),
+                target_count,
+                scope,
+            )?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.second),
+                target_count,
+                scope,
+            )?;
+            let nested = scope
+                .with_object_set(definition.chosen)?
+                .with_object_set(definition.unchosen)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
+        EffectDef::ChooseOneOfEach(definition) => {
+            validate_player_reference(definition.actor, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(definition.input),
+                target_count,
+                scope,
+            )?;
+            for predicate in definition.predicates {
+                validate_object_predicate_references(*predicate, target_count, scope)?;
+            }
+            let nested = scope
+                .with_object_set(definition.chosen)?
+                .with_object_set(definition.remainder)?;
+            validate_effect_references(*definition.then, target_count, nested)
+        }
         EffectDef::ForEachInBinding {
             objects,
             binding,
@@ -167,29 +350,6 @@ fn validate_effect_references(
                 validate_value_target_references(amount, target_count, scope)?;
             }
             Ok(())
-        }
-        EffectDef::SplitIntoPiles(partition) => {
-            validate_pile_role("divider", partition.divider)?;
-            validate_pile_role("chooser", partition.chooser)?;
-            match partition.items {
-                crate::card::PartitionItemsDef::Objects(objects) => {
-                    validate_recipient_target_references(
-                        EffectRecipientDef::objects(objects),
-                        target_count,
-                        scope,
-                    )?;
-                }
-                crate::card::PartitionItemsDef::TopOfLibrary { player, count } => {
-                    validate_player_reference(player, target_count, scope)?;
-                    validate_value_target_references(count, target_count, scope)?;
-                }
-            }
-            validate_player_set(partition.divider, target_count, scope)?;
-            validate_player_set(partition.chooser, target_count, scope)?;
-            let nested = scope
-                .with_object_set(partition.chosen)?
-                .with_object_set(partition.unchosen)?;
-            validate_effect_references(*partition.then, target_count, nested)
         }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DealDamageAndApply {
@@ -236,11 +396,6 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(total, target_count, scope)
         }
-        EffectDef::Scry { player, count }
-        | EffectDef::LookAtTopAndDistribute { player, count, .. } => {
-            validate_recipient_target_references(player, target_count, scope)?;
-            validate_value_target_references(count, target_count, scope)
-        }
         EffectDef::DealDamageFrom {
             source,
             recipient,
@@ -268,6 +423,15 @@ fn validate_effect_references(
                 Some(then) => validate_effect_references(*then, target_count, scope),
                 None => Ok(()),
             }
+        }
+        EffectDef::PermitLookAtExiled {
+            object,
+            player,
+            then,
+        } => {
+            validate_recipient_target_references(object, target_count, scope)?;
+            validate_player_reference(player, target_count, scope)?;
+            validate_effect_references(*then, target_count, scope)
         }
         EffectDef::MayCastTargetWithoutPaying { object, .. }
         | EffectDef::Explore { object }
@@ -430,26 +594,12 @@ fn validate_effect_references(
         | EffectDef::SearchZonesAndExileRest { player, .. }
         | EffectDef::ExileTopOfLibraryToPlay { player, .. }
         | EffectDef::ExileFromTopUntil { player, .. }
-        | EffectDef::ManifestDread { player }
         | EffectDef::ChooseCards { player, .. }
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }
         | EffectDef::RevealHand { player } => {
             validate_recipient_target_references(player, target_count, scope)
-        }
-        EffectDef::LookAtTopAndSelect {
-            player,
-            looker,
-            selection,
-        } => {
-            validate_recipient_target_references(player, target_count, scope)?;
-            validate_recipient_target_references(looker, target_count, scope)?;
-            validate_value_target_references(selection.count, target_count, scope)?;
-            if let Some(effect) = selection.then {
-                validate_effect_references(*effect, target_count, scope)?;
-            }
-            Ok(())
         }
         EffectDef::May { player, effect }
         | EffectDef::ReplaceNextDrawThisTurn { player, effect } => {

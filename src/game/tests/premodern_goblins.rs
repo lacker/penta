@@ -45,9 +45,11 @@ fn settle(game: &mut Game) {
         {
             let options = decision
                 .options
-                .last()
-                .map(|option| vec![option.id])
-                .unwrap_or_default();
+                .iter()
+                .rev()
+                .take(decision.minimum.max(1).min(decision.maximum))
+                .map(|option| option.id)
+                .collect();
             game.apply(
                 decision.player,
                 Action::ChooseDecision {
@@ -314,9 +316,8 @@ fn a_two_mana_artifact_kills_the_tinkerer() {
     );
 }
 
-/// The Ringleader takes every Goblin in the top four and leaves the rest,
-/// asking nothing: the clause is mandatory, so a bounded choice would be the
-/// wrong shape for it.
+/// The Ringleader takes every Goblin in the top four without asking which to
+/// take, then lets its controller order the non-Goblins on the bottom.
 #[test]
 fn the_ringleader_takes_every_goblin_from_the_top_four() {
     let mut game = ready();

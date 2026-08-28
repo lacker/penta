@@ -107,10 +107,6 @@ pub enum GrantedAbilityValidationError {
         minimum: usize,
         maximum: usize,
     },
-    InvalidPileRole {
-        role: &'static str,
-        players: PlayerSetDef,
-    },
     InvalidPaymentPayer {
         players: PlayerSetDef,
     },
@@ -233,10 +229,6 @@ impl fmt::Display for GrantedAbilityValidationError {
             } => write!(
                 formatter,
                 "binds {binding:?} from a choice requiring at least {minimum} objects and allowing at most {maximum}"
-            ),
-            Self::InvalidPileRole { role, players } => write!(
-                formatter,
-                "uses {players:?} for pile {role}, but that role must select at most one player"
             ),
             Self::InvalidPaymentPayer { players } => write!(
                 formatter,
@@ -522,13 +514,6 @@ pub enum CatalogError {
         binding: ObjectChoiceBindingDef,
         minimum: usize,
         maximum: usize,
-    },
-    InvalidAbilityPileRole {
-        definition: CardDefinitionId,
-        part: CardPartId,
-        ability: AbilityId,
-        role: &'static str,
-        players: PlayerSetDef,
     },
     InvalidAbilityPaymentPayer {
         definition: CardDefinitionId,

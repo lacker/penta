@@ -6,43 +6,57 @@ use crate::card::{
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, ControlDurationDef, CopyExceptionsDef,
-    CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
-    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
-    ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef, SetOperationDef,
-    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    SumValueDef, TargetConditionDef, TokenCountersDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
-    ZonePlacement, abilities, tokens,
+    ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
+    CopyExceptionsDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
+    ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PileExileDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    RevealObjectsDef, RoundingDef, SetOperationDef, SimultaneousChooseDef,
+    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, SumValueDef,
+    TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
-static DEVOURER_OPENING_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: None,
+const DEVOURER_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const DEVOURER_TOP: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const DEVOURER_EXILED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+static DEVOURER_EXILE_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(DEVOURER_EXILED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Exile,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static DEVOURER_PUT_TOP: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(DEVOURER_TOP),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &DEVOURER_EXILE_REST,
+});
+static DEVOURER_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(DEVOURER_TOP),
+    unchosen: Some(DEVOURER_EXILED),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(DEVOURER_INSPECTED),
+    exclude: None,
     minimum: 0,
     maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Exile,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
+    visibility: ChoiceVisibilityDef::Private,
+    then: &DEVOURER_PUT_TOP,
+});
+static DEVOURER_OPENING_LOOK: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(4),
+    DEVOURER_INSPECTED,
+    &DEVOURER_CHOOSE,
+);
 
 static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
     "At the beginning of your first upkeep, look at the top four cards of your library. You may put one of those cards back on top of your library. Exile the rest.",
@@ -50,11 +64,7 @@ static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
         step: TurnStepDef::Upkeep,
         player: PlayerRelation::You,
     },
-    EffectDef::LookAtTopAndSelect {
-        player: EffectRecipientDef::Controller,
-        looker: EffectRecipientDef::Controller,
-        selection: &DEVOURER_OPENING_LOOK,
-    },
+    DEVOURER_OPENING_LOOK,
 );
 
 // MH3 2 — Devourer of Destiny
@@ -977,41 +987,6 @@ static A_PERMANENT_CARD_RUMBLE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&
     ObjectPredicateDef::HasType(CardType::Planeswalker),
 ]);
 
-/// "A permanent card from among them": taking nothing is a legal answer,
-/// and everything not taken is buried whether or not it could have been.
-static RUMBLE_DIG: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(A_PERMANENT_CARD_RUMBLE),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: true,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Graveyard,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
-static RUMBLE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::LookAtTopAndSelect {
-        player: EffectRecipientDef::Controller,
-        looker: EffectRecipientDef::Controller,
-        selection: &RUMBLE_DIG,
-    },
-    EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
-        .with_abilities(&RUMBLE_SPAWN_ABILITIES),
-];
-
 pub(in crate::card::sets) static MALEVOLENT_RUMBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a178cfe8-f9fa-4255-88d0-54a0bed079f5"),
     "Malevolent Rumble",
@@ -1027,7 +1002,16 @@ pub(in crate::card::sets) static MALEVOLENT_RUMBLE: CardRecord = CardRecord::new
         "Reveal the top four cards of your library. You may put a permanent card from among them \
          into your hand. Put the rest into your graveyard. Create a 0/1 colorless Eldrazi Spawn \
          creature token with \"Sacrifice this token: Add {C}.\"",
-        EffectDef::Sequence(&RUMBLE_EFFECTS),
+        EffectDef::Sequence(&[
+            abilities::reveal_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(4),
+                A_PERMANENT_CARD_RUMBLE,
+                0,
+                1,
+            ),
+            EffectDef::create_creature_token(&["Eldrazi", "Spawn"], &[], 0, 1)
+                .with_abilities(&RUMBLE_SPAWN_ABILITIES),
+        ]),
     )),
 );
 
@@ -2175,28 +2159,42 @@ pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
 /// One card off the top, sorted by whether it is a land: the land goes to
 /// the battlefield and anything else goes to the hand, so nothing is left
 /// for the player to decide.
-static NADU_REVEAL: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: Some(ObjectPredicateDef::HasType(CardType::Land)),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: true,
-    select_one_of_each_type: false,
-    reveal_inspected: true,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Battlefield,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Hand,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
+const NADU_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const NADU_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const NADU_NONLAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+static NADU_PUT_NONLAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(NADU_NONLAND),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static NADU_PUT_LAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(NADU_LAND),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &NADU_PUT_NONLAND,
+});
+static NADU_CLASSIFY: EffectDef = EffectDef::ClassifyObjects(ClassifyObjectsDef {
+    input: ObjectSetDef::Binding(NADU_INSPECTED),
+    object: ObjectPredicateDef::HasType(CardType::Land),
+    matching: NADU_LAND,
+    remainder: NADU_NONLAND,
+    then: &NADU_PUT_LAND,
+});
+static NADU_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(NADU_INSPECTED),
+    then: &NADU_CLASSIFY,
+});
+static NADU_EFFECT: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    NADU_INSPECTED,
+    &NADU_REVEAL,
+);
 
 /// The granted ability, carried by each creature rather than by Nadu: the
 /// cap is on one creature's copy of it, so every creature you control has
@@ -2206,11 +2204,7 @@ static NADU_GRANTED: AbilityDef = AbilityDef::triggered(
      your library. If it's a land card, put it onto the battlefield. Otherwise, put it into your \
      hand. This ability triggers only twice each turn.",
     TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
-    EffectDef::LookAtTopAndSelect {
-        player: EffectRecipientDef::Controller,
-        looker: EffectRecipientDef::Controller,
-        selection: &NADU_REVEAL,
-    },
+    NADU_EFFECT,
 )
 .triggering_at_most(2);
 

@@ -1,5 +1,5 @@
 use super::*;
-use crate::card::{CopyAbilityDef, TopCardSelectionDef};
+use crate::card::CopyAbilityDef;
 
 fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) -> bool {
     match predicate {
@@ -457,9 +457,6 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         } => {
             assert_nested_definition_applied_effect(card_name, effect);
         }
-        EffectDef::LookAtTopAndSelect { selection, .. } => {
-            assert_nested_selection_abilities(card_name, *selection);
-        }
         EffectDef::BecomeCopyOf { exceptions, .. } => {
             for addition in exceptions.added_abilities {
                 if let CopyAbilityDef::Ability(ability) = addition {
@@ -480,12 +477,6 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
     }
     for child in crate::card::child_effects(effect) {
         assert_nested_definition_abilities(card_name, child);
-    }
-}
-
-fn assert_nested_selection_abilities(card_name: &str, selection: TopCardSelectionDef) {
-    if let Some(effect) = selection.then {
-        assert_nested_definition_abilities(card_name, *effect);
     }
 }
 

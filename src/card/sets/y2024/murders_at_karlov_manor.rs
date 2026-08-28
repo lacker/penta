@@ -5,23 +5,17 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CostModificationDef,
     CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
-    SumValueDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, abilities, tokens,
+    SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    ZoneKind, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
-
-static SURVEIL_ONE: TopCardSelectionDef = abilities::surveil(1, None);
 
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
     abilities::enters_tapped("This land enters tapped."),
     abilities::enters_trigger(
         "When this land enters, surveil 1. (Look at the top card of your library. You may put it \
          into your graveyard.)",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &SURVEIL_ONE,
-        },
+        abilities::surveil(ValueDef::Constant(1)),
     ),
 ];
 

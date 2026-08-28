@@ -1,6 +1,7 @@
 include!("pregame_continuation.rs");
 include!("counter_choice_continuation.rs");
 include!("trigger_continuation.rs");
+include!("object_collection_continuation.rs");
 
 #[allow(clippy::too_many_lines)]
 fn parse_continuation(
@@ -168,20 +169,6 @@ fn parse_continuation(
                 target: parse_target(*target),
             }
         }
-        DecisionContinuationSnapshot::GrislySalvage {
-            player: owner,
-            revealed,
-        } => DecisionContinuation::GrislySalvage {
-            player: player(*owner)?,
-            revealed: parse_detached_cards(revealed, game)?,
-        },
-        DecisionContinuationSnapshot::AugurOfBolas {
-            player: owner,
-            revealed,
-        } => DecisionContinuation::AugurOfBolas {
-            player: player(*owner)?,
-            revealed: parse_detached_cards(revealed, game)?,
-        },
         DecisionContinuationSnapshot::SacrificeToTotalPower {
             player: payer,
             remaining,
@@ -205,9 +192,7 @@ fn parse_continuation(
             binding,
             continuation,
         } => {
-            // The located effect is the follow-up the chosen name feeds,
-            // not the choice itself: the choice is the pending question, and
-            // what it continues into is what has to be found again.
+            // Locate the follow-up the chosen name feeds, not the choice itself.
             let continuation = parse_effect_continuation(continuation, game)?;
             DecisionContinuation::CardNameChoice {
                 choices: choices.clone(),
@@ -218,162 +203,6 @@ fn parse_continuation(
                     .filter(|index| usize::from(*index) < crate::ids::ObjectSetBindingIndex::COUNT)
                     .map(crate::ids::ObjectSetBindingIndex::new)
                     .ok_or("card-name choice binding is out of range")?,
-                object: continuation.object,
-                context: continuation.context,
-                effect: continuation.effect,
-            }
-        }
-        DecisionContinuationSnapshot::TopCardSelection {
-            player: owner,
-            revealed,
-            continuation,
-        } => {
-            let owner = player(*owner)?;
-            let continuation = parse_effect_continuation(continuation, game)?;
-            let EffectDef::LookAtTopAndSelect {
-                player: recipient,
-                looker,
-                selection,
-            } = continuation.effect.effect
-            else {
-                return Err("top-card selection locator is not a top-card selection".into());
-            };
-            let resolve = |recipient| {
-                game.effect_recipients(
-                    recipient,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-            };
-            // The library belongs to one player and the decision is shown to
-            // another whenever a spy is looking, so the two are checked
-            // against the two authored recipients rather than each other.
-            if resolve(recipient).as_slice() != [Target::Player(owner)] {
-                return Err("top-card selection player disagrees with its authored effect".into());
-            }
-            if resolve(looker).as_slice() != [Target::Player(observation.player)] {
-                return Err("top-card selection looker disagrees with the visible decision".into());
-            }
-            let revealed = parse_detached_cards(revealed, game)?;
-            validate_top_card_selection_observation(
-                game,
-                observation,
-                owner,
-                &revealed,
-                selection,
-                &continuation.object,
-                &continuation.context,
-                continuation.effect,
-            )?;
-            DecisionContinuation::TopCardSelection {
-                player: owner,
-                revealed,
-                selection,
-                object: continuation.object,
-                context: continuation.context,
-                effect: continuation.effect,
-            }
-        }
-        DecisionContinuationSnapshot::DistributedTopCardSelection {
-            player: owner,
-            remaining,
-            next_destination,
-            continuation,
-        } => {
-            let owner = player(*owner)?;
-            let continuation = parse_effect_continuation(continuation, game)?;
-            let EffectDef::LookAtTopAndDistribute {
-                player: recipient,
-                destinations,
-                ..
-            } = continuation.effect.effect
-            else {
-                return Err("distributed selection locator is not a distributed look".into());
-            };
-            if game
-                .effect_recipients(
-                    recipient,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-                .as_slice()
-                != [Target::Player(owner)]
-            {
-                return Err("distributed selection player disagrees with its authored effect".into());
-            }
-            let progress = DistributedSelectionProgress {
-                player: owner,
-                remaining: parse_detached_cards(remaining, game)?,
-                next_destination: *next_destination,
-            };
-            validate_distributed_selection_observation(game, observation, &progress, destinations)?;
-            DecisionContinuation::DistributedTopCardSelection {
-                progress,
-                destinations,
-                object: continuation.object,
-                context: continuation.context,
-                effect: continuation.effect,
-            }
-        }
-        DecisionContinuationSnapshot::TypedTopCardSelection {
-            player: owner,
-            looker: asked,
-            revealed,
-            taken,
-            next_type,
-            continuation,
-        } => {
-            let owner = player(*owner)?;
-            let asked = player(*asked)?;
-            let continuation = parse_effect_continuation(continuation, game)?;
-            let EffectDef::LookAtTopAndSelect {
-                player: recipient,
-                looker,
-                selection,
-            } = continuation.effect.effect
-            else {
-                return Err("typed selection locator is not a top-card selection".into());
-            };
-            if !selection.select_one_of_each_type {
-                return Err("typed selection locator does not select by card type".into());
-            }
-            let resolve = |recipient| {
-                game.effect_recipients(
-                    recipient,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-            };
-            if resolve(recipient).as_slice() != [Target::Player(owner)] {
-                return Err("typed selection player disagrees with its authored effect".into());
-            }
-            if resolve(looker).as_slice() != [Target::Player(asked)] {
-                return Err("typed selection looker disagrees with its authored effect".into());
-            }
-            let progress = TypedSelectionProgress {
-                player: owner,
-                looker: asked,
-                revealed: parse_detached_cards(revealed, game)?,
-                taken: parse_detached_cards(taken, game)?,
-                next_type: *next_type,
-            };
-            let source = continuation
-                .object
-                .source
-                .unwrap_or(continuation.object.id);
-            validate_typed_selection_observation(
-                game,
-                observation,
-                &progress,
-                selection,
-                source,
-            )?;
-            DecisionContinuation::TypedTopCardSelection {
-                progress,
-                selection,
                 object: continuation.object,
                 context: continuation.context,
                 effect: continuation.effect,
@@ -487,28 +316,71 @@ fn parse_continuation(
             if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
                 return Err("object-choice locator disagrees with its resolving ability".into());
             }
-            let EffectDef::Choose(definition) = continuation.effect.effect else {
-                return Err("object-choice locator does not identify an authored choice".into());
+            let (state, binding, then, prompt, visibility) = match continuation.effect.effect {
+                EffectDef::Choose(definition) => {
+                    let state = game
+                        .effect_choice_decision_state(
+                            definition,
+                            &continuation.object,
+                            &continuation.context,
+                            continuation.effect,
+                        )
+                        .ok_or("object-choice authored chooser is not singular")?;
+                    if super::super::decision_permanent_choice::effect_choice_resolves_automatically(
+                        definition,
+                        state.candidates.len(),
+                    ) {
+                        return Err(
+                            "object-choice checkpoint encodes a choice that would resolve automatically"
+                                .into(),
+                        );
+                    }
+                    (
+                        state,
+                        definition.binding,
+                        definition.then,
+                        super::super::decision_permanent_choice::effect_choice_prompt(
+                            *definition.then,
+                            definition.binding,
+                        ),
+                        effect_choice_visibility(definition.visibility),
+                    )
+                }
+                EffectDef::ChooseCardsFromCollection(definition) => {
+                    let state = game
+                        .collection_card_choice_decision_state(
+                            definition,
+                            &continuation.object,
+                            &continuation.context,
+                            continuation.effect,
+                        )
+                        .ok_or("collection choice authored actor is not singular")?;
+                    let binding = crate::card::ObjectChoiceBindingDef::Objects(definition.chosen);
+                    let prompt = if state.candidates.is_empty() {
+                        "Continue"
+                    } else {
+                        super::super::decision_permanent_choice::effect_choice_prompt(
+                            *definition.then,
+                            binding,
+                        )
+                    };
+                    let visibility = match definition.inspection {
+                        crate::card::CollectionInspectionDef::Look => DecisionVisibility::Private,
+                        crate::card::CollectionInspectionDef::Reveal => DecisionVisibility::Public,
+                    };
+                    (state, binding, definition.then, prompt, visibility)
+                }
+                _ => {
+                    return Err(
+                        "object-choice locator does not identify an authored choice".into(),
+                    );
+                }
             };
-            let state = game
-                .effect_choice_decision_state(
-                    definition,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-                .ok_or("object-choice authored chooser is not singular")?;
-            if definition.minimum > 0 && state.candidates.len() <= definition.minimum {
-                return Err(
-                    "object-choice checkpoint encodes a choice that would resolve automatically"
-                        .into(),
-                );
-            }
             validate_authored_decision(
                 observation,
                 state.chooser,
-                "Choose objects",
-                effect_choice_visibility(definition.visibility),
+                prompt,
+                visibility,
                 state.preference,
                 state.minimum,
                 state.maximum,
@@ -517,11 +389,204 @@ fn parse_continuation(
             )?;
             DecisionContinuation::ChooseForEffect {
                 definition: continuation.effect,
-                binding: definition.binding,
+                binding,
                 object: continuation.object,
                 context: continuation.context,
                 candidates: state.candidates,
+                effect: continuation.effect.with_effect(*then),
+            }
+        }
+        group @ (DecisionContinuationSnapshot::ChooseObjectOrderForEffect { .. }
+        | DecisionContinuationSnapshot::LookAtObjectsForEffect { .. }
+        | DecisionContinuationSnapshot::PartitionGroupForEffect { .. }) => {
+            parse_basic_object_collection_continuation(group, observation, game)?
+        }
+        DecisionContinuationSnapshot::ChooseGroupForEffect {
+            continuation: snapshot,
+        } => {
+            let continuation = parse_effect_continuation(snapshot, game)?;
+            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
+                return Err("group-choice locator disagrees with its resolving ability".into());
+            }
+            let EffectDef::ChooseGroup(definition) = continuation.effect.effect else {
+                return Err("group-choice locator does not identify a group choice".into());
+            };
+            let actor = game
+                .effect_player_reference(
+                    definition.actor,
+                    &continuation.object,
+                    &continuation.context,
+                    continuation.effect,
+                )
+                .ok_or("group-choice actor is not singular")?;
+            let first = game.effect_objects(
+                definition.first,
+                &continuation.object,
+                &continuation.context,
+                continuation.effect,
+            );
+            let second = game.effect_objects(
+                definition.second,
+                &continuation.object,
+                &continuation.context,
+                continuation.effect,
+            );
+            if first.is_empty() && second.is_empty() {
+                return Err("group-choice checkpoint encodes two empty groups".into());
+            }
+            let options = [first.as_slice(), second.as_slice()]
+                .into_iter()
+                .enumerate()
+                .map(|(index, group)| {
+                    let names = group
+                        .iter()
+                        .copied()
+                        .map(|target| game.effect_target_option(0, target).label)
+                        .collect::<Vec<_>>();
+                    DecisionOption {
+                        id: u32::try_from(index).unwrap_or(u32::MAX),
+                        label: format!(
+                            "Choose pile {} ({})",
+                            index + 1,
+                            if names.is_empty() {
+                                "empty".into()
+                            } else {
+                                names.join(", ")
+                            }
+                        ),
+                        card: None,
+                        members: group
+                            .iter()
+                            .copied()
+                            .filter_map(|target| game.effect_target_card(target))
+                            .collect(),
+                        ability_text: None,
+                        zone: DecisionZone::None,
+                    }
+                })
+                .collect::<Vec<_>>();
+            let effect = continuation.effect.with_effect(*definition.then);
+            let preference = if crate::game::decision_permanent_choice::effect_moves_group_to_hand(
+                effect.effect,
+                definition.chosen,
+            ) {
+                DecisionPreference::HigherCardValue
+            } else if crate::game::decision_permanent_choice::effect_sacrifices_group(
+                effect.effect,
+                definition.chosen,
+            ) {
+                DecisionPreference::LowerCardValue
+            } else {
+                DecisionPreference::Neutral
+            };
+            validate_authored_decision(
+                observation,
+                actor,
+                "Choose a pile",
+                effect_choice_visibility(definition.visibility),
+                preference,
+                1,
+                1,
+                &options,
+                "group choice",
+            )?;
+            DecisionContinuation::ChooseGroupForEffect {
+                definition: continuation.effect,
+                first,
+                second,
+                object: continuation.object,
+                context: continuation.context,
                 effect: continuation.effect.with_effect(*definition.then),
+            }
+        }
+        DecisionContinuationSnapshot::ChooseOneOfEachForEffect {
+            continuation: snapshot,
+            next,
+            remaining,
+            chosen,
+        } => {
+            let continuation = parse_effect_continuation(snapshot, game)?;
+            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
+                return Err("one-of-each locator disagrees with its resolving ability".into());
+            }
+            let EffectDef::ChooseOneOfEach(definition) = continuation.effect.effect else {
+                return Err("one-of-each locator does not identify an authored choice".into());
+            };
+            let remaining = remaining.iter().copied().map(parse_target).collect::<Vec<_>>();
+            let chosen = chosen.iter().copied().map(parse_target).collect::<Vec<_>>();
+            let authored = game.effect_objects(
+                definition.input,
+                &continuation.object,
+                &continuation.context,
+                continuation.effect,
+            );
+            let combined = remaining
+                .iter()
+                .chain(&chosen)
+                .copied()
+                .collect::<Vec<_>>();
+            if combined.len() != authored.len()
+                || combined
+                    .iter()
+                    .enumerate()
+                    .any(|(index, item)| combined[..index].contains(item))
+                || authored.iter().any(|item| !combined.contains(item))
+                || remaining
+                    != authored
+                        .iter()
+                        .filter(|item| remaining.contains(item))
+                        .copied()
+                        .collect::<Vec<_>>()
+            {
+                return Err("one-of-each progress is not a partition of its authored group".into());
+            }
+            let predicate = definition
+                .predicates
+                .get(*next)
+                .copied()
+                .ok_or("one-of-each progress is past its last predicate")?;
+            let source = continuation.object.source.unwrap_or(continuation.object.id);
+            let candidates = remaining
+                .iter()
+                .copied()
+                .filter(|target| game.bound_object_matches(*target, predicate, source))
+                .collect::<Vec<_>>();
+            if candidates.is_empty() {
+                return Err("one-of-each progress stopped at a predicate with no candidates".into());
+            }
+            let actor = game
+                .effect_player_reference(
+                    definition.actor,
+                    &continuation.object,
+                    &continuation.context,
+                    continuation.effect,
+                )
+                .ok_or("one-of-each actor is not singular")?;
+            let options = candidates
+                .iter()
+                .copied()
+                .enumerate()
+                .map(|(index, target)| game.effect_target_option(index, target))
+                .collect::<Vec<_>>();
+            validate_authored_decision(
+                observation,
+                actor,
+                &Game::one_of_each_prompt(predicate),
+                effect_choice_visibility(definition.visibility),
+                DecisionPreference::HigherCardValue,
+                0,
+                1,
+                &options,
+                "one-of-each choice",
+            )?;
+            DecisionContinuation::ChooseOneOfEachForEffect {
+                definition: continuation.effect,
+                next: *next,
+                candidates,
+                remaining,
+                chosen,
+                object: continuation.object,
+                context: continuation.context,
             }
         }
         DecisionContinuationSnapshot::SimultaneousChoose {
@@ -671,90 +736,6 @@ fn parse_continuation(
                 otherwise: authored.otherwise.map(|effect| scoped.with_effect(*effect)),
             }
         }
-        DecisionContinuationSnapshot::SplitForEffect {
-            continuation: snapshot,
-        } => {
-            let continuation = parse_effect_continuation(snapshot, game)?;
-            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
-                return Err("pile-split locator disagrees with its resolving ability".into());
-            }
-            let EffectDef::SplitIntoPiles(definition) = continuation.effect.effect else {
-                return Err("pile-split locator does not identify an authored partition".into());
-            };
-            let state = game
-                .effect_pile_split_state(
-                    definition,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-                .ok_or("pile-split authored divider or chooser is not singular")?;
-            validate_authored_decision(
-                observation,
-                state.divider,
-                "Separate the objects into two piles",
-                DecisionVisibility::Public,
-                DecisionPreference::BalancedPartition,
-                0,
-                state.items.len(),
-                &state.options,
-                "pile split",
-            )?;
-            DecisionContinuation::SplitForEffect {
-                definition: continuation.effect,
-                chooser: state.chooser,
-                items: state.items,
-                object: continuation.object,
-                context: continuation.context,
-            }
-        }
-        DecisionContinuationSnapshot::ChoosePileForEffect {
-            first,
-            second,
-            continuation: snapshot,
-        } => {
-            let continuation = parse_effect_continuation(snapshot, game)?;
-            if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
-                return Err("pile-choice locator disagrees with its resolving ability".into());
-            }
-            let EffectDef::SplitIntoPiles(definition) = continuation.effect.effect else {
-                return Err("pile-choice locator does not identify an authored partition".into());
-            };
-            let authored = game
-                .effect_pile_split_state(
-                    definition,
-                    &continuation.object,
-                    &continuation.context,
-                    continuation.effect,
-                )
-                .ok_or("pile-choice authored divider or chooser is not singular")?;
-            let first = first.iter().copied().map(parse_target).collect::<Vec<_>>();
-            let second = second.iter().copied().map(parse_target).collect::<Vec<_>>();
-            validate_exact_partition(&authored.items, &first, &second)?;
-            let state =
-                game.effect_pile_choice_state(&first, &second, definition, continuation.effect);
-            validate_authored_decision(
-                observation,
-                authored.chooser,
-                "Choose a pile",
-                DecisionVisibility::Public,
-                state.preference,
-                1,
-                1,
-                &state.options,
-                "pile choice",
-            )?;
-            DecisionContinuation::ChoosePileForEffect {
-                definition: continuation.effect,
-                first,
-                second,
-                chosen: definition.chosen,
-                unchosen: definition.unchosen,
-                object: continuation.object,
-                context: continuation.context,
-                effect: continuation.effect.with_effect(*definition.then),
-            }
-        }
         triggers @ (DecisionContinuationSnapshot::TriggerOrder { .. }
         | DecisionContinuationSnapshot::TriggerPlacement { .. }
         | DecisionContinuationSnapshot::TriggerMode { .. }
@@ -837,28 +818,6 @@ fn parse_continuation(
             DecisionContinuation::SpellLibraryEnd {
                 owner,
                 spell: GameObjectId(*spell),
-            }
-        }
-        DecisionContinuationSnapshot::SeparateIntoPiles {
-            resolving_controller,
-            subject,
-            items,
-            on_complete,
-        } => DecisionContinuation::SeparateIntoPiles {
-            resolving_controller: player(*resolving_controller)?,
-            subject: player(*subject)?,
-            items: items
-                .iter()
-                .map(|option| parse_decision_option_snapshot(&game.catalog, option))
-                .collect::<Result<Vec<_>, String>>()?,
-            on_complete: crate::card::sets::piles_separated_resolver(on_complete)
-                .ok_or("unknown piles-separated resolver")?,
-        },
-        DecisionContinuationSnapshot::ChoosePile { piles, on_complete } => {
-            DecisionContinuation::ChoosePile {
-                piles: parse_pile_split_snapshot(piles, &game.catalog)?,
-                on_complete: crate::card::sets::pile_chosen_resolver(on_complete)
-                    .ok_or("unknown pile-chosen resolver")?,
             }
         }
         DecisionContinuationSnapshot::ChooseColor {

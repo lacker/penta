@@ -14,9 +14,8 @@ use super::super::{
     AbilitySourceRef, ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask,
     CastOffer, CastOfferCost, CastSourceZone, DecisionContinuation, DecisionKind,
     DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeferredBeginTurnEffect, DistributedSelectionProgress,
-    PendingDecision, PendingTrigger, PileSplit, SacrificeFollowup, ScopedEffect, Target,
-    TriggerPlacementBatch, TypedSelectionProgress,
+    DecisionVisibility, DecisionZone, DeferredBeginTurnEffect, GameEvent, PendingDecision,
+    PendingTrigger, SacrificeFollowup, ScopedEffect, Target, TriggerPlacementBatch,
 };
 use super::model::{
     AbilityLocator, AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot,
@@ -24,7 +23,7 @@ use super::model::{
     DecisionCardOriginSnapshot, DecisionCardSnapshot, DecisionContinuationSnapshot,
     DecisionOptionSnapshot, DecisionPreferenceSnapshot, DecisionStateSnapshot,
     DecisionZoneSnapshot, DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot,
-    DiscardChoiceSnapshot, EffectContinuationSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
+    DiscardChoiceSnapshot, EffectContinuationSnapshot, PendingTriggerSnapshot,
     PregameAbilityActionSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
     TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneMoveCauseSnapshot,
     ZonePlacementSnapshot,
@@ -278,81 +277,6 @@ fn continuation_snapshot(
                 target: target_snapshot(*target),
             }
         }
-        DecisionContinuation::GrislySalvage { player, revealed } => {
-            DecisionContinuationSnapshot::GrislySalvage {
-                player: player.index(),
-                revealed: revealed.iter().map(detached_card_snapshot).collect(),
-            }
-        }
-        DecisionContinuation::AugurOfBolas { player, revealed } => {
-            DecisionContinuationSnapshot::AugurOfBolas {
-                player: player.index(),
-                revealed: revealed.iter().map(detached_card_snapshot).collect(),
-            }
-        }
-        DecisionContinuation::TopCardSelection {
-            player,
-            revealed,
-            object,
-            context,
-            effect,
-            ..
-        } => DecisionContinuationSnapshot::TopCardSelection {
-            player: player.index(),
-            revealed: revealed.iter().map(detached_card_snapshot).collect(),
-            continuation: effect_continuation_snapshot(
-                game,
-                viewer,
-                object,
-                context,
-                *effect,
-                visible_rebindings,
-            )?,
-        },
-        DecisionContinuation::DistributedTopCardSelection {
-            progress,
-            object,
-            context,
-            effect,
-            ..
-        } => DecisionContinuationSnapshot::DistributedTopCardSelection {
-            player: progress.player.index(),
-            remaining: progress
-                .remaining
-                .iter()
-                .map(detached_card_snapshot)
-                .collect(),
-            next_destination: progress.next_destination,
-            continuation: effect_continuation_snapshot(
-                game,
-                viewer,
-                object,
-                context,
-                *effect,
-                visible_rebindings,
-            )?,
-        },
-        DecisionContinuation::TypedTopCardSelection {
-            progress,
-            object,
-            context,
-            effect,
-            ..
-        } => DecisionContinuationSnapshot::TypedTopCardSelection {
-            player: progress.player.index(),
-            looker: progress.looker.index(),
-            revealed: progress.revealed.iter().map(detached_card_snapshot).collect(),
-            taken: progress.taken.iter().map(detached_card_snapshot).collect(),
-            next_type: progress.next_type,
-            continuation: effect_continuation_snapshot(
-                game,
-                viewer,
-                object,
-                context,
-                *effect,
-                visible_rebindings,
-            )?,
-        },
         DecisionContinuation::ChainLightning {
             player,
             spell,
@@ -444,7 +368,10 @@ fn continuation_snapshot(
             context,
             ..
         } => {
-            if !matches!(definition.effect, EffectDef::Choose(_)) {
+            if !matches!(
+                definition.effect,
+                EffectDef::Choose(_) | EffectDef::ChooseCardsFromCollection(_)
+            ) {
                 return None;
             }
             DecisionContinuationSnapshot::ChooseForEffect {
@@ -456,6 +383,112 @@ fn continuation_snapshot(
                     *definition,
                     visible_rebindings,
                 )?,
+            }
+        }
+        DecisionContinuation::ChooseObjectOrderForEffect {
+            definition,
+            object,
+            context,
+            ..
+        } => {
+            if !matches!(definition.effect, EffectDef::ChooseObjectOrder(_)) {
+                return None;
+            }
+            DecisionContinuationSnapshot::ChooseObjectOrderForEffect {
+                continuation: effect_continuation_snapshot(
+                    game,
+                    viewer,
+                    object,
+                    context,
+                    *definition,
+                    visible_rebindings,
+                )?,
+            }
+        }
+        DecisionContinuation::LookAtObjectsForEffect {
+            definition,
+            object,
+            context,
+            ..
+        } => {
+            if !matches!(definition.effect, EffectDef::LookAtObjects(_)) {
+                return None;
+            }
+            DecisionContinuationSnapshot::LookAtObjectsForEffect {
+                continuation: effect_continuation_snapshot(
+                    game,
+                    viewer,
+                    object,
+                    context,
+                    *definition,
+                    visible_rebindings,
+                )?,
+            }
+        }
+        DecisionContinuation::PartitionGroupForEffect {
+            definition,
+            object,
+            context,
+            ..
+        } => {
+            if !matches!(definition.effect, EffectDef::PartitionGroup(_)) {
+                return None;
+            }
+            DecisionContinuationSnapshot::PartitionGroupForEffect {
+                continuation: effect_continuation_snapshot(
+                    game,
+                    viewer,
+                    object,
+                    context,
+                    *definition,
+                    visible_rebindings,
+                )?,
+            }
+        }
+        DecisionContinuation::ChooseGroupForEffect {
+            definition,
+            object,
+            context,
+            ..
+        } => {
+            if !matches!(definition.effect, EffectDef::ChooseGroup(_)) {
+                return None;
+            }
+            DecisionContinuationSnapshot::ChooseGroupForEffect {
+                continuation: effect_continuation_snapshot(
+                    game,
+                    viewer,
+                    object,
+                    context,
+                    *definition,
+                    visible_rebindings,
+                )?,
+            }
+        }
+        DecisionContinuation::ChooseOneOfEachForEffect {
+            definition,
+            next,
+            remaining,
+            chosen,
+            object,
+            context,
+            ..
+        } => {
+            if !matches!(definition.effect, EffectDef::ChooseOneOfEach(_)) {
+                return None;
+            }
+            DecisionContinuationSnapshot::ChooseOneOfEachForEffect {
+                continuation: effect_continuation_snapshot(
+                    game,
+                    viewer,
+                    object,
+                    context,
+                    *definition,
+                    visible_rebindings,
+                )?,
+                next: *next,
+                remaining: remaining.iter().copied().map(target_snapshot).collect(),
+                chosen: chosen.iter().copied().map(target_snapshot).collect(),
             }
         }
         DecisionContinuation::SimultaneousChoose {
@@ -512,50 +545,6 @@ fn continuation_snapshot(
                 ability,
                 context: effect_resolution_context_snapshot(context),
                 definition: scoped_effect_snapshot(&definition, *scoped)?,
-            }
-        }
-        DecisionContinuation::SplitForEffect {
-            definition,
-            object,
-            context,
-            ..
-        } => {
-            if !matches!(definition.effect, EffectDef::SplitIntoPiles(_)) {
-                return None;
-            }
-            DecisionContinuationSnapshot::SplitForEffect {
-                continuation: effect_continuation_snapshot(
-                    game,
-                    viewer,
-                    object,
-                    context,
-                    *definition,
-                    visible_rebindings,
-                )?,
-            }
-        }
-        DecisionContinuation::ChoosePileForEffect {
-            definition,
-            first,
-            second,
-            object,
-            context,
-            ..
-        } => {
-            if !matches!(definition.effect, EffectDef::SplitIntoPiles(_)) {
-                return None;
-            }
-            DecisionContinuationSnapshot::ChoosePileForEffect {
-                first: first.iter().copied().map(target_snapshot).collect(),
-                second: second.iter().copied().map(target_snapshot).collect(),
-                continuation: effect_continuation_snapshot(
-                    game,
-                    viewer,
-                    object,
-                    context,
-                    *definition,
-                    visible_rebindings,
-                )?,
             }
         }
         DecisionContinuation::BattlefieldEntryPayment {
@@ -740,26 +729,6 @@ fn continuation_snapshot(
             DecisionContinuationSnapshot::SpellLibraryEnd {
                 owner: owner.index(),
                 spell: spell.0,
-            }
-        }
-        DecisionContinuation::SeparateIntoPiles {
-            resolving_controller,
-            subject,
-            items,
-            on_complete,
-        } => DecisionContinuationSnapshot::SeparateIntoPiles {
-            resolving_controller: resolving_controller.index(),
-            subject: subject.index(),
-            items: items
-                .iter()
-                .map(|option| decision_option_snapshot(&game.catalog, option))
-                .collect::<Option<Vec<_>>>()?,
-            on_complete: on_complete.key().to_owned(),
-        },
-        DecisionContinuation::ChoosePile { piles, on_complete } => {
-            DecisionContinuationSnapshot::ChoosePile {
-                piles: pile_split_snapshot(&game.catalog, piles)?,
-                on_complete: on_complete.key().to_owned(),
             }
         }
         DecisionContinuation::ChooseColor {
@@ -970,6 +939,7 @@ fn continuation_snapshot(
         // this format has no place for yet.
         | DecisionContinuation::BattlefieldEntryExile { .. }
         | DecisionContinuation::BattlefieldExitReplacement { .. }
+        | DecisionContinuation::BattlefieldExitOrder { .. }
         // An activation paused mid-payment carries the whole of what it
         // chose -- its frozen ability text, targets, and modes -- which this
         // format has no place for yet.

@@ -203,6 +203,100 @@ fn the_minus_two_finds_nothing_on_an_empty_board() {
     assert!(game.players[1].graveyard.is_empty());
 }
 
+/// The ultimate is a two-actor workflow: Liliana's controller partitions the
+/// targeted player's permanents, then that player chooses which pile to lose.
+#[test]
+fn the_ultimate_passes_control_between_partition_and_choice() {
+    let (mut game, liliana) = staged(6, &[], &[]);
+    let permanents = [
+        cards::SAVANNAH_LIONS,
+        cards::GRIZZLY_BEARS,
+        cards::WALKING_CORPSE,
+        cards::ORNITHOPTER,
+    ]
+    .into_iter()
+    .map(|definition| {
+        game.put_onto_battlefield(PlayerId::Two, definition)
+            .expect("cataloged")
+    })
+    .collect::<Vec<_>>();
+    drain_pending(&mut game);
+
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| match action {
+            Action::ActivateAbility {
+                source,
+                ability: AbilityOrigin::Printed { ability, .. },
+                targets,
+                ..
+            } => {
+                *source == liliana
+                    && *ability == AbilityId(2)
+                    && targets
+                        .iter()
+                        .flat_map(TargetSelection::targets)
+                        .any(|target| *target == Target::Player(PlayerId::Two))
+            }
+            _ => false,
+        })
+        .expect("the ultimate is offered");
+    game.apply(PlayerId::One, action).expect("it activates");
+    pass_priority_pair(&mut game);
+
+    let partition = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("Liliana's controller partitions the permanents");
+    assert_eq!(partition.player, PlayerId::One);
+    let first = partition.options[..2]
+        .iter()
+        .map(|option| option.id)
+        .collect::<Vec<_>>();
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: partition.id,
+            options: first,
+        },
+    )
+    .expect("the partition is legal");
+
+    let choice = game
+        .observe(PlayerId::Two)
+        .decision
+        .expect("the targeted player chooses a pile");
+    assert_eq!(choice.player, PlayerId::Two);
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: choice.id,
+            options: vec![0],
+        },
+    )
+    .expect("the pile choice is legal");
+    game.check_state_based_actions();
+
+    for permanent in &permanents[..2] {
+        assert!(
+            !game
+                .battlefield
+                .iter()
+                .any(|candidate| candidate.card.id == *permanent),
+            "the chosen first pile is sacrificed",
+        );
+    }
+    for permanent in &permanents[2..] {
+        assert!(
+            game.battlefield
+                .iter()
+                .any(|candidate| candidate.card.id == *permanent),
+            "the unchosen pile remains",
+        );
+    }
+}
+
 /// "A pile can be empty. If the player chooses an empty pile, no permanents
 /// will be sacrificed." Putting the whole board in one pile leaves the other
 /// one empty, and that is the one they take.
@@ -246,7 +340,6 @@ fn an_empty_pile_is_a_pile_they_may_choose() {
             .expect("nothing to answer yet");
     }
 
-    // Everything into one pile, which leaves the other one empty.
     let split = game
         .pending_decisions
         .first()

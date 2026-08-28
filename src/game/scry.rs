@@ -6,6 +6,7 @@ use super::{
 };
 
 impl Game {
+    #[cfg(test)]
     pub(super) fn queue_scry(&mut self, player: PlayerId, count: usize) {
         let count = count.min(self.players[player.index()].library.len());
         let mut revealed = Vec::with_capacity(count);

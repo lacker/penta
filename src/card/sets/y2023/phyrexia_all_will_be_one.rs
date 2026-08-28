@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, SacrificedAmountDef,
-    TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
+    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef,
+    RevealObjectsDef, SacrificedAmountDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{ObjectSetBindingIndex, mana_cost};
 
 // ONE 28 — Planar Disruption
 // Audit: metadata-only — Card rules have not been implemented.
@@ -166,28 +167,61 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
 /// engine is one, so the seven it has are the whole list. The rest go back
 /// underneath in a random order, which is why the look is worth so much
 /// less to the player who did it than the cards it kept.
-static ATRAXA_DIGS_TEN: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(10),
-    object: None,
-    minimum: 0,
-    maximum: 0,
-    select_all_matching: false,
-    select_one_of_each_type: true,
-    reveal_inspected: true,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
+const ATRAXA_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const ATRAXA_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const ATRAXA_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const ATRAXA_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+
+static ATRAXA_CARD_TYPES: [ObjectPredicateDef; 7] = [
+    ObjectPredicateDef::HasType(CardType::Artifact),
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::HasType(CardType::Enchantment),
+    ObjectPredicateDef::HasType(CardType::Instant),
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::HasType(CardType::Planeswalker),
+    ObjectPredicateDef::HasType(CardType::Sorcery),
+];
+static ATRAXA_PUT_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ATRAXA_RANDOMIZED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Bottom,
+    moved: None,
+    then: &EffectDef::None,
+});
+static ATRAXA_RANDOMIZE_REST: EffectDef =
+    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+        input: ObjectSetDef::Binding(ATRAXA_REST),
+        randomized: ATRAXA_RANDOMIZED,
+        then: &ATRAXA_PUT_REST,
+    });
+static ATRAXA_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &ATRAXA_RANDOMIZE_REST,
+});
+static ATRAXA_CHOOSE: EffectDef = EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
+    actor: PlayerRefDef::EffectController,
+    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
+    predicates: &ATRAXA_CARD_TYPES,
+    chosen: ATRAXA_CHOSEN,
+    remainder: ATRAXA_REST,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &ATRAXA_PUT_CHOSEN,
+});
+static ATRAXA_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
+    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
+    then: &ATRAXA_CHOOSE,
+});
+static ATRAXA_DIGS_TEN: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(10),
+    ATRAXA_INSPECTED,
+    &ATRAXA_REVEAL,
+);
 
 static ATRAXA_ABILITIES: [AbilityDef; 5] = [
     abilities::flying(),
@@ -198,11 +232,7 @@ static ATRAXA_ABILITIES: [AbilityDef; 5] = [
         "When this creature enters, reveal the top ten cards of your library. For each card \
          type, you may put a card of that type from among the revealed cards into your hand. Put \
          the rest on the bottom of your library in a random order.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &ATRAXA_DIGS_TEN,
-        },
+        ATRAXA_DIGS_TEN,
     ),
 ];
 

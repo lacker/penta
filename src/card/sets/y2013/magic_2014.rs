@@ -21,15 +21,16 @@ use crate::card::sets::{
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorChoiceOperationDef, ColorSet,
-    ComparisonDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, HalvedValueDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayerRefDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, ScaledValueDef,
-    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
+    ClassifyObjectsDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, CounterKind,
+    CreatureTypeSetDef, DamageEventMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    HalvedValueDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef,
+    ScaledValueDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 static TAPPED_ZOMBIE: EffectDef =
@@ -784,31 +785,12 @@ pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::ne
     CardSet::Magic2014,
     CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Look at the top three cards of your library. Put one of them into your hand and the rest into your graveyard.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &TopCardSelectionDef {
-                count: ValueDef::Constant(3),
-                object: None,
-                minimum: 1,
-                maximum: 1,
-                select_all_matching: false,
-                select_one_of_each_type: false,
-                reveal_inspected: false,
-                reveal_selected: false,
-                counted: None,
-                selected_zone: ZoneKind::Hand,
-                selected_placement: ZonePlacement::Top,
-                rest_zone: ZoneKind::Graveyard,
-                rest_placement: ZonePlacement::Top,
-                rest_random_order: false,
-                rest_counters: None,
-                selected_order_follows_choice: false,
-                then: None,
-            selected_hidden: false,
-            selected_linked_to_source: false,
-            selected_face_down: None,},
-        },
+        abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
+            ValueDef::Constant(3),
+            ObjectPredicateDef::Any,
+            1,
+            1,
+        ),
     )),
 );
 
@@ -2660,28 +2642,42 @@ pub(in crate::card::sets) static HUNT_THE_WEAK: CardRecord = CardRecord::new(
 /// Only a land may be taken, and taking it is optional -- a minimum of zero
 /// is the "you may". Whatever is not taken goes back on top rather than
 /// anywhere else, so a nonland card is still the next draw.
-static INTO_THE_WILDS_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(1),
-    object: Some(ObjectPredicateDef::HasType(CardType::Land)),
+const WILDS_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const WILDS_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const WILDS_OTHER: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const WILDS_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static WILDS_PUT_LAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(WILDS_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Battlefield,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &EffectDef::None,
+});
+static WILDS_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(WILDS_CHOSEN),
+    unchosen: None,
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(WILDS_LAND),
+    exclude: None,
     minimum: 0,
     maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Battlefield,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
+    visibility: ChoiceVisibilityDef::Private,
+    then: &WILDS_PUT_LAND,
+});
+static WILDS_CLASSIFY: EffectDef = EffectDef::ClassifyObjects(ClassifyObjectsDef {
+    input: ObjectSetDef::Binding(WILDS_INSPECTED),
+    object: ObjectPredicateDef::HasType(CardType::Land),
+    matching: WILDS_LAND,
+    remainder: WILDS_OTHER,
+    then: &WILDS_CHOOSE,
+});
+static INTO_THE_WILDS_LOOK: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::Constant(1),
+    WILDS_INSPECTED,
+    &WILDS_CLASSIFY,
+);
 
 pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_with_legacy_id(
     2007,
@@ -2696,11 +2692,7 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &INTO_THE_WILDS_LOOK,
-        },
+        INTO_THE_WILDS_LOOK,
     )),
 );
 

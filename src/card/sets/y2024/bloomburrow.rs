@@ -6,8 +6,8 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -225,29 +225,6 @@ static A_NONCREATURE_NONLAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(
     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
 ]);
 
-static TRAINER_DIGS: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(A_NONCREATURE_NONLAND_CARD),
-    minimum: 0,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: true,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-};
-
 static TRAINER_ARRIVES: TriggerEventDef = TriggerEventDef::zone_changed(
     ObjectPredicateDef::Source,
     None,
@@ -282,11 +259,12 @@ pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::n
              reveal a noncreature, nonland card from among them and put it into your hand. Put \
              the rest on the bottom of your library in a random order.",
             TRAINER_ARRIVES,
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &TRAINER_DIGS,
-            },
+            abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                ValueDef::Constant(4),
+                A_NONCREATURE_NONLAND_CARD,
+                0,
+                1,
+            ),
         ),
     ]),
 );

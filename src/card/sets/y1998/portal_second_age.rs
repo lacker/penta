@@ -1,9 +1,10 @@
 //! Portal Second Age cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::abilities;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, TopCardSelectionDef, ValueDef, ZoneKind, ZonePlacement,
+    EffectRecipientDef, ObjectPredicateDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -58,29 +59,6 @@ pub(in crate::card::sets) static EXHAUSTION: CardRecord = CardRecord::new(
 );
 
 // P02 46 — Sleight of Hand
-static SLEIGHT_SELECTION: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(2),
-    object: None,
-    minimum: 1,
-    maximum: 1,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new_with_legacy_id(
     311,
     "Sleight of Hand",
@@ -88,11 +66,12 @@ pub(in crate::card::sets) static SLEIGHT_OF_HAND: CardRecord = CardRecord::new_w
     CardSet::PortalSecondAge,
     CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
         "Look at the top two cards of your library. Put one of them into your hand and the other on the bottom of your library.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &SLEIGHT_SELECTION,
-        },
+        abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+            ValueDef::Constant(2),
+            ObjectPredicateDef::Any,
+            1,
+            1,
+        ),
     )),
 );
 

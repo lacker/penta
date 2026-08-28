@@ -2,19 +2,18 @@ use crate::action::{AbilityOrigin, Target};
 use crate::card::{
     AbilityDef, BattlefieldEntryScalarChoiceDef, CardTypeSet, ColorChoiceOperationDef, ColorSet,
     CounterKind, EffectDef, ManaCost, ModalSpellDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ReplacementEffectDef, SelectionDestinationDef, TopCardSelectionDef, TurnKindDef, ZoneKind,
-    ZonePlacement,
+    ReplacementEffectDef, TurnKindDef, ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
 use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
 
 use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
-    CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DecisionOption, DecisionZone,
-    DrawReplacement, EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
-    PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit,
-    PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota,
-    SacrificedAmountDef, ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
+    CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DecisionZone, DrawReplacement,
+    EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
+    PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger,
+    ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
+    ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
 };
 
 /// What runs once a demanded sacrifice has been chosen and made. The
@@ -504,6 +503,53 @@ pub(super) enum DecisionContinuation {
         candidates: Vec<Target>,
         effect: ScopedEffect,
     },
+    /// Every member of one frozen collection is waiting to be submitted in the
+    /// order a later effect should consume it.
+    ChooseObjectOrderForEffect {
+        definition: ScopedEffect,
+        candidates: Vec<Target>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
+    },
+    /// A pure private look has shown its collection and waits only for the viewer
+    /// to acknowledge it before resolution continues.
+    LookAtObjectsForEffect {
+        definition: ScopedEffect,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
+    },
+    /// The divider is choosing the first half of a generic two-pile
+    /// partition.  Both piles are bound before its nested effect resumes.
+    PartitionGroupForEffect {
+        definition: ScopedEffect,
+        items: Vec<Target>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
+    },
+    /// Two previously formed groups wait for one player to choose between
+    /// them.
+    ChooseGroupForEffect {
+        definition: ScopedEffect,
+        first: Vec<Target>,
+        second: Vec<Target>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+        effect: ScopedEffect,
+    },
+    /// One actor is making an optional distinct pick for each predicate in a
+    /// generic choose-one-of-each stage.
+    ChooseOneOfEachForEffect {
+        definition: ScopedEffect,
+        next: usize,
+        candidates: Vec<Target>,
+        remaining: Vec<Target>,
+        chosen: Vec<Target>,
+        object: Box<StackObject>,
+        context: EffectResolutionContext,
+    },
     /// A mana payment offered during effect resolution, with either branch
     /// able to continue the same effect program.
     PayOr {
@@ -527,26 +573,6 @@ pub(super) enum DecisionContinuation {
         context: EffectResolutionContext,
         effect: ScopedEffect,
     },
-    /// The divider has selected the first pile. The chooser still has to
-    /// choose between the two typed groups before the nested effect runs.
-    SplitForEffect {
-        definition: ScopedEffect,
-        chooser: PlayerId,
-        items: Vec<Target>,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-    },
-    /// The divider's two piles, waiting for the chooser to name one.
-    ChoosePileForEffect {
-        definition: ScopedEffect,
-        first: Vec<Target>,
-        second: Vec<Target>,
-        chosen: ObjectSetBindingIndex,
-        unchosen: ObjectSetBindingIndex,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        effect: ScopedEffect,
-    },
     /// The first card a player drew this turn, waiting for one optional
     /// private draw-specific action. An empty answer takes no action.
     DrawActionWindow {
@@ -560,30 +586,11 @@ pub(super) enum DecisionContinuation {
         card: GameObjectId,
         ability: AbilityOrigin,
     },
-    /// A card-owned resolver has separated object-backed options into two
-    /// piles. The shared runtime owns choice mechanics; the card owns what a
-    /// chosen pile means.
-    SeparateIntoPiles {
-        resolving_controller: PlayerId,
-        subject: PlayerId,
-        items: Vec<DecisionOption>,
-        on_complete: PilesSeparated,
-    },
-    ChoosePile {
-        piles: PileSplit,
-        on_complete: PileChosen,
-    },
     /// A sacrifice an effect demanded, chosen by the sacrificing player.
     SacrificeOfChoice {
         followup: Option<SacrificeFollowup>,
         declined: Option<SacrificeDeclined>,
         optional: bool,
-    },
-    /// Holds the revealed cards while the caster decides which to keep; they
-    /// have already left the library, so the continuation must place them all.
-    GrislySalvage {
-        player: PlayerId,
-        revealed: Vec<CardInstance>,
     },
     Balance {
         controller: PlayerId,
@@ -624,43 +631,6 @@ pub(super) enum DecisionContinuation {
     TetravusAssemble {
         source: GameObjectId,
     },
-    /// Augur of Bolas holding the three cards it looked at; they have already
-    /// left the library, so the continuation must place all of them.
-    AugurOfBolas {
-        player: PlayerId,
-        revealed: Vec<CardInstance>,
-    },
-    /// A generic private top-of-library selection. The cards have already
-    /// left the library, so both groups and any deferred follow-up live here.
-    TopCardSelection {
-        player: PlayerId,
-        revealed: Vec<CardInstance>,
-        selection: &'static TopCardSelectionDef,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        effect: ScopedEffect,
-    },
-    /// A private top-of-library selection that asks once per card type
-    /// rather than once for a bounded group. The cards have already left the
-    /// library, so both piles and the deferred follow-up live here, the same
-    /// way they do for the ordinary selection above.
-    TypedTopCardSelection {
-        progress: TypedSelectionProgress,
-        selection: &'static TopCardSelectionDef,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        effect: ScopedEffect,
-    },
-    /// A look whose cards each go somewhere different, suspended between
-    /// destinations. The cards are out of the library while the choices are
-    /// made, so they live here until every destination has been answered.
-    DistributedTopCardSelection {
-        progress: DistributedSelectionProgress,
-        destinations: &'static [SelectionDestinationDef],
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        effect: ScopedEffect,
-    },
     /// The affected object's controller chooses which currently applicable
     /// replacement effect to apply next.
     BattlefieldEntryReplacement {
@@ -679,6 +649,13 @@ pub(super) enum DecisionContinuation {
     BattlefieldExitReplacement {
         batch: PendingBattlefieldExitBatch,
         candidates: Vec<ApplicableZoneMoveReplacement>,
+    },
+    /// Replacement effects for a simultaneous exit batch are final. One
+    /// library owner is now arranging the cards that the event puts into the
+    /// same position, with later APNAP groups still waiting behind it.
+    BattlefieldExitOrder {
+        batch: PendingBattlefieldExitBatch,
+        remaining: Vec<Vec<GameObjectId>>,
     },
     /// A replacement effect suspended while its controller chooses whether to
     /// pay. The prospective event itself remains at the front of the queue.
@@ -795,28 +772,4 @@ pub(super) struct SearchFollowUp {
     pub(super) object: StackObject,
     pub(super) context: EffectResolutionContext,
     pub(super) effect: ScopedEffect,
-}
-
-/// How far a per-card-type selection has got: which cards are still on the
-/// table, which have been taken, and which type is asked about next. The
-/// piles travel together because the cards have already left the library and
-/// nothing else is holding them.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct TypedSelectionProgress {
-    pub(super) player: PlayerId,
-    /// Who is asked, which is the library's owner unless something else is
-    /// doing the looking.
-    pub(super) looker: PlayerId,
-    pub(super) revealed: Vec<CardInstance>,
-    pub(super) taken: Vec<CardInstance>,
-    pub(super) next_type: usize,
-}
-
-/// How far a distributed look has got: which cards are still in hand to be
-/// assigned, and which destination is asked about next.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct DistributedSelectionProgress {
-    pub(super) player: PlayerId,
-    pub(super) remaining: Vec<CardInstance>,
-    pub(super) next_destination: usize,
 }

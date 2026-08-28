@@ -9,13 +9,13 @@ use serde::{Deserialize, Serialize};
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot,
     ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, BalancePhaseSnapshot,
-    BalanceTaskSnapshot, CounterKindSnapshot, DecisionOptionSnapshot,
-    DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DetachedStackSnapshot,
-    DiscardChoiceSnapshot, DrawReplacementSnapshot, EffectContinuationSnapshot,
-    EffectResolutionContextSnapshot, ManaSnapshot, PendingTriggerSnapshot, PileSplitSnapshot,
-    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedEffectPaymentSnapshot,
-    ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot,
-    TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    BalanceTaskSnapshot, CounterKindSnapshot, DeferredBeginTurnEffectSnapshot,
+    DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
+    EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
+    PendingTriggerSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
+    ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot,
+    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot,
+    ZonePlacementSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -98,10 +98,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         chosen: Vec<DiscardChoiceSnapshot>,
         cause: ZoneMoveCauseSnapshot,
     },
-    GrislySalvage {
-        player: usize,
-        revealed: Vec<DetachedCardSnapshot>,
-    },
     SacrificeToTotalPower {
         player: usize,
         /// How much power is still owed. Zero or less means the payer may
@@ -126,35 +122,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         searched: usize,
         zone: ZoneKindSnapshot,
         binding: usize,
-        continuation: EffectContinuationSnapshot,
-    },
-    AugurOfBolas {
-        player: usize,
-        revealed: Vec<DetachedCardSnapshot>,
-    },
-    TopCardSelection {
-        player: usize,
-        revealed: Vec<DetachedCardSnapshot>,
-        continuation: EffectContinuationSnapshot,
-    },
-    /// A look whose cards each go somewhere different. The cards are
-    /// written down because they are out of the library while the choices
-    /// are made, and the index says which destination is being asked about.
-    DistributedTopCardSelection {
-        player: usize,
-        remaining: Vec<DetachedCardSnapshot>,
-        next_destination: usize,
-        continuation: EffectContinuationSnapshot,
-    },
-    /// A selection that asks once per card type. Both piles are written
-    /// down: the cards have already left the library, and which of them were
-    /// taken by an earlier type is part of the pending question.
-    TypedTopCardSelection {
-        player: usize,
-        looker: usize,
-        revealed: Vec<DetachedCardSnapshot>,
-        taken: Vec<DetachedCardSnapshot>,
-        next_type: usize,
         continuation: EffectContinuationSnapshot,
     },
     ChainLightning {
@@ -199,6 +166,24 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ChooseForEffect {
         continuation: EffectContinuationSnapshot,
     },
+    ChooseObjectOrderForEffect {
+        continuation: EffectContinuationSnapshot,
+    },
+    LookAtObjectsForEffect {
+        continuation: EffectContinuationSnapshot,
+    },
+    PartitionGroupForEffect {
+        continuation: EffectContinuationSnapshot,
+    },
+    ChooseGroupForEffect {
+        continuation: EffectContinuationSnapshot,
+    },
+    ChooseOneOfEachForEffect {
+        continuation: EffectContinuationSnapshot,
+        next: usize,
+        remaining: Vec<TargetSnapshot>,
+        chosen: Vec<TargetSnapshot>,
+    },
     SimultaneousChoose {
         continuation: EffectContinuationSnapshot,
         task: usize,
@@ -212,14 +197,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         ability: AbilityLocator,
         context: EffectResolutionContextSnapshot,
         definition: ScopedEffectSnapshot,
-    },
-    SplitForEffect {
-        continuation: EffectContinuationSnapshot,
-    },
-    ChoosePileForEffect {
-        first: Vec<TargetSnapshot>,
-        second: Vec<TargetSnapshot>,
-        continuation: EffectContinuationSnapshot,
     },
     BattlefieldEntryPayment {
         context: ReplacementEffectContextSnapshot,
@@ -312,16 +289,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     ExploredCardPlacement {
         player: usize,
         revealed: u32,
-    },
-    SeparateIntoPiles {
-        resolving_controller: usize,
-        subject: usize,
-        items: Vec<DecisionOptionSnapshot>,
-        on_complete: String,
-    },
-    ChoosePile {
-        piles: PileSplitSnapshot,
-        on_complete: String,
     },
     SacrificeOfChoice {
         followup: Option<Box<EffectContinuationSnapshot>>,

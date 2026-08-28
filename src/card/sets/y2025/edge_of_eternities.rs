@@ -4,15 +4,16 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ComparisonDef, CounterKind, CreatureTypeSetDef, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, EmblemCharacteristics, GraveyardPlayPermissionDef, HalvedValueDef,
-    ManaColor, ModalSpellDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, QuantifierDef, ReplacementAbilityDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
+    GraveyardPlayPermissionDef, HalvedValueDef, ManaColor, ModalSpellDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, QuantifierDef, RandomizeObjectOrderDef,
+    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef,
+    TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // EOE 2 — Tezzeret, Cruel Captain
 static AN_ARTIFACT_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -246,55 +247,71 @@ static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-/// One selection differs from the other only in how many it keeps, so the
-/// two are the same shape twice rather than a count the spell could carry:
-/// how many cards a look takes is printed on it, and this card prints two
-/// numbers.
-const fn consult_selection(cards: u8) -> TopCardSelectionDef {
-    TopCardSelectionDef {
-        count: ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-        object: None,
-        minimum: cards,
-        maximum: cards,
-        select_all_matching: false,
-        select_one_of_each_type: false,
-        reveal_inspected: false,
-        reveal_selected: false,
-        counted: None,
-        selected_zone: ZoneKind::Hand,
-        selected_placement: ZonePlacement::Top,
-        selected_hidden: false,
-        selected_linked_to_source: false,
-        selected_face_down: None,
-        rest_zone: ZoneKind::Library,
-        rest_placement: ZonePlacement::Bottom,
-        rest_random_order: true,
-        rest_counters: None,
-        selected_order_follows_choice: false,
-        then: None,
-    }
-}
-
-static CONSULT_ONE: TopCardSelectionDef = consult_selection(1);
-
-static CONSULT_TWO: TopCardSelectionDef = consult_selection(2);
+const CONSULT_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const CONSULT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const CONSULT_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const CONSULT_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+static CONSULT_PUT_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(CONSULT_RANDOMIZED),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Library,
+    placement: ZonePlacement::Bottom,
+    moved: None,
+    then: &EffectDef::None,
+});
+static CONSULT_RANDOMIZE: EffectDef = EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
+    input: ObjectSetDef::Binding(CONSULT_REST),
+    randomized: CONSULT_RANDOMIZED,
+    then: &CONSULT_PUT_REST,
+});
+static CONSULT_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
+    input: ObjectSetDef::Binding(CONSULT_CHOSEN),
+    from: Some(ZoneKind::Library),
+    zone: ZoneKind::Hand,
+    placement: ZonePlacement::Top,
+    moved: None,
+    then: &CONSULT_RANDOMIZE,
+});
+static CONSULT_CHOOSE_ONE: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(CONSULT_CHOSEN),
+    unchosen: Some(CONSULT_REST),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(CONSULT_INSPECTED),
+    exclude: None,
+    minimum: 1,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &CONSULT_PUT_CHOSEN,
+});
+static CONSULT_CHOOSE_TWO: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Objects(CONSULT_CHOSEN),
+    unchosen: Some(CONSULT_REST),
+    chooser: PlayerRefDef::EffectController,
+    candidates: ObjectSetDef::Binding(CONSULT_INSPECTED),
+    exclude: None,
+    minimum: 2,
+    maximum: 2,
+    visibility: ChoiceVisibilityDef::Private,
+    then: &CONSULT_PUT_CHOSEN,
+});
 
 static CONSULT_WAS_KICKED: TriggerConditionDef =
     TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked);
 
 static CONSULT_NOT_KICKED: TriggerConditionDef = TriggerConditionDef::Not(&CONSULT_WAS_KICKED);
 
-static CONSULT_LOOK_ONE: EffectDef = EffectDef::LookAtTopAndSelect {
-    player: EffectRecipientDef::Controller,
-    looker: EffectRecipientDef::Controller,
-    selection: &CONSULT_ONE,
-};
-
-static CONSULT_LOOK_TWO: EffectDef = EffectDef::LookAtTopAndSelect {
-    player: EffectRecipientDef::Controller,
-    looker: EffectRecipientDef::Controller,
-    selection: &CONSULT_TWO,
-};
+static CONSULT_LOOK_ONE: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
+    CONSULT_INSPECTED,
+    &CONSULT_CHOOSE_ONE,
+);
+static CONSULT_LOOK_TWO: EffectDef = abilities::bind_top_cards_then(
+    PlayerRefDef::EffectController,
+    ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
+    CONSULT_INSPECTED,
+    &CONSULT_CHOOSE_TWO,
+);
 
 /// The two halves are complementary conditions on one fact rather than an
 /// effect with a branch, so each reads the way its own printed clause does.

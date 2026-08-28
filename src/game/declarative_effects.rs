@@ -14,6 +14,7 @@ mod installed_triggers;
 mod linked_exiles;
 mod mana;
 mod move_to_zone;
+mod object_collections;
 mod permanent_state;
 mod player_state;
 mod prevention;
@@ -55,6 +56,35 @@ impl Game {
             }
             EffectDef::Choose(definition) => {
                 self.queue_effect_choice(definition, object, context, scoped);
+            }
+            EffectDef::ChooseCardsFromCollection(definition) => {
+                self.queue_collection_card_choice(definition, object, context, scoped);
+            }
+            EffectDef::BindObjects(_)
+            | EffectDef::IfNoObjects(_)
+            | EffectDef::ClassifyObjects(_)
+            | EffectDef::RevealAndClassifyCards(_)
+            | EffectDef::CombineObjects(_)
+            | EffectDef::RandomizeObjectOrder(_)
+            | EffectDef::RevealObjects(_)
+            | EffectDef::MoveObjects(_)
+            | EffectDef::PutObjectsOntoBattlefieldFaceDown(_) => {
+                self.resolve_object_collection_effect(scoped, object, context);
+            }
+            EffectDef::ChooseObjectOrder(definition) => {
+                self.queue_choose_object_order(definition, object, context, scoped);
+            }
+            EffectDef::LookAtObjects(definition) => {
+                self.queue_look_at_objects(definition, object, context, scoped);
+            }
+            EffectDef::PartitionGroup(definition) => {
+                self.queue_partition_group(definition, object, context, scoped);
+            }
+            EffectDef::ChooseGroup(definition) => {
+                self.queue_choose_group(definition, object, context, scoped);
+            }
+            EffectDef::ChooseOneOfEach(definition) => {
+                self.queue_choose_one_of_each(definition, object, context, scoped);
             }
             EffectDef::SimultaneousChoose(definition) => {
                 self.queue_simultaneous_choice(definition, object, context, scoped);
@@ -115,9 +145,6 @@ impl Game {
                         .otherwise
                         .map(|effect| scoped.with_effect(*effect)),
                 );
-            }
-            EffectDef::SplitIntoPiles(definition) => {
-                self.queue_effect_pile_split(definition, object, context, scoped);
             }
             EffectDef::AddMana(_) | EffectDef::AddManaEqualTo { .. } => {
                 self.resolve_mana_effect(scoped, object, &context);
@@ -222,16 +249,12 @@ impl Game {
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
-            | EffectDef::ManifestDread { .. }
             | EffectDef::Cascade
             | EffectDef::LookAtHand { .. }
             | EffectDef::LookAtRandomCardInHand { .. }
             | EffectDef::RevealAtRandomFromHand { .. }
             | EffectDef::RevealHand { .. }
-            | EffectDef::LookAtTopAndSelect { .. }
-            | EffectDef::LookAtTopAndDistribute { .. }
             | EffectDef::SearchZone { .. }
-            | EffectDef::Scry { .. }
             | EffectDef::ChooseCards { .. }
             | EffectDef::ReplaceNextDrawThisTurn { .. } => {
                 self.resolve_hand_and_library_effect(scoped, object, &context);
@@ -547,6 +570,7 @@ impl Game {
                 }
             }
             EffectDef::ExileLinkedToSource { .. }
+            | EffectDef::PermitLookAtExiled { .. }
             | EffectDef::ExileGrantingOwnerPlay { .. }
             | EffectDef::ExileGrantingControllerPlayThisTurn { .. }
             | EffectDef::MayPlayWithoutPaying { .. }
@@ -618,16 +642,6 @@ impl Game {
                     return;
                 };
                 self.install_trigger_from(installed, scoped, object, context, source_ability);
-            }
-            EffectDef::BindMatching {
-                objects,
-                binding,
-                then,
-            } => {
-                let bound = self.effect_objects(objects, object, &context, scoped);
-                let mut context = context;
-                context.bind_object_group(binding, bound);
-                self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::ChooseCardName {
                 chooser,

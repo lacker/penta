@@ -7,8 +7,8 @@ use crate::card::{
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, InstalledTriggerDef, LikelihoodDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1561,31 +1561,6 @@ pub(in crate::card::sets) static ORCISH_CAPTAIN: CardRecord = CardRecord::new_wi
 );
 
 // FEM 61a — Orcish Spy
-/// Nothing is taken and nothing moves: the whole effect is the looking, so
-/// the selection takes zero of the three and puts them back where they were.
-static ORCISH_SPY_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(3),
-    object: None,
-    minimum: 0,
-    maximum: 0,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 static ORCISH_SPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
@@ -1600,11 +1575,10 @@ pub(in crate::card::sets) static ORCISH_SPY: CardRecord = CardRecord::new_with_l
             "{T}: Look at the top three cards of target player's library.",
             &[AbilityCostDef::TapSource],
             &ORCISH_SPY_TARGET,
-            EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                looker: EffectRecipientDef::Controller,
-                selection: &ORCISH_SPY_LOOK,
-            },
+            abilities::look_at_top_cards(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(3),
+            ),
         ),
     ),
 );

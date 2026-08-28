@@ -119,6 +119,10 @@ pub enum ObjectSetDef {
     /// and a drawn card that left and returned is a new object and no longer
     /// belongs to this set.
     CardsDrawnThisTurnInHand(PlayerRefDef),
+    /// Every permanent controlled by one resolved player. Unlike a query's
+    /// controller relation, this can follow an authored player reference such
+    /// as the player chosen in a target slot.
+    PermanentsControlledBy(PlayerRefDef),
     /// The members of a binding that match a predicate. "Put a creature card
     /// from among them into your hand" names a subset of what a mill just
     /// bound, which neither a plain binding nor a zone query can say: the
@@ -288,6 +292,7 @@ impl EffectRecipientDef {
                 ObjectSetDef::Binding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
@@ -314,6 +319,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::Binding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)

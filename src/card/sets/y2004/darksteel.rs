@@ -40,28 +40,6 @@ pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
 );
 
 // DST 138 — Serum Powder
-static SERUM_POWDER_EXILE_AND_DRAW: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-    },
-];
-
-static SERUM_POWDER_MULLIGAN: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::Query(ObjectQueryDef::matching(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Hand],
-        PlayerRelation::You,
-    )),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &EffectDef::Sequence(&SERUM_POWDER_EXILE_AND_DRAW),
-};
-
 pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8330afd6-f43a-4955-a704-8f2b963cd0c6"),
     "Serum Powder",
@@ -75,7 +53,29 @@ pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
         ),
         AbilityDef::mulligan_action(
             "Any time you could mulligan and this card is in your hand, you may exile all the cards from your hand, then draw that many cards. (You can do this in addition to taking mulligans.)",
-            SERUM_POWDER_MULLIGAN,
+            abilities::bind_objects_then(
+                crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerRelation::You,
+                    ),
+                )),
+                ObjectSetBindingIndex::PRIMARY,
+                &EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        )),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                    },
+                ]),
+            ),
         ),
     ]),
 );

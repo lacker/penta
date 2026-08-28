@@ -276,7 +276,8 @@ fn validate_object_set_shape(
             validate_object_reference_shape(reference, targets)
         }
         ObjectSetDef::Query(query) => validate_query_shape(query, targets),
-        ObjectSetDef::CardsDrawnThisTurnInHand(player) => {
+        ObjectSetDef::CardsDrawnThisTurnInHand(player)
+        | ObjectSetDef::PermanentsControlledBy(player) => {
             validate_player_reference_shape(player, targets)
         }
         ObjectSetDef::LegalTargets(target) => {
@@ -721,7 +722,8 @@ fn recipient_may_name_nonbattlefield_object(
             )
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_),
+            | ObjectSetDef::SharingNameWith(_)
+            | ObjectSetDef::PermanentsControlledBy(_),
         )
         // Players and the creatures they control: nothing outside the
         // battlefield is named either way.
@@ -783,7 +785,8 @@ fn recipient_nonbattlefield_zones_support_flashback(
             )
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_),
+            | ObjectSetDef::SharingNameWith(_)
+            | ObjectSetDef::PermanentsControlledBy(_),
         )
         | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
         | EffectRecipientSetDef::DefenderOf(_)

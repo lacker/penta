@@ -3,8 +3,8 @@ use super::{
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, Game, GameObjectId, StackObject,
     StackObjectKind, Target, ZoneKind, applicable_part_ids,
 };
+use crate::card::ChooseDef;
 use crate::card::ZonePlacement;
-use crate::card::{ChooseDef, SplitIntoPilesDef};
 
 impl Game {
     /// True when a spell had targets and every one of them is now illegal.
@@ -73,15 +73,60 @@ impl Game {
                     || Self::effect_applies_to_source(*otherwise, expected)
             }
             EffectDef::Choose(ChooseDef { then, .. })
-            | EffectDef::SplitIntoPiles(SplitIntoPilesDef { then, .. })
             | EffectDef::ChooseCardName { then, .. }
             | EffectDef::ForEachInBinding { effect: then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::BindMatching { then, .. }
-            | EffectDef::SelectAtRandomFromZone { then, .. } => {
+            | EffectDef::SelectAtRandomFromZone { then, .. }
+            | EffectDef::PermitLookAtExiled { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
+            }
+            EffectDef::ChooseCardsFromCollection(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::LookAtObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::ChooseObjectOrder(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::ClassifyObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::RevealAndClassifyCards(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::CombineObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::ChooseOneOfEach(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::ChooseGroup(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::BindObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::IfNoObjects(definition) => {
+                Self::effect_applies_to_source(*definition.if_empty, expected)
+                    || Self::effect_applies_to_source(*definition.otherwise, expected)
+            }
+            EffectDef::PartitionGroup(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::RandomizeObjectOrder(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::RevealObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::MoveObjects(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
+            }
+            EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
+                Self::effect_applies_to_source(*definition.then, expected)
             }
             EffectDef::SimultaneousChoose(choice) => {
                 Self::effect_applies_to_source(*choice.then, expected)
@@ -141,13 +186,10 @@ impl Game {
             | EffectDef::SearchZonesAndExileRest { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
-            | EffectDef::ManifestDread { .. }
             | EffectDef::Cascade
             | EffectDef::Proliferate
             | EffectDef::Explore { .. }
             | EffectDef::SearchZone { then: None, .. }
-            | EffectDef::LookAtTopAndSelect { .. }
-            | EffectDef::LookAtTopAndDistribute { .. }
             | EffectDef::LookAtHand { .. }
             | EffectDef::ExileOneFromEachZone(_)
             | EffectDef::PermitCastFromGraveyardThisTurn { .. }
@@ -173,7 +215,6 @@ impl Game {
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
             | EffectDef::SetLifeTotal { .. }
-            | EffectDef::Scry { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)

@@ -88,171 +88,6 @@ fn payment_decision_options(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn validate_top_card_selection_observation(
-    game: &Game,
-    observation: &DecisionObservation,
-    player: PlayerId,
-    revealed: &[super::super::CardInstance],
-    selection: &'static crate::card::TopCardSelectionDef,
-    object: &super::super::StackObject,
-    context: &super::super::EffectResolutionContext,
-    scoped: ScopedEffect,
-) -> Result<(), String> {
-    let requested = game
-        .effect_value(selection.count, object, context, scoped)
-        .max(0);
-    let requested = usize::try_from(requested).unwrap_or(usize::MAX);
-    let available_before_inspection = game.players[player.index()]
-        .library
-        .len()
-        .saturating_add(revealed.len());
-    if revealed.len() != requested.min(available_before_inspection) {
-        return Err("top-card selection inspected count disagrees with its authored effect".into());
-    }
-    let source = object.source.unwrap_or(object.id);
-    let eligible = revealed
-        .iter()
-        .filter(|card| {
-            selection.object.is_none_or(|predicate| {
-                game.card_object_matches(predicate, card, crate::card::ZoneKind::Library, source)
-            })
-        })
-        .cloned()
-        .collect::<Vec<_>>();
-    let inspected = revealed
-        .iter()
-        .map(|card| {
-            (
-                card.id,
-                ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-            )
-        })
-        .collect::<Vec<_>>();
-    let mut expected = game.card_decision_options(&eligible, DecisionZone::Library);
-    for option in &mut expected {
-        option.members.clone_from(&inspected);
-    }
-    let no_selection = expected.is_empty();
-    if no_selection {
-        expected.push(DecisionOption {
-            id: 0,
-            label: "No inspected card is eligible".into(),
-            card: None,
-            members: inspected,
-            ability_text: None,
-            zone: DecisionZone::Library,
-        });
-    }
-    let (minimum, maximum, preference) = if no_selection {
-        (0, 0, DecisionPreference::Neutral)
-    } else {
-        (
-            usize::from(selection.minimum).min(expected.len()),
-            usize::from(selection.maximum),
-            if selection.selected_zone == crate::card::ZoneKind::Hand {
-                DecisionPreference::HigherCardValue
-            } else {
-                DecisionPreference::LowerCardValue
-            },
-        )
-    };
-    validate_authored_decision(
-        observation,
-        player,
-        Game::top_card_selection_prompt(selection),
-        DecisionVisibility::Private,
-        preference,
-        minimum,
-        maximum,
-        &expected,
-        "top-card selection",
-    )
-}
-
-/// The options one destination's pick offers, checked against what the
-/// observation carries. Which destination is being asked about is part of
-/// the pending question, so it is validated the same way the group is.
-pub(super) fn validate_distributed_selection_observation(
-    game: &Game,
-    observation: &DecisionObservation,
-    progress: &super::super::DistributedSelectionProgress,
-    destinations: &'static [crate::card::SelectionDestinationDef],
-) -> Result<(), String> {
-    let destination = destinations
-        .get(progress.next_destination)
-        .copied()
-        .ok_or("distributed selection names a destination its effect does not have")?;
-    if progress.remaining.len() < 2 {
-        return Err("distributed selection asks about a card nobody chooses".into());
-    }
-    let expected = game.card_decision_options(&progress.remaining, DecisionZone::Library);
-    validate_authored_decision(
-        observation,
-        progress.player,
-        Game::distributed_selection_prompt(destination),
-        DecisionVisibility::Private,
-        if destination.zone == crate::card::ZoneKind::Hand {
-            DecisionPreference::HigherCardValue
-        } else {
-            DecisionPreference::LowerCardValue
-        },
-        1,
-        1,
-        &expected,
-        "distributed selection",
-    )
-}
-
-/// The options one card type's pick offers, checked against what the
-/// observation carries. Which type is being asked about is part of the
-/// pending question, so it is validated the same way the group is.
-pub(super) fn validate_typed_selection_observation(
-    game: &Game,
-    observation: &DecisionObservation,
-    progress: &super::super::TypedSelectionProgress,
-    selection: &'static crate::card::TopCardSelectionDef,
-    source: super::super::GameObjectId,
-) -> Result<(), String> {
-    let card_type = crate::card::CardType::ALL
-        .get(progress.next_type)
-        .copied()
-        .ok_or("typed selection names a card type this engine does not have")?;
-    let eligible = game.typed_selection_candidates(&progress.revealed, card_type, source);
-    if eligible.is_empty() {
-        return Err("typed selection asks about a card type nothing revealed has".into());
-    }
-    let mut expected = game.card_decision_options(&eligible, DecisionZone::Library);
-    let inspected = progress
-        .revealed
-        .iter()
-        .map(|card| {
-            (
-                card.id,
-                ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-            )
-        })
-        .collect::<Vec<_>>();
-    for option in &mut expected {
-        option.members.clone_from(&inspected);
-    }
-    validate_authored_decision(
-        observation,
-        progress.looker,
-        &Game::typed_selection_prompt(card_type),
-        if selection.reveal_inspected {
-            DecisionVisibility::Public
-        } else {
-            DecisionVisibility::Private
-        },
-        DecisionPreference::HigherCardValue,
-        0,
-        1,
-        &expected,
-        "typed selection",
-    )
-}
-
-#[allow(clippy::too_many_arguments)]
 fn validate_authored_decision(
     observation: &DecisionObservation,
     player: PlayerId,
@@ -291,6 +126,34 @@ fn validate_authored_decision(
     Err(format!(
         "{description} decision {mismatch} disagrees with its authored effect"
     ))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn validate_ordered_authored_decision(
+    observation: &DecisionObservation,
+    player: PlayerId,
+    prompt: &str,
+    visibility: DecisionVisibility,
+    options: &[DecisionOption],
+    description: &str,
+) -> Result<(), String> {
+    let count = options.len();
+    if observation.player != player
+        || observation.kind != DecisionKind::Choice
+        || observation.order_semantics != Some(DecisionOrderSemantics::Resolution)
+        || observation.prompt != prompt
+        || observation.visibility != visibility
+        || observation.preference != DecisionPreference::Neutral
+        || observation.minimum != count
+        || observation.maximum != count
+        || observation.cancellable
+        || observation.options != options
+    {
+        return Err(format!(
+            "{description} decision disagrees with its authored effect"
+        ));
+    }
+    Ok(())
 }
 
 fn first_drawn_card(
@@ -549,40 +412,6 @@ fn parse_explored_card_placement(
         return Err("an explore placement names a player other than the deciding one".into());
     }
     Ok(DecisionContinuation::ExploredCardPlacement { player, revealed })
-}
-
-fn validate_exact_partition(
-    authored: &[Target],
-    first: &[Target],
-    second: &[Target],
-) -> Result<(), String> {
-    let combined = first.iter().chain(second).copied().collect::<Vec<_>>();
-    if combined.len() != authored.len()
-        || combined
-            .iter()
-            .enumerate()
-            .any(|(index, item)| combined[..index].contains(item))
-        || combined.iter().any(|item| !authored.contains(item))
-        || authored.iter().any(|item| !combined.contains(item))
-    {
-        return Err(
-            "pile-choice checkpoint is not an exact disjoint partition of authored items".into(),
-        );
-    }
-    let canonical_first = authored
-        .iter()
-        .filter(|item| first.contains(item))
-        .copied()
-        .collect::<Vec<_>>();
-    let canonical_second = authored
-        .iter()
-        .filter(|item| second.contains(item))
-        .copied()
-        .collect::<Vec<_>>();
-    if canonical_first != first || canonical_second != second {
-        return Err("pile-choice checkpoint changed the authored item order".into());
-    }
-    Ok(())
 }
 
 fn ability_locator_matches_origin(

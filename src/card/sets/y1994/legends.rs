@@ -11,8 +11,8 @@ use crate::card::{
     KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SumValueDef, TargetChooserDef, TopCardSelectionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ScaledValueDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -851,38 +851,6 @@ pub(in crate::card::sets) static TUNDRA_WOLVES: CardRecord = CardRecord::new_wit
 );
 
 // LEG 41 — Visions
-/// The shuffle is the caster's call and comes after the look, which is the
-/// point of the card: you decide whether to disturb what you just saw.
-static VISIONS_SHUFFLE: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::Controller,
-    effect: &EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-};
-
-static VISIONS_LOOK: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(5),
-    object: None,
-    minimum: 0,
-    maximum: 0,
-    select_all_matching: false,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: false,
-    counted: None,
-    selected_zone: ZoneKind::Library,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Top,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: Some(&VISIONS_SHUFFLE),
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 static VISIONS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
@@ -896,11 +864,16 @@ pub(in crate::card::sets) static VISIONS: CardRecord = CardRecord::new_with_lega
         "Look at the top five cards of target player's library. You may then have that player \
          shuffle that library.",
         &VISIONS_TARGET,
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            looker: EffectRecipientDef::Controller,
-            selection: &VISIONS_LOOK,
-        },
+        abilities::look_at_top_cards_then(
+            PlayerRefDef::Target(TargetIndex::PRIMARY),
+            ValueDef::Constant(5),
+            &EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            },
+        ),
     )),
 );
 

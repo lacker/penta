@@ -577,12 +577,24 @@ impl Game {
             EffectDef::None
                 | EffectDef::Randomized { .. }
                 | EffectDef::Choose(_)
+                | EffectDef::ChooseCardsFromCollection(_)
+                | EffectDef::LookAtObjects(_)
+                | EffectDef::ChooseObjectOrder(_)
+                | EffectDef::ClassifyObjects(_)
+                | EffectDef::RevealAndClassifyCards(_)
+                | EffectDef::CombineObjects(_)
+                | EffectDef::ChooseOneOfEach(_)
+                | EffectDef::ChooseGroup(_)
+                | EffectDef::BindObjects(_)
+                | EffectDef::IfNoObjects(_)
+                | EffectDef::PartitionGroup(_)
+                | EffectDef::RandomizeObjectOrder(_)
+                | EffectDef::RevealObjects(_)
+                | EffectDef::MoveObjects(_)
                 | EffectDef::SimultaneousChoose(_)
                 | EffectDef::ChooseCardName { .. }
-                | EffectDef::BindMatching { .. }
                 | EffectDef::SelectAtRandomFromZone { .. }
                 | EffectDef::PayOr(_)
-                | EffectDef::SplitIntoPiles(_)
                 | EffectDef::PreventDamage { .. }
                 | EffectDef::AddMana(_)
                 | EffectDef::AddManaEqualTo { .. }
@@ -614,8 +626,6 @@ impl Game {
                 | EffectDef::Mill { .. }
                 | EffectDef::SearchZonesAndExileRest { .. }
                 | EffectDef::MillUntil { .. }
-                | EffectDef::LookAtTopAndSelect { .. }
-                | EffectDef::LookAtTopAndDistribute { .. }
                 | EffectDef::LookAtHand { .. }
                 | EffectDef::RevealHand { .. }
                 | EffectDef::SearchZone { .. }
@@ -667,7 +677,6 @@ impl Game {
                 | EffectDef::StaticApply { .. }
                 | EffectDef::Apply { .. }
                 | EffectDef::Proliferate
-                | EffectDef::Scry { .. }
                 | EffectDef::Explore { .. }
                 | EffectDef::Endure { .. }
                 | EffectDef::Cascade
@@ -677,7 +686,6 @@ impl Game {
                 | EffectDef::CreateMyriadTokens
                 | EffectDef::ExchangeControl { .. }
                 | EffectDef::ExileFromTopUntil { .. }
-                | EffectDef::ManifestDread { .. }
                 | EffectDef::MillWhileMatching { .. }
                 | EffectDef::ExileOneFromEachZone { .. }
                 | EffectDef::LookAtRandomCardInHand { .. }
@@ -919,6 +927,7 @@ impl Game {
                 | ObjectSetDef::LegalAttachmentHosts(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
+                | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::SharingNameWith(_)
                 | ObjectSetDef::SharingNameWithBinding { .. }

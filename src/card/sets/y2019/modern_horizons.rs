@@ -204,11 +204,13 @@ static WINDS_OVERLOADED_STEPS: [EffectDef; 2] = [
     },
 ];
 
-static WINDS_OVERLOADED: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::Query(WINDS_OVERLOADED_CREATURES),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &EffectDef::Sequence(&WINDS_OVERLOADED_STEPS),
-};
+static WINDS_OVERLOADED: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+        WINDS_OVERLOADED_CREATURES,
+    )),
+    ObjectSetBindingIndex::PRIMARY,
+    &EffectDef::Sequence(&WINDS_OVERLOADED_STEPS),
+);
 
 pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_with_legacy_id(
     2181,

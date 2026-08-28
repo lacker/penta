@@ -59,22 +59,24 @@ static OUTCOME_RETURN_AND_DRAW: [EffectDef; 2] = [
     },
 ];
 
-static OUTCOME_COUNT_YOURS: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::MatchingBinding {
+static OUTCOME_COUNT_YOURS: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::MatchingBinding {
         binding: ObjectSetBindingIndex::PRIMARY,
         object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-    },
-    binding: OUTCOME_OWNED_BY_YOU,
-    then: &EffectDef::Sequence(&OUTCOME_RETURN_AND_DRAW),
-};
+    }),
+    OUTCOME_OWNED_BY_YOU,
+    &EffectDef::Sequence(&OUTCOME_RETURN_AND_DRAW),
+);
 
 /// Only the targets still legal as this resolves are returned, which is what
 /// "each card returned this way" counts.
-static OUTCOME_EFFECT: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::LegalTargets(TargetIndex::PRIMARY),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &OUTCOME_COUNT_YOURS,
-};
+static OUTCOME_EFFECT: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
+        TargetIndex::PRIMARY,
+    )),
+    ObjectSetBindingIndex::PRIMARY,
+    &OUTCOME_COUNT_YOURS,
+);
 
 pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
     2242,

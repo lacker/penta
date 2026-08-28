@@ -422,12 +422,12 @@ static AN_ARTIFACT_CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredicat
 /// retired it, then narrowed to the types the rider names. A countered
 /// ability whose source was an enchantment binds nothing here, which is the
 /// "if" doing its work.
-static TIDEBINDER_SILENCES_ITS_SOURCE: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::One(ObjectRefDef::SourceOfTargetedStackObject(
-        TargetIndex::PRIMARY,
+static TIDEBINDER_SILENCES_ITS_SOURCE: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+        ObjectRefDef::SourceOfTargetedStackObject(TargetIndex::PRIMARY),
     )),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &EffectDef::Apply {
+    ObjectSetBindingIndex::PRIMARY,
+    &EffectDef::Apply {
         recipient: EffectRecipientDef::objects(ObjectSetDef::MatchingBinding {
             binding: ObjectSetBindingIndex::PRIMARY,
             object: AN_ARTIFACT_CREATURE_OR_PLANESWALKER,
@@ -437,7 +437,7 @@ static TIDEBINDER_SILENCES_ITS_SOURCE: EffectDef = EffectDef::BindMatching {
         // the Tidebinder is standing there.
         duration: ResolvedEffectDurationDef::WhileSourceRemains,
     },
-};
+);
 
 static TIDEBINDER_ANSWERS: EffectDef = EffectDef::Sequence(&[
     EffectDef::Counter {

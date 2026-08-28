@@ -8,8 +8,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    ScaledValueDef, TargetChooserDef, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ScaledValueDef, TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -632,32 +632,6 @@ pub(in crate::card::sets) static DWARVEN_PATROL: CardRecord = CardRecord::new(
 );
 
 // APC 62 — Goblin Ringleader
-/// Four cards deep, every Goblin among them taken, and no question asked:
-/// the clause is mandatory and unbounded, so the selection takes all matches
-/// rather than offering a bounded choice.
-static RINGLEADER_DIG: TopCardSelectionDef = TopCardSelectionDef {
-    count: ValueDef::Constant(4),
-    object: Some(ObjectPredicateDef::Subtype("Goblin")),
-    minimum: 0,
-    maximum: 4,
-    select_all_matching: true,
-    select_one_of_each_type: false,
-    reveal_inspected: false,
-    reveal_selected: true,
-    counted: None,
-    selected_zone: ZoneKind::Hand,
-    selected_placement: ZonePlacement::Top,
-    rest_zone: ZoneKind::Library,
-    rest_placement: ZonePlacement::Bottom,
-    rest_random_order: false,
-    rest_counters: None,
-    selected_order_follows_choice: false,
-    then: None,
-    selected_hidden: false,
-    selected_linked_to_source: false,
-    selected_face_down: None,
-};
-
 pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new_with_legacy_id(
     2027,
     "Goblin Ringleader",
@@ -667,11 +641,13 @@ pub(in crate::card::sets) static GOBLIN_RINGLEADER: CardRecord = CardRecord::new
     // Ringleader tends to find the next one.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_abilities(&[
         abilities::haste(),
-        abilities::enters_trigger("When this creature enters, reveal the top four cards of your library. Put all Goblin cards revealed this way into your hand and the rest on the bottom of your library in any order.", EffectDef::LookAtTopAndSelect {
-                player: EffectRecipientDef::Controller,
-                looker: EffectRecipientDef::Controller,
-                selection: &RINGLEADER_DIG,
-            }),
+        abilities::enters_trigger(
+            "When this creature enters, reveal the top four cards of your library. Put all Goblin cards revealed this way into your hand and the rest on the bottom of your library in any order.",
+            abilities::reveal_top_cards_put_matching_in_hand_rest_bottom(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::Subtype("Goblin"),
+            ),
+        ),
     ]),
 );
 

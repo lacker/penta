@@ -50,11 +50,11 @@ static SUNFALL_STEPS: [EffectDef; 2] = [
         }),
 ];
 
-static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = EffectDef::BindMatching {
-    objects: ObjectSetDef::Query(EVERY_CREATURE),
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &EffectDef::Sequence(&SUNFALL_STEPS),
-};
+static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = abilities::bind_objects_then(
+    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(EVERY_CREATURE)),
+    ObjectSetBindingIndex::PRIMARY,
+    &EffectDef::Sequence(&SUNFALL_STEPS),
+);
 
 pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_legacy_id(
     2258,

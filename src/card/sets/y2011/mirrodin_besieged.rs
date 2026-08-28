@@ -18,8 +18,8 @@ use crate::card::{
     ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
     SpellResolutionDestinationDef, SpendModeDef, TargetChooserDef, TokenStatsDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -1806,32 +1806,12 @@ pub(in crate::card::sets) static LEAD_THE_STAMPEDE: CardRecord = CardRecord::new
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
         "Look at the top five cards of your library. You may reveal any number of creature cards from among them and put the revealed cards into your hand. Put the rest on the bottom of your library in any order.",
-        EffectDef::LookAtTopAndSelect {
-            player: EffectRecipientDef::Controller,
-            looker: EffectRecipientDef::Controller,
-            selection: &TopCardSelectionDef {
-                count: ValueDef::Constant(5),
-                object: Some(ObjectPredicateDef::HasType(CardType::Creature)),
-                minimum: 0,
-                maximum: AbilityTargetDef::UNLIMITED,
-                select_all_matching: false,
-                select_one_of_each_type: false,
-                reveal_inspected: false,
-                reveal_selected: true,
-                counted: None,
-                selected_zone: ZoneKind::Hand,
-                selected_placement: ZonePlacement::Top,
-                rest_zone: ZoneKind::Library,
-                rest_placement: ZonePlacement::Bottom,
-                rest_random_order: false,
-                rest_counters: None,
-                selected_order_follows_choice: false,
-                then: None,
-                selected_hidden: false,
-                selected_linked_to_source: false,
-                selected_face_down: None,
-            },
-        },
+        abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+            ValueDef::Constant(5),
+            ObjectPredicateDef::HasType(CardType::Creature),
+            0,
+            AbilityTargetDef::UNLIMITED as usize,
+        ),
     )),
 );
 
@@ -2133,32 +2113,12 @@ pub(in crate::card::sets) static TEZZERET_AGENT_OF_BOLAS: CardRecord = CardRecor
             AbilityDef::activated(
                 "+1: Look at the top five cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in any order.",
                 &[AbilityCostDef::Loyalty(1)],
-                EffectDef::LookAtTopAndSelect {
-                    player: EffectRecipientDef::Controller,
-                    looker: EffectRecipientDef::Controller,
-                    selection: &TopCardSelectionDef {
-                        count: ValueDef::Constant(5),
-                        object: Some(ObjectPredicateDef::HasType(CardType::Artifact)),
-                        minimum: 0,
-                        maximum: 1,
-                        select_all_matching: false,
-                        select_one_of_each_type: false,
-                        reveal_inspected: false,
-                        reveal_selected: true,
-                        counted: None,
-                        selected_zone: ZoneKind::Hand,
-                        selected_placement: ZonePlacement::Top,
-                        rest_zone: ZoneKind::Library,
-                        rest_placement: ZonePlacement::Bottom,
-                        rest_random_order: false,
-                        rest_counters: None,
-                        selected_order_follows_choice: false,
-                        then: None,
-                        selected_hidden: false,
-                        selected_linked_to_source: false,
-                        selected_face_down: None,
-                    },
-                },
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_bottom(
+                    ValueDef::Constant(5),
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    0,
+                    1,
+                ),
             ),
             AbilityDef::activated_with_targets(
                 "−1: Target artifact becomes an artifact creature with base power and toughness 5/5.",

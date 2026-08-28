@@ -3146,8 +3146,6 @@ pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
 );
 
 // RTR 140 — Worldspine Wurm
-static WURM_GRAVEYARD_ZONES: [ZoneKind; 1] = [ZoneKind::Graveyard];
-
 static WURM_SHUFFLES_ITSELF_BACK: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
@@ -3189,7 +3187,7 @@ static WORLDSPINE_WURM_ABILITIES: [AbilityDef; 3] = [
         TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
         EffectDef::Sequence(&WURM_SHUFFLES_ITSELF_BACK),
     )
-    .with_source_zones(&WURM_GRAVEYARD_ZONES),
+    .with_source_zones(&[ZoneKind::Graveyard]),
 ];
 
 pub(in crate::card::sets) static WORLDSPINE_WURM: CardRecord = CardRecord::new_with_legacy_id(

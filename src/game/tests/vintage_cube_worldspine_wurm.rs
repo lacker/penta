@@ -104,6 +104,11 @@ fn dying_makes_three_wurms_and_shuffles_itself_away() {
     drain_pending(&mut game);
 
     game.move_permanents_to_graveyard(&[wurm]);
+    assert_eq!(
+        game.pending_triggers.len(),
+        2,
+        "one look-back dies trigger and one graveyard-source shuffle trigger",
+    );
     settle(&mut game);
 
     assert_eq!(tokens(&game), 3, "three tokens");
@@ -120,6 +125,67 @@ fn dying_makes_three_wurms_and_shuffles_itself_away() {
         game.players[0].library.len(),
         1,
         "the Wurm is back in its owner's library",
+    );
+}
+
+/// The dies ability belongs to the departing permanent, while the
+/// from-anywhere ability belongs to the new graveyard card. If control was
+/// stolen, those are controlled by different players and use different ids.
+#[test]
+fn a_stolen_wurm_has_one_trigger_from_each_side_of_the_transition() {
+    let mut game = staged();
+    let wurm = game
+        .put_onto_battlefield(PlayerId::One, cards::WORLDSPINE_WURM)
+        .expect("cataloged");
+    drain_pending(&mut game);
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == wurm)
+        .expect("the Wurm is present")
+        .controller = PlayerId::Two;
+
+    game.move_permanents_to_graveyard(&[wurm]);
+
+    assert_eq!(
+        game.pending_triggers.len(),
+        2,
+        "exactly the two printed abilities"
+    );
+    let dies = game
+        .pending_triggers
+        .iter()
+        .find(|trigger| trigger.text.contains("dies"))
+        .expect("the battlefield look-back trigger");
+    assert_eq!(dies.source.object, wurm, "its source is the old permanent");
+    assert_eq!(
+        dies.controller,
+        PlayerId::Two,
+        "its last controller controls it"
+    );
+
+    let shuffle = game
+        .pending_triggers
+        .iter()
+        .find(|trigger| trigger.text.contains("from anywhere"))
+        .expect("the graveyard arrival trigger");
+    assert_ne!(
+        shuffle.source.object, wurm,
+        "its source is the new graveyard card"
+    );
+    assert_eq!(
+        shuffle.controller,
+        PlayerId::One,
+        "the card's owner controls it"
+    );
+    assert_eq!(
+        shuffle.context.trigger.object,
+        Some(shuffle.source.object),
+        "the triggering object is observed after the move",
+    );
+    assert_eq!(
+        shuffle.context.trigger.zone_change_result,
+        Some(shuffle.source.object),
+        "the event records that same destination identity",
     );
 }
 

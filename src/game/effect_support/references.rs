@@ -35,8 +35,8 @@ impl Game {
                 .and_then(|referenced| self.zone_change_successor_target(referenced)),
             ObjectRefDef::ZoneChangeResultOfTriggeringObject => context
                 .trigger
-                .object
-                .and_then(|triggering| self.zone_change_result_target(triggering)),
+                .zone_change_result
+                .and_then(|result| self.live_object_target(result)),
             // A granted ability freezes the exact object that supplied the
             // grant. Do not follow a zone-change successor here: this is the
             // last-known permanent the ability names even after sacrificing
@@ -186,8 +186,8 @@ impl Game {
                 }),
             ObjectRefDef::ZoneChangeResultOfTriggeringObject => context
                 .trigger
-                .object
-                .and_then(|triggering| self.zone_change_result_target(triggering))
+                .zone_change_result
+                .and_then(|result| self.live_object_target(result))
                 .and_then(|target| match target {
                     Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
                     Target::Player(_) => None,

@@ -334,6 +334,7 @@ fn installed_trigger_retains_lexical_bindings_targets_and_target_scope() {
     );
     let mut context = EffectResolutionContext::new(TriggerContext {
         object: None,
+        zone_change_result: None,
         object_controller: None,
         event_player: Some(PlayerId::One),
         amount: Some(99),

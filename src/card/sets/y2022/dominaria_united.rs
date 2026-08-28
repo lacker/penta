@@ -344,7 +344,7 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
 /// What the permanent gains, and what makes the Paragon a value engine
 /// rather than a recursion loop: the card leaves for good, and the two life
 /// are the consolation.
-static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::dies_trigger(
+static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::battlefield_to_graveyard_trigger(
     "When this permanent is put into a graveyard from the battlefield, exile it and you gain 2 \
      life.",
     EffectDef::Sequence(&PARAGON_EXILE_AND_GAIN),
@@ -353,7 +353,7 @@ static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::dies_trigger(
 static PARAGON_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
-        object: EffectRecipientDef::SourceZoneChangeSuccessor,
+        object: EffectRecipientDef::TriggeringZoneChangeResult,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

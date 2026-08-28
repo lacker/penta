@@ -3388,7 +3388,7 @@ face_down: false,
 then: None,
 },
             ),
-            abilities::dies_trigger("When Helvault is put into a graveyard from the battlefield, return all cards exiled with it to the battlefield under their owners' control.", EffectDef::ReturnLinkedExiles {
+            abilities::battlefield_to_graveyard_trigger("When Helvault is put into a graveyard from the battlefield, return all cards exiled with it to the battlefield under their owners' control.", EffectDef::ReturnLinkedExiles {
                     object: ObjectPredicateDef::Any,
                     counters: None,
                     arrival_effect: None,

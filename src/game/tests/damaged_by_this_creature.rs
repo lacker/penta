@@ -109,9 +109,9 @@ fn the_slaver_reanimates_what_it_killed_as_a_black_zombie() {
     );
 }
 
-/// Mortus Strider's printed "return it" explicitly finds the card created by
-/// the death's one zone change; an ordinary source reference would keep
-/// naming the retired permanent instead.
+/// Mortus Strider's printed "return it" finds the destination object recorded
+/// by the death event; an ordinary source reference keeps naming the retired
+/// permanent instead.
 #[test]
 fn a_dying_creature_that_returns_itself_finds_its_own_card() {
     let mut game = ready();

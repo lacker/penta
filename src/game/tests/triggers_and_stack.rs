@@ -315,6 +315,7 @@ fn targeted_trigger_chooses_public_targets_while_being_put_on_stack() {
         })),
         context: TriggerContext {
             object: None,
+            zone_change_result: None,
             object_controller: None,
             event_player: None,
             amount: None,
@@ -445,6 +446,7 @@ fn su_chi_mana_and_source_power_use_ordinary_stack_and_lki() {
         })),
         context: TriggerContext {
             object: Some(CardInstanceId(10_010)),
+            zone_change_result: None,
             object_controller: Some(PlayerId::One),
             event_player: Some(PlayerId::One),
             amount: None,

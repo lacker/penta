@@ -75,8 +75,9 @@ pub use model::{
     TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
     TokenCopyDef, TokenCountersDef, TokenPart, TokenStatsDef, TokenStructure, TopCardSelectionDef,
     TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef,
-    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
-    ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
+    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef,
+    ZonePlacement, ZoneRelativePositionDef,
 };
 
 /// The built-in catalog, validated once per process. Construction walks every

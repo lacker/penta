@@ -3146,16 +3146,12 @@ pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
 );
 
 // RTR 140 — Worldspine Wurm
-/// Both walks, because "from anywhere" needs both: the battlefield walk is
-/// what sees a permanent die, and only the graveyard walk sees a card that
-/// was milled or discarded. Neither sees the other's event, so the ability
-/// listening from both fires once either way.
-static WURM_GRAVEYARD_ZONES: [ZoneKind; 2] = [ZoneKind::Battlefield, ZoneKind::Graveyard];
+static WURM_GRAVEYARD_ZONES: [ZoneKind; 1] = [ZoneKind::Graveyard];
 
 static WURM_SHUFFLES_ITSELF_BACK: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         counters: None,
-        object: EffectRecipientDef::TriggeringZoneChangeResult,
+        object: EffectRecipientDef::Source,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
         controller: None,
@@ -3184,9 +3180,9 @@ static WORLDSPINE_WURM_ABILITIES: [AbilityDef; 3] = [
             ))
             .with_amount(3),
     ),
-    // A trigger rather than a replacement, which is the whole reason the
-    // tokens happen: the Wurm reaches the graveyard, both abilities see it
-    // there, and only then does it go home.
+    // A trigger rather than a replacement. The ability belongs to the new
+    // graveyard object, even when the previous object was a permanent; the
+    // separate dies ability above is the one that looks back at the battlefield.
     AbilityDef::triggered(
         "When Worldspine Wurm is put into a graveyard from anywhere, shuffle it into its owner's \
          library.",

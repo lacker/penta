@@ -304,6 +304,7 @@ pub(super) fn target_snapshot(target: Target) -> TargetSnapshot {
 pub(super) fn trigger_context_snapshot(context: TriggerContext) -> TriggerContextSnapshot {
     TriggerContextSnapshot {
         object: context.object.map(|id| id.0),
+        zone_change_result: context.zone_change_result.map(|id| id.0),
         object_controller: context.object_controller.map(PlayerId::index),
         event_player: context.event_player.map(PlayerId::index),
         amount: context.amount,
@@ -745,6 +746,7 @@ pub(super) fn parse_trigger_context(
 ) -> Result<TriggerContext, String> {
     Ok(TriggerContext {
         object: value.object.map(GameObjectId),
+        zone_change_result: value.zone_change_result.map(GameObjectId),
         object_controller: value.object_controller.map(seat_index_value).transpose()?,
         event_player: value.event_player.map(seat_index_value).transpose()?,
         amount: value.amount,
@@ -865,6 +867,7 @@ mod tests {
     fn effect_resolution_context_round_trips_typed_objects_and_groups() {
         let trigger = TriggerContext {
             object: Some(GameObjectId(10)),
+            zone_change_result: Some(GameObjectId(12)),
             object_controller: Some(PlayerId::One),
             event_player: Some(PlayerId::Two),
             amount: Some(3),

@@ -25,6 +25,21 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Fixed
 
+- **Zone-change triggers now keep both sides of the move.** A committed move
+  records the old object's last-known identity and the exact new object in the
+  destination instead of overloading one ID and guessing through the global
+  successor map at resolution. Leaves-the-battlefield triggers match the old
+  object; destination triggers such as Worldspine Wurm's from-anywhere clause
+  are discovered only after the new graveyard card exists, so a stolen Wurm
+  produces one dies trigger controlled by its last controller and one shuffle
+  trigger controlled by its owner. Rancor, Glistening Oil, Spine of Ish Sah,
+  Cyclopean Mummy, Mortus Strider, Enduring Innocence, and Serra Paragon use
+  the event's exact destination object. Kaldra Compleat no longer follows a
+  lethally damaged creature into its graveyard, where it is a new object and
+  no zone-change exception applies. The event-result ID is an additive
+  checkpoint member; checkpoint format 9, replay version 2, and protocol 29
+  are unchanged.
+
 - **Sixteen clauses said "draw two then" where the card says "draw two
   cards, then".** A dropped "cards," ran through the catalog: Brainstorm and
   Frantic Search drew two of nothing, Primeval Titan searched for two land

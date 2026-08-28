@@ -61,6 +61,10 @@ impl Game {
         });
     }
 
+    /// A card newly arriving in a graveyard can supply only a trigger checked
+    /// after the move. A battlefield-to-graveyard look-back trigger had to
+    /// exist before the event, so admitting it here would let Bridge from
+    /// Below begin listening in the same death batch that put it there.
     pub(in crate::game) fn extend_with_card_graveyard_arrival_trigger_listeners(
         &self,
         listeners: &mut Vec<BattlefieldTriggerListener>,
@@ -71,12 +75,8 @@ impl Game {
         self.extend_with_card_graveyard_trigger_listeners(listeners, card);
         let arrivals = listeners.split_off(first_new_listener);
         listeners.extend(arrivals.into_iter().filter(|listener| {
-            self.trigger_event_matches_for_controller(
-                listener.event,
-                arrival,
-                listener.capture.source.object,
-                Some(card.owner),
-            )
+            Self::zone_change_event_observation(listener.event, arrival)
+                == Some(crate::card::ZoneChangeObservationDef::After)
         }));
     }
 

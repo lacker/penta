@@ -1094,7 +1094,7 @@ static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
     }),
     EffectDef::MoveToZone {
         counters: None,
-        object: EffectRecipientDef::DamagedObjectZoneChangeSuccessor,
+        object: EffectRecipientDef::DamagedObject,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
         arrival_effect: None,

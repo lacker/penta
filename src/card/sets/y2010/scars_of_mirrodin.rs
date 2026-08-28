@@ -3000,7 +3000,7 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("2d7f565e-0fb8-40c8-9540-213d35af846a", "rk post"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(
-        abilities::dies_trigger_matching(
+        abilities::battlefield_to_graveyard_trigger_matching(
             "Whenever an artifact is put into an opponent's graveyard from the battlefield, you may draw a card.",
             ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),

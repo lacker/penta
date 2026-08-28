@@ -143,7 +143,7 @@ fn the_equipment_is_indestructible() {
 /// about indestructible or regeneration saves it.
 #[test]
 fn what_it_hits_is_exiled() {
-    let (mut game, _kaldra, theirs) = staged(&[cards::SERRA_ANGEL]);
+    let (mut game, _kaldra, theirs) = staged(&[cards::WORLDSPINE_WURM]);
     let blocker = theirs[0];
     let germ = germ(&game).card.id;
 
@@ -175,14 +175,56 @@ fn what_it_hits_is_exiled() {
         game.players[1]
             .exile
             .iter()
-            .any(|card| card.definition == cards::SERRA_ANGEL),
+            .any(|card| card.definition == cards::WORLDSPINE_WURM),
         "and it is in exile, not the graveyard",
     );
     assert!(
         !game.players[1]
             .graveyard
             .iter()
+            .any(|card| card.definition == cards::WORLDSPINE_WURM),
+    );
+}
+
+/// If combat damage kills the creature, state-based actions move it before
+/// Kaldra's damage trigger resolves. That graveyard card is a new object, so
+/// the ordinary "that creature" reference cannot follow it and exile it.
+#[test]
+fn lethal_damage_does_not_exile_the_graveyard_successor() {
+    let (mut game, _kaldra, theirs) = staged(&[cards::SERRA_ANGEL]);
+    let blocker = theirs[0];
+    let germ = germ(&game).card.id;
+
+    game.step = Step::DeclareAttackers;
+    game.attackers_declared = false;
+    game.declare_attacker(germ, AttackDefender::Player(PlayerId::Two));
+    game.finish_declaring_attackers();
+    settle(&mut game);
+    game.step = Step::DeclareBlockers;
+    game.declare_blocker(blocker, germ);
+    game.finish_declaring_blockers();
+    settle(&mut game);
+    for _ in 0..12 {
+        if game.step == Step::PostcombatMain {
+            break;
+        }
+        game.advance_step();
+        settle(&mut game);
+    }
+
+    assert!(
+        game.players[1]
+            .graveyard
+            .iter()
             .any(|card| card.definition == cards::SERRA_ANGEL),
+        "the new graveyard object remains there",
+    );
+    assert!(
+        game.players[1]
+            .exile
+            .iter()
+            .all(|card| card.definition != cards::SERRA_ANGEL),
+        "Kaldra does not gain a zone-change exception",
     );
 }
 

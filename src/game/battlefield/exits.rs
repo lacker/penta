@@ -6,7 +6,8 @@
 // ordinary members of the same `impl Game`. The paths and imports are the
 // parent module's.
 
-use super::{BattlefieldTriggerListener, PlayerRelation};
+use super::{PlayerRelation, TriggerEventObject};
+use crate::CharacteristicContext;
 
 /// One permanent on its way off the battlefield, as the exit batch collects
 /// it: what it was, what had damaged it, where it is going, which counter it
@@ -398,15 +399,22 @@ impl Game {
     /// The batched one carries only the graveyard half. A permanent exiled
     /// instead of dying did not die (CR 700.4), and the per-object zone
     /// change beside it already says where each one actually went.
-    fn battlefield_exit_events(removed: &[RemovedBattlefieldObject]) -> Vec<CommittedTriggerEvent> {
+    fn battlefield_exit_events(
+        removed: &[RemovedBattlefieldObject],
+        after: &[Option<TriggerEventObject>],
+    ) -> Vec<CommittedTriggerEvent> {
         let mut events = removed
             .iter()
+            .zip(after)
             .map(
-                |(_, snapshot, damage_sources, to, _, _)| CommittedTriggerEvent::ZoneChanged {
-                    object: snapshot.object.clone(),
+                |((_, snapshot, damage_sources, to, _, _), after)| {
+                    CommittedTriggerEvent::ZoneChanged {
+                    before: Some(snapshot.object.clone()),
+                    after: after.clone(),
                     from: ZoneKind::Battlefield,
                     to: to.zone,
                     damage_sources: damage_sources.clone(),
+                    }
                 },
             )
             .collect::<Vec<_>>();
@@ -435,21 +443,6 @@ impl Game {
         self.creatures_died_this_turn = self
             .creatures_died_this_turn
             .saturating_add(u16::try_from(died).unwrap_or(u16::MAX));
-    }
-
-    fn extend_with_graveyard_arrival_listeners(
-        &self,
-        listeners: &mut Vec<BattlefieldTriggerListener>,
-        removed: &[RemovedBattlefieldObject],
-        events: &[CommittedTriggerEvent],
-    ) {
-        for ((permanent, _, _, destination, _, _), event) in removed.iter().zip(events) {
-            if destination.zone == ZoneKind::Graveyard
-                && let Some(card) = permanent.card.clone().into_card()
-            {
-                self.extend_with_card_graveyard_arrival_trigger_listeners(listeners, &card, event);
-            }
-        }
     }
 
     fn commit_battlefield_exit_batch(&mut self, batch: PendingBattlefieldExitBatch) {
@@ -506,18 +499,12 @@ impl Game {
             ));
         }
 
-        // A destination-zone trigger is checked after the move. Freeze the
-        // printed graveyard abilities of cards about to arrive there so the
-        // simultaneous event can be published before their new identities
-        // are installed, just as the ordinary listener snapshot freezes the
-        // abilities of permanents about to leave.
-        let events = Self::battlefield_exit_events(&removed);
-        self.extend_with_graveyard_arrival_listeners(&mut listeners, &removed, &events);
-        self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
-
-        for ((permanent, snapshot, _, to, returns_with, presented), event) in
-            removed.into_iter().zip(events)
-        {
+        // Finish the entire simultaneous move before checking destination
+        // triggers. Each event can then name both the permanent that left and
+        // the exact new card that arrived, while the listener snapshot above
+        // still preserves every battlefield ability that existed beforehand.
+        let mut after = Vec::with_capacity(removed.len());
+        for (permanent, _, _, to, _, _) in &removed {
             let exit = match to.zone {
                 ZoneKind::Exile => BattlefieldExit::Exile,
                 ZoneKind::Graveyard => BattlefieldExit::Graveyard,
@@ -527,17 +514,18 @@ impl Game {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             };
-            self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
             self.record_battlefield_exit(&permanent, exit);
             // 111.7: a token that leaves the battlefield ceases to exist. The
             // exit and everything watching for it still happened.
             if permanent.card.definition.is_token() {
+                after.push(None);
                 continue;
             }
             let owner = permanent.card.owner;
             let (mut card, _zone_change) = self.zone_change_card(
                 permanent
                     .card
+                    .clone()
                     .into_card()
                     .expect("a nontoken permanent is backed by a card definition"),
             );
@@ -546,6 +534,21 @@ impl Game {
             if let Some((kind, amount)) = to.counters {
                 card.add_counters(kind, amount);
             }
+            let context = match to.zone {
+                ZoneKind::Library => CharacteristicContext::Library,
+                ZoneKind::Hand => CharacteristicContext::Hand,
+                ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                ZoneKind::Exile => CharacteristicContext::Exile,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                    unreachable!("unsupported battlefield-exit replacement destination")
+                }
+            };
+            after.push(self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &context,
+            ));
             match to.zone {
                 ZoneKind::Exile => self.players[owner.index()].exile.push(card),
                 ZoneKind::Graveyard => self.players[owner.index()].graveyard.push(card),
@@ -555,13 +558,40 @@ impl Game {
                     unreachable!("unsupported battlefield-exit replacement destination")
                 }
             }
+        }
+
+        let events = Self::battlefield_exit_events(&removed, &after);
+        for (((_, _, _, destination, _, _), after), event) in
+            removed.iter().zip(&after).zip(&events)
+        {
+            if destination.zone == ZoneKind::Graveyard
+                && let Some(after) = after
+                && let Some((_, card)) = self.card_in_nonbattlefield_zone(after.id)
+            {
+                self.extend_with_card_graveyard_arrival_trigger_listeners(
+                    &mut listeners,
+                    card,
+                    event,
+                );
+            }
+        }
+        self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
+
+        for ((permanent, snapshot, _, to, returns_with, presented), event) in
+            removed.into_iter().zip(events)
+        {
+            self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
 
             // Undying observes the creature as it died, then returns the card
             // from the graveyard as a fresh object under its owner's control.
             if to.zone == ZoneKind::Graveyard
                 && let Some(counter) = returns_with
             {
-                self.return_top_graveyard_card_with_counter(owner, presented, counter);
+                self.return_top_graveyard_card_with_counter(
+                    permanent.card.owner,
+                    presented,
+                    counter,
+                );
             }
         }
 

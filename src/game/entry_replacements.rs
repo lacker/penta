@@ -6,9 +6,10 @@ use super::{
     Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef, PendingBattlefieldEntry,
     PendingEvent, PendingReplacementEffect, PlayerId, PlayerRelation, ReplaceableEvent,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, ScopedEffect,
-    StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
+    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
+    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
 };
+use crate::CharacteristicContext;
 
 mod discovery;
 mod entry_copy;
@@ -327,6 +328,7 @@ impl Game {
         let ReplaceableEvent::BattlefieldEntry(entry) = &pending.event;
         TriggerContext {
             object: Some(entry.permanent.card.id),
+            zone_change_result: None,
             object_controller: Some(entry.permanent.controller),
             event_player: Some(entry.permanent.controller),
             amount: None,
@@ -813,6 +815,36 @@ impl Game {
             .last()
             .expect("a committed battlefield entry is present");
         let entered_event = self.trigger_event_object(entered);
+        let before_event = if prospective == permanent_id {
+            None
+        } else {
+            match self.retired_objects.get(&prospective) {
+                Some(RetiredObject::Stack(stack)) => self.stack_object_event_object(stack),
+                Some(RetiredObject::Card(card)) => {
+                    let context = match entry.from {
+                        ZoneKind::Library => Some(CharacteristicContext::Library),
+                        ZoneKind::Hand => Some(CharacteristicContext::Hand),
+                        ZoneKind::Graveyard => Some(CharacteristicContext::Graveyard),
+                        ZoneKind::Exile => Some(CharacteristicContext::Exile),
+                        // A stack predecessor is represented by the arm above;
+                        // the remaining zones do not hold cards that enter.
+                        ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => None,
+                    };
+                    context.and_then(|context| {
+                        self.printed_trigger_event_object(
+                            card.id,
+                            card.definition,
+                            card.owner,
+                            &context,
+                        )
+                    })
+                }
+                Some(RetiredObject::Permanent { permanent, .. }) => {
+                    Some(self.trigger_event_object(permanent))
+                }
+                None => None,
+            }
+        };
         // Raised before the entry below, since the play is what caused it:
         // a clause about playing a land reads the land that was played.
         if let EntryCompletion::LandPlayed { player } = entry.completion {
@@ -822,7 +854,8 @@ impl Game {
             });
         }
         self.capture_entry_event(CommittedTriggerEvent::ZoneChanged {
-            object: entered_event,
+            before: before_event,
+            after: Some(entered_event),
             from: entry.from,
             to: ZoneKind::Battlefield,
             damage_sources: Vec::new(),

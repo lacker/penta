@@ -1907,7 +1907,7 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
             "When this creature dies, exile it.",
             EffectDef::MoveToZone {
                 counters: None,
-                object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                object: EffectRecipientDef::TriggeringZoneChangeResult,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,

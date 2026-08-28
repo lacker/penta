@@ -790,7 +790,8 @@ fn animated_factory_keeps_types_and_last_known_stats_under_blood_moon() {
     }
 
     let event = CommittedTriggerEvent::ZoneChanged {
-        object: snapshot.object,
+        before: Some(snapshot.object),
+        after: None,
         from: ZoneKind::Battlefield,
         to: ZoneKind::Graveyard,
         damage_sources: Vec::new(),

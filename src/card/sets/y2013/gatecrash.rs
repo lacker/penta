@@ -3851,7 +3851,7 @@ pub(in crate::card::sets) static MORTUS_STRIDER: CardRecord = CardRecord::new_wi
             "When this creature dies, return it to its owner's hand.",
             EffectDef::MoveToZone {
                 counters: None,
-                object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                object: EffectRecipientDef::TriggeringZoneChangeResult,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
                 arrival_effect: None,

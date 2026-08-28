@@ -720,23 +720,6 @@ impl Game {
         self.live_object_target(successor)
     }
 
-    /// The destination object named by a zone-change event. Battlefield-exit
-    /// events carry the retired permanent's identity and reach the one live
-    /// successor; other arrivals carry the destination identity directly.
-    /// In either representation, a result that moved again is no longer live
-    /// and is not followed through a second edge.
-    pub(super) fn zone_change_result_target(&self, object: GameObjectId) -> Option<Target> {
-        if let Some(target) = self.live_object_target(object) {
-            return Some(target);
-        }
-        matches!(
-            self.retired_objects.get(&object),
-            Some(RetiredObject::Permanent { .. })
-        )
-        .then(|| self.zone_change_successor_target(object))
-        .flatten()
-    }
-
     /// How much of a divided total one target takes, read off the selection
     /// frozen when the object was put on the stack.
     pub(super) fn divided_share(

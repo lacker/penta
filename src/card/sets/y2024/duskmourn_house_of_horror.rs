@@ -43,7 +43,7 @@ static IT_WAS_A_CREATURE: TriggerConditionDef = TriggerConditionDef::SourceMatch
 
 static INNOCENCE_RETURNS: EffectDef = EffectDef::MoveToZone {
     counters: None,
-    object: EffectRecipientDef::SourceZoneChangeSuccessor,
+    object: EffectRecipientDef::TriggeringZoneChangeResult,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
     controller: None,

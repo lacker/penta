@@ -1,7 +1,7 @@
 use crate::CharacteristicContext;
 use crate::card::{
     AbilityPredicateDef, AttackDeclarationRangeDef, AttackEventMatcherDef,
-    BattlefieldEntryChoiceDestinationDef, DamageSourceGroupDef,
+    BattlefieldEntryChoiceDestinationDef, DamageSourceGroupDef, ZoneChangeObservationDef,
 };
 
 use super::{
@@ -446,6 +446,10 @@ impl Game {
                 // Keep installer bindings and targets; only the committed
                 // event-local context changes for this match.
                 capture.context.trigger = event.context();
+                if let Some(object) = Self::zone_change_event_object(listener.event, event) {
+                    capture.context.trigger.object = Some(object.id);
+                    capture.context.trigger.object_controller = Some(object.controller);
+                }
                 let condition_holds = self.trigger_capture_condition_holds(&capture);
                 // "That ability triggers an additional time" is not a second
                 // ability but the same one again, so the extra instances are
@@ -490,7 +494,7 @@ impl Game {
         capture: &TriggerCapture,
     ) -> u8 {
         let CommittedTriggerEvent::ZoneChanged {
-            object,
+            after: Some(object),
             to: ZoneKind::Battlefield,
             ..
         } = event

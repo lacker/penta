@@ -1576,10 +1576,10 @@ pub(in crate::card::sets) static GLISTENING_OIL: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ),
-            abilities::dies_trigger(
+            abilities::battlefield_to_graveyard_trigger(
                 "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
                 EffectDef::MoveToZone {
-                    object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     counters: None,

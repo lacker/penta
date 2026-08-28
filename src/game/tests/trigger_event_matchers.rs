@@ -695,7 +695,8 @@ fn simultaneous_exit_batch_freezes_all_conditions_before_immediate_resolution() 
     let events = game.battlefield[1..]
         .iter()
         .map(|permanent| CommittedTriggerEvent::ZoneChanged {
-            object: game.trigger_event_object(permanent),
+            before: Some(game.trigger_event_object(permanent)),
+            after: None,
             from: ZoneKind::Battlefield,
             to: ZoneKind::Graveyard,
             damage_sources: Vec::new(),
@@ -736,7 +737,8 @@ fn simultaneous_exit_predicates_use_source_and_object_lki() {
     game.move_permanents_to_graveyard(&[source_id, object_id]);
 
     let event = CommittedTriggerEvent::ZoneChanged {
-        object: object_snapshot,
+        before: Some(object_snapshot),
+        after: None,
         from: ZoneKind::Battlefield,
         to: ZoneKind::Graveyard,
         damage_sources: Vec::new(),
@@ -814,7 +816,8 @@ fn an_any_of_event_fires_on_each_alternative_and_no_others() {
 
     assert!(
         matches(&CommittedTriggerEvent::ZoneChanged {
-            object: snapshot.clone(),
+            before: None,
+            after: Some(snapshot.clone()),
             from: ZoneKind::Hand,
             to: ZoneKind::Battlefield,
             damage_sources: Vec::new(),
@@ -833,7 +836,8 @@ fn an_any_of_event_fires_on_each_alternative_and_no_others() {
     );
     assert!(
         !matches(&CommittedTriggerEvent::ZoneChanged {
-            object: snapshot,
+            before: Some(snapshot),
+            after: None,
             from: ZoneKind::Battlefield,
             to: ZoneKind::Graveyard,
             damage_sources: Vec::new(),

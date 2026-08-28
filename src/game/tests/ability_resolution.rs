@@ -712,6 +712,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
             ],
             context: TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: None,
                 event_player: None,
                 amount: None,

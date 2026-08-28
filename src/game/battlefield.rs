@@ -412,26 +412,36 @@ impl Game {
         let damage_sources = self.battlefield[index].damage_sources.clone();
         let snapshot = self.battlefield_exit_snapshot(&self.battlefield[index]);
         let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
+        self.record_battlefield_exit(&permanent, BattlefieldExit::Exile);
+        let after = if permanent.card.definition.is_token() {
+            None
+        } else {
+            let owner = permanent.card.owner;
+            let (card, _zone_change) = self.zone_change_card(
+                permanent
+                    .card
+                    .clone()
+                    .into_card()
+                    .expect("a nontoken permanent is backed by a card definition"),
+            );
+            let after = self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &crate::CharacteristicContext::Exile,
+            );
+            self.players[owner.index()].exile.push(card);
+            after
+        };
         let event = CommittedTriggerEvent::ZoneChanged {
-            object: snapshot.object,
+            before: Some(snapshot.object),
+            after,
             from: ZoneKind::Battlefield,
             to: ZoneKind::Exile,
             damage_sources,
         };
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
-        self.record_battlefield_exit(&permanent, BattlefieldExit::Exile);
-        if permanent.card.definition.is_token() {
-            return;
-        }
-        let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(
-            permanent
-                .card
-                .into_card()
-                .expect("a nontoken permanent is backed by a card definition"),
-        );
-        self.players[owner.index()].exile.push(card);
     }
 
     /// Exiles a permanent and reports the object it became in exile, so the
@@ -558,26 +568,36 @@ impl Game {
         let damage_sources = self.battlefield[index].damage_sources.clone();
         let snapshot = self.battlefield_exit_snapshot(&self.battlefield[index]);
         let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
+        self.record_battlefield_exit(&permanent, BattlefieldExit::Hand);
+        let after = if permanent.card.definition.is_token() {
+            None
+        } else {
+            let owner = permanent.card.owner;
+            let (card, _zone_change) = self.zone_change_card(
+                permanent
+                    .card
+                    .clone()
+                    .into_card()
+                    .expect("a nontoken permanent is backed by a card definition"),
+            );
+            let after = self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &crate::CharacteristicContext::Hand,
+            );
+            self.players[owner.index()].hand.push(card);
+            after
+        };
         let event = CommittedTriggerEvent::ZoneChanged {
-            object: snapshot.object,
+            before: Some(snapshot.object),
+            after,
             from: ZoneKind::Battlefield,
             to: ZoneKind::Hand,
             damage_sources,
         };
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
-        self.record_battlefield_exit(&permanent, BattlefieldExit::Hand);
-        if permanent.card.definition.is_token() {
-            return;
-        }
-        let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(
-            permanent
-                .card
-                .into_card()
-                .expect("a nontoken permanent is backed by a card definition"),
-        );
-        self.players[owner.index()].hand.push(card);
     }
 
     /// Puts a permanent on top of its owner's library. The exit is the same
@@ -598,28 +618,38 @@ impl Game {
         let damage_sources = self.battlefield[index].damage_sources.clone();
         let snapshot = self.battlefield_exit_snapshot(&self.battlefield[index]);
         let permanent = self.remove_battlefield_object(index, &snapshot.last_known);
+        self.record_battlefield_exit(&permanent, BattlefieldExit::LibraryTop);
+        let after = if permanent.card.definition.is_token() {
+            None
+        } else {
+            let owner = permanent.card.owner;
+            let (card, _zone_change) = self.zone_change_card(
+                permanent
+                    .card
+                    .clone()
+                    .into_card()
+                    .expect("a nontoken permanent is backed by a card definition"),
+            );
+            let after = self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &crate::CharacteristicContext::Library,
+            );
+            let library = &mut self.players[owner.index()].library;
+            let index = placement.library_index(library.len());
+            library.insert(index, card);
+            after
+        };
         let event = CommittedTriggerEvent::ZoneChanged {
-            object: snapshot.object,
+            before: Some(snapshot.object),
+            after,
             from: ZoneKind::Battlefield,
             to: ZoneKind::Library,
             damage_sources,
         };
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
         self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
-        self.record_battlefield_exit(&permanent, BattlefieldExit::LibraryTop);
-        if permanent.card.definition.is_token() {
-            return;
-        }
-        let owner = permanent.card.owner;
-        let (card, _zone_change) = self.zone_change_card(
-            permanent
-                .card
-                .into_card()
-                .expect("a nontoken permanent is backed by a card definition"),
-        );
-        let library = &mut self.players[owner.index()].library;
-        let index = placement.library_index(library.len());
-        library.insert(index, card);
     }
 }
 

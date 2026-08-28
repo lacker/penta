@@ -47,7 +47,7 @@ fn settle_choosing_last(game: &mut Game) {
 }
 
 #[test]
-fn cyclopean_mummy_exiles_its_graveyard_successor() {
+fn cyclopean_mummy_exiles_the_death_events_graveyard_object() {
     let mut game = ready();
     let mummy = creature(10_000, cards::CYCLOPEAN_MUMMY, PlayerId::One);
     let mummy_id = mummy.card.id;
@@ -61,7 +61,7 @@ fn cyclopean_mummy_exiles_its_graveyard_successor() {
             .graveyard
             .iter()
             .all(|card| card.definition != cards::CYCLOPEAN_MUMMY),
-        "the dies trigger followed the zone-change successor",
+        "the dies trigger used the destination object recorded by its event",
     );
     assert!(
         game.players[0]

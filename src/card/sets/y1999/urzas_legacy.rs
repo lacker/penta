@@ -1320,13 +1320,13 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
                     effect: AppliedEffectDef::Composite(&RANCOR_BONUS),
                 },
             ),
-            // An Aura that dies with its host still goes to the graveyard, so
+            // An Aura put into the graveyard with its host still triggers, so
             // this fires whether the creature was answered or the Aura was.
             // It is the same trigger either way, and the card that comes back
             // is the one already in the graveyard.
-            abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
+            abilities::battlefield_to_graveyard_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
                     counters: None,
-                    object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                     arrival_effect: None,

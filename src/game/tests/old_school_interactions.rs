@@ -577,6 +577,7 @@ fn mana_drain_pays_out_at_its_controllers_next_main_phase() {
         payload.context.trigger,
         TriggerContext {
             object: None,
+            zone_change_result: None,
             object_controller: None,
             event_player: Some(PlayerId::Two),
             amount: None,

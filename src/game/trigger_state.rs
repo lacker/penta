@@ -13,6 +13,10 @@ use super::{ObjectCharacteristics, StackAbilityResolver};
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct TriggerContext {
     pub(super) object: Option<GameObjectId>,
+    /// The exact object created by the zone change that caused this trigger.
+    /// This is event-local rather than inferred from the global successor
+    /// graph, and becomes stale if that object moves again before resolution.
+    pub(super) zone_change_result: Option<GameObjectId>,
     pub(super) object_controller: Option<PlayerId>,
     pub(super) event_player: Option<PlayerId>,
     pub(super) amount: Option<i32>,
@@ -27,6 +31,7 @@ impl TriggerContext {
     pub(super) const fn empty() -> Self {
         Self {
             object: None,
+            zone_change_result: None,
             object_controller: None,
             event_player: None,
             amount: None,
@@ -184,7 +189,12 @@ pub(super) struct TriggerEventObject {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
     ZoneChanged {
-        object: TriggerEventObject,
+        /// Last-known information for the object before the move. Some entry
+        /// paths do not need or retain a readable pre-move representation.
+        before: Option<TriggerEventObject>,
+        /// The new object created in the destination, absent when a token
+        /// leaves the battlefield and ceases to exist.
+        after: Option<TriggerEventObject>,
         from: ZoneKind,
         to: ZoneKind,
         /// Damage sources recorded on the departing battlefield object. This
@@ -412,12 +422,23 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
-            Self::ZoneChanged { object, .. }
-            | Self::Transformed { object }
+            Self::ZoneChanged { before, after, .. } => {
+                let object = before.as_ref().or(after.as_ref());
+                TriggerContext {
+                    object: object.map(|object| object.id),
+                    zone_change_result: after.as_ref().map(|object| object.id),
+                    object_controller: object.map(|object| object.controller),
+                    event_player: None,
+                    amount: None,
+                    damaged_object: None,
+                }
+            }
+            Self::Transformed { object }
             | Self::Cycled { object }
             | Self::Exerted { object }
             | Self::AttacksAndIsNotBlocked { object } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: None,
                 amount: None,
@@ -429,6 +450,7 @@ impl CommittedTriggerEvent {
             Self::Sacrificed { object, player } | Self::LandPlayed { object, player } => {
                 TriggerContext {
                     object: Some(object.id),
+                    zone_change_result: None,
                     object_controller: Some(object.controller),
                     event_player: Some(*player),
                     amount: None,
@@ -439,6 +461,7 @@ impl CommittedTriggerEvent {
             // nothing here names one; how many were made is the amount.
             Self::TokensCreated { tokens, controller } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: Some(*controller),
                 event_player: Some(*controller),
                 amount: Some(i32::try_from(tokens.len()).unwrap_or(i32::MAX)),
@@ -448,6 +471,7 @@ impl CommittedTriggerEvent {
             // here names one; how many there were is the amount.
             Self::CardsExiled { cards, owner, .. } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: Some(*owner),
                 event_player: Some(*owner),
                 amount: Some(i32::try_from(cards.len()).unwrap_or(i32::MAX)),
@@ -462,6 +486,7 @@ impl CommittedTriggerEvent {
             // else.
             Self::ObjectsDied { objects } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: objects.first().map(|object| object.controller),
                 event_player: objects.first().map(|object| object.controller),
                 amount: Some(i32::try_from(objects.len()).unwrap_or(i32::MAX)),
@@ -476,6 +501,7 @@ impl CommittedTriggerEvent {
                 defending_player,
             } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: attackers.first().map(|attacker| attacker.controller),
                 event_player: Some(*defending_player),
                 amount: Some(i32::try_from(attackers.len()).unwrap_or(i32::MAX)),
@@ -485,6 +511,7 @@ impl CommittedTriggerEvent {
             // the amount is how many players took damage.
             Self::CombatDamageDealtToPlayers { sources, players } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: sources.first().map(|source| source.controller),
                 event_player: players.first().copied(),
                 amount: Some(i32::try_from(players.len()).unwrap_or(i32::MAX)),
@@ -492,6 +519,7 @@ impl CommittedTriggerEvent {
             },
             Self::AttackersDeclared { attackers } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: attackers.first().map(|attacker| attacker.controller),
                 event_player: attackers.first().map(|attacker| attacker.controller),
                 amount: Some(i32::try_from(attackers.len()).unwrap_or(i32::MAX)),
@@ -503,6 +531,7 @@ impl CommittedTriggerEvent {
                 ..
             } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: Some(*defending_player),
                 amount: None,
@@ -510,6 +539,7 @@ impl CommittedTriggerEvent {
             },
             Self::Tapped { object, for_mana } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: for_mana.then_some(object.controller),
                 amount: None,
@@ -523,6 +553,7 @@ impl CommittedTriggerEvent {
                 ..
             } => TriggerContext {
                 object: source.as_ref().map(|source| source.id),
+                zone_change_result: None,
                 object_controller: source.as_ref().map(|source| source.controller),
                 event_player: match recipient {
                     Target::Player(player) => Some(*player),
@@ -533,6 +564,7 @@ impl CommittedTriggerEvent {
             },
             Self::BlocksOrBecomesBlocked { other, .. } => TriggerContext {
                 object: Some(other.id),
+                zone_change_result: None,
                 object_controller: Some(other.controller),
                 event_player: None,
                 amount: None,
@@ -543,6 +575,7 @@ impl CommittedTriggerEvent {
                 blockers_beyond_first,
             } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: None,
                 amount: Some(i32::from(*blockers_beyond_first)),
@@ -550,6 +583,7 @@ impl CommittedTriggerEvent {
             },
             Self::LifeGained { player, amount } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
@@ -557,6 +591,7 @@ impl CommittedTriggerEvent {
             },
             Self::CountersPlaced { object, amount, .. } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: None,
                 amount: Some(i32::from(*amount)),
@@ -568,6 +603,7 @@ impl CommittedTriggerEvent {
             | Self::SpellCopied { object }
             | Self::SpellCast { object } => TriggerContext {
                 object: Some(object.id),
+                zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: Some(object.controller),
                 amount: None,
@@ -575,6 +611,7 @@ impl CommittedTriggerEvent {
             },
             Self::BecameLevel { object, .. } => TriggerContext {
                 object: Some(*object),
+                zone_change_result: None,
                 object_controller: None,
                 event_player: None,
                 amount: None,
@@ -582,6 +619,7 @@ impl CommittedTriggerEvent {
             },
             Self::Discarded { player, card } => TriggerContext {
                 object: card.as_ref().map(|card| card.id),
+                zone_change_result: None,
                 object_controller: card.as_ref().map(|card| card.controller),
                 event_player: Some(*player),
                 amount: None,
@@ -596,6 +634,7 @@ impl CommittedTriggerEvent {
             | Self::BecameMonarch { player }
             | Self::DrewCard { player, .. } => TriggerContext {
                 object: None,
+                zone_change_result: None,
                 object_controller: None,
                 event_player: Some(*player),
                 amount: None,

@@ -4,6 +4,49 @@
 // imports here are that module's.
 
 impl Game {
+    pub(super) fn zone_change_event_observation(
+        definition: TriggerEventDef,
+        event: &CommittedTriggerEvent,
+    ) -> Option<ZoneChangeObservationDef> {
+        let CommittedTriggerEvent::ZoneChanged {
+            from,
+            to,
+            ..
+        } = event
+        else {
+            return None;
+        };
+        let matcher = match definition {
+            TriggerEventDef::ZoneChanged(matcher) => Some(matcher),
+            TriggerEventDef::While { event: wrapped, .. } => {
+                return Self::zone_change_event_observation(*wrapped, event);
+            }
+            TriggerEventDef::AnyOf(events) => events.iter().find_map(|candidate| {
+                let TriggerEventDef::ZoneChanged(matcher) = candidate else {
+                    return None;
+                };
+                (matcher.from.is_none_or(|expected| expected == *from)
+                    && matcher.to.is_none_or(|expected| expected == *to))
+                .then_some(*matcher)
+            }),
+            _ => None,
+        }?;
+        Some(matcher.observation)
+    }
+
+    fn zone_change_event_object<'a>(
+        definition: TriggerEventDef,
+        event: &'a CommittedTriggerEvent,
+    ) -> Option<&'a TriggerEventObject> {
+        let CommittedTriggerEvent::ZoneChanged { before, after, .. } = event else {
+            return None;
+        };
+        match Self::zone_change_event_observation(definition, event)? {
+            ZoneChangeObservationDef::Before => before.as_ref(),
+            ZoneChangeObservationDef::After => after.as_ref(),
+        }
+    }
+
     #[allow(clippy::too_many_lines)]
     pub(super) fn trigger_event_matches_for_controller(
         &self,
@@ -42,7 +85,8 @@ impl Game {
             (
                 TriggerEventDef::ZoneChanged(matcher),
                 CommittedTriggerEvent::ZoneChanged {
-                    object,
+                    before,
+                    after,
                     from: actual_from,
                     to: actual_to,
                     damage_sources,
@@ -54,13 +98,19 @@ impl Game {
                         self.trigger_event_object_reference(reference, source, event)
                             .is_some_and(|source| damage_sources.contains(&source))
                     })
-                    && self.trigger_object_matches_for_controller(
-                        matcher.object,
-                        object,
-                        source,
-                        false,
-                        controller,
-                    )
+                    && match matcher.observation {
+                        ZoneChangeObservationDef::Before => before.as_ref(),
+                        ZoneChangeObservationDef::After => after.as_ref(),
+                    }
+                    .is_some_and(|object| {
+                        self.trigger_object_matches_for_controller(
+                            matcher.object,
+                            object,
+                            source,
+                            false,
+                            controller,
+                        )
+                    })
             }
             (
                 TriggerEventDef::Tapped(matcher),

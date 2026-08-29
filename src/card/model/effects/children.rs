@@ -66,6 +66,10 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .map(|follow_up| *follow_up.effect)
             .collect(),
         EffectDef::ExchangeControl { otherwise, .. } => otherwise.into_iter().copied().collect(),
+        EffectDef::Fight { excess, .. } => excess
+            .into_iter()
+            .map(|continuation| *continuation.then)
+            .collect(),
 
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
@@ -100,6 +104,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Endure { .. }
         | EffectDef::CreateMyriadTokens
         | EffectDef::DealDamage { .. }
+        | EffectDef::DealDamageSimultaneously(_)
         | EffectDef::DealDamageFrom { .. }
         | EffectDef::DealDamageAndApply { .. }
         | EffectDef::Destroy { then: None, .. }

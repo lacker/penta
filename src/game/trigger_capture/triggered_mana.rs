@@ -28,8 +28,9 @@ EffectDef::SimultaneousChoose(_) | EffectDef::ChooseCardName { .. } |
 EffectDef::BindMatching { .. } | EffectDef::SelectAtRandomFromZone { .. } |
 EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) |
 EffectDef::SplitIntoPiles(_) | EffectDef::PreventDamage { .. } |
-EffectDef::DealDamage { .. } | EffectDef::DealDamageFrom { .. } |
-EffectDef::DealDamageAndApply { .. } | EffectDef::DrainLife { .. } |
+EffectDef::DealDamage { .. } | EffectDef::DealDamageSimultaneously(_) |
+EffectDef::DealDamageFrom { .. } | EffectDef::DealDamageAndApply { .. } |
+EffectDef::Fight { .. } | EffectDef::DrainLife { .. } |
 EffectDef::GainLife { .. } | EffectDef::AddPlayerCounters { .. } |
 EffectDef::DrawCards { .. } | EffectDef::Discard { .. } |
 EffectDef::DiscardCards { .. } | EffectDef::ShuffleLibrary { .. } |

@@ -116,6 +116,33 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Any)?;
             validate_value_shape(amount, targets)
         }
+        EffectDef::DealDamageSimultaneously(assignments) => {
+            for assignment in assignments {
+                if let Some(source) = assignment.source {
+                    validate_object_reference_shape(source, targets)?;
+                }
+                validate_recipient_shape(
+                    assignment.recipient,
+                    targets,
+                    RecipientExpectation::Any,
+                )?;
+                validate_value_shape(assignment.amount, targets)?;
+            }
+            Ok(())
+        }
+        EffectDef::Fight {
+            first,
+            second,
+            excess,
+        } => {
+            validate_object_reference_shape(first, targets)?;
+            validate_object_reference_shape(second, targets)?;
+            if let Some(excess) = excess {
+                validate_object_reference_shape(excess.recipient, targets)?;
+                validate_effect_target_shapes(*excess.then, targets, triggering_object_zone)?;
+            }
+            Ok(())
+        }
         EffectDef::DealDamageFrom {
             source,
             recipient,

@@ -134,6 +134,9 @@ mod turn;
 mod vote;
 mod zones;
 
+use damage::DamageAssignment;
+#[cfg(test)]
+use damage::{DamageAssignmentOutcome, DamageRecipientOutcome};
 use prevention_state::{
     RelationalSourceFilter, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
     ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,

@@ -223,3 +223,50 @@ fn domri_fights_and_hands_out_an_emblem() {
         );
     }
 }
+
+#[test]
+fn domri_fight_snapshots_both_powers_before_infect_changes_them() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let domri = game
+        .put_onto_battlefield(PlayerId::One, cards::DOMRI_RADE)
+        .expect("cataloged");
+    let infect = game
+        .put_onto_battlefield(PlayerId::One, cards::VIRAL_DRAKE)
+        .expect("cataloged");
+    let angel = game
+        .put_onto_battlefield(PlayerId::Two, cards::SERRA_ANGEL)
+        .expect("cataloged");
+    game.turn = 2;
+    game.step = Step::PrecombatMain;
+    game.priority = PlayerId::One;
+
+    let fight = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateAbility { source, ability, targets, .. }
+                if *source == domri
+                    && matches!(ability, AbilityOrigin::Printed { ability, .. } if *ability == AbilityId(1))
+                    && targets.iter().flat_map(TargetSelection::targets).any(|target| *target == Target::Permanent(infect))
+                    && targets.iter().flat_map(TargetSelection::targets).any(|target| *target == Target::Permanent(angel)))
+        })
+        .expect("the fight is offered");
+    game.apply(PlayerId::One, fight).unwrap();
+    drain_pending(&mut game);
+
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == infect),
+        "the Drake takes the Angel's pre-fight power of four and dies"
+    );
+    let angel = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == angel)
+        .expect("the Angel survives");
+    assert_eq!(angel.counters(CounterKind::MinusOneMinusOne), 1);
+    assert_eq!(angel.damage, 0, "infect uses a counter instead of a damage mark");
+}

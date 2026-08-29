@@ -436,6 +436,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("ravnica_allegiance.rs") => source(CardSet::RavnicaAllegiance, "RNA"),
         Some("commander_2020.rs") => source(CardSet::Commander2020, "C20"),
         Some("magic_foundations.rs") => source(CardSet::MagicFoundations, "FDN"),
+        Some("marvels_spider_man.rs") => source(CardSet::MarvelsSpiderMan, "SPM"),
         Some("avatar_the_last_airbender.rs") => source(CardSet::AvatarTheLastAirbender, "TLA"),
         Some("edge_of_eternities.rs") => source(CardSet::EdgeOfEternities, "EOE"),
         Some("edge_of_eternities_commander.rs") => {

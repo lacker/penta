@@ -7,6 +7,23 @@
 use super::*;
 
 impl Game {
+    /// Test and card-local entry point for one combat assignment. Full combat
+    /// collects every assignment first and uses the same batch primitive.
+    #[cfg(test)]
+    pub(in crate::game) fn deal_combat_damage_to_player(
+        &mut self,
+        attacker: GameObjectId,
+        player: PlayerId,
+        amount: u16,
+    ) {
+        self.deal_damage_simultaneously(vec![DamageAssignment {
+            source: Some(attacker),
+            target: Some(Target::Player(player)),
+            amount,
+            combat: true,
+        }]);
+    }
+
     /// How much life a drain can take from a recipient: what it had before
     /// the damage, which is all it can give however much is dealt.
     pub(in crate::game) fn drainable_from(&self, target: Target) -> u16 {
@@ -31,43 +48,16 @@ impl Game {
         }
     }
 
-    /// Combat damage from an attacker to whatever it is attacking. A player
-    /// and a planeswalker both use the canonical damage event; its `combat`
-    /// flag is what a trigger matcher narrows.
-    pub(in crate::game) fn deal_combat_damage_to(
-        &mut self,
-        attacker: GameObjectId,
-        defender: Target,
-        amount: u16,
-    ) {
-        match defender {
-            Target::Player(player) => self.deal_combat_damage_to_player(attacker, player, amount),
-            Target::Permanent(_) | Target::Card(_) | Target::Spell(_) => {
-                // Flagged as combat damage so a trigger that listens for it
-                // arriving here, as Vraska's does, can tell it apart from an
-                // ability's damage.
-                self.damage_target_from_kind(Some(attacker), Some(defender), amount, true);
-            }
-        }
-    }
-
-    pub(in crate::game) fn deal_combat_damage_to_player(
-        &mut self,
-        attacker: GameObjectId,
-        player: PlayerId,
-        amount: u16,
-    ) {
-        self.damage_target_from_kind(Some(attacker), Some(Target::Player(player)), amount, true);
-    }
-
-    /// A blocked attacker's own combat damage, divided among its blockers and
-    /// whatever trample spills onto.
-    pub(in crate::game) fn deal_attacker_combat_damage(
-        &mut self,
+    /// A blocked attacker's part of the combat-damage event, divided among its
+    /// blockers and whatever trample spills onto. Nothing is dealt here: the
+    /// caller collects every attacker's and blocker's assignments before the
+    /// shared simultaneous commit.
+    pub(in crate::game) fn attacker_combat_damage_assignments(
+        &self,
         attacker_id: GameObjectId,
         attacker_index: usize,
         blockers: &[GameObjectId],
-    ) {
+    ) -> Vec<DamageAssignment> {
         let assignments = self.battlefield[attacker_index]
             .combat_damage_assignment
             .clone();
@@ -79,15 +69,15 @@ impl Game {
                 .map(|assignment| (assignment.recipient, assignment.amount))
                 .collect()
         };
-        for (recipient, amount) in split {
-            // Trample past a blocker is still combat damage to a player, so it
-            // goes through the same path as an unblocked hit.
-            if let Target::Player(player) = recipient {
-                self.deal_combat_damage_to_player(attacker_id, player, amount);
-            } else {
-                self.damage_target_from_kind(Some(attacker_id), Some(recipient), amount, true);
-            }
-        }
+        split
+            .into_iter()
+            .map(|(recipient, amount)| DamageAssignment {
+                source: Some(attacker_id),
+                target: Some(recipient),
+                amount,
+                combat: true,
+            })
+            .collect()
     }
 
     /// Every blocker's combat damage, divided among the attackers it blocks.
@@ -95,7 +85,7 @@ impl Game {
     /// A pass of its own rather than part of each attacker's exchange: a
     /// creature blocking two attackers deals its power once between them, and
     /// running this inside the attacker loop would deal it once per attacker.
-    pub(in crate::game) fn deal_blocker_combat_damage(&mut self) {
+    pub(in crate::game) fn blocker_combat_damage_assignments(&self) -> Vec<DamageAssignment> {
         let blockers: Vec<_> = self
             .battlefield
             .iter()
@@ -110,6 +100,7 @@ impl Game {
                 )
             })
             .collect();
+        let mut damage = Vec::new();
         for (blocker, assignments) in blockers {
             let split = if assignments.is_empty() {
                 let recipients: Vec<_> = self
@@ -127,10 +118,18 @@ impl Game {
                     .map(|assignment| (assignment.recipient, assignment.amount))
                     .collect()
             };
-            for (recipient, amount) in split {
-                self.damage_target_from_kind(Some(blocker), Some(recipient), amount, true);
-            }
+            damage.extend(
+                split
+                    .into_iter()
+                    .map(|(recipient, amount)| DamageAssignment {
+                        source: Some(blocker),
+                        target: Some(recipient),
+                        amount,
+                        combat: true,
+                    }),
+            );
         }
+        damage
     }
 
     pub(in crate::game) fn combat_defender(attacker: &Permanent) -> AttackDefender {

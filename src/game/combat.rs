@@ -1,7 +1,7 @@
 use super::{
     Action, AppliedRuleDef, AttackDefender, CardType, CombatDamageAssignment, CombatDamageStage,
-    CommittedTriggerEvent, ControlFlow, CounterKind, Game, GameEvent, GameObjectId, KeywordAbility,
-    ManaCost, Permanent, PlayerId, Target,
+    CommittedTriggerEvent, ControlFlow, CounterKind, DamageAssignment, Game, GameEvent,
+    GameObjectId, KeywordAbility, ManaCost, Permanent, PlayerId, Target,
 };
 
 mod assignment;
@@ -803,6 +803,7 @@ impl Game {
 
     pub(super) fn deal_combat_damage(&mut self) {
         self.combat_damage_to_players.clear();
+        let mut assignments = Vec::new();
         let attackers: Vec<_> = self
             .battlefield
             .iter()
@@ -839,12 +840,22 @@ impl Game {
                 else {
                     continue;
                 };
-                self.deal_combat_damage_to(attacker_id, defender, power);
+                assignments.push(DamageAssignment {
+                    source: Some(attacker_id),
+                    target: Some(defender),
+                    amount: power,
+                    combat: true,
+                });
             } else if !blockers.is_empty() && attacker_deals_damage {
-                self.deal_attacker_combat_damage(attacker_id, attacker_index, &blockers);
+                assignments.extend(self.attacker_combat_damage_assignments(
+                    attacker_id,
+                    attacker_index,
+                    &blockers,
+                ));
             }
         }
-        self.deal_blocker_combat_damage();
+        assignments.extend(self.blocker_combat_damage_assignments());
+        self.deal_damage_simultaneously(assignments);
         self.publish_combat_damage_to_players();
         self.check_state_based_actions();
     }

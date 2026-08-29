@@ -6,6 +6,7 @@ pub(super) mod edge_of_eternities;
 pub(super) mod edge_of_eternities_commander;
 pub(super) mod final_fantasy;
 pub(super) mod final_fantasy_commander;
+pub(super) mod marvels_spider_man;
 pub(super) mod tarkir_dragonstorm;
 pub(super) mod through_the_omenpaths;
 

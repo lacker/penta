@@ -1,6 +1,6 @@
 use super::{
     AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival,
-    BattlefieldExitCompletion, CardPartId, CopiableAbility, CounteredSpellZone,
+    BattlefieldExitCompletion, CardPartId, CopiableAbility, CounteredSpellZone, DamageAssignment,
     DeclarativeAbilityDef, EffectDef, EffectResolutionContext, Game, InstalledTrigger,
     InstalledTriggerLifetime, Permanent, ResolvedOngoingEffect, SacrificeDeclined,
     SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, TriggerCapture,
@@ -130,14 +130,42 @@ impl Game {
                     .max(0)
                     .try_into()
                     .unwrap_or(u16::MAX);
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    let available = self.drainable_from(target);
-                    let dealt = self.damage_target_from(Some(object.id), Some(target), amount);
-                    self.gain_life(object.controller, dealt.min(available));
-                }
+                let targets = self.effect_recipients(recipient, object, &context, scoped);
+                let available = targets
+                    .iter()
+                    .copied()
+                    .map(|target| (target, self.drainable_from(target)))
+                    .collect::<Vec<_>>();
+                let assignments = targets
+                    .into_iter()
+                    .map(|target| DamageAssignment {
+                        source: Some(object.id),
+                        target: Some(target),
+                        amount,
+                        combat: false,
+                    })
+                    .collect();
+                let gained = self
+                    .deal_damage_simultaneously(assignments)
+                    .recipients
+                    .into_iter()
+                    .map(|outcome| {
+                        let available = available
+                            .iter()
+                            .find_map(|(target, amount)| {
+                                (*target == outcome.recipient).then_some(*amount)
+                            })
+                            .unwrap_or(0);
+                        outcome.amount.min(available)
+                    })
+                    .fold(0_u16, u16::saturating_add);
+                self.gain_life(object.controller, gained);
             }
             EffectDef::DealDamage { recipient, amount } => {
                 self.deal_effect_damage(recipient, amount, object, &context, scoped);
+            }
+            EffectDef::DealDamageSimultaneously(assignments) => {
+                self.deal_simultaneous_effect_damage(assignments, object, &context, scoped);
             }
             EffectDef::DealDamageFrom {
                 source,
@@ -154,6 +182,13 @@ impl Game {
             } => {
                 let damaged = self.deal_effect_damage(recipient, amount, object, &context, scoped);
                 self.apply_effect_to_targets(&damaged, applied, duration, object, &context, scoped);
+            }
+            EffectDef::Fight {
+                first,
+                second,
+                excess,
+            } => {
+                self.fight(first, second, excess, object, &context, scoped);
             }
             EffectDef::GainLife { .. }
             | EffectDef::LoseLife { .. }

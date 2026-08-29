@@ -80,6 +80,7 @@ pub use model::{
     ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef,
     ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
 };
+pub use model::{DamageAssignmentDef, FightExcessDef};
 
 /// The built-in catalog, validated once per process. Construction walks every
 /// definition and printing, and callers used to pay for it on every game — a

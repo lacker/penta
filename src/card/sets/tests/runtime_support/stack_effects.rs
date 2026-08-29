@@ -273,6 +273,27 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
             shared_effect_recipient(EffectRecipientDef::object(source))
                 && shared_effect_recipient(recipient)
         }
+        EffectDef::DealDamageSimultaneously(assignments) => assignments.iter().all(|assignment| {
+            assignment
+                .source
+                .is_none_or(|source| shared_effect_recipient(EffectRecipientDef::object(source)))
+                && shared_effect_recipient(assignment.recipient)
+        }),
+        EffectDef::Fight {
+            first,
+            second,
+            excess,
+        } => {
+            shared_effect_recipient(EffectRecipientDef::object(first))
+                && shared_effect_recipient(EffectRecipientDef::object(second))
+                && excess.is_none_or(|continuation| {
+                    shared_effect_recipient(EffectRecipientDef::object(continuation.recipient))
+                        && shared_stack_effect_at_position(
+                            *continuation.then,
+                            deferred_decision_allowed,
+                        )
+                })
+        }
         EffectDef::DealDamage { recipient, .. }
         | EffectDef::DealDamageAndApply { recipient, .. }
         | EffectDef::DrainLife { recipient, .. }
@@ -684,8 +705,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     }
                 }
         }
-        EffectDef::None
-        | EffectDef::StaticApply { .. }
+        EffectDef::None | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
         | EffectDef::ReduceGenericCostBy(_)

@@ -183,6 +183,33 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)
         }
+        EffectDef::DealDamageSimultaneously(assignments) => {
+            for assignment in assignments {
+                if let Some(source) = assignment.source {
+                    validate_object_reference(source, target_count, scope)?;
+                }
+                validate_recipient_target_references(
+                    assignment.recipient,
+                    target_count,
+                    scope,
+                )?;
+                validate_value_target_references(assignment.amount, target_count, scope)?;
+            }
+            Ok(())
+        }
+        EffectDef::Fight {
+            first,
+            second,
+            excess,
+        } => {
+            validate_object_reference(first, target_count, scope)?;
+            validate_object_reference(second, target_count, scope)?;
+            if let Some(excess) = excess {
+                validate_object_reference(excess.recipient, target_count, scope)?;
+                validate_effect_references(*excess.then, target_count, scope)?;
+            }
+            Ok(())
+        }
         EffectDef::SetLifeTotal { recipient, total } => {
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(total, target_count, scope)

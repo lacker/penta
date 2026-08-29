@@ -198,6 +198,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::RavnicaAllegiance => "ravnica-allegiance",
         CardSet::Commander2020 => "commander-2020",
         CardSet::MagicFoundations => "magic-foundations",
+        CardSet::MarvelsSpiderMan => "marvels-spider-man",
         CardSet::AvatarTheLastAirbender => "avatar-the-last-airbender",
         CardSet::EdgeOfEternities => "edge-of-eternities",
         CardSet::EdgeOfEternitiesCommander => "edge-of-eternities-commander",

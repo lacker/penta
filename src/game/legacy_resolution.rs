@@ -1,8 +1,8 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
-    DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone, Game, GameEvent,
-    GameObjectId, ObjectCharacteristics, ObjectPredicateDef, PlayerId, StackObject, Target,
-    ZoneKind, ZoneMoveCause, ZonePlacement,
+    DamageAssignment, DecisionContinuation, DecisionPreference, DecisionVisibility, DecisionZone,
+    Game, GameEvent, GameObjectId, ObjectCharacteristics, ObjectPredicateDef, PlayerId,
+    StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -25,9 +25,17 @@ impl Game {
             CardBehavior::Fireball => {
                 let divisor = u16::try_from(object.target_count()).unwrap_or(u16::MAX);
                 let amount = object.x().checked_div(divisor).unwrap_or(0);
-                for target in object.targets() {
-                    self.damage_target(Some(target), amount);
-                }
+                let assignments = object
+                    .targets()
+                    .into_iter()
+                    .map(|target| DamageAssignment {
+                        source: Some(object.id),
+                        target: Some(target),
+                        amount,
+                        combat: false,
+                    })
+                    .collect();
+                self.deal_damage_simultaneously(assignments);
             }
             CardBehavior::DustToDust => {
                 for target in object.iter_targets().filter_map(|target| match target {

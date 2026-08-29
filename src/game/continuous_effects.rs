@@ -560,6 +560,9 @@ impl Game {
     /// which is why it is one long enumeration rather than a rule.
     #[allow(clippy::too_many_lines)]
     fn effect_never_attaches(effect: EffectDef) -> bool {
+        if Self::damage_effect_never_attaches(effect) {
+            return true;
+        }
         matches!(
             effect,
             EffectDef::None
@@ -574,9 +577,6 @@ impl Game {
                 | EffectDef::PreventDamage { .. }
                 | EffectDef::AddMana(_)
                 | EffectDef::AddManaEqualTo { .. }
-                | EffectDef::DealDamage { .. }
-                | EffectDef::DealDamageFrom { .. }
-                | EffectDef::DealDamageAndApply { .. }
                 | EffectDef::DrainLife { .. }
                 | EffectDef::GainLife { .. }
                 | EffectDef::SetLifeTotal { .. }
@@ -680,6 +680,17 @@ impl Game {
                 | EffectDef::MayCastTargetWithoutPaying { .. }
                 | EffectDef::PermitCastFromGraveyardThisTurn { .. }
                 | EffectDef::Special(_)
+        )
+    }
+
+    fn damage_effect_never_attaches(effect: EffectDef) -> bool {
+        matches!(
+            effect,
+            EffectDef::DealDamage { .. }
+                | EffectDef::DealDamageSimultaneously(_)
+                | EffectDef::DealDamageFrom { .. }
+                | EffectDef::DealDamageAndApply { .. }
+                | EffectDef::Fight { .. }
         )
     }
 

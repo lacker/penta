@@ -12,7 +12,7 @@ use crate::mana_cost;
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
 // P94 1 — Arena
-// Audit: metadata-only — Needs a fight effect that deals simultaneous reciprocal power damage after the linked target choices for “{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other”.
+// Audit: metadata-only — Fight is supported, but the second target must be chosen by an opponent during activation; letting the activator choose it would misexecute the card.
 pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f989fda-2e54-427c-9154-4820c48abb02"),
     "Arena",

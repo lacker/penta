@@ -8,10 +8,12 @@ use super::prevention_state::{
     ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
 };
 use super::{
-    AppliedRuleDef, CardType, CardTypeSet, CommittedTriggerEvent, ControlFlow, CounterKind, Game,
-    GameObjectId, KeywordAbility, Permanent, PlayerId, RelationalSourceFilter, RetiredObject,
-    StackObjectKind, Target, TriggerEventObject,
+    AppliedRuleDef, CardType, CommittedTriggerEvent, ControlFlow, CounterKind, Game, GameObjectId,
+    KeywordAbility, Permanent, PlayerId, RelationalSourceFilter, RetiredObject, StackObjectKind,
+    Target, TriggerEventObject,
 };
+
+mod batch;
 
 #[derive(Clone, Copy)]
 struct ProspectiveDamage<'a> {
@@ -20,6 +22,61 @@ struct ProspectiveDamage<'a> {
     source_is_spell: bool,
     target: Option<Target>,
     recipient_object: Option<&'a TriggerEventObject>,
+    combat: bool,
+}
+
+/// One atomic part of a damage event. Callers collect every assignment that
+/// an instruction says happens at the same time, then hand the whole batch to
+/// [`Game::deal_damage_simultaneously`].
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct DamageAssignment {
+    pub(super) source: Option<GameObjectId>,
+    pub(super) target: Option<Target>,
+    pub(super) amount: u16,
+    pub(super) combat: bool,
+}
+
+/// What one assignment actually dealt after redirection, prevention, and
+/// limits. This preserves the source-specific view required by effects that
+/// ask how much damage a particular source dealt.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct DamageAssignmentOutcome {
+    pub(super) source: Option<GameObjectId>,
+    pub(super) recipient: Target,
+    pub(super) amount: u16,
+}
+
+/// The combined result for one recipient in a simultaneous damage event.
+/// `excess` is determined from every source that dealt damage to that
+/// recipient in the event, against the pre-event lethal threshold.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) struct DamageRecipientOutcome {
+    pub(super) recipient: Target,
+    pub(super) amount: u16,
+    pub(super) excess: u16,
+}
+
+/// Both rules-facing views of one completed simultaneous damage event.
+#[derive(Debug, Default, Eq, PartialEq)]
+pub(super) struct DamageEventOutcome {
+    pub(super) assignments: Vec<DamageAssignmentOutcome>,
+    pub(super) recipients: Vec<DamageRecipientOutcome>,
+}
+
+struct PreparedDamageSource {
+    object: Option<TriggerEventObject>,
+    is_spell: bool,
+    has_deathtouch: bool,
+    has_infect: bool,
+    lifelink_controller: Option<PlayerId>,
+}
+
+struct PreparedDamage {
+    source: Option<GameObjectId>,
+    source_properties: PreparedDamageSource,
+    target: Target,
+    recipient_object: Option<TriggerEventObject>,
+    amount: u16,
     combat: bool,
 }
 
@@ -60,6 +117,7 @@ impl Game {
         &mut self,
         event: ProspectiveDamage<'_>,
         amount: u16,
+        deferred_life_gains: &mut Vec<(PlayerId, u16)>,
     ) -> u16 {
         if amount == 0 || event.target.is_none() {
             return amount;
@@ -127,9 +185,7 @@ impl Game {
         }
 
         self.damage_preventions = preventions;
-        for (player, prevented) in gained_life {
-            self.gain_life(player, prevented);
-        }
+        deferred_life_gains.extend(gained_life);
         left
     }
 
@@ -547,16 +603,6 @@ impl Game {
     /// Damage landing on a permanent. A planeswalker loses loyalty instead of
     /// marking damage; everything else marks it and remembers what dealt it.
     /// Answers whether the damage was actually dealt to something.
-    /// Whether this permanent is a creature, which is what decides between
-    /// infect's counters and a planeswalker's ordinary loyalty loss.
-    fn is_creature_permanent(&self, id: GameObjectId) -> bool {
-        self.battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == id)
-            .and_then(|permanent| self.permanent_types(permanent))
-            .is_some_and(CardTypeSet::is_creature)
-    }
-
     /// Infect damage to a creature is -1/-1 counters (CR 702.90b). Nothing
     /// is marked on the permanent, so it survives cleanup and shrinks the
     /// creature for good.
@@ -618,7 +664,12 @@ impl Game {
     /// Caps a prospective damage event by every limiting rule that applies to
     /// its recipient. Limits compose by taking the smallest survivor, which
     /// is what two independent "instead" replacements do.
-    fn apply_damage_limits(&self, event: ProspectiveDamage<'_>, amount: u16) -> u16 {
+    fn apply_damage_limits(
+        &self,
+        event: ProspectiveDamage<'_>,
+        amount: u16,
+        already_assigned: u16,
+    ) -> u16 {
         let Some(Target::Player(player)) = event.target else {
             return amount;
         };
@@ -626,7 +677,11 @@ impl Game {
         let mut limited = amount;
         let _ = self.visit_player_damage_limits(player, |source, matcher, limit| {
             if self.static_damage_matcher_matches(matcher, source, source, event) {
-                limited = limited.min(Self::damage_under_limit(limit, amount, life));
+                limited = limited.min(Self::damage_under_limit(
+                    limit,
+                    amount,
+                    life.saturating_sub(i16::try_from(already_assigned).unwrap_or(i16::MAX)),
+                ));
             }
             ControlFlow::Continue(())
         });
@@ -691,114 +746,15 @@ impl Game {
         amount: u16,
         combat: bool,
     ) -> u16 {
-        // CR 614.9: redirection applies before the damage is dealt, so the
-        // preventions below all answer the permanent it lands on
-        // rather than the player it was aimed at.
-        let target = self.redirected_damage_target(source, target);
-        // Freeze both prospective participants once. Prevention follow-ups can
-        // synchronously change life totals, and characteristic-defining
-        // effects may depend on that state; every matcher and the eventual
-        // committed event must nevertheless describe one damage event.
-        let source_object = source.and_then(|source| self.damage_source_event_object(source));
-        let source_is_spell = source.is_some_and(|source| self.damage_source_is_spell(source));
-        let recipient_object = target.and_then(|target| match target {
-            Target::Permanent(id) => self
-                .battlefield
-                .iter()
-                .find(|permanent| permanent.card.id == id)
-                .map(|permanent| self.trigger_event_object(permanent)),
-            Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
-        });
-        let event = ProspectiveDamage {
+        self.deal_damage_simultaneously(vec![DamageAssignment {
             source,
-            source_object: source_object.as_ref(),
-            source_is_spell,
             target,
-            recipient_object: recipient_object.as_ref(),
+            amount,
             combat,
-        };
-        // "Damage can't be prevented this turn" is not a prevention of its
-        // own but a rule about every other one, so it is read here, ahead of
-        // both the installed rules and the static ones. Damage limits are
-        // not prevention (CR 615.1) and still apply.
-        let preventable = !self.damage_cannot_be_prevented_this_turn
-            && !self.combat_damage_cannot_be_prevented(source, combat);
-        let amount = if preventable {
-            self.apply_resolved_damage_prevention(event, amount)
-        } else {
-            amount
-        };
-        let amount = self.apply_damage_limits(event, amount);
-        if amount == 0 {
-            return 0;
-        }
-        // Protection prevents the damage it stops (CR 702.16e), so it is
-        // part of what a "damage can't be prevented" turn switches off --
-        // what protection does to targeting is untouched, and is decided
-        // long before this.
-        if preventable
-            && (self.static_damage_is_prevented(event)
-                || self.protection_stops_damage(target, source, source_is_spell))
-        {
-            return 0;
-        }
-        let source_has_keyword = |keyword: KeywordAbility| {
-            source_object.as_ref().is_some_and(|source| {
-                keyword
-                    .simple_index()
-                    .is_some_and(|index| source.keywords & (1 << index) != 0)
-            })
-        };
-        let lifelink_controller = source_object.as_ref().and_then(|source| {
-            source_has_keyword(KeywordAbility::Lifelink).then_some(source.controller)
-        });
-        let has_deathtouch = source_has_keyword(KeywordAbility::Deathtouch);
-        // Infect changes what the damage does rather than how much of it
-        // there is, so it is read here, after every prevention and limit has
-        // settled the amount (CR 702.90a).
-        let has_infect = source_has_keyword(KeywordAbility::Infect);
-        let dealt_damage = match target {
-            Some(Target::Player(player)) if has_infect => {
-                self.add_player_counters(player, CounterKind::Poison, amount);
-                true
-            }
-            Some(Target::Player(player)) => {
-                self.deal_damage_to_player(player, amount, source, combat);
-                true
-            }
-            Some(Target::Permanent(id)) if has_infect && self.is_creature_permanent(id) => {
-                self.deal_infect_damage_to_creature(id, amount, source);
-                true
-            }
-            Some(Target::Permanent(id)) => {
-                self.deal_damage_to_permanent(id, amount, source, has_deathtouch)
-            }
-            Some(Target::Card(_) | Target::Spell(_)) | None => false,
-        };
-        if dealt_damage
-            && amount > 0
-            && let Some(controller) = lifelink_controller
-        {
-            self.gain_life(controller, amount);
-        }
-        if dealt_damage && amount > 0 && combat {
-            self.record_combat_damage_to_player(target, source_object.as_ref());
-        }
-        if dealt_damage
-            && amount > 0
-            && let Some(recipient) = target
-        {
-            let event = CommittedTriggerEvent::DamageDealt {
-                source: source_object,
-                source_is_spell,
-                recipient,
-                recipient_object,
-                amount,
-                combat,
-            };
-            self.capture_battlefield_triggers(&event);
-        }
-        if dealt_damage { amount } else { 0 }
+        }])
+        .assignments
+        .first()
+        .map_or(0, |outcome| outcome.amount)
     }
 
     /// Notes combat damage that landed on a player, for the batch published

@@ -3290,9 +3290,6 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new_wi
 );
 
 // GTC 156 — Domri Rade
-// Audit: partial — The fight ability deals its two damage sequentially rather than at once; its other loyalty abilities are implemented.
-/// The available damage effects cover most of fight, but they resolve in
-/// sequence instead of committing both damage events simultaneously.
 static DOMRI_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
 
 static DOMRI_TRAMPLE: AbilityDef = abilities::trample();
@@ -3355,20 +3352,12 @@ static DOMRI_ABILITIES: [AbilityDef; 3] = [
         "−2: Target creature you control fights another target creature.",
         &[AbilityCostDef::Loyalty(-2)],
         &DOMRI_FIGHT_TARGETS,
-        EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TargetPower(TargetIndex(1)),
-            },
-        ]),
-    )
-    .with_coverage(AbilityCoverageDef::partial(
-        "The two damage events resolve one after the other rather than at the same time.",
-    )),
+        EffectDef::Fight {
+            first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            second: ObjectRefDef::Target(TargetIndex(1)),
+            excess: None,
+        },
+    ),
     AbilityDef::activated(
         "−7: You get an emblem with \"Creatures you control have double strike, trample, hexproof, and haste.\"",
         &[AbilityCostDef::Loyalty(-7)],

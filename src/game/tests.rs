@@ -147,6 +147,7 @@ mod extra_turns;
 mod face_down;
 mod fateful_hour;
 mod fetch_tapped;
+mod fight_cards;
 mod filtered_player_prevention;
 mod filtered_spell_costs;
 mod gatecrash_keyrunes;

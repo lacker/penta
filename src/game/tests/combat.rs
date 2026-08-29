@@ -1,6 +1,39 @@
 use super::*;
 
 #[test]
+fn combat_damage_snapshots_every_sources_power_before_infect_changes_it() {
+    let mut game = ready_game();
+    let mut drake = creature(10_000, cards::VIRAL_DRAKE, PlayerId::One);
+    drake.attacking = true;
+    drake.attack_defender = Some(AttackDefender::Player(PlayerId::Two));
+    let drake_id = drake.card.id;
+    let mut angel = creature(10_001, cards::SERRA_ANGEL, PlayerId::Two);
+    angel.blocking = vec![drake_id];
+    let angel_id = angel.card.id;
+    game.battlefield = vec![drake, angel];
+
+    game.begin_combat_damage_assignment();
+    take_default_combat_assignment(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != drake_id),
+        "the Drake takes the Angel's pre-damage power of four and dies",
+    );
+    let angel = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == angel_id)
+        .expect("the Angel survives");
+    assert_eq!(angel.counters(CounterKind::MinusOneMinusOne), 1);
+    assert_eq!(
+        angel.damage, 0,
+        "infect leaves a counter, not marked damage"
+    );
+}
+
+#[test]
 fn domri_ultimate_grants_two_combat_damage_steps() {
     let mut game = ready_game();
     let mut domri = creature(10_000, cards::DOMRI_RADE, PlayerId::One);

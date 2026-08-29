@@ -154,6 +154,7 @@ pub enum CardSet {
     RavnicaAllegiance,
     Commander2020,
     MagicFoundations,
+    MarvelsSpiderMan,
     AvatarTheLastAirbender,
     EdgeOfEternities,
     EdgeOfEternitiesCommander,

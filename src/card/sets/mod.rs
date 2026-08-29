@@ -820,6 +820,11 @@ const SET_MODULES: &[SetModule] = &[
         y2024::magic_foundations::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::MarvelsSpiderMan,
+        y2025::marvels_spider_man::CARDS,
+        y2025::marvels_spider_man::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::AvatarTheLastAirbender,
         y2025::avatar_the_last_airbender::CARDS,
         y2025::avatar_the_last_airbender::ADDITIONAL_PRINTINGS,

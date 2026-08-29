@@ -40,5 +40,6 @@ include!("effects/recipients_and_matchers.rs");
 include!("effects/zone_change_event_matchers.rs");
 include!("effects/applied.rs");
 include!("effects/vocabulary.rs");
+include!("effects/damage.rs");
 include!("effects/definition.rs");
 include!("effects/shorthands.rs");

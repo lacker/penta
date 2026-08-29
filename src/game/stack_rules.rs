@@ -94,8 +94,10 @@ impl Game {
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::DealDamage { .. }
+            | EffectDef::DealDamageSimultaneously(_)
             | EffectDef::DealDamageFrom { .. }
             | EffectDef::DealDamageAndApply { .. }
+            | EffectDef::Fight { .. }
             | EffectDef::DrainLife { .. }
             | EffectDef::GainLife { .. }
             | EffectDef::AddPlayerCounters { .. }

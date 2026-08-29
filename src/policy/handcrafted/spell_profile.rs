@@ -312,6 +312,12 @@ impl HandcraftedPolicy {
             | EffectDef::Mill { amount, .. }
             | EffectDef::GainLife { amount, .. }
             | EffectDef::LoseLife { amount, .. } => amount == ValueDef::ChosenX,
+            EffectDef::DealDamageSimultaneously(assignments) => {
+                !assignments.is_empty()
+                    && assignments
+                        .iter()
+                        .all(|assignment| assignment.amount == ValueDef::ChosenX)
+            }
             _ => false,
         }
     }
@@ -374,6 +380,16 @@ impl HandcraftedPolicy {
             }
             | EffectDef::DrainLife { recipient, amount } => {
                 Self::collect_damage_profile(recipient, amount, x, profile);
+            }
+            EffectDef::DealDamageSimultaneously(assignments) => {
+                for assignment in assignments {
+                    Self::collect_damage_profile(
+                        assignment.recipient,
+                        assignment.amount,
+                        x,
+                        profile,
+                    );
+                }
             }
             EffectDef::DrawCards { recipient, amount } => {
                 Self::collect_draw_profile(recipient, amount, x, profile);
@@ -441,8 +457,10 @@ impl HandcraftedPolicy {
             EffectDef::TakeExtraTurn {
                 player: EffectRecipientDef::Controller,
             } => profile.mark(DeclarativeSpellProfile::EXTRA_TURN),
-            // Nothing outranks winning, so it needs no profile of its own.
-            EffectDef::LoseTheGame { .. }
+            // Fight is board-dependent and nothing outranks winning, so none
+            // of these effects needs a profile of its own.
+            EffectDef::Fight { .. }
+            | EffectDef::LoseTheGame { .. }
             | EffectDef::WinTheGame { .. }
             | EffectDef::CopyStackObject(_)
             | EffectDef::None

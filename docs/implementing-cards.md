@@ -33,7 +33,16 @@ Ordinarily the header immediately starts the declaration block. Keep
 every helper constant, static, or function
 used by only that card inside the block, after the header and before the
 `CardRecord`, so the declaration and the vocabulary it composes remain readable
-together. A complete definition that still uses custom execution puts
+together. Within that block, prefer keeping one-use costs, targets, effects,
+and ability construction inline in the `CardRecord` and its ordered
+`CardRules` clauses. Do not split a card into named pieces merely to shorten the
+declaration. Extract a card-local component when it is repeated, recursive or
+self-referential. Recursive copied abilities and power/toughness value
+definitions are common examples. Keep any extracted components adjacent to the
+declaration and in printed-clause order.
+This is direction for new or already-in-scope work, not a reason to rewrite
+existing definitions solely for layout. A complete definition that still uses
+custom execution puts
 `// Audit: custom — Needs ...` immediately below the header, naming the work
 required to migrate it to declarative execution; card-local helpers follow the
 audit. An incomplete identity uses `blocked`, `partial`, or `metadata-only` as

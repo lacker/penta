@@ -124,6 +124,11 @@ pub enum ObjectSetDef {
     /// the spell is still on the stack holding them.
     PermanentsTargetedBy(ObjectRefDef),
     Query(ObjectQueryDef),
+    /// Every battlefield permanent the referenced attachment may legally
+    /// attach to under its current characteristics. Unlike a target query,
+    /// this ignores hexproof and shroud while still enforcing the live Aura,
+    /// Equipment, or Fortification attachment restriction and protection.
+    LegalAttachmentHosts(ObjectRefDef),
     /// Every battlefield permanent sharing the referenced object's effective
     /// name, including the referenced object itself.
     SharingNameWith(ObjectRefDef),
@@ -270,6 +275,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
+                | ObjectSetDef::LegalAttachmentHosts(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
@@ -294,6 +300,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
+                | ObjectSetDef::LegalAttachmentHosts(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)

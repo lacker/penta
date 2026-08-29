@@ -619,6 +619,30 @@ impl Game {
             .collect()
     }
 
+    fn legal_attachment_hosts(
+        &self,
+        reference: ObjectRefDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Vec<Target> {
+        let Some(attachment) = self
+            .object_reference_id(reference, object, context, scoped)
+            .and_then(|attachment| {
+                self.battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == attachment)
+            })
+        else {
+            return Vec::new();
+        };
+        self.battlefield
+            .iter()
+            .filter(|host| self.is_legal_prospective_attachment_host(attachment, host.card.id))
+            .map(|host| Target::Permanent(host.card.id))
+            .collect()
+    }
+
     pub(super) fn effect_objects(
         &self,
         objects: ObjectSetDef,
@@ -660,6 +684,9 @@ impl Game {
                 .unwrap_or_default(),
             ObjectSetDef::Query(query) => {
                 self.objects_matching_effect_query(query, object, context, scoped)
+            }
+            ObjectSetDef::LegalAttachmentHosts(reference) => {
+                self.legal_attachment_hosts(reference, object, context, scoped)
             }
             ObjectSetDef::SharingNameWith(reference) => {
                 self.objects_sharing_name_with_reference(reference, object, context, scoped)

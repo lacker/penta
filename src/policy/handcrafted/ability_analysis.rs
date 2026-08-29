@@ -496,6 +496,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::Binding(_)
             | crate::card::ObjectSetDef::MatchingBinding { .. }
             | crate::card::ObjectSetDef::PermanentsTargetedBy(_)
+            | crate::card::ObjectSetDef::LegalAttachmentHosts(_)
             | crate::card::ObjectSetDef::LinkedExiles(_)
             | crate::card::ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)

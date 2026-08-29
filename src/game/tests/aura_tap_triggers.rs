@@ -23,8 +23,8 @@ fn enchanted_forest(aura: CardDefinitionId) -> (Game, GameObjectId, GameObjectId
     (game, forest_id, aura_id)
 }
 
-/// Taps the land the ordinary way -- for mana -- and settles the triggers.
-fn tap_for_mana(game: &mut Game, land: GameObjectId) {
+/// Taps the land the ordinary way -- for mana.
+fn activate_for_mana(game: &mut Game, land: GameObjectId) {
     game.priority = PlayerId::Two;
     let action = game
         .legal_actions(PlayerId::Two)
@@ -34,6 +34,11 @@ fn tap_for_mana(game: &mut Game, land: GameObjectId) {
     game.apply(PlayerId::Two, action)
         .expect("the mana ability activates");
     game.priority = PlayerId::One;
+}
+
+/// Taps the land the ordinary way -- for mana -- and settles the triggers.
+fn tap_for_mana(game: &mut Game, land: GameObjectId) {
+    activate_for_mana(game, land);
     drain_pending(game);
 }
 
@@ -91,6 +96,85 @@ fn blight_destroys_the_land_it_enchants() {
     );
 }
 
+#[test]
+fn kudzu_hands_the_optional_reattachment_to_the_destroyed_lands_controller() {
+    let (mut game, forest, aura) = enchanted_forest(cards::KUDZU);
+    let destination = creature(10_002, cards::ISLAND, PlayerId::One);
+    let destination_id = destination.card.id;
+    let forbidden = creature(10_003, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let forbidden_id = forbidden.card.id;
+    game.battlefield.extend([destination, forbidden]);
+
+    activate_for_mana(&mut game, forest);
+    let decision = advance_to_prompt(&mut game, PlayerId::Two, "Choose objects");
+
+    assert_eq!((decision.minimum, decision.maximum), (0, 1));
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == forest),
+        "the tapped land was destroyed before the choice"
+    );
+    let offered = decision
+        .options
+        .iter()
+        .filter_map(|option| option.card.map(|(card, _)| card))
+        .collect::<Vec<_>>();
+    assert!(offered.contains(&destination_id));
+    assert!(
+        !offered.contains(&forbidden_id),
+        "a nonland is not a legal host for Kudzu"
+    );
+    let destination_option = decision
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(card, _)| card == destination_id))
+        .expect("the legal destination is offered")
+        .id;
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![destination_option],
+        },
+    )
+    .expect("the land's controller may move Kudzu");
+
+    let kudzu = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == aura)
+        .expect("Kudzu remains on the battlefield after reattaching");
+    assert_eq!(kudzu.attached_to, Some(destination_id));
+}
+
+#[test]
+fn kudzu_dies_when_the_lands_controller_declines_reattachment() {
+    let (mut game, forest, aura) = enchanted_forest(cards::KUDZU);
+    let destination = creature(10_002, cards::ISLAND, PlayerId::One);
+    game.battlefield.push(destination);
+
+    activate_for_mana(&mut game, forest);
+    let decision = advance_to_prompt(&mut game, PlayerId::Two, "Choose objects");
+    game.apply(
+        PlayerId::Two,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: Vec::new(),
+        },
+    )
+    .expect("reattachment is optional");
+
+    assert!(
+        !game
+            .battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == aura),
+        "an unattached Aura is put into its owner's graveyard"
+    );
+}
+
 /// Spirit Shackle's counter is toughness only, and it stacks: two taps take
 /// four toughness off rather than one.
 #[test]
@@ -132,7 +216,12 @@ fn spirit_shackle_stacks_its_counters_on_the_creature() {
 #[test]
 fn every_tap_watching_aura_reports_complete_coverage() {
     let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::PSYCHIC_VENOM, cards::BLIGHT, cards::SPIRIT_SHACKLE] {
+    for definition in [
+        cards::PSYCHIC_VENOM,
+        cards::BLIGHT,
+        cards::KUDZU,
+        cards::SPIRIT_SHACKLE,
+    ] {
         let card = catalog.get(definition).expect("the card is cataloged");
         assert_eq!(
             card.rules.implementation_status(),

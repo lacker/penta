@@ -271,6 +271,7 @@ fn validate_object_set_shape(
     match objects {
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
+        | ObjectSetDef::LegalAttachmentHosts(reference)
         | ObjectSetDef::SharingNameWith(reference) => {
             validate_object_reference_shape(reference, targets)
         }
@@ -708,6 +709,7 @@ fn recipient_may_name_nonbattlefield_object(
                 | ObjectRefDef::SourceOfTargetedStackObject(_),
             )
             | ObjectSetDef::PermanentsTargetedBy(_)
+            | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::SharingNameWith(_),
         )
         // Players and the creatures they control: nothing outside the
@@ -767,6 +769,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
                 | ObjectRefDef::DamagedObject,
             )
             | ObjectSetDef::PermanentsTargetedBy(_)
+            | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::SharingNameWith(_),
         )
         | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)

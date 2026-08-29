@@ -156,12 +156,17 @@ fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
 
     let guardian = GameObjectId(10_000);
     let orb = GameObjectId(10_001);
+    let other_host = GameObjectId(10_004);
     let mut existing_aura = creature(10_002, aura_definition, PlayerId::One);
     existing_aura.attached_to = Some(orb);
+    let mut moving_aura = creature(10_005, aura_definition, PlayerId::One);
+    moving_aura.attached_to = Some(other_host);
     game.battlefield.extend([
         creature(guardian.0, cards::GUARDIAN_BEAST, PlayerId::One),
         creature(orb.0, cards::CHAOS_ORB, PlayerId::One),
+        creature(other_host.0, cards::GRIZZLY_BEARS, PlayerId::One),
         existing_aura,
+        moving_aura,
     ]);
 
     let aura = game
@@ -172,6 +177,10 @@ fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
     assert!(
         game.is_legal_aura_host(aura, orb),
         "Guardian Beast does not remove an Aura already attached",
+    );
+    assert!(
+        !game.try_attach(GameObjectId(10_005), orb),
+        "a nontargeted effect cannot move a new Aura onto the protected artifact",
     );
 
     let new_aura = card(10_003, aura_definition, PlayerId::One);
@@ -202,5 +211,9 @@ fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
     assert!(
         aura_targets(&game).contains(&Target::Permanent(orb)),
         "the artifact becomes a legal Aura target when Guardian Beast is tapped",
+    );
+    assert!(
+        game.try_attach(GameObjectId(10_005), orb),
+        "nontargeted attachment becomes legal at the same time",
     );
 }

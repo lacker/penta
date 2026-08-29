@@ -4382,13 +4382,44 @@ pub(in crate::card::sets) static IRONROOT_TREEFOLK: CardRecord = CardRecord::new
 );
 
 // LEA 204 — Kudzu
-// Audit: metadata-only — Needs the destroyed land's controller to choose, as the trigger resolves, a new land to attach this Aura to. The destruction half is available.
+static KUDZU_ATTACH: EffectDef = EffectDef::Attach {
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+};
+
+static KUDZU_REATTACH: EffectDef = EffectDef::Choose(ChooseDef {
+    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+    unchosen: None,
+    chooser: PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
+    candidates: ObjectSetDef::LegalAttachmentHosts(ObjectRefDef::Source),
+    exclude: None,
+    minimum: 0,
+    maximum: 1,
+    visibility: ChoiceVisibilityDef::Public,
+    then: &KUDZU_ATTACH,
+});
+
 pub(in crate::card::sets) static KUDZU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2b72dcd-9ea1-4729-baae-ecd262fdff67"),
     "Kudzu",
     crate::card::CardArt::new("b2b72dcd-9ea1-4729-baae-ecd262fdff67", "Mark Poole"),
     crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::triggered(
+                "When enchanted land becomes tapped, destroy it. That land's controller may attach this Aura to a land of their choice.",
+                TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+                EffectDef::Sequence(&[
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::TriggeringObject,
+                        can_regenerate: true,
+                        then: None,
+                    },
+                    KUDZU_REATTACH,
+                ]),
+            ),
+        ]),
 );
 
 // LEA 205 — Ley Druid

@@ -58,12 +58,26 @@ impl Game {
         self.is_legal_attachment_host_with_prospective_reconfigure(attachment, host, false)
     }
 
+    /// Whether an effect may newly attach this permanent to `host`.
+    /// Reconfigure is allowed to shed Creature as it attaches; ordinary live
+    /// attachment checks use [`Self::is_legal_attachment_host`] instead.
+    pub(super) fn is_legal_prospective_attachment_host(
+        &self,
+        attachment: &Permanent,
+        host: GameObjectId,
+    ) -> bool {
+        self.is_legal_attachment_host_with_prospective_reconfigure(attachment, host, true)
+    }
+
     fn is_legal_attachment_host_with_prospective_reconfigure(
         &self,
         attachment: &Permanent,
         host: GameObjectId,
         prospective_reconfigure: bool,
     ) -> bool {
+        if attachment.card.id == host {
+            return false;
+        }
         let kind = self.attachment_kind(attachment);
         let is_creature = self
             .permanent_types(attachment)
@@ -76,6 +90,16 @@ impl Game {
             && !(prospective_reconfigure
                 && kind == Some(AttachmentKind::Equipment)
                 && self.has_reconfigure(attachment))
+        {
+            return false;
+        }
+        if kind == Some(AttachmentKind::Aura)
+            && attachment.attached_to != Some(host)
+            && self
+                .battlefield
+                .iter()
+                .find(|candidate| candidate.card.id == host)
+                .is_some_and(|host| self.cannot_become_enchanted(host))
         {
             return false;
         }
@@ -163,7 +187,7 @@ impl Game {
             return false;
         };
         if permanent.attached_to == Some(host)
-            || !self.is_legal_attachment_host_with_prospective_reconfigure(&permanent, host, true)
+            || !self.is_legal_prospective_attachment_host(&permanent, host)
         {
             return false;
         }

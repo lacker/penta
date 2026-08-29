@@ -455,6 +455,7 @@ impl Game {
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)
+                | ObjectSetDef::LegalAttachmentHosts(_)
                 | ObjectSetDef::LinkedExiles(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::BottomOfGraveyard(_)

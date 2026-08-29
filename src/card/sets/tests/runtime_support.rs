@@ -122,6 +122,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::One(_)
             | ObjectSetDef::PermanentsTargetedBy(_)
+            | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::Binding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)

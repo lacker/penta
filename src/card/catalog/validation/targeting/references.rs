@@ -393,6 +393,7 @@ fn validate_recipient_target_references(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(reference)
             | ObjectSetDef::PermanentsTargetedBy(reference)
+            | ObjectSetDef::LegalAttachmentHosts(reference)
             | ObjectSetDef::SharingNameWith(reference),
         ) => validate_object_reference(reference, target_count, scope),
         EffectRecipientSetDef::Objects(

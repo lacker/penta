@@ -737,6 +737,7 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::Binding(_)
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::PermanentsTargetedBy(_)
+        | ObjectSetDef::LegalAttachmentHosts(_)
         | ObjectSetDef::LinkedExiles(_)
         | ObjectSetDef::CardsDrawnThisTurnInHand(_)
         | ObjectSetDef::BottomOfGraveyard(_)

@@ -119,6 +119,73 @@ fn overlapping_damage_matchers_scan_one_committed_event_once_each() {
 }
 
 #[test]
+fn simultaneous_damage_coalesces_recipient_but_not_source_occurrences() {
+    static ABILITIES: [AbilityDef; 2] = [
+        AbilityDef::triggered(
+            "Whenever this is dealt damage.",
+            TriggerEventDef::damage_to_source(),
+            EffectDef::None,
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature deals damage to this.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Source),
+                ..DamageEventMatcherDef::ANY
+            }),
+            EffectDef::None,
+        ),
+    ];
+
+    let definition = CardDefinitionId::new(10_314);
+    let mut game = ready_game();
+    add_definition(
+        &mut game,
+        trigger_creature_definition(definition, "Simultaneous damage watcher", &ABILITIES),
+    );
+    let watcher = creature(10_314, definition, PlayerId::One);
+    let watcher_id = watcher.card.id;
+    let first = creature(10_315, cards::SAVANNAH_LIONS, PlayerId::Two);
+    let first_id = first.card.id;
+    let second = creature(10_316, cards::SAVANNAH_LIONS, PlayerId::Two);
+    let second_id = second.card.id;
+    game.battlefield.extend([watcher, first, second]);
+
+    game.deal_damage_simultaneously(vec![
+        DamageAssignment {
+            source: Some(first_id),
+            target: Some(Target::Permanent(watcher_id)),
+            amount: 1,
+            combat: true,
+        },
+        DamageAssignment {
+            source: Some(second_id),
+            target: Some(Target::Permanent(watcher_id)),
+            amount: 1,
+            combat: true,
+        },
+    ]);
+
+    let recipient_triggers = game
+        .pending_triggers
+        .iter()
+        .filter(|trigger| trigger.text == "Whenever this is dealt damage.")
+        .collect::<Vec<_>>();
+    assert_eq!(recipient_triggers.len(), 1);
+    assert_eq!(recipient_triggers[0].context.trigger.amount, Some(2));
+    assert_eq!(
+        game.pending_triggers
+            .iter()
+            .filter(|trigger| trigger.text == "Whenever a creature deals damage to this.")
+            .count(),
+        2,
+        "the source-qualified clause sees one occurrence per damage source",
+    );
+}
+
+#[test]
 fn related_damage_recipients_are_relative_to_the_ability_controller() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
         "Whenever the watched creature deals damage to an opponent.",

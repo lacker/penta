@@ -8,9 +8,9 @@ use super::prevention_state::{
     ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
 };
 use super::{
-    AppliedRuleDef, CardType, CommittedTriggerEvent, ControlFlow, CounterKind, Game, GameObjectId,
-    KeywordAbility, Permanent, PlayerId, RelationalSourceFilter, RetiredObject, StackObjectKind,
-    Target, TriggerEventObject,
+    AppliedRuleDef, BattlefieldTriggerListener, CardType, CommittedTriggerEvent, ControlFlow,
+    CounterKind, Game, GameObjectId, KeywordAbility, Permanent, PlayerId, RelationalSourceFilter,
+    RetiredObject, StackObjectKind, Target, TriggerEventObject,
 };
 
 mod batch;

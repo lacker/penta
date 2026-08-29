@@ -150,6 +150,7 @@ mod fetch_tapped;
 mod fight_cards;
 mod filtered_player_prevention;
 mod filtered_spell_costs;
+mod fungusaur;
 mod gaeas_liege;
 mod gatecrash_keyrunes;
 mod gatecrash_stale_audits;

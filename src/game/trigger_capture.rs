@@ -396,6 +396,54 @@ impl Game {
         );
     }
 
+    fn batch_trigger_context(
+        &self,
+        listener: &BattlefieldTriggerListener,
+        event: &CommittedTriggerEvent,
+        events: &[CommittedTriggerEvent],
+        matched_damage_recipients: &mut Vec<(AbilitySourceRef, Option<u32>, Target)>,
+    ) -> Option<TriggerContext> {
+        let mut context = event.context();
+        let (
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                source: DamageSourceMatcherDef::Any,
+                ..
+            }),
+            CommittedTriggerEvent::DamageDealt { recipient, .. },
+        ) = (listener.event, event)
+        else {
+            return Some(context);
+        };
+        let occurrence = (listener.capture.source, listener.installed, *recipient);
+        if matched_damage_recipients.contains(&occurrence) {
+            return None;
+        }
+        matched_damage_recipients.push(occurrence);
+        let amount = events
+            .iter()
+            .filter(|candidate| {
+                matches!(
+                    candidate,
+                    CommittedTriggerEvent::DamageDealt {
+                        recipient: candidate_recipient,
+                        ..
+                    } if candidate_recipient == recipient
+                ) && self.trigger_event_matches_for_controller(
+                    listener.event,
+                    candidate,
+                    listener.capture.source.object,
+                    Some(listener.capture.controller),
+                )
+            })
+            .filter_map(|candidate| match candidate {
+                CommittedTriggerEvent::DamageDealt { amount, .. } => Some(*amount),
+                _ => None,
+            })
+            .fold(0_u16, u16::saturating_add);
+        context.amount = Some(i32::from(amount));
+        Some(context)
+    }
+
     pub(super) fn capture_battlefield_trigger_batch_with_mana_resolver(
         &mut self,
         listeners: &[BattlefieldTriggerListener],
@@ -404,6 +452,11 @@ impl Game {
     ) {
         let mut consumed_once = Vec::new();
         let mut matched = Vec::new();
+        // One simultaneous damage event can contain assignments from several
+        // sources to the same recipient. A clause concerned only with what
+        // was dealt damage sees one occurrence for that recipient, carrying
+        // the total amount, rather than one occurrence per source.
+        let mut matched_damage_recipients = Vec::new();
         // "Triggers only once each turn" counts the triggering rather than
         // the resolution, and one batch can offer a capped ability several
         // matching events, so the count has to rise inside this loop as
@@ -419,6 +472,14 @@ impl Game {
                 ) {
                     continue;
                 }
+                let Some(trigger_context) = self.batch_trigger_context(
+                    listener,
+                    event,
+                    events,
+                    &mut matched_damage_recipients,
+                ) else {
+                    continue;
+                };
                 if let Some(limit) = listener.trigger_limit {
                     let source = listener.capture.source;
                     let already = self.triggers_this_turn(source);
@@ -447,7 +508,7 @@ impl Game {
                 let mut capture = listener.capture.clone();
                 // Keep installer bindings and targets; only the committed
                 // event-local context changes for this match.
-                capture.context.trigger = event.context();
+                capture.context.trigger = trigger_context;
                 if let Some(object) = Self::zone_change_event_object(listener.event, event) {
                     capture.context.trigger.object = Some(object.id);
                     capture.context.trigger.object_controller = Some(object.controller);

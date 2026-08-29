@@ -1,9 +1,9 @@
 //! Preparation and atomic commitment of simultaneous damage events.
 
 use super::{
-    CardType, CommittedTriggerEvent, CounterKind, DamageAssignment, DamageAssignmentOutcome,
-    DamageEventOutcome, DamageRecipientOutcome, Game, KeywordAbility, PlayerId, PreparedDamage,
-    PreparedDamageSource, ProspectiveDamage, Target,
+    BattlefieldTriggerListener, CardType, CommittedTriggerEvent, CounterKind, DamageAssignment,
+    DamageAssignmentOutcome, DamageEventOutcome, DamageRecipientOutcome, Game, KeywordAbility,
+    PlayerId, PreparedDamage, PreparedDamageSource, ProspectiveDamage, Target,
 };
 
 impl Game {
@@ -16,6 +16,11 @@ impl Game {
         &mut self,
         assignments: Vec<DamageAssignment>,
     ) -> DamageEventOutcome {
+        // Damage-trigger abilities trigger while damage is dealt, before its
+        // results are processed (CR 120.4b-c), so freeze the listener set at
+        // the start of the event even though their stack objects are created
+        // only after the full event has been committed.
+        let listeners = self.battlefield_trigger_listeners();
         let mut deferred_life_gains = Vec::new();
         let mut assigned_to_players = [0_u16; 2];
         let prepared = assignments
@@ -30,7 +35,7 @@ impl Game {
             .collect::<Vec<_>>();
         let recipients = self.damage_recipient_outcomes(&prepared);
 
-        self.commit_prepared_damage(&prepared, deferred_life_gains);
+        self.commit_prepared_damage(&prepared, deferred_life_gains, &listeners);
 
         DamageEventOutcome {
             assignments: prepared
@@ -189,6 +194,7 @@ impl Game {
         &mut self,
         prepared: &[PreparedDamage],
         mut deferred_life_gains: Vec<(PlayerId, u16)>,
+        listeners: &[BattlefieldTriggerListener],
     ) {
         // Only now do the results change life totals, counters, and marks.
         for damage in prepared {
@@ -238,15 +244,19 @@ impl Game {
 
         // Publish only after the full event is committed, so every trigger
         // observes one post-damage state rather than an intermediate state.
-        for damage in prepared {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::DamageDealt {
+        // The batch boundary also lets recipient-facing clauses treat all
+        // damage dealt to one recipient as one occurrence of the event.
+        let events = prepared
+            .iter()
+            .map(|damage| CommittedTriggerEvent::DamageDealt {
                 source: damage.source_properties.object.clone(),
                 source_is_spell: damage.source_properties.is_spell,
                 recipient: damage.target,
                 recipient_object: damage.recipient_object.clone(),
                 amount: damage.amount,
                 combat: damage.combat,
-            });
-        }
+            })
+            .collect::<Vec<_>>();
+        self.capture_battlefield_trigger_batch_from_snapshot(listeners, &events);
     }
 }

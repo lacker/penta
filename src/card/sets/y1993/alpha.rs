@@ -4971,16 +4971,19 @@ pub(in crate::card::sets) static BLACK_VISE: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 234 — Celestial Prism
-// Audit: metadata-only — The mana-ability runtime cannot activate a mana ability that itself has a mana payment cost.
 pub(in crate::card::sets) static CELESTIAL_PRISM: CardRecord = CardRecord::new_with_legacy_id(
     499,
     "Celestial Prism",
     CardArt::new("a47417cb-1ea7-4f65-ba06-e27a99373114", "Amy Weber"),
     CardSet::Alpha,
-    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[AbilityDef::not_implemented(
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{2}, {T}: Add one mana of any color.",
-        "The mana-ability runtime cannot currently pay a mana cost while activating a mana ability.",
-    )]),
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::TapSource,
+        ],
+        EffectDef::AddMana(AddManaEffectDef::any_color()),
+    )),
 );
 
 // LEA 235 — Chaos Orb

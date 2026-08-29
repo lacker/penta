@@ -82,8 +82,8 @@ fn catalog_exposes_derived_implementation_coverage_not_the_play_gate() {
     let vraska = find("Vraska the Unseen");
     assert_eq!(vraska["implementationStatus"], "complete");
     let prism = find("Celestial Prism");
-    assert_eq!(prism["implementationStatus"], "metadataOnly");
-    assert_eq!(prism["parts"][0]["implementationStatus"], "metadataOnly");
+    assert_eq!(prism["implementationStatus"], "complete");
+    assert_eq!(prism["parts"][0]["implementationStatus"], "complete");
     // Pithing Needle is now complete; this keeps the coverage assertion
     // aligned with its newly executable card-name choice.
     let needle = find("Pithing Needle");

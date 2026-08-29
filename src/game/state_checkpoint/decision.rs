@@ -974,7 +974,8 @@ fn continuation_snapshot(
         // chose -- its frozen ability text, targets, and modes -- which this
         // format has no place for yet.
         | DecisionContinuation::ActivationCostSacrifice { .. }
-        | DecisionContinuation::ActivationCostTap { .. } => return None,
+        | DecisionContinuation::ActivationCostTap { .. }
+        | DecisionContinuation::ActivationTargeting { .. } => return None,
     };
     Some(value)
 }

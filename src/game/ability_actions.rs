@@ -600,7 +600,7 @@ impl Game {
                         else {
                             continue;
                         };
-                        for selections in self.legal_ability_target_selections(
+                        for selections in self.legal_activation_target_selections(
                             &plan.target_defs,
                             player,
                             permanent.card.id,

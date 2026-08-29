@@ -177,10 +177,12 @@ impl Game {
         trigger: &PendingTrigger,
         target: AbilityTargetDef,
     ) -> Vec<Target> {
-        let candidates = self.ability_targets_matching_with_selections(
+        let chooser = Self::target_chooser(trigger, target);
+        let candidates = self.ability_targets_matching_with_selections_for_chooser(
             target.predicate,
             &trigger.targets,
-            Self::target_chooser(trigger, target),
+            chooser,
+            trigger.controller,
             trigger.source.object,
             trigger.context.trigger,
         );
@@ -199,6 +201,7 @@ impl Game {
                 .trigger
                 .event_player
                 .unwrap_or(trigger.controller),
+            TargetChooserDef::Opponent => trigger.controller.opponent(),
         }
     }
 

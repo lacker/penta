@@ -70,6 +70,13 @@ pub enum GrantedAbilityValidationError {
         minimum: u8,
         maximum: u8,
     },
+    /// Alternate-player activation targeting currently supports the Arena
+    /// shape: one undivided final slot chosen by the opponent. Keeping that
+    /// boundary explicit prevents a complete declaration from reaching a
+    /// choice protocol that cannot represent it.
+    UnsupportedActivatedTargetChoice {
+        target: TargetIndex,
+    },
     TargetReferenceOutOfBounds {
         target: TargetIndex,
         target_count: usize,
@@ -179,6 +186,10 @@ impl fmt::Display for GrantedAbilityValidationError {
             } => write!(
                 formatter,
                 "defines target {target:?} requiring at least {minimum} targets but allowing at most {maximum}",
+            ),
+            Self::UnsupportedActivatedTargetChoice { target } => write!(
+                formatter,
+                "defines activated target {target:?} with an alternate chooser, but only one undivided final target chosen by the opponent is supported",
             ),
             Self::TargetReferenceOutOfBounds {
                 target,
@@ -454,6 +465,12 @@ pub enum CatalogError {
         target: TargetIndex,
         minimum: u8,
         maximum: u8,
+    },
+    UnsupportedActivatedAbilityTargetChoice {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        target: TargetIndex,
     },
     AbilityTargetReferenceOutOfBounds {
         definition: CardDefinitionId,

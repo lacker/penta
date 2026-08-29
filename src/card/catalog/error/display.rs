@@ -267,6 +267,15 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "target {target:?} of ability {ability:?} on part {part:?} of card definition {definition:?} requires at least {minimum} targets but allows at most {maximum}"
             ),
+            Self::UnsupportedActivatedAbilityTargetChoice {
+                definition,
+                part,
+                ability,
+                target,
+            } => write!(
+                formatter,
+                "target {target:?} of activated ability {ability:?} on part {part:?} of card definition {definition:?} has an alternate chooser, but only one undivided final target chosen by the opponent is supported"
+            ),
             Self::AbilityTargetReferenceOutOfBounds {
                 definition,
                 part,

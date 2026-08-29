@@ -300,6 +300,9 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
             "Unholy Citadel",
             "Maze of Ith",
             "Safe Haven",
+            // Spends its tap making two creatures fight rather than making
+            // mana; its opponent chooses one of those targets.
+            "Arena",
             // Spends its own tap fetching a basic rather than making mana.
             "Thawing Glaciers",
             "Bloodstained Mire",

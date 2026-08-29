@@ -824,14 +824,16 @@ impl Game {
                 .trigger
                 .event_player
                 .unwrap_or(object.controller),
+            TargetChooserDef::Opponent => object.controller.opponent(),
         };
         Self::without_excluded_source(
             definition,
             source,
-            self.ability_targets_matching_with_selections(
+            self.ability_targets_matching_with_selections_for_chooser(
                 definition.predicate,
                 &ability.targets,
                 chooser,
+                object.controller,
                 source,
                 ability.context.trigger,
             ),

@@ -227,6 +227,9 @@ pub enum TargetChooserDef {
     /// event named: the player whose upkeep it is, for Oath of Druids. The
     /// ability is still its controller's; only the choice moves.
     EventPlayer,
+    /// The other player chooses this target. Penta games are two-player, so
+    /// "an opponent's choice" identifies one seat without another selection.
+    Opponent,
 }
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -327,6 +330,13 @@ impl AbilityTargetDef {
     #[must_use]
     pub const fn chosen_by_event_player(mut self) -> Self {
         self.chooser = TargetChooserDef::EventPlayer;
+        self
+    }
+
+    /// The same slot, filled by the ability controller's opponent.
+    #[must_use]
+    pub const fn chosen_by_opponent(mut self) -> Self {
+        self.chooser = TargetChooserDef::Opponent;
         self
     }
 

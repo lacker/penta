@@ -33,8 +33,11 @@ impl DamageAssignmentDef {
 }
 
 /// A continuation that runs only when a fight assignment dealt excess damage
-/// to the named participant. The excess amount is exposed to `then` through
-/// [`ValueDef::MatchedCount`].
+/// to the named participant. Fight itself is all-or-nothing: if either named
+/// object is not a creature, neither deals damage. This continuation also
+/// stays dormant when the fight does not happen, all damage is prevented, or
+/// the named participant took no excess. The excess amount is exposed to
+/// `then` through [`ValueDef::MatchedCount`].
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct FightExcessDef {
     pub recipient: ObjectRefDef,

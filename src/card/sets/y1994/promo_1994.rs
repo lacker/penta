@@ -2,23 +2,61 @@
 //! each currently needs an unsupported declarative capability. Their exact gaps
 //! are recorded inline at their synthetic Eternal Central collector positions.
 
+use crate::TargetIndex;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, ComparisonDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::mana_cost;
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
 // P94 1 — Arena
-// Audit: metadata-only — Fight is supported, but the second target must be chosen by an opponent during activation; letting the activator choose it would misexecute the card.
+static ARENA_TARGETS: [AbilityTargetDef; 2] = [
+    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    }),
+    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    })
+    .chosen_by_opponent(),
+];
+static ARENA_EFFECTS: [EffectDef; 3] = [
+    EffectDef::Tap {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+    },
+    EffectDef::Tap {
+        object: EffectRecipientDef::Target(TargetIndex(1)),
+    },
+    EffectDef::Fight {
+        first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+        second: ObjectRefDef::Target(TargetIndex(1)),
+        excess: None,
+    },
+];
 pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f989fda-2e54-427c-9154-4820c48abb02"),
     "Arena",
     CardArt::new("2f989fda-2e54-427c-9154-4820c48abb02", "Rob Alexander"),
     CardSet::Promo1994,
-    CardRules::unsupported(),
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
+        "{3}, {T}: Tap target creature you control and target creature of an opponent's choice they control. Those creatures fight each other.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{3}")),
+            AbilityCostDef::TapSource,
+        ],
+        &ARENA_TARGETS,
+        EffectDef::Sequence(&ARENA_EFFECTS),
+    )),
 );
 
 // P94 2 — Sewers of Estark

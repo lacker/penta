@@ -126,6 +126,14 @@ fn top_level_ability_error(
             minimum: *minimum,
             maximum: *maximum,
         },
+        GrantedAbilityValidationError::UnsupportedActivatedTargetChoice { target } => {
+            CatalogError::UnsupportedActivatedAbilityTargetChoice {
+                definition: definition.id,
+                part,
+                ability,
+                target: *target,
+            }
+        }
         GrantedAbilityValidationError::TargetReferenceOutOfBounds {
             target,
             target_count,

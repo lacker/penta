@@ -12,9 +12,9 @@ use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
     CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DecisionOption, DecisionZone,
     DrawReplacement, EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
-    PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit, PilesSeparated,
-    ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
-    ScopedEffect, StackObject, TriggerPlacementBatch,
+    PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit,
+    PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota,
+    SacrificedAmountDef, ScopedEffect, StackObject, TriggerPlacementBatch,
 };
 
 /// What runs once a demanded sacrifice has been chosen and made. The
@@ -301,6 +301,12 @@ pub(super) enum DecisionContinuation {
         remaining: i32,
         pending: Box<PendingActivation>,
         chosen: Vec<GameObjectId>,
+    },
+    /// A target another player chooses while an activated ability is being
+    /// declared. Costs remain unpaid and nothing is on the stack yet.
+    ActivationTargeting {
+        pending: Box<PendingActivationTargeting>,
+        candidates: Vec<Target>,
     },
     /// The pile an entering permanent takes with it, chosen while the entry
     /// waits.

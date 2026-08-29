@@ -3,8 +3,9 @@ use super::{
     BattlefieldExitCompletion, CardBehavior, CardInstance, CharacteristicContext,
     CommittedTriggerEvent, CounterKind, DeclarativeAbilityDef, FrozenActivatedAbility, Game,
     GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
-    ObjectInstance, PendingActivation, PlayRestriction, PlayerId, SacrificeQuota, Step, Target,
-    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    ObjectInstance, PendingActivation, PendingActivationTargeting, PlayRestriction, PlayerId,
+    SacrificeQuota, Step, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
+    remove_card,
 };
 
 use crate::ManaPaymentChoice;
@@ -549,6 +550,21 @@ impl Game {
             };
             frozen_ability.target_defs = plan.target_defs;
             frozen_ability.mode_effects = plan.mode_effects;
+        }
+        if targets.len() < frozen_ability.target_defs.len() {
+            self.begin_deferred_activation_targeting(PendingActivationTargeting {
+                controller: player,
+                source,
+                ability,
+                target_defs: frozen_ability.target_defs.clone(),
+                targets,
+                cost_objects: cost_objects.to_vec(),
+                x,
+                modes: modes.to_vec(),
+                mana_payment: mana_payment.cloned().map(Box::new),
+            });
+            self.consecutive_passes = 0;
+            return;
         }
         // `apply` validated these exact ordered slot selections against a
         // generated legal action. Freeze both their slot identity and values

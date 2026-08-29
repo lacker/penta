@@ -51,6 +51,7 @@ mod activation;
 mod activation_sacrifice;
 mod activation_saddle;
 mod activation_state;
+mod activation_targeting;
 mod api;
 mod attachments;
 mod banding;
@@ -166,6 +167,7 @@ use observation::{LastSeenHand, PublicCard};
 
 use activation_sacrifice::SacrificeQuota;
 use activation_state::{ActivationChoices, FrozenActivatedAbility, PendingActivation};
+use activation_targeting::PendingActivationTargeting;
 use casting_state::{
     CastCostContext, CastOffer, CastOfferCost, CastSourceZone, SelectedSpellPlan,
     cast_source_zone_from_label,

@@ -150,6 +150,21 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             );
             ids.extend(chosen.iter().copied());
         }
+        DecisionContinuation::ActivationTargeting {
+            pending,
+            candidates,
+        } => {
+            ids.push(pending.source);
+            ids.extend(pending.cost_objects.iter().copied());
+            ids.extend(
+                pending
+                    .targets
+                    .iter()
+                    .flat_map(crate::TargetSelection::targets)
+                    .filter_map(|target| target_object_id(*target)),
+            );
+            ids.extend(candidates.iter().copied().filter_map(target_object_id));
+        }
         DecisionContinuation::TriggerOrder { batch, remaining } => {
             extend_trigger_batch_ids(&mut ids, batch);
             for batch in remaining {

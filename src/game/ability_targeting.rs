@@ -10,6 +10,31 @@ use super::{
     StackTargetKindDef, Target, TargetSelection, TriggerContext, ZoneKind,
 };
 
+/// The two player identities target selection needs. Printed relations such
+/// as "you control" are measured from the chooser, while hexproof and similar
+/// restrictions care who controls the spell or ability doing the targeting.
+#[derive(Clone, Copy)]
+pub(super) struct TargetingActors {
+    chooser: PlayerId,
+    ability_controller: PlayerId,
+}
+
+impl TargetingActors {
+    const fn controller(controller: PlayerId) -> Self {
+        Self {
+            chooser: controller,
+            ability_controller: controller,
+        }
+    }
+
+    pub(super) const fn for_chooser(chooser: PlayerId, ability_controller: PlayerId) -> Self {
+        Self {
+            chooser,
+            ability_controller,
+        }
+    }
+}
+
 impl Game {
     pub(super) fn targets_owned_by_player_matching(
         &self,
@@ -65,7 +90,7 @@ impl Game {
         &self,
         predicate: AbilityTargetPredicate,
         selections: &[TargetSelection],
-        controller: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         source_is_spell: bool,
     ) -> Option<Vec<Target>> {
@@ -98,7 +123,7 @@ impl Game {
                         false,
                     ) && self.permanent_can_be_targeted_by(
                         permanent,
-                        controller,
+                        actors.ability_controller,
                         source,
                         source_is_spell,
                     )
@@ -112,7 +137,7 @@ impl Game {
         &self,
         predicate: AbilityTargetPredicate,
         selections: &[TargetSelection],
-        controller: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
@@ -123,7 +148,7 @@ impl Game {
                 for target in self.ability_targets_matching_with_selections_for(
                     *predicate,
                     selections,
-                    controller,
+                    actors,
                     source,
                     context,
                     source_is_spell,
@@ -135,23 +160,17 @@ impl Game {
             }
             return targets;
         }
-        self.targets_controlled_by_target_of(
-            predicate,
-            selections,
-            controller,
-            source,
-            source_is_spell,
-        )
-        .or_else(|| self.targets_owned_by_target_player(predicate, selections, source))
-        .unwrap_or_else(|| {
-            self.ability_targets_matching_for(
-                predicate,
-                controller,
-                source,
-                context,
-                source_is_spell,
-            )
-        })
+        self.targets_controlled_by_target_of(predicate, selections, actors, source, source_is_spell)
+            .or_else(|| self.targets_owned_by_target_player(predicate, selections, source))
+            .unwrap_or_else(|| {
+                self.ability_targets_matching_for(
+                    predicate,
+                    actors,
+                    source,
+                    context,
+                    source_is_spell,
+                )
+            })
     }
 
     pub(super) fn ability_targets_matching_with_selections_at(
@@ -165,7 +184,32 @@ impl Game {
     ) -> Vec<Target> {
         let previous = self.prospective_x.replace(Some(x));
         let targets = self.ability_targets_matching_with_selections_for(
-            predicate, selections, controller, source, context, true,
+            predicate,
+            selections,
+            TargetingActors::controller(controller),
+            source,
+            context,
+            true,
+        );
+        self.prospective_x.set(previous);
+        targets
+    }
+
+    /// Candidate targets when another player makes one choice during an
+    /// activation. The source is an ability rather than a spell, and the two
+    /// player roles deliberately remain distinct.
+    pub(super) fn activated_targets_matching_for_chooser(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        actors: TargetingActors,
+        source: GameObjectId,
+        context: TriggerContext,
+        x: u16,
+    ) -> Vec<Target> {
+        let previous = self.prospective_x.replace(Some(x));
+        let targets = self.ability_targets_matching_with_selections_for(
+            predicate, selections, actors, source, context, false,
         );
         self.prospective_x.set(previous);
         targets
@@ -187,7 +231,34 @@ impl Game {
         self.ability_targets_matching_with_selections_for(
             predicate,
             selections,
-            controller,
+            TargetingActors::controller(controller),
+            source,
+            context,
+            source_is_spell,
+        )
+    }
+
+    pub(super) fn ability_targets_matching_with_selections_for_chooser(
+        &self,
+        predicate: AbilityTargetPredicate,
+        selections: &[TargetSelection],
+        chooser: PlayerId,
+        ability_controller: PlayerId,
+        source: GameObjectId,
+        context: TriggerContext,
+    ) -> Vec<Target> {
+        let source_is_spell = self
+            .stack
+            .iter()
+            .find(|object| object.id == source)
+            .is_some_and(|object| object.kind == StackObjectKind::Spell);
+        self.ability_targets_matching_with_selections_for(
+            predicate,
+            selections,
+            TargetingActors {
+                chooser,
+                ability_controller,
+            },
             source,
             context,
             source_is_spell,
@@ -224,7 +295,7 @@ impl Game {
         self.ability_targets_matching_with_selections_for(
             predicate,
             &[],
-            controller,
+            TargetingActors::controller(controller),
             source,
             context,
             source_is_spell,
@@ -280,7 +351,7 @@ impl Game {
     fn players_with_more_objects_than(
         &self,
         predicate: AbilityTargetPredicate,
-        chooser: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
@@ -293,12 +364,17 @@ impl Game {
         else {
             return Vec::new();
         };
-        let theirs = self.player_object_count(chooser, object, zones, source);
+        let theirs = self.player_object_count(actors.chooser, object, zones, source);
         [PlayerId::One, PlayerId::Two]
             .into_iter()
             .filter(|player| {
-                self.player_relation_matches_for_source(*player, relation, chooser, source, context)
-                    && !self.player_is_protected_from(*player, source, source_is_spell)
+                self.player_relation_matches_for_source(
+                    *player,
+                    relation,
+                    actors.chooser,
+                    source,
+                    context,
+                ) && !self.player_is_protected_from(*player, source, source_is_spell)
                     && self.player_object_count(*player, object, zones, source) > theirs
             })
             .map(Target::Player)
@@ -308,7 +384,7 @@ impl Game {
     fn ability_targets_matching_for(
         &self,
         predicate: AbilityTargetPredicate,
-        controller: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
@@ -318,38 +394,14 @@ impl Game {
                 unreachable!("target alternatives are expanded before leaf matching")
             }
             AbilityTargetPredicate::AnyTarget => {
-                let mut targets = [PlayerId::One, PlayerId::Two]
-                    .into_iter()
-                    .filter(|player| {
-                        !self.player_is_protected_from(*player, source, source_is_spell)
-                    })
-                    .map(Target::Player)
-                    .collect::<Vec<_>>();
-                targets.extend(
-                    self.battlefield
-                        .iter()
-                        .filter(|permanent| {
-                            (self.power(permanent).is_some()
-                                || self
-                                    .permanent_types(permanent)
-                                    .is_some_and(|types| types.contains(CardType::Planeswalker)))
-                                && self.permanent_can_be_targeted_by(
-                                    permanent,
-                                    controller,
-                                    source,
-                                    source_is_spell,
-                                )
-                        })
-                        .map(|permanent| Target::Permanent(permanent.card.id)),
-                );
-                targets
+                self.any_targets_matching(actors, source, source_is_spell)
             }
             AbilityTargetPredicate::ControlledByTargetOf { .. }
             | AbilityTargetPredicate::OwnedByTargetPlayer { .. } => Vec::new(),
             AbilityTargetPredicate::PlayerOrPlaneswalker(relation) => self
                 .player_or_planeswalker_targets_matching(
                     relation,
-                    controller,
+                    actors,
                     source,
                     context,
                     source_is_spell,
@@ -358,7 +410,11 @@ impl Game {
                 .into_iter()
                 .filter(|player| {
                     self.player_relation_matches_for_source(
-                        *player, relation, controller, source, context,
+                        *player,
+                        relation,
+                        actors.chooser,
+                        source,
+                        context,
                     ) && !self.player_is_protected_from(*player, source, source_is_spell)
                 })
                 .map(Target::Player)
@@ -369,14 +425,14 @@ impl Game {
             AbilityTargetPredicate::PlayerWithMoreObjectsThanChooser { .. } => self
                 .players_with_more_objects_than(
                     predicate,
-                    controller,
+                    actors,
                     source,
                     context,
                     source_is_spell,
                 ),
             AbilityTargetPredicate::Object { .. } => self.ability_object_targets_matching(
                 predicate,
-                controller,
+                actors,
                 source,
                 context,
                 source_is_spell,
@@ -401,7 +457,7 @@ impl Game {
                         self.player_relation_matches(
                             stack_object.controller,
                             relation,
-                            controller,
+                            actors.chooser,
                             context,
                         )
                     }) && self.trigger_object_matches_for_controller(
@@ -412,7 +468,7 @@ impl Game {
                         // The player choosing targets, which is who "a land
                         // you control" is measured from. A spell still in
                         // hand has no controller to derive it from.
-                        Some(controller),
+                        Some(actors.chooser),
                     ))
                     .then_some(Target::Spell(stack_object.id))
                 })
@@ -420,10 +476,41 @@ impl Game {
         }
     }
 
+    fn any_targets_matching(
+        &self,
+        actors: TargetingActors,
+        source: GameObjectId,
+        source_is_spell: bool,
+    ) -> Vec<Target> {
+        let mut targets = [PlayerId::One, PlayerId::Two]
+            .into_iter()
+            .filter(|player| !self.player_is_protected_from(*player, source, source_is_spell))
+            .map(Target::Player)
+            .collect::<Vec<_>>();
+        targets.extend(
+            self.battlefield
+                .iter()
+                .filter(|permanent| {
+                    (self.power(permanent).is_some()
+                        || self
+                            .permanent_types(permanent)
+                            .is_some_and(|types| types.contains(CardType::Planeswalker)))
+                        && self.permanent_can_be_targeted_by(
+                            permanent,
+                            actors.ability_controller,
+                            source,
+                            source_is_spell,
+                        )
+                })
+                .map(|permanent| Target::Permanent(permanent.card.id)),
+        );
+        targets
+    }
+
     fn player_or_planeswalker_targets_matching(
         &self,
         relation: PlayerRelation,
-        controller: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
@@ -432,7 +519,11 @@ impl Game {
             .into_iter()
             .filter(|player| {
                 self.player_relation_matches_for_source(
-                    *player, relation, controller, source, context,
+                    *player,
+                    relation,
+                    actors.chooser,
+                    source,
+                    context,
                 ) && !self.player_is_protected_from(*player, source, source_is_spell)
             })
             .map(Target::Player)
@@ -446,13 +537,13 @@ impl Game {
                         && self.player_relation_matches_for_source(
                             permanent.controller,
                             relation,
-                            controller,
+                            actors.chooser,
                             source,
                             context,
                         )
                         && self.permanent_can_be_targeted_by(
                             permanent,
-                            controller,
+                            actors.ability_controller,
                             source,
                             source_is_spell,
                         )
@@ -462,10 +553,10 @@ impl Game {
         targets
     }
 
-    pub(super) fn ability_object_targets_matching(
+    fn ability_object_targets_matching(
         &self,
         predicate: AbilityTargetPredicate,
-        controller: PlayerId,
+        actors: TargetingActors,
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
@@ -487,19 +578,19 @@ impl Game {
                     self.player_relation_matches(
                         permanent.controller,
                         relation,
-                        controller,
+                        actors.chooser,
                         context,
                     )
                 }) && owner_relation.is_none_or(|relation| {
                     self.player_relation_matches(
                         permanent.card.owner,
                         relation,
-                        controller,
+                        actors.chooser,
                         context,
                     )
                 }) && self.permanent_can_be_targeted_by(
                     permanent,
-                    controller,
+                    actors.ability_controller,
                     source,
                     source_is_spell,
                 ) && self.trigger_object_matches(object, &characteristics, source, false))
@@ -514,7 +605,7 @@ impl Game {
                         self.player_relation_matches(
                             stack_object.controller,
                             relation,
-                            controller,
+                            actors.chooser,
                             context,
                         )
                     })
@@ -522,7 +613,7 @@ impl Game {
                         self.player_relation_matches(
                             stack_object.card.owner,
                             relation,
-                            controller,
+                            actors.chooser,
                             context,
                         )
                     })
@@ -542,7 +633,7 @@ impl Game {
             }
             targets.extend(self.cards_in_zone(zone).filter_map(|card| {
                 (owner_relation.is_none_or(|relation| {
-                    self.player_relation_matches(card.owner, relation, controller, context)
+                    self.player_relation_matches(card.owner, relation, actors.chooser, context)
                 }) && self.card_object_matches(object, card, zone, source))
                 .then_some(Target::Card(card.id))
             }));

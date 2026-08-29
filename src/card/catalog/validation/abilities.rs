@@ -11,9 +11,13 @@ use crate::card::{
     AppliedEffectDef, CardDefinition, CharacteristicOperationDef, CopyAbilityDef,
     DeclarativeAbilityDef, EffectDef, EffectExecutionDef, EffectRecipientDef,
     EmblemCharacteristics, ImplementationStatus, ReplacementEffectDef, ReplacementEventDef,
-    SpellForm, TokenCharacteristics, ZoneKind, ZoneMoveCauseDef,
+    SpellForm, TargetChooserDef, TokenCharacteristics, ZoneKind, ZoneMoveCauseDef,
 };
-use crate::{AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId};
+use crate::{
+    AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId, TargetIndex,
+};
+
+include!("abilities/target_choosers.rs");
 
 pub(super) fn validate_alternative_cast_abilities(
     definition: &CardDefinition,
@@ -584,6 +588,9 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     }
     if is_mana_ability && !targets.is_empty() {
         return Err(GrantedAbilityValidationError::ManaAbilityHasTargets);
+    }
+    if let DeclarativeAbilityDef::Activated(activated) = ability.definition {
+        validate_activated_target_choosers(activated.targets)?;
     }
     if ability.is_executable() {
         validate_triggered_ability_shape(ability, targets.len())?;

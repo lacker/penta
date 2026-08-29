@@ -279,8 +279,7 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
-    /// Evaluates every assignment from one pre-damage state and commits one
-    /// event; a sequence of ordinary damage effects remains sequential.
+    /// One simultaneous damage event evaluated from a shared pre-damage state.
     DealDamageSimultaneously(&'static [DamageAssignmentDef]),
     /// Deals damage using an explicitly named source rather than the
     /// resolving spell or ability's ordinary source.
@@ -309,14 +308,10 @@ pub enum EffectDef {
         applied: AppliedEffectDef,
         duration: ResolvedEffectDurationDef,
     },
-    /// Two creatures simultaneously deal noncombat damage equal to their
-    /// powers. If either is not a creature, neither deals damage.
+    /// Two creatures simultaneously deal noncombat damage equal to their powers.
     Fight {
         first: ObjectRefDef,
         second: ObjectRefDef,
-        /// A result-dependent continuation for "if excess damage was dealt
-        /// this way". It does not run when the fight does not happen, all
-        /// damage is prevented, or the named participant took no excess.
         excess: Option<FightExcessDef>,
     },
     Destroy {

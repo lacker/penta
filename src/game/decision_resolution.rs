@@ -307,6 +307,12 @@ impl Game {
                 let answer = options.first().copied();
                 self.continue_activation_saddle(player, remaining, *pending, chosen, answer);
             }
+            DecisionContinuation::ActivationTargeting {
+                pending,
+                candidates,
+            } => {
+                self.continue_deferred_activation_targeting(*pending, &candidates, options);
+            }
             DecisionContinuation::SacrificeToTotalPower {
                 player,
                 remaining,

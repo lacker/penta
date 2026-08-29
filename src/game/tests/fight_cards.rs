@@ -40,6 +40,167 @@ fn settle_accepting_may(game: &mut Game) {
     panic!("the fight sequence did not settle");
 }
 
+fn arena_activation(game: &Game, arena: GameObjectId, mine: GameObjectId) -> Action {
+    game.legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility {
+                    source,
+                    targets,
+                    ..
+                } if *source == arena
+                    && targets.len() == 1
+                    && targets[0].targets() == [Target::Permanent(mine)]
+            )
+        })
+        .expect("Arena is offered with only its controller-chosen target announced")
+}
+
+fn choose_pending_target(game: &mut Game, target: GameObjectId) {
+    let decision = game
+        .pending_decisions
+        .first()
+        .map(|pending| pending.observation.clone())
+        .expect("the alternate target chooser has a decision");
+    let option = decision
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(card, _)| card == target))
+        .map(|option| option.id)
+        .expect("the requested creature is an offered target");
+    game.apply(
+        decision.player,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option],
+        },
+    )
+    .expect("the target choice completes the activation");
+}
+
+#[test]
+fn arena_has_the_opponent_choose_before_its_cost_is_paid() {
+    let mut game = ready_game();
+    let arena = game
+        .put_onto_battlefield(PlayerId::One, definition(&game, "Arena"))
+        .expect("Arena is cataloged");
+    let mine = game
+        .put_onto_battlefield(PlayerId::One, cards::SERRA_ANGEL)
+        .expect("cataloged");
+    let theirs = game
+        .put_onto_battlefield(PlayerId::Two, cards::SAVANNAH_LIONS)
+        .expect("cataloged");
+    game.players[0].mana_pool.colorless = 3;
+
+    game.apply(PlayerId::One, arena_activation(&game, arena, mine))
+        .unwrap();
+
+    assert!(game.stack.is_empty(), "declaration is not complete yet");
+    assert_eq!(game.players[0].mana_pool.colorless, 3);
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == arena)
+            .is_some_and(|permanent| !permanent.tapped),
+        "Arena is not tapped until every target has been chosen",
+    );
+    assert_eq!(game.pending_decisions[0].observation.player, PlayerId::Two);
+
+    choose_pending_target(&mut game, theirs);
+
+    assert_eq!(game.players[0].mana_pool.colorless, 0);
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == arena)
+            .is_some_and(|permanent| permanent.tapped),
+    );
+    assert_eq!(game.stack.len(), 1);
+
+    pass_priority_pair(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == mine)
+            .is_some_and(|permanent| permanent.tapped && permanent.damage == 2),
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != theirs),
+        "the opponent's chosen Lion dies in the fight",
+    );
+}
+
+#[test]
+fn arena_cannot_offer_an_opponents_hexproof_creature_as_a_target() {
+    let mut game = ready_game();
+    let arena = game
+        .put_onto_battlefield(PlayerId::One, definition(&game, "Arena"))
+        .expect("Arena is cataloged");
+    let mine = game
+        .put_onto_battlefield(PlayerId::One, cards::SERRA_ANGEL)
+        .expect("cataloged");
+    let wolf = game
+        .put_onto_battlefield(PlayerId::Two, definition(&game, "Sacred Wolf"))
+        .expect("cataloged");
+    game.players[0].mana_pool.colorless = 3;
+
+    assert!(
+        !game.legal_actions(PlayerId::One).iter().any(
+            |action| matches!(action, Action::ActivateAbility { source, .. } if *source == arena)
+        ),
+        "the opponent choosing its own creature does not bypass hexproof from Arena's controller",
+    );
+
+    let lion = game
+        .put_onto_battlefield(PlayerId::Two, cards::SAVANNAH_LIONS)
+        .expect("cataloged");
+    game.apply(PlayerId::One, arena_activation(&game, arena, mine))
+        .unwrap();
+    let offered = game.pending_decisions[0]
+        .observation
+        .options
+        .iter()
+        .filter_map(|option| option.card.map(|(card, _)| card))
+        .collect::<Vec<_>>();
+    assert_eq!(offered, vec![lion]);
+    assert!(!offered.contains(&wolf));
+}
+
+#[test]
+fn arena_taps_the_remaining_legal_target_but_does_not_fight_alone() {
+    let mut game = ready_game();
+    let arena = game
+        .put_onto_battlefield(PlayerId::One, definition(&game, "Arena"))
+        .expect("Arena is cataloged");
+    let mine = game
+        .put_onto_battlefield(PlayerId::One, cards::SERRA_ANGEL)
+        .expect("cataloged");
+    let theirs = game
+        .put_onto_battlefield(PlayerId::Two, cards::SEA_SERPENT)
+        .expect("cataloged");
+    game.players[0].mana_pool.colorless = 3;
+
+    game.apply(PlayerId::One, arena_activation(&game, arena, mine))
+        .unwrap();
+    choose_pending_target(&mut game, theirs);
+    game.destroy_permanent(theirs);
+    drain_pending(&mut game);
+
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == mine)
+            .map(|permanent| (permanent.tapped, permanent.damage)),
+        Some((true, 0)),
+        "the legal target is tapped, but Fight requires both creatures",
+    );
+}
+
 #[test]
 fn grothama_grants_each_other_creature_its_own_optional_attack_fight() {
     let mut game = ready_game();

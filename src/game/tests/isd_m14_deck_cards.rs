@@ -347,6 +347,7 @@ fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&mountain_blue));
     game.apply(PlayerId::One, mountain_blue).unwrap();
@@ -359,6 +360,7 @@ fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&lantern_black));
     game.apply(PlayerId::One, lantern_black).unwrap();
@@ -390,6 +392,7 @@ fn chromatic_lantern_grants_colored_mana_and_gilded_lotus_adds_three() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(lotus_game.legal_actions(PlayerId::One).contains(&add_red));
     lotus_game.apply(PlayerId::One, add_red).unwrap();

@@ -114,6 +114,8 @@ struct Permanent {
     chosen_creature_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<crate::card::BasicLandType>,
+    /// The color this permanent's controller chose as it entered.
+    pub(super) chosen_color: Option<crate::card::ManaColor>,
     /// The card name a permanent named as it entered, for Pithing Needle.
     chosen_card_name: Option<String>,
     /// The copiable values supplied by the rule, ability, or effect that made
@@ -311,6 +313,7 @@ impl Permanent {
             chosen_player: None,
             chosen_creature_type: None,
             chosen_basic_land_type: None,
+            chosen_color: None,
             chosen_card_name: None,
             face_down: None,
             turn_up_for_mana_cost: false,

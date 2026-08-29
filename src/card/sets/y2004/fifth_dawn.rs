@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardType, CounterKind, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef,
+    CardType, CounterKind, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef, ManaColor,
     ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation,
-    ReplacementEffectDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -56,6 +56,27 @@ pub(in crate::card::sets) static NIGHTS_WHISPER: CardRecord = CardRecord::new_wi
         "You draw two cards and lose 2 life.",
         EffectDef::Sequence(&WHISPER_EFFECT),
     )),
+);
+
+// 5DN 85 — Dawn's Reflection
+pub(in crate::card::sets) static DAWNS_REFLECTION: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("131a124f-f11e-4ea1-a7b2-b94eea988d4e"),
+    "Dawn's Reflection",
+    CardArt::new("131a124f-f11e-4ea1-a7b2-b94eea988d4e", "John Avon"),
+    CardSet::FifthDawn,
+    CardRules::new_enchantment(mana_cost!("{3}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::triggered_mana(
+                "Whenever enchanted land is tapped for mana, its controller adds an additional two mana in any combination of colors.",
+                TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
+                EffectDef::AddMana(
+                    AddManaEffectDef::combination(&ManaColor::COLORS, 2)
+                        .to_triggering_objects_controller(),
+                ),
+            ),
+        ]),
 );
 
 // 5DN 86 — Eternal Witness
@@ -183,6 +204,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CONDESCEND,
     &SERUM_VISIONS,
     &NIGHTS_WHISPER,
+    &DAWNS_REFLECTION,
     &ETERNAL_WITNESS,
     &CLOCK_OF_OMENS,
     &CRUCIBLE_OF_WORLDS,

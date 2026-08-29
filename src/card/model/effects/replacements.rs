@@ -173,6 +173,9 @@ pub enum ScalarChoiceListDef {
     CreatureTypes,
     /// The five basic land types, which are fixed rather than catalog-derived.
     BasicLandTypes,
+    /// The five colors. Colorless is a mana type, not a color, and is not an
+    /// option for a printed "choose a color" instruction.
+    Colors,
 }
 
 /// The field on an entering permanent that receives a scalar choice.
@@ -185,6 +188,7 @@ pub enum BattlefieldEntryChoiceDestinationDef {
     /// remembers: Multiversal Passage names one on the way in and reads it
     /// back in layer 4.
     BasicLandType,
+    Color,
 }
 
 /// A catalog-derived scalar choice made while applying an entry replacement.
@@ -232,6 +236,11 @@ impl BattlefieldEntryScalarChoiceDef {
     pub const BASIC_LAND_TYPE: Self = Self {
         list: ScalarChoiceListDef::BasicLandTypes,
         destination: BattlefieldEntryChoiceDestinationDef::BasicLandType,
+    };
+
+    pub const COLOR: Self = Self {
+        list: ScalarChoiceListDef::Colors,
+        destination: BattlefieldEntryChoiceDestinationDef::Color,
     };
 }
 

@@ -14,7 +14,8 @@ pub(super) use stack_effects::shared_stack_effect;
 use crate::Game;
 use crate::card::{
     ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, ReplacementConditionDef, SpellCostConditionDef,
+    CostAmountDef, CostModificationDef, ManaTypeDef, ReplacementConditionDef,
+    SpellCostConditionDef,
 };
 
 use super::*;
@@ -269,17 +270,25 @@ pub(super) fn shared_mana_effect(effect: EffectDef, choices_are_supported: bool)
         return false;
     };
     let selection_is_supported = match mana.mana {
-        ManaSelectionDef::One(_) => true,
+        ManaSelectionDef::One(ManaTypeDef::Fixed(_)) => true,
+        ManaSelectionDef::One(ManaTypeDef::ChosenColor)
+        | ManaSelectionDef::ColorsOfLinkedExiles => choices_are_supported,
         // Both selections offer a choice of type; a combination divides the
         // amount across those types instead of picking one, and the runtime
         // enumerates every division for the same reason it enumerates every
         // colour.
-        ManaSelectionDef::Choice(colors) | ManaSelectionDef::Combination(colors) => {
-            choices_are_supported && !colors.is_empty()
+        ManaSelectionDef::Choice(types) | ManaSelectionDef::Combination(types) => {
+            choices_are_supported
+                && match types.source {
+                    crate::card::ManaTypeSourceDef::Fixed(colors) => !colors.is_empty(),
+                    crate::card::ManaTypeSourceDef::CouldBeProducedBy(
+                        crate::card::ObjectSetDef::One(crate::card::ObjectRefDef::Source)
+                        | crate::card::ObjectSetDef::Query(_),
+                    ) => true,
+                    crate::card::ManaTypeSourceDef::ProducedBy(_)
+                    | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => false,
+                }
         }
-        // The same choice of type, over a list the runtime reads off the
-        // permanent's own imprint rather than off the clause.
-        ManaSelectionDef::ColorsOfLinkedExiles => choices_are_supported,
     };
     // "Where X is this creature's power" is resolved against the permanent
     // as the ability is offered, exactly as the counted forms above are, so
@@ -628,7 +637,16 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     EffectDef::Sequence(effects) => {
                         !effects.is_empty() && effects.iter().copied().all(immediate_mana_effect)
                     }
-                    EffectDef::AddMana(_) => shared_mana_effect(effect, false),
+                    EffectDef::AddMana(mana) => {
+                        mana.amount > 0
+                            && mana.variable_amount.is_none()
+                            && matches!(
+                                mana.recipient,
+                                PlayerRefDef::EffectController
+                                    | PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)
+                            )
+                            && !matches!(mana.mana, ManaSelectionDef::ColorsOfLinkedExiles)
+                    }
                     // A triggered mana ability resolves without an offer to
                     // read an amount off, so this one stays outside.
                     EffectDef::AddManaEqualTo { .. }

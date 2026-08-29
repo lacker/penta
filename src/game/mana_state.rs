@@ -57,14 +57,31 @@ pub(super) struct ManaPlanOptions {
 /// The choices that distinguish otherwise identical activations of one mana
 /// ability. A mana ability resolves without ever holding priority, so each is
 /// enumerated into the activation rather than asked afterwards.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(super) struct ManaActivationChoices {
     pub(super) counters_removed: Option<u16>,
     pub(super) cost_object: Option<GameObjectId>,
     pub(super) combination: Option<ManaSplit>,
+    pub(super) triggered_mana: Option<Vec<ManaSplit>>,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+impl ManaActivationChoices {
+    pub(super) fn new(
+        counters_removed: Option<u16>,
+        cost_object: Option<GameObjectId>,
+        combination: Option<ManaSplit>,
+        triggered_mana: Option<Vec<ManaSplit>>,
+    ) -> Self {
+        Self {
+            counters_removed,
+            cost_object,
+            combination,
+            triggered_mana,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct ManaAbilityActivation {
     pub(super) source: GameObjectId,
     pub(super) ability: AbilityOrigin,
@@ -92,13 +109,19 @@ pub(super) struct ManaAbilityActivation {
     /// `None` for every ability that produces one type at a time, which is
     /// nearly all of them; `color` then carries the type by itself.
     pub(super) combination: Option<ManaSplit>,
+    /// Selected output of immediate dynamic mana triggers caused by this
+    /// activation. It is separate from the source ability's own production,
+    /// because each triggered unit keeps the triggering permanent as its mana
+    /// source when the activation resolves.
+    pub(super) triggered_mana: Option<Vec<ManaSplit>>,
 }
 
 /// One enumerated output of a mana source: the ability, the colour, what it
 /// produces, whether that mana helps the payment at hand, and the three
 /// choices that distinguish otherwise identical activations -- the counter
-/// size, the sacrificed permanent, and the division of a combined amount.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// size, sacrificed permanent, division of a combined amount, and output of
+/// immediate dynamic mana triggers.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct ManaSourceOutput {
     pub(super) kind: PlannedPaymentKind,
     /// Mana this output actually puts into the player's pool.
@@ -113,13 +136,13 @@ pub(super) struct ManaSourceOutput {
 }
 
 impl ManaSourceOutput {
-    pub(super) const fn payment_amount(self, color: ManaColor) -> u16 {
+    pub(super) const fn payment_amount(&self, color: ManaColor) -> u16 {
         self.production
             .amount(color)
             .saturating_add(self.colored_contribution.amount(color))
     }
 
-    pub(super) const fn payment_total(self) -> u16 {
+    pub(super) const fn payment_total(&self) -> u16 {
         self.production
             .total()
             .saturating_add(self.colored_contribution.total())
@@ -150,7 +173,7 @@ impl ManaContributionKind {
 /// What one selected payment source does. Convoke is deliberately not a mana
 /// ability: it taps the creature while costs are paid, produces no mana, and
 /// carries no mana restrictions or spend riders.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum PlannedPaymentKind {
     Mana {
         ability: AbilityOrigin,
@@ -158,6 +181,7 @@ pub(super) enum PlannedPaymentKind {
         counters_removed: Option<u16>,
         cost_object: Option<GameObjectId>,
         combination: Option<ManaSplit>,
+        triggered_mana: Option<Vec<ManaSplit>>,
         /// This non-tapping activation is followed by a direct contribution
         /// from the same source, so one object legitimately contributes in
         /// both ways.
@@ -167,26 +191,26 @@ pub(super) enum PlannedPaymentKind {
 }
 
 impl PlannedPaymentKind {
-    pub(super) const fn contribution(self) -> Option<ManaContributionKind> {
+    pub(super) const fn contribution(&self) -> Option<ManaContributionKind> {
         match self {
             Self::Contribution(kind)
             | Self::Mana {
                 contribution: Some(kind),
                 ..
-            } => Some(kind),
+            } => Some(*kind),
             Self::Mana {
                 contribution: None, ..
             } => None,
         }
     }
 
-    pub(super) const fn uses_contribution(self) -> bool {
+    pub(super) const fn uses_contribution(&self) -> bool {
         self.contribution().is_some()
     }
 
-    pub(super) const fn cost_object(self) -> Option<GameObjectId> {
+    pub(super) const fn cost_object(&self) -> Option<GameObjectId> {
         match self {
-            Self::Mana { cost_object, .. } => cost_object,
+            Self::Mana { cost_object, .. } => *cost_object,
             Self::Contribution(_) => None,
         }
     }
@@ -229,7 +253,7 @@ impl PaymentCapacity {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct PlannedManaActivation {
     pub(super) source: GameObjectId,
     pub(super) kind: PlannedPaymentKind,
@@ -251,14 +275,14 @@ pub(super) struct PlannedManaActivation {
 
 impl PlannedManaActivation {
     #[allow(dead_code)]
-    pub(super) const fn payment_amount(self, color: ManaColor) -> u16 {
+    pub(super) const fn payment_amount(&self, color: ManaColor) -> u16 {
         self.production
             .amount(color)
             .saturating_add(self.colored_contribution.amount(color))
     }
 
     #[allow(dead_code)]
-    pub(super) const fn payment_total(self) -> u16 {
+    pub(super) const fn payment_total(&self) -> u16 {
         self.production
             .total()
             .saturating_add(self.colored_contribution.total())

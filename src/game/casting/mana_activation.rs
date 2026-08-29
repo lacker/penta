@@ -10,7 +10,8 @@ impl Game {
                 AbilityCostDef::TapSource => {
                     // The tap transition carries its purpose, so ordinary
                     // tap triggers and mana-tap triggers scan one event.
-                    let _ = self.tap_permanent_for_mana(source);
+                    let _ =
+                        self.tap_permanent_for_mana(source, activation.triggered_mana.clone());
                 }
                 // Paid now, like the tap: what it spends is the source's
                 // next untap step, and the ability is over long before that.
@@ -148,7 +149,7 @@ impl Game {
                     &sacrificed,
                     Some(BattlefieldExitCompletion::CompleteManaAbility {
                         player,
-                        activation: *activation,
+                        activation: activation.clone(),
                         produced_mana: produced_mana.to_vec(),
                     }),
                 );

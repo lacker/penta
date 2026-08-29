@@ -16,7 +16,8 @@ use super::super::semantics::{
     replacement_effect_locator, replacement_effects, scoped_effect_snapshot,
 };
 use crate::card::{
-    AbilityDef, AbilityProgramDef, AddManaEffectDef, EffectDef, ManaSelectionDef, cards,
+    AbilityDef, AbilityProgramDef, AddManaEffectDef, EffectDef, ManaColor, ManaSelectionDef,
+    ManaTypeDef, cards,
 };
 use crate::game::Mana;
 use crate::{CardCatalog, CardDefinitionId, CardPartId};
@@ -195,8 +196,15 @@ fn every_catalog_mana_unit_that_needs_a_locator_has_one() {
 
 fn produced_mana(effect: AddManaEffectDef) -> Vec<Mana> {
     let colors = match effect.mana {
-        ManaSelectionDef::One(color) => vec![color],
-        ManaSelectionDef::Choice(colors) | ManaSelectionDef::Combination(colors) => colors.to_vec(),
+        ManaSelectionDef::One(ManaTypeDef::Fixed(color)) => vec![color],
+        ManaSelectionDef::One(ManaTypeDef::ChosenColor) => ManaColor::COLORS.to_vec(),
+        ManaSelectionDef::Choice(types) | ManaSelectionDef::Combination(types) => {
+            match types.source {
+                crate::card::ManaTypeSourceDef::Fixed(colors) => colors.to_vec(),
+                crate::card::ManaTypeSourceDef::ProducedBy(_)
+                | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => ManaColor::ALL.to_vec(),
+            }
+        }
         // Whatever was imprinted, which no printed clause names. Every
         // colour is a possibility, so the sweep covers all five.
         ManaSelectionDef::ColorsOfLinkedExiles => crate::card::ManaColor::COLORS.to_vec(),

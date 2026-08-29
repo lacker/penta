@@ -25,6 +25,14 @@ test("chosen creature types remain visible and part of pile identity", () => {
   assert.notEqual(cardChoiceStateKey(human), cardChoiceStateKey(angel));
 });
 
+test("a chosen color is visible and separates otherwise identical piles", () => {
+  const red = { chosenColor: "Red" };
+  const green = { chosenColor: "Green" };
+
+  assert.equal(cardChoiceLabel(red), "Chosen color: Red");
+  assert.notEqual(cardChoiceStateKey(red), cardChoiceStateKey(green));
+});
+
 test("a pile never combines permanents with different public or individual state", () => {
   const ready = {
     id: 10,

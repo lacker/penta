@@ -87,6 +87,7 @@ fn every_triome_enters_tapped_and_taps_for_each_of_its_three_colors() {
                     counters_removed: None,
                     cost_object: None,
                     combination: None,
+                    triggered_mana: None,
                 },
             )
             .unwrap_or_else(|error| panic!("{definition:?} makes {color:?}: {error}"));
@@ -217,6 +218,7 @@ fn every_fastland_taps_for_both_of_its_colors() {
                     counters_removed: None,
                     cost_object: None,
                     combination: None,
+                    triggered_mana: None,
                 },
             )
             .unwrap_or_else(|error| panic!("{definition:?} makes {color:?}: {error}"));

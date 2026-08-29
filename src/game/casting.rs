@@ -186,7 +186,7 @@ impl Game {
         source: GameObjectId,
         ability: AbilityOrigin,
         color: ManaColor,
-        choices: ManaActivationChoices,
+        choices: &ManaActivationChoices,
     ) {
         let activation = self
             .battlefield
@@ -556,6 +556,7 @@ impl Game {
     /// choice. In that case the spell and the rest of its frozen payment plan
     /// remain on the prospective exit batch until the ability has completed.
     #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::too_many_lines)]
     pub(super) fn continue_spell_mana_payment(
         &mut self,
         mut stack_object: StackObject,
@@ -567,7 +568,7 @@ impl Game {
         plan: Vec<super::PlannedManaActivation>,
         mut next_activation: usize,
     ) {
-        while let Some(payment) = plan.get(next_activation).copied() {
+        while let Some(payment) = plan.get(next_activation).cloned() {
             next_activation += 1;
             let super::PlannedPaymentKind::Mana {
                 ability,
@@ -575,6 +576,7 @@ impl Game {
                 counters_removed,
                 cost_object,
                 combination,
+                triggered_mana,
                 ..
             } = payment.kind
             else {
@@ -586,11 +588,12 @@ impl Game {
                 payment.source,
                 ability,
                 color,
-                ManaActivationChoices {
+                &ManaActivationChoices::new(
                     counters_removed,
                     cost_object,
                     combination,
-                },
+                    triggered_mana,
+                ),
             );
             let suspended = self.pending_decisions[pending_before..]
                 .iter()

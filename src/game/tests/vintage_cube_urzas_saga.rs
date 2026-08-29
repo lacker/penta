@@ -131,6 +131,7 @@ fn it_enters_as_a_land_that_taps_for_one() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, add)
         .expect("chapter I granted it");

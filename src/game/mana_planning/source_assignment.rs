@@ -319,7 +319,7 @@ impl Game {
                 // Prefer a harmless direct contribution; combined outputs come last
                 // because they are only needed when this source contributes twice.
                 outputs = contribution_outputs;
-                outputs.extend(mana_outputs.iter().copied());
+                outputs.extend(mana_outputs.iter().cloned());
                 outputs.extend(combined);
             }
             if !outputs.is_empty() {
@@ -603,7 +603,7 @@ fn assign_independent_mana_sources(
                 capacity.add_output(output);
                 capacity = normalized_payment_capacity(capacity, cost, x);
                 let mut candidate = plan.clone();
-                candidate.push(planned_payment(source, *output));
+                candidate.push(planned_payment(source, output.clone()));
                 let key = (capacity.mana, capacity.generic, next_life);
                 let replace = next.get(&key).is_none_or(|retained| {
                     payment_assignment_rank(&candidate, 0, avoid)
@@ -777,7 +777,7 @@ impl<'a> PaymentAssignmentSearch<'a> {
                 source
                     .outputs
                     .iter()
-                    .map(|output| output.payment_total())
+                    .map(ManaSourceOutput::payment_total)
                     .max()
             })
             .fold(payment_capacity.total(), u16::saturating_add);
@@ -813,7 +813,7 @@ impl<'a> PaymentAssignmentSearch<'a> {
 
         let output_count = self.sources[index].outputs.len();
         for output_index in 0..output_count {
-            let output = self.sources[index].outputs[output_index];
+            let output = self.sources[index].outputs[output_index].clone();
             let cost_object = output.kind.cost_object();
             if output.life_payment > life_available
                 || cost_object.is_some_and(|object| self.consumed.contains(&object))
@@ -822,11 +822,12 @@ impl<'a> PaymentAssignmentSearch<'a> {
             }
             let mut next = pool;
             next.add_output(&output);
+            let life_payment = output.life_payment;
             self.push_output(index, output);
             if let Some(object) = cost_object {
                 self.consumed.push(object);
             }
-            found |= self.assign_flexible(index + 1, next, life_available - output.life_payment);
+            found |= self.assign_flexible(index + 1, next, life_available - life_payment);
             if cost_object.is_some() {
                 self.consumed.pop();
             }
@@ -905,7 +906,7 @@ impl PaymentAssignmentSearch<'_> {
         let source_id = self.sources[index].source;
         let output_count = self.sources[index].outputs.len();
         for output_index in 0..output_count {
-            let output = self.sources[index].outputs[output_index];
+            let output = self.sources[index].outputs[output_index].clone();
             let uses_contribution = output.kind.uses_contribution();
             let cost_object = output.kind.cost_object();
             if output.life_payment > life_available
@@ -919,6 +920,7 @@ impl PaymentAssignmentSearch<'_> {
 
             let mut next = pool;
             next.add_output(&output);
+            let life_payment = output.life_payment;
             self.push_output(index, output);
             if uses_contribution {
                 self.contributors.push(source_id);
@@ -926,7 +928,7 @@ impl PaymentAssignmentSearch<'_> {
             if let Some(object) = cost_object {
                 self.consumed.push(object);
             }
-            found |= self.assign_contributions(index + 1, next, life_available - output.life_payment);
+            found |= self.assign_contributions(index + 1, next, life_available - life_payment);
             if cost_object.is_some() {
                 self.consumed.pop();
             }

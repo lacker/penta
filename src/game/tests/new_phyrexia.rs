@@ -79,6 +79,7 @@ fn shrine_of_boundless_growth_reads_its_charge_counters_after_sacrificing_itself
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&activation));
 

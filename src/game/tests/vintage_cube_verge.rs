@@ -89,6 +89,7 @@ fn the_black_half_adds_black_when_it_is_offered() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the ability activates");

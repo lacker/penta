@@ -468,9 +468,9 @@ fn static_object_characteristic_supported(
                     || types == crate::card::CardTypeSet::single(CardType::Creature)
                         && static_type_animation_query_supported(recipient))
         }
-        CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_) => {
-            static_animation_query_supported(recipient)
-        }
+        CharacteristicOperationDef::Color(_)
+        | CharacteristicOperationDef::Colors(_)
+        | CharacteristicOperationDef::Subtypes(_) => static_animation_query_supported(recipient),
         CharacteristicOperationDef::CreatureTypes(_) => {
             static_direct_characteristic_recipient(recipient)
         }

@@ -1,6 +1,12 @@
 //! ECL card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{
+    AbilityDef, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryScalarChoiceDef, CardArt,
+    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaTypeDef, ObjectPredicateDef,
+    ReplacementChoiceDef, ReplacementEffectDef, TriggerEventDef, abilities,
+};
+use crate::mana_cost;
 
 // ECL 128 — Brambleback Brute
 // Audit: metadata-only — Card rules have not been implemented.
@@ -25,6 +31,43 @@ pub(in crate::card::sets) static LYS_ALANA_INFORMANT: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// ECL 194 — Shimmerwilds Growth
+pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c122719c-f0d1-4170-a0d1-d62172df1d21"),
+    "Shimmerwilds Growth",
+    CardArt::new(
+        "c122719c-f0d1-4170-a0d1-d62172df1d21",
+        "Jorge Jacinto",
+    ),
+    CardSet::LorwynEclipsed,
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::as_enters(
+                "As this Aura enters, choose a color.",
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef::COLOR,
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted land is the chosen color.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::set_color(ManaTypeDef::ChosenColor),
+                },
+            ),
+            AbilityDef::triggered_mana(
+                "Whenever enchanted land is tapped for mana, its controller adds an additional one mana of the chosen color.",
+                TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
+                EffectDef::AddMana(
+                    AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)
+                        .to_triggering_objects_controller(),
+                ),
+            ),
+        ]),
+);
+
 // ECL 251 — Wary Farmer
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
@@ -35,7 +78,11 @@ pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&BRAMBLEBACK_BRUTE, &LYS_ALANA_INFORMANT, &WARY_FARMER];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BRAMBLEBACK_BRUTE,
+    &LYS_ALANA_INFORMANT,
+    &SHIMMERWILDS_GROWTH,
+    &WARY_FARMER,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

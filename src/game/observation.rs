@@ -213,6 +213,8 @@ pub struct PermanentObservation {
     pub chosen_creature_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub chosen_basic_land_type: Option<crate::card::BasicLandType>,
+    /// Public color chosen for this permanent as it entered.
+    pub chosen_color: Option<crate::card::ManaColor>,
     /// Public card name associated with permanents such as Pithing Needle.
     pub chosen_card_name: Option<String>,
     pub tapped: bool,

@@ -630,7 +630,7 @@ fn shared_trigger_catalog_rejects_undiscoverable_or_incomplete_listeners() {
 }
 
 #[test]
-fn triggered_mana_catalog_requires_a_nonempty_fixed_add_mana_program() {
+fn triggered_mana_catalog_requires_a_supported_nonempty_add_mana_program() {
     static MIXED_PROGRAM: [EffectDef; 2] = [
         EffectDef::AddMana(crate::card::AddManaEffectDef::one(
             crate::card::ManaColor::Black,
@@ -645,10 +645,7 @@ fn triggered_mana_catalog_requires_a_nonempty_fixed_add_mana_program() {
         EffectDef::None,
         EffectDef::Sequence(&[]),
         EffectDef::Sequence(&MIXED_PROGRAM),
-        EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
-            crate::card::ManaColor::Black,
-            crate::card::ManaColor::Green,
-        ])),
+        EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[])),
     ] {
         let ability =
             AbilityDef::triggered_mana("Whenever tapped for mana, add mana.", event, effect);
@@ -660,6 +657,23 @@ fn triggered_mana_catalog_requires_a_nonempty_fixed_add_mana_program() {
                 ability: AbilityId::PRIMARY,
             },
         );
+    }
+
+    for effect in [
+        EffectDef::AddMana(crate::card::AddManaEffectDef::choice(&[
+            crate::card::ManaColor::Black,
+            crate::card::ManaColor::Green,
+        ])),
+        EffectDef::AddMana(crate::card::AddManaEffectDef::choice_from(
+            crate::card::ManaTypeSetDef::produced_by(
+                crate::card::ObjectRefDef::TriggeringObject,
+            ),
+        )),
+    ] {
+        let ability =
+            AbilityDef::triggered_mana("Whenever tapped for mana, add mana.", event, effect);
+        CardCatalog::new([definition_with_ability(ability)])
+            .expect("supported triggered mana choices enter the catalog");
     }
 }
 

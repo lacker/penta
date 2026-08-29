@@ -480,7 +480,9 @@ pub(in super::super) fn shared_static_applied_effect(
                         && shared_static_type_animation_query(recipient))
         }
         AppliedEffectDef::Characteristic(
-            CharacteristicOperationDef::Colors(_) | CharacteristicOperationDef::Subtypes(_),
+            CharacteristicOperationDef::Color(_)
+            | CharacteristicOperationDef::Colors(_)
+            | CharacteristicOperationDef::Subtypes(_),
         ) => shared_static_animation_query(recipient),
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(_)) => {
             shared_direct_characteristic_recipient(recipient)

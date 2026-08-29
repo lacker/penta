@@ -12,14 +12,14 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, CostModificationDef, DrawEventMatcherDef, EffectDef,
-    EffectExecutionDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
+    CostModificationDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
+    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -3397,7 +3397,6 @@ pub(in crate::card::sets) static PINE_BARRENS: CardRecord = CardRecord::new(
 );
 
 // TMP 322 — Reflecting Pool
-// Audit: custom — Needs declarative mana production derived from the mana types its controller's lands could produce.
 pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new_with_legacy_id(
     2073,
     "Reflecting Pool",
@@ -3405,18 +3404,17 @@ pub(in crate::card::sets) static REFLECTING_POOL: CardRecord = CardRecord::new_w
     CardSet::Tempest,
     // Worth nothing on its own and everything beside four other lands, which
     // is why a five-color deck plays it and nobody else does.
-    CardRules::new_land(&[]).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add one mana of any type that a land you control could produce.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::Special("Add one mana of a type a land you control could produce"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::ReflectingPool))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The available types are computed dynamically from the lands you control.",
-        ))
-        .with_legacy_procedure(),
-    ),
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+        "{T}: Add one mana of any type that a land you control could produce.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice_from(
+            ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ))),
+        )),
+    )),
 );
 
 // TMP 323 — Rootwater Depths

@@ -729,12 +729,17 @@ fn mana_effect_matches(effect: AddManaEffectDef, mana: Mana) -> bool {
     effect.restrictions == mana.restrictions
         && effect.spend_effects == mana.spend_effects
         && match effect.mana {
-            crate::card::ManaSelectionDef::One(color) => color == mana.color,
-            crate::card::ManaSelectionDef::Choice(colors)
-            | crate::card::ManaSelectionDef::Combination(colors) => colors.contains(&mana.color),
-            // What an imprint could have made is a fact of the board rather
-            // than of the clause, and the board is not here to ask.
-            crate::card::ManaSelectionDef::ColorsOfLinkedExiles => true,
+            crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::Fixed(color)) => {
+                color == mana.color
+            }
+            crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::ChosenColor)
+            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => true,
+            crate::card::ManaSelectionDef::Choice(types)
+            | crate::card::ManaSelectionDef::Combination(types) => match types.source {
+                crate::card::ManaTypeSourceDef::Fixed(colors) => colors.contains(&mana.color),
+                crate::card::ManaTypeSourceDef::ProducedBy(_)
+                | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => true,
+            },
         }
 }
 

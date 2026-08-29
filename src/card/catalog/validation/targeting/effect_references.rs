@@ -552,6 +552,20 @@ fn validate_effect_references(
             validate_resolving_applied_effect(recipient, effect)?;
             validate_applied_effect_target_references(effect, target_count, scope)
         }
+        EffectDef::AddMana(mana) => match mana.mana {
+            crate::card::ManaSelectionDef::Choice(types)
+            | crate::card::ManaSelectionDef::Combination(types) => match types.source {
+                crate::card::ManaTypeSourceDef::ProducedBy(reference) => {
+                    validate_object_reference(reference, target_count, scope)
+                }
+                crate::card::ManaTypeSourceDef::CouldBeProducedBy(objects) => {
+                    validate_object_set_target_references(objects, target_count, scope)
+                }
+                crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
+            },
+            crate::card::ManaSelectionDef::One(_)
+            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => Ok(()),
+        },
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
@@ -560,7 +574,6 @@ fn validate_effect_references(
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
-        | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn

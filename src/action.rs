@@ -159,6 +159,11 @@ pub enum Action {
         /// without ever holding priority. `None` for every ability that
         /// produces one type at a time.
         combination: Option<ManaSplit>,
+        /// One selected output per immediate triggered mana effect caused by
+        /// this activation, in deterministic trigger/effect order. Keeping
+        /// the divisions separate lets independent choices have different
+        /// domains and preserves which trigger produced each mana unit.
+        triggered_mana: Option<Vec<ManaSplit>>,
     },
     /// Legacy protocol vocabulary for the former Channel-specific action.
     /// Channel now exposes an ordinary `ActivateManaAbility`; this variant is

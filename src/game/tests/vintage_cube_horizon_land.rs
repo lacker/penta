@@ -73,6 +73,7 @@ fn making_mana_costs_a_life() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("a land with a life to spare taps for red");
@@ -167,6 +168,7 @@ fn the_grove_is_the_green_and_blue_one() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for blue");
@@ -222,6 +224,7 @@ fn the_life_is_paid_rather_than_dealt() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("one life is enough to pay one life");

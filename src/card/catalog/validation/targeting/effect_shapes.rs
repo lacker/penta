@@ -571,12 +571,25 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
+        EffectDef::AddMana(mana) => match mana.mana {
+            crate::card::ManaSelectionDef::Choice(types)
+            | crate::card::ManaSelectionDef::Combination(types) => match types.source {
+                crate::card::ManaTypeSourceDef::ProducedBy(reference) => {
+                    validate_object_reference_shape(reference, targets)
+                }
+                crate::card::ManaTypeSourceDef::CouldBeProducedBy(objects) => {
+                    validate_object_set_shape(objects, targets)
+                }
+                crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
+            },
+            crate::card::ManaSelectionDef::One(_)
+            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => Ok(()),
+        },
         // The ballot is a predicate, not a target: nothing is pointed at.
         EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::None
-        | EffectDef::AddMana(_)
         | EffectDef::DamageCannotBePreventedThisTurn
             | EffectDef::GrantFlashToNextSorcery
         | EffectDef::ReturnLinkedExiles { .. }
@@ -648,6 +661,9 @@ fn validate_replacement_effect_target_shapes(
                 ) | (
                     ScalarChoiceListDef::BasicLandTypes,
                     BattlefieldEntryChoiceDestinationDef::BasicLandType
+                ) | (
+                    ScalarChoiceListDef::Colors,
+                    BattlefieldEntryChoiceDestinationDef::Color
                 )
             ) {
                 Ok(())

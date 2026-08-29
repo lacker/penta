@@ -230,6 +230,7 @@ fn losing_its_only_target_stops_the_whole_spell() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::Two, crack)
         .expect("its own ability sacrifices it");
@@ -292,6 +293,7 @@ fn one_surviving_target_still_resolves_the_rest() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::Two, crack)
         .expect("its own ability sacrifices it");

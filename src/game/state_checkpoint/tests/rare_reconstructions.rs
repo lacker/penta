@@ -202,6 +202,7 @@ fn unspent_restricted_mana_reconstructs() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the Workshop taps for mana");

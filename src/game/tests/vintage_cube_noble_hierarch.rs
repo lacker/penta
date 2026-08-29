@@ -118,6 +118,7 @@ fn tapping_her_makes_one_mana() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, add_white).expect("it taps");
 

@@ -50,8 +50,9 @@ pub enum GrantedAbilityValidationError {
         event: TriggerEventDef,
     },
     /// A shared triggered mana ability must resolve immediately without
-    /// choices or stack-only effects. The runtime supports one or more fixed
-    /// `AddMana` leaves and nothing else.
+    /// choices or stack-only effects. The runtime supports fixed `AddMana`
+    /// leaves and the type-selection leaf enumerated by the triggering mana
+    /// action.
     UnsupportedTriggeredManaProgram,
     /// A resolving Apply must contain at least one storable permanent effect;
     /// stack-only rules and player recipients use different vocabulary.

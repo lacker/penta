@@ -637,21 +637,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     Ok(())
 }
 
-fn triggered_mana_program_is_immediate(effect: EffectDef) -> bool {
-    match effect {
-        EffectDef::Sequence(effects) => {
-            !effects.is_empty()
-                && effects
-                    .iter()
-                    .copied()
-                    .all(triggered_mana_program_is_immediate)
-        }
-        EffectDef::AddMana(mana) => {
-            matches!(mana.mana, crate::card::ManaSelectionDef::One(_)) && mana.amount > 0
-        }
-        _ => false,
-    }
-}
+include!("abilities/triggered_mana.rs");
 
 fn validate_ability_program(ability: &AbilityDef) -> Result<(), GrantedAbilityValidationError> {
     match (ability.definition, ability.effect.definition) {

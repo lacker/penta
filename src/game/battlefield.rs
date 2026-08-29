@@ -90,17 +90,22 @@ impl Game {
     /// abilities observe mana costs, activated-ability costs, combat, and
     /// resolving tap effects through the same event path.
     pub(super) fn tap_permanent(&mut self, id: GameObjectId) -> Option<ObjectInstance> {
-        self.tap_permanent_with_purpose(id, false)
+        self.tap_permanent_with_purpose(id, false, None)
     }
 
-    pub(super) fn tap_permanent_for_mana(&mut self, id: GameObjectId) -> Option<ObjectInstance> {
-        self.tap_permanent_with_purpose(id, true)
+    pub(super) fn tap_permanent_for_mana(
+        &mut self,
+        id: GameObjectId,
+        triggered_mana: Option<Vec<crate::ManaSplit>>,
+    ) -> Option<ObjectInstance> {
+        self.tap_permanent_with_purpose(id, true, triggered_mana)
     }
 
     fn tap_permanent_with_purpose(
         &mut self,
         id: GameObjectId,
         for_mana: bool,
+        triggered_mana: Option<Vec<crate::ManaSplit>>,
     ) -> Option<ObjectInstance> {
         let (card, was_tapped) = self
             .battlefield
@@ -119,10 +124,29 @@ impl Game {
                     .find(|permanent| permanent.card.id == id)
                     .expect("the tapped permanent remains on the battlefield"),
             );
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::Tapped {
+            let event = CommittedTriggerEvent::Tapped {
                 object: event,
                 for_mana,
-            });
+            };
+            if for_mana {
+                let listeners = self.battlefield_trigger_listeners();
+                let mut choices = triggered_mana.unwrap_or_default().into_iter();
+                self.capture_battlefield_trigger_batch_with_mana_resolver(
+                    &listeners,
+                    std::slice::from_ref(&event),
+                    |game, capture| {
+                        game.resolve_triggered_mana_effect_with_choices(
+                            capture.source,
+                            capture.controller,
+                            capture.effect,
+                            &capture.context,
+                            &mut choices,
+                        );
+                    },
+                );
+            } else {
+                self.capture_battlefield_triggers(&event);
+            }
         }
         Some(card)
     }

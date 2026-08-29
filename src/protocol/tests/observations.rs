@@ -70,6 +70,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                 types: crate::CardTypeSet::single(crate::CardType::Creature),
                 chosen_creature_type: Some("Werewolf".into()),
                 chosen_basic_land_type: None,
+                chosen_color: Some(ManaColor::Red),
                 chosen_card_name: None,
                 tapped: false,
                 power: Some(4),
@@ -107,6 +108,7 @@ fn observation_with_printed_and_token_permanents() -> PlayerObservation {
                     .with(crate::CardType::Creature),
                 chosen_creature_type: None,
                 chosen_basic_land_type: None,
+                chosen_color: None,
                 chosen_card_name: None,
                 tapped: false,
                 power: Some(1),
@@ -155,6 +157,7 @@ fn observation_json_carries_interwave_state_and_presented_card_part() {
     );
     assert_eq!(value["battlefield"][0]["name"], "Ravager of the Fells");
     assert_eq!(value["battlefield"][0]["chosenCreatureType"], "Werewolf");
+    assert_eq!(value["battlefield"][0]["chosenColor"], "red");
     assert_eq!(
         value["battlefield"][0]["counters"],
         json!([{ "name": "hatchling", "count": 4 }])

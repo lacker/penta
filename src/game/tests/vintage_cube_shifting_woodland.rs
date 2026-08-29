@@ -188,6 +188,7 @@ fn it_taps_for_green() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&add_green));
     game.apply(PlayerId::One, add_green).expect("it taps");

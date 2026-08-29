@@ -14,14 +14,41 @@ impl Game {
         effect: EffectDef,
         context: &EffectResolutionContext,
     ) {
+        let mut choices = std::iter::empty();
+        self.resolve_triggered_mana_effect_with_choices(
+            source,
+            controller,
+            effect,
+            context,
+            &mut choices,
+        );
+    }
+
+    #[allow(clippy::too_many_lines)]
+    pub(super) fn resolve_triggered_mana_effect_with_choices(
+        &mut self,
+        source: AbilitySourceRef,
+        controller: PlayerId,
+        effect: EffectDef,
+        context: &EffectResolutionContext,
+        choices: &mut impl Iterator<Item = crate::ManaSplit>,
+    ) {
         match effect {
             EffectDef::Sequence(effects) => {
                 for effect in effects {
-                    self.resolve_triggered_mana_effect(source, controller, *effect, context);
+                    self.resolve_triggered_mana_effect_with_choices(
+                        source,
+                        controller,
+                        *effect,
+                        context,
+                        choices,
+                    );
                 }
             }
             EffectDef::AddMana(effect) => {
-                self.resolve_triggered_add_mana_effect(source, controller, effect, context);
+                self.resolve_triggered_add_mana_effect(
+                    source, controller, effect, context, choices,
+                );
             }
             EffectDef::None | EffectDef::Randomized { .. } | EffectDef::Choose(_) |
 EffectDef::SimultaneousChoose(_) | EffectDef::ChooseCardName { .. } |
@@ -100,10 +127,11 @@ EffectDef::Special(_) => {
         controller: PlayerId,
         effect: AddManaEffectDef,
         context: &EffectResolutionContext,
+        choices: &mut impl Iterator<Item = crate::ManaSplit>,
     ) {
         let AddManaEffectDef {
-            mana: ManaSelectionDef::One(kind),
-            also: None,
+            mana,
+            also,
             amount,
             restrictions,
             spend_effects,
@@ -112,10 +140,7 @@ EffectDef::Special(_) => {
             amount_override,
             variable_amount: _,
             sacrifice_source_when_out_of: _,
-        } = effect
-        else {
-            return;
-        };
+        } = effect;
         // A mana trigger resolves without ever going on the stack, so it has
         // no resolving object to read a general player reference from. The
         // two a printed clause asks for are the ability's own controller and
@@ -129,21 +154,44 @@ EffectDef::Special(_) => {
                 .unwrap_or(controller),
             _ => controller,
         };
-        let mana = Mana::from_ability(
-            kind,
-            ManaSource {
-                object: source.object,
-                ability: source.ability,
-            },
-            restrictions,
-            spend_effects,
-        );
         let amount = amount_override
             .filter(|override_| {
                 self.static_condition_holds(override_.condition, controller, source.object)
             })
             .map_or(amount, |override_| override_.amount);
-        self.add_mana(controller, std::iter::repeat_n(mana, usize::from(amount)));
+        let mut split = match mana {
+            ManaSelectionDef::One(kind) => {
+                let Some(color) = self.mana_type_for_source(kind, source.object) else {
+                    return;
+                };
+                let mut split = crate::ManaSplit::empty();
+                split.add(color, amount);
+                split
+            }
+            ManaSelectionDef::Choice(_) | ManaSelectionDef::Combination(_) => {
+                let Some(split) = choices.next() else {
+                    return;
+                };
+                split
+            }
+            ManaSelectionDef::ColorsOfLinkedExiles => return,
+        };
+        if let Some(color) = also {
+            split.add(color, 1);
+        }
+        let source = ManaSource {
+            object: source.object,
+            ability: source.ability,
+        };
+        self.add_mana(
+            controller,
+            split.iter().flat_map(|(color, amount)| {
+                std::iter::repeat_n(
+                    Mana::from_ability(color, source, restrictions, spend_effects),
+                    usize::from(amount),
+                )
+            }),
+        );
         if damage_to_controller > 0 {
             self.damage_target_from(
                 Some(source.object),

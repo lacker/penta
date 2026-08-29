@@ -91,6 +91,7 @@ fn it_taps_for_three_of_one_color() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&add_red));
     game.apply(PlayerId::One, add_red).expect("it activates");
@@ -236,6 +237,7 @@ fn what_changes_hands_arrives_untapped() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, mana).expect("it taps for three");
     assert_eq!(game.players[0].mana_pool.blue, 3, "three blue");

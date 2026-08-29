@@ -63,6 +63,7 @@ pub fn action_json(action: &Action) -> Value {
             counters_removed,
             cost_object,
             combination,
+            triggered_mana,
         } => {
             let mut action = json!({
                 "type": "ActivateManaAbility",
@@ -98,6 +99,49 @@ pub fn action_json(action: &Action) -> Value {
                         })
                         .collect(),
                 );
+            }
+            // Optional output choices for immediate triggered mana abilities
+            // caused by this activation. A count is one trigger selecting
+            // that type; omitted when the activation causes none.
+            if let Some(divisions) = triggered_mana {
+                let mut aggregate = crate::ManaSplit::empty();
+                for division in divisions {
+                    for (color, amount) in division.iter() {
+                        aggregate.add(color, amount);
+                    }
+                }
+                action["triggeredMana"] = Value::Object(
+                    aggregate
+                        .iter()
+                        .map(|(color, amount)| {
+                            (
+                                super::json_common::mana_color_name(color).to_owned(),
+                                json!(amount),
+                            )
+                        })
+                        .collect(),
+                );
+                if divisions.len() > 1 {
+                    action["triggeredManaChoices"] = Value::Array(
+                        divisions
+                            .iter()
+                            .map(|division| {
+                                Value::Object(
+                                    division
+                                        .iter()
+                                        .map(|(color, amount)| {
+                                            (
+                                                super::json_common::mana_color_name(color)
+                                                    .to_owned(),
+                                                json!(amount),
+                                            )
+                                        })
+                                        .collect(),
+                                )
+                            })
+                            .collect(),
+                    );
+                }
             }
             action
         }

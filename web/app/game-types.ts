@@ -127,6 +127,7 @@ export type Card = {
   chosenCardName?: string | null;
   chosenCreatureType?: string | null;
   chosenBasicLandType?: string | null;
+  chosenColor?: string | null;
   tapped?: boolean;
   power?: number | null;
   toughness?: number | null;

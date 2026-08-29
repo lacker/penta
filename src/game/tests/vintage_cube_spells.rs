@@ -95,6 +95,7 @@ fn the_legendary_lands_count_what_they_name() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .expect("the land taps for mana");

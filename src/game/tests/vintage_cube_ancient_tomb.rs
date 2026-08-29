@@ -29,6 +29,7 @@ fn tap_the_tomb(game: &mut Game, tomb: GameObjectId) {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, mana).expect("it taps for two");
     game.check_state_based_actions();

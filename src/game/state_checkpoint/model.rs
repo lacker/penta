@@ -623,6 +623,9 @@ pub(super) struct DetachedPermanentSnapshot {
     pub(super) chosen_creature_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<BasicLandTypeSnapshot>,
+    /// The color this permanent was told to remember as it entered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_color: Option<ManaColorSnapshot>,
     pub(super) chosen_card_name: Option<String>,
 }
 

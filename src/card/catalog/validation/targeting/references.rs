@@ -390,36 +390,9 @@ fn validate_recipient_target_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     match recipient.0 {
         EffectRecipientSetDef::LegalTargets(target) => validate_target_index(target, target_count),
-        EffectRecipientSetDef::Objects(
-            ObjectSetDef::One(reference)
-            | ObjectSetDef::PermanentsTargetedBy(reference)
-            | ObjectSetDef::LegalAttachmentHosts(reference)
-            | ObjectSetDef::SharingNameWith(reference),
-        ) => validate_object_reference(reference, target_count, scope),
-        EffectRecipientSetDef::Objects(
-            ObjectSetDef::Binding(binding) | ObjectSetDef::MatchingBinding { binding, .. },
-        ) => {
-            if scope.object_sets & (1 << binding.index()) != 0 {
-                Ok(())
-            } else {
-                Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
-            }
+        EffectRecipientSetDef::Objects(objects) => {
+            validate_object_set_target_references(objects, target_count, scope)
         }
-        EffectRecipientSetDef::Objects(ObjectSetDef::LegalTargets(target)) => {
-            validate_target_index(target, target_count)
-        }
-        EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
-            validate_query(query, target_count, scope)
-        }
-        // The pile is named by which permanent exiled the cards, so there is
-        // no player or target reference in it to validate.
-        EffectRecipientSetDef::Objects(ObjectSetDef::LinkedExiles(_)) => Ok(()),
-        EffectRecipientSetDef::Objects(
-            ObjectSetDef::BottomOfGraveyard(player)
-            | ObjectSetDef::CardsDrawnThisTurnInHand(player)
-            | ObjectSetDef::SharingNameWithBinding { player, .. }
-            | ObjectSetDef::TopOfGraveyardMatching { player, .. },
-        ) => validate_player_reference(player, target_count, scope),
         EffectRecipientSetDef::Players(players)
         | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(players) => {
             validate_player_set(players, target_count, scope)
@@ -428,6 +401,41 @@ fn validate_recipient_target_references(
         // is attacking is read off the declaration rather than authored.
         EffectRecipientSetDef::DefenderOf(reference) => {
             validate_object_reference(reference, target_count, scope)
+        }
+    }
+}
+
+fn validate_object_set_target_references(
+    objects: ObjectSetDef,
+    target_count: usize,
+    scope: BindingScope,
+) -> Result<(), GrantedAbilityValidationError> {
+    match objects {
+        ObjectSetDef::One(reference)
+        | ObjectSetDef::PermanentsTargetedBy(reference)
+        | ObjectSetDef::LegalAttachmentHosts(reference)
+        | ObjectSetDef::SharingNameWith(reference) => {
+            validate_object_reference(reference, target_count, scope)
+        }
+        ObjectSetDef::Binding(binding) | ObjectSetDef::MatchingBinding { binding, .. } => {
+            if scope.object_sets & (1 << binding.index()) != 0 {
+                Ok(())
+            } else {
+                Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
+            }
+        }
+        ObjectSetDef::LegalTargets(target) => {
+            validate_target_index(target, target_count)
+        }
+        ObjectSetDef::Query(query) => validate_query(query, target_count, scope),
+        // The pile is named by which permanent exiled the cards, so there is
+        // no player or target reference in it to validate.
+        ObjectSetDef::LinkedExiles(_) => Ok(()),
+        ObjectSetDef::BottomOfGraveyard(player)
+            | ObjectSetDef::CardsDrawnThisTurnInHand(player)
+            | ObjectSetDef::SharingNameWithBinding { player, .. }
+            | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
+            validate_player_reference(player, target_count, scope)
         }
     }
 }

@@ -341,6 +341,37 @@ fn player_aura_attachment_round_trips() {
 }
 
 #[test]
+fn public_chosen_color_round_trips() {
+    let mut game = crate::game::tests::ready_game();
+    let mut aura = crate::game::tests::creature(
+        90_110,
+        crate::card::cards::SHIMMERWILDS_GROWTH,
+        PlayerId::One,
+    );
+    let aura_id = aura.card.id;
+    aura.chosen_color = Some(ManaColor::Blue);
+    game.battlefield.push(aura);
+
+    let (wire, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 90_111);
+    let shown = wire["battlefield"]
+        .as_array()
+        .expect("the observation has a battlefield")
+        .iter()
+        .find(|permanent| permanent["objectId"] == aura_id.0)
+        .expect("the Aura is observed");
+    assert_eq!(shown["chosenColor"], "blue");
+    assert_eq!(
+        rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == aura_id)
+            .expect("the Aura reconstructs")
+            .chosen_color,
+        Some(ManaColor::Blue),
+    );
+}
+
+#[test]
 fn checkpoint_preserves_predicate_filterable_cast_history() {
     let mut game = crate::game::tests::ready_game();
     let spell = crate::game::tests::card(94_000, crate::card::cards::THINK_TWICE, PlayerId::One);

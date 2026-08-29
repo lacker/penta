@@ -105,6 +105,8 @@ pub enum CharacteristicOperationDef {
     ChosenBasicLandType,
     CardTypes(SetOperationDef<CardTypeSet>),
     Colors(SetOperationDef<ColorSet>),
+    /// A color operation whose value is read from the source permanent.
+    Color(SetOperationDef<ManaTypeDef>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
     /// Named subtype operations across every subtype family. Unlike
     /// `CreatureTypes`, this can remove a noncreature subtype such as
@@ -818,6 +820,11 @@ impl AppliedEffectDef {
         Self::Characteristic(CharacteristicOperationDef::Colors(SetOperationDef::Set(
             colors,
         )))
+    }
+
+    #[must_use]
+    pub const fn set_color(color: ManaTypeDef) -> Self {
+        Self::Characteristic(CharacteristicOperationDef::Color(SetOperationDef::Set(color)))
     }
 
     #[must_use]

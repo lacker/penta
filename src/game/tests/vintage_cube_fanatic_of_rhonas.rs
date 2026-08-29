@@ -92,6 +92,7 @@ fn without_ferocious_she_taps_for_one() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, green).expect("it taps");
 

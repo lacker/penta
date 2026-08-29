@@ -4,8 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
     BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRefDef,
-    PlayerRelation, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -163,7 +164,31 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
         .with_abilities(&KNIGHT_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&PATH_TO_EXILE, &NOBLE_HIERARCH, &KNIGHT_OF_THE_RELIQUARY];
+// CON 142 — Exotic Orchard
+pub(in crate::card::sets) static EXOTIC_ORCHARD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6aae6480-4e71-4d94-a648-f80d3849d792"),
+    "Exotic Orchard",
+    CardArt::new("6aae6480-4e71-4d94-a648-f80d3849d792", "Steven Belledin"),
+    CardSet::Conflux,
+    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+        "{T}: Add one mana of any color that a land an opponent controls could produce.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::AddMana(AddManaEffectDef::choice_from(
+            ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )))
+            .colors_only(),
+        )),
+    )),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &PATH_TO_EXILE,
+    &NOBLE_HIERARCH,
+    &KNIGHT_OF_THE_RELIQUARY,
+    &EXOTIC_ORCHARD,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

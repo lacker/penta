@@ -63,7 +63,10 @@ impl StaticEffectKind {
                 )
                 | (
                     Self::Colors,
-                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(_)),
+                    AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::Colors(_)
+                            | CharacteristicOperationDef::Color(_),
+                    ),
                 )
                 | (
                     Self::Abilities,
@@ -402,6 +405,7 @@ impl Game {
             ) => true,
             AppliedEffectDef::Characteristic(
                 CharacteristicOperationDef::Abilities(_)
+                | CharacteristicOperationDef::Color(_)
                 | CharacteristicOperationDef::Colors(_)
                 | CharacteristicOperationDef::PowerToughness(_),
             )

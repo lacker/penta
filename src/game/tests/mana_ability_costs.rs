@@ -42,6 +42,7 @@ fn activate(game: &mut Game, player: PlayerId, source: GameObjectId) {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the mana ability activates");
@@ -151,6 +152,7 @@ fn implements_of_sacrifice_offers_each_color_twice_over() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the mana ability activates");
@@ -216,6 +218,7 @@ fn standing_stones_spends_mana_a_tap_and_a_life() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the mana ability activates");

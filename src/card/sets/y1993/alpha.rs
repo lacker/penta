@@ -8,12 +8,13 @@ use crate::card::{
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
     DamagePreventionFollowUpDef, DamageRecipientMatcherDef, DamageSourceGroupDef,
     DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
-    InstalledTriggerDef, KeywordAbility, LikelihoodDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, SourceMatchValueDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    InstalledTriggerDef, KeywordAbility, LikelihoodDef, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    OngoingEffectDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RoundingDef, SourceMatchValueDef, TriggerConditionDef,
+    TriggerEventDef, TurnKindDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -3520,13 +3521,23 @@ pub(in crate::card::sets) static LIGHTNING_BOLT: CardRecord = CardRecord::new_wi
 );
 
 // LEA 162 — Mana Flare
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “Whenever a player taps a land for mana, that player adds one mana of any type that land produced”.
 pub(in crate::card::sets) static MANA_FLARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7fb99a26-beeb-4aca-bb02-b2d2ce0595f9"),
     "Mana Flare",
-    crate::card::CardArt::new("7fb99a26-beeb-4aca-bb02-b2d2ce0595f9", "Christopher Rush"),
-    crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7fb99a26-beeb-4aca-bb02-b2d2ce0595f9", "Christopher Rush"),
+    CardSet::Alpha,
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::triggered_mana(
+            "Whenever a player taps a land for mana, that player adds one mana of any type that land produced.",
+            TriggerEventDef::tapped_for_mana(ObjectPredicateDef::HasType(CardType::Land)),
+            EffectDef::AddMana(
+                AddManaEffectDef::choice_from(
+                    ManaTypeSetDef::produced_by(ObjectRefDef::TriggeringObject),
+                )
+                .to_triggering_objects_controller(),
+            ),
+        ),
+    ]),
 );
 
 // LEA 163 — Manabarbs

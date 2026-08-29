@@ -240,7 +240,7 @@ impl Game {
 
     /// How many times this object's copy of one ability has triggered this
     /// turn, for the abilities that cap themselves.
-    fn triggers_this_turn(&self, source: AbilitySourceRef) -> u8 {
+    pub(super) fn triggers_this_turn(&self, source: AbilitySourceRef) -> u8 {
         self.battlefield
             .iter()
             .chain(self.emblems.iter())

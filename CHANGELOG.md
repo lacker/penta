@@ -143,6 +143,20 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Composable mana types and immediate triggered-mana choices.** `AddMana`
+  now builds its output from an independent type source (fixed, chosen on the
+  source, or produced by the triggering mana ability) and selection rule (one,
+  one choice, or any combination). Mana Flare, Wild Growth, Overgrowth, Dawn's
+  Reflection, Gauntlet of Might, and Shimmerwilds Growth all use that shared
+  vocabulary. Independent triggered choices remain separate on the activating
+  action, while the payment planner counts their combined output and each mana
+  unit keeps its trigger as the source. Shimmerwilds Growth also adds the
+  reusable as-enters color choice and source-derived static color operation;
+  public permanent observations expose its optional `chosenColor`.
+  `ActivateManaAbility.triggeredManaChoices` is an additive optional member,
+  and `triggeredMana` remains its aggregate compatibility projection; protocol
+  29, checkpoint format 9, and replay version 2 are unchanged.
+
 - **Permanents that arrive together arrive at the same time.** Tokens made
   by one instruction entered the battlefield one at a time, so a clause
   watching arrivals saw each of them against a board the rest had not joined

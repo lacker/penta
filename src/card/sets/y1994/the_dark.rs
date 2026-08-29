@@ -1,13 +1,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef,
-    AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardBehavior, CardChoiceSourceDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, DamageCoverageDef, DamageEventMatcherDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef,
-    EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    CardArt, CardBehavior, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, DamageCoverageDef, DamageEventMatcherDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor,
+    ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -2300,7 +2300,6 @@ pub(in crate::card::sets) static DIABOLIC_MACHINE: CardRecord = CardRecord::new_
 );
 
 // DRK 102 — Fellwar Stone
-// Audit: custom — Needs declarative mana production derived from the colors an opponent's lands could produce.
 pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new_with_legacy_id(
     48,
     "Fellwar Stone",
@@ -2309,13 +2308,15 @@ pub(in crate::card::sets) static FELLWAR_STONE: CardRecord = CardRecord::new_wit
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[AbilityDef::activated_mana(
         "{T}: Add one mana of any color that a land an opponent controls could produce.",
         &[AbilityCostDef::TapSource],
-        EffectDef::Special("Add one mana of a color an opponent's land could produce"),
-    )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::FellwarStone))
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "The available colors are computed dynamically from an opponent's lands.",
-    ))
-    .with_legacy_procedure()]),
+        EffectDef::AddMana(AddManaEffectDef::choice_from(
+            ManaTypeSetDef::could_be_produced_by(ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )))
+            .colors_only(),
+        )),
+    )]),
 );
 
 // DRK 103 — Fountain of Youth

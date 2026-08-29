@@ -248,6 +248,7 @@ impl WebGame {
                     "chosenBasicLandType": permanent
                         .chosen_basic_land_type
                         .map(penta::card::BasicLandType::subtype),
+                    "chosenColor": permanent.chosen_color.map(penta::ManaColor::label),
                     "tapped": permanent.tapped,
                     "power": permanent.power,
                     "toughness": permanent.toughness,

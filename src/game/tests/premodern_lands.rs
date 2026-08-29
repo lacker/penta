@@ -26,6 +26,7 @@ fn painlands_offer_safe_colorless_or_colored_mana_with_immediate_damage() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .unwrap();
@@ -46,6 +47,7 @@ fn painlands_offer_safe_colorless_or_colored_mana_with_immediate_damage() {
                     counters_removed: None,
                     cost_object: None,
                     combination: None,
+                    triggered_mana: None,
                 },
             )
             .unwrap();
@@ -75,6 +77,7 @@ fn ancient_tomb_adds_two_colorless_and_deals_two_damage_immediately() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .unwrap();

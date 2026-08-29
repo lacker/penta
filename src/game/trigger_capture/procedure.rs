@@ -159,7 +159,7 @@ impl Game {
         self.capture_trigger_prechecked(capture);
     }
 
-    fn trigger_capture_condition_holds(&self, capture: &TriggerCapture) -> bool {
+    pub(super) fn trigger_capture_condition_holds(&self, capture: &TriggerCapture) -> bool {
         capture.condition.is_none_or(|condition| {
             self.trigger_condition_holds(
                 condition,

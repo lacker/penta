@@ -1,6 +1,6 @@
 use super::{
     AppliedEffectDef, ConditionDef, CounterKind, ManaColor, ManaCost, ObjectPredicateDef,
-    ObjectRefDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind,
 };
 use crate::ids::ObjectBindingIndex;
 
@@ -342,20 +342,92 @@ impl BasicLandType {
     }
 }
 
+/// One mana type read by an effect. A chosen color belongs to the source
+/// permanent, so the same value can feed a mana effect or a continuous
+/// characteristic operation without either one owning the choice.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ManaTypeDef {
+    Fixed(ManaColor),
+    ChosenColor,
+}
+
+/// Where a mana-selection domain obtains its types.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ManaTypeSourceDef {
+    Fixed(&'static [ManaColor]),
+    /// The distinct mana types actually produced by the referenced object's
+    /// mana ability in the event being processed. This is deliberately not a
+    /// "could produce" query: Mana Flare follows the activation's output.
+    ProducedBy(ObjectRefDef),
+    /// The union of mana types the referenced permanents' mana abilities
+    /// could produce under CR 106.7. Costs and restrictions on spending that
+    /// mana do not narrow the answer.
+    CouldBeProducedBy(ObjectSetDef),
+}
+
+/// A filter applied after a mana-type source has been evaluated. "Any color"
+/// excludes colorless, while "any type" includes it.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ManaTypeFilterDef {
+    AnyType,
+    Colors,
+}
+
+/// A domain from which a mana effect can select types. Its source, filter,
+/// and selection procedure are independent so cards can compose exactly the
+/// rule they print.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ManaTypeSetDef {
+    pub source: ManaTypeSourceDef,
+    pub filter: ManaTypeFilterDef,
+}
+
+impl ManaTypeSetDef {
+    #[must_use]
+    pub const fn fixed(types: &'static [ManaColor]) -> Self {
+        Self {
+            source: ManaTypeSourceDef::Fixed(types),
+            filter: ManaTypeFilterDef::AnyType,
+        }
+    }
+
+    #[must_use]
+    pub const fn produced_by(object: ObjectRefDef) -> Self {
+        Self {
+            source: ManaTypeSourceDef::ProducedBy(object),
+            filter: ManaTypeFilterDef::AnyType,
+        }
+    }
+
+    #[must_use]
+    pub const fn could_be_produced_by(objects: ObjectSetDef) -> Self {
+        Self {
+            source: ManaTypeSourceDef::CouldBeProducedBy(objects),
+            filter: ManaTypeFilterDef::AnyType,
+        }
+    }
+
+    #[must_use]
+    pub const fn colors_only(mut self) -> Self {
+        self.filter = ManaTypeFilterDef::Colors;
+        self
+    }
+}
+
 /// Which kind of mana an effect adds. A choice is made as the mana ability
 /// resolves; it is not modeled as several interchangeable colors already in
 /// the pool.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ManaSelectionDef {
-    One(ManaColor),
+    One(ManaTypeDef),
     /// One colour picked from a list, with the whole amount in that colour.
     /// A dual land offers "add {W} or {U}", not a mixture.
-    Choice(&'static [ManaColor]),
+    Choice(ManaTypeSetDef),
     /// Every unit chosen independently from a list, which is what "in any
     /// combination of" means. Each way of splitting the amount is a separate
     /// activation, the way a counter size or a sacrificed permanent already
     /// is: a mana ability has no window in which to ask afterwards.
-    Combination(&'static [ManaColor]),
+    Combination(ManaTypeSetDef),
     /// One colour picked from among the colours of the cards this permanent
     /// exiled. Imprint is the only clause that says this, and it cannot be a
     /// list: which colours the ability makes is decided by what was imprinted
@@ -445,6 +517,11 @@ pub struct ManaAmountOverrideDef {
 impl AddManaEffectDef {
     #[must_use]
     pub const fn one(mana: ManaColor) -> Self {
+        Self::one_of_type(ManaTypeDef::Fixed(mana))
+    }
+
+    #[must_use]
+    pub const fn one_of_type(mana: ManaTypeDef) -> Self {
         Self {
             mana: ManaSelectionDef::One(mana),
             amount: 1,
@@ -471,6 +548,11 @@ impl AddManaEffectDef {
     /// "Add X mana in any combination of these colours."
     #[must_use]
     pub const fn combination(mana: &'static [ManaColor], amount: u16) -> Self {
+        Self::combination_from(ManaTypeSetDef::fixed(mana), amount)
+    }
+
+    #[must_use]
+    pub const fn combination_from(mana: ManaTypeSetDef, amount: u16) -> Self {
         Self {
             mana: ManaSelectionDef::Combination(mana),
             amount,
@@ -504,6 +586,11 @@ impl AddManaEffectDef {
 
     #[must_use]
     pub const fn choice(mana: &'static [ManaColor]) -> Self {
+        Self::choice_from(ManaTypeSetDef::fixed(mana))
+    }
+
+    #[must_use]
+    pub const fn choice_from(mana: ManaTypeSetDef) -> Self {
         Self {
             mana: ManaSelectionDef::Choice(mana),
             amount: 1,

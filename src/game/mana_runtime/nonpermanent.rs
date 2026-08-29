@@ -56,25 +56,31 @@ impl Game {
                 counters_removed: None,
                 cost_object: None,
                 combination,
+                triggered_mana: None,
             });
         };
         match effect.mana {
-            ManaSelectionDef::One(color) => add(color, None),
-            ManaSelectionDef::Choice(colors) => {
+            ManaSelectionDef::One(ManaTypeDef::Fixed(color)) => add(color, None),
+            ManaSelectionDef::One(ManaTypeDef::ChosenColor)
+            | ManaSelectionDef::ColorsOfLinkedExiles => {}
+            ManaSelectionDef::Choice(types) => {
+                let ManaTypeSourceDef::Fixed(colors) = types.source else {
+                    return activations;
+                };
                 for color in colors {
                     add(*color, None);
                 }
             }
-            ManaSelectionDef::Combination(colors) => {
+            ManaSelectionDef::Combination(types) => {
+                let ManaTypeSourceDef::Fixed(colors) = types.source else {
+                    return activations;
+                };
                 for combination in Self::mana_combinations(colors, effect.amount) {
                     if let Some((color, _)) = combination.iter().next() {
                         add(color, Some(combination));
                     }
                 }
             }
-            // Imprint belongs to a permanent that exiled something. A card
-            // being cast has exiled nothing, so there is no colour here.
-            ManaSelectionDef::ColorsOfLinkedExiles => {}
         }
         activations
     }
@@ -176,7 +182,7 @@ impl Game {
                 activation.source,
                 activation.ability,
                 activation.color,
-                ManaActivationChoices::default(),
+                &ManaActivationChoices::default(),
             );
         }
     }

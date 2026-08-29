@@ -8,7 +8,7 @@ use super::{
     CopiableAbility, CopiableCharacteristics, CounterKind, DamageSourceGroupDef,
     DoubleFacedCopiableCharacteristics, EffectResolutionContext, EntryCompletion,
     EnumeratedActions, ExilePlayCost, ExilePlayPermission, Game, GameEvent, GameObjectId,
-    GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaSource,
+    GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaColor, ManaSource,
     NonbattlefieldAbilityGrant, ObjectBacking, ObjectInstance, ObjectKind, PendingBattlefieldEntry,
     PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerState, Pregame,
     RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext, ReplayRng,

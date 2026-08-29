@@ -489,6 +489,12 @@ physical orientation from `characteristics.structure`. Treat an unknown
 authoritative legal actions rather than guessing that the permanent can
 transform.
 
+Public choices remembered by a permanent use optional fields such as
+`chosenCardName`, `chosenCreatureType`, `chosenBasicLandType`, and
+`chosenColor`. `chosenColor` is a lower-case mana-color name and is absent or
+null when that permanent made no color choice. These fields belong to the
+permanent incarnation and therefore disappear when it changes zones.
+
 A true zone change
 creates a new object ID, so a Goblin Balloon Brigade card in hand, its spell on
 the stack, and its permanent on the battlefield are distinct. Transforming,
@@ -602,7 +608,16 @@ origin, and colour name such an ability once per division, and `color` is the
 first type the division produces, so a bot that reads only `color` still sees
 a colour it will receive. Every other mana ability omits the key. The engine
 does not infer either classification merely because an effect happens to
-produce mana.
+produce mana. Finally, `triggeredMana` is present when immediate mana triggers
+such as Mana Flare or Dawn's Reflection make output choices. It is the
+aggregate colour-to-count compatibility projection. When more than one effect
+chooses independently, `triggeredManaChoices` is also present as an ordered
+array of those objects, preserving each effect's domain and source. Two Mana
+Flares watching an activation that produces white and blue therefore expose
+four actions: white/white, white/blue, blue/white, and blue/blue; the two mixed
+actions have the same aggregate `triggeredMana` but different
+`triggeredManaChoices`. An activation that causes no such choice omits both
+keys. These optional open-world members do not move protocol 29.
 
 Targets are tagged objects: a player is `{type: "player", seat}`, a card or
 permanent has an `objectId`, and a spell has its stack `objectId`. Legacy

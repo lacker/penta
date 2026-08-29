@@ -560,6 +560,7 @@ fn reprieve_answers_a_spell_that_cannot_be_countered() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for green");

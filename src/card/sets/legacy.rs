@@ -1,6 +1,6 @@
 use super::{
-    CardBehavior, CardRules, PileChosen, PilesSeparated, UNSUPPORTED_RULES, y1993, y1994, y1997,
-    y2011, y2012,
+    CardBehavior, CardRules, PileChosen, PilesSeparated, UNSUPPORTED_RULES, y1993, y1994, y2011,
+    y2012,
 };
 
 // This is deliberately only an index: special hooks and the legacy
@@ -10,8 +10,6 @@ pub(in crate::card) const fn rules(behavior: CardBehavior) -> &'static CardRules
         CardBehavior::AugurOfBolas => &y2012::magic_2013::AUGUR_OF_BOLAS.rules,
         CardBehavior::Fireball => &y1993::alpha::FIREBALL.rules,
         CardBehavior::GoblinGrenade => &y1994::fallen_empires::GOBLIN_GRENADE.rules,
-        CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
-        CardBehavior::ReflectingPool => &y1997::tempest::REFLECTING_POOL.rules,
         CardBehavior::Balance => &y1993::alpha::BALANCE.rules,
         CardBehavior::LibraryOfAlexandria => &y1993::arabian_nights::LIBRARY_OF_ALEXANDRIA.rules,
         CardBehavior::Recall => &y1994::legends::RECALL.rules,

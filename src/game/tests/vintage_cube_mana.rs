@@ -25,6 +25,7 @@ fn the_halflings_colored_mana_only_pays_for_legendary_spells() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .expect("it taps for a colour");
@@ -65,6 +66,7 @@ fn a_legendary_spell_paid_with_halfling_mana_cannot_be_countered() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for green");
@@ -136,6 +138,7 @@ fn the_halflings_colorless_mana_is_ordinary() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for colourless");
@@ -177,6 +180,7 @@ fn mana_confluence_charges_a_life_as_a_cost_of_its_own_ability() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .unwrap_or_else(|error| panic!("it makes {color:?}: {error}"));
@@ -476,6 +480,7 @@ fn each_mox_taps_for_its_own_color_and_no_other() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .unwrap_or_else(|error| panic!("{definition:?} taps for {color:?}: {error}"));
@@ -551,6 +556,7 @@ fn a_mana_creature_waits_a_turn_and_then_makes_its_mana() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .unwrap_or_else(|error| panic!("{definition:?} taps for {color:?}: {error}"));

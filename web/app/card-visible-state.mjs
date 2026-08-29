@@ -10,13 +10,14 @@
  * @param {Card} card
  */
 export function cardChoiceStateKey(card) {
-  return `${card.chosenCardName ?? ""}\u0000${card.chosenCreatureType ?? ""}`;
+  return `${card.chosenCardName ?? ""}\u0000${card.chosenCreatureType ?? ""}\u0000${card.chosenColor ?? ""}`;
 }
 
 /** @param {Card} card */
 export function cardChoiceLabel(card) {
   if (card.chosenCardName) return `Named card: ${card.chosenCardName}`;
   if (card.chosenCreatureType) return `Chosen type: ${card.chosenCreatureType}`;
+  if (card.chosenColor) return `Chosen color: ${card.chosenColor}`;
   return null;
 }
 

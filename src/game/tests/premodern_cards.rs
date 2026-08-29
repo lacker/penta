@@ -96,6 +96,7 @@ fn lotus_petal_sacrifices_for_one_mana_of_the_chosen_color() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
 
     assert!(game.legal_actions(PlayerId::One).contains(&action));
@@ -548,6 +549,7 @@ fn lotus_petal_cracks_the_turn_it_arrives_for_any_color() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .unwrap_or_else(|error| panic!("a fresh Petal makes {color:?}: {error}"));

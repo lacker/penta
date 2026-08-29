@@ -276,12 +276,17 @@ pub(super) fn parse_mana(
                 })
                 .transpose()?;
             if payload.is_some_and(|payload| match payload.mana {
-                crate::card::ManaSelectionDef::One(expected) => expected != color,
-                crate::card::ManaSelectionDef::Choice(colors)
-                | crate::card::ManaSelectionDef::Combination(colors) => !colors.contains(&color),
-                // The same: an imprint's colours are read off the permanent,
-                // which this restore has not rebuilt yet.
-                crate::card::ManaSelectionDef::ColorsOfLinkedExiles => false,
+                crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::Fixed(expected)) => {
+                    expected != color
+                }
+                crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::ChosenColor)
+                | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => false,
+                crate::card::ManaSelectionDef::Choice(types)
+                | crate::card::ManaSelectionDef::Combination(types) => match types.source {
+                    crate::card::ManaTypeSourceDef::Fixed(colors) => !colors.contains(&color),
+                    crate::card::ManaTypeSourceDef::ProducedBy(_)
+                    | crate::card::ManaTypeSourceDef::CouldBeProducedBy(_) => false,
+                },
             }) {
                 return Err("mana payload cannot produce its checkpoint color".into());
             }
@@ -487,6 +492,10 @@ pub(super) fn parse_battlefield(
                         .get("chosenBasicLandType")
                         .and_then(Value::as_str)
                         .and_then(BasicLandType::from_subtype),
+                    chosen_color: shown
+                        .get("chosenColor")
+                        .and_then(Value::as_str)
+                        .and_then(ManaColor::from_label),
                     chosen_card_name: shown
                         .get("chosenCardName")
                         .and_then(Value::as_str)
@@ -525,6 +534,7 @@ struct PermanentPresentation {
     activated_loyalty_this_turn: bool,
     chosen_creature_type: Option<String>,
     chosen_basic_land_type: Option<BasicLandType>,
+    chosen_color: Option<ManaColor>,
     chosen_card_name: Option<String>,
 }
 
@@ -708,6 +718,7 @@ fn parse_permanent(
         .and_then(crate::card::AlternativeCastKindDef::from_label);
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
+    permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
     permanent.face_down = state.face_down.map(face_down_characteristics_from_snapshot);
     permanent.turn_up_for_mana_cost = state.turn_up_for_mana_cost;
@@ -854,6 +865,7 @@ pub(super) fn parse_detached_permanent(
             activated_loyalty_this_turn: snapshot.activated_loyalty_this_turn,
             chosen_creature_type: snapshot.chosen_creature_type.clone(),
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
+            chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
         },
         catalog,

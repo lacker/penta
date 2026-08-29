@@ -129,6 +129,7 @@ fn the_treasure_makes_mana() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, add).expect("it taps for red");
 

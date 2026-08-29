@@ -388,6 +388,7 @@ pub(super) fn detached_permanent_snapshot(
         chosen_basic_land_type: permanent
             .chosen_basic_land_type
             .map(basic_land_type_snapshot),
+        chosen_color: permanent.chosen_color.map(mana_color_snapshot),
         chosen_card_name: permanent.chosen_card_name.clone(),
     }
 }

@@ -8,9 +8,10 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, MillUntilDef, ObjectPredicateDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
+    ObjectPredicateDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -1149,13 +1150,25 @@ pub(in crate::card::sets) static LOWLAND_BASILISK: CardRecord = CardRecord::new(
 // STH 110 — Mulch (reprint)
 
 // STH 111 — Overgrowth
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERGROWTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb9179f5-c3e0-4499-9cfb-6cb7e8329a59"),
     "Overgrowth",
     crate::card::CardArt::new("bb9179f5-c3e0-4499-9cfb-6cb7e8329a59", "Rob Alexander"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::triggered_mana(
+                "Whenever enchanted land is tapped for mana, its controller adds an additional {G}{G}.",
+                TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
+                EffectDef::AddMana(
+                    AddManaEffectDef::one(ManaColor::Green)
+                        .with_amount(2)
+                        .to_triggering_objects_controller(),
+                ),
+            ),
+        ]),
 );
 
 // STH 112 — Primal Rage

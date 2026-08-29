@@ -158,6 +158,10 @@ impl Game {
                             entry.permanent.chosen_basic_land_type =
                                 crate::card::BasicLandType::from_subtype(&selected);
                         }
+                        BattlefieldEntryChoiceDestinationDef::Color => {
+                            entry.permanent.chosen_color =
+                                crate::card::ManaColor::from_label(&selected);
+                        }
                     }
                     self.pending_events.push_front(pending);
                     self.continue_pending_events();

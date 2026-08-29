@@ -206,6 +206,7 @@ fn the_land_it_untapped_pays_at_once() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, red)
         .expect("an untapped Mountain taps for red");

@@ -6,7 +6,7 @@
 
 use super::super::{
     AddManaEffectDef, ColorSet, EffectDef, EffectResolutionContext, Game, Mana, ManaColor,
-    ManaSelectionDef, ManaSource, ScopedEffect, StackObject, Target,
+    ManaSelectionDef, ManaSource, ManaTypeSourceDef, ScopedEffect, StackObject, Target,
 };
 
 impl Game {
@@ -37,7 +37,11 @@ impl Game {
                 // which is also where its rider is checked.
                 sacrifice_source_when_out_of: _,
             }) => {
-                let color = kind;
+                let Some(color) =
+                    self.mana_type_for_source(kind, object.source.unwrap_or(object.id))
+                else {
+                    return;
+                };
                 let source = object
                     .source
                     .zip(object.ability_origin())
@@ -99,6 +103,9 @@ impl Game {
                     spend_effects: effect.spend_effects,
                 };
                 let mut choosable = ColorSet::empty();
+                let ManaTypeSourceDef::Fixed(colors) = colors.source else {
+                    return;
+                };
                 for color in colors {
                     if *color != ManaColor::Colorless {
                         choosable = choosable.with(*color);

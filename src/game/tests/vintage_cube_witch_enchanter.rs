@@ -116,6 +116,7 @@ fn the_meadow_taps_for_white() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&add_white));
     game.apply(PlayerId::One, add_white).expect("it taps");

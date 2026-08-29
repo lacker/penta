@@ -31,7 +31,7 @@ fn order_mana_activations_before_consumption(
                 })
             })
             .min_by_key(|activation_index| {
-                payment_activation_priority(activations[*activation_index], cost)
+                payment_activation_priority(&activations[*activation_index], cost)
             })?;
         ordered.push(activations.remove(next));
     }
@@ -39,7 +39,7 @@ fn order_mana_activations_before_consumption(
 }
 
 fn payment_activation_priority(
-    activation: PlannedManaActivation,
+    activation: &PlannedManaActivation,
     cost: ManaCost,
 ) -> (u8, usize, usize) {
     for (index, color) in ManaColor::ALL.into_iter().enumerate() {

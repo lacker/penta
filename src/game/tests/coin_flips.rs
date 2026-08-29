@@ -299,6 +299,7 @@ fn mana_crypt_taps_for_two_colorless() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for mana");

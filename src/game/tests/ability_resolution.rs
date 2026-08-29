@@ -587,78 +587,6 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
     assert!(game.stack.is_empty());
 }
 
-#[test]
-fn fellwar_mana_and_nested_color_queries_use_their_typed_legacy_clauses() {
-    static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-    static ABILITIES: [AbilityDef; 2] = [
-        AbilityDef::custom_full(
-            "An unrelated custom clause.",
-            CardBehavior::Fireball,
-            "The test puts a different custom execution first.",
-        ),
-        AbilityDef::activated_mana(
-            "{T}: Add one mana of any color that a land an opponent controls could produce.",
-            &COSTS,
-            EffectDef::Special("Add a color an opponent's land could produce"),
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::FellwarStone))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the legacy Fellwar Stone color resolver.",
-        ))
-        .with_legacy_procedure(),
-    ];
-    let definition_id = CardDefinitionId::new(10_098);
-    let mut definition = CardDefinition::new(
-        definition_id,
-        "Typed Fellwar mana test",
-        CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
-    );
-    definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
-    synchronize_single_part_definition(&mut definition);
-    let proxy_definition_id = CardDefinitionId::new(10_099);
-    let mut proxy_definition = CardDefinition::new(
-        proxy_definition_id,
-        "Typed Fellwar land proxy test",
-        CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
-    );
-    proxy_definition.rules = CardRules::new_land(&[]).with_abilities(&ABILITIES);
-    synchronize_single_part_definition(&mut proxy_definition);
-
-    let mut game = ready_game();
-    let mut definitions = game
-        .catalog
-        .definitions()
-        .into_iter()
-        .cloned()
-        .collect::<Vec<_>>();
-    definitions.push(definition);
-    definitions.push(proxy_definition);
-    game.catalog = CardCatalog::new(definitions).unwrap();
-    let source = CardInstanceId(10_000);
-    game.battlefield.extend([
-        creature(source.0, definition_id, PlayerId::One),
-        creature(10_001, proxy_definition_id, PlayerId::Two),
-        creature(10_002, cards::ISLAND, PlayerId::One),
-    ]);
-    let action = Action::ActivateManaAbility {
-        source,
-        ability: mana_ability_for(&game, source, ManaColor::Blue),
-        color: ManaColor::Blue,
-        counters_removed: None,
-        cost_object: None,
-        combination: None,
-    };
-
-    assert!(game.legal_actions(PlayerId::One).contains(&action));
-    game.apply(PlayerId::One, action).unwrap();
-    assert!(game.battlefield[0].tapped);
-    assert_eq!(game.players[PlayerId::One.index()].mana_pool.blue, 1);
-}
-
 static TWO_SLOT_TARGETS: [AbilityTargetDef; 2] = [
     AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -800,6 +728,7 @@ fn copy_artifact_copies_declarative_mana_abilities_without_a_behavior_hook() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .unwrap();

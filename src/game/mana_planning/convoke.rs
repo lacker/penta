@@ -209,7 +209,7 @@ impl Game {
             if self.mana_activation_can_repeat_in_payment(permanent, activation) {
                 sources.push(FlexibleManaSource {
                     source: permanent.card.id,
-                    outputs: vec![*output],
+                    outputs: vec![output.clone()],
                     order,
                 });
             }
@@ -228,7 +228,7 @@ impl Game {
         let contribution = self
             .permanent_contribution_outputs(permanent, contributions)
             .iter()
-            .map(|output| output.payment_total())
+            .map(ManaSourceOutput::payment_total)
             .max()
             .unwrap_or(0);
         for activation in &activations {
@@ -271,18 +271,20 @@ impl Game {
                     counters_removed,
                     cost_object,
                     combination,
+                    triggered_mana,
                     ..
-                } = mana.kind
+                } = &mana.kind
                 else {
                     unreachable!("planned_outputs returns mana outputs")
                 };
                 combined.push(ManaSourceOutput {
                     kind: PlannedPaymentKind::Mana {
-                        ability,
-                        color,
-                        counters_removed,
-                        cost_object,
-                        combination,
+                        ability: *ability,
+                        color: *color,
+                        counters_removed: *counters_removed,
+                        cost_object: *cost_object,
+                        combination: *combination,
+                        triggered_mana: triggered_mana.clone(),
                         contribution: contribution.kind.contribution(),
                     },
                     production: mana.production,

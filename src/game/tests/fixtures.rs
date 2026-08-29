@@ -329,6 +329,9 @@ pub(in crate::game) fn attach_constant_resolved_characteristics(
             CharacteristicOperationDef::Colors(operation) => {
                 ResolvedContinuousEffectKind::Colors(operation)
             }
+            CharacteristicOperationDef::Color(_) => {
+                panic!("a source-derived color is read live rather than resolved")
+            }
             CharacteristicOperationDef::CreatureTypes(operation) => {
                 ResolvedContinuousEffectKind::CreatureTypes(operation)
             }

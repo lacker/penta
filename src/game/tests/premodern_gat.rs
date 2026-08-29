@@ -167,6 +167,7 @@ fn mine_for(game: &mut Game, source: GameObjectId, color: ManaColor) {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the Mine still has a counter to spend");
@@ -653,6 +654,7 @@ fn a_mox_that_entered_taps_for_any_color() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("the Mox taps for any color");

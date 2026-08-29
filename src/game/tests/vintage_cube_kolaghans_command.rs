@@ -269,6 +269,7 @@ fn one_answered_target_does_not_save_the_other() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::Two, crack)
         .expect("its own ability sacrifices it");

@@ -114,6 +114,7 @@ fn it_taps_for_blue() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, action).expect("it taps");
     settle(&mut game);

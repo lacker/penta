@@ -1,5 +1,5 @@
 use super::*;
-use crate::card::AppliedRuleDef;
+use crate::card::{AppliedRuleDef, ManaTypeDef, ManaTypeSetDef};
 use crate::mana_cost;
 
 #[test]
@@ -203,7 +203,7 @@ fn cavern_records_both_mana_abilities_and_the_colored_mana_riders() {
     assert!(matches!(
         abilities[1].declarative_effect(),
         Some(EffectDef::AddMana(mana))
-            if mana.mana == ManaSelectionDef::One(ManaColor::Colorless)
+            if mana.mana == ManaSelectionDef::One(ManaTypeDef::Fixed(ManaColor::Colorless))
                 && mana.amount == 1
                 && mana.restrictions.is_empty()
                 && mana.spend_effects.is_empty()
@@ -215,7 +215,8 @@ fn cavern_records_both_mana_abilities_and_the_colored_mana_riders() {
     assert!(matches!(
         abilities[2].declarative_effect(),
         Some(EffectDef::AddMana(mana))
-            if mana.mana == ManaSelectionDef::Choice(&ManaColor::COLORS)
+            if mana.mana
+                == ManaSelectionDef::Choice(ManaTypeSetDef::fixed(&ManaColor::COLORS))
                 && mana.amount == 1
                 && mana.restrictions
                     == [ManaRestrictionDef::CastCreatureSpellOfChosenType]

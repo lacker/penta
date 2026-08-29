@@ -50,6 +50,7 @@ fn nissa_doubles_your_forests_and_nothing_else() {
                 counters_removed: None,
                 cost_object: None,
                 combination: None,
+                triggered_mana: None,
             },
         )
         .expect("the land taps for mana");

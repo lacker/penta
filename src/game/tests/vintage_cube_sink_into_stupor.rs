@@ -274,6 +274,7 @@ fn the_springs_tap_for_blue() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert!(game.legal_actions(PlayerId::One).contains(&add_blue));
     game.apply(PlayerId::One, add_blue).expect("it taps");

@@ -17,6 +17,7 @@ fn trigger_placement_preserves_the_nonactive_players_priority() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .unwrap();
@@ -119,6 +120,7 @@ fn city_trigger_can_be_answered_when_mana_was_floated_first() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .unwrap();
@@ -478,6 +480,7 @@ fn workshop_mana_is_three_individual_values_restricted_to_artifact_spells() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .unwrap();
@@ -521,7 +524,7 @@ fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
     game.battlefield
         .push(creature(10_050, definition_id, PlayerId::One));
 
-    let _ = game.tap_permanent_for_mana(CardInstanceId(10_050));
+    let _ = game.tap_permanent_for_mana(CardInstanceId(10_050), None);
 
     assert_eq!(game.players[0].mana_pool.colorless, 1);
     assert_eq!(game.players[0].mana.len(), 1);

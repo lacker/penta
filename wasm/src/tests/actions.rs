@@ -183,6 +183,7 @@ fn a_sacrificing_mana_ability_names_what_it_eats() {
                 counters_removed: None,
                 cost_object,
                 combination: None,
+                triggered_mana: None,
             },
         )
     };
@@ -653,6 +654,7 @@ fn mana_and_granted_ability_actions_expose_their_stable_origins() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     assert_eq!(
         action_ability_origin(&mana_action),

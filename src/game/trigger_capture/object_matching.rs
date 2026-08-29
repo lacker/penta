@@ -409,7 +409,8 @@ impl Game {
             // Player relations and land types have dedicated predicates;
             // neither is matched as a scalar against an object here.
             BattlefieldEntryChoiceDestinationDef::Player
-            | BattlefieldEntryChoiceDestinationDef::BasicLandType => false,
+            | BattlefieldEntryChoiceDestinationDef::BasicLandType
+            | BattlefieldEntryChoiceDestinationDef::Color => false,
             BattlefieldEntryChoiceDestinationDef::CardName => chooser
                 .and_then(|permanent| permanent.chosen_card_name.as_deref())
                 .is_some_and(|chosen| {

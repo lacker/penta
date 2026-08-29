@@ -18,7 +18,7 @@ fn suspend_actions_publish_the_card_ability_and_chosen_x() {
     assert_eq!(action["x"], 3);
 }
 
-/// Both optional members are absent unless the ability offers the choice
+/// Optional members are absent unless the ability offers the choice
 /// they answer, so an old consumer reading an ordinary mana ability sees the
 /// wire shape it always saw.
 #[test]
@@ -30,8 +30,10 @@ fn mana_actions_publish_their_choices_only_when_there_is_one() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     });
     assert!(plain.get("countersRemoved").is_none());
+    assert!(plain.get("triggeredMana").is_none());
     assert!(
         plain.get("costObject").is_none(),
         "a Mountain sacrifices nothing",
@@ -44,12 +46,46 @@ fn mana_actions_publish_their_choices_only_when_there_is_one() {
         counters_removed: Some(2),
         cost_object: Some(GameObjectId(14)),
         combination: None,
+        triggered_mana: None,
     });
     assert_eq!(sacrificing["countersRemoved"], 2);
     assert_eq!(
         sacrificing["costObject"], 14,
         "which permanent the cost consumes is part of the action",
     );
+
+    let mut triggered = crate::ManaSplit::empty();
+    triggered.add(ManaColor::White, 1);
+    triggered.add(ManaColor::Blue, 2);
+    let mana_trigger = action_json(&Action::ActivateManaAbility {
+        source: GameObjectId(9),
+        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Plains),
+        color: ManaColor::White,
+        counters_removed: None,
+        cost_object: None,
+        combination: None,
+        triggered_mana: Some(vec![triggered]),
+    });
+    assert_eq!(mana_trigger["triggeredMana"]["white"], 1);
+    assert_eq!(mana_trigger["triggeredMana"]["blue"], 2);
+
+    let mut first = crate::ManaSplit::empty();
+    first.add(ManaColor::White, 1);
+    let mut second = crate::ManaSplit::empty();
+    second.add(ManaColor::Blue, 2);
+    let independent = action_json(&Action::ActivateManaAbility {
+        source: GameObjectId(9),
+        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Plains),
+        color: ManaColor::White,
+        counters_removed: None,
+        cost_object: None,
+        combination: None,
+        triggered_mana: Some(vec![first, second]),
+    });
+    assert_eq!(independent["triggeredMana"]["white"], 1);
+    assert_eq!(independent["triggeredMana"]["blue"], 2);
+    assert_eq!(independent["triggeredManaChoices"][0]["white"], 1);
+    assert_eq!(independent["triggeredManaChoices"][1]["blue"], 2);
 }
 
 #[test]
@@ -61,6 +97,7 @@ fn activated_actions_serialize_printed_and_granted_origins() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     });
     assert_eq!(mana["ability"]["kind"], "intrinsicBasicLand");
     assert_eq!(mana["ability"]["landType"], "mountain");

@@ -169,11 +169,40 @@ impl Game {
                 permanent,
                 StaticEffectKind::Colors,
                 |applied| {
-                    let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
-                        operation,
-                    )) = applied.effect
-                    else {
-                        unreachable!("the color filter admits only color operations");
+                    let operation = match applied.effect {
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
+                            operation,
+                        )) => operation,
+                        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Color(
+                            operation,
+                        )) => {
+                            let resolve = |kind| {
+                                self.mana_type_for_source(kind, applied.source)
+                                    .filter(|color| *color != ManaColor::Colorless)
+                                    .map(|color| ColorSet::from_colors(&[color]))
+                            };
+                            match operation {
+                                SetOperationDef::Add(kind) => {
+                                    let Some(colors) = resolve(kind) else {
+                                        return ControlFlow::Continue(());
+                                    };
+                                    SetOperationDef::Add(colors)
+                                }
+                                SetOperationDef::Remove(kind) => {
+                                    let Some(colors) = resolve(kind) else {
+                                        return ControlFlow::Continue(());
+                                    };
+                                    SetOperationDef::Remove(colors)
+                                }
+                                SetOperationDef::Set(kind) => {
+                                    let Some(colors) = resolve(kind) else {
+                                        return ControlFlow::Continue(());
+                                    };
+                                    SetOperationDef::Set(colors)
+                                }
+                            }
+                        }
+                        _ => unreachable!("the color filter admits only color operations"),
                     };
                     operations.push((applied.timestamp, applied.component_order, operation));
                     ControlFlow::Continue(())

@@ -281,6 +281,7 @@ fn tapping_it_for_mana_does_not_take_it_out_of_combat() {
         counters_removed: None,
         cost_object: None,
         combination: None,
+        triggered_mana: None,
     };
     game.apply(PlayerId::One, white)
         .expect("an untapped land taps for mana, attacking or not");

@@ -88,6 +88,7 @@ fn the_monolith_makes_three_and_stays_tapped_until_it_is_bought_back() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for mana");
@@ -583,6 +584,7 @@ fn the_mind_stone_makes_colorless_and_then_cannot_draw() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for mana");

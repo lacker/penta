@@ -321,6 +321,7 @@ fn tapping_it_makes_three_and_buys_the_draw_step_damage() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
     )
     .expect("it taps for mana");

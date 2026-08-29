@@ -18,6 +18,14 @@ impl Game {
                     .collect::<Vec<_>>(),
                 crate::card::BasicLandType::Plains.subtype(),
             ),
+            ScalarChoiceListDef::Colors => (
+                "Choose a color",
+                crate::card::ManaColor::COLORS
+                    .into_iter()
+                    .map(|color| color.label().to_owned())
+                    .collect::<Vec<_>>(),
+                crate::card::ManaColor::White.label(),
+            ),
             ScalarChoiceListDef::CardNames
             | ScalarChoiceListDef::NonlandCardNames
             | ScalarChoiceListDef::NonbasicLandCardNames
@@ -45,6 +53,7 @@ impl Game {
                         }
                         ScalarChoiceListDef::Players
                         | ScalarChoiceListDef::BasicLandTypes
+                        | ScalarChoiceListDef::Colors
                         | ScalarChoiceListDef::CreatureTypes => false,
                     })
                     .map(|part| part.name.clone())
@@ -63,6 +72,7 @@ impl Game {
                         ScalarChoiceListDef::CardNames => "Choose a card name",
                         ScalarChoiceListDef::Players
                         | ScalarChoiceListDef::BasicLandTypes
+                        | ScalarChoiceListDef::Colors
                         | ScalarChoiceListDef::CreatureTypes => unreachable!(
                             "non-card-name scalar lists are handled by earlier match arms"
                         ),

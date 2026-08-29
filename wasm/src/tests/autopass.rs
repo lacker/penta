@@ -13,6 +13,7 @@ fn human_main_one_yields_when_only_mana_actions_are_available() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
         Action::PassPriority,
     ];
@@ -179,6 +180,7 @@ fn second_main_waits_for_spells_lands_and_non_mana_abilities() {
             counters_removed: None,
             cost_object: None,
             combination: None,
+            triggered_mana: None,
         },
         Action::PassPriority,
     ];

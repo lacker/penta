@@ -16,6 +16,26 @@ pub enum ManaColor {
 }
 
 impl ManaColor {
+    /// Human-facing name used by public color choices.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::White => "White",
+            Self::Blue => "Blue",
+            Self::Black => "Black",
+            Self::Red => "Red",
+            Self::Green => "Green",
+            Self::Colorless => "Colorless",
+        }
+    }
+
+    #[must_use]
+    pub fn from_label(label: &str) -> Option<Self> {
+        Self::ALL
+            .into_iter()
+            .find(|color| color.label().eq_ignore_ascii_case(label))
+    }
+
     /// The single letter Magic prints for this colour.
     #[must_use]
     pub const fn from_letter(letter: u8) -> Option<Self> {
@@ -93,6 +113,10 @@ impl ManaSplit {
 
     pub const fn add(&mut self, color: ManaColor, amount: u16) {
         self.0[color.index()] += amount;
+    }
+
+    pub const fn remove(&mut self, color: ManaColor, amount: u16) {
+        self.0[color.index()] -= amount;
     }
 
     #[must_use]

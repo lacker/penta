@@ -93,6 +93,7 @@ fn permanent(
         types: penta::CardTypeSet::empty(),
         chosen_creature_type: None,
         chosen_basic_land_type: None,
+        chosen_color: None,
         chosen_card_name: None,
         tapped: false,
         power,

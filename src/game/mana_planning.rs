@@ -426,6 +426,7 @@ impl Game {
                         counters_removed: activation.counters_removed,
                         cost_object: activation.cost_object,
                         combination: activation.combination,
+                        triggered_mana: activation.triggered_mana.clone(),
                         contribution: None,
                     },
                     production: Self::mana_production(activation),
@@ -736,20 +737,22 @@ impl Game {
                 counters_removed,
                 cost_object,
                 combination,
+                triggered_mana,
                 ..
-            } = payment.kind
+            } = &payment.kind
             else {
                 continue;
             };
             self.activate_mana_source(
                 player,
                 payment.source,
-                ability,
-                color,
-                ManaActivationChoices {
-                    counters_removed,
-                    cost_object,
-                    combination,
+                *ability,
+                *color,
+                &ManaActivationChoices {
+                    counters_removed: *counters_removed,
+                    cost_object: *cost_object,
+                    combination: *combination,
+                    triggered_mana: triggered_mana.clone(),
                 },
             );
         }

@@ -29,8 +29,8 @@ use crate::ids::{
 use super::{
     AbilityDef, AddManaEffectDef, AlternativeCastKindDef, BasicLandType, CardTypeSet, ColorSet,
     ComparisonDef, CounterKind, DeclarativeAbilityDef, KeywordAbility, ManaColor, ManaCost,
-    ObjectPredicateDef, PlayActionKind, PlayerRelation, TokenCharacteristics, TriggerConditionDef,
-    ZoneKind, ZonePlacement,
+    ManaTypeDef, ObjectPredicateDef, PlayActionKind, PlayerRelation, TokenCharacteristics,
+    TriggerConditionDef, ZoneKind, ZonePlacement,
 };
 
 // Effect subjects, lifetimes, and event matchers form the shared vocabulary

@@ -6,7 +6,6 @@
 //! offered, both as a printed static and as a rider a spell hands out.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn combat(defender: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -236,35 +235,6 @@ fn the_other_two_prohibitions_land_as_well() {
     assert_ne!(attacker_id, victim_id);
 }
 
-#[test]
-fn every_cannot_block_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PACIFISM,
-        cards::CRIPPLING_BLIGHT,
-        cards::TORMENTED_SOUL,
-        cards::WELKIN_TERN,
-        cards::GOBLIN_SHORTCUTTER,
-        cards::HUNTED_GHOUL,
-        cards::FERVENT_CATHAR,
-        cards::MALICIOUS_INTENT,
-        cards::SIGHTLESS_GHOUL,
-        cards::MARKOV_WARLORD,
-        cards::VAMPIRE_INTERLOPER,
-        cards::CROSSWAY_VAMPIRE,
-        cards::NIGHTBIRDS_CLUTCHES,
-        cards::FIREFIST_STRIKER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// The attacker's side, printed as a static rather than handed out for a
 /// turn. Both forms had to exist for the same reason the blocker's side did:
 /// the turn-scoped one is a resolving rider and this one holds while its
@@ -308,19 +278,5 @@ mod cannot_be_blocked {
     fn an_ordinary_attacker_can_be_blocked() {
         let (game, attacker_id, _blocker_id) = attacking(cards::SAVANNAH_LIONS);
         assert!(offers_block(&game, attacker_id));
-    }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::ELUSIVE_KRASIS, cards::SOULSWORN_SPIRIT] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

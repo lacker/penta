@@ -3,7 +3,6 @@
 //! the card itself is in its owner's graveyard.
 
 use super::*;
-use crate::ImplementationStatus;
 use crate::card::{
     CardType, DeclarativeAbilityDef, ObjectPredicateDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpendModeDef, ZoneKind,
@@ -160,20 +159,6 @@ fn ruinator_casts_itself_from_the_graveyard_but_cannot_exile_itself() {
             .any(|permanent| permanent.card.definition == cards::SKAAB_RUINATOR),
         "Ruinator arrived from the graveyard",
     );
-}
-
-#[test]
-fn both_skaabs_report_complete_declarative_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::SKAAB_GOLIATH, cards::SKAAB_RUINATOR] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 #[test]

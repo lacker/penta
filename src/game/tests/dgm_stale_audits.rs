@@ -5,7 +5,6 @@
 //! rather than on one permanent.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -213,23 +212,4 @@ fn emmara_covers_a_token_that_arrives_later() {
             .any(|permanent| permanent.card.id == token_id),
         "the shield reaches a token Emmara did not see enter",
     );
-}
-
-#[test]
-fn all_four_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PONTIFF_OF_BLIGHT,
-        cards::BATTERING_KRASIS,
-        cards::EMMARA_TANDRIS,
-        cards::TITHE_DRINKER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

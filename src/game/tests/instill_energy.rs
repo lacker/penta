@@ -5,7 +5,6 @@
 //! rationed by the printed "only once each turn" rather than by its cost.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Ley Druid that came down this turn, an Island for it to point at, and
 /// `enchanted` deciding whether Instill Energy is on it.
@@ -124,16 +123,4 @@ fn the_free_untap_is_not_offered_on_the_opponents_turn() {
 
     game.active_player = PlayerId::Two;
     assert!(!offers(&game, aura), "theirs does not");
-}
-
-#[test]
-fn instill_energy_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::INSTILL_ENERGY)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

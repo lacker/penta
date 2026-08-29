@@ -6,7 +6,6 @@
 //! most of each card, so what these check is when each one is offered.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// `spell` in player one's hand with enough mana, and a creature apiece.
 fn holding(spell: CardDefinitionId) -> (Game, GameObjectId, CardInstanceId) {
@@ -162,18 +161,4 @@ fn the_reset_untaps_only_your_own_lands() {
     };
     assert!(!tapped(mine_id), "yours came back");
     assert!(tapped(their_land), "and theirs did not");
-}
-
-#[test]
-fn both_spells_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::FESTIVAL, cards::TELEPORT, cards::RESET] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

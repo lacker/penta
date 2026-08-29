@@ -6,7 +6,6 @@
 //! of them really means two, and that the creature untaps normally after.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn tapped_creature(game: &mut Game, id: u32, controller: PlayerId) -> GameObjectId {
     let mut permanent = creature(id, cards::SEDGE_TROLL, controller);
@@ -210,23 +209,4 @@ fn giant_tortoise_shrinks_when_it_taps() {
 
     let _ = game.tap_permanent(tortoise_id);
     assert_eq!(stats(&game), (Some(1), Some(1)), "tapped");
-}
-
-#[test]
-fn every_untap_skip_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::TELEKINESIS,
-        cards::BARLS_CAGE,
-        cards::ELVISH_HUNTER,
-        cards::GIANT_TORTOISE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

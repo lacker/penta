@@ -6,7 +6,6 @@
 //! comparisons that already existed.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -146,18 +145,4 @@ fn ajanis_ultimate_counts_your_life_total() {
         17,
         "your life total, not the opponent's and not a printed number",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::DEATHS_PRESENCE, cards::AJANI_CALLER_OF_THE_PRIDE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

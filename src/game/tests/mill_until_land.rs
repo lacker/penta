@@ -6,7 +6,6 @@
 //! whole reason these two are a combo piece rather than a mill spell.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -181,18 +180,4 @@ fn the_informer_pays_a_creature_for_the_same_effect() {
             .any(|permanent| permanent.card.definition == cards::GRIZZLY_BEARS),
         "a creature paid for it",
     );
-}
-
-#[test]
-fn both_rogues_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::BALUSTRADE_SPY, cards::UNDERCITY_INFORMER] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

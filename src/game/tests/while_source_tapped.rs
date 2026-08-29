@@ -7,7 +7,6 @@
 //! read against it -- which is also what lets cleanup leave it alone.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Tawnos's Weaponry pointed at a Sedge Troll, both under player one.
 fn weaponry_on_a_troll() -> (Game, GameObjectId, GameObjectId) {
@@ -168,24 +167,4 @@ fn castle_covers_only_the_untapped_creatures() {
     assert_eq!(stats(&game, troll_id), (Some(2), Some(4)));
     assert_eq!(stats(&game, tapped_id), (Some(2), Some(2)), "tapped");
     assert_eq!(stats(&game, theirs_id), (Some(2), Some(2)), "theirs");
-}
-
-#[test]
-fn every_lingering_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::CASTLE,
-        cards::ASHNODS_BATTLE_GEAR,
-        cards::TAWNOSS_WEAPONRY,
-        cards::SPIRIT_SHIELD,
-        cards::ZELYON_SWORD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

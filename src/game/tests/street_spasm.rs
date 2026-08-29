@@ -5,7 +5,6 @@
 //! outside both halves, and so are the caster's own creatures.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Street Spasm in player one's hand with `red` mana, two grounded creatures
 /// and one flier under player two, and one grounded creature of player one's.
@@ -151,16 +150,4 @@ fn the_overload_sweeps_their_grounded_creatures_only() {
     assert!(!still_there(&game, theirs[1]));
     assert!(still_there(&game, flier), "a flier is outside both halves");
     assert!(still_there(&game, mine), "and so is my own creature");
-}
-
-#[test]
-fn street_spasm_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::STREET_SPASM)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

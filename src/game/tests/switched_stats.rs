@@ -6,7 +6,6 @@
 //! creature, because a switch is invisible on an evenly-statted one.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -174,18 +173,4 @@ fn the_charger_switches_when_you_cast_an_instant() {
         (Some(5), Some(1)),
         "the trigger took the offer",
     );
-}
-
-#[test]
-fn both_switch_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::TRANSMUTATION, cards::FLUXCHARGER] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

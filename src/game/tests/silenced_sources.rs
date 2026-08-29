@@ -7,7 +7,6 @@
 //! target as the spell resolves.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// An Orcish Artillery for player one -- a creature that can deal damage
 /// without attacking -- and the given shield already on the battlefield.
@@ -142,18 +141,4 @@ fn a_silenced_attacker_deals_no_combat_damage() {
     game.deal_combat_damage();
 
     assert_eq!(game.players[PlayerId::Two.index()].life, before);
-}
-
-#[test]
-fn every_silencing_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::SUBDUE, cards::KRY_SHIELD] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

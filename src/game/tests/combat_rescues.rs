@@ -6,7 +6,6 @@
 //! different times.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one attacks with `attacker`; player two blocks with `blocker`.
 fn combat(attacker: CardDefinitionId, blocker: CardDefinitionId) -> (Game, [GameObjectId; 2]) {
@@ -111,18 +110,4 @@ fn the_glyph_trades_a_wall_for_whatever_it_blocked() {
     drain_pending(&mut game);
 
     assert!(!survives(&game, wall), "the Glyph collects it at end step");
-}
-
-#[test]
-fn every_combat_rescue_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ELVISH_SCOUT, cards::GLYPH_OF_DESTRUCTION] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

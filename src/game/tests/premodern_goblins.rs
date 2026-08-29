@@ -7,7 +7,6 @@
 //! quietly dropped the subtype would fail.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -507,27 +506,4 @@ fn a_prospector_with_nothing_to_eat_offers_nothing() {
         .iter()
         .any(|action| matches!(action, Action::ActivateManaAbility { .. }));
     assert!(!offers_mana, "no Prospector, no red mana from a Goblin");
-}
-
-#[test]
-fn every_goblin_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GOBLIN_LACKEY,
-        cards::GOBLIN_MATRON,
-        cards::GOBLIN_PILEDRIVER,
-        cards::GOBLIN_WARCHIEF,
-        cards::SIEGE_GANG_COMMANDER,
-        cards::GOBLIN_TINKERER,
-        cards::GOBLIN_RINGLEADER,
-        cards::SKIRK_PROSPECTOR,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

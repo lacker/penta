@@ -1,7 +1,6 @@
 //! Filtered battlefield and stack cost modifications.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -251,68 +250,5 @@ fn hinata_adds_and_subtracts_per_distinct_target() {
             .generic,
         1,
         "the same object targeted twice counts once",
-    );
-}
-
-#[test]
-fn every_requested_cost_modifier_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::SPHERE_OF_RESISTANCE,
-        cards::THORN_OF_AMETHYST,
-        cards::HEARTLESS_SUMMONING,
-        cards::AURA_OF_SILENCE,
-        cards::CHILL,
-        cards::DEFENSE_GRID,
-        cards::DERELOR,
-        cards::FEROZ_S_BAN,
-        cards::GLOOM,
-        cards::GLOWRIDER,
-        cards::HIGH_SEAS,
-        cards::IRINI_SENGIR,
-        cards::JADE_LEECH,
-        cards::KAERVEK_S_TORCH,
-        cards::SAPPHIRE_LEECH,
-        cards::RUBY_LEECH,
-        cards::SQUEEZE,
-        cards::THALIA_GUARDIAN_OF_THRABEN,
-        cards::EMERALD_MEDALLION,
-        cards::JET_MEDALLION,
-        cards::PEARL_MEDALLION,
-        cards::RUBY_MEDALLION,
-        cards::SAPPHIRE_MEDALLION,
-        cards::DARU_WARCHIEF,
-        cards::EDGEWALKER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
-#[test]
-fn dynamic_generic_tax_cards_report_honest_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::HUM_OF_THE_RADIX, cards::HINATA_DAWN_CROWNED] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-    assert_eq!(
-        catalog
-            .get(cards::DAMPING_SPHERE)
-            .expect("Damping Sphere is cataloged")
-            .rules
-            .implementation_status(),
-        ImplementationStatus::Partial,
-        "only Damping Sphere's mana-production replacement remains unsupported",
     );
 }

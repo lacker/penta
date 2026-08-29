@@ -6,7 +6,6 @@
 //! the game is willing to offer.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A declare-attackers step with `definitions` on the battlefield for player
 /// one, none of them yet attacking.
@@ -201,41 +200,4 @@ fn the_skirmishers_arm_their_band_and_not_the_rest_of_the_attack() {
         !has_first_strike(ids[2]),
         "the Lions attacked alongside, not in the band"
     );
-}
-
-/// Every identity that prints banding or "bands with other", or hands either
-/// out, and whose other clauses the engine already covers.
-#[test]
-fn the_banding_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BENALISH_HERO,
-        cards::MESA_PEGASUS,
-        cards::TIMBER_WOLVES,
-        cards::HELM_OF_CHATZUK,
-        cards::WAR_ELEPHANT,
-        cards::ICATIAN_INFANTRY,
-        cards::ICATIAN_PHALANX,
-        cards::KNIGHTS_OF_THORN,
-        cards::PIKEMEN,
-        cards::NALATHNI_DRAGON,
-        cards::ICATIAN_SKIRMISHERS,
-        cards::MASTER_OF_THE_HUNT,
-        cards::SHELKIN_BROWNIE,
-        cards::TOLARIA,
-        cards::ADVENTURERS_GUILDHOUSE,
-        cards::CATHEDRAL_OF_SERRA,
-        cards::MOUNTAIN_STRONGHOLD,
-        cards::SEAFARERS_QUAY,
-        cards::UNHOLY_CITADEL,
-        cards::FORTIFIED_AREA,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

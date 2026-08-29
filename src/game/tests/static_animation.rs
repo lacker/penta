@@ -6,7 +6,6 @@
 //! effect -- the lands are still lands, and still tap for mana.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn stats(game: &Game, permanent: GameObjectId) -> Option<(Option<i16>, Option<i16>)> {
     game.battlefield
@@ -119,19 +118,5 @@ fn living_plane_animates_every_land() {
     for land in [mine_id, theirs_id] {
         assert!(is_creature(&game, land));
         assert_eq!(stats(&game, land), Some((Some(1), Some(1))));
-    }
-}
-
-#[test]
-fn every_animated_land_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::LIVING_LANDS, cards::KORMUS_BELL, cards::LIVING_PLANE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

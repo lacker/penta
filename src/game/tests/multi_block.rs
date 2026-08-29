@@ -6,7 +6,6 @@
 //! twice would pass a test written only against the Giant.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Two 1/1 attackers on player two, plus one blocker of `definition`.
 fn two_attackers(definition: CardDefinitionId) -> (Game, [GameObjectId; 2], GameObjectId) {
@@ -118,16 +117,4 @@ fn both_blocked_attackers_deal_their_damage_to_the_giant() {
         .find(|permanent| permanent.card.id == giant_id)
         .expect("a 4/4 survives two 1/1s");
     assert_eq!(giant.damage, 2, "one from each attacker it blocked");
-}
-
-#[test]
-fn the_giant_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::TWO_HEADED_GIANT_OF_FORIYS)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

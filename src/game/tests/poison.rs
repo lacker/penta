@@ -6,7 +6,6 @@
 //! ten is in no danger at all.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn poison_board(source: CardDefinitionId) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -122,28 +121,5 @@ fn serpent_generators_snakes_carry_the_trigger() {
         poison_counters(&game, PlayerId::Two),
         1,
         "but the token it made is"
-    );
-}
-
-#[test]
-fn every_poison_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::MARSH_VIPER,
-        cards::PIT_SCORPION,
-        cards::SERPENT_GENERATOR,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-    assert_eq!(
-        poisonous_snake_token().rules().implementation_status(),
-        ImplementationStatus::Complete,
-        "the inline Snake token should be fully executable",
     );
 }

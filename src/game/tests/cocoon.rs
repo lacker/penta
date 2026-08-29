@@ -6,7 +6,6 @@
 //! the turn that sheds the last counter is not also the turn it hatches.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Cocoon on a Sedge Troll player one controls, resolved through the cast
 /// so the enters trigger actually runs.
@@ -102,14 +101,4 @@ fn the_fourth_upkeep_hatches_it() {
     );
     assert!(game.permanent_has_executable_keyword(host, KeywordAbility::Flying));
     assert!(!host.tapped, "nothing is holding it down any more");
-}
-
-#[test]
-fn the_cocoon_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::COCOON).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

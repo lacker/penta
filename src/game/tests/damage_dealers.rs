@@ -6,7 +6,6 @@
 //! the one Giant Shark reads, and lasts the turn rather than the combat.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -129,18 +128,4 @@ fn the_swing_takes_five_off_both_halves() {
             .any(|permanent| permanent.card.id == victim),
         "a 4/4 with -5/-5 has no toughness left",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::AVENGING_ARROW, cards::EXECUTIONERS_SWING] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

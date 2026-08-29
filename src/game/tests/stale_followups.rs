@@ -6,7 +6,6 @@
 //! ability reading the power of the creature it just spent.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Chaos Imps has trample only while it carries the unleash counter, so the
 /// two halves of the card interact rather than sitting side by side.
@@ -222,33 +221,4 @@ fn tapping_a_chosen_gate_pays_for_the_ability() {
         (game.power(shade), game.toughness(shade)),
         (Some(3), Some(3))
     );
-}
-
-#[test]
-fn every_unblocked_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GRIM_ROUSTABOUT,
-        cards::CHAOS_IMPS,
-        cards::HELLHOLE_FLAILER,
-        cards::ACCORDERS_SHIELD,
-        cards::FIRESHRIEKER,
-        cards::MASK_OF_AVACYN,
-        cards::RAKDOS_DRAKE,
-        cards::SAPPHIRE_DRAKE,
-        cards::CROWNED_CERATOK,
-        cards::EXAVA_RAKDOS_BLOOD_WITCH,
-        cards::LILIANAS_REAVER,
-        cards::XATHRID_NECROMANCER,
-        cards::GATEWAY_SHADE,
-        cards::CRACKLING_PERIMETER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

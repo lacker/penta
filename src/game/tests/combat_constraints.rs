@@ -5,7 +5,6 @@
 //! grows against Orcs, and a Ram that takes the Wall down with it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// `attacker` attacking player two, blocked by `blocker`, with the blockers
 /// declared through the real procedure so the triggers fire.
@@ -205,23 +204,4 @@ fn the_singing_tree_only_points_at_attackers() {
         }),
         "nothing is attacking, so there is nothing to sing at"
     );
-}
-
-#[test]
-fn the_authored_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ELDER_LAND_WURM,
-        cards::DWARVEN_SOLDIER,
-        cards::BATTERING_RAM,
-        cards::SINGING_TREE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

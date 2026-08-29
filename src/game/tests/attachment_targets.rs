@@ -6,7 +6,6 @@
 //! the two would still find something to destroy.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Puts `aura` onto `host` and settles attachment legality.
 fn attach(
@@ -214,22 +213,4 @@ fn destroying_the_aura_leaves_the_host_alone() {
             .any(|permanent| permanent.card.id == mine_id),
         "and the creature it was on is not"
     );
-}
-
-#[test]
-fn every_attachment_target_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::RAMSES_OVERDARK,
-        cards::MIRACLE_WORKER,
-        cards::SAVAEN_ELVES,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -205,56 +205,6 @@ fn untapping_in_upkeep_prevents_the_draw_step_damage_trigger() {
 }
 
 #[test]
-fn uses_declarative_ability_constructs() {
-    let game = ready_game();
-    let definition = game.catalog.get(cards::MANA_VAULT).unwrap();
-    let abilities = definition.rules.ability_clauses();
-
-    assert_eq!(abilities.len(), 4);
-    assert!(
-        abilities
-            .iter()
-            .all(|ability| ability.effect.execution == EffectExecutionDef::Declarative)
-    );
-    assert!(
-        abilities
-            .iter()
-            .all(|ability| ability.custom_behavior().is_none())
-    );
-    assert!(matches!(
-        abilities[0].declarative_effect(),
-        Some(EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-        })
-    ));
-    assert!(matches!(
-        abilities[1].declarative_effect(),
-        Some(EffectDef::PayOr(PayOrDef {
-            payment,
-            if_paid: Some(&EffectDef::Untap {
-                object: EffectRecipientDef::Source,
-            }),
-            otherwise: None,
-            visibility: ChoiceVisibilityDef::Private,
-            condition: None,
-        })) if payment.payer == PlayerSetDef::Related(PlayerRelation::You)
-            && payment.cost == crate::card::EffectPaymentCostDef::Mana(ManaCost::new(4, 0))
-    ));
-    let DeclarativeAbilityDef::Triggered(draw) = abilities[2].definition else {
-        panic!("the draw-step clause is a trigger");
-    };
-    assert_eq!(draw.condition, Some(&TriggerConditionDef::SourceIsTapped));
-    assert!(matches!(
-        abilities[2].declarative_effect(),
-        Some(EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        })
-    ));
-}
-
-#[test]
 fn untap_restriction_uses_its_effective_abilities() {
     let mut game = ready_game();
     let mut vault = creature(10_000, cards::MANA_VAULT, PlayerId::One);

@@ -6,7 +6,6 @@
 //! simply not caught up with it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Definition, its two colours, the body it animates into, its creature
 /// type, and the keyword the animation grants.
@@ -175,19 +174,5 @@ fn animating_gives_the_printed_body_type_and_keyword() {
                 "{definition:?} takes its guild's colours",
             );
         }
-    }
-}
-
-#[test]
-fn every_keyrune_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for Keyrune { definition, .. } in KEYRUNES {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

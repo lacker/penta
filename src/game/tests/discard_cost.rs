@@ -5,7 +5,6 @@
 //! empty hand offers none at all.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -138,18 +137,4 @@ fn the_market_lets_a_land_loot() {
         1,
         "a card in hand makes the land a looter",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::MAD_PROPHET, cards::TIN_STREET_MARKET] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

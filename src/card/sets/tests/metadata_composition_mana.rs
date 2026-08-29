@@ -348,12 +348,6 @@ fn basic_land_subtypes_do_not_repeat_intrinsic_mana_as_printed_clauses() {
         })
         .collect::<Vec<_>>();
     for land in lands {
-        assert_eq!(
-            land.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be complete once basic-land mana is derived intrinsically",
-            land.name,
-        );
         assert!(
             !land.rules.ability_clauses().iter().any(|ability| matches!(
                 ability.definition,
@@ -395,33 +389,6 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
                 matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
             }),
             "{} is missing its activated mana clause",
-            record.name
-        );
-    }
-}
-
-#[test]
-fn migrated_activated_cards_preserve_their_derived_implementation_status() {
-    let complete = [
-        &y1993::alpha::CHAOS_ORB,
-        &y1993::alpha::GLASSES_OF_URZA,
-        &y1993::alpha::ICY_MANIPULATOR,
-        &y1993::alpha::STONE_GIANT,
-        &y1994::antiquities::MISHRA_S_FACTORY,
-        &y1994::antiquities::ORCISH_MECHANICS,
-        &y1994::antiquities::STRIP_MINE,
-        &y1994::antiquities::TRISKELION,
-        &y1994::fallen_empires::ICATIAN_JAVELINEERS,
-        &y1994::legends::PENDELHAVEN,
-        &y1994::legends::RELIC_BARRIER,
-        &y1994::the_dark::MAZE_OF_ITH,
-    ];
-
-    for record in complete {
-        assert_eq!(
-            record.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should remain completely implemented",
             record.name
         );
     }

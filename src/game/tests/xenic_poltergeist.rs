@@ -5,7 +5,6 @@
 //! 0/0 and dies where a Juggernaut walks away a 4/4.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The Poltergeist pointed at `artifact`, if the ability is offered at all.
 fn animated(artifact: CardDefinitionId) -> (Game, GameObjectId, bool) {
@@ -80,16 +79,4 @@ fn a_free_artifact_animates_into_nothing() {
 fn it_will_not_point_at_an_artifact_creature() {
     let (_game, _subject, offered) = animated(cards::JUGGERNAUT);
     assert!(!offered);
-}
-
-#[test]
-fn the_poltergeist_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::XENIC_POLTERGEIST)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

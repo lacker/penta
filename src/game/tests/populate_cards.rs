@@ -6,7 +6,6 @@
 //! destruction happens before the copy is chosen.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -336,25 +335,4 @@ fn druids_deliverance_shields_only_its_controller() {
             .any(|permanent| permanent.card.id == blocker_id),
         "and so did mine",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::WAYFARING_TEMPLE,
-        cards::SUNDERING_GROWTH,
-        cards::TROSTANI_SELESNYAS_VOICE,
-        cards::VITU_GHAZI_GUILDMAGE,
-        cards::WAKE_THE_REFLECTIONS,
-        cards::DRUIDS_DELIVERANCE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

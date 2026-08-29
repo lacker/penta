@@ -6,7 +6,6 @@
 //! is what these drive.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn raptor_board() -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -83,24 +82,4 @@ fn it_does_not_evolve_from_its_own_arrival() {
         .find(|permanent| permanent.card.definition == cards::ADAPTIVE_SNAPJAW)
         .expect("it entered");
     assert_eq!(snapjaw.counters(CounterKind::PlusOnePlusOne), 0);
-}
-
-#[test]
-fn every_evolve_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::CLINGING_ANEMONES,
-        cards::CLOUDFIN_RAPTOR,
-        cards::ADAPTIVE_SNAPJAW,
-        cards::CROCANURA,
-        cards::SHAMBLESHARK,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

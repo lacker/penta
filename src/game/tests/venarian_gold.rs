@@ -6,7 +6,6 @@
 //! a separate object -- so it reads the X off the permanent instead.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Venarian Gold cast for X on a Sedge Troll player two controls.
 fn gilded(x: u16) -> (Game, GameObjectId) {
@@ -113,16 +112,4 @@ fn it_wakes_up_when_the_counters_run_out() {
 
     take_an_upkeep(&mut game, PlayerId::Two);
     assert!(!host_of(&game, host).tapped, "nothing is holding it now");
-}
-
-#[test]
-fn venarian_gold_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::VENARIAN_GOLD)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

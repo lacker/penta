@@ -1,7 +1,6 @@
 //! Reaper from the Abyss and the shared damaged-creature death trigger.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn board() -> (Game, GameObjectId, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -115,16 +114,4 @@ fn reaper_kill_triggers_sengir_for_a_creature_it_damaged() {
         .find(|permanent| permanent.card.id == sengir)
         .expect("Sengir remains");
     assert_eq!(sengir.counters(CounterKind::PlusOnePlusOne), 1);
-}
-
-#[test]
-fn reaper_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let reaper = catalog
-        .get(cards::REAPER_FROM_THE_ABYSS)
-        .expect("Reaper is cataloged");
-    assert_eq!(
-        reaper.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

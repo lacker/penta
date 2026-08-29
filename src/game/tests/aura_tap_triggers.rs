@@ -6,7 +6,6 @@
 //! the ordinary way this comes up, so that is what these drive.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Forest under player two, enchanted by `aura` cast by player one.
 fn enchanted_forest(aura: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -211,23 +210,4 @@ fn spirit_shackle_stacks_its_counters_on_the_creature() {
         (Some(5), Some(1)),
         "toughness only"
     );
-}
-
-#[test]
-fn every_tap_watching_aura_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PSYCHIC_VENOM,
-        cards::BLIGHT,
-        cards::KUDZU,
-        cards::SPIRIT_SHACKLE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

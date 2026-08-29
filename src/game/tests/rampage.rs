@@ -108,24 +108,3 @@ fn a_rampage_bonus_does_not_survive_cleanup() {
         "the until-end-of-turn bonus is gone"
     );
 }
-
-#[test]
-fn every_newly_unblocked_rampage_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::AERATHI_BERSERKER,
-        cards::FROST_GIANT,
-        cards::CRAW_GIANT,
-        cards::WOLVERINE_PACK,
-        cards::HUNDING_GJORNERSEN,
-        cards::MARHAULT_ELSDRAGON,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}

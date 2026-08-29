@@ -6,7 +6,6 @@
 //! temporary grants and frozen recipient sets.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn permanent(game: &Game, id: GameObjectId) -> &Permanent {
     game.battlefield
@@ -394,27 +393,4 @@ fn true_name_nemesis_uses_the_player_chosen_as_it_enters() {
         1,
     );
     assert_eq!(permanent(&game, nemesis_id).damage, 1);
-}
-
-#[test]
-fn predicate_protection_cards_report_complete_declarative_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::SPARE_FROM_EVIL,
-        cards::AZORIUS_FIRST_WING,
-        cards::BELOVED_CHAPLAIN,
-        cards::DEVOTED_CARETAKER,
-        cards::STONECOIL_SERPENT,
-        cards::TRUE_NAME_NEMESIS,
-        cards::EMRAKUL_THE_AEONS_TORN,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-        assert_eq!(card.rules.special_behavior(), None, "{}", card.name);
-    }
 }

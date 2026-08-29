@@ -151,20 +151,6 @@ fn fog_uses_the_central_damage_pipeline_and_only_matches_combat() {
     assert_eq!(game.players[PlayerId::Two.index()].life, before - 2);
 }
 
-#[test]
-fn every_newly_unblocked_fog_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::FOG, cards::HOLY_DAY, cards::DARKNESS] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 fn shielded_creature(game: &mut Game) -> GameObjectId {
     let creature = creature(20_000, cards::SAVANNAH_LIONS, PlayerId::One);
     let id = creature.card.id;
@@ -298,46 +284,8 @@ fn shields_do_not_survive_cleanup() {
     assert!(game.damage_preventions.is_empty());
 }
 
-#[test]
-fn every_newly_unblocked_prevention_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::SAMITE_HEALER,
-        cards::INDESTRUCTIBLE_AURA,
-        cards::AMULET_OF_KROOG,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 fn resolving_prevention_object(controller: PlayerId) -> StackObject {
     spell(20_000, cards::LIGHTNING_BOLT, controller, 0)
-}
-
-#[test]
-fn remaining_duration_prevention_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::LEAP_OF_FAITH,
-        cards::SHIELDED_PASSAGE,
-        cards::SAFE_PASSAGE,
-        cards::RIOT_CONTROL,
-        cards::TERRIFYING_PRESENCE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 #[test]
@@ -649,28 +597,6 @@ mod follow_up {
             "but combat damage dealt to it is untouched",
         );
     }
-
-    #[test]
-    fn the_swept_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [
-            cards::CONSERVATOR,
-            cards::OASIS,
-            cards::ARGIVIAN_BLACKSMITH,
-            cards::KEI_TAKAHASHI,
-            cards::LADY_EVANGELA,
-            cards::HORN_OF_DEAFENING,
-            cards::COMBAT_MEDIC,
-        ] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                crate::ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
-    }
 }
 
 /// A continuous combat-damage prevention, which is what an Aura needs and
@@ -750,18 +676,6 @@ mod gaseous_form {
             game.players[PlayerId::Two.index()].life,
             i16::from(rules::STARTING_LIFE) - power,
             "with the Aura gone nothing is prevented"
-        );
-    }
-
-    #[test]
-    fn gaseous_form_reports_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        let card = catalog
-            .get(cards::GASEOUS_FORM)
-            .expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
         );
     }
 }
@@ -945,28 +859,6 @@ mod circle_of_protection {
             game.damage_target_from(Some(bolt_id), Some(Target::Player(PlayerId::One)), 3),
             0,
         );
-    }
-
-    #[test]
-    fn the_cycle_reports_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [
-            cards::CIRCLE_OF_PROTECTION_BLUE,
-            cards::CIRCLE_OF_PROTECTION_GREEN,
-            cards::CIRCLE_OF_PROTECTION_RED,
-            cards::CIRCLE_OF_PROTECTION_WHITE,
-            cards::CIRCLE_OF_PROTECTION_BLACK,
-            cards::CIRCLE_OF_PROTECTION_ARTIFACTS,
-            cards::GREATER_REALM_OF_PRESERVATION,
-        ] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                crate::ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }
 

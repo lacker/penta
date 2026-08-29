@@ -7,7 +7,6 @@
 //! is stored rather than the list of creatures matching it at the time.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Activates the only ability the given permanent offers.
 fn activate(game: &mut Game, source: GameObjectId) {
@@ -137,22 +136,4 @@ fn angus_mackenzie_may_only_fog_before_damage() {
 
     game.step = Step::PostcombatMain;
     assert!(!offers(&game), "and not later in the same turn either");
-}
-
-#[test]
-fn every_filtered_prevention_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::AL_ABARAS_CARPET,
-        cards::SCARECROW,
-        cards::ANGUS_MACKENZIE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

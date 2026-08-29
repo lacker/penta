@@ -50,62 +50,6 @@ fn catalog_does_not_publish_creator_owned_virtual_characteristics() {
 }
 
 #[test]
-fn catalog_exposes_derived_implementation_coverage_not_the_play_gate() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let value = catalog_json_for_format(&catalog, Format::IsdM14Standard);
-    let cards = value["cards"].as_array().expect("cards array");
-    let find = |name: &str| {
-        cards
-            .iter()
-            .find(|card| card["name"] == name)
-            .unwrap_or_else(|| panic!("{name} is cataloged"))
-    };
-
-    let pilgrim = find("Avacyn's Pilgrim");
-    assert_eq!(pilgrim["implementationStatus"], "complete");
-    assert_eq!(pilgrim["parts"][0]["implementationStatus"], "complete");
-    assert!(pilgrim.get("effectStatus").is_none());
-    assert!(pilgrim["parts"][0].get("effectStatus").is_none());
-
-    let chaos_orb = find("Chaos Orb");
-    assert_eq!(chaos_orb["implementationStatus"], "complete");
-    assert_eq!(chaos_orb["parts"][0]["implementationStatus"], "complete");
-
-    // Any card with a mix of executable and pending clauses will do here.
-    let partial = find("Jace, Architect of Thought");
-    assert_eq!(partial["implementationStatus"], "partial");
-    assert_eq!(partial["parts"][0]["implementationStatus"], "partial");
-
-    // Jace's ultimate is cataloged and does nothing, while his other two
-    // abilities play. Vraska used to be the example here, until attack
-    // defenders made her retaliation reachable and she went complete.
-    let vraska = find("Vraska the Unseen");
-    assert_eq!(vraska["implementationStatus"], "complete");
-    let prism = find("Celestial Prism");
-    assert_eq!(prism["implementationStatus"], "complete");
-    assert_eq!(prism["parts"][0]["implementationStatus"], "complete");
-    // Pithing Needle is now complete; this keeps the coverage assertion
-    // aligned with its newly executable card-name choice.
-    let needle = find("Pithing Needle");
-    assert_eq!(needle["implementationStatus"], "complete");
-    assert_eq!(needle["parts"][0]["implementationStatus"], "complete");
-    let blood_moon = find("Blood Moon");
-    assert_eq!(blood_moon["implementationStatus"], "complete");
-    assert_eq!(blood_moon["parts"][0]["implementationStatus"], "complete");
-    let boros_charm = find("Boros Charm");
-    assert_eq!(boros_charm["implementationStatus"], "complete");
-    assert_eq!(boros_charm["parts"][0]["implementationStatus"], "complete");
-
-    assert!(cards.iter().all(|card| {
-        card["playOptions"].as_array().is_some_and(|options| {
-            options
-                .iter()
-                .all(|option| option.get("effectStatus").is_none())
-        })
-    }));
-}
-
-#[test]
 fn migrated_spells_publish_stable_target_predicates() {
     let catalog = poc::catalog().expect("catalog builds");
     let value = catalog_json_for_format(&catalog, Format::IsdM14Standard);

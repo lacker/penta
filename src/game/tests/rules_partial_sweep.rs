@@ -1,7 +1,6 @@
 //! Partial coverage left behind after its shared rules primitive arrived.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -322,27 +321,4 @@ fn awaken_the_ancient_animates_without_erasing_the_land() {
         game.permanent_types(mountain)
             .is_some_and(|types| types.contains(CardType::Land)),
     );
-}
-
-#[test]
-fn every_rules_sweep_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::CYCLOPEAN_MUMMY,
-        cards::RESTORATION_ANGEL,
-        cards::TREASURED_FIND,
-        cards::INCREASING_AMBITION,
-        cards::RUMMAGING_GOBLIN,
-        cards::VIASHINO_RACKETEER,
-        cards::QUAG_SICKNESS,
-        cards::AWAKEN_THE_ANCIENT,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

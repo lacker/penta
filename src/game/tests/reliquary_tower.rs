@@ -5,7 +5,6 @@
 //! losing the Tower puts the limit straight back.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -83,16 +82,4 @@ fn a_small_hand_is_never_asked() {
     let mut game = ready();
     fill_hand(&mut game, PlayerId::One, 7);
     assert!(!cleanup_asks(&mut game), "seven is the limit, not over it");
-}
-
-#[test]
-fn the_tower_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::RELIQUARY_TOWER)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

@@ -6,7 +6,6 @@
 //! phase -- and an extra combat later in the turn starts it over.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Murk Dwellers attacking unopposed, with its trigger already resolved.
 /// Blocking is what settles "isn't blocked", so this drives blockers rather
@@ -62,15 +61,5 @@ fn the_pump_ends_with_combat_rather_than_the_turn() {
         power(&game, dwellers),
         Some(2),
         "back to its printed size before the turn is over"
-    );
-}
-
-#[test]
-fn murk_dwellers_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::MURK_DWELLERS).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

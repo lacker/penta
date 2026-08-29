@@ -89,25 +89,6 @@ fn losing_the_restriction_ability_removes_the_attack_prohibition() {
     );
 }
 
-#[test]
-fn every_newly_unblocked_island_creature_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DANDAN,
-        cards::VODALIAN_KNIGHTS,
-        cards::PIRATE_SHIP,
-        cards::SEA_SERPENT,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// The tapped predicate is read at target-legality time, so an untapped
 /// creature is not merely a bad choice: it is not offered at all.
 #[test]
@@ -141,18 +122,4 @@ fn a_tapped_only_target_is_offered_only_for_tapped_creatures() {
         permanent.tapped = true;
     }
     assert!(targets_victim(&game), "a tapped creature is");
-}
-
-#[test]
-fn the_swept_tap_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ROYAL_ASSASSIN, cards::ISLAND_FISH_JASCONIUS] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

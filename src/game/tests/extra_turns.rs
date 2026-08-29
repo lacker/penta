@@ -1,13 +1,6 @@
 use super::*;
 
 const TIME_VAULT_TURN_REPLACEMENT_TEXT: &str = "If you would begin your turn while this artifact is tapped, you may skip that turn instead. If you do, untap this artifact.";
-static EXPECTED_TIME_VAULT_UNTAP: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::Source,
-};
-static EXPECTED_TIME_VAULT_TURN_REPLACEMENT: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::ReplaceEventWithNothing,
-    ReplacementEffectDef::Perform(&EXPECTED_TIME_VAULT_UNTAP),
-];
 static TEST_EXTRA_TURN_REPLACEMENT_ABILITIES: [AbilityDef; 1] = [AbilityDef::replacement_for(
     "If a player would begin an extra turn, that player skips that turn instead.",
     ReplacementEventDef::WouldBeginTurn {
@@ -139,29 +132,8 @@ fn step_changed_count(game: &Game) -> usize {
 }
 
 #[test]
-fn time_walk_uses_the_shared_effect_and_queues_an_extra_turn() {
+fn time_walk_queues_an_extra_turn() {
     let mut game = ready_game();
-    let rules = &game
-        .catalog
-        .get(cards::TIME_WALK)
-        .expect("Time Walk is cataloged")
-        .rules;
-    assert_eq!(rules.special_behavior(), None);
-    let [ability] = rules.ability_clauses() else {
-        panic!("Time Walk has one spell ability")
-    };
-    assert!(matches!(
-        ability.definition,
-        DeclarativeAbilityDef::Spell(_)
-    ));
-    assert_eq!(
-        ability.declarative_effect(),
-        Some(EffectDef::TakeExtraTurn {
-            player: EffectRecipientDef::Controller,
-        })
-    );
-    assert_eq!(ability.effect.execution, EffectExecutionDef::Declarative);
-
     let time_walk = card(10_000, cards::TIME_WALK, PlayerId::One);
     game.players[0].hand.push(time_walk.clone());
     game.players[0].mana_pool.blue = 1;
@@ -184,89 +156,6 @@ fn time_walk_uses_the_shared_effect_and_queues_an_extra_turn() {
     game.start_next_turn();
     assert_eq!(game.active_player, PlayerId::Two);
     assert_eq!(game.observe(PlayerId::Two).active_turn, 1);
-}
-
-#[test]
-fn time_vault_has_four_complete_declarative_abilities() {
-    let game = ready_game();
-    let rules = &game
-        .catalog
-        .get(cards::TIME_VAULT)
-        .expect("Time Vault is cataloged")
-        .rules;
-    assert_eq!(rules.special_behavior(), None);
-    assert_eq!(
-        rules.implementation_status(),
-        crate::ImplementationStatus::Complete
-    );
-    let [
-        enters_tapped,
-        untap_restriction,
-        turn_replacement,
-        activation,
-    ] = rules.ability_clauses()
-    else {
-        panic!("Time Vault has four printed abilities")
-    };
-    assert!(
-        rules
-            .ability_clauses()
-            .iter()
-            .all(
-                |ability| ability.effect.execution == EffectExecutionDef::Declarative
-                    && ability.custom_behavior().is_none()
-                    && ability.coverage.status == crate::ImplementationStatus::Complete
-            )
-    );
-    assert_eq!(
-        enters_tapped.declarative_replacement(),
-        Some(ReplacementEffectDef::ModifyBattlefieldEntry(
-            BattlefieldEntryModificationDef::Tapped,
-        ))
-    );
-    assert_eq!(
-        untap_restriction.declarative_effect(),
-        Some(EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-        })
-    );
-    assert_eq!(
-        untap_restriction.effect.execution,
-        EffectExecutionDef::Declarative,
-    );
-    let DeclarativeAbilityDef::Replacement(replacement) = turn_replacement.definition else {
-        panic!("Time Vault's third clause is a replacement ability")
-    };
-    assert_eq!(
-        replacement.event,
-        ReplacementEventDef::WouldBeginTurn {
-            player: PlayerRelation::You,
-            kind: TurnKindDef::Any,
-        }
-    );
-    assert_eq!(
-        replacement.condition,
-        Some(crate::ReplacementConditionDef::SourceTapped)
-    );
-    assert!(replacement.optional);
-    assert_eq!(
-        turn_replacement.declarative_replacement(),
-        Some(ReplacementEffectDef::Sequence(
-            &EXPECTED_TIME_VAULT_TURN_REPLACEMENT,
-        ))
-    );
-    let DeclarativeAbilityDef::Activated(definition) = activation.definition else {
-        panic!("Time Vault's fourth clause is an activated ability")
-    };
-    assert_eq!(definition.procedure, AbilityProcedureDef::Shared);
-    assert_eq!(definition.costs.as_slice(), &[AbilityCostDef::TapSource]);
-    assert_eq!(
-        activation.declarative_effect(),
-        Some(EffectDef::TakeExtraTurn {
-            player: EffectRecipientDef::Controller,
-        })
-    );
 }
 
 #[test]

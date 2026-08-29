@@ -6,7 +6,6 @@
 //! from a condition checked once.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Howling Mine under player one, with both libraries stocked and the turn
 /// sitting in `player`'s upkeep, one `advance_step` short of the draw.
@@ -114,17 +113,5 @@ fn tapping_it_in_response_denies_the_extra_card() {
         hand_size(&game, PlayerId::One) - before,
         1,
         "only the ordinary draw survived",
-    );
-}
-
-#[test]
-fn howling_mine_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::HOWLING_MINE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

@@ -5,7 +5,6 @@
 //! 7b rather than asking again after the object has become a creature.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn attached_to(host_definition: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -128,18 +127,5 @@ fn a_zero_mana_artifact_animates_to_zero_zero_and_dies() {
             .iter()
             .any(|permanent| permanent.card.id == aura_id),
         "then the unattached Aura goes too",
-    );
-}
-
-#[test]
-fn animate_artifact_reports_complete_declarative_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ANIMATE_ARTIFACT)
-        .expect("Animate Artifact is cataloged");
-
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

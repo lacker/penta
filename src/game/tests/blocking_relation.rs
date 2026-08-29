@@ -6,7 +6,6 @@
 //! what it blocked -- an attacker's own record does not name its blockers.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The Wretched attacking, blocked by `blockers` for player two.
 fn wretched_blocked_by(count: usize) -> (Game, GameObjectId, Vec<GameObjectId>) {
@@ -119,14 +118,4 @@ fn an_unblocked_wretched_takes_nothing() {
     finish_combat(&mut game);
 
     assert_eq!(controller(&game, bystander_id), Some(PlayerId::Two));
-}
-
-#[test]
-fn the_wretched_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::THE_WRETCHED).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

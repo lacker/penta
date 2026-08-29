@@ -1,6 +1,4 @@
 use super::*;
-use crate::AbilityProgramDef;
-
 pub(super) fn dust_to_dust_targets(game: &mut Game, mut spell: StackObject) {
     spell.signature = Some(CastSignature::from_validated_choices(
         SpellForm::Part(CardPartId::PRIMARY),
@@ -13,110 +11,6 @@ pub(super) fn dust_to_dust_targets(game: &mut Game, mut spell: StackObject) {
         ),
     ));
     game.resolve_spell_effect(&spell, CardBehavior::DustToDust);
-}
-
-#[test]
-fn wrath_and_supreme_verdict_use_equivalent_declarative_creature_sweepers() {
-    let game = ready_game();
-    for (definition, can_regenerate, cannot_be_countered) in [
-        (cards::WRATH_OF_GOD, false, false),
-        (cards::SUPREME_VERDICT, true, true),
-    ] {
-        let definition = game.catalog.get(definition).unwrap();
-        assert_eq!(definition.rules.special_behavior(), None);
-        assert!(
-            definition
-                .rules
-                .ability_clauses()
-                .iter()
-                .all(|ability| ability.declarative_effect().is_some())
-        );
-        assert!(definition.rules.ability_clauses().iter().any(|ability| {
-            let AbilityProgramDef::Effects(EffectDef::Destroy {
-                object,
-                can_regenerate: actual,
-                then: None,
-            }) = ability.effect.definition
-            else {
-                return false;
-            };
-            object.object_query().is_some_and(|query| {
-                query.object == ObjectPredicateDef::HasType(CardType::Creature)
-                    && query.zones == [ZoneKind::Battlefield]
-                    && query.related_player == Some(PlayerSetDef::Related(PlayerRelation::Any))
-                    && query.controller.is_none()
-                    && query.owner.is_none()
-            }) && actual == can_regenerate
-        }));
-        assert_eq!(
-            definition.rules.ability_clauses().iter().any(|ability| {
-                matches!(
-                    ability.effect.definition,
-                    AbilityProgramDef::Effects(EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-                    })
-                )
-            }),
-            cannot_be_countered,
-        );
-    }
-}
-
-#[test]
-fn nevinyrrals_disk_declares_shared_costs_and_a_global_destroy_effect() {
-    let game = ready_game();
-    let definition = game
-        .catalog
-        .get(cards::NEVINYRRALS_DISK)
-        .expect("Nevinyrral's Disk is in the catalog");
-    assert_eq!(definition.rules.special_behavior(), None);
-
-    let ability = definition
-        .rules
-        .ability_clauses()
-        .iter()
-        .find(|ability| matches!(ability.definition, DeclarativeAbilityDef::Activated(_)))
-        .expect("the Disk has an activated ability");
-    let DeclarativeAbilityDef::Activated(activated) = ability.definition else {
-        unreachable!("the selected ability is activated")
-    };
-    assert_eq!(activated.procedure, AbilityProcedureDef::Shared);
-    assert_eq!(
-        activated.costs.as_slice(),
-        &[
-            AbilityCostDef::Mana(mana_cost!("{1}")),
-            AbilityCostDef::TapSource,
-        ]
-    );
-
-    let AbilityProgramDef::Effects(EffectDef::Destroy {
-        object,
-        can_regenerate,
-        then: None,
-    }) = ability.effect.definition
-    else {
-        panic!("the Disk uses the shared global destruction effect")
-    };
-    let query = object
-        .object_query()
-        .expect("the Disk destruction is an object query");
-    assert_eq!(
-        query.object,
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ])
-    );
-    assert_eq!(query.zones, [ZoneKind::Battlefield]);
-    assert_eq!(
-        query.related_player,
-        Some(PlayerSetDef::Related(PlayerRelation::Any))
-    );
-    assert_eq!(query.controller, None);
-    assert_eq!(query.owner, None);
-    assert!(can_regenerate);
 }
 
 #[test]

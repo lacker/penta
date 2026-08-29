@@ -7,7 +7,6 @@
 //! one effect for one duration.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -203,23 +202,4 @@ fn the_keyrune_animates_and_slips_through_together() {
         !blocked_by(&game, keyrune_id, blocker_id),
         "and it cannot be blocked",
     );
-}
-
-#[test]
-fn all_four_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ETHEREAL_ARMOR,
-        cards::OGRE_JAILBREAKER,
-        cards::WAY_OF_THE_THIEF,
-        cards::DIMIR_KEYRUNE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

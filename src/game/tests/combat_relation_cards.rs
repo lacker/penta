@@ -6,7 +6,6 @@
 //! creature is doing right now.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -192,18 +191,4 @@ fn arcades_drops_a_creature_that_attacks() {
         (Some(7), Some(9)),
         "and Arcades, sitting home untapped, covers itself",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::SPITTING_SLUG, cards::ARCADES_SABBOTH] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

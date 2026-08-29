@@ -8,7 +8,6 @@
 //! readings apart.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The named source under player one, plus a creature to feed it.
 fn board(source: CardDefinitionId, food: CardDefinitionId) -> (Game, GameObjectId, i16) {
@@ -244,23 +243,4 @@ fn feed_the_pack_will_not_eat_its_own_wolves() {
         "eight Wolves on the battlefield and nothing it will eat",
     );
     assert_eq!(wolves(&game), 8, "so the pack is unchanged");
-}
-
-#[test]
-fn every_sacrificed_toughness_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DIAMOND_VALLEY,
-        cards::LIFE_CHISEL,
-        cards::DEVOUR_FLESH,
-        cards::FEED_THE_PACK,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

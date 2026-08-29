@@ -5,7 +5,6 @@
 //! check is that the new colour is the one every other rule then reads.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Casts a Lace at `target`, with the mana it needs already in the pool.
 fn cast_lace(game: &mut Game, lace: CardDefinitionId, color: ManaColor, target: Target) {
@@ -152,24 +151,4 @@ fn a_lace_can_repaint_a_spell_on_the_stack() {
         BLACK,
         "a red spell that is now a black one"
     );
-}
-
-#[test]
-fn every_lace_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PURELACE,
-        cards::THOUGHTLACE,
-        cards::DEATHLACE,
-        cards::CHAOSLACE,
-        cards::LIFELACE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

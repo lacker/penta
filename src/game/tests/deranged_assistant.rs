@@ -5,7 +5,6 @@
 //! it is paid before the ordinary activated ability goes on the stack.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn activation(game: &Game, source: GameObjectId) -> Option<Action> {
     game.legal_actions(PlayerId::One)
@@ -70,20 +69,4 @@ fn mill_cost_requires_a_card_and_is_paid_before_resolution() {
 
     pass_priority_pair(&mut game);
     assert_eq!(game.players[PlayerId::One.index()].mana_pool.colorless, 1);
-}
-
-#[test]
-fn definition_is_complete_and_not_a_mana_ability() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::DERANGED_ASSISTANT)
-        .expect("Deranged Assistant is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
-    assert!(matches!(
-        card.rules.ability_clauses()[0].definition,
-        DeclarativeAbilityDef::Activated(_),
-    ));
 }

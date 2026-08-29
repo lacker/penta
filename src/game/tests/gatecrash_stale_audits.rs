@@ -5,7 +5,6 @@
 //! check is that each card really is using the primitive its text names.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -203,18 +202,4 @@ fn gridlock_taps_the_permanents_chosen() {
     assert!(tapped(permanents[0]) && tapped(permanents[1]));
     assert!(!tapped(permanents[2]), "the untargeted one stayed up");
     assert!(!tapped(land), "and so did the land");
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::FRILLED_OCULUS, cards::GRIDLOCK] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

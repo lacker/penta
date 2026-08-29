@@ -6,7 +6,6 @@
 //! again.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -449,38 +448,4 @@ fn the_lumberknot_cannot_block_unpaired_either() {
             }),
         "unpaired, so it cannot block either",
     );
-}
-
-#[test]
-fn every_soulbond_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::TRUSTED_FORCEMAGE,
-        cards::SILVERBLADE_PALADIN,
-        cards::SPECTRAL_GATEGUARDS,
-        cards::ELGAUD_SHIELDMATE,
-        cards::WINGCRAFTER,
-        cards::HANWEIR_LANCER,
-        cards::LIGHTNING_MAULER,
-        cards::DRUIDS_FAMILIAR,
-        cards::GEIST_TRAPPERS,
-        cards::NIGHTSHADE_PEDDLER,
-        cards::PATHBREAKER_WURM,
-        cards::WOLFIR_SILVERHEART,
-        cards::NEARHEATH_PILGRIM,
-        cards::GALVANIC_ALCHEMIST,
-        cards::STERN_MENTOR,
-        cards::TANDEM_LOOKOUT,
-        cards::STONEWRIGHT,
-        cards::DIREGRAF_ESCORT,
-        cards::FLOWERING_LUMBERKNOT,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

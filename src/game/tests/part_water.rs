@@ -5,7 +5,6 @@
 //! is islandwalk for two creatures, not five.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Part Water in hand with `blue` mana available and `creatures` creatures
 /// on the battlefield to point at.
@@ -140,17 +139,5 @@ fn it_grants_islandwalk_to_exactly_the_creatures_chosen() {
     assert!(
         !has_islandwalk(&game, creatures[2]),
         "the untargeted creature gained nothing",
-    );
-}
-
-#[test]
-fn part_water_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::PART_WATER)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

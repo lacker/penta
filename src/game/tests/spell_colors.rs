@@ -6,7 +6,6 @@
 //! rather than off anything else, and that either player casting it counts.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one has Sol'kanar out; `caster` casts `spell` from hand with enough
 /// mana in the pool to pay for it.
@@ -77,17 +76,5 @@ fn an_opponents_black_spell_gains_the_king_a_life() {
         life(&game, PlayerId::Two),
         i16::from(rules::STARTING_LIFE),
         "and the caster gains nothing",
-    );
-}
-
-#[test]
-fn the_king_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::SOLKANAR_THE_SWAMP_KING)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

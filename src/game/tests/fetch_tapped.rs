@@ -8,7 +8,6 @@
 //! arriving untapped first.
 
 use super::*;
-use crate::ImplementationStatus;
 
 #[test]
 fn evolving_wilds_fetches_a_tapped_basic() {
@@ -86,18 +85,4 @@ fn the_elk_fetches_a_tapped_basic_as_well() {
         fetched.iter().all(|permanent| permanent.tapped),
         "and it arrived tapped"
     );
-}
-
-#[test]
-fn every_tapped_fetch_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::DAWNTREADER_ELK, cards::EVOLVING_WILDS] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

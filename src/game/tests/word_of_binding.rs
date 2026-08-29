@@ -6,7 +6,6 @@
 //! X the board cannot fill.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Word of Binding in hand with `mana` black available, and `creatures`
 /// untapped creatures on the other side.
@@ -119,17 +118,5 @@ fn it_taps_exactly_the_creatures_chosen() {
     assert!(
         !tapped(&game, creatures[2]),
         "the untargeted creature stayed up",
-    );
-}
-
-#[test]
-fn word_of_binding_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::WORD_OF_BINDING)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

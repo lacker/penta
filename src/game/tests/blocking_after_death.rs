@@ -8,7 +8,6 @@
 //! always last-known by the time it is read.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Abu Ja'far in a committed block, on the side `attacking` says.
 fn combat(attacking: bool, other: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -104,18 +103,4 @@ fn dying_out_of_combat_takes_nobody_with_it() {
 
     assert!(!survives(&game, abu_id));
     assert!(survives(&game, bystander_id));
-}
-
-#[test]
-fn the_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ABU_JAFAR)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-        "{} should be fully executable",
-        card.name,
-    );
 }

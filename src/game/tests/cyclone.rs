@@ -5,7 +5,6 @@
 //! the damage hits every creature and every player, its controller included.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Cyclone under player one with `wind` counters already banked, `green`
 /// green mana available, and a creature apiece.
@@ -151,14 +150,4 @@ fn other_colours_do_not_pay_for_it() {
     run_upkeep(&mut game, usize::MAX);
 
     assert!(!still_there(&game, cyclone), "red is not green");
-}
-
-#[test]
-fn cyclone_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::CYCLONE).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

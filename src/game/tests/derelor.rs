@@ -5,7 +5,6 @@
 //! pay. It applies to its controller's black spells and to nothing else.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// `spell` in player one's hand with `black` and `colorless` available, and
 /// `derelors` copies of Derelor out under `controller`.
@@ -91,14 +90,4 @@ fn a_spell_of_another_colour_is_not_taxed() {
 fn an_opponents_copy_does_not_tax_you() {
     let (game, spell) = taxed(cards::DARK_RITUAL, 1, PlayerId::Two, 1, 0);
     assert!(castable(&game, spell));
-}
-
-#[test]
-fn derelor_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::DERELOR).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

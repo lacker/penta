@@ -6,7 +6,6 @@
 //! permanent from carrying opposing counters at once.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn stats(game: &Game, id: GameObjectId) -> (Option<i16>, Option<i16>) {
     let permanent = game
@@ -103,18 +102,4 @@ fn unstable_mutation_shrinks_its_host_each_upkeep() {
         (Some(4), Some(4)),
         "one upkeep, one counter"
     );
-}
-
-#[test]
-fn every_stat_counter_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::UNSTABLE_MUTATION, cards::ARMOR_THRULL] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

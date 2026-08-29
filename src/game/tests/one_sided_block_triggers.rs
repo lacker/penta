@@ -6,7 +6,6 @@
 //! is what the halves add.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one attacks with `attacker`; player two blocks with `blocker`.
 fn blocked_by(attacker: CardDefinitionId, blocker: CardDefinitionId) -> (Game, [GameObjectId; 2]) {
@@ -134,24 +133,4 @@ fn the_vigilante_burns_the_creature_that_blocked_it() {
         .find(|permanent| permanent.card.id == blocker)
         .expect("the blocker is there");
     assert_eq!(damaged.damage, 1);
-}
-
-#[test]
-fn every_one_sided_block_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::FORTRESS_CYCLOPS,
-        cards::SOMBERWALD_VIGILANTE,
-        cards::HAMLET_CAPTAIN,
-        cards::INFERNAL_MEDUSA,
-        cards::VENOM,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -7,7 +7,6 @@
 //! board rather than the printed one.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn attackers(game: &Game) -> Vec<GameObjectId> {
     game.legal_actions(PlayerId::One)
@@ -106,18 +105,4 @@ fn an_opponents_creatures_are_untouched() {
         }),
         "the Eye says nothing about creatures the other player controls"
     );
-}
-
-#[test]
-fn every_group_attack_prohibition_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::AKRON_LEGIONNAIRE, cards::EVIL_EYE_OF_ORMS_BY_GORE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

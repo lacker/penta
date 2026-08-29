@@ -6,7 +6,6 @@
 //! would be answering a board that no longer exists.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player two attacking player one, with Disharmony in player one's hand.
 fn attacked() -> (Game, GameObjectId, CardInstanceId) {
@@ -84,16 +83,4 @@ fn it_cannot_be_cast_once_blockers_are_declared() {
     game.step = Step::DeclareBlockers;
     game.blockers_declared = true;
     assert!(!castable(&game, spell_id));
-}
-
-#[test]
-fn disharmony_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::DISHARMONY)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

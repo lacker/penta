@@ -6,7 +6,6 @@
 //! two objects enumerates every pair rather than every candidate.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -173,22 +172,4 @@ fn the_goliath_exiles_both_cards_it_names() {
             .any(|permanent| permanent.card.definition == cards::SKAAB_GOLIATH),
         "the Goliath resolved",
     );
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BONE_SPLINTERS,
-        cards::INFERNAL_PLUNGE,
-        cards::SKAAB_GOLIATH,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

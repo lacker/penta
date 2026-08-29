@@ -6,7 +6,6 @@
 //! to play a blink in the first place.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -159,18 +158,4 @@ fn an_ordinary_return_gives_it_back_to_its_owner() {
         Some(PlayerId::Two),
         "without the clause it goes home",
     );
-}
-
-#[test]
-fn both_blinkers_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::NEPHALIA_SMUGGLER, cards::CONJURERS_CLOSET] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -5,7 +5,6 @@
 //! rounded up, which Aspect of Wolf already needed.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -121,18 +120,4 @@ fn the_flame_only_aims_at_an_opponent() {
         )),
         "you take the recoil, not the whole thing",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::BUILDERS_BLESSING, cards::ETERNAL_FLAME] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

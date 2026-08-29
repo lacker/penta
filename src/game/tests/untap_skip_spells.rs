@@ -7,7 +7,6 @@
 //! come out right.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// `spell` in player one's hand with plenty of mana, one creature apiece.
 fn holding(spell: CardDefinitionId) -> (Game, CardInstanceId, GameObjectId, GameObjectId) {
@@ -127,18 +126,4 @@ fn frost_breath_may_take_a_single_target() {
 
     assert!(tapped(&game, theirs));
     assert!(!tapped(&game, mine), "the one left alone stayed up");
-}
-
-#[test]
-fn both_spells_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::CRIPPLING_CHILL, cards::FROST_BREATH] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

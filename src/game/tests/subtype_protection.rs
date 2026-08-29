@@ -6,7 +6,6 @@
 //! fact that naming Zombies leaves everything else unbothered.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -248,23 +247,4 @@ fn holy_mantle_stops_every_creature_and_nothing_else() {
         1,
         "the quality is the card type, not the controller",
     );
-}
-
-#[test]
-fn all_four_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ELITE_INQUISITOR,
-        cards::GRAVE_BRAMBLE,
-        cards::MIDNIGHT_DUELIST,
-        cards::HOLY_MANTLE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

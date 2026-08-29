@@ -5,7 +5,6 @@
 //! follows the board rather than being fixed when the Aura landed.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Aspect of Wolf on a Sedge Troll, with `forests` Forests under player one
 /// and `theirs` under player two.
@@ -99,16 +98,4 @@ fn the_bonus_follows_the_board() {
         .retain(|permanent| permanent.card.id != a_forest);
 
     assert_eq!(bonus(&game, host), (2, 2), "four Forests halve evenly");
-}
-
-#[test]
-fn aspect_of_wolf_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ASPECT_OF_WOLF)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

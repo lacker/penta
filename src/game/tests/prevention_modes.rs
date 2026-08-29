@@ -6,7 +6,6 @@
 //! and that choosing the other mode does something different.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Casts `definition`, choosing the mode whose text contains `mode`, at
 /// `target`.
@@ -144,22 +143,4 @@ fn alabaster_potion_reads_its_chosen_x() {
         before + 2,
         "X was two, so two life"
     );
-}
-
-#[test]
-fn every_prevention_mode_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::HEALING_SALVE,
-        cards::ALABASTER_POTION,
-        cards::RAKALITE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

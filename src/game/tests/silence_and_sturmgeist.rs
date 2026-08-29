@@ -5,7 +5,6 @@
 //! to be read in two places. Sturmgeist reads its own controller's hand live.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -196,22 +195,4 @@ fn the_authority_draws_for_the_creatures_controller() {
         [before[0], before[1] + 1],
         "their draw step, their extra card",
     );
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::STONY_SILENCE,
-        cards::STURMGEIST,
-        cards::RIGHTEOUS_AUTHORITY,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

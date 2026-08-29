@@ -5,7 +5,6 @@
 //! nobody chose has no reason to be put anywhere but back.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -143,17 +142,5 @@ fn a_nonland_card_is_never_offered() {
         library(&game),
         vec![cards::LIGHTNING_BOLT, cards::GRIZZLY_BEARS],
         "so it stays the next draw",
-    );
-}
-
-#[test]
-fn the_enchantment_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::INTO_THE_WILDS)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

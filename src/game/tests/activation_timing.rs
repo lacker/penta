@@ -5,7 +5,6 @@
 //! the legal-action list offers in each step and on each player's turn.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn offers(game: &Game, player: PlayerId, source: GameObjectId) -> bool {
     game.legal_actions(player).iter().any(
@@ -115,26 +114,6 @@ fn the_window_does_not_excuse_the_rest_of_the_cost() {
         !offers(&game, PlayerId::One, scepter_id),
         "an open window does not untap the source"
     );
-}
-
-#[test]
-fn every_timing_restricted_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DISRUPTING_SCEPTER,
-        cards::DWARVEN_WEAPONSMITH,
-        cards::SVYELUNITE_PRIEST,
-        cards::GWENDLYN_DI_CORCI,
-        cards::BRAIN_WEEVIL,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 fn brain_weevil_game() -> (Game, GameObjectId) {
@@ -390,26 +369,6 @@ mod once_each_turn {
             "the cap holds inside the open window, with a second creature to spare"
         );
     }
-
-    #[test]
-    fn every_capped_identity_reports_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [
-            cards::GATE_TO_PHYREXIA,
-            cards::FIRE_DRAKE,
-            cards::DARKTHICKET_WOLF,
-            cards::VAMPIRE_BATS,
-            cards::BEETLEFORM_MAGE,
-        ] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
-    }
 }
 
 /// Two identities the window unblocked without any further engine work. Both
@@ -509,19 +468,5 @@ mod unblocked_by_the_window {
             "and the sacrificed one paid for it"
         );
         let _ = buried_id;
-    }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::COLOSSUS_OF_SARDIA, cards::HELLS_CARETAKER] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

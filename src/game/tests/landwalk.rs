@@ -8,7 +8,6 @@
 //! actually offered.
 
 use super::*;
-use crate::ImplementationStatus;
 use crate::card::BasicLandType;
 
 fn walk_game(walker: CardDefinitionId, defender_land: CardDefinitionId) -> (Game, GameObjectId) {
@@ -278,39 +277,6 @@ fn legendary_landwalk_reads_the_land_supertype() {
     );
 }
 
-#[test]
-fn every_newly_unblocked_walker_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BOG_WRAITH,
-        cards::RIGHTEOUS_AVENGERS,
-        cards::DEVOURING_DEEP,
-        cards::SEGOVIAN_LEVIATHAN,
-        cards::LOST_SOUL,
-        cards::MARSH_GOBLINS,
-        cards::LORD_OF_ATLANTIS,
-        cards::FISHLIVER_OIL,
-        cards::GREAT_WALL,
-        cards::UNDERTOW,
-        cards::QUAGMIRE,
-        cards::CREVASSE,
-        cards::DEADFALL,
-        cards::GOSTA_DIRK,
-        cards::LORD_MAGNUS,
-        cards::UR_DRAGO,
-        cards::LIVONYA_SILONE,
-        cards::ARGOTHIAN_TREEFOLK,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// Two identities whose audit lines named landwalk long after the keyword
 /// landed. Neither needed engine work; what they needed was for someone to
 /// re-read the line. The tests below drive what each one actually asks of the
@@ -450,27 +416,6 @@ mod follow_up {
             game.players[PlayerId::One.index()].life,
             i16::from(rules::STARTING_LIFE) - 2,
             "and charged its controller two damage for it"
-        );
-    }
-
-    #[test]
-    fn the_swept_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        let treefolk = catalog
-            .get(cards::WORMWOOD_TREEFOLK)
-            .expect("the card is cataloged");
-        assert_eq!(
-            treefolk.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "Wormwood Treefolk should be fully executable",
-        );
-        let assassin = catalog
-            .get(cards::MERFOLK_ASSASSIN)
-            .expect("the card is cataloged");
-        assert_eq!(
-            assassin.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "Merfolk Assassin's target legality now reads the same keywords blocking does",
         );
     }
 }

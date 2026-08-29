@@ -7,7 +7,6 @@
 //! be readable by what follows.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -237,22 +236,4 @@ fn the_guildmage_will_not_eat_its_own_saprolings() {
         "the Wall and the Guildmage, never the three Saprolings",
     );
     assert!(offered.contains(&wall_id) && offered.contains(&mage_id));
-}
-
-#[test]
-fn every_toughness_payout_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DEATHS_CARESS,
-        cards::DISCIPLE_OF_GRISELBRAND,
-        cards::KOROZDA_GUILDMAGE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

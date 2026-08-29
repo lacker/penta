@@ -7,7 +7,6 @@
 //! cards claim -- rather than leaving either as prose.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn body(game: &Game, id: GameObjectId) -> (i16, i16) {
     let permanent = game
@@ -146,25 +145,6 @@ fn the_counted_body_answers_outside_the_battlefield() {
         "two non-Wall creatures out, counted from a graveyard",
     );
     assert_eq!(game.current_or_last_known_toughness(card_id), Some(2));
-}
-
-#[test]
-fn every_counted_body_reports_its_declared_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PLAGUE_RATS,
-        cards::KELDON_WARLORD,
-        cards::GAEAS_AVENGER,
-        cards::DAKKON_BLACKBLADE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} defines its body rather than adding to it",
-            card.name,
-        );
-    }
 }
 
 /// The other half of "attacking or blocking", which neither single-sided

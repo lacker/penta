@@ -5,7 +5,6 @@
 //! table, and the two Goblin Auras read what they are sitting on.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -264,25 +263,4 @@ fn the_behemoth_takes_size_and_trample_together() {
         .retain(|permanent| permanent.card.id != land);
     assert_eq!(stats(&game, behemoth_id), (Some(4), Some(4)));
     assert!(!tramples(&game), "and leaves with it");
-}
-
-#[test]
-fn all_six_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ANGELIC_VOICES,
-        cards::BEASTS_OF_BOGARDAN,
-        cards::GOBLIN_CAVES,
-        cards::GOBLIN_SHRINE,
-        cards::IVORY_GUARDIANS,
-        cards::WOODBORN_BEHEMOTH,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

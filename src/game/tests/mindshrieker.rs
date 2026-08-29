@@ -2,7 +2,6 @@
 //! size bonus.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Mindshrieker under player one's control, with `library` stacked for player
 /// two so the last entry is on top.
@@ -82,16 +81,4 @@ fn an_empty_library_gives_no_bonus() {
 
     assert!(game.players[PlayerId::Two.index()].graveyard.is_empty());
     assert_eq!(size(&game, shrieker), (Some(1), Some(1)));
-}
-
-#[test]
-fn mindshrieker_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::MINDSHRIEKER)
-        .expect("Mindshrieker is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

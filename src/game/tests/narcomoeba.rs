@@ -2,7 +2,6 @@
 //! return remains optional after its trigger resolves.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn staged(zone: ZoneKind) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -109,16 +108,4 @@ fn discarding_narcomoeba_does_not_trigger_it() {
     assert!(!narcomoeba_on_battlefield(&game));
     assert_eq!(game.players[0].graveyard.len(), 1);
     assert!(game.pending_decisions.is_empty());
-}
-
-#[test]
-fn narcomoeba_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::NARCOMOEBA)
-        .expect("Narcomoeba is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

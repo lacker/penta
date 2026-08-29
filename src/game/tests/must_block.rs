@@ -7,7 +7,6 @@
 //! declaring blockers while one of them is still standing free.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Two attackers for player one, with `lured` carrying the requirement.
 fn two_attackers(lured: CardDefinitionId, other: CardDefinitionId) -> (Game, [GameObjectId; 2]) {
@@ -169,25 +168,6 @@ fn a_restriction_beats_the_requirement() {
         "it cannot block the flier, so it keeps the seat it can take"
     );
     assert!(may_finish(&game));
-}
-
-#[test]
-fn every_must_block_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::LURE,
-        cards::MARBLE_PRIEST,
-        cards::DEADLY_ALLURE,
-        cards::ENLARGE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 /// A spell hands the same requirement out for the turn, which is the shape

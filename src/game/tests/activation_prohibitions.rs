@@ -1,7 +1,6 @@
 //! Static prohibitions on activating artifact abilities.
 
 use super::*;
-use crate::ImplementationStatus;
 
 const NEW_ARTIFACT_LOCKS: [CardDefinitionId; 2] = [cards::NULL_ROD, cards::COLLECTOR_OUPHE];
 
@@ -157,24 +156,8 @@ fn a_permanent_is_locked_as_soon_as_it_becomes_an_artifact() {
 }
 
 #[test]
-fn requested_catalog_entries_are_declarative_and_arrest_has_both_printings() {
+fn arrest_has_both_printings() {
     let catalog = poc::catalog().expect("catalog builds");
-    for identity in NEW_ARTIFACT_LOCKS {
-        let definition = catalog.get(identity).expect("the card is cataloged");
-        assert_eq!(
-            definition.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            definition.name,
-        );
-        assert_eq!(
-            definition.rules.special_behavior(),
-            None,
-            "{} should use only shared declarative mechanics",
-            definition.name,
-        );
-    }
-
     let arrest = catalog.get(cards::ARREST).expect("Arrest is cataloged");
     for set in [CardSet::MercadianMasques, CardSet::ReturnToRavnica] {
         assert!(

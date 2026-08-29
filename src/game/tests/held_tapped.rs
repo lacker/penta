@@ -6,7 +6,6 @@
 //! and the question is asked afresh at each untap step.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Gremlins with their ability already spent on a Sol Ring the other player
 /// controls.
@@ -96,14 +95,4 @@ fn another_artifact_untaps_as_usual() {
 
     take_turn(&mut game, PlayerId::Two);
     assert!(!is_tapped(&game, other_id));
-}
-
-#[test]
-fn phyrexian_gremlins_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::PHYREXIAN_GREMLINS).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

@@ -1,7 +1,6 @@
 //! Stale rules-gap audits retired by declaration, choice, and continuation primitives.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -309,24 +308,4 @@ fn nicol_bolas_discards_before_the_sacrifice_choice() {
             .count(),
         1,
     );
-}
-
-#[test]
-fn every_additional_sweep_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BOROS_MASTIFF,
-        cards::RAL_ZAREK,
-        cards::NICOL_BOLAS_PLANESWALKER,
-        cards::SPECIES_GORGER,
-        cards::TAJIC_BLADE_OF_THE_LEGION,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -7,7 +7,6 @@
 //! expire when it stops being true.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Puts `definition` under player one, several turns into the game.
 fn ready_with(definition: CardDefinitionId) -> (Game, GameObjectId) {
@@ -136,22 +135,4 @@ fn the_sled_needs_a_mountain_to_attack() {
     game.battlefield
         .push(creature(10_001, cards::MOUNTAIN, PlayerId::Two));
     assert!(game.can_attack(permanent(&game, sled)));
-}
-
-#[test]
-fn every_attack_history_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GIANT_TURTLE,
-        cards::GOBLIN_ROCK_SLED,
-        cards::TANGLE_KELP,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

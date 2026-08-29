@@ -5,7 +5,6 @@
 //! creature, and naming none is not.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Glyph in hand and `creatures` creatures to point it at.
 fn board(spell: CardDefinitionId, creatures: usize) -> (Game, GameObjectId, Vec<GameObjectId>) {
@@ -95,26 +94,6 @@ fn the_whole_declaration_changes_colour() {
             game.object_colors(id),
             [false, false, false, false, true],
             "green and nothing else"
-        );
-    }
-}
-
-#[test]
-fn every_glyph_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::HEAVENS_GATE,
-        cards::SEA_KINGS_BLESSING,
-        cards::TOUCH_OF_DARKNESS,
-        cards::DWARVEN_SONG,
-        cards::SYLVAN_PARADISE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
         );
     }
 }

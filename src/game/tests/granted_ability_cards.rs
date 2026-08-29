@@ -6,7 +6,6 @@
 //! trigger per creature, not one for the board.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -197,18 +196,4 @@ fn the_archangel_grants_one_exalted_instance_each() {
         Some(6),
         "and it scales with the board rather than firing once for it",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::OGRE_SLUMLORD, cards::SUBLIME_ARCHANGEL] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -1,7 +1,7 @@
 //! Replay-stable random graveyard returns from Innistrad.
 
 use super::*;
-use crate::{ImplementationStatus, ObjectSetBindingIndex};
+use crate::ObjectSetBindingIndex;
 
 fn ghoulraiser_result(seed: u64) -> CardDefinitionId {
     let mut game = ready_game_with_seed(seed);
@@ -204,30 +204,6 @@ fn charmbreaker_gets_four_power_per_instant_or_sorcery_cast_until_end_of_turn() 
 
     game.finish_cleanup();
     assert_eq!(power(&game, devils), Some(4), "both boosts expire together");
-}
-
-#[test]
-fn random_return_cards_report_complete_declarative_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GHOULRAISER,
-        cards::CHARMBREAKER_DEVILS,
-        cards::WOODLAND_SLEUTH,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-        assert!(
-            card.rules
-                .ability_clauses()
-                .iter()
-                .all(|ability| matches!(ability.effect.execution, EffectExecutionDef::Declarative))
-        );
-    }
 }
 
 #[test]

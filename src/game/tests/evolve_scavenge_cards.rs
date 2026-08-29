@@ -6,7 +6,6 @@
 //! block clause is a requirement rather than a permission.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -120,22 +119,4 @@ fn the_decoy_forces_every_able_blocker_onto_itself() {
         "the Decoy is the only block on offer, not one of two",
     );
     assert!(!blocks.contains(&other_id));
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GOLGARI_DECOY,
-        cards::EXPERIMENT_ONE,
-        cards::THRASHING_MOSSDOG,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

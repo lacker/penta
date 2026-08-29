@@ -1,7 +1,6 @@
 //! Delver's private top-card look, optional public reveal, and transform.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn upkeep_with(top: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -119,7 +118,7 @@ fn declining_or_revealing_another_card_leaves_delver_front_face_up() {
 }
 
 #[test]
-fn back_face_is_a_blue_flying_three_two_and_coverage_is_complete() {
+fn back_face_is_a_blue_flying_three_two() {
     let (mut game, delver, _) = upkeep_with(cards::LIGHTNING_BOLT);
     choose_reveal(&mut game, PlayerId::One);
     let permanent = game
@@ -136,13 +135,5 @@ fn back_face_is_a_blue_flying_three_two_and_coverage_is_complete() {
     assert_eq!(
         game.effective_colors(permanent, &game.effective_rules(permanent).unwrap()),
         [false, true, false, false, false],
-    );
-    assert_eq!(
-        game.catalog
-            .get(cards::DELVER_OF_SECRETS)
-            .unwrap()
-            .rules
-            .implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

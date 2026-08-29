@@ -7,7 +7,6 @@
 //! in the order they were in.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The definitions on top of player two's library, top-first.
 fn stack_library(game: &mut Game, definitions: &[CardDefinitionId]) -> Vec<CardDefinitionId> {
@@ -204,18 +203,4 @@ fn visions_may_leave_the_library_alone() {
         library,
         "declining the shuffle leaves what was seen where it was"
     );
-}
-
-#[test]
-fn every_library_spy_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ORCISH_SPY, cards::VISIONS] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

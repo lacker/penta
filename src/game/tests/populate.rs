@@ -5,7 +5,6 @@
 //! not a failure, it simply does nothing.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn tokens_of(game: &Game, token: TokenCharacteristics) -> usize {
     game.battlefield
@@ -194,25 +193,4 @@ fn making_a_token_first_gives_populate_something_to_copy() {
         2,
         "one made, then one copied from it"
     );
-}
-
-#[test]
-fn every_populate_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::EYES_IN_THE_SKIES,
-        cards::ROOTBORN_DEFENSES,
-        cards::GROWING_RANKS,
-        cards::TROSTANIS_JUDGMENT,
-        cards::HORNCALLERS_CHANT,
-        cards::COURSERS_ACCORD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

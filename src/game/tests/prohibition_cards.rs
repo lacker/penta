@@ -6,7 +6,6 @@
 //! ability it grants keeps the restriction printed on it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -284,23 +283,4 @@ fn one_thousand_lashes_drains_the_creatures_controller() {
         [before[0], before[1] - 1],
         "the creature's controller pays, not the Aura's",
     );
-}
-
-#[test]
-fn all_five_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ARREST,
-        cards::MUGGING,
-        cards::ENCRUST,
-        cards::SKYGAMES,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

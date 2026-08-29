@@ -8,7 +8,6 @@
 //! and let the shield meet a real destruction.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Sedge Troll is the card that used to reach regeneration through a
 /// card-identity escape valve, so it is the one that proves the declarative
@@ -142,35 +141,6 @@ fn shields_stack_within_a_turn_and_do_not_survive_cleanup() {
     );
 }
 
-/// The clause is now ordinary declarative rules text rather than an engine
-/// branch, which is what lets the other blocked regeneration cards reuse it.
-#[test]
-fn the_regeneration_clause_is_declarative_rather_than_a_card_branch() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let troll = catalog
-        .get(cards::SEDGE_TROLL)
-        .expect("Sedge Troll is cataloged");
-    let clause = troll
-        .rules
-        .ability_clauses()
-        .iter()
-        .find(|ability| ability.text == "{B}: Regenerate this creature.")
-        .expect("Sedge Troll prints a regeneration clause");
-    assert!(
-        matches!(
-            clause.declarative_effect(),
-            Some(EffectDef::Regenerate {
-                object: EffectRecipientDef::Source
-            })
-        ),
-        "the clause should carry the declarative effect, not a custom behavior"
-    );
-    assert!(
-        clause.custom_behavior().is_none(),
-        "the card-identity escape valve should be gone from this clause"
-    );
-}
-
 /// The point of the primitive is the cards it unblocks, so one of them is
 /// played here rather than merely counted: cast it, activate it, and let the
 /// shield meet a destruction.
@@ -215,74 +185,6 @@ fn a_newly_unblocked_regenerator_casts_activates_and_survives() {
         .expect("the shield replaced the destruction");
     assert!(survivor.tapped);
     assert_eq!(survivor.regeneration_shields, 0);
-}
-
-/// A card is only unblocked if the engine says its rules are fully executable;
-/// a definition that still reported partial coverage would be metadata with a
-/// card record around it.
-#[test]
-fn every_newly_unblocked_regenerator_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DRUDGE_SKELETONS,
-        cards::WALL_OF_BONE,
-        cards::WILL_O_THE_WISP,
-        cards::UTHDEN_TROLL,
-        cards::WALL_OF_BRAMBLES,
-        cards::LIVING_WALL,
-        cards::CLAY_STATUE,
-        cards::DROWNED,
-        cards::GHOST_SHIP,
-        cards::DIABOLIC_MACHINE,
-        cards::WALKING_DEAD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-        assert!(
-            card.rules.ability_clauses().iter().any(|ability| {
-                matches!(
-                    ability.declarative_effect(),
-                    Some(EffectDef::Regenerate { .. })
-                )
-            }),
-            "{} should carry the declarative regeneration clause",
-            card.name,
-        );
-    }
-}
-
-#[test]
-fn expanded_regeneration_forms_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::SKELETAL_GRIMACE,
-        cards::FULL_MOONS_RISE,
-        cards::ULVENWALD_MYSTICS,
-        cards::CRIMSON_MUCKWADER,
-        cards::SELESNYA_SENTRY,
-        cards::GOLGARI_CHARM,
-        cards::RAKDOS_RINGLEADER,
-        cards::TRESTLE_TROLL,
-        cards::DUTIFUL_THRULL,
-        cards::MENDING_TOUCH,
-        cards::BLESSING,
-        cards::HOLY_ARMOR,
-        cards::FIREBREATHING,
-        cards::AXELROD_GUNNARSON,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 fn attached_aura(
@@ -478,29 +380,6 @@ fn an_aura_regenerates_the_creature_it_enchants() {
     );
 }
 
-#[test]
-fn every_swept_regeneration_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DEATH_WARD,
-        cards::REGENERATION,
-        cards::THE_BRUTE,
-        cards::ELEPHANT_GRAVEYARD,
-        cards::NIALL_SILVAIN,
-        cards::RAGNAR,
-        cards::THRULL_RETAINER,
-        cards::ZOMBIE_MASTER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// The follow-up sweep declared identities whose printed regeneration pays
 /// something other than mana or shields something other than the source. Each
 /// combination below is a cost or recipient the earlier tests never drove.
@@ -651,31 +530,6 @@ mod follow_up {
             "the same resolution left deathtouch behind"
         );
     }
-
-    /// The identities this sweep unblocked all claim full coverage. Chromium
-    /// is here because rampage plus an Elder Dragon upkeep is the pairing its
-    /// stale audit line said was missing.
-    #[test]
-    fn the_swept_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [
-            cards::HORROR_OF_HORRORS,
-            cards::CHROMIUM,
-            cards::GOBLIN_CHIRURGEON,
-            cards::MANOR_SKELETON,
-            cards::MARROW_BATS,
-            cards::NECROBITE,
-            cards::WOLFIR_AVENGER,
-        ] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
-    }
 }
 
 /// "Can't be regenerated" as a standalone effect rather than a property of a
@@ -818,20 +672,6 @@ mod cannot_be_regenerated {
             "a new turn is a new shield"
         );
     }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::HURR_JACKAL, cards::ELVES_OF_DEEP_SHADOW] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
-    }
 }
 
 /// The Premodern half of the same sweep. Neither card needed engine work;
@@ -926,19 +766,5 @@ mod premodern {
                 .regeneration_shields,
             1,
         );
-    }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::VAMPIRE_WARLORD, cards::TROLLHIDE] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

@@ -8,7 +8,6 @@
 //! mana out of nothing.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The activations this player is offered from that source.
 fn mana_actions(
@@ -232,24 +231,4 @@ fn standing_stones_spends_mana_a_tap_and_a_life() {
             .expect("still there")
             .tapped
     );
-}
-
-#[test]
-fn every_filtering_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::FIRE_SPRITES,
-        cards::APPRENTICE_WIZARD,
-        cards::COAL_GOLEM,
-        cards::IMPLEMENTS_OF_SACRIFICE,
-        cards::STANDING_STONES,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

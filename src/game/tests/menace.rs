@@ -6,7 +6,6 @@
 //! the defending player commits a second blocker or takes none back.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A menacing attacker for player one, with `blockers` untapped creatures
 /// under player two.
@@ -145,23 +144,4 @@ fn the_war_drums_menace_your_creatures_and_not_theirs() {
         !game.permanent_has_executable_keyword(blocker, KeywordAbility::Menace),
         "the other side's creatures are not the Drums' creatures"
     );
-}
-
-#[test]
-fn every_menace_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::RIPSCALE_PREDATOR,
-        cards::MADCAP_SKILLS,
-        cards::GRUUL_WAR_CHANT,
-        cards::GOBLIN_WAR_DRUMS,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

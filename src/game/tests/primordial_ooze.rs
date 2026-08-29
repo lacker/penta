@@ -6,7 +6,6 @@
 //! unpaid Ooze stop attacking as well as hurt.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Resolves everything waiting, taking the *last* option of each decision
 /// rather than the first. For an optional payment that is the branch that
@@ -114,17 +113,5 @@ fn paying_leaves_it_alone() {
         game.players[PlayerId::One.index()].mana_pool.colorless,
         7,
         "three of the ten paid the toll",
-    );
-}
-
-#[test]
-fn the_ooze_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::PRIMORDIAL_OOZE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

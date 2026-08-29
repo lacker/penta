@@ -6,7 +6,6 @@
 //! the equipped creature's type live.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -374,28 +373,4 @@ fn the_quiver_grants_two_abilities_that_share_one_tap() {
         0,
         "the tap is spent, so neither ability is offered again",
     );
-}
-
-#[test]
-fn all_nine_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::RIOT_GEAR,
-        cards::KITESAIL,
-        cards::EXECUTIONERS_HOOD,
-        cards::HEAVY_MATTOCK,
-        cards::BLADED_BRACERS,
-        cards::RUNECHANTERS_PIKE,
-        cards::TORMENTORS_TRIDENT,
-        cards::VANGUARDS_SHIELD,
-        cards::WOLFHUNTERS_QUIVER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

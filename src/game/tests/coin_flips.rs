@@ -6,7 +6,6 @@
 //! flip whose loss branch never fires would look correct in casual play.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Drives the same activation under many seeds and returns how the results
 /// split. A flip that always went one way would show up as a single outcome.
@@ -252,25 +251,6 @@ fn goblin_kites_sometimes_takes_the_creature_it_lifted() {
 
     assert!(won > 0, "the coin can come up heads");
     assert!(lost > 0, "and it can take the creature");
-}
-
-#[test]
-fn both_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ORCISH_CAPTAIN,
-        cards::BOTTLE_OF_SULEIMAN,
-        cards::MIJAE_DJINN,
-        cards::GOBLIN_KITES,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }
 
 /// Mana Crypt's flip is the price of the free mana. Both branches have to be

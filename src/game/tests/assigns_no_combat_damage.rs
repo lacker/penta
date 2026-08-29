@@ -7,7 +7,6 @@
 //! declining leaves the combat damage alone.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Attacks unblocked with `attacker` and runs the declaration through to the
 /// point where its trigger is asking.
@@ -171,18 +170,4 @@ fn the_spuzzem_trades_its_swing_for_an_artifact() {
 
     assert!(!on_battlefield(&game, ring_id), "the artifact is destroyed");
     assert_eq!(game.players[PlayerId::Two.index()].life, life);
-}
-
-#[test]
-fn every_assignment_constraint_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::FARRELS_ZEALOT, cards::FLORAL_SPUZZEM] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

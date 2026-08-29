@@ -6,7 +6,6 @@
 //! not caught up with.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A board with `lands` Forests under player one and `library` Mountains in
 /// their library, plus the spell in hand and mana to cast anything here.
@@ -200,22 +199,4 @@ fn frenzied_tilling_fetches_a_tapped_basic() {
         .find(|permanent| permanent.card.definition == cards::MOUNTAIN)
         .expect("a basic was found");
     assert!(fetched.tapped, "and it arrived tapped");
-}
-
-#[test]
-fn every_sized_search_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BOUNDLESS_REALMS,
-        cards::DIABOLIC_REVELATION,
-        cards::FRENZIED_TILLING,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

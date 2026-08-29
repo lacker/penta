@@ -4,7 +4,7 @@
 //! same-resolution count.
 
 use super::*;
-use crate::{CardArt, CardPrintingId, ImplementationStatus};
+use crate::{CardArt, CardPrintingId};
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -257,19 +257,8 @@ fn trepanation_blade_counts_every_card_when_no_land_exists_and_zero_when_empty()
 }
 
 #[test]
-fn batch_three_cards_report_complete_declarative_coverage() {
+fn blazing_torch_keeps_its_printing_identity() {
     let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::BLAZING_TORCH, cards::TREPANATION_BLADE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-        assert!(card.rules.special_behavior().is_none());
-    }
-
     let torch = catalog
         .get(cards::BLAZING_TORCH)
         .expect("Blazing Torch is cataloged");

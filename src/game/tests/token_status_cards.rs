@@ -6,7 +6,6 @@
 //! set off.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -223,23 +222,4 @@ fn the_soul_draws_off_creature_cards_entering() {
         0,
         "a token arriving is not a nontoken creature",
     );
-}
-
-#[test]
-fn all_four_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ILLNESS_IN_THE_RANKS,
-        cards::PHANTOM_GENERAL,
-        cards::HARVESTER_OF_SOULS,
-        cards::SOUL_OF_THE_HARVEST,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

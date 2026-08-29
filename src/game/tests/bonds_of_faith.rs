@@ -1,7 +1,6 @@
 //! Bonds of Faith's live Human/non-Human Aura branches.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn power_toughness(game: &Game, id: GameObjectId) -> (Option<i16>, Option<i16>) {
     let permanent = game
@@ -73,24 +72,4 @@ fn bonds_of_faith_switches_live_between_its_two_branches() {
     game.battlefield
         .retain(|permanent| permanent.card.id != bonds_id);
     assert!(can_block(&game, bear_id));
-}
-
-#[test]
-fn bonds_of_faith_is_fully_declarative_and_complete() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let bonds = catalog
-        .get(cards::BONDS_OF_FAITH)
-        .expect("Bonds of Faith is cataloged");
-
-    assert_eq!(
-        bonds.rules.implementation_status(),
-        ImplementationStatus::Complete
-    );
-    assert!(
-        bonds
-            .rules
-            .ability_clauses()
-            .iter()
-            .all(|ability| ability.effect.execution == EffectExecutionDef::Declarative)
-    );
 }

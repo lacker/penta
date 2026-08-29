@@ -5,7 +5,6 @@
 //! is a minimum of zero rather than a separate question.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -158,18 +157,4 @@ fn gaeas_touch_offers_only_a_basic_forest() {
         game.players[PlayerId::One.index()].lands_played_this_turn == 0,
         "putting a land there is not playing one",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::GOBLIN_WIZARD, cards::GAEAS_TOUCH] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

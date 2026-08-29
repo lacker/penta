@@ -7,7 +7,6 @@
 //! resolution and so gets the real values, which is what these pin.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn legal_targets(game: &Game, source: GameObjectId) -> Vec<GameObjectId> {
     let mut found = game
@@ -171,27 +170,4 @@ fn a_static_source_power_bonus_widens_a_relative_target_predicate() {
         .contains(&Target::Permanent(bears_id)),
         "the statics raise the source to three power",
     );
-}
-
-#[test]
-fn every_live_stat_target_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DWARVEN_WARRIORS,
-        cards::STONE_GIANT,
-        cards::TAWNOSS_WAND,
-        cards::PENDELHAVEN,
-        cards::SMITE_THE_MONSTROUS,
-        cards::SELESNYA_CHARM,
-        cards::SKYMARK_ROC,
-        cards::FLESHPULPER_GIANT,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

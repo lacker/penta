@@ -6,7 +6,6 @@
 //! payment planner and the mana pool agreeing about how much a tap is worth.
 
 use super::*;
-use crate::ImplementationStatus;
 
 const TRON: [CardDefinitionId; 3] = [
     cards::URZA_S_MINE,
@@ -127,18 +126,4 @@ fn pieces_across_the_table_do_not_count() {
         ));
     }
     assert_eq!(tap_for_colorless(&mut game, ids[0]), 1);
-}
-
-#[test]
-fn the_urza_lands_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in TRON {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

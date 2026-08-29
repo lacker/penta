@@ -5,7 +5,6 @@
 //! twice, and counted before the shuffle empties what it counts.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -113,18 +112,4 @@ fn archangels_light_gains_twice_the_graveyard_and_empties_it() {
         cards::ARCHANGELS_LIGHT,
         "the three it counted went into the library",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ARCHANGELS_LIGHT, cards::THALIA_GUARDIAN_OF_THRABEN] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

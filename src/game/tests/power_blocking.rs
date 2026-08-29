@@ -5,7 +5,6 @@
 //! restriction mid-combat rather than being fixed when it attacked.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Wandering Wolf attacking, with one prospective blocker of `power`.
 fn blocking_board(blocker: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -116,24 +115,4 @@ fn a_block_only_creature_refuses_ground_attackers() {
         "a flyer is what it is allowed to block"
     );
     assert!(!blocks.contains(&ground_id), "and a ground creature is not");
-}
-
-#[test]
-fn every_power_blocking_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::HOWLGEIST,
-        cards::WANDERING_WOLF,
-        cards::STORMBOUND_GEIST,
-        cards::SCRAPSKIN_DRAKE,
-        cards::GLOOMWIDOW,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

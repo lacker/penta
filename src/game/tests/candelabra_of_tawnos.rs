@@ -5,7 +5,6 @@
 //! offers nothing at all rather than silently untapping fewer.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Candelabra and `lands` tapped Islands, with `mana` colorless banked.
 fn candelabra(lands: u32, mana: u8) -> (Game, GameObjectId, Vec<GameObjectId>) {
@@ -120,16 +119,4 @@ fn it_taps_itself_to_pay() {
     drain_pending(&mut game);
 
     assert!(tapped(&game, candelabra));
-}
-
-#[test]
-fn candelabra_of_tawnos_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::CANDELABRA_OF_TAWNOS)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

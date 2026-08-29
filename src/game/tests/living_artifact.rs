@@ -6,7 +6,6 @@
 //! all.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Living Artifact on a Mox player one controls, with `banked` counters.
 fn enchanted(banked: u16) -> (Game, GameObjectId) {
@@ -126,17 +125,5 @@ fn an_empty_bank_buys_nothing() {
     assert_eq!(
         game.players[PlayerId::One.index()].life,
         i16::from(rules::STARTING_LIFE),
-    );
-}
-
-#[test]
-fn living_artifact_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::LIVING_ARTIFACT)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

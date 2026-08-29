@@ -6,7 +6,6 @@
 //! "by artifacts" is read while the artifact is still the source.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn cast(game: &mut Game, definition: CardDefinitionId, target: Option<GameObjectId>) {
     let spell = card(10_900, definition, PlayerId::One);
@@ -137,18 +136,4 @@ fn reverse_polarity_doubles_only_the_artifact_damage() {
         life + 6,
         "twice the artifact's three, and nothing for the creature's five"
     );
-}
-
-#[test]
-fn every_damage_history_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::SIMULACRUM, cards::REVERSE_POLARITY] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

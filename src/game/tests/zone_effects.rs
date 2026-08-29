@@ -983,16 +983,4 @@ mod graveyard_sweep {
             "the Cane exiled itself paying for it"
         );
     }
-
-    #[test]
-    fn feldons_cane_reports_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        let card = catalog
-            .get(cards::FELDONS_CANE)
-            .expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-        );
-    }
 }

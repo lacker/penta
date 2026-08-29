@@ -6,7 +6,6 @@
 //! ordinary ability is not, and that the payer is the one who pays.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// An Efreet under player one, with `mana` green in each player's pool.
 fn efreet_out(mana: u16) -> (Game, GameObjectId) {
@@ -106,16 +105,4 @@ fn it_catches_everything_that_flies_including_itself() {
             "each player takes one",
         );
     }
-}
-
-#[test]
-fn the_efreet_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::IFH_BIFF_EFREET)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

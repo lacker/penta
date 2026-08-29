@@ -6,7 +6,6 @@
 //! played. What these check is which upkeep fires it and who takes the damage.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Wanderlust on a creature `host_controller` controls, with the Aura itself
 /// controlled by player one.
@@ -92,23 +91,4 @@ fn an_unattached_aura_triggers_for_nobody() {
         [life(&game, PlayerId::One), life(&game, PlayerId::Two)],
         before
     );
-}
-
-#[test]
-fn every_enchanted_upkeep_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::FEEDBACK,
-        cards::CURSED_LAND,
-        cards::WARP_ARTIFACT,
-        cards::WANDERLUST,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

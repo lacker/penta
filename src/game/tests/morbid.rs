@@ -5,7 +5,6 @@
 //! cast, which is what lets a creature dying in response turn it on.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn cast_morbid_creature(game: &mut Game, definition: CardDefinitionId) -> GameObjectId {
     let creature = card(10_000, definition, PlayerId::One);
@@ -86,24 +85,6 @@ fn a_death_this_turn_adds_each_printed_counter_bonus() {
         assert_eq!(
             (game.power(creature), game.toughness(creature)),
             (Some(expected.0), Some(expected.1)),
-        );
-    }
-}
-
-#[test]
-fn every_morbid_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::FESTERHIDE_BOAR,
-        cards::SOMBERWALD_SPIDER,
-        cards::GRAVETILLER_WURM,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
         );
     }
 }

@@ -7,7 +7,6 @@
 //! is not one.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Energy Tap in player one's hand with `creature` on their battlefield.
 fn ready_to_tap(creature_definition: CardDefinitionId) -> (Game, GameObjectId, CardInstanceId) {
@@ -82,17 +81,5 @@ fn a_tapped_creature_is_not_a_legal_target() {
             .legal_actions(PlayerId::One)
             .iter()
             .any(|action| matches!(action, Action::CastSpell { card, .. } if *card == spell)),
-    );
-}
-
-#[test]
-fn energy_tap_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ENERGY_TAP)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

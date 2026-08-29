@@ -6,7 +6,6 @@
 //! cards.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Coral Helm and a hand of `hand_size` cards, ready to activate.
 fn helm_with_hand(seed: u64, hand_size: u32) -> (Game, GameObjectId) {
@@ -176,18 +175,4 @@ fn the_rag_man_reaches_past_the_lands_for_a_creature() {
         0,
         "a hand with no creature card in it loses nothing"
     );
-}
-
-#[test]
-fn both_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::CORAL_HELM, cards::DRACONIAN_CYLIX, cards::RAG_MAN] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

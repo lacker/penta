@@ -6,7 +6,6 @@
 //! empty board, where nobody controls the greatest anything.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one's upkeep with Triumph of Ferocity out, and creatures of the
 /// given powers under each player.
@@ -76,18 +75,4 @@ fn being_outclassed_draws_nothing_extra() {
 fn an_empty_board_is_not_the_greatest() {
     let mut game = upkeep_with(&[], &[]);
     assert_eq!(cards_drawn_over_upkeep(&mut game), 0);
-}
-
-#[test]
-fn every_triumph_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::TRIUMPH_OF_CRUELTY, cards::TRIUMPH_OF_FEROCITY] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

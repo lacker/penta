@@ -7,7 +7,6 @@
 //! phase.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn statued() -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -137,17 +136,5 @@ fn the_animation_ends_with_the_combat_not_the_turn() {
     assert!(
         !is_creature(&game, statue),
         "an artifact again in the postcombat main phase",
-    );
-}
-
-#[test]
-fn jade_statue_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::JADE_STATUE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

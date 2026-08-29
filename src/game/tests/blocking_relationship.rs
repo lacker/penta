@@ -7,7 +7,6 @@
 //! the end step.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Puts `attacker` and `blocker` into a committed block and runs the triggers.
 fn block(game: &mut Game, attacker: GameObjectId, blocker: GameObjectId) {
@@ -127,23 +126,4 @@ fn the_leprechaun_repaints_what_it_meets() {
         [false, false, false, false, true],
         "the creature it met is green and nothing else"
     );
-}
-
-#[test]
-fn every_blocking_relationship_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::COCKATRICE,
-        cards::THICKET_BASILISK,
-        cards::ABOMINATION,
-        cards::AISLING_LEPRECHAUN,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

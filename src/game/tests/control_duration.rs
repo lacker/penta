@@ -6,7 +6,6 @@
 //! back immediately.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn aladdin_game() -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -140,20 +139,6 @@ fn thrull_champion_pumps_the_thrull_it_steals() {
     );
 }
 
-#[test]
-fn both_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ALADDIN, cards::THRULL_CHAMPION] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// Rubinia Soulsinger and Willow Satyr pair a control change that lasts while
 /// they stay tapped with a choice not to untap. Each half is useless without
 /// the other: untapping would hand the creature straight back, and without the
@@ -234,19 +219,5 @@ mod held_while_tapped {
             )),
             "untapping is mandatory without a card saying otherwise"
         );
-    }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::RUBINIA_SOULSINGER, cards::WILLOW_SATYR] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

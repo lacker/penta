@@ -6,7 +6,6 @@
 //! both cannot satisfy one and let a second through the other.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one, several turns in, with `sources` already on the battlefield.
 fn board(sources: &[CardDefinitionId]) -> Game {
@@ -130,18 +129,4 @@ fn two_caps_each_narrow_their_own_group() {
     assert_eq!(most_untapped(&game, &artifacts), 1);
     let both: Vec<_> = lands.iter().chain(artifacts.iter()).copied().collect();
     assert_eq!(most_untapped(&game, &both), 2, "one from each group");
-}
-
-#[test]
-fn every_untap_cap_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::WINTER_ORB, cards::SMOKE, cards::DAMPING_FIELD] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

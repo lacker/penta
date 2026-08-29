@@ -115,28 +115,6 @@ fn spending_three_counters_makes_a_saproling() {
     );
 }
 
-/// Each card in the cycle spends its counters on a different capability, so
-/// this is also a check that those compose rather than merely coexist.
-#[test]
-fn every_spore_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::THALLID,
-        cards::THORN_THALLID,
-        cards::FERAL_THALLID,
-        cards::SPORE_FLOWER,
-        cards::FUNGAL_BLOOM,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// Two identities the first spore pass left behind. Their spore clauses were
 /// already built; what they add is a second use for the token those clauses
 /// make, spending a Saproling as an activation cost. That is the clause the
@@ -229,19 +207,5 @@ mod saproling_sacrifice {
             }),
             "only a Saproling pays this cost"
         );
-    }
-
-    #[test]
-    fn both_identities_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::ELVISH_FARMER, cards::THALLID_DEVOURER] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                crate::ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

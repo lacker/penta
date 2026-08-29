@@ -4,7 +4,6 @@
 //! direction-specific event kind.
 
 use super::*;
-use crate::ImplementationStatus;
 
 #[test]
 fn el_hajjaj_gains_life_equal_to_what_it_deals() {
@@ -99,18 +98,4 @@ fn spirit_link_ignores_a_creature_it_is_not_attached_to() {
         i16::from(rules::STARTING_LIFE) - 2,
         "the unenchanted creature's damage gains nothing"
     );
-}
-
-#[test]
-fn both_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::EL_HAJJAJ, cards::SPIRIT_LINK] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

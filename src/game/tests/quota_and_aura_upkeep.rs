@@ -5,7 +5,6 @@
 //! the halves easiest to get wrong.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -163,18 +162,4 @@ fn stab_wound_stays_quiet_on_the_wrong_upkeep() {
         before,
         "the trigger watches the creature's controller's upkeep only",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ROOTWALLA, cards::STAB_WOUND] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

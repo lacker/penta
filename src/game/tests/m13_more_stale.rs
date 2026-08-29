@@ -6,7 +6,6 @@
 //! before the ability is activated.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -186,22 +185,4 @@ fn the_archdruid_pumps_other_elves_only() {
     };
     assert_eq!(stats(&game, elf_id), (Some(2), Some(2)), "a 1/1 plus one");
     assert_eq!(stats(&game, druid_id), (Some(2), Some(2)), "printed size");
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DUTY_BOUND_DEAD,
-        cards::HAMLETBACK_GOLIATH,
-        cards::ELVISH_ARCHDRUID,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

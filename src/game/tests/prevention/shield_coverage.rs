@@ -90,17 +90,4 @@ mod shield_coverage {
         );
     }
 
-    #[test]
-    fn the_coverage_cards_report_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [cards::REVERSE_DAMAGE, cards::DARK_SPHERE] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                crate::ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
-    }
 }

@@ -6,7 +6,6 @@
 //! stack, which is what makes moving the Ring change the answer.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Ring already attached to a creature of the given definition.
 fn ring_on(ring: CardDefinitionId, creature_definition: CardDefinitionId) -> (Game, GameObjectId) {
@@ -90,24 +89,4 @@ fn the_ring_grants_its_keyword_while_attached() {
         .expect("the Ring is there")
         .attached_to = None;
     assert!(!has_haste(&game), "and loses it when the Ring comes off");
-}
-
-#[test]
-fn every_ring_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::RING_OF_EVOS_ISLE,
-        cards::RING_OF_KALONIA,
-        cards::RING_OF_THUNE,
-        cards::RING_OF_VALKAS,
-        cards::RING_OF_XATHRID,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

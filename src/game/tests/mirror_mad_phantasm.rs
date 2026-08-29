@@ -1,7 +1,6 @@
 //! Mirror-Mad Phantasm's owner-relative shuffle and reveal procedure.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -164,24 +163,5 @@ fn a_creature_that_gains_the_ability_mills_the_whole_library_when_no_name_matche
             .iter()
             .any(|permanent| permanent.card.definition == cards::SERRA_ANGEL),
         "nothing named Mirror-Mad Phantasm was found",
-    );
-}
-
-#[test]
-fn the_card_reports_complete_declarative_coverage() {
-    let game = ready();
-    let card = game
-        .catalog
-        .get(cards::MIRROR_MAD_PHANTASM)
-        .expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete
-    );
-    assert!(
-        card.rules
-            .ability_clauses()
-            .iter()
-            .all(|ability| ability.declarative_effect().is_some())
     );
 }

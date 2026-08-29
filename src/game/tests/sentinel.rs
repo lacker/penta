@@ -6,7 +6,6 @@
 //! indefinitely, so each use replaces the last rather than stacking.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The Sentinel blocking `attacker_power`, with the attacker under player two.
 fn blocking(attacker_power: i16) -> (Game, GameObjectId, GameObjectId) {
@@ -138,14 +137,4 @@ fn out_of_combat_it_is_not_offered() {
     assert!(!game.legal_actions(PlayerId::One).iter().any(
         |action| matches!(action, Action::ActivateAbility { source, .. } if *source == sentinel)
     ),);
-}
-
-#[test]
-fn sentinel_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::SENTINEL).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

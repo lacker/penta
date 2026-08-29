@@ -6,7 +6,6 @@
 //! sickness demonstrates.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn wall_board(definition: CardDefinitionId) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -137,22 +136,4 @@ fn a_spell_cast_can_free_the_cyclops_for_the_turn() {
         game.permanent_has_executable_keyword(permanent(&game, cyclops), KeywordAbility::Defender),
         "still a defender, still allowed to swing"
     );
-}
-
-#[test]
-fn every_attacking_wall_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ANIMATE_WALL,
-        cards::WALL_OF_WONDER,
-        cards::NIVIX_CYCLOPS,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

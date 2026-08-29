@@ -149,11 +149,19 @@ logic through unrelated engine paths.
 3. Reuse an existing primitive, add a shared primitive, attach card-local
    execution, or introduce a narrow special case according to the preference
    ladder above.
-4. Test the shared rule behavior and the card's exceptional result at the
-   narrowest useful level.
+4. Test new shared rule behavior once at the narrowest useful boundary. Add a
+   card-level test only for text-sensitive composition, a legality boundary,
+   or an interaction that could fail while the shared primitive still passes.
 5. Run final focused native checks for the changed behavior before handoff.
    Add browser validation only when the card work also changes a browser-facing
    contract or web code; leave aggregate integration coverage to PR CI.
+
+Before adding a card test, find the closest existing mechanic test. A second
+card using the same primitive does not need another happy-path dispatch test;
+extend the mechanic test only when the new card contributes a distinct case.
+Do not test a named card merely to assert derived implementation status, audit
+classification, or the absence of custom behavior. Source audits and generated
+catalog reports own those facts.
 
 ## Adding a set or fixed card pool
 

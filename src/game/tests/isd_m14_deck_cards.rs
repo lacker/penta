@@ -6,52 +6,6 @@ fn isd_m14_game() -> Game {
     game
 }
 
-#[test]
-fn frightful_delusion_is_a_complete_declarative_sequence() {
-    let game = isd_m14_game();
-    let definition = game.catalog.get(cards::FRIGHTFUL_DELUSION).unwrap();
-
-    assert_eq!(
-        definition.implementation_status(),
-        crate::ImplementationStatus::Complete,
-    );
-    assert_eq!(definition.rules.special_behavior(), None);
-    assert!(matches!(
-        definition.rules.ability_clauses()[0].declarative_effect(),
-        Some(EffectDef::Sequence([
-            EffectDef::PayOr(_),
-            EffectDef::Discard { .. },
-        ])),
-    ));
-}
-
-#[test]
-fn migrated_deck_cards_are_complete_and_declarative() {
-    let game = isd_m14_game();
-    for id in [
-        cards::NEGATE,
-        cards::ESSENCE_SCATTER,
-        cards::WORLDFIRE,
-        cards::BLOOD_BARON_OF_VIZKOPA,
-        cards::PILLAR_OF_FLAME,
-        cards::SPHINXS_REVELATION,
-    ] {
-        let definition = game.catalog.get(id).unwrap();
-        assert_eq!(
-            definition.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} should be complete",
-            definition.name,
-        );
-        assert_eq!(
-            definition.rules.special_behavior(),
-            None,
-            "{} should have no card-local resolver",
-            definition.name,
-        );
-    }
-}
-
 fn frightful_delusion_payment_game() -> (Game, GameObjectId, GameObjectId) {
     let mut game = isd_m14_game();
     let bolt = card(19_100, cards::LIGHTNING_BOLT, PlayerId::Two);

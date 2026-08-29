@@ -6,7 +6,6 @@
 //! branch does not depend on it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The War Machine under player one, with `hand` cards held.
 fn machined(hand: u32) -> (Game, GameObjectId) {
@@ -121,16 +120,4 @@ fn it_has_banding() {
         .find(|permanent| permanent.card.id == machine)
         .expect("still there");
     assert!(game.permanent_has_executable_keyword(permanent, KeywordAbility::Banding));
-}
-
-#[test]
-fn mishras_war_machine_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::MISHRA_S_WAR_MACHINE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

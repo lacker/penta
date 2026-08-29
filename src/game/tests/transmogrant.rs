@@ -4,7 +4,6 @@
 //! scoped to it surviving: the counter and the type both stay.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn transmogrified(target: CardDefinitionId) -> (Game, GameObjectId, bool) {
     let mut game = ready_game();
@@ -58,16 +57,4 @@ fn it_grows_the_creature_and_makes_it_an_artifact() {
 fn it_will_not_point_at_an_artifact_creature() {
     let (_game, _subject, offered) = transmogrified(cards::JUGGERNAUT);
     assert!(!offered);
-}
-
-#[test]
-fn the_transmogrant_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ASHNODS_TRANSMOGRANT)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

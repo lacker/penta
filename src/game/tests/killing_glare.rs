@@ -6,7 +6,6 @@
 //! "Power X or less" is inclusive at the boundary.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -125,16 +124,4 @@ fn it_destroys_the_creature_it_named() {
     drain_pending(&mut game);
 
     assert!(game.battlefield.is_empty(), "the bear was destroyed");
-}
-
-#[test]
-fn the_spell_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::KILLING_GLARE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

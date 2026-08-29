@@ -1,7 +1,6 @@
 //! Predicate-driven attack prohibitions and declaration costs.
 
 use super::*;
-use crate::ImplementationStatus;
 use crate::card::{AttackDefenderScopeDef, EffectRecipientSetDef};
 
 fn ready_attackers(definitions: &[CardDefinitionId]) -> (Game, Vec<GameObjectId>) {
@@ -294,24 +293,4 @@ fn callers_myriad_triggers_but_creates_nothing_in_a_two_player_game() {
             .count(),
         1
     );
-}
-
-#[test]
-fn the_attack_restriction_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ISLAND_SANCTUARY,
-        cards::MOAT,
-        cards::ELEPHANT_GRASS,
-        cards::ENSNARING_BRIDGE,
-        cards::CALLER_OF_THE_PACK,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name
-        );
-    }
 }

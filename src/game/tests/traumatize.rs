@@ -5,7 +5,6 @@
 //! library can show.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -106,16 +105,4 @@ fn an_empty_library_mills_nothing() {
     cast_at(&mut game, spell, PlayerId::Two);
 
     assert!(game.players[PlayerId::Two.index()].graveyard.is_empty());
-}
-
-#[test]
-fn the_spell_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::TRAUMATIZE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

@@ -6,7 +6,6 @@
 //! is asked while blockers are declared, long after static effects settle.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// One attacker for player one and `blocker` for player two, in the blocker
 /// step.
@@ -84,22 +83,4 @@ fn the_veteran_only_fears_big_white_creatures() {
         !can_block(&game, veteran),
         "a white 2/1 is exactly what it refuses"
     );
-}
-
-#[test]
-fn every_power_restriction_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::IRONCLAW_ORCS,
-        cards::BRASSCLAW_ORCS,
-        cards::ORCISH_VETERAN,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

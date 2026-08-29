@@ -7,7 +7,6 @@
 //! tells a sum apart from either half of it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The spell in hand with mana to cast it, and a Wall of Stone under
 /// `wall_controller`.
@@ -96,24 +95,6 @@ fn the_green_spells_will_not_aim_at_an_opponents_creature() {
                 .iter()
                 .any(|action| matches!(action, Action::CastSpell { card, .. } if *card == spell)),
             "{definition:?} should have nothing to aim at",
-        );
-    }
-}
-
-#[test]
-fn every_target_toughness_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::PREDATORS_RAPPORT,
-        cards::SHELTERING_WORD,
-        cards::TRIBUTE_TO_HUNGER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
         );
     }
 }

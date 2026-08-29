@@ -6,7 +6,6 @@
 //! left -- and it is only offered when a sorcery could be cast.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Slitherhead in the graveyard, a creature to grow, and enough mana that
 /// affordability is never the reason an activation is missing.
@@ -147,27 +146,4 @@ fn an_unaffordable_scavenge_is_not_offered() {
         scavenge_action(&game, dead_id, host_id).is_none(),
         "Deadbridge Goliath's scavenge is not free"
     );
-}
-
-#[test]
-fn every_scavenge_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::TERRUS_WURM,
-        cards::ZANIKEV_LOCUST,
-        cards::DEADBRIDGE_GOLIATH,
-        cards::DRUDGE_BEETLE,
-        cards::KOROZDA_MONITOR,
-        cards::DREG_MANGLER,
-        cards::SLUICEWAY_SCORPION,
-        cards::SLITHERHEAD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

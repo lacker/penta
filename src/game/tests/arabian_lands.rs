@@ -6,7 +6,6 @@
 //! setter Singing Tree wanted and the same reason it is only half of one.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Serra Angel attacking player two, with `land` untapped on their side.
 fn attacked_by_an_angel(land: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -113,18 +112,4 @@ fn the_island_ignores_a_ground_creature() {
     game.priority = PlayerId::Two;
 
     assert!(shoot(&game, land_id).is_none());
-}
-
-#[test]
-fn both_lands_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::DESERT, cards::ISLAND_OF_WAK_WAK] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

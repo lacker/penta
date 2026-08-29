@@ -1,7 +1,6 @@
 //! Cards whose printed abilities function while the card is in a graveyard.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -405,27 +404,4 @@ fn arclight_phoenix_counts_actual_instant_and_sorcery_casts() {
         permanent(&game, cards::ARCLIGHT_PHOENIX).controller,
         PlayerId::One
     );
-}
-
-#[test]
-fn all_eight_graveyard_effect_cards_are_complete_declarative_definitions() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DEARLY_DEPARTED,
-        cards::BRIDGE_FROM_BELOW,
-        cards::RIFTSTONE_PORTAL,
-        cards::REASSEMBLING_SKELETON,
-        cards::NETHER_SHADOW,
-        cards::ICHORID,
-        cards::BLOODGHAST,
-        cards::ARCLIGHT_PHOENIX,
-    ] {
-        let card = catalog.get(definition).expect("card is cataloged");
-        assert_eq!(
-            card.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully declarative",
-            card.name,
-        );
-    }
 }

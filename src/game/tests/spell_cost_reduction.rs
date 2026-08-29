@@ -5,7 +5,6 @@
 //! stack, and none of them can take a cost below its coloured requirements.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// What `spell` costs player one to cast, in total mana, with `sources` on
 /// the battlefield under `controller`.
@@ -132,23 +131,4 @@ fn a_discount_cannot_reach_the_coloured_cost() {
         .into_iter()
         .any(|action| matches!(action, Action::CastSpell { card: cast, .. } if cast == card));
     assert!(!castable, "and five colourless does not");
-}
-
-#[test]
-fn every_cost_reduction_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::GOBLIN_ELECTROMANCER,
-        cards::ARCANE_MELEE,
-        cards::PLANAR_GATE,
-        cards::MANA_MATRIX,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

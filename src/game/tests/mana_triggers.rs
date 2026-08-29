@@ -6,7 +6,6 @@
 //! both cards read wrong if the mana lands in the wrong pool.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn tap_for(game: &mut Game, player: PlayerId, land: GameObjectId, color: ManaColor) {
     // A mana ability still wants its controller to hold priority.
@@ -120,18 +119,4 @@ fn the_gauntlet_pumps_red_creatures_and_ignores_other_lands() {
         1,
         "a Plains is not a Mountain"
     );
-}
-
-#[test]
-fn both_identities_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::WILD_GROWTH, cards::GAUNTLET_OF_MIGHT] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

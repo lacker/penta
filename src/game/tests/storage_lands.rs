@@ -7,7 +7,6 @@
 //! unanswered question.
 
 use super::*;
-use crate::ImplementationStatus;
 
 const STORAGE_LANDS: [(CardDefinitionId, ManaColor); 5] = [
     (cards::BOTTOMLESS_VAULT, ManaColor::Black),
@@ -154,19 +153,5 @@ fn cashing_in_spends_the_counters_and_pays_that_colour() {
         let pool = game.players[PlayerId::One.index()].mana_pool;
         assert_eq!(pool.total(), 3, "{definition:?} paid three");
         assert_eq!(pool.amount(color), 3, "{definition:?} paid its colour");
-    }
-}
-
-#[test]
-fn every_storage_land_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for (definition, _) in STORAGE_LANDS {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

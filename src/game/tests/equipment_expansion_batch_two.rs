@@ -3,7 +3,6 @@
 //! and an Equipment that unattaches itself before transforming.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -307,37 +306,4 @@ fn elbrus_unattaches_then_transforms_after_the_equipped_creature_hits_a_player()
         assert!(game.permanent_has_executable_keyword(withengar, keyword));
     }
     assert_eq!(game.power(permanent(&game, host)), Some(2));
-}
-
-#[test]
-fn batch_two_coverage_is_complete_except_for_withengars_terminal_trigger() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::WOODEN_STAKE,
-        cards::CIVIC_SABER,
-        cards::HAUNTED_PLATE_MAIL,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-    let elbrus = catalog
-        .get(cards::ELBRUS_THE_BINDING_BLADE)
-        .expect("Elbrus is cataloged");
-    assert_eq!(
-        elbrus.implementation_status(),
-        ImplementationStatus::Partial
-    );
-    let back = elbrus
-        .part(CardPartId(1))
-        .expect("Withengar is the back face");
-    assert!(back.rules.ability_clauses().iter().any(|ability| {
-        ability.text.starts_with("Whenever a player loses the game")
-            && !ability.is_executable()
-            && ability.coverage.explanation.is_some()
-    }));
 }

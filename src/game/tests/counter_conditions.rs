@@ -7,7 +7,6 @@
 //! ceasing to apply.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn homarid_at(tide: u16) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -104,22 +103,4 @@ fn the_moneychanger_pays_out_per_counter() {
         before + 4,
         "one life for each of the four counters"
     );
-}
-
-#[test]
-fn every_counter_condition_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::MERCHANT_SHIP,
-        cards::ICATIAN_MONEYCHANGER,
-        cards::HOMARID,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

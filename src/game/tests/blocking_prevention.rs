@@ -6,7 +6,6 @@
 //! or leaving changes the answer without the Wall being touched.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A big attacker for player one, blocked by `wall` for player two.
 fn blocked_by(wall: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -264,24 +263,4 @@ fn ghostly_possession_shields_both_directions() {
 
     assert_eq!(damage_on(&game, blocker), 0, "it dealt nothing");
     assert_eq!(damage_on(&game, attacker), 0, "and took nothing");
-}
-
-#[test]
-fn every_wall_identity_reports_its_audited_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for (definition, expected) in [
-        (cards::WALL_OF_VAPOR, ImplementationStatus::Complete),
-        (cards::WALL_OF_PUTRID_FLESH, ImplementationStatus::Complete),
-        (cards::WALL_OF_SHADOWS, ImplementationStatus::Partial),
-        (cards::ENCHANTED_BEING, ImplementationStatus::Complete),
-        (cards::DEMONIC_TORMENT, ImplementationStatus::Complete),
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            expected,
-            "{} reports the coverage its audit line claims",
-            card.name,
-        );
-    }
 }

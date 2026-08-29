@@ -7,7 +7,6 @@
 //! permission would stop after one block.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one attacking with `attackers` Sedge Trolls, player two holding one
 /// blocker, and Blaze of Glory in player one's hand.
@@ -131,16 +130,4 @@ fn an_ordinary_blocker_blocks_once_and_may_decline() {
         "one block is all it gets"
     );
     assert!(may_finish(&game));
-}
-
-#[test]
-fn blaze_of_glory_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::BLAZE_OF_GLORY)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

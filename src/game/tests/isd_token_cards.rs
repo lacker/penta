@@ -6,7 +6,6 @@
 //! Endless Ranks rounds down, so one Zombie makes none.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -129,22 +128,4 @@ fn endless_ranks_rounds_the_zombie_count_down() {
     assert_eq!(upkeep_with(1), 0, "half of one, rounded down");
     assert_eq!(upkeep_with(2), 1);
     assert_eq!(upkeep_with(5), 2, "half of five, rounded down");
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::INTANGIBLE_VIRTUE,
-        cards::ARMY_OF_THE_DAMNED,
-        cards::ENDLESS_RANKS_OF_THE_DEAD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

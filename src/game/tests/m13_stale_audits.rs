@@ -6,7 +6,6 @@
 //! Sleep only the targeted player's creatures.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -131,18 +130,4 @@ fn sleep_taps_and_holds_only_the_targeted_players_creatures() {
     game.commit_next_turn(PlayerId::Two, Vec::new());
     drain_pending(&mut game);
     assert!(!tapped(&game, theirs_id), "back a cycle later");
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::MASTER_OF_THE_PEARL_TRIDENT, cards::SLEEP] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

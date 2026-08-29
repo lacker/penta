@@ -6,7 +6,6 @@
 //! one. The clause therefore travels with the move.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -116,16 +115,4 @@ fn it_recurs_from_your_own_graveyard() {
         "still black",
     );
     assert!(game.object_subtypes(id).contains(&"Zombie"));
-}
-
-#[test]
-fn the_spell_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::RISE_FROM_THE_GRAVE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

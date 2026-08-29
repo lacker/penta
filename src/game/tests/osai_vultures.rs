@@ -5,7 +5,6 @@
 //! two at a time, which is what makes a quiet turn worth nothing to it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Vultures under player one, with `carrion` already on them.
 fn vultures_out(carrion: u16) -> (Game, GameObjectId) {
@@ -94,16 +93,4 @@ fn one_counter_cannot_be_spent() {
     assert!(!game.legal_actions(PlayerId::One).iter().any(|action| {
         matches!(action, Action::ActivateAbility { source, .. } if *source == vultures)
     }),);
-}
-
-#[test]
-fn the_vultures_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::OSAI_VULTURES)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

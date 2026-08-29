@@ -7,7 +7,6 @@
 //! asks the permanent's controller rather than its own.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -231,18 +230,4 @@ fn the_curse_charges_two_unless_the_artifact_goes() {
             .any(|permanent| permanent.card.id == artifact),
         "and the artifact went",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ELDER_SPAWN, cards::CURSE_ARTIFACT] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

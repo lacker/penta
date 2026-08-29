@@ -7,7 +7,7 @@
 //! option.
 
 use super::*;
-use crate::{AdditionalCostObjectIndex, ImplementationStatus};
+use crate::AdditionalCostObjectIndex;
 
 /// Makeshift Mauler in hand, mana to cast it, and `fodder` creature cards in
 /// the graveyard.
@@ -284,27 +284,4 @@ fn ichor_explosion_uses_the_sacrificed_creatures_effective_power() {
         .expect("a 4/4 survives -3/-3");
     assert_eq!(game.power(survivor), Some(1));
     assert_eq!(game.toughness(survivor), Some(1));
-}
-
-#[test]
-fn every_additional_cost_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ALTARS_REAP,
-        cards::WILD_GUESS,
-        cards::MAKESHIFT_MAULER,
-        cards::STITCHED_DRAKE,
-        cards::HEADLESS_SKAAB,
-        cards::RELENTLESS_SKAABS,
-        cards::CORPSE_LUNGE,
-        cards::ICHOR_EXPLOSION,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

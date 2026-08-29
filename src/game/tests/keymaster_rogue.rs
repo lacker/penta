@@ -6,7 +6,6 @@
 //! the Rogue returns itself.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -164,16 +163,4 @@ fn it_cannot_be_blocked() {
     };
     assert!(!offered(rogue_id), "nothing may block it");
     assert!(offered(ordinary_id), "though that blocker can block");
-}
-
-#[test]
-fn the_rogue_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::KEYMASTER_ROGUE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

@@ -9,7 +9,6 @@
 //! the Orgg without either creature being touched.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// An Orgg for player one, with `deterrent` under player two.
 fn orgg_facing(deterrent: Option<CardDefinitionId>) -> (Game, GameObjectId, Option<GameObjectId>) {
@@ -80,14 +79,4 @@ fn its_own_big_creature_does_not_stop_it() {
         .push(creature(10_002, cards::SERRA_ANGEL, PlayerId::One));
 
     assert!(can_attack(&game, orgg));
-}
-
-#[test]
-fn orgg_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::ORGG).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

@@ -6,7 +6,6 @@
 //! ability at sorcery speed and simply stays put.
 
 use super::*;
-use crate::ImplementationStatus;
 
 const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_090);
 const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
@@ -380,24 +379,4 @@ fn a_conditional_bonus_follows_the_attachment() {
         (Some(2), Some(1)),
         "and the Cat is back to printed"
     );
-}
-
-#[test]
-fn every_equipment_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::COBBLED_WINGS,
-        cards::SKYBLINDER_STAFF,
-        cards::BUTCHERS_CLEAVER,
-        cards::SHARPENED_PITCHFORK,
-        cards::SILVER_INLAID_DAGGER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

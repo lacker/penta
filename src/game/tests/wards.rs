@@ -6,7 +6,6 @@
 //! White Ward would fall off the instant it worked.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A creature with one Ward on it, both controlled by the same player.
 fn warded(ward: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -97,24 +96,4 @@ fn a_ward_does_not_protect_a_different_aura_from_falling_off() {
         "an Aura attached to nothing still dies"
     );
     assert!(on_battlefield(&game, ward_id) && on_battlefield(&game, host_id));
-}
-
-#[test]
-fn every_ward_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BLACK_WARD,
-        cards::BLUE_WARD,
-        cards::GREEN_WARD,
-        cards::RED_WARD,
-        cards::WHITE_WARD,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

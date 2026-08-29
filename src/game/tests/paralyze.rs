@@ -6,7 +6,6 @@
 //! worth anything, so both halves are checked together.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player two's Troll under player one's Paralyze, with `mana` colorless
 /// available to the named player.
@@ -165,15 +164,5 @@ fn the_aura_controllers_upkeep_offers_nothing() {
         game.players[PlayerId::One.index()].mana_pool.colorless,
         8,
         "their mana was never asked for",
-    );
-}
-
-#[test]
-fn paralyze_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::PARALYZE).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

@@ -6,7 +6,6 @@
 //! Aura on something else never counts at all.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn wombat_board() -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -102,14 +101,4 @@ fn an_aura_elsewhere_does_not_count() {
     );
 
     assert_eq!(stats(&game, wombat), (Some(0), Some(1)));
-}
-
-#[test]
-fn rabid_wombat_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::RABID_WOMBAT).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

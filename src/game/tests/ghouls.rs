@@ -6,7 +6,6 @@
 //! regeneration at a time.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// `ghoul` on the battlefield with `fodder` creatures alongside it under
 /// player two.
@@ -151,18 +150,4 @@ fn an_empty_bank_offers_no_regeneration() {
     assert!(!game.legal_actions(PlayerId::One).iter().any(
         |action| matches!(action, Action::ActivateAbility { source, .. } if *source == ghoul)
     ),);
-}
-
-#[test]
-fn both_ghouls_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::KHABAL_GHOUL, cards::SCAVENGING_GHOUL] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

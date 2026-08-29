@@ -6,7 +6,6 @@
 //! all give a different answer.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A 4/4 Serra Angel, a 0/8 Wall, and a 2/2 bear under player one, plus a
 /// bigger creature the opponent controls that must not be counted.
@@ -137,22 +136,4 @@ fn garruk_draws_the_greatest_power() {
         before + 4,
         "four cards for the Angel's four power",
     );
-}
-
-#[test]
-fn both_new_spells_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ESSENCE_HARVEST,
-        cards::FUNGAL_SPROUTING,
-        cards::GARRUK_PRIMAL_HUNTER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -1,7 +1,7 @@
 //! Printed cards that exercise flexible mana symbols and the untap symbol.
 
 use super::*;
-use crate::{FlexibleManaSymbol, ImplementationStatus, TokenCharacteristics};
+use crate::{FlexibleManaSymbol, TokenCharacteristics};
 
 fn tamiyos_notebook(catalog: &CardCatalog) -> TokenCharacteristics {
     let ability = catalog
@@ -100,27 +100,6 @@ fn flexible_symbol_cards_keep_their_exact_catalog_metadata() {
     let catalog = poc::catalog().expect("catalog builds");
     assert_flexible_card_printings(&catalog);
 
-    assert_eq!(
-        catalog
-            .get(cards::GUT_SHOT)
-            .expect("cataloged")
-            .implementation_status(),
-        ImplementationStatus::Complete,
-    );
-    assert_eq!(
-        catalog
-            .get(cards::BARKSHELL_BLESSING)
-            .expect("cataloged")
-            .implementation_status(),
-        ImplementationStatus::Partial,
-    );
-    assert_eq!(
-        catalog
-            .get(cards::BESEECH_THE_QUEEN)
-            .expect("cataloged")
-            .implementation_status(),
-        ImplementationStatus::Complete,
-    );
     let ulalek = catalog
         .get(cards::ULALEK_FUSED_ATROCITY)
         .expect("cataloged");
@@ -128,42 +107,13 @@ fn flexible_symbol_cards_keep_their_exact_catalog_metadata() {
         ulalek.rules.colors().iter().all(|present| !present),
         "devoid is represented as colorless printed metadata",
     );
-    assert!(
-        ulalek
-            .rules
-            .ability_clauses()
-            .iter()
-            .all(|ability| ability.coverage.status == ImplementationStatus::MetadataOnly),
-        "Ulalek's card-specific clauses are explicitly metadata-only",
-    );
-    assert_eq!(
-        ulalek.implementation_status(),
-        ImplementationStatus::MetadataOnly,
-        "Ulalek's printed body is catalog metadata rather than an executable vanilla creature",
-    );
     let tamiyo = catalog
         .get(cards::TAMIYO_COMPLEATED_SAGE)
         .expect("cataloged");
     assert_eq!(
-        tamiyo.implementation_status(),
-        ImplementationStatus::Partial
-    );
-    assert_eq!(
         tamiyo.rules.ability_clauses()[0].text,
         "Compleated ({G/U/P} can be paid with {G}, {U}, or 2 life. If life was paid, this planeswalker enters with two fewer loyalty counters.)",
         "Tamiyo keeps her printing-specific Compleated reminder text",
-    );
-    assert_eq!(
-        catalog
-            .get(cards::FARMSTEAD_GLEANER)
-            .expect("cataloged")
-            .implementation_status(),
-        ImplementationStatus::Complete,
-    );
-    assert_eq!(
-        tamiyos_notebook(&catalog).rules().implementation_status(),
-        ImplementationStatus::Partial,
-        "the Notebook's fixed generic reduction works, but announced X is not reduced yet",
     );
 }
 

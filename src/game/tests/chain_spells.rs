@@ -135,25 +135,3 @@ fn chain_of_acid_uses_last_known_controller_then_destroys_the_copys_target() {
         "the copy destroyed its separately chosen target",
     );
 }
-
-#[test]
-fn all_three_requested_chains_are_fully_declarative() {
-    let game = ready_game();
-    for definition in [
-        cards::CHAIN_LIGHTNING,
-        cards::CHAIN_OF_SILENCE,
-        cards::CHAIN_OF_ACID,
-    ] {
-        let card = game
-            .catalog
-            .get(definition)
-            .expect("the chain is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            crate::ImplementationStatus::Complete
-        );
-        assert!(card.rules.ability_clauses().iter().all(|ability| {
-            matches!(ability.effect.execution, EffectExecutionDef::Declarative)
-        }),);
-    }
-}

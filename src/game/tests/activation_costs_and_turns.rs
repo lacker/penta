@@ -560,53 +560,6 @@ fn wheel_discards_both_hands_and_draws_seven() {
 }
 
 #[test]
-fn wheel_and_timetwister_resolve_as_shared_declarative_spells() {
-    let game = ready_game();
-    for definition in [cards::WHEEL_OF_FORTUNE, cards::TIMETWISTER] {
-        let card = game
-            .catalog
-            .get(definition)
-            .expect("card is in the catalog");
-        let [ability] = card.rules.ability_clauses() else {
-            panic!("the spell has one printed clause")
-        };
-        assert!(matches!(
-            ability.definition,
-            DeclarativeAbilityDef::Spell(_)
-        ));
-        assert_eq!(ability.effect.execution, EffectExecutionDef::Declarative);
-        assert!(matches!(
-            ability.declarative_effect(),
-            Some(EffectDef::Sequence(_))
-        ));
-        assert_eq!(ability.custom_behavior(), None);
-    }
-
-    let wheel = game
-        .catalog
-        .get(cards::WHEEL_OF_FORTUNE)
-        .expect("Wheel is in the catalog");
-    let [ability] = wheel.rules.ability_clauses() else {
-        panic!("Wheel has one printed clause")
-    };
-    assert!(matches!(
-        ability.declarative_effect(),
-        Some(EffectDef::Sequence([
-            EffectDef::Discard {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::Constant(i32::MAX),
-                selection: DiscardSelectionDef::RecipientChooses,
-                then: None,
-            },
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::EachPlayer,
-                amount: ValueDef::Constant(7),
-            },
-        ]))
-    ));
-}
-
-#[test]
 fn wheel_draws_in_active_player_order_when_cast_by_the_nonactive_player() {
     let mut game = ready_game();
     let wheel = card(10_000, cards::WHEEL_OF_FORTUNE, PlayerId::One);

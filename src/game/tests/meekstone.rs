@@ -6,7 +6,6 @@
 //! card, and it is also the half a snapshot implementation would get wrong.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Both players' creatures tapped, with a Meekstone under player two.
 fn meekstone_board() -> (Game, GameObjectId, GameObjectId) {
@@ -102,14 +101,4 @@ fn it_holds_its_own_controllers_creatures_too() {
     take_turn(&mut game, PlayerId::Two);
 
     assert!(is_tapped(&game, theirs_id));
-}
-
-#[test]
-fn meekstone_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::MEEKSTONE).expect("cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

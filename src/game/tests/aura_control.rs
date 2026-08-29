@@ -5,7 +5,6 @@
 //! another effect moves it to a different legal host.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player two owns `host`; player one casts `aura` onto it.
 fn stolen(aura: CardDefinitionId, host: CardDefinitionId) -> (Game, GameObjectId, GameObjectId) {
@@ -144,19 +143,5 @@ fn both_control_clauses_are_static_abilities() {
             control.definition,
             DeclarativeAbilityDef::Static(_)
         ));
-    }
-}
-
-#[test]
-fn both_auras_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::CONTROL_MAGIC, cards::STEAL_ARTIFACT] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

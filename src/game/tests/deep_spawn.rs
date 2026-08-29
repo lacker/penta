@@ -6,7 +6,6 @@
 //! outlive the turn it was created on to do anything at all.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Deep Spawn on the battlefield with `library` cards under player one.
 fn spawned(library: u32) -> (Game, GameObjectId) {
@@ -140,17 +139,5 @@ fn hiding_taps_it_and_holds_it_down_through_the_next_untap_step() {
     assert!(
         tapped(&game),
         "and it stays down through the untap step that follows",
-    );
-}
-
-#[test]
-fn deep_spawn_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::DEEP_SPAWN)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

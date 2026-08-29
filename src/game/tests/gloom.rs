@@ -5,7 +5,6 @@
 //! the offer and the payment have to agree about the price.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A board with `glooms` copies of Gloom under player two.
 fn under_gloom(glooms: u32) -> Game {
@@ -149,15 +148,5 @@ fn activating_spends_the_increased_cost() {
         game.players[PlayerId::One.index()].mana_pool.white,
         1,
         "four spent, not one",
-    );
-}
-
-#[test]
-fn gloom_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog.get(cards::GLOOM).expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

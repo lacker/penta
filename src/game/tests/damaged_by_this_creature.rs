@@ -6,7 +6,6 @@
 //! read the corpse afterwards, one for its toughness and one to put it back.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -174,18 +173,4 @@ fn a_return_trigger_does_not_follow_a_second_zone_change() {
         hand_before,
         "the card was not returned to hand",
     );
-}
-
-#[test]
-fn both_zombies_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ABATTOIR_GHOUL, cards::DREAD_SLAVER] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

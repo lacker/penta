@@ -6,7 +6,6 @@
 //! nearest cleanup.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn detained_board(victim: CardDefinitionId) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -149,28 +148,4 @@ fn detain_works_from_an_activated_ability() {
         !can_activate(&game, victim_id),
         "detained by an activated ability just the same"
     );
-}
-
-#[test]
-fn every_detain_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::AZORIUS_ARRESTER,
-        cards::AZORIUS_JUSTICIAR,
-        cards::MARTIAL_LAW,
-        cards::INACTION_INJUNCTION,
-        cards::ISPERIAS_SKYWATCH,
-        cards::ARCHON_OF_THE_TRIUMVIRATE,
-        cards::LYEV_SKYKNIGHT,
-        cards::LYEV_DECREE,
-        cards::NEW_PRAHV_GUILDMAGE,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

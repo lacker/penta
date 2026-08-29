@@ -7,7 +7,6 @@
 //! cannot be folded into the flat one.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn burn(game: &mut Game, source: GameObjectId, amount: u16) -> i16 {
     let before = game.players[PlayerId::One.index()].life;
@@ -120,18 +119,4 @@ fn the_amulet_caps_spell_damage_and_leaves_the_rest() {
         2,
         "a Bolt's three becomes two"
     );
-}
-
-#[test]
-fn every_damage_limit_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::ALI_FROM_CAIRO, cards::FORETHOUGHT_AMULET] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

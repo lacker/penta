@@ -1,41 +1,6 @@
 use super::*;
 
 #[test]
-fn migrated_targeted_answers_are_fully_declarative() {
-    let game = ready_game();
-    for definition in [
-        cards::DOOM_BLADE,
-        cards::SWORDS_TO_PLOWSHARES,
-        cards::DIVINE_OFFERING,
-        cards::DISPEL,
-        cards::DISSIPATE,
-        cards::PUTREFY,
-        cards::ULTIMATE_PRICE,
-        cards::WARLEADERS_HELIX,
-    ] {
-        let definition = game.catalog.get(definition).unwrap();
-        assert_eq!(
-            definition.rules.special_behavior(),
-            None,
-            "{} should not retain a card-local resolver",
-            definition.name,
-        );
-        let ability = definition
-            .rules
-            .ability_clauses()
-            .iter()
-            .find(|ability| matches!(ability.definition, DeclarativeAbilityDef::Spell(_)))
-            .unwrap_or_else(|| panic!("{} should declare its spell procedure", definition.name));
-        assert_eq!(ability.effect.execution, EffectExecutionDef::Declarative);
-        assert!(
-            ability.declarative_effect().is_some(),
-            "{} should resolve through the shared effect interpreter",
-            definition.name,
-        );
-    }
-}
-
-#[test]
 fn divine_offering_uses_the_destroyed_artifacts_last_known_mana_value() {
     let mut game = ready_game();
     let artifact = creature(10_001, cards::JUGGERNAUT, PlayerId::Two);

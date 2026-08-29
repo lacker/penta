@@ -3,17 +3,6 @@
 
 use super::*;
 
-const REQUESTED: [CardDefinitionId; 8] = [
-    cards::NEVERMORE,
-    cards::PITHING_NEEDLE,
-    cards::DISRUPTOR_FLUTE,
-    cards::SORCEROUS_SPYGLASS,
-    cards::ALPINE_MOON,
-    cards::ANOINTED_PEACEKEEPER,
-    cards::BOOBY_TRAP,
-    cards::CABAL_THERAPY,
-];
-
 fn pending_choice(game: &Game, player: PlayerId) -> DecisionObservation {
     game.observe(player)
         .decision
@@ -68,28 +57,6 @@ fn has_mana_activation(game: &Game, player: PlayerId, source: GameObjectId) -> b
     game.legal_actions(player).iter().any(
         |action| matches!(action, Action::ActivateManaAbility { source: candidate, .. } if *candidate == source),
     )
-}
-
-#[test]
-fn requested_named_card_definitions_are_complete_and_declarative() {
-    let catalog = poc::catalog().expect("the catalog builds");
-    for identity in REQUESTED {
-        let definition = catalog
-            .get(identity)
-            .expect("the requested card is cataloged");
-        assert_eq!(
-            definition.rules.implementation_status(),
-            crate::ImplementationStatus::Complete,
-            "{} is complete",
-            definition.name,
-        );
-        assert_eq!(
-            definition.rules.special_behavior(),
-            None,
-            "{} uses shared declarative mechanics",
-            definition.name,
-        );
-    }
 }
 
 #[test]

@@ -6,7 +6,6 @@
 //! as it last was, pumps included, rather than from its printed stats.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// An Aura on a creature, both controlled by player one.
 fn enchanted(aura: CardDefinitionId, pump: i16) -> (Game, GameObjectId) {
@@ -131,18 +130,4 @@ fn dying_wish_drains_the_chosen_player() {
         before[0] + 3,
         "and its controller gained three"
     );
-}
-
-#[test]
-fn murder_investigation_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::MURDER_INVESTIGATION, cards::DYING_WISH] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

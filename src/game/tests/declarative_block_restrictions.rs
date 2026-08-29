@@ -1,7 +1,6 @@
 //! Participant-scoped blocking restrictions and declaration costs.
 
 use super::*;
-use crate::ImplementationStatus;
 use crate::card::{BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef};
 
 const TAXED_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_170);
@@ -439,28 +438,5 @@ fn prophecy_brawlers_switch_both_restrictions_with_untapped_lands() {
             .expect("the land remains")
             .tapped = true;
         assert!(game.legal_actions(PlayerId::One).contains(&attack));
-    }
-}
-
-#[test]
-fn the_new_block_restriction_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::TOWER_OF_COIREALL,
-        cards::CHAMPION_OF_LAMBHOLT,
-        cards::CYCLOPS_TYRANT,
-        cards::SEISMIC_STOMP,
-        cards::AWE_FOR_THE_GUILDS,
-        cards::AMROU_KITHKIN,
-        cards::BRANDED_BRAWLERS,
-        cards::VETERAN_BRAWLERS,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

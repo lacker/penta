@@ -1,7 +1,6 @@
 //! Bloodline Keeper's live Vampire count, transform, anthem, and shared token ability.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn staged() -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -143,7 +142,7 @@ fn the_shared_tap_ability_creates_a_black_two_two_flying_vampire() {
 }
 
 #[test]
-fn both_faces_are_flying_and_the_definition_is_complete() {
+fn both_faces_are_flying() {
     let (mut game, keeper) = staged();
     assert!(
         game.permanent_has_executable_keyword(permanent(&game, keeper), KeywordAbility::Flying)
@@ -151,13 +150,5 @@ fn both_faces_are_flying_and_the_definition_is_complete() {
     game.transform_permanent(keeper);
     assert!(
         game.permanent_has_executable_keyword(permanent(&game, keeper), KeywordAbility::Flying)
-    );
-    assert_eq!(
-        game.catalog
-            .get(cards::BLOODLINE_KEEPER)
-            .expect("Bloodline Keeper is cataloged")
-            .rules
-            .implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

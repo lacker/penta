@@ -6,7 +6,6 @@
 //! goes on the stack pointing at a creature.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A board with a creature to point at and, if `a_death`, one creature
 /// already dead this turn.
@@ -170,23 +169,4 @@ fn hollowhenge_scavenger_gains_five_only_when_something_died() {
         i16::from(rules::STARTING_LIFE),
         "a quiet turn gains nothing",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::WAKEDANCER,
-        cards::ULVENWALD_BEAR,
-        cards::MORKRUT_BANSHEE,
-        cards::HOLLOWHENGE_SCAVENGER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

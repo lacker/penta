@@ -6,7 +6,6 @@
 //! threat one player builds alone.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Clock under player one carrying `counters`, with `mana` colorless in
 /// each player's pool.
@@ -107,17 +106,5 @@ fn an_unwound_clock_deals_nothing() {
     assert_eq!(
         game.players[PlayerId::One.index()].life,
         i16::from(rules::STARTING_LIFE),
-    );
-}
-
-#[test]
-fn the_clock_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ARMAGEDDON_CLOCK)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

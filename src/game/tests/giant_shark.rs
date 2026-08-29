@@ -5,7 +5,6 @@
 //! the Shark reads a separate flag that only the turn boundary clears.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -159,17 +158,5 @@ fn the_shark_needs_islands_on_both_sides() {
             .iter()
             .any(|permanent| permanent.card.id == shark_id),
         "no Islands, no Shark",
-    );
-}
-
-#[test]
-fn the_shark_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::GIANT_SHARK)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

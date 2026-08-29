@@ -1,18 +1,8 @@
 use super::*;
 
 #[test]
-fn earthquake_is_declarative_and_checks_flying_on_resolution() {
+fn earthquake_checks_flying_on_resolution() {
     let mut game = ready_game();
-    let definition = game.catalog.get(cards::EARTHQUAKE).unwrap();
-    assert_eq!(definition.rules.special_behavior(), None);
-    assert!(
-        definition
-            .rules
-            .ability_clauses()
-            .iter()
-            .all(|ability| ability.declarative_effect().is_some())
-    );
-
     let earthquake = card(10_000, cards::EARTHQUAKE, PlayerId::One);
     let ground_creature = creature(10_001, cards::SU_CHI, PlayerId::Two);
     let granted_flying = creature(10_002, cards::SAVANNAH_LIONS, PlayerId::One);

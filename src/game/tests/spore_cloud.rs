@@ -6,7 +6,6 @@
 //! same time, and each creature sits out its own controller's.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player one attacking with two creatures, player two blocking one of them,
 /// and Spore Cloud in player two's hand.
@@ -170,17 +169,5 @@ fn a_creature_outside_combat_is_not_affected() {
     assert!(
         !tapped(&game, bystander_id),
         "it untapped on schedule, skipping nothing",
-    );
-}
-
-#[test]
-fn spore_cloud_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::SPORE_CLOUD)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

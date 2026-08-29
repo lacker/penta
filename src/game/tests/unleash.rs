@@ -6,7 +6,6 @@
 //! ask rather than assume.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn enter(accept: bool) -> (Game, GameObjectId) {
     let mut game = ready_game();
@@ -113,27 +112,4 @@ fn the_counter_is_what_stops_it_blocking() {
         can_block_for_owner(&restrained, restrained_id),
         "and declining keeps its blocking"
     );
-}
-
-#[test]
-fn every_unleash_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::DEAD_REVELER,
-        cards::THRILL_KILL_ASSASSIN,
-        cards::BLOODFRAY_GIANT,
-        cards::GORE_HOUSE_CHAINWALKER,
-        cards::SPLATTER_THUG,
-        cards::CARNIVAL_HELLSTEED,
-        cards::SPAWN_OF_RIX_MAADI,
-        cards::RAKDOS_CACKLER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

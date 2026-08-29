@@ -93,18 +93,3 @@ fn the_defending_player_can_direct_the_attackers_damage() {
         "the assignment was accepted from the defending player"
     );
 }
-
-/// Every job banding has is now done, so a card that prints it may claim to
-/// be complete.
-#[test]
-fn banding_reports_itself_complete() {
-    let banding = crate::card::abilities::banding();
-    assert_eq!(
-        banding.coverage.status,
-        crate::ImplementationStatus::Complete,
-    );
-    assert!(
-        banding.is_executable(),
-        "the keyword is executed, not metadata"
-    );
-}

@@ -6,7 +6,6 @@
 //! on the recipient, so tapping the bodyguard turns it off.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn damage_on(game: &Game, permanent: GameObjectId) -> u16 {
     game.battlefield
@@ -172,22 +171,4 @@ fn the_night_stalker_guards_against_the_attacker_it_named() {
         2,
         "and the 2/2 it named hit the Stalker"
     );
-}
-
-#[test]
-fn every_bodyguard_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::VETERAN_BODYGUARD,
-        cards::MARTYRS_OF_KORLIS,
-        cards::SHIMIAN_NIGHT_STALKER,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

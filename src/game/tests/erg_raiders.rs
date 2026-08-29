@@ -6,7 +6,6 @@
 //! could not have attacked with it anyway.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Erg Raiders under player one at their end step. `turns_out` is how many of
 /// their turns have passed since it arrived, and `attacked` whether it went.
@@ -51,16 +50,4 @@ fn the_turn_it_arrives_is_free() {
     let game = end_step_with_raiders(0, false);
 
     assert_eq!(life(&game), i16::from(rules::STARTING_LIFE));
-}
-
-#[test]
-fn erg_raiders_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::ERG_RAIDERS)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

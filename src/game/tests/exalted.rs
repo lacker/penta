@@ -7,7 +7,6 @@
 //! flags.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn attack_with(game: &mut Game, attackers: &[GameObjectId]) {
     game.step = Step::DeclareAttackers;
@@ -107,27 +106,6 @@ fn the_exalted_creature_pumps_itself_when_it_attacks_alone() {
     assert_eq!(power_of(&game, squire_id), 2);
 }
 
-#[test]
-fn every_exalted_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::ANGELIC_BENEDICTION,
-        cards::AVEN_SQUIRE,
-        cards::GUARDIANS_OF_AKRASA,
-        cards::DUSKMANTLE_PROWLER,
-        cards::SERVANT_OF_NEFAROX,
-        cards::CATHEDRAL_OF_WAR,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
-}
-
 /// Battalion, which asks the same event a different question: three or more
 /// attackers rather than exactly one. Both are decided by the declaration, so
 /// neither can be a condition rechecked when the ability resolves -- which is
@@ -186,28 +164,5 @@ mod battalion {
         attack_with(&mut game, &allies);
 
         assert_eq!(power_of(&game, elite_id), 1);
-    }
-
-    #[test]
-    fn every_battalion_identity_reports_complete_coverage() {
-        let catalog = poc::catalog().expect("catalog builds");
-        for definition in [
-            cards::BOROS_ELITE,
-            cards::DARING_SKYJEK,
-            cards::NAV_SQUAD_COMMANDOS,
-            cards::BOMBER_CORPS,
-            cards::WARMIND_INFANTRY,
-            cards::FIREMANE_AVENGER,
-            cards::ORDRUUN_VETERAN,
-            cards::WOJEK_HALBERDIERS,
-        ] {
-            let card = catalog.get(definition).expect("the card is cataloged");
-            assert_eq!(
-                card.rules.implementation_status(),
-                ImplementationStatus::Complete,
-                "{} should be fully executable",
-                card.name,
-            );
-        }
     }
 }

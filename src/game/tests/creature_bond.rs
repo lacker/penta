@@ -5,7 +5,6 @@
 //! it was, and who controlled it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Player two's `host` under player one's Creature Bond, killed outright.
 fn bonded_and_killed(host: CardDefinitionId) -> Game {
@@ -55,17 +54,5 @@ fn it_reads_toughness_rather_than_power() {
         life(&game, PlayerId::Two),
         i16::from(rules::STARTING_LIFE) - 1,
         "a 2/1 bills one, not two",
-    );
-}
-
-#[test]
-fn creature_bond_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::CREATURE_BOND)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

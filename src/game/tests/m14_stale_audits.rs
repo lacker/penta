@@ -5,7 +5,6 @@
 //! block trigger already carries as its own object.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -143,18 +142,4 @@ fn wall_of_frost_holds_the_creature_it_blocked() {
 
     assert!(tapped(&game, attacker_id), "the one it blocked stayed down");
     assert!(!tapped(&game, other_id), "the other untapped as usual");
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::CONGREGATE, cards::WALL_OF_FROST] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

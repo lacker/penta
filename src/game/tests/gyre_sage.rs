@@ -6,7 +6,6 @@
 //! what puts the counters there.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// A Gyre Sage with `counters` +1/+1 counters already on it.
 fn sage(counters: u16) -> (Game, GameObjectId) {
@@ -67,16 +66,4 @@ fn evolve_grows_what_the_next_tap_is_worth() {
     drain_pending(&mut game);
 
     assert_eq!(tap_for_green(&mut game, sage), 1, "one counter, one green");
-}
-
-#[test]
-fn gyre_sage_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::GYRE_SAGE)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

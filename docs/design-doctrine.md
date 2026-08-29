@@ -35,9 +35,10 @@ changed and the cleanup is reasonably in scope.
 Independent card implementations should remain independently mergeable unless
 they genuinely share a rules primitive or compatibility boundary. Do not make
 each card change update checked-in global coverage counts, generated lists, or
-tests that merely restate those derived artifacts. Keep declarations and inline
-`// Audit:` entries authoritative, and generate aggregate or card-by-card
-coverage reports from them on demand.
+tests that merely restate those derived artifacts. In particular, do not add a
+named-card assertion for derived implementation status or the absence of custom
+behavior. Keep declarations and inline `// Audit:` entries authoritative, and
+generate aggregate or card-by-card coverage reports from them on demand.
 
 ## Engine principles
 

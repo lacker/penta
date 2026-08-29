@@ -5,7 +5,6 @@
 //! control", which is the clause easiest to get wrong in either direction.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -181,22 +180,4 @@ fn declining_the_fettergeist_tax_sacrifices_it() {
         5,
         "and nothing was spent",
     );
-}
-
-#[test]
-fn all_three_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::FARBOG_EXPLORER,
-        cards::GOLDNIGHT_REDEEMER,
-        cards::FETTERGEIST,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

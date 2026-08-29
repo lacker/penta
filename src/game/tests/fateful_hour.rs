@@ -6,7 +6,6 @@
 //! anthem switches off the moment life climbs back above five.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready(life: i16) -> Game {
     let mut game = ready_game();
@@ -313,25 +312,4 @@ fn clinging_mists_holds_them_through_the_next_untap_step() {
     game.commit_next_turn(PlayerId::Two, Vec::new());
     drain_pending(&mut game);
     assert!(!tapped(&game), "and came back a cycle later");
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BREAK_OF_DAY,
-        cards::GAVONY_IRONWRIGHT,
-        cards::GATHER_THE_TOWNSFOLK,
-        cards::THRABEN_DOOMSAYER,
-        cards::CLINGING_MISTS,
-        cards::VILLAGE_SURVIVORS,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

@@ -6,7 +6,6 @@
 //! answers, and that declining the optional half leaves the creature alive.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Attacks with `attacker`, optionally blocked by a creature player two
 /// controls, and runs blocking through to its triggers.
@@ -142,18 +141,4 @@ fn a_blocked_thrull_never_triggers() {
     );
     assert_eq!(game.players[PlayerId::Two.index()].hand.len(), 1);
     assert!(on_battlefield(&game, thrull_id));
-}
-
-#[test]
-fn every_unblocked_attacker_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::MINDSTAB_THRULL, cards::NECRITE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

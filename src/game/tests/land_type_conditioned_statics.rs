@@ -1,7 +1,6 @@
 //! Static abilities gated by control of a particular basic land type.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn stats(game: &Game, id: CardInstanceId) -> (Option<i16>, Option<i16>) {
     let permanent = game
@@ -127,34 +126,6 @@ fn tek_reads_each_basic_land_type_independently() {
         assert!(
             game.permanent_has_executable_keyword(tek, keyword),
             "Tek gains {keyword:?}",
-        );
-    }
-}
-
-#[test]
-fn every_migrated_card_is_complete_and_declarative() {
-    let catalog = poc::catalog().expect("the catalog builds");
-    for definition in [
-        cards::KIRD_APE,
-        cards::SEDGE_TROLL,
-        cards::DIRE_WOLVES,
-        cards::MIRE_KAVU,
-        cards::TEK,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-        assert!(
-            card.rules
-                .ability_clauses()
-                .iter()
-                .all(|ability| ability.effect.execution == EffectExecutionDef::Declarative),
-            "{} should have no custom execution",
-            card.name,
         );
     }
 }

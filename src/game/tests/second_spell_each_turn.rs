@@ -6,7 +6,6 @@
 //! turn does.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -103,17 +102,5 @@ fn a_third_spell_adds_nothing() {
         stats(&game, specialist),
         (Some(3), Some(3)),
         "one pump, not two",
-    );
-}
-
-#[test]
-fn the_specialist_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::INCURSION_SPECIALIST)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
     );
 }

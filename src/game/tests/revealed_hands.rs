@@ -5,7 +5,6 @@
 //! and nothing to count is still revealed, and the table still knows it.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// Casts `definition` at player two with a stocked hand for them, and returns
 /// what they were holding.
@@ -134,18 +133,4 @@ fn a_hand_with_no_white_cards_costs_nothing() {
         game.players[PlayerId::Two.index()].life,
         i16::from(crate::rules::STARTING_LIFE)
     );
-}
-
-#[test]
-fn every_revealed_hand_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::AMNESIA, cards::INQUISITION] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

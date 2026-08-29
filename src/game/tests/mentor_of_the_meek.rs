@@ -5,7 +5,6 @@
 //! that quietly dropped any of the three would fail here.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -132,16 +131,4 @@ fn the_mentor_does_not_trigger_on_its_own_arrival() {
 
     assert!(!answer(&mut game, true), "it is not another creature");
     assert!(!drew(&game, before));
-}
-
-#[test]
-fn the_mentor_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let card = catalog
-        .get(cards::MENTOR_OF_THE_MEEK)
-        .expect("the card is cataloged");
-    assert_eq!(
-        card.rules.implementation_status(),
-        ImplementationStatus::Complete,
-    );
 }

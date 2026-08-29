@@ -7,7 +7,6 @@
 //! being touched, and untapping gives it back.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn has_shroud(game: &Game, permanent: GameObjectId) -> bool {
     game.battlefield
@@ -124,18 +123,4 @@ fn the_cloak_covers_only_its_own_host() {
 
     assert!(has_shroud(&game, host_id));
     assert!(!has_shroud(&game, other_id));
-}
-
-#[test]
-fn every_shroud_identity_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::HOMARID_WARRIOR, cards::SPECTRAL_CLOAK] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

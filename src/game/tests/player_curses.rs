@@ -1,7 +1,6 @@
 //! Player-enchanting Auras and the Innistrad block Curses built on them.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn attached_curse(id: u32, definition: CardDefinitionId, player: PlayerId) -> Permanent {
     let mut curse = creature(id, definition, PlayerId::One);
@@ -328,43 +327,4 @@ fn thirst_counts_every_curse_attached_to_the_same_player() {
     take_turn(&mut game, PlayerId::Two);
 
     assert_eq!(game.players[PlayerId::Two.index()].life, before - 2);
-}
-
-#[test]
-fn curse_coverage_is_complete_or_explicitly_partial() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::BITTERHEART_WITCH,
-        cards::CURSE_OF_THE_BLOODY_TOME,
-        cards::CURSE_OF_DEATH_S_HOLD,
-        cards::CURSE_OF_OBLIVION,
-        cards::CURSE_OF_STALKED_PREY,
-        cards::CURSE_OF_THE_NIGHTLY_HUNT,
-        cards::CURSE_OF_THE_PIERCED_HEART,
-        cards::CURSE_OF_EXHAUSTION,
-        cards::CURSE_OF_THIRST,
-    ] {
-        assert_eq!(
-            catalog
-                .get(definition)
-                .expect("the Curse is cataloged")
-                .rules
-                .implementation_status(),
-            ImplementationStatus::Complete,
-        );
-    }
-    for definition in [
-        cards::CURSE_OF_ECHOES,
-        cards::CURSE_OF_MISFORTUNES,
-        cards::CURSE_OF_BLOODLETTING,
-    ] {
-        assert_eq!(
-            catalog
-                .get(definition)
-                .expect("the Curse is cataloged")
-                .rules
-                .implementation_status(),
-            ImplementationStatus::Partial,
-        );
-    }
 }

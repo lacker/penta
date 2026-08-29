@@ -7,7 +7,6 @@
 //! is the same colour-setting leaf an animation uses.
 
 use super::*;
-use crate::ImplementationStatus;
 
 /// The five colours in the order the decision offers them.
 const OFFERED: [ManaColor; 5] = [
@@ -256,23 +255,4 @@ fn the_tomb_repaints_a_permanent() {
 
     assert!(colors(&game)[red], "and ends red");
     assert!(!colors(&game)[green], "instead of green, not as well as");
-}
-
-#[test]
-fn every_colour_choice_card_reports_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [
-        cards::CARTEL_ARISTOCRAT,
-        cards::MIDVAST_PROTECTOR,
-        cards::BRAVE_THE_ELEMENTS,
-        cards::ALCHORS_TOMB,
-    ] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

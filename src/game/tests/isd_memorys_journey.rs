@@ -1,7 +1,6 @@
 //! Memory's Journey's linked player-and-graveyard targets.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn journey_action(
     game: &Game,
@@ -201,24 +200,5 @@ fn journey_can_target_no_cards_and_has_green_flashback() {
             .exile
             .iter()
             .any(|card| card.definition == cards::MEMORY_S_JOURNEY)
-    );
-}
-
-#[test]
-fn journey_reports_complete_declarative_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    let journey = catalog
-        .get(cards::MEMORY_S_JOURNEY)
-        .expect("Memory's Journey is cataloged");
-    assert_eq!(
-        journey.rules.implementation_status(),
-        ImplementationStatus::Complete
-    );
-    assert!(
-        journey
-            .rules
-            .ability_clauses()
-            .iter()
-            .all(|ability| { ability.effect.execution == EffectExecutionDef::Declarative })
     );
 }

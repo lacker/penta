@@ -5,7 +5,6 @@
 //! turn-long effect could do either, and both rules were already built.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -156,18 +155,4 @@ fn the_rampage_pumps_yours_and_forces_theirs_to_block() {
         vec![attacker_id],
         "their creature is still able to block the one attacker",
     );
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::GOBLIN_BATTLE_JESTER, cards::PREDATORY_RAMPAGE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
-    }
 }

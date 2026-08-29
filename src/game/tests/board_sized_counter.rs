@@ -6,7 +6,6 @@
 //! permanent the trigger came from.
 
 use super::*;
-use crate::ImplementationStatus;
 
 fn ready() -> Game {
     let mut game = ready_game();
@@ -191,19 +190,5 @@ fn the_adephage_copies_itself_on_connection() {
     for permanent in copies {
         assert_eq!(game.power(permanent), Some(7));
         assert!(game.permanent_has_executable_keyword(permanent, KeywordAbility::Trample));
-    }
-}
-
-#[test]
-fn both_cards_report_complete_coverage() {
-    let catalog = poc::catalog().expect("catalog builds");
-    for definition in [cards::SPELL_RUPTURE, cards::GIANT_ADEPHAGE] {
-        let card = catalog.get(definition).expect("the card is cataloged");
-        assert_eq!(
-            card.rules.implementation_status(),
-            ImplementationStatus::Complete,
-            "{} should be fully executable",
-            card.name,
-        );
     }
 }

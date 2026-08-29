@@ -458,6 +458,11 @@ fn validate_value_target_references(
             validate_value_target_references(condition.then, target_count, scope)?;
             validate_value_target_references(condition.otherwise, target_count, scope)
         }
+        ValueDef::IfSourceMatches(condition) => {
+            validate_object_predicate_references(condition.object, target_count, scope)?;
+            validate_value_target_references(condition.then, target_count, scope)?;
+            validate_value_target_references(condition.otherwise, target_count, scope)
+        }
         ValueDef::IfTargetMatches(condition) => {
             validate_target_index(condition.slot, target_count)?;
             validate_value_target_references(condition.then, target_count, scope)?;

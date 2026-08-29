@@ -32,6 +32,18 @@ impl Game {
             .and_then(|permanent| permanent.attack_defender)
     }
 
+    /// The player defending against one attacking permanent. Attacks on a
+    /// planeswalker still have that permanent's controller as their
+    /// defending player, including after the planeswalker has left combat.
+    pub(super) fn defending_player_of(&self, attacker: GameObjectId) -> Option<PlayerId> {
+        match self.attack_defender_of(attacker)? {
+            AttackDefender::Player(player) => Some(player),
+            AttackDefender::Planeswalker(planeswalker) => {
+                self.current_or_last_known_controller(planeswalker)
+            }
+        }
+    }
+
     /// Puts the ninja onto the battlefield from its owner's hand, tapped and
     /// attacking whoever the returned creature was attacking (CR 702.49b).
     /// It was never declared as an attacker, so nothing watching for a

@@ -611,6 +611,7 @@ impl Game {
             // have. The triggers that name them resolve the relation where
             // the source is known.
             PlayerRelation::ChosenPlayer
+            | PlayerRelation::DefendingPlayer
             | PlayerRelation::ControllerOfAttachedPermanent
             | PlayerRelation::EnchantedPlayer => false,
         }
@@ -630,6 +631,7 @@ impl Game {
     ) -> bool {
         match relation {
             PlayerRelation::ChosenPlayer => self.chosen_player_of(source) == Some(player),
+            PlayerRelation::DefendingPlayer => self.defending_player_of(source) == Some(player),
             PlayerRelation::ControllerOfAttachedPermanent => {
                 self.attached_host_controller_of(source) == Some(player)
             }

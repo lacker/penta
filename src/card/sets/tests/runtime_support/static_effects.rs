@@ -633,6 +633,11 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         | crate::card::ValueDef::BasicLandTypesControlled(_) => true,
         crate::card::ValueDef::Scaled(scaled) => static_stat_value(scaled.value),
         crate::card::ValueDef::Halved(halved) => static_stat_value(halved.value),
+        crate::card::ValueDef::IfSourceMatches(branches) => {
+            shared_object_predicate(branches.object)
+                && static_stat_value(branches.then)
+                && static_stat_value(branches.otherwise)
+        }
         // "That number plus 1" is one amount, not a printed body with a
         // count over it, so a sum of two readable amounts is readable.
         crate::card::ValueDef::Sum(sum) => {

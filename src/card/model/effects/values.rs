@@ -80,6 +80,31 @@ pub struct TargetConditionDef {
     pub otherwise: ValueDef,
 }
 
+/// A value chosen by the current characteristics of the ability's source.
+///
+/// Static characteristic-defining abilities use this for clauses whose
+/// amount changes as the source enters or leaves combat. Keeping the
+/// predicate separate from either branch lets the same shape describe any
+/// source characteristic rather than baking one card or combat state into a
+/// numeric value.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct SourceMatchValueDef {
+    pub object: ObjectPredicateDef,
+    pub then: ValueDef,
+    pub otherwise: ValueDef,
+}
+
+impl SourceMatchValueDef {
+    #[must_use]
+    pub const fn new(object: ObjectPredicateDef, then: ValueDef, otherwise: ValueDef) -> Self {
+        Self {
+            object,
+            then,
+            otherwise,
+        }
+    }
+}
+
 /// A set of objects with independent controller and owner constraints.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ObjectQueryDef {
@@ -419,6 +444,10 @@ pub enum ValueDef {
     /// One value when the chosen target matches, another when it does not.
     /// Held by reference for the same reason.
     IfTargetMatches(&'static TargetConditionDef),
+    /// One value while the ability's own source matches a characteristic
+    /// predicate, another otherwise. Read live so combat state and other
+    /// continuous changes can switch the amount immediately.
+    IfSourceMatches(&'static SourceMatchValueDef),
     /// One value when exactly that many objects match, another otherwise.
     /// This is how an intervening-if condition becomes an amount.
     IfMatchingObjectCount(&'static CountConditionDef),

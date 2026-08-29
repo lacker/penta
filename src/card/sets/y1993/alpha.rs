@@ -12,8 +12,8 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementChoiceDef,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    RoundingDef, SourceMatchValueDef, TriggerConditionDef, TriggerEventDef, TurnKindDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -2528,13 +2528,28 @@ pub(in crate::card::sets) static NETTLING_IMP: CardRecord = CardRecord::new(
 );
 
 // LEA 118 — Nightmare
-// Audit: metadata-only — Dynamic power/toughness effects are battlefield-only and cannot implement a characteristic-defining ability in every zone.
+static NIGHTMARE_SWAMP_COUNT: ValueDef = ValueDef::CountMatchingObjects(
+    &ObjectQueryDef::controlled_basic_land_type(PlayerRelation::You, BasicLandType::Swamp),
+);
+
 pub(in crate::card::sets) static NIGHTMARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8cdd6a7-f772-4ccb-914f-63f52ed54d6b"),
     "Nightmare",
-    crate::card::CardArt::new("b8cdd6a7-f772-4ccb-914f-63f52ed54d6b", "Melissa A. Benson"),
-    crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b8cdd6a7-f772-4ccb-914f-63f52ed54d6b", "Melissa A. Benson"),
+    CardSet::Alpha,
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Nightmare", "Horse"], 0, 0).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Nightmare's power and toughness are each equal to the number of Swamps you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    NIGHTMARE_SWAMP_COUNT,
+                    NIGHTMARE_SWAMP_COUNT,
+                ),
+            },
+        ),
+    ]),
 );
 
 // LEA 119 — Paralyze
@@ -4248,13 +4263,49 @@ pub(in crate::card::sets) static FUNGUSAUR: CardRecord = CardRecord::new_with_le
 );
 
 // LEA 196 — Gaea's Liege
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “As long as Gaea's Liege isn't attacking, its power and toughness are each equal to the number of Forests you control. As long as Gaea's Liege is attacking, its power and toughness are…”.
+static GAEA_S_LIEGE_FOREST_COUNT: SourceMatchValueDef = SourceMatchValueDef::new(
+    ObjectPredicateDef::Attacking,
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::controlled_basic_land_type(
+        PlayerRelation::DefendingPlayer,
+        BasicLandType::Forest,
+    )),
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::controlled_basic_land_type(
+        PlayerRelation::You,
+        BasicLandType::Forest,
+    )),
+);
+
 pub(in crate::card::sets) static GAEA_S_LIEGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2b15221-c8b0-4861-9f8b-8a65834ad499"),
     "Gaea's Liege",
-    crate::card::CardArt::new("e2b15221-c8b0-4861-9f8b-8a65834ad499", "Dameon Willich"),
-    crate::card::CardSet::Alpha,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e2b15221-c8b0-4861-9f8b-8a65834ad499", "Dameon Willich"),
+    CardSet::Alpha,
+    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}"), &["Avatar"], 0, 0).with_abilities(&[
+        AbilityDef::static_ability(
+            "As long as Gaea's Liege isn't attacking, its power and toughness are each equal to \
+             the number of Forests you control. As long as Gaea's Liege is attacking, its power \
+             and toughness are each equal to the number of Forests defending player controls.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::IfSourceMatches(&GAEA_S_LIEGE_FOREST_COUNT),
+                    ValueDef::IfSourceMatches(&GAEA_S_LIEGE_FOREST_COUNT),
+                ),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Target land becomes a Forest until this creature leaves the battlefield.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::set_basic_land_types(&[BasicLandType::Forest]),
+                duration: ResolvedEffectDurationDef::WhileSourceRemains,
+            },
+        ),
+    ]),
 );
 
 // LEA 197 — Giant Growth

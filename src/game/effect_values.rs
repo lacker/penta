@@ -524,6 +524,7 @@ impl Game {
                 object.controller,
             )),
             ValueDef::IfTargetMatches(_)
+            | ValueDef::IfSourceMatches(_)
             | ValueDef::IfMatchingObjectCount(_)
             | ValueDef::IfCreatureDiedThisTurn(_)
             | ValueDef::IfControllerLifeAtMost(_) => {
@@ -587,6 +588,15 @@ impl Game {
         scoped: ScopedEffect,
     ) -> i32 {
         match value {
+            ValueDef::IfSourceMatches(condition) => {
+                let source = object.source.unwrap_or(object.id);
+                let chosen = if self.source_matches_value_predicate(source, condition.object) {
+                    condition.then
+                } else {
+                    condition.otherwise
+                };
+                self.effect_value(chosen, object, context, scoped)
+            }
             ValueDef::IfTargetMatches(condition) => {
                 let source = object.source.unwrap_or(object.id);
                 // The chosen target rather than the still-legal one: "if that

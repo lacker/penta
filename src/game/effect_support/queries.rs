@@ -201,15 +201,20 @@ impl Game {
         &self,
         candidate: PlayerId,
         players: PlayerSetDef,
-        evaluation_controller: PlayerId,
+        query_origin: (PlayerId, GameObjectId),
         context: TriggerContext,
         effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
     ) -> bool {
+        let (evaluation_controller, source) = query_origin;
         match players {
             PlayerSetDef::All => true,
-            PlayerSetDef::Related(relation) => {
-                self.player_relation_matches(candidate, relation, evaluation_controller, context)
-            }
+            PlayerSetDef::Related(relation) => self.player_relation_matches_for_source(
+                candidate,
+                relation,
+                evaluation_controller,
+                source,
+                context,
+            ),
             PlayerSetDef::One(PlayerRefDef::EffectController) => candidate == evaluation_controller,
             PlayerSetDef::One(PlayerRefDef::EventPlayer) => context.event_player == Some(candidate),
             PlayerSetDef::LegalTargets(target) => {
@@ -236,7 +241,7 @@ impl Game {
         controller: Option<PlayerId>,
         owner: PlayerId,
         query: ObjectQueryDef,
-        evaluation_controller: PlayerId,
+        query_origin: (PlayerId, GameObjectId),
         context: TriggerContext,
         effect_context: Option<(&StackObject, ScopedEffect, &EffectResolutionContext)>,
     ) -> bool {
@@ -244,28 +249,16 @@ impl Game {
             self.player_matches_set(
                 controller.unwrap_or(owner),
                 players,
-                evaluation_controller,
+                query_origin,
                 context,
                 effect_context,
             )
         }) && query.controller.is_none_or(|players| {
             controller.is_some_and(|candidate| {
-                self.player_matches_set(
-                    candidate,
-                    players,
-                    evaluation_controller,
-                    context,
-                    effect_context,
-                )
+                self.player_matches_set(candidate, players, query_origin, context, effect_context)
             })
         }) && query.owner.is_none_or(|players| {
-            self.player_matches_set(
-                owner,
-                players,
-                evaluation_controller,
-                context,
-                effect_context,
-            )
+            self.player_matches_set(owner, players, query_origin, context, effect_context)
         })
     }
 
@@ -301,7 +294,7 @@ impl Game {
                     Some(permanent.controller),
                     permanent.card.owner,
                     query,
-                    evaluation_controller,
+                    (evaluation_controller, source),
                     context,
                     effect_context,
                 ) {
@@ -327,7 +320,7 @@ impl Game {
                         Some(candidate.controller),
                         candidate.card.owner,
                         query,
-                        evaluation_controller,
+                        (evaluation_controller, source),
                         context,
                         effect_context,
                     )
@@ -372,7 +365,7 @@ impl Game {
                     None,
                     card.owner,
                     query,
-                    evaluation_controller,
+                    (evaluation_controller, source),
                     context,
                     effect_context,
                 ) && self.card_object_matches(query.object, card, zone, source)

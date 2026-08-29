@@ -364,6 +364,11 @@ fn validate_value_shape(
             validate_value_shape(value.then, targets)?;
             validate_value_shape(value.otherwise, targets)
         }
+        ValueDef::IfSourceMatches(value) => {
+            validate_object_predicate_shape(value.object, targets)?;
+            validate_value_shape(value.then, targets)?;
+            validate_value_shape(value.otherwise, targets)
+        }
         ValueDef::IfTargetMatches(value) => {
             validate_target_shape(value.slot, targets, RecipientExpectation::Object, false)?;
             validate_value_shape(value.then, targets)?;

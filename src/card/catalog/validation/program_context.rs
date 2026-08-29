@@ -711,6 +711,7 @@ fn static_player_relation_supported(relation: PlayerRelation) -> bool {
             | PlayerRelation::ActivePlayer
             | PlayerRelation::NonactivePlayer
             | PlayerRelation::ChosenPlayer
+            | PlayerRelation::DefendingPlayer
             | PlayerRelation::EnchantedPlayer
     )
 }

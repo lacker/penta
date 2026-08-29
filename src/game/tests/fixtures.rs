@@ -506,6 +506,55 @@ pub(in crate::game) fn synchronize_single_part_definition(definition: &mut CardD
     definition.play_options = composition.play_options;
 }
 
+/// Reads a creature card's characteristic-defined body from each ordinary
+/// card or spell zone the engine currently stores.
+pub(in crate::game) fn card_stats_in_zone(
+    mut game: Game,
+    id: u32,
+    definition: CardDefinitionId,
+    owner: PlayerId,
+    zone: ZoneKind,
+) -> (i16, i16) {
+    let object = GameObjectId(id);
+    match zone {
+        ZoneKind::Library => game.players[owner.index()]
+            .library
+            .push(card(id, definition, owner)),
+        ZoneKind::Hand => game.players[owner.index()]
+            .hand
+            .push(card(id, definition, owner)),
+        ZoneKind::Battlefield => {
+            game.battlefield.push(creature(id, definition, owner));
+        }
+        ZoneKind::Graveyard => game.players[owner.index()]
+            .graveyard
+            .push(card(id, definition, owner)),
+        ZoneKind::Stack => game.stack.push(spell(id, definition, owner, 0)),
+        ZoneKind::Exile => game.players[owner.index()]
+            .exile
+            .push(card(id, definition, owner)),
+        ZoneKind::Command => unreachable!("ordinary cards are not stored in command"),
+    }
+    if zone == ZoneKind::Stack {
+        let characteristics = game
+            .stack_trigger_event_object(game.stack.last().expect("the spell is on the stack"))
+            .expect("the object is a creature spell");
+        (
+            characteristics.power.expect("the creature has power"),
+            characteristics
+                .toughness
+                .expect("the creature has toughness"),
+        )
+    } else {
+        (
+            game.current_or_last_known_power(object)
+                .expect("the creature has power"),
+            game.current_or_last_known_toughness(object)
+                .expect("the creature has toughness"),
+        )
+    }
+}
+
 pub(in crate::game) fn spell(
     id: u32,
     definition: CardDefinitionId,

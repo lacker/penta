@@ -430,7 +430,7 @@ impl Game {
                         Some(affected.controller),
                         affected.card.owner,
                         query,
-                        source.controller,
+                        (source.controller, source.card.id),
                         TriggerContext::empty(),
                         None,
                     )

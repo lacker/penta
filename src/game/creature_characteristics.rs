@@ -282,7 +282,7 @@ impl Game {
                 Some(permanent.controller),
                 permanent.card.owner,
                 *query,
-                controller,
+                (controller, source),
                 TriggerContext::empty(),
                 None,
             ) && self.trigger_object_matches(
@@ -326,6 +326,14 @@ impl Game {
             ValueDef::Sum(sum) => self
                 .static_stat_value(sum.left, source, controller)
                 .saturating_add(self.static_stat_value(sum.right, source, controller)),
+            ValueDef::IfSourceMatches(branches) => {
+                let value = if self.source_matches_value_predicate(source, branches.object) {
+                    branches.then
+                } else {
+                    branches.otherwise
+                };
+                self.static_stat_value(value, source, controller)
+            }
             // "Your hand" is the static effect's own controller's, measured
             // live, so a creature defined by it changes size as cards come
             // and go. A threshold of zero is the plain count.
@@ -387,6 +395,39 @@ impl Game {
                 .sum(),
             _ => 0,
         }
+    }
+
+    /// Whether a value-producing clause's own source currently matches a
+    /// characteristic predicate. Battlefield and stack objects use their
+    /// effective characteristics; cards elsewhere use their zone-aware card
+    /// characteristics. A source that has already left every live zone
+    /// matches nothing.
+    pub(super) fn source_matches_value_predicate(
+        &self,
+        source: GameObjectId,
+        predicate: ObjectPredicateDef,
+    ) -> bool {
+        if let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+        {
+            return self.trigger_object_matches(
+                predicate,
+                &self.trigger_event_object(permanent),
+                source,
+                false,
+            );
+        }
+        if let Some(object) = self.stack.iter().find(|object| object.id == source) {
+            return self
+                .stack_trigger_event_object(object)
+                .is_some_and(|characteristics| {
+                    self.trigger_object_matches(predicate, &characteristics, source, true)
+                });
+        }
+        self.card_in_nonbattlefield_zone(source)
+            .is_some_and(|(zone, card)| self.card_object_matches(predicate, card, zone, source))
     }
 
     pub(super) fn static_power_toughness_bonus(&self, permanent: &Permanent) -> (i16, i16) {

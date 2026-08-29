@@ -287,6 +287,7 @@ fn semantic_object_target_subject(
             }
             Some(PlayerRelation::EnchantedPlayer) => "the enchanted player's graveyard",
             Some(PlayerRelation::ChosenPlayer) => "the chosen player's graveyard",
+            Some(PlayerRelation::DefendingPlayer) => "the defending player's graveyard",
             Some(PlayerRelation::Any) | None => "a graveyard",
         };
         return format!("{subject} in {graveyard}");
@@ -316,6 +317,7 @@ const fn player_target_label(relation: PlayerRelation) -> &'static str {
         PlayerRelation::EventPlayer => "target event player",
         PlayerRelation::NotEventPlayer => "target player other than the event player",
         PlayerRelation::ChosenPlayer => "the chosen player",
+        PlayerRelation::DefendingPlayer => "the defending player",
         PlayerRelation::ControllerOfAttachedPermanent => "the enchanted permanent's controller",
         PlayerRelation::EnchantedPlayer => "the enchanted player",
     }
@@ -334,6 +336,7 @@ const fn player_or_planeswalker_target_label(relation: PlayerRelation) -> &'stat
             "target player other than the event player or planeswalker"
         }
         PlayerRelation::ChosenPlayer => "the chosen player or planeswalker",
+        PlayerRelation::DefendingPlayer => "the defending player or their planeswalker",
         PlayerRelation::ControllerOfAttachedPermanent => {
             "the enchanted permanent's controller or planeswalker"
         }
@@ -352,6 +355,7 @@ const fn controller_suffix(relation: PlayerRelation) -> &'static str {
         PlayerRelation::EventPlayer => " the event player controls",
         PlayerRelation::NotEventPlayer => " the event player does not control",
         PlayerRelation::ChosenPlayer => " the chosen player controls",
+        PlayerRelation::DefendingPlayer => " the defending player controls",
         PlayerRelation::ControllerOfAttachedPermanent => {
             " the enchanted permanent's controller controls"
         }
@@ -370,6 +374,7 @@ const fn owner_suffix(relation: PlayerRelation) -> &'static str {
         PlayerRelation::EventPlayer => " the event player owns",
         PlayerRelation::NotEventPlayer => " the event player does not own",
         PlayerRelation::ChosenPlayer => " the chosen player owns",
+        PlayerRelation::DefendingPlayer => " the defending player owns",
         PlayerRelation::ControllerOfAttachedPermanent => {
             " the enchanted permanent's controller owns"
         }

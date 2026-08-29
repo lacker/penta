@@ -49,6 +49,11 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::GreatestPowerAmong(query) => static_query_supported(*query),
         ValueDef::Scaled(scaled) => static_power_toughness_value_supported(scaled.value),
         ValueDef::Halved(halved) => static_power_toughness_value_supported(halved.value),
+        ValueDef::IfSourceMatches(branches) => {
+            static_object_predicate_supported(branches.object)
+                && static_power_toughness_value_supported(branches.then)
+                && static_power_toughness_value_supported(branches.otherwise)
+        }
         ValueDef::Sum(sum) => {
             static_power_toughness_value_supported(sum.left)
                 && static_power_toughness_value_supported(sum.right)
@@ -134,6 +139,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::Halved(_)
         | ValueDef::IfCreatureDiedThisTurn(_)
         | ValueDef::IfControllerLifeAtMost(_)
+        | ValueDef::IfSourceMatches(_)
         | ValueDef::IfTargetMatches(_)
         | ValueDef::IfMatchingObjectCount(_)
         | ValueDef::CountersOnSource(_)

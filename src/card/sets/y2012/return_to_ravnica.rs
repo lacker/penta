@@ -3,18 +3,23 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
+    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef,
+    ChooseCardsFromCollectionDef, ChooseGroupDef, ChooseObjectOrderDef, CollectionInspectionDef,
+    ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellResolutionDestinationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PartitionGroupDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, SpellResolutionDestinationDef, TokenStatsDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef,
+    ZonePlacement, abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{Binding, ObjectBindingIndex, ObjectSetBindingIndex, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -134,13 +139,31 @@ then: None,
 );
 
 // RTR 2 — Armory Guard
-// Audit: unsupported — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
 pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c03498c1-b7f7-41fb-8e2a-1c087d4e9990"),
     "Armory Guard",
     crate::card::CardArt::new("c03498c1-b7f7-41fb-8e2a-1c087d4e9990", "Karl Kopinski"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Giant", "Soldier"], 2, 5).with_ability(
+        AbilityDef::static_ability(
+            "This creature has vigilance as long as you control a Gate.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Gate"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                },
+            },
+        ),
+    ),
 );
 
 // RTR 3 — Arrest (reprint)
@@ -534,13 +557,38 @@ pub(in crate::card::sets) static ROOTBORN_DEFENSES: CardRecord = CardRecord::new
 );
 
 // RTR 20 — Security Blockade
-// Audit: unsupported — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
 pub(in crate::card::sets) static SECURITY_BLOCKADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6250b31-8592-48b2-a877-3637c9ee7d49"),
     "Security Blockade",
     crate::card::CardArt::new("e6250b31-8592-48b2-a877-3637c9ee7d49", "James Ryman"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            abilities::enters_trigger(
+                "When this Aura enters, create a 2/2 white Knight creature token with vigilance.",
+                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2)
+                    .with_abilities(&[abilities::vigilance()]),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted land has “{T}: Prevent the next 1 damage that would be dealt to you this turn.”",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{T}: Prevent the next 1 damage that would be dealt to you this turn.",
+                        &[AbilityCostDef::TapSource],
+                        EffectDef::PreventDamage {
+                            prevention: DamagePreventionDef::amount(
+                                DamageEventMatcherDef::to(EffectRecipientDef::Controller),
+                                ValueDef::Constant(1),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // RTR 21 — Selesnya Sentry
@@ -580,13 +628,42 @@ pub(in crate::card::sets) static SELLER_OF_SONGBIRDS: CardRecord = CardRecord::n
 );
 
 // RTR 23 — Soul Tithe
-// Audit: unsupported — Needs an upkeep payer derived from the enchanted permanent and an unless-payment amount equal to that permanent's mana value.
 pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77e546ce-f498-4136-9015-bb262c301716"),
     "Soul Tithe",
     crate::card::CardArt::new("77e546ce-f498-4136-9015-bb262c301716", "Dave Kendall"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant nonland permanent",
+                &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
+                    &ObjectPredicateDef::HasType(CardType::Land),
+                ))],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of the upkeep of enchanted permanent's controller, that player sacrifices it unless they pay {X}, where X is its mana value.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::ControllerOfAttachedPermanent,
+                },
+                EffectDef::PayOr(PayOrDef::unless(
+                    EffectPaymentDef {
+                        payer: PlayerSetDef::Related(PlayerRelation::ControllerOfAttachedPermanent),
+                        cost: EffectPaymentCostDef::GenericMana(ValueDef::ObjectManaValue(
+                            ObjectRefDef::AttachedToSource,
+                        )),
+                    },
+                    &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::AttachedPermanent,
+                    },
+                )),
+            ),
+        ]),
 );
 
 // RTR 24 — Sphere of Safety
@@ -757,23 +834,59 @@ pub(in crate::card::sets) static CANCEL: CardRecord = CardRecord::new_with_legac
 );
 
 // RTR 32 — Chronic Flooding
-// Audit: unsupported — Needs a trigger for the attached land becoming tapped and the attached land's controller as the mill recipient.
 pub(in crate::card::sets) static CHRONIC_FLOODING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a757425-3cf2-4aca-b415-5ec2d5f753fe"),
     "Chronic Flooding",
     crate::card::CardArt::new("1a757425-3cf2-4aca-b415-5ec2d5f753fe", "Scott Chou"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::triggered(
+                "Whenever enchanted land becomes tapped, its controller mills three cards.",
+                TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+                EffectDef::Mill {
+                    player: EffectRecipientDef::ControllerOfTriggeringObject,
+                    amount: ValueDef::Constant(3),
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // RTR 33 — Conjured Currency
-// Audit: unsupported — Needs an exchange-of-control procedure involving the source and a targeted permanent you neither own nor control.
 pub(in crate::card::sets) static CONJURED_CURRENCY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7c2ea6e-7d29-4526-b135-9bbb1eed9d4a"),
     "Conjured Currency",
     crate::card::CardArt::new("a7c2ea6e-7d29-4526-b135-9bbb1eed9d4a", "Steve Argyle"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{U}")).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may exchange control of this enchantment and target permanent you neither own nor control.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::NotYou),
+                    owner: Some(PlayerRelation::NotYou),
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ExchangeControl {
+                    first: EffectRecipientDef::Source,
+                    second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    otherwise: None,
+                },
+            },
+        ),
+    ),
 );
 
 // RTR 34 — Crosstown Courier
@@ -931,13 +1044,32 @@ pub(in crate::card::sets) static DOWNSIZE: CardRecord = CardRecord::new_with_leg
 );
 
 // RTR 39 — Faerie Impostor
-// Audit: unsupported — Needs an ETB unless-payment whose cost returns another chosen creature you control to its owner's hand.
 pub(in crate::card::sets) static FAERIE_IMPOSTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7dfddc9d-85f6-4b37-9973-14c69f6818ec"),
     "Faerie Impostor",
     crate::card::CardArt::new("7dfddc9d-85f6-4b37-9973-14c69f6818ec", "Johann Bodin"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Faerie", "Rogue"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, sacrifice it unless you return another creature you control to its owner's hand.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: EffectPaymentCostDef::MovePermanentMatching {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        zone: ZoneKind::Hand,
+                    },
+                },
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ]),
 );
 
 // RTR 40 — Hover Barrier
@@ -1105,13 +1237,41 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new_
 );
 
 // RTR 47 — Psychic Spiral
-// Audit: unsupported — Needs to preserve the number of graveyard cards shuffled into the library for the later mill amount.
+const PSYCHIC_SPIRAL_MOVED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(7);
+
 pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59b09c16-f611-4c90-a990-e22bf46bd0e2"),
     "Psychic Spiral",
     crate::card::CardArt::new("59b09c16-f611-4c90-a990-e22bf46bd0e2", "Ryan Pancoast"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{4}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Shuffle all cards from your graveyard into your library. Target player mills that many cards.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::MoveObjects(MoveObjectsDef {
+            input: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Graveyard],
+                PlayerRelation::You,
+            )),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+            moved: Some(PSYCHIC_SPIRAL_MOVED),
+            then: &EffectDef::Sequence(&[
+                EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::Controller,
+                },
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::BoundObjectCount(PSYCHIC_SPIRAL_MOVED),
+                    binding: None,
+                    then: None,
+                },
+            ]),
+        }),
+    )),
 );
 
 // RTR 48 — Runewing
@@ -1355,13 +1515,22 @@ pub(in crate::card::sets) static DAGGERDROME_IMP: CardRecord = CardRecord::new_w
 );
 
 // RTR 61 — Dark Revenant
-// Audit: unsupported — A dies trigger cannot address the card after it becomes a new graveyard object to move it onto its owner's library.
 pub(in crate::card::sets) static DARK_REVENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2167cc6d-ddb5-4f13-8905-a0c5123b852a"),
     "Dark Revenant",
     crate::card::CardArt::new("2167cc6d-ddb5-4f13-8905-a0c5123b852a", "Daarken"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Spirit"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, put it on top of its owner's library.",
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // RTR 62 — Dead Reveler
@@ -1420,13 +1589,31 @@ pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new
 );
 
 // RTR 64 — Destroy the Evidence
-// Audit: unsupported — Needs revealing and milling cards from a targeted land's controller until a land card is revealed.
 pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bca53097-108d-457e-831c-e3d6cb499a41"),
     "Destroy the Evidence",
     crate::card::CardArt::new("bca53097-108d-457e-831c-e3d6cb499a41", "Clint Cearley"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy target land. Its controller reveals cards from the top of their library until they reveal a land card, then puts those cards into their graveyard.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Land),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::MillUntil(&MillUntilDef {
+                player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                matched_zone: ZoneKind::Graveyard,
+                binding: None,
+                then: None,
+            }),
+        ]),
+    )),
 );
 
 // RTR 65 — Deviant Glee
@@ -1528,13 +1715,35 @@ pub(in crate::card::sets) static GRIM_ROUSTABOUT: CardRecord = CardRecord::new_w
 );
 
 // RTR 69 — Launch Party
-// Audit: unsupported — Needs choosing and sacrificing a creature as an additional spell-casting cost.
 pub(in crate::card::sets) static LAUNCH_PARTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53f29821-902e-41bc-97a2-6fc7a710cbdb"),
     "Launch Party",
     crate::card::CardArt::new("53f29821-902e-41bc-97a2-6fc7a710cbdb", "Lucas Graciano"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target creature. Its controller loses 2 life.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            SpellAdditionalCostDef::new(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ZoneKind::Battlefield,
+                1,
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ),
 );
 
 // RTR 70 — Mind Rot (reprint)
@@ -1595,13 +1804,40 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
 );
 
 // RTR 73 — Pack Rat
-// Audit: unsupported — Needs dynamic Rat-count power and toughness and creation of a copiable token copy of the source.
+static RATS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Rat"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+));
+
 pub(in crate::card::sets) static PACK_RAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("170693f5-13db-4191-99b1-e527ffb5b88e"),
     "Pack Rat",
     crate::card::CardArt::new("170693f5-13db-4191-99b1-e527ffb5b88e", "Kev Walker"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Rat"], 0, 0).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature's power and toughness are each equal to the number of Rats you control.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    RATS_YOU_CONTROL,
+                    RATS_YOU_CONTROL,
+                ),
+            },
+        ),
+        AbilityDef::activated(
+            "{2}{B}, Discard a card: Create a token that's a copy of this creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                object: &EffectRecipientDef::Source,
+                exceptions: CopyExceptionsDef::NONE,
+            }),
+        ),
+    ]),
 );
 
 // RTR 74 — Perilous Shadow
@@ -1729,13 +1965,25 @@ pub(in crate::card::sets) static STAB_WOUND: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 79 — Tavern Swindler
-// Audit: unsupported — Coin flips and their replay-visible random outcomes are unavailable.
 pub(in crate::card::sets) static TAVERN_SWINDLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47240ed3-f256-45fb-ab38-7b07e672d2ed"),
     "Tavern Swindler",
     crate::card::CardArt::new("47240ed3-f256-45fb-ab38-7b07e672d2ed", "Cynthia Sheppard"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Rogue"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{T}, Pay 3 life: Flip a coin. If you win the flip, you gain 6 life.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(3)],
+            EffectDef::Randomized {
+                likelihood: crate::card::LikelihoodDef::new(0.5),
+                on_success: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(6),
+                },
+                on_failure: &EffectDef::None,
+            },
+        ),
+    ),
 );
 
 // RTR 80 — Terrus Wurm
@@ -1838,23 +2086,43 @@ pub(in crate::card::sets) static ZANIKEV_LOCUST: CardRecord = CardRecord::new_wi
 );
 
 // RTR 85 — Annihilating Fire
-// Audit: unsupported — Needs a damage-linked, turn-long replacement that exiles a creature if it dies after being dealt this damage.
 pub(in crate::card::sets) static ANNIHILATING_FIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae12fd10-c13e-4777-a233-96204ec75ac1"),
     "Annihilating Fire",
     crate::card::CardArt::new("ae12fd10-c13e-4777-a233-96204ec75ac1", "Clint Cearley"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "This spell deals 3 damage to any target. If a creature dealt damage this way would die this turn, exile it instead.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::DealDamageAndApply {
+                amount: ValueDef::Constant(3),
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                applied: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // RTR 86 — Ash Zealot
-// Audit: unsupported — Needs a spell-cast trigger predicate that identifies spells cast specifically from a graveyard.
 pub(in crate::card::sets) static ASH_ZEALOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f61b1a3-4b3b-4490-a9dc-17aac258cbda"),
     "Ash Zealot",
     crate::card::CardArt::new("1f61b1a3-4b3b-4490-a9dc-17aac258cbda", "Eric Deschamps"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}{R}"), &["Human", "Warrior"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever a player casts a spell from a graveyard, this creature deals 3 damage to that player.",
+            TriggerEventDef::spell_cast_from(ObjectPredicateDef::Any, ZoneKind::Graveyard),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ]),
 );
 
 // RTR 87 — Batterhorn
@@ -2089,13 +2357,103 @@ pub(in crate::card::sets) static GORE_HOUSE_CHAINWALKER: CardRecord =
     );
 
 // RTR 97 — Guild Feud
-// Audit: unsupported — Needs two linked top-three selections, optional creature entries, graveyard placement, and a conditional fight between the chosen creatures.
+const GUILD_FEUD_OPPONENT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const GUILD_FEUD_OPPONENT_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
+const GUILD_FEUD_OPPONENT_ENTERED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const GUILD_FEUD_CONTROLLER_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const GUILD_FEUD_CONTROLLER_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+const GUILD_FEUD_CONTROLLER_ENTERED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
+
 pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e622878-0aea-4401-873e-d34bf05ee98d"),
     "Guild Feud",
     crate::card::CardArt::new("8e622878-0aea-4401-873e-d34bf05ee98d", "Karl Kopinski"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{R}")).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, target opponent reveals the top three cards of their library, may put a creature card from among them onto the battlefield, then puts the rest into their graveyard. You do the same with the top three cards of your library. If two creatures are put onto the battlefield this way, those creatures fight each other.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                source: ObjectCollectionSourceDef::TopCards {
+                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    count: ValueDef::Constant(3),
+                },
+                actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                inspection: CollectionInspectionDef::Reveal,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                minimum: 0,
+                maximum: 1,
+                chosen: GUILD_FEUD_OPPONENT_CHOSEN,
+                remainder: GUILD_FEUD_OPPONENT_REST,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_CHOSEN),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    moved: Some(GUILD_FEUD_OPPONENT_ENTERED),
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_REST),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::ChooseCardsFromCollection(
+                            ChooseCardsFromCollectionDef {
+                                source: ObjectCollectionSourceDef::TopCards {
+                                    player: PlayerRefDef::EffectController,
+                                    count: ValueDef::Constant(3),
+                                },
+                                actor: PlayerRefDef::EffectController,
+                                inspection: CollectionInspectionDef::Reveal,
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                minimum: 0,
+                                maximum: 1,
+                                chosen: GUILD_FEUD_CONTROLLER_CHOSEN,
+                                remainder: GUILD_FEUD_CONTROLLER_REST,
+                                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(GUILD_FEUD_CONTROLLER_CHOSEN),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                    moved: Some(GUILD_FEUD_CONTROLLER_ENTERED),
+                                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                        input: ObjectSetDef::Binding(GUILD_FEUD_CONTROLLER_REST),
+                                        from: Some(ZoneKind::Library),
+                                        zone: ZoneKind::Graveyard,
+                                        placement: ZonePlacement::Top,
+                                        moved: None,
+                                        then: &EffectDef::ForEachInBinding {
+                                            objects: GUILD_FEUD_OPPONENT_ENTERED,
+                                            binding: ObjectBindingIndex::PRIMARY,
+                                            effect: &EffectDef::ForEachInBinding {
+                                                objects: GUILD_FEUD_CONTROLLER_ENTERED,
+                                                binding: ObjectBindingIndex::new(1),
+                                                effect: &EffectDef::Fight {
+                                                    first: ObjectRefDef::Binding(
+                                                        ObjectBindingIndex::PRIMARY,
+                                                    ),
+                                                    second: ObjectRefDef::Binding(
+                                                        ObjectBindingIndex::new(1),
+                                                    ),
+                                                    excess: None,
+                                                },
+                                            },
+                                        },
+                                    }),
+                                }),
+                            },
+                        ),
+                    }),
+                }),
+            }),
+        ),
+    ),
 );
 
 // RTR 98 — Guttersnipe
@@ -2549,13 +2907,30 @@ pub(in crate::card::sets) static ARCHWEAVER: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 115 — Axebane Guardian
-// Audit: unsupported — Needs a dynamic amount of mana distributed in an arbitrary combination of colors.
 pub(in crate::card::sets) static AXEBANE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("725584fe-9e97-4020-89b1-5e5b45a5beb2"),
     "Axebane Guardian",
     crate::card::CardArt::new("725584fe-9e97-4020-89b1-5e5b45a5beb2", "Slawomir Maniak"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Druid"], 0, 3).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_mana(
+            "{T}: Add X mana in any combination of colors, where X is the number of creatures you control with defender.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::combination(&ManaColor::COLORS, 0).with_variable_amount(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Defender),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                ),
+            ),
+        ),
+    ]),
 );
 
 // RTR 116 — Axebane Stag
@@ -2849,23 +3224,76 @@ pub(in crate::card::sets) static KOROZDA_MONITOR: CardRecord = CardRecord::new_w
 );
 
 // RTR 130 — Mana Bloom
-// Audit: unsupported — Needs X entry counters, a remove-counter mana cost limited to once each turn, and a no-charge-counter upkeep condition.
+const CHARGE_COUNTER: CounterKind = CounterKind::named("charge");
+
 pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7592d88-64e8-4a31-b00a-f65d4b1867fc"),
     "Mana Bloom",
     crate::card::CardArt::new("d7592d88-64e8-4a31-b00a-f65d4b1867fc", "Mike Bierek"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{X}{G}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This enchantment enters with X charge counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CHARGE_COUNTER,
+                },
+            ),
+        ),
+        AbilityDef::activated_mana(
+            "Remove a charge counter from this enchantment: Add one mana of any color. Activate only once each turn.",
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CHARGE_COUNTER,
+                amount: 1,
+            }],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        )
+        .activations_each_turn(1),
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if this enchantment has no charge counters on it, return it to its owner's hand.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::SourceCounters {
+                kind: CHARGE_COUNTER,
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // RTR 131 — Oak Street Innkeeper
-// Audit: unsupported — Needs a continuous other-player-turn and tapped-state condition when granting hexproof.
 pub(in crate::card::sets) static OAK_STREET_INNKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08274d1b-52b7-46c1-8f93-7631d2e21def"),
     "Oak Street Innkeeper",
     crate::card::CardArt::new("08274d1b-52b7-46c1-8f93-7631d2e21def", "Svetlin Velinov"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf"], 1, 2).with_ability(
+        AbilityDef::static_ability(
+            "During turns other than yours, tapped creatures you control have hexproof.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Tapped,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                },
+            },
+        ),
+    ),
 );
 
 // RTR 132 — Rubbleback Rhino
@@ -2941,13 +3369,19 @@ pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new_
 );
 
 // RTR 135 — Slime Molding
-// Audit: unsupported — Token creation cannot produce a token whose power and toughness are the chosen X value.
 pub(in crate::card::sets) static SLIME_MOLDING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44a439e8-d586-4995-abfc-3dee5c860968"),
     "Slime Molding",
     crate::card::CardArt::new("44a439e8-d586-4995-abfc-3dee5c860968", "Marco Nelor"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{G}")).with_ability(AbilityDef::spell(
+        "Create an X/X green Ooze creature token.",
+        EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
+            .with_variable_token_stats(&TokenStatsDef {
+                power: ValueDef::ChosenX,
+                toughness: ValueDef::ChosenX,
+            }),
+    )),
 );
 
 // RTR 136 — Stonefare Crocodile
@@ -2993,13 +3427,32 @@ pub(in crate::card::sets) static URBAN_BURGEONING: CardRecord = CardRecord::new(
 );
 
 // RTR 139 — Wild Beastmaster
-// Audit: unsupported — Needs this creature's power captured as X when the attack trigger resolves so the resulting bonus remains fixed for the turn.
 pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a4d4ef98-949b-49db-b4f9-a070f8b4ff47"),
     "Wild Beastmaster",
     crate::card::CardArt::new("a4d4ef98-949b-49db-b4f9-a070f8b4ff47", "Kev Walker"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Shaman"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, each other creature you control gets +X/+X until end of turn, where X is this creature's power.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::SourcePower,
+                    ValueDef::SourcePower,
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // RTR 140 — Worldspine Wurm
@@ -3584,13 +4037,66 @@ pub(in crate::card::sets) static FALL_OF_THE_GAVEL: CardRecord = CardRecord::new
 );
 
 // RTR 162 — Firemind's Foresight
-// Audit: unsupported — Needs three sequential hidden-library searches with distinct exact mana-value predicates before one final shuffle.
 pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cb5cb63-e7ec-4fc3-a389-4d8b5a4b96b9"),
     "Firemind's Foresight",
     crate::card::CardArt::new("9cb5cb63-e7ec-4fc3-a389-4d8b5a4b96b9", "Dan Murayama Scott"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{5}{U}{R}")).with_ability(AbilityDef::spell(
+        "Search your library for an instant card with mana value 3, reveal it, and put it into your hand. Then repeat this process for instant cards with mana values 2 and 1. Then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3)),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: Some(&EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(2)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: Some(&EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                }),
+            }),
+        },
+    )),
 );
 
 // RTR 163 — Goblin Electromancer
@@ -3745,13 +4251,24 @@ pub(in crate::card::sets) static HUSSAR_PATROL: CardRecord = CardRecord::new_wit
 );
 
 // RTR 170 — Hypersonic Dragon
-// Audit: unsupported — Needs a static timing permission that lets every sorcery spell you cast be cast as though it had flash.
 pub(in crate::card::sets) static HYPERSONIC_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f024b19a-923a-4313-be06-e743d3fbab46"),
     "Hypersonic Dragon",
     crate::card::CardArt::new("f024b19a-923a-4313-be06-e743d3fbab46", "Dan Murayama Scott"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{R}"), &["Dragon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::static_ability(
+            "You may cast sorcery spells as though they had flash.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                    CastTimingPermissionDef::new(ObjectPredicateDef::HasType(CardType::Sorcery)),
+                )),
+            },
+        ),
+    ]),
 );
 
 // RTR 171 — Isperia, Supreme Judge
@@ -3867,13 +4384,61 @@ pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecor
 );
 
 // RTR 175 — Jarad's Orders
-// Audit: unsupported — Needs a two-card hidden search followed by assigning one selected creature to hand and the other to graveyard.
+const JARAD_ORDERS_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+const JARAD_ORDERS_GRAVEYARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+
 pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c59171ce-7dc6-4dd9-a124-3c2c3028d93d"),
     "Jarad's Orders",
     crate::card::CardArt::new("c59171ce-7dc6-4dd9-a124-3c2c3028d93d", "Svetlin Velinov"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to two creature cards and reveal them. Put one into your hand and the other into your graveyard. Then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            minimum: 0,
+            maximum: ValueDef::Constant(2),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+            enters_tapped: false,
+            attachment: None,
+            binding: Some(JARAD_ORDERS_FOUND),
+            then: Some(&EffectDef::IfNoObjects(IfNoObjectsDef {
+                input: ObjectSetDef::Binding(JARAD_ORDERS_FOUND),
+                if_empty: &EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::Controller,
+                },
+                otherwise: &EffectDef::ChooseCardsFromCollection(
+                    ChooseCardsFromCollectionDef {
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
+                            JARAD_ORDERS_FOUND,
+                        )),
+                        actor: PlayerRefDef::EffectController,
+                        inspection: CollectionInspectionDef::Reveal,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 1,
+                        maximum: 1,
+                        chosen: ObjectSetBindingIndex::new(1),
+                        remainder: JARAD_ORDERS_GRAVEYARD,
+                        then: &EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(JARAD_ORDERS_GRAVEYARD),
+                            from: Some(ZoneKind::Hand),
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::ShuffleLibrary {
+                                player: EffectRecipientDef::Controller,
+                            },
+                        }),
+                    },
+                ),
+            })),
+        },
+    )),
 );
 
 // RTR 176 — Korozda Guildmage
@@ -3929,13 +4494,29 @@ pub(in crate::card::sets) static KOROZDA_GUILDMAGE: CardRecord = CardRecord::new
 );
 
 // RTR 177 — Lotleth Troll
-// Audit: unsupported — Its discard-for-counter ability is expressible, but regeneration shields are not available for the whole card.
 pub(in crate::card::sets) static LOTLETH_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3b628197-f26c-457a-b9a4-c1f1d3e02f3d"),
     "Lotleth Troll",
     crate::card::CardArt::new("3b628197-f26c-457a-b9a4-c1f1d3e02f3d", "Vincent Proce"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{G}"), &["Zombie", "Troll"], 2, 1).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::activated(
+            "Discard a creature card: Put a +1/+1 counter on this creature.",
+            &[AbilityCostDef::DiscardCardMatching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ]),
 );
 
 // RTR 178 — Loxodon Smiter
@@ -4038,13 +4619,51 @@ pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::n
 );
 
 // RTR 182 — Nivix Guildmage
-// Audit: unsupported — Its second activation needs copying a targeted instant or sorcery spell and optionally choosing new targets for the copy.
 pub(in crate::card::sets) static NIVIX_GUILDMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d3fde47-8d9e-4a84-b8a5-dcfe0c1d443c"),
     "Nivix Guildmage",
     crate::card::CardArt::new("9d3fde47-8d9e-4a84-b8a5-dcfe0c1d443c", "Scott M. Fischer"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{R}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
+        AbilityDef::activated(
+            "{1}{U}{R}: Draw a card, then discard a card.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{U}{R}"))],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}{U}{R}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}{U}{R}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ),
+    ]),
 );
 
 // RTR 183 — Niv-Mizzet, Dracogenius
@@ -4087,13 +4706,67 @@ pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord =
     );
 
 // RTR 184 — Rakdos Charm
-// Audit: unsupported — Its third mode needs each creature to be the source of damage dealt to its own controller.
+const RAKDOS_CHARM_CREATURES: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
+
 pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fcd4394-d22d-4eec-ad73-ffaf10ad60de"),
     "Rakdos Charm",
     crate::card::CardArt::new("0fcd4394-d22d-4eec-ad73-ffaf10ad60de", "Zoltan Boros"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B}{R}")).with_ability(AbilityDef::choose_one_spell(
+        "Choose one —\n• Exile target player's graveyard.\n• Destroy target artifact.\n• Each creature deals 1 damage to its controller.",
+        &[
+            AbilityDef::spell_with_targets(
+                "Exile target player's graveyard.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::cards_owned_by_target(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        TargetIndex::PRIMARY,
+                    ),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target artifact.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell(
+                "Each creature deals 1 damage to its controller.",
+                EffectDef::BindObjects(BindObjectsDef {
+                    source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                        ObjectQueryDef::new(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                        ),
+                    )),
+                    binding: RAKDOS_CHARM_CREATURES,
+                    then: &EffectDef::ForEachInBinding {
+                        objects: RAKDOS_CHARM_CREATURES,
+                        binding: ObjectBindingIndex::PRIMARY,
+                        effect: &EffectDef::DealDamageFrom {
+                            source: ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY),
+                            recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                                ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY),
+                            )),
+                            amount: ValueDef::Constant(1),
+                        },
+                    },
+                }),
+            ),
+        ],
+    )),
 );
 
 // RTR 185 — Rakdos Ragemutt
@@ -4148,13 +4821,31 @@ pub(in crate::card::sets) static RAKDOS_LORD_OF_RIOTS: CardRecord = CardRecord::
 );
 
 // RTR 188 — Rakdos's Return
-// Audit: unsupported — Targeting cannot restrict a player-or-planeswalker union to an opponent while routing the discard to that player or the planeswalker's controller.
 pub(in crate::card::sets) static RAKDOS_S_RETURN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d72981c0-1632-4d64-9341-2a76047d9b36"),
     "Rakdos's Return",
     crate::card::CardArt::new("d72981c0-1632-4d64-9341-2a76047d9b36", "Daarken"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{B}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "This spell deals X damage to target opponent or planeswalker. That player or that planeswalker's controller discards X cards.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::ChosenX,
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::ChosenX,
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ),
 );
 
 // RTR 189 — Righteous Authority
@@ -4217,13 +4908,43 @@ pub(in crate::card::sets) static RISEN_SANCTUARY: CardRecord = keyword_creature(
 );
 
 // RTR 191 — Rites of Reaping
-// Audit: unsupported — Needs two creature targets constrained to be different; ordinary target slots currently allow choosing the same creature twice.
 pub(in crate::card::sets) static RITES_OF_REAPING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("115d504f-3aec-4374-8cd8-732d56c448f2"),
     "Rites of Reaping",
     crate::card::CardArt::new("115d504f-3aec-4374-8cd8-732d56c448f2", "David Rapoza"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}{G}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Target creature gets +3/+3 until end of turn. Another target creature gets -3/-3 until end of turn.",
+            &[
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))
+                .another(),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-3),
+                        ValueDef::Constant(-3),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+    ),
 );
 
 // RTR 192 — Rix Maadi Guildmage
@@ -4722,13 +5443,49 @@ pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_
 );
 
 // RTR 210 — Azor's Elocutors
-// Audit: unsupported — Needs filibuster counters, a five-counter win condition, and damage-to-player triggers that remove that custom counter kind.
+const FILIBUSTER_COUNTER: CounterKind = CounterKind::named("filibuster");
+
 pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61e82934-546b-4734-a715-b22ace4c5a9b"),
     "Azor's Elocutors",
     crate::card::CardArt::new("61e82934-546b-4734-a715-b22ace4c5a9b", "Johannes Voss"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W/U}{W/U}"), &["Human", "Advisor"], 3, 5)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, put a filibuster counter on this creature. Then if this creature has five or more filibuster counters on it, you win the game.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: FILIBUSTER_COUNTER,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::SourceCounters {
+                            kind: FILIBUSTER_COUNTER,
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 5,
+                        },
+                        then: &EffectDef::WinTheGame {
+                            player: EffectRecipientDef::Controller,
+                        },
+                    },
+                ]),
+            ),
+            AbilityDef::triggered(
+                "Whenever a source deals damage to you, remove a filibuster counter from this creature.",
+                TriggerEventDef::damage_to_player(ObjectPredicateDef::Any, PlayerRelation::You),
+                EffectDef::RemoveCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: FILIBUSTER_COUNTER,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // RTR 211 — Blistercoil Weird
@@ -5360,13 +6117,49 @@ pub(in crate::card::sets) static TABLET_OF_THE_GUILDS: CardRecord = CardRecord::
 );
 
 // RTR 236 — Volatile Rig
-// Audit: unsupported — Needs coin flips with lose branches for both damage and death triggers.
 pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5055ed18-b234-4702-92eb-4d483431ff47"),
     "Volatile Rig",
     crate::card::CardArt::new("5055ed18-b234-4702-92eb-4d483431ff47", "Mathias Kollros"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 4).with_abilities(&[
+        abilities::trample(),
+        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        AbilityDef::triggered(
+            "Whenever this creature is dealt damage, flip a coin. If you lose the flip, sacrifice this creature.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef::to(
+                EffectRecipientDef::Source,
+            )),
+            EffectDef::Randomized {
+                likelihood: crate::card::LikelihoodDef::new(0.5),
+                on_success: &EffectDef::None,
+                on_failure: &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            },
+        ),
+        abilities::dies_trigger(
+            "When this creature dies, flip a coin. If you lose the flip, it deals 4 damage to each creature and each player.",
+            EffectDef::Randomized {
+                likelihood: crate::card::LikelihoodDef::new(0.5),
+                on_success: &EffectDef::None,
+                on_failure: &EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        amount: ValueDef::Constant(4),
+                    },
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::Constant(4),
+                    },
+                ]),
+            },
+        ),
+    ]),
 );
 
 // RTR 237 — Azorius Guildgate
@@ -5417,13 +6210,38 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
 );
 
 // RTR 240 — Grove of the Guardian
-// Audit: unsupported — Needs tapping two chosen untapped creatures you control as one activation cost.
 pub(in crate::card::sets) static GROVE_OF_THE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cf60ca0-e01f-499c-8d04-d59050f38c33"),
     "Grove of the Guardian",
     crate::card::CardArt::new("3cf60ca0-e01f-499c-8d04-d59050f38c33", "Christine Choi"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{3}{G}{W}, {T}, Tap two untapped creatures you control, Sacrifice this land: Create an 8/8 green and white Elemental creature token with vigilance.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}{G}{W}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::TapPermanents {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                    count: 2,
+                },
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::create_creature_token(
+                &["Elemental"],
+                &[ManaColor::Green, ManaColor::White],
+                8,
+                8,
+            )
+            .with_abilities(&[abilities::vigilance()]),
+        ),
+    ]),
 );
 
 // RTR 241 — Hallowed Fountain

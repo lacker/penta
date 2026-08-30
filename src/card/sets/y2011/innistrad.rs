@@ -8,15 +8,15 @@ use crate::card::{
     AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, BasicLandType,
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ColorSet, ComparisonDef,
     ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef, CounterKind,
-    CreatedTokensDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef,
-    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef,
+    GraveyardPlayPermissionDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    QuantifierDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    RoundingDef, SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TargetConditionDef,
     TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
@@ -6192,13 +6192,65 @@ pub(in crate::card::sets) static GRAVEYARD_SHOVEL: CardRecord = CardRecord::new(
 );
 
 // ISD 226 — Grimoire of the Dead
-// Audit: metadata-only — Needs study counters and a graveyard sweep that changes returned creatures' colors and types.
 pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d268d078-b854-47c1-bc7f-7698723405a2"),
     "Grimoire of the Dead",
-    crate::card::CardArt::new("d268d078-b854-47c1-bc7f-7698723405a2", "Steven Belledin"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d268d078-b854-47c1-bc7f-7698723405a2", "Steven Belledin"),
+    CardSet::Innistrad,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_subtypes(&["Book"])
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{1}, {T}, Discard a card: Put a study counter on Grimoire of the Dead.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{1}")),
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                ],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("study"),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::activated(
+                "{T}, Remove three study counters from Grimoire of the Dead and sacrifice it: Put all creature cards from all graveyards onto the battlefield under your control. They're black Zombies in addition to their other colors and types.",
+                &[
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::RemoveCountersFromSource {
+                        kind: CounterKind::named("study"),
+                        amount: 3,
+                    },
+                    AbilityCostDef::SacrificeSource,
+                ],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::new(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Graveyard],
+                        ),
+                    )),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    controller: Some(PlayerRelation::You),
+                    // "In addition to their other colors and types", so both
+                    // leaves add rather than set. The effect travels with each
+                    // arrival because moving a card creates a new object.
+                    arrival_effect: Some(&AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_colors(ColorSet::from_colors(&[
+                            ManaColor::Black,
+                        ])),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Zombie",
+                        ])),
+                    ])),
+                    attachment: None,
+                    counters: None,
+                    tapped: false,
+                },
+            ),
+        ]),
 );
 
 // ISD 227 — Inquisitor's Flail

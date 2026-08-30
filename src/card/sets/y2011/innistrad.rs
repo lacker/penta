@@ -3701,13 +3701,24 @@ pub(in crate::card::sets) static ANCIENT_GRUDGE: CardRecord = CardRecord::new_wi
 );
 
 // ISD 128 — Ashmouth Hound
-// Audit: metadata-only — Needs a combat block/becomes-blocked trigger that identifies each opposing creature.
 pub(in crate::card::sets) static ASHMOUTH_HOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("900ff07e-e5d2-4fe6-ad1a-d0d7e1a272ea"),
     "Ashmouth Hound",
     crate::card::CardArt::new("900ff07e-e5d2-4fe6-ad1a-d0d7e1a272ea", "Daarken"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Elemental", "Dog"], 2, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature blocks or becomes blocked by a creature, this creature deals 1 damage to that creature.",
+            TriggerEventDef::BlocksOrBecomesBlockedBy {
+                creature: ObjectPredicateDef::Source,
+                other: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::TriggeringObject,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // ISD 129 — Balefire Dragon

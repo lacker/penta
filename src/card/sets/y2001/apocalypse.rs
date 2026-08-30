@@ -5,13 +5,13 @@ use crate::card::sets::y2011::mirrodin_besieged as catalog_mbs;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    ScaledValueDef, TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AdditionalCostValueDef, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, DiscardFollowUpDef, DiscardSelectionDef, DividedTotal,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, ScaledValueDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
 // APC 1 — Angelfire Crusader
 // Audit: metadata-only — Card rules have not been implemented.
@@ -775,13 +775,68 @@ pub(in crate::card::sets) static ANA_SANCTUARY: CardRecord = CardRecord::new(
 );
 
 // APC 75 — Anavolver
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANAVOLVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e685a8c-fba6-495f-ac0f-1ff5456b22d0"),
     "Anavolver",
     crate::card::CardArt::new("5e685a8c-fba6-495f-ac0f-1ff5456b22d0", "Matt Cavotta"),
     crate::card::CardSet::Apocalypse,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Volver"], 3, 3).with_abilities(&[
+        abilities::kicker_with_label("Kicker {1}{U}", mana_cost!("{1}{U}")),
+        abilities::kicker_with_label("Kicker {B}", mana_cost!("{B}")),
+        AbilityDef::as_enters(
+            "If this creature was kicked with its {1}{U} kicker, it enters with two +1/+1 counters on it and with flying.",
+            crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                crate::card::BattlefieldEntryModificationDef::AddCountersValue {
+                    kind: crate::card::CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                        AdditionalCostIndex::PRIMARY,
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    )),
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "It has flying if its {1}{U} kicker was paid.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                    AdditionalCostIndex::PRIMARY,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                },
+            },
+        ),
+        AbilityDef::as_enters(
+            "If this creature was kicked with its {B} kicker, it enters with a +1/+1 counter on it and with \"Pay 3 life: Regenerate this creature.\"",
+            crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                crate::card::BattlefieldEntryModificationDef::AddCountersValue {
+                    kind: crate::card::CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                        AdditionalCostIndex::SECONDARY,
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    )),
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "It has \"Pay 3 life: Regenerate this creature.\" if its {B} kicker was paid.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourcePaidAdditionalCost(
+                    AdditionalCostIndex::SECONDARY,
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::regenerate_self(
+                        "Pay 3 life: Regenerate this creature.",
+                        &[crate::card::AbilityCostDef::PayLife(3)],
+                    )),
+                },
+            },
+        ),
+    ]),
 );
 
 // APC 76 — Bog Gnarr
@@ -1358,6 +1413,7 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_wi
                         predicate: AbilityTargetPredicate::AnyTarget,
                         minimum: 1,
                         maximum: 2,
+                        exact_count: None,
                         divided_total: Some(DividedTotal::Fixed(2)),
                         another: false,
                         excludes_source: false,

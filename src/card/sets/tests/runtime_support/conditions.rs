@@ -94,6 +94,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::SourceIsPaired
         | TriggerConditionDef::ActivePlayer(_)
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast
         | TriggerConditionDef::SourceCastAtInstantSpeed
@@ -176,7 +177,8 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
             // How the permanent was cast is recorded on it as the spell
             // resolved, so a static clause reads plain state rather than
             // anything the layer being computed could change. Dash's haste
-            // is the clause that asks.
+            // is one clause that asks; a paid kicker is recorded beside it.
             | TriggerConditionDef::SourceCastWith(_)
+            | TriggerConditionDef::SourcePaidAdditionalCost(_)
     )
 }

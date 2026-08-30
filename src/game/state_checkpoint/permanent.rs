@@ -86,6 +86,7 @@ pub(super) fn permanent_snapshot(
         chosen_player: permanent.chosen_player.map(PlayerId::index),
         cast_x: permanent.cast_x,
         cast_kicks: permanent.cast_kicks,
+        cast_additional_costs: permanent.cast_additional_costs.clone(),
         cast_colors: permanent.cast_colors,
         cast_from_zone: permanent.cast_from_zone.map(|zone| zone.label().to_owned()),
         cast_alternative: permanent

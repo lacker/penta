@@ -367,6 +367,7 @@ impl Game {
                         // it enters, and hand or library size as a draw would
                         // happen; none is a question about leaving.
                         ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::SourcePaidAdditionalCost(_)
                         | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::ControllerHandAtMost(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty => false,

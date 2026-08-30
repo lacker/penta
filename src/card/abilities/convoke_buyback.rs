@@ -43,9 +43,34 @@ pub const fn buyback(mana_cost: ManaCost) -> AbilityDef {
         OptionalAdditionalCostKindDef::Buyback.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Buyback,
+            label: OptionalAdditionalCostKindDef::Buyback.label(),
             mana_cost: Some(mana_cost),
             additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Hand,
+        },
+    )
+}
+
+/// Kicker: an optional additional cost payable once. Unlike the legacy
+/// alternative-cast helper, this composes with every legal way of casting the
+/// spell and preserves the selected cost as part of the cast signature.
+#[must_use]
+pub const fn kicker(mana_cost: ManaCost) -> AbilityDef {
+    kicker_with_label(OptionalAdditionalCostKindDef::Kicker.label(), mana_cost)
+}
+
+/// Kicker with a distinct action label, for cards that print two independent
+/// kicker costs and need both choices to remain legible.
+#[must_use]
+pub const fn kicker_with_label(label: &'static str, mana_cost: ManaCost) -> AbilityDef {
+    AbilityDef::optional_additional_cost(
+        OptionalAdditionalCostKindDef::Kicker.label(),
+        OptionalAdditionalCostAbilityDef {
+            kind: OptionalAdditionalCostKindDef::Kicker,
+            label,
+            mana_cost: Some(mana_cost),
+            additional_cost: None,
+            resolution_destination: SpellResolutionDestinationDef::Graveyard,
         },
     )
 }
@@ -60,6 +85,7 @@ pub const fn replicate(mana_cost: ManaCost) -> AbilityDef {
         OptionalAdditionalCostKindDef::Replicate.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Replicate,
+            label: OptionalAdditionalCostKindDef::Replicate.label(),
             mana_cost: Some(mana_cost),
             additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
@@ -77,6 +103,7 @@ pub const fn squad(mana_cost: ManaCost) -> AbilityDef {
         OptionalAdditionalCostKindDef::Squad.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Squad,
+            label: OptionalAdditionalCostKindDef::Squad.label(),
             mana_cost: Some(mana_cost),
             additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
@@ -112,6 +139,28 @@ pub const fn multikicker(mana_cost: ManaCost) -> AbilityDef {
         OptionalAdditionalCostKindDef::Multikicker.label(),
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Multikicker,
+            label: OptionalAdditionalCostKindDef::Multikicker.label(),
+            mana_cost: Some(mana_cost),
+            additional_cost: None,
+            resolution_destination: SpellResolutionDestinationDef::Graveyard,
+        },
+    )
+}
+
+/// A named repeatable mana surcharge without a keyword wrapper. The caller's
+/// full text remains the printed clause while `label` distinguishes several
+/// costs offered by the same spell.
+#[must_use]
+pub const fn repeatable_additional_mana_cost(
+    text: &'static str,
+    label: &'static str,
+    mana_cost: ManaCost,
+) -> AbilityDef {
+    AbilityDef::optional_additional_cost(
+        text,
+        OptionalAdditionalCostAbilityDef {
+            kind: OptionalAdditionalCostKindDef::Repeatable,
+            label,
             mana_cost: Some(mana_cost),
             additional_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
@@ -129,6 +178,7 @@ pub const fn buyback_with_additional_cost(
         text,
         OptionalAdditionalCostAbilityDef {
             kind: OptionalAdditionalCostKindDef::Buyback,
+            label: OptionalAdditionalCostKindDef::Buyback.label(),
             mana_cost: None,
             additional_cost: Some(*cost),
             resolution_destination: SpellResolutionDestinationDef::Hand,

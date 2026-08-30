@@ -89,6 +89,7 @@ impl Game {
                     // Hand and library sizes are likewise facts about draws.
                     Some(
                         ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::SourcePaidAdditionalCost(_)
                         | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::ControllerHandAtMost(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty,

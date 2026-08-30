@@ -2672,6 +2672,7 @@ pub(in crate::card::sets) static GANG_OF_DEVILS: CardRecord = CardRecord::new_wi
                 predicate: AbilityTargetPredicate::AnyTarget,
                 minimum: 1,
                 maximum: 3,
+                exact_count: None,
                 divided_total: Some(DividedTotal::Fixed(3)),
                 another: false,
                 excludes_source: false,

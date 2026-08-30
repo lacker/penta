@@ -73,6 +73,7 @@ impl Game {
                     card.id,
                     TriggerContext::empty(),
                     0,
+                    &[],
                 ) {
                     for payer in &payers {
                         actions.push(Action::ActivateAbility {
@@ -194,6 +195,7 @@ impl Game {
                         card.id,
                         TriggerContext::empty(),
                         x,
+                        &[],
                     ) {
                         for cost_objects in &returned {
                             actions.push(Action::ActivateAbility {
@@ -268,6 +270,7 @@ impl Game {
                         card.id,
                         TriggerContext::empty(),
                         0,
+                        &[],
                     ) {
                         for cost_objects in &payers {
                             actions.push(Action::ActivateAbility {

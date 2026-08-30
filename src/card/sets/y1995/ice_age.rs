@@ -2907,6 +2907,7 @@ pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
                 },
                 minimum: 0,
                 maximum: AbilityTargetDef::UNLIMITED,
+                exact_count: None,
                 divided_total: Some(DividedTotal::ChosenX),
                 another: false,
                 excludes_source: false,

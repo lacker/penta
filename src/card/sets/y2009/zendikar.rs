@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
+    CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -171,36 +171,27 @@ pub(in crate::card::sets) static VAMPIRE_LACERATOR: CardRecord = CardRecord::new
 );
 
 // ZEN 119 — Burst Lightning
-static BURST_LIGHTNING_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2dc16614-5cf8-444d-a5ae-cac25018af68"),
     "Burst Lightning",
     CardArt::new("2dc16614-5cf8-444d-a5ae-cac25018af68", "Vance Kovacs"),
     CardSet::Zendikar,
     // One mana to answer what a one-drop deck leads with, and five to point
-    // the same card at anything later. Kicking it is one whole cast rather
-    // than a rider on the small one, so the size is settled as it goes on
-    // the stack.
+    // the same card at anything later.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
+        abilities::kicker(mana_cost!("{4}")),
         AbilityDef::spell_with_targets(
-            "Kicker {4} (You may pay an additional {4} as you cast this spell.)\nBurst Lightning \
-             deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.",
-            &BURST_LIGHTNING_TARGET,
+            "Burst Lightning deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
-        ),
-        abilities::kicker(
-            mana_cost!("{4}{R}"),
-            "Burst Lightning deals 4 damage to any target.",
-            &BURST_LIGHTNING_TARGET,
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
+                amount: ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                    crate::AdditionalCostIndex::PRIMARY,
+                    ValueDef::Constant(4),
+                    ValueDef::Constant(2),
+                )),
             },
         ),
     ]),

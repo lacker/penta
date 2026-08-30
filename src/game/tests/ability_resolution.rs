@@ -177,6 +177,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         },
         minimum: 1,
         maximum: 2,
+        exact_count: None,
         divided_total: None,
         another: false,
         excludes_source: false,

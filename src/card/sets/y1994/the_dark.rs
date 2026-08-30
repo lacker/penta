@@ -790,6 +790,7 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_wi
                 },
                 minimum: 2,
                 maximum: 2,
+                exact_count: None,
                 divided_total: None,
                 another: false,
                 excludes_source: false,

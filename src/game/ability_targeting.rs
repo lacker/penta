@@ -133,6 +133,10 @@ impl Game {
         )
     }
 
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "target legality needs both resolution context and prospective cast payments"
+    )]
     fn ability_targets_matching_with_selections_for(
         &self,
         predicate: AbilityTargetPredicate,
@@ -141,7 +145,29 @@ impl Game {
         source: GameObjectId,
         context: TriggerContext,
         source_is_spell: bool,
+        additional_cost_payments: Option<&[u16]>,
     ) -> Vec<Target> {
+        if let AbilityTargetPredicate::IfAdditionalCostPaid {
+            cost,
+            if_paid,
+            otherwise,
+        } = predicate
+        {
+            let paid = additional_cost_payments
+                .and_then(|payments| payments.get(cost.index()))
+                .copied()
+                .unwrap_or_else(|| self.source_additional_cost_payments(source, cost));
+            let selected = if paid > 0 { if_paid } else { otherwise };
+            return self.ability_targets_matching_with_selections_for(
+                *selected,
+                selections,
+                actors,
+                source,
+                context,
+                source_is_spell,
+                additional_cost_payments,
+            );
+        }
         if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
             let mut targets = Vec::new();
             for predicate in predicates {
@@ -152,6 +178,7 @@ impl Game {
                     source,
                     context,
                     source_is_spell,
+                    additional_cost_payments,
                 ) {
                     if !targets.contains(&target) {
                         targets.push(target);
@@ -173,6 +200,10 @@ impl Game {
             })
     }
 
+    #[allow(
+        clippy::too_many_arguments,
+        reason = "target legality needs both resolution context and prospective cast payments"
+    )]
     pub(super) fn ability_targets_matching_with_selections_at(
         &self,
         predicate: AbilityTargetPredicate,
@@ -181,6 +212,7 @@ impl Game {
         source: GameObjectId,
         context: TriggerContext,
         x: u16,
+        additional_cost_payments: &[u16],
     ) -> Vec<Target> {
         let previous = self.prospective_x.replace(Some(x));
         let targets = self.ability_targets_matching_with_selections_for(
@@ -190,6 +222,7 @@ impl Game {
             source,
             context,
             true,
+            Some(additional_cost_payments),
         );
         self.prospective_x.set(previous);
         targets
@@ -209,7 +242,7 @@ impl Game {
     ) -> Vec<Target> {
         let previous = self.prospective_x.replace(Some(x));
         let targets = self.ability_targets_matching_with_selections_for(
-            predicate, selections, actors, source, context, false,
+            predicate, selections, actors, source, context, false, None,
         );
         self.prospective_x.set(previous);
         targets
@@ -235,6 +268,7 @@ impl Game {
             source,
             context,
             source_is_spell,
+            None,
         )
     }
 
@@ -262,6 +296,7 @@ impl Game {
             source,
             context,
             source_is_spell,
+            None,
         )
     }
 
@@ -299,6 +334,7 @@ impl Game {
             source,
             context,
             source_is_spell,
+            None,
         )
     }
 
@@ -394,8 +430,9 @@ impl Game {
         source_is_spell: bool,
     ) -> Vec<Target> {
         match predicate {
-            AbilityTargetPredicate::AnyOf(_) => {
-                unreachable!("target alternatives are expanded before leaf matching")
+            AbilityTargetPredicate::AnyOf(_)
+            | AbilityTargetPredicate::IfAdditionalCostPaid { .. } => {
+                unreachable!("composite target predicates are expanded before leaf matching")
             }
             AbilityTargetPredicate::AnyTarget => {
                 self.any_targets_matching(actors, source, source_is_spell)

@@ -185,6 +185,7 @@ mod isd_skirsdag_high_priest;
 mod isd_token_cards;
 mod jade_statue;
 mod keymaster_rogue;
+mod kicker;
 mod killing_glare;
 mod laces;
 mod land_and_ability_layers;

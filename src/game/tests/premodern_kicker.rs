@@ -72,13 +72,14 @@ fn cast_overload(kicked: bool, artifact: CardDefinitionId) -> Game {
         if kicked { 2 } else { 1 },
         "one red pays only the printed cost; three pays either",
     );
-    // The kicked cast is the more expensive one, and it is offered second.
-    // The kicked cast is the one carrying an alternative cost.
+    // Kicker is an optional additional cost, independent of the printed
+    // mana cost rather than a second total cost.
     let chosen = offered
         .into_iter()
         .find(|action| {
             matches!(action, Action::CastSpell { choices, .. }
-                if choices.costs().alternative().is_some() == kicked)
+                if choices.costs().alternative().is_none()
+                    && choices.costs().additional().is_empty() != kicked)
         })
         .expect("a cast was offered");
     game.apply(PlayerId::One, chosen).expect("it is cast");
@@ -133,8 +134,8 @@ fn even_kicked_overload_has_a_ceiling() {
     );
 }
 
-/// Paying the kicker costs what the kicked total says: one red alone offers
-/// only the unkicked cast.
+/// Paying the kicker adds two generic mana to the printed cost: one red alone
+/// offers only the unkicked cast.
 #[test]
 fn the_kicker_is_not_offered_without_the_extra_mana() {
     let mut game = ready();
@@ -205,7 +206,9 @@ fn prohibit_against(kicked: bool, target: CardDefinitionId) -> Game {
         .into_iter()
         .find(|action| {
             matches!(action, Action::CastSpell { card, choices, .. }
-                if *card == prohibit_id && choices.costs().alternative().is_some() == kicked)
+                if *card == prohibit_id
+                    && choices.costs().alternative().is_none()
+                    && choices.costs().additional().is_empty() != kicked)
         })
         .expect("Prohibit is castable and can name the spell");
     game.apply(PlayerId::One, chosen).expect("it is cast");

@@ -2871,6 +2871,7 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
                     },
                     minimum: 2,
                     maximum: 2,
+                    exact_count: None,
                     divided_total: None,
                     another: false,
                     excludes_source: false,

@@ -64,6 +64,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // A conditional amount belongs to a resolving effect, not to the
         // static power-and-toughness layer.
         ValueDef::IfCardTypesAmongGraveyards(_)
+        | ValueDef::IfAdditionalCostPaid(_)
         | ValueDef::CountMatchingPlayerAttachments(_)
         | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
@@ -89,7 +90,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::TimesAdditionalCostPaid
+        | ValueDef::AdditionalCostPayments(_)
         | ValueDef::SpellsCastThisGame(_)
         | ValueDef::TargetPower(_)
         | ValueDef::TargetToughness(_)
@@ -121,6 +122,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::DistinctNamesAmong(_)
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::IfCardTypesAmongGraveyards(_)
+        | ValueDef::IfAdditionalCostPaid(_)
         | ValueDef::GreatestPowerAmong(_)
         | ValueDef::ChosenX
         | ValueDef::SourceCastX
@@ -161,7 +163,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::TimesAdditionalCostPaid
+        | ValueDef::AdditionalCostPayments(_)
         | ValueDef::SpellsCastThisGame(_)
         | ValueDef::CountSpellsCastThisTurn(_)
         | ValueDef::TargetPower(_)

@@ -24,10 +24,9 @@ pub struct AdditionalCostDef {
     pub id: AdditionalCostId,
     pub label: String,
     pub mana_cost: Option<ManaCost>,
-    /// Whether one cast may pay this cost more than once, which only
-    /// replicate does. A repeated payment appears once per payment in the
-    /// cast's cost configuration, so the number of times it was paid is the
-    /// number of times its id is there.
+    /// Whether one cast may pay this cost more than once. A repeated payment
+    /// appears once per payment in the cast's cost configuration, so the
+    /// number of times it was paid is the number of times its id is there.
     pub repeatable: bool,
 }
 

@@ -546,6 +546,9 @@ impl Game {
                                 if permanent.cast_alternative == Some(*kind)
                         )
                 }
+                TriggerConditionDef::SourcePaidAdditionalCost(cost) => {
+                    self.source_additional_cost_payments(source, *cost) > 0
+                }
                 TriggerConditionDef::SourceLoyalty { comparison, amount } => self
                     .battlefield
                     .iter()

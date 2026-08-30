@@ -625,6 +625,18 @@ impl Game {
                     }
                     Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
                 }),
+            ValueDef::AdditionalCostPayments(cost) => Some(i32::from(
+                self.source_additional_cost_payments(source, cost),
+            )),
+            ValueDef::IfAdditionalCostPaid(conditional) => {
+                let selected = if self.source_additional_cost_payments(source, conditional.cost) > 0
+                {
+                    conditional.if_paid
+                } else {
+                    conditional.otherwise
+                };
+                self.value_from_source(selected, source)
+            }
             // "Power X or less" is said as "below X plus one", so a sum has
             // to be reachable from here as well as its parts.
             ValueDef::Sum(sum) => self

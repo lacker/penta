@@ -766,6 +766,7 @@ pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::n
                 // trigger does nothing, so the minimum is zero rather than one.
                 minimum: 0,
                 maximum: 1,
+                exact_count: None,
                 divided_total: None,
                 another: false,
                 excludes_source: false,
@@ -2545,6 +2546,7 @@ pub(in crate::card::sets) static FLAMES_OF_THE_FIREBRAND: CardRecord = CardRecor
                 // split with every share at least one says the same thing.
                 minimum: 1,
                 maximum: 3,
+                exact_count: None,
                 divided_total: Some(DividedTotal::Fixed(3)),
                 another: false,
                 excludes_source: false,

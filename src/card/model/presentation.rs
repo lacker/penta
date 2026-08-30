@@ -394,6 +394,12 @@ fn append_relation_suffix(label: &mut String, suffix: &'static str) {
 
 fn presentation_target_predicate(predicate: AbilityTargetPredicate) -> Option<TargetPredicate> {
     match predicate {
+        AbilityTargetPredicate::IfAdditionalCostPaid {
+            if_paid, otherwise, ..
+        } => {
+            let paid = presentation_target_predicate(*if_paid)?;
+            (presentation_target_predicate(*otherwise) == Some(paid)).then_some(paid)
+        }
         AbilityTargetPredicate::AnyOf(predicates) => {
             let mut predicates = predicates.iter().copied();
             let first = presentation_target_predicate(predicates.next()?)?;
@@ -450,6 +456,9 @@ impl AbilityTargetDef {
     /// English for an unfamiliar predicate combination.
     pub(crate) fn label(self) -> String {
         match self.predicate {
+            AbilityTargetPredicate::IfAdditionalCostPaid {
+                if_paid, otherwise, ..
+            } => conditional_target_label(self, *if_paid, *otherwise),
             AbilityTargetPredicate::AnyOf(predicates) => {
                 let alternatives = predicates
                     .iter()
@@ -546,6 +555,31 @@ impl AbilityTargetDef {
             maximum: self.maximum,
             divided_total: self.divided_total,
         })
+    }
+}
+
+fn conditional_target_label(
+    target: AbilityTargetDef,
+    if_paid: AbilityTargetPredicate,
+    otherwise: AbilityTargetPredicate,
+) -> String {
+    let ordinary = AbilityTargetDef {
+        predicate: otherwise,
+        ..target
+    }
+    .label();
+    let paid = AbilityTargetDef {
+        predicate: if_paid,
+        ..target
+    }
+    .label();
+    if ordinary == paid {
+        ordinary
+    } else {
+        format!(
+            "{ordinary} or, if the additional cost was paid, {}",
+            paid.strip_prefix("target ").unwrap_or(paid.as_str())
+        )
     }
 }
 

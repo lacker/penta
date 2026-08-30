@@ -89,8 +89,37 @@ fn validate_target_definitions(
                 maximum: definition.maximum,
             });
         }
+        if definition
+            .exact_count
+            .is_some_and(|value| !cast_target_count_value_supported(value))
+        {
+            return Err(
+                GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "cast target count",
+                    operation: "unsupported ValueDef",
+                },
+            );
+        }
     }
     Ok(())
+}
+
+fn cast_target_count_value_supported(value: ValueDef) -> bool {
+    match value {
+        ValueDef::Constant(_) | ValueDef::ChosenX | ValueDef::AdditionalCostPayments(_) => true,
+        ValueDef::Negate(value) => cast_target_count_value_supported(*value),
+        ValueDef::Scaled(scaled) => cast_target_count_value_supported(scaled.value),
+        ValueDef::Sum(sum) => {
+            cast_target_count_value_supported(sum.left)
+                && cast_target_count_value_supported(sum.right)
+        }
+        ValueDef::IfAdditionalCostPaid(conditional) => {
+            cast_target_count_value_supported(conditional.if_paid)
+                && cast_target_count_value_supported(conditional.otherwise)
+        }
+        ValueDef::Halved(halved) => cast_target_count_value_supported(halved.value),
+        _ => false,
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -351,6 +380,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::AttachedPermanentMatches { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast
         | TriggerConditionDef::SourceCastAtInstantSpeed
@@ -433,6 +463,10 @@ fn validate_object_set_target_references(
     }
 }
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "exhaustive value traversal keeps every reference-bearing variant visible"
+)]
 fn validate_value_target_references(
     value: ValueDef,
     target_count: usize,
@@ -452,14 +486,24 @@ fn validate_value_target_references(
             validate_value_target_references(sum.left, target_count, scope)?;
             validate_value_target_references(sum.right, target_count, scope)
         }
-        ValueDef::IfControllerLifeAtMost(condition) => {
-            validate_value_target_references(condition.then, target_count, scope)?;
-            validate_value_target_references(condition.otherwise, target_count, scope)
-        }
-        ValueDef::IfCreatureDiedThisTurn(condition) => {
-            validate_value_target_references(condition.then, target_count, scope)?;
-            validate_value_target_references(condition.otherwise, target_count, scope)
-        }
+        ValueDef::IfAdditionalCostPaid(condition) => validate_value_pair_target_references(
+            condition.if_paid,
+            condition.otherwise,
+            target_count,
+            scope,
+        ),
+        ValueDef::IfControllerLifeAtMost(condition) => validate_value_pair_target_references(
+            condition.then,
+            condition.otherwise,
+            target_count,
+            scope,
+        ),
+        ValueDef::IfCreatureDiedThisTurn(condition) => validate_value_pair_target_references(
+            condition.then,
+            condition.otherwise,
+            target_count,
+            scope,
+        ),
         ValueDef::IfSourceMatches(condition) => {
             validate_object_predicate_references(condition.object, target_count, scope)?;
             validate_value_target_references(condition.then, target_count, scope)?;
@@ -531,7 +575,7 @@ fn validate_value_target_references(
         | ValueDef::MatchedManaValue
         | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
-        | ValueDef::TimesAdditionalCostPaid
+        | ValueDef::AdditionalCostPayments(_)
         | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
         | ValueDef::CardTypesAmongGraveyards(_)
@@ -541,6 +585,16 @@ fn validate_value_target_references(
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
     }
+}
+
+fn validate_value_pair_target_references(
+    left: ValueDef,
+    right: ValueDef,
+    target_count: usize,
+    scope: BindingScope,
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_value_target_references(left, target_count, scope)?;
+    validate_value_target_references(right, target_count, scope)
 }
 
 fn validate_applied_effect_target_references(

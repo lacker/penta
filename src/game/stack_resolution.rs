@@ -100,6 +100,7 @@ impl Game {
             if object.is_copy {
                 let cast_x = object.x();
                 let cast_kicks = self.repeatable_additional_cost_payments(object.id);
+                let cast_additional_costs = self.additional_cost_payment_counts(object.id);
                 let cast_alternative = object.signature.as_ref().and_then(|signature| {
                     let card = self.catalog.get(definition)?;
                     let option = card.play_option(signature.play_option())?;
@@ -160,6 +161,7 @@ impl Game {
                         permanent.chosen_player = chosen_player;
                         permanent.cast_x = cast_x;
                         permanent.cast_kicks = cast_kicks;
+                        permanent.cast_additional_costs = cast_additional_costs;
                         permanent.cast_colors = 0;
                         permanent.cast_alternative = cast_alternative;
                         permanent.cast_at_instant_speed = false;
@@ -201,6 +203,7 @@ impl Game {
             // is still findable, because the permanent's own entry
             // replacement asks after it is gone.
             permanent.cast_kicks = self.repeatable_additional_cost_payments(object.id);
+            permanent.cast_additional_costs = self.additional_cost_payment_counts(object.id);
             // Sunburst counts what paid for the spell, which only the spell
             // knows.
             permanent.cast_colors = colors_spent;

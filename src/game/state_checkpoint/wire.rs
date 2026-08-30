@@ -707,6 +707,9 @@ fn parse_permanent(
     permanent.chosen_player = state.chosen_player.map(player_from_index).transpose()?;
     permanent.cast_x = state.cast_x;
     permanent.cast_kicks = state.cast_kicks;
+    permanent
+        .cast_additional_costs
+        .clone_from(&state.cast_additional_costs);
     permanent.cast_colors = state.cast_colors;
     permanent.cast_from_zone = state
         .cast_from_zone

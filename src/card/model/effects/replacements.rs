@@ -7,9 +7,9 @@
 
 use super::{
     ConditionDef, CounterKind, EffectDef, EffectPaymentDef, ObjectPredicateDef, PlayerRelation,
-    TurnKindDef, ZoneKind,
+    TurnKindDef, ValueDef, ZoneKind,
 };
-use crate::card::AlternativeCastKindDef;
+use crate::{AdditionalCostIndex, card::AlternativeCastKindDef};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementEventDef {
@@ -96,6 +96,9 @@ pub enum ReplacementConditionDef {
     /// Impending's counters are put on as the permanent enters and only when
     /// it was paid for that way, so the entry has to ask.
     SourceCastWith(AlternativeCastKindDef),
+    /// The entering permanent's spell paid the named optional additional
+    /// cost. Read from the cast facts copied onto the prospective permanent.
+    SourcePaidAdditionalCost(AdditionalCostIndex),
     /// The source was not cast from the named zone. This is also true when
     /// it was put onto the battlefield without being cast at all.
     SourceNotCastFrom(ZoneKind),
@@ -129,13 +132,11 @@ pub enum BattlefieldEntryModificationDef {
     AddCastXCounters {
         kind: CounterKind,
     },
-    /// As many counters as the number of times a repeatable optional
-    /// additional cost was paid for its spell. "This artifact enters with a
-    /// charge counter on it for each time it was kicked" cannot name a
-    /// number either, and what the entering permanent was paid for is
-    /// recorded as it resolves.
-    AddKickCounters {
+    /// A counter amount computed from values carried by the entering
+    /// permanent, such as an indexed multikicker payment count.
+    AddCountersValue {
         kind: CounterKind,
+        amount: ValueDef,
     },
     /// Sunburst (CR 702.44): as many counters as there were colours among
     /// the mana that paid for its spell. Generic mana counts here as

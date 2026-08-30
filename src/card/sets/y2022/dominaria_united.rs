@@ -177,12 +177,6 @@ pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static TEAR_ASUNDER_EXILES: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
-
 // DMU 183 — Tear Asunder
 pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("629aa907-9533-4681-9bf2-9e56450a4cc2"),
@@ -193,28 +187,38 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
     // or four for anything at all -- and exile rather than destruction,
     // which is what the extra mana is really paying for.
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
+        abilities::kicker(mana_cost!("{1}{B}")),
         AbilityDef::spell_with_targets(
-            "Kicker {1}{B} (You may pay an additional {1}{B} as you cast this spell.)\nExile \
-             target artifact or enchantment. If this spell was kicked, exile target nonland \
-             permanent instead.",
-            // What two mana buys, on either side of the board.
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                ]),
+            "Exile target artifact or enchantment. If this spell was kicked, exile target nonland permanent instead.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::IfAdditionalCostPaid {
+                    cost: crate::AdditionalCostIndex::PRIMARY,
+                    // What four buys instead. "Instead" widens the one target.
+                    if_paid: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    // What two mana buys, on either side of the board.
+                    otherwise: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                },
             )],
-            TEAR_ASUNDER_EXILES,
-        ),
-        abilities::kicker(
-            mana_cost!("{2}{G}{B}"),
-            "Exile target nonland permanent.",
-            // What four buys instead. "Instead" is the point: the kicked spell targets
-            // once, not twice, and what it may name is wider rather than longer.
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            )],
-            TEAR_ASUNDER_EXILES,
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
         ),
     ]),
 );

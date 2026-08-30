@@ -7,9 +7,9 @@ use crate::card::{
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet,
     CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, TokenCharacteristics, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
 // WWK 20 — Stoneforge Mystic
 pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
@@ -147,6 +147,29 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
             ]),
     );
 
+// WWK 118 — Wolfbriar Elemental
+pub(in crate::card::sets) static WOLFBRIAR_ELEMENTAL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("35ffbd5e-113a-4f24-baa1-b65a5082d893"),
+    "Wolfbriar Elemental",
+    CardArt::new("35ffbd5e-113a-4f24-baa1-b65a5082d893", "Chippy"),
+    CardSet::Worldwake,
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elemental"], 4, 4).with_abilities(&[
+        abilities::multikicker(mana_cost!("{G}")),
+        abilities::enters_trigger(
+            "When this creature enters, create a 2/2 green Wolf creature token for each time it was kicked.",
+            EffectDef::create_token(TokenCharacteristics::creature(
+                &["Wolf"],
+                &[ManaColor::Green],
+                2,
+                2,
+            ))
+            .with_count(ValueDef::AdditionalCostPayments(
+                AdditionalCostIndex::PRIMARY,
+            )),
+        ),
+    ]),
+);
+
 // WWK 123 — Everflowing Chalice
 pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1fdcc0c3-4029-4fc3-a486-5d7f45c910bd"),
@@ -163,8 +186,9 @@ pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::n
         AbilityDef::as_enters(
             "This artifact enters with a charge counter on it for each time it was kicked.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
-                BattlefieldEntryModificationDef::AddKickCounters {
+                BattlefieldEntryModificationDef::AddCountersValue {
                     kind: CounterKind::named("charge"),
+                    amount: ValueDef::AdditionalCostPayments(AdditionalCostIndex::PRIMARY),
                 },
             ),
         ),
@@ -297,6 +321,7 @@ pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONEFORGE_MYSTIC,
     &JACE_THE_MIND_SCULPTOR,
+    &WOLFBRIAR_ELEMENTAL,
     &EVERFLOWING_CHALICE,
     &CELESTIAL_COLONNADE,
     &CREEPING_TAR_PIT,

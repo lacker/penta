@@ -2947,6 +2947,7 @@ pub(in crate::card::sets) static AURELIAS_FURY: CardRecord = CardRecord::new_wit
                 // "Any number of targets" is however many shares X splits into.
                 minimum: 0,
                 maximum: u8::MAX,
+                exact_count: None,
                 divided_total: Some(DividedTotal::ChosenX),
                 another: false,
                 excludes_source: false,

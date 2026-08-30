@@ -64,7 +64,8 @@ fn cast(game: &mut Game, bolt: GameObjectId, target: Target, kicked: bool) {
         .into_iter()
         .find(|action| {
             matches!(action, Action::CastSpell { choices, .. }
-                if choices.costs().alternative().is_some() == kicked)
+                if choices.costs().alternative().is_none()
+                    && choices.costs().additional().is_empty() != kicked)
         })
         .unwrap_or_else(|| panic!("it is castable (kicked: {kicked})"));
     game.apply(PlayerId::One, action).expect("it is cast");
@@ -115,7 +116,9 @@ fn one_mana_offers_only_the_small_cast() {
     assert_eq!(offered.len(), 1, "one red buys one cast: {offered:?}");
     assert!(
         offered.iter().all(|action| matches!(action,
-            Action::CastSpell { choices, .. } if choices.costs().alternative().is_none())),
+            Action::CastSpell { choices, .. }
+                if choices.costs().alternative().is_none()
+                    && choices.costs().additional().is_empty())),
         "and it is the unkicked one",
     );
 }

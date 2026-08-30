@@ -11,6 +11,12 @@ impl Game {
                 .iter()
                 .copied()
                 .any(Self::ability_target_uses_custom_predicate),
+            AbilityTargetPredicate::IfAdditionalCostPaid {
+                if_paid, otherwise, ..
+            } => {
+                Self::ability_target_uses_custom_predicate(*if_paid)
+                    || Self::ability_target_uses_custom_predicate(*otherwise)
+            }
             AbilityTargetPredicate::Object { object, .. }
             | AbilityTargetPredicate::StackObject { object, .. } => {
                 Self::object_predicate_uses_custom_predicate(object)

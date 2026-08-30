@@ -5,10 +5,11 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
-    ObjectRefDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
-    TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
+    SumValueDef, TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
 // ALL 1a — Carrier Pigeons
 // Audit: metadata-only — Card rules have not been implemented.
@@ -946,13 +947,54 @@ pub(in crate::card::sets) static PILLAGE: CardRecord = CardRecord::new(
 );
 
 // ALL 77 — Primitive Justice
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMITIVE_JUSTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d6b7829b-2a10-47e7-9cf9-8ae49d2b398a"),
     "Primitive Justice",
     crate::card::CardArt::new("d6b7829b-2a10-47e7-9cf9-8ae49d2b398a", "Anthony S. Waters"),
     crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_abilities(&[
+        abilities::repeatable_additional_mana_cost(
+            "As an additional cost to cast this spell, you may pay {1}{R} any number of times.",
+            "{1}{R} additional cost",
+            mana_cost!("{1}{R}"),
+        ),
+        abilities::repeatable_additional_mana_cost(
+            "As an additional cost to cast this spell, you may pay {1}{G} any number of times.",
+            "{1}{G} additional cost",
+            mana_cost!("{1}{G}"),
+        ),
+        AbilityDef::spell_with_targets(
+            "Destroy target artifact. For each additional {1}{R} you paid, destroy another target artifact. For each additional {1}{G} you paid, destroy another target artifact, and you gain 1 life.",
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                ValueDef::Sum(&SumValueDef::new(
+                    ValueDef::Constant(1),
+                    ValueDef::Sum(&SumValueDef::new(
+                        ValueDef::AdditionalCostPayments(AdditionalCostIndex::PRIMARY),
+                        ValueDef::AdditionalCostPayments(AdditionalCostIndex::SECONDARY),
+                    )),
+                )),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::objects(ObjectSetDef::LegalTargets(
+                        TargetIndex::PRIMARY,
+                    )),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::AdditionalCostPayments(AdditionalCostIndex::SECONDARY),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // ALL 78 — Pyrokinesis
@@ -989,6 +1031,7 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
                 },
                 minimum: 1,
                 maximum: AbilityTargetDef::UNLIMITED,
+                exact_count: None,
                 divided_total: Some(DividedTotal::Fixed(4)),
                 another: false,
                 excludes_source: false,

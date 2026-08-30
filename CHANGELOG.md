@@ -184,6 +184,14 @@ distinguishes snapshots of the covered source and build inputs.
   mechanic and card counters such as energy, time, and burden without changing
   their checkpoint keys.
 
+- **Kicker and distinct repeatable additional costs.** Optional additional
+  mana costs can now be paid once or any number of times, remain distinct when
+  a card prints more than one, scale a spell's exact target count, and be read
+  individually after the spell becomes a permanent. Wolfbriar Elemental,
+  Primitive Justice, and Anavolver use the shared declarative model. Per-cost
+  permanent payment counts are an additive checkpoint member; checkpoint
+  format 9, replay version 2, and protocol 29 are unchanged.
+
 - **Composable mana types and immediate triggered-mana choices.** `AddMana`
   now builds its output from an independent type source (fixed, chosen on the
   source, or produced by the triggering mana ability) and selection rule (one,

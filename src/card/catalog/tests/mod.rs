@@ -59,6 +59,7 @@ fn semantic_target(minimum: u8, maximum: u8) -> AbilityTargetDef {
         predicate: AbilityTargetPredicate::AnyTarget,
         minimum,
         maximum,
+        exact_count: None,
         divided_total: None,
         another: false,
         excludes_source: false,

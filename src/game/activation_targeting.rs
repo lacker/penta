@@ -41,7 +41,14 @@ impl Game {
             .iter()
             .position(|slot| slot.chooser != TargetChooserDef::Controller)
         else {
-            return self.legal_ability_target_selections(slots, controller, source, context, x);
+            return self.legal_ability_target_selections(
+                slots,
+                controller,
+                source,
+                context,
+                x,
+                &[],
+            );
         };
         let prefixes = self.legal_ability_target_selections(
             &slots[..deferred],
@@ -49,6 +56,7 @@ impl Game {
             source,
             context,
             x,
+            &[],
         );
         let slot = slots[deferred];
         let chooser = Self::activation_target_chooser(controller, slot.chooser);
@@ -63,7 +71,7 @@ impl Game {
                     context,
                     x,
                 );
-                let (minimum, _) = slot.count_bounds(x);
+                let (minimum, _) = slot.count_bounds(x, &[]);
                 candidates.len() >= usize::from(minimum)
             })
             .collect()
@@ -81,7 +89,7 @@ impl Game {
         let slot = pending.target_defs[target_index];
         debug_assert_eq!(target_index + 1, pending.target_defs.len());
         debug_assert_eq!(slot.chooser, TargetChooserDef::Opponent);
-        debug_assert_eq!(slot.count_bounds(pending.x), (1, 1));
+        debug_assert_eq!(slot.count_bounds(pending.x, &[]), (1, 1));
         debug_assert!(slot.divided_total.is_none());
         let chooser = Self::activation_target_chooser(pending.controller, slot.chooser);
         let candidates = self.activation_target_candidates(
@@ -92,7 +100,7 @@ impl Game {
             TriggerContext::empty(),
             pending.x,
         );
-        let (minimum, maximum) = slot.count_bounds(pending.x);
+        let (minimum, maximum) = slot.count_bounds(pending.x, &[]);
         if candidates.len() < usize::from(minimum) {
             // No cost has been paid and no stack object exists yet. The legal
             // action preflight prevents this for the first deferred slot; a

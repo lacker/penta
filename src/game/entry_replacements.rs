@@ -7,7 +7,8 @@ use super::{
     PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
+    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ValueDef, ZoneKind,
+    public_cards,
 };
 use crate::CharacteristicContext;
 
@@ -499,6 +500,14 @@ impl Game {
             ReplacementConditionDef::SourceCastWith(kind) => {
                 entry.permanent.card.id == source && entry.permanent.cast_alternative == Some(kind)
             }
+            ReplacementConditionDef::SourcePaidAdditionalCost(cost) => {
+                entry.permanent.card.id == source
+                    && entry
+                        .permanent
+                        .cast_additional_costs
+                        .get(cost.index())
+                        .is_some_and(|payments| *payments > 0)
+            }
             ReplacementConditionDef::SourceNotCastFrom(zone) => {
                 entry.permanent.card.id == source
                     && entry
@@ -535,9 +544,11 @@ impl Game {
                 let amount = permanent.cast_x;
                 permanent.add_counters(kind, amount);
             }
-            BattlefieldEntryModificationDef::AddKickCounters { kind } => {
-                let amount = permanent.cast_kicks;
-                permanent.add_counters(kind, amount);
+            BattlefieldEntryModificationDef::AddCountersValue { kind, amount } => {
+                let amount = entry_value(permanent, amount)
+                    .expect("catalog validation rejects unsupported entry values")
+                    .clamp(0, i32::from(u16::MAX));
+                permanent.add_counters(kind, u16::try_from(amount).unwrap_or_default());
             }
             BattlefieldEntryModificationDef::AddColorsSpentCounters { kind } => {
                 let amount = permanent.cast_colors;
@@ -884,6 +895,44 @@ impl Game {
             self.events
                 .push(GameEvent::SpellResolved { card, definition });
         }
+    }
+}
+
+fn entry_value(permanent: &Permanent, value: ValueDef) -> Option<i32> {
+    match value {
+        ValueDef::Constant(value) => Some(value),
+        ValueDef::SourceCastX => Some(i32::from(permanent.cast_x)),
+        ValueDef::AdditionalCostPayments(index) => Some(i32::from(
+            permanent
+                .cast_additional_costs
+                .get(index.index())
+                .copied()
+                .unwrap_or_default(),
+        )),
+        ValueDef::IfAdditionalCostPaid(conditional) => {
+            let paid = permanent
+                .cast_additional_costs
+                .get(conditional.cost.index())
+                .copied()
+                .unwrap_or_default();
+            entry_value(
+                permanent,
+                if paid > 0 {
+                    conditional.if_paid
+                } else {
+                    conditional.otherwise
+                },
+            )
+        }
+        ValueDef::Negate(value) => entry_value(permanent, *value)?.checked_neg(),
+        ValueDef::Scaled(scaled) => {
+            entry_value(permanent, scaled.value)?.checked_mul(scaled.factor)
+        }
+        ValueDef::Sum(sum) => {
+            entry_value(permanent, sum.left)?.checked_add(entry_value(permanent, sum.right)?)
+        }
+        ValueDef::Halved(halved) => Some(halved.apply(entry_value(permanent, halved.value)?)),
+        _ => None,
     }
 }
 

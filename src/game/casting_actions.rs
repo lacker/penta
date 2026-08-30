@@ -409,6 +409,8 @@ impl Game {
                                     definition, option, &costs,
                                 );
                                 for x in min_x..=max_x {
+                                    let additional_cost_payments =
+                                        Self::additional_cost_payment_counts_for(option, &costs);
                                     let cast_life = self.configured_cast_life_payment(
                                         definition,
                                         option,
@@ -437,6 +439,7 @@ impl Game {
                                             card.id,
                                             TriggerContext::empty(),
                                             x,
+                                            &additional_cost_payments,
                                         )
                                     } else if let Some((_, ability)) =
                                         Self::spell_ability(definition, option)
@@ -459,6 +462,7 @@ impl Game {
                                             card.id,
                                             TriggerContext::empty(),
                                             x,
+                                            &additional_cost_payments,
                                         )
                                     } else if Self::uses_legacy_behavior_targets(definition, option)
                                     {
@@ -876,6 +880,7 @@ impl Game {
         source: GameObjectId,
         context: TriggerContext,
         x: u16,
+        additional_cost_payments: &[u16],
     ) -> Vec<Vec<TargetSelection>> {
         let mut selections = vec![Vec::new()];
         for (index, slot) in slots.iter().enumerate() {
@@ -895,6 +900,7 @@ impl Game {
                         source,
                         context,
                         x,
+                        additional_cost_payments,
                     ),
                 );
                 let mut choices = Vec::new();
@@ -917,7 +923,7 @@ impl Game {
                         }
                     }
                 } else {
-                    let (minimum, maximum) = slot.count_bounds(x);
+                    let (minimum, maximum) = slot.count_bounds(x, additional_cost_payments);
                     for count in minimum..=maximum {
                         choices.extend(
                             target_combinations(&candidates, usize::from(count))

@@ -290,6 +290,7 @@ impl Game {
             .library
             .is_empty(),
             ReplacementConditionDef::SourceCastWith(_)
+            | ReplacementConditionDef::SourcePaidAdditionalCost(_)
             | ReplacementConditionDef::SourceNotCastFrom(_)
             | ReplacementConditionDef::ControllerHandAtMost(_) => false,
         }
@@ -503,6 +504,7 @@ impl Game {
                         ReplacementConditionDef::SourceTapped
                         | ReplacementConditionDef::CreatureDiedThisTurn
                         | ReplacementConditionDef::SourceCastWith(_)
+                        | ReplacementConditionDef::SourcePaidAdditionalCost(_)
                         | ReplacementConditionDef::SourceNotCastFrom(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty,
                     ) => false,

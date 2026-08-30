@@ -80,6 +80,9 @@ pub enum TriggerConditionDef {
     /// this: the permanent is here, and the question is which way it was
     /// paid for on the way in. False for anything that never was a spell.
     SourceCastWith(AlternativeCastKindDef),
+    /// Whether one particular optional additional cost was paid for the
+    /// source spell. This distinguishes cards with two independent kickers.
+    SourcePaidAdditionalCost(crate::AdditionalCostIndex),
     /// Two computed amounts against each other, for "if X is greater than
     /// or equal to the number of cards in your library". Every other
     /// condition here compares one amount against a printed number, which

@@ -6,7 +6,7 @@ use crate::card::{
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
     abilities,
 };
-use crate::mana_cost;
+use crate::{AdditionalCostIndex, mana_cost};
 
 // PIP 23 — Securitron Squadron
 pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::new_with_legacy_id(
@@ -26,7 +26,9 @@ pub(in crate::card::sets) static SECURITRON_SQUADRON: CardRecord = CardRecord::n
                 object: &EffectRecipientDef::Source,
                 exceptions: CopyExceptionsDef::NONE,
             })
-            .with_count(ValueDef::TimesAdditionalCostPaid),
+            .with_count(ValueDef::AdditionalCostPayments(
+                AdditionalCostIndex::PRIMARY,
+            )),
         ),
         AbilityDef::triggered(
             "Whenever a creature token you control enters, put a +1/+1 counter on it.",

@@ -438,6 +438,10 @@ pub(super) struct PermanentSnapshot {
     /// that spell. Additive, and absent for everything nobody kicked.
     #[serde(default, skip_serializing_if = "emptiness::is_zero_u16")]
     pub(super) cast_kicks: u16,
+    /// Per-clause optional additional-cost payment counts. Additive; older
+    /// checkpoints retain only the aggregate repeatable-cost count above.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) cast_additional_costs: Vec<u16>,
     /// How many colours paid for it. Additive, and absent for everything
     /// nobody cast.
     #[serde(default, skip_serializing_if = "emptiness::is_zero_u16")]

@@ -3179,6 +3179,7 @@ pub(in crate::card::sets) static PYROTECHNICS: CardRecord = CardRecord::new_with
             predicate: AbilityTargetPredicate::AnyTarget,
             minimum: 1,
             maximum: 4,
+            exact_count: None,
             divided_total: Some(DividedTotal::Fixed(4)),
             another: false,
             excludes_source: false,

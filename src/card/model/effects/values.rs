@@ -1,4 +1,4 @@
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{AdditionalCostIndex, ObjectSetBindingIndex, TargetIndex};
 
 use super::super::{
     BasicLandType, ComparisonDef, CounterKind, ManaColor, ObjectPredicateDef, PlayerRelation,
@@ -333,6 +333,10 @@ pub enum ValueDef {
     /// reference like the other compound forms so that `ValueDef` stays one
     /// word wide.
     Sum(&'static SumValueDef),
+    /// Selects one value according to whether a particular optional
+    /// additional cost was paid. The branch stays at the amount being
+    /// changed instead of wrapping the larger effect that consumes it.
+    IfAdditionalCostPaid(&'static AdditionalCostValueDef),
     /// Half of another value, rounded the way the card says. Rounding is only
     /// visible when a value is divided, so the direction belongs to the
     /// division rather than being a separate step over it.
@@ -353,11 +357,10 @@ pub enum ValueDef {
     /// spell carrying the ability is already counted when it is cast, so this
     /// subtracts it: storm copies what came before, not itself.
     SpellsCastBeforeThisTurn,
-    /// How many times the source spell paid a repeatable optional additional
-    /// cost. Replicate is the only one, and this is what its cast trigger
-    /// counts copies with: the payment appears once per payment in the cast's
-    /// own record, so the number of times it was paid is how many are there.
-    TimesAdditionalCostPaid,
+    /// How many times one particular optional additional cost was paid. The
+    /// index is among those costs, not among every printed ability, so an
+    /// unrelated clause does not change what this value names.
+    AdditionalCostPayments(AdditionalCostIndex),
     /// What the permanents sacrificed to pay this ability's activation cost
     /// added up to in mana value, read from last-known information: they are
     /// already gone by the time the ability resolves, because paying is what
@@ -522,6 +525,24 @@ pub struct ScaledValueDef {
 pub struct SumValueDef {
     pub left: ValueDef,
     pub right: ValueDef,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct AdditionalCostValueDef {
+    pub cost: AdditionalCostIndex,
+    pub if_paid: ValueDef,
+    pub otherwise: ValueDef,
+}
+
+impl AdditionalCostValueDef {
+    #[must_use]
+    pub const fn new(cost: AdditionalCostIndex, if_paid: ValueDef, otherwise: ValueDef) -> Self {
+        Self {
+            cost,
+            if_paid,
+            otherwise,
+        }
+    }
 }
 
 impl SumValueDef {

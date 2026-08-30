@@ -85,6 +85,13 @@ fn target_matches_expectation(
     predicate: AbilityTargetPredicate,
     expected: RecipientExpectation,
 ) -> bool {
+    if let AbilityTargetPredicate::IfAdditionalCostPaid {
+        if_paid, otherwise, ..
+    } = predicate
+    {
+        return target_matches_expectation(*if_paid, expected)
+            && target_matches_expectation(*otherwise, expected);
+    }
     if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
         return !predicates.is_empty()
             && predicates
@@ -106,6 +113,13 @@ fn target_matches_expectation(
 }
 
 fn target_can_project(predicate: AbilityTargetPredicate, expected: RecipientExpectation) -> bool {
+    if let AbilityTargetPredicate::IfAdditionalCostPaid {
+        if_paid, otherwise, ..
+    } = predicate
+    {
+        return target_can_project(*if_paid, expected)
+            && target_can_project(*otherwise, expected);
+    }
     if let AbilityTargetPredicate::AnyOf(predicates) = predicate {
         return !predicates.is_empty()
             && predicates
@@ -363,6 +377,10 @@ fn validate_value_shape(
             validate_value_shape(value.left, targets)?;
             validate_value_shape(value.right, targets)
         }
+        ValueDef::IfAdditionalCostPaid(value) => {
+            validate_value_shape(value.if_paid, targets)?;
+            validate_value_shape(value.otherwise, targets)
+        }
         ValueDef::IfControllerLifeAtMost(value) => {
             validate_value_shape(value.then, targets)?;
             validate_value_shape(value.otherwise, targets)
@@ -446,7 +464,7 @@ fn validate_value_shape(
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
         | ValueDef::SacrificedManaValue
-        | ValueDef::TimesAdditionalCostPaid
+        | ValueDef::AdditionalCostPayments(_)
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
     }
@@ -560,6 +578,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::SpellsCastThisTurn { .. }
         | TriggerConditionDef::SpellsCastLastTurn { .. }
         | TriggerConditionDef::SourceCastWith(_)
+        | TriggerConditionDef::SourcePaidAdditionalCost(_)
         | TriggerConditionDef::SourceCastFrom(_)
         | TriggerConditionDef::SourceWasCast
         | TriggerConditionDef::SourceCastAtInstantSpeed
@@ -656,21 +675,6 @@ fn target_may_name_nonbattlefield_object(
     targets.get(target.index()).is_none_or(|definition| {
         target_predicate_may_name_nonbattlefield_object(definition.predicate)
     })
-}
-
-fn target_predicate_may_name_nonbattlefield_object(
-    predicate: AbilityTargetPredicate,
-) -> bool {
-    match predicate {
-        AbilityTargetPredicate::AnyOf(predicates) => predicates
-            .iter()
-            .copied()
-            .any(target_predicate_may_name_nonbattlefield_object),
-        AbilityTargetPredicate::Object { zones, .. } => zones
-            .iter()
-            .any(|zone| *zone != ZoneKind::Battlefield),
-        _ => false,
-    }
 }
 
 fn recipient_may_name_nonbattlefield_object(
@@ -798,26 +802,6 @@ fn recipient_nonbattlefield_zones_support_flashback(
         | EffectRecipientSetDef::DefenderOf(_)
         | EffectRecipientSetDef::Players(_) => true,
     }
-}
-
-fn target_predicate_zones_support_flashback(predicate: AbilityTargetPredicate) -> bool {
-    match predicate {
-        AbilityTargetPredicate::AnyOf(predicates) => {
-            !predicates.is_empty()
-                && predicates
-                    .iter()
-                    .copied()
-                    .all(target_predicate_zones_support_flashback)
-        }
-        AbilityTargetPredicate::Object { zones, .. } => zones_support_flashback(zones),
-        _ => false,
-    }
-}
-
-fn zones_support_flashback(zones: &[ZoneKind]) -> bool {
-    zones
-        .iter()
-        .all(|zone| matches!(zone, ZoneKind::Battlefield | ZoneKind::Graveyard))
 }
 
 /// Which player sets a static play rule may name. A resolving one may name

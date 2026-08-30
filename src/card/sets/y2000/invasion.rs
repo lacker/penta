@@ -16,11 +16,11 @@ use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef,
-    PlayerRelation, RevealObjectsDef, StackTargetKindDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
+    ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
+    PlayerRefDef, PlayerRelation, RevealObjectsDef, StackTargetKindDef, TriggerConditionDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -705,51 +705,37 @@ pub(in crate::card::sets) static PROBE: CardRecord = CardRecord::new(
 );
 
 // INV 67 — Prohibit
-/// Prohibit targets any spell and then asks how big it was, so a five-drop
-/// can be named and simply survives. Both halves share the target; only the
-/// ceiling moves.
-static TARGET_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Spell,
-        zones: &[ZoneKind::Stack],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static COUNTER_TARGET_SPELL: EffectDef = EffectDef::Counter {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Graveyard,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_legacy_id(
     2030,
     "Prohibit",
     CardArt::new("0daa5458-2a97-40d0-b18d-2381a7a68ee1", "Adam Rex"),
     CardSet::Invasion,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        abilities::kicker(mana_cost!("{2}")),
         AbilityDef::spell_with_targets(
-            "Counter target spell if its mana value is 2 or less.",
-            &TARGET_SPELL,
+            "Counter target spell if its mana value is 2 or less. If this spell was kicked, counter that spell if its mana value is 4 or less instead.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::TargetMatches {
                     slot: TargetIndex::PRIMARY,
-                    object: ObjectPredicateDef::ManaValueAtMost(2),
+                    object: ObjectPredicateDef::ManaValueAtMostValue(
+                        ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                            crate::AdditionalCostIndex::PRIMARY,
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(2),
+                        )),
+                    ),
                 },
-                then: &COUNTER_TARGET_SPELL,
-            },
-        ),
-        abilities::kicker(
-            mana_cost!("{3}{U}"),
-            "Counter target spell if its mana value is 4 or less.",
-            &TARGET_SPELL,
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::TargetMatches {
-                    slot: TargetIndex::PRIMARY,
-                    object: ObjectPredicateDef::ManaValueAtMost(4),
+                then: &EffectDef::Counter {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
                 },
-                then: &COUNTER_TARGET_SPELL,
             },
         ),
     ]),
@@ -1658,16 +1644,6 @@ pub(in crate::card::sets) static OBLITERATE: CardRecord = CardRecord::new(
 );
 
 // INV 157 — Overload
-static TARGET_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-static DESTROY_TARGET_ARTIFACT: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-    then: None,
-};
-
 pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_legacy_id(
     2029,
     "Overload",
@@ -1676,27 +1652,28 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
     // One mana answers a Lotus Petal or a Cursed Scroll; three answers most
     // of what a Premodern deck actually plays.
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[
+        abilities::kicker(mana_cost!("{2}")),
         AbilityDef::spell_with_targets(
-            "Destroy target artifact if its mana value is 2 or less.",
-            &TARGET_ARTIFACT,
+            "Destroy target artifact if its mana value is 2 or less. If this spell was kicked, destroy that artifact if its mana value is 5 or less instead.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::TargetMatches {
                     slot: TargetIndex::PRIMARY,
-                    object: ObjectPredicateDef::ManaValueAtMost(2),
+                    object: ObjectPredicateDef::ManaValueAtMostValue(
+                        ValueDef::IfAdditionalCostPaid(&AdditionalCostValueDef::new(
+                            crate::AdditionalCostIndex::PRIMARY,
+                            ValueDef::Constant(5),
+                            ValueDef::Constant(2),
+                        )),
+                    ),
                 },
-                then: &DESTROY_TARGET_ARTIFACT,
-            },
-        ),
-        abilities::kicker(
-            mana_cost!("{2}{R}"),
-            "Destroy target artifact if its mana value is 5 or less.",
-            &TARGET_ARTIFACT,
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::TargetMatches {
-                    slot: TargetIndex::PRIMARY,
-                    object: ObjectPredicateDef::ManaValueAtMost(5),
+                then: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
                 },
-                then: &DESTROY_TARGET_ARTIFACT,
             },
         ),
     ]),

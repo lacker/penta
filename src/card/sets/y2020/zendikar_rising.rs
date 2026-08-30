@@ -158,17 +158,6 @@ pub(in crate::card::sets) static THIEVING_SKYDIVER: CardRecord = CardRecord::new
 );
 
 // ZNR 94 — Bloodchief's Thirst
-static CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Planeswalker),
-]);
-
-static THIRST_DESTROY: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-    then: None,
-};
-
 pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::new_with_legacy_id(
     2165,
     "Bloodchief's Thirst",
@@ -178,26 +167,43 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
     // whatever is left, which is why the card is played over a cheaper
     // removal spell that can only do the first job.
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        abilities::kicker(mana_cost!("{2}{B}")),
         AbilityDef::spell_with_targets(
-            "Kicker {2}{B} (You may pay an additional {2}{B} as you cast this spell.)\nDestroy target creature or planeswalker with mana value 2 or less.",
+            "Destroy target creature or planeswalker with mana value 2 or less. If this spell was kicked, instead destroy target creature or planeswalker.",
             // The mana-value bound is part of what may be targeted rather than something
             // checked on resolution, so an unkicked Thirst never points at anything
             // bigger in the first place.
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    CREATURE_OR_PLANESWALKER,
-                    ObjectPredicateDef::ManaValueAtMost(2),
-                ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::IfAdditionalCostPaid {
+                    cost: crate::AdditionalCostIndex::PRIMARY,
+                    if_paid: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    otherwise: &AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                            ObjectPredicateDef::ManaValueAtMost(2),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                },
             )],
-            THIRST_DESTROY,
-        ),
-        abilities::kicker(
-            mana_cost!("{3}{B}"),
-            "Destroy target creature or planeswalker.",
-            &[AbilityTargetDef::exactly_one_permanent(
-                CREATURE_OR_PLANESWALKER,
-            )],
-            THIRST_DESTROY,
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
         ),
     ]),
 );

@@ -535,7 +535,13 @@ impl Game {
         player: PlayerId,
         option: &PlayOptionDef,
     ) -> u16 {
-        let Some(repeatable) = option.additional_costs.iter().find(|cost| cost.repeatable) else {
+        let Some(each) = option
+            .additional_costs
+            .iter()
+            .filter(|cost| cost.repeatable)
+            .map(|cost| cost.mana_cost.map_or(1, |mana| mana.mana_value().max(1)))
+            .min()
+        else {
             return 0;
         };
         let purpose = ManaPaymentPurpose::Spell {
@@ -545,9 +551,6 @@ impl Game {
             form: option.form.clone(),
             reserved_life_payment: 0,
         };
-        let each = repeatable
-            .mana_cost
-            .map_or(1, |cost| cost.mana_value().max(1));
         self.available_mana_ceiling(player, &purpose) / each
     }
 

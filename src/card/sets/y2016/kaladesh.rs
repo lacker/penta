@@ -45,6 +45,7 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
             },
             minimum: 0,
             maximum: AbilityTargetDef::UNLIMITED,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,

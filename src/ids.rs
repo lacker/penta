@@ -214,6 +214,25 @@ impl AdditionalCostObjectIndex {
     }
 }
 
+/// Positional reference to one optional additional-cost clause on a card.
+///
+/// Unlike [`AdditionalCostId`], this is authored against the ordered list of
+/// optional additional costs rather than the ordered list of every ability.
+/// Adding an unrelated printed clause therefore does not change which kicker
+/// or other optional cost a declarative effect names.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct AdditionalCostIndex(pub u8);
+
+impl AdditionalCostIndex {
+    pub const PRIMARY: Self = Self(0);
+    pub const SECONDARY: Self = Self(1);
+
+    #[must_use]
+    pub const fn index(self) -> usize {
+        self.0 as usize
+    }
+}
+
 /// Positional identity of one object binding retained while an effect
 /// resolves.
 ///

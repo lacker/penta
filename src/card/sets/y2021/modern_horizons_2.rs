@@ -15,7 +15,7 @@ use crate::card::{
     SetOperationDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TriggerConditionDef,
     TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // MH2 25 — Prismatic Ending
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
@@ -156,7 +156,7 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
             EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                 object: EffectRecipientDef::Source,
                 controller: PlayerRefDef::EffectController,
-                count: ValueDef::TimesAdditionalCostPaid,
+                count: ValueDef::AdditionalCostPayments(AdditionalCostIndex::PRIMARY),
                 retarget: true,
                 colors: None,
             }),
@@ -523,6 +523,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
                     },
                     minimum: 1,
                     maximum: AbilityTargetDef::UNLIMITED,
+                    exact_count: None,
                     divided_total: Some(DividedTotal::Fixed(4)),
                     another: false,
                     excludes_source: false,

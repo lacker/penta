@@ -495,29 +495,6 @@ pub const fn evoke_sacrifice(text: &'static str) -> AbilityDef {
 static EVOKED: TriggerConditionDef =
     TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::AlternativeCost);
 
-/// A kicker: "Kicker {cost} (You may pay an additional {cost} as you cast
-/// this spell.)", together with what the spell does when it was paid.
-///
-/// `mana_cost` is the whole kicked total, not the surcharge -- a kicked spell
-/// is a spell cast for more mana with different instructions, which is what
-/// an alternative cast already models. The caller supplies the printed
-/// reminder text, because that text names the surcharge instead.
-#[must_use]
-pub const fn kicker(
-    mana_cost: ManaCost,
-    stack_text: &'static str,
-    targets: &'static [AbilityTargetDef],
-    effect: EffectDef,
-) -> AbilityDef {
-    AbilityDef::alternative_cast_with_targets(
-        mana_cost,
-        AlternativeCastKindDef::Kicked,
-        Some(stack_text),
-        targets,
-        effect,
-    )
-}
-
 /// Echo (CR 702.29): "At the beginning of your upkeep, if this came under
 /// your control since the beginning of your last upkeep, sacrifice it unless
 /// you pay its echo cost."

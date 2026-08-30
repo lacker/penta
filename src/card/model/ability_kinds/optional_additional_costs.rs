@@ -11,6 +11,9 @@ use super::{SpellAdditionalCostDef, SpellResolutionDestinationDef};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum OptionalAdditionalCostKindDef {
+    /// Kicker (CR 702.33a): a cost that may be paid once in addition to
+    /// whichever ordinary or alternative cost is paying for the spell.
+    Kicker,
     /// Buyback (CR 702.27): if this cost was paid, a resolving spell card goes
     /// to its owner's hand instead of its graveyard.
     Buyback,
@@ -24,6 +27,9 @@ pub enum OptionalAdditionalCostKindDef {
     /// changes nothing by itself; what it buys is read back off the count by
     /// whatever the card prints about having been kicked.
     Multikicker,
+    /// A repeatable optional additional cost without a keyword name. Some
+    /// older cards print several differently priced surcharges directly.
+    Repeatable,
     /// Squad (CR 702.152): a cost that may be paid any number of times as
     /// the creature spell is cast, and an enters trigger that makes that
     /// many token copies of the creature. Repeatable like the two above;
@@ -35,19 +41,24 @@ impl OptionalAdditionalCostKindDef {
     #[must_use]
     pub const fn label(self) -> &'static str {
         match self {
+            Self::Kicker => "Kicker",
             Self::Buyback => "Buyback",
             Self::Replicate => "Replicate",
             Self::Multikicker => "Multikicker",
+            Self::Repeatable => "Additional cost",
             Self::Squad => "Squad",
         }
     }
 
-    /// Whether one cast may pay this cost more than once. Buyback is the
-    /// one that cannot: every repeatable cost buys a number rather than a
-    /// yes, and something on the card reads that number back.
+    /// Whether one cast may pay this cost more than once. Kicker and Buyback
+    /// cannot: every repeatable cost buys a number rather than a yes, and
+    /// something on the card reads that number back.
     #[must_use]
     pub const fn repeatable(self) -> bool {
-        matches!(self, Self::Replicate | Self::Multikicker | Self::Squad)
+        matches!(
+            self,
+            Self::Replicate | Self::Multikicker | Self::Repeatable | Self::Squad
+        )
     }
 }
 
@@ -55,6 +66,9 @@ impl OptionalAdditionalCostKindDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct OptionalAdditionalCostAbilityDef {
     pub kind: OptionalAdditionalCostKindDef,
+    /// Short action label, distinct for cards that print several costs of the
+    /// same general kind.
+    pub label: &'static str,
     pub mana_cost: Option<ManaCost>,
     pub additional_cost: Option<SpellAdditionalCostDef>,
     pub resolution_destination: SpellResolutionDestinationDef,
@@ -64,6 +78,10 @@ impl OptionalAdditionalCostAbilityDef {
     #[must_use]
     pub fn rules_text(self) -> String {
         match (self.kind, self.mana_cost) {
+            (OptionalAdditionalCostKindDef::Kicker, Some(cost)) => {
+                format!("Kicker {cost} (You may pay an additional {cost} as you cast this spell.)")
+            }
+            (OptionalAdditionalCostKindDef::Kicker, None) => "Kicker".into(),
             (OptionalAdditionalCostKindDef::Buyback, Some(cost)) => format!(
                 "Buyback {cost} (You may pay an additional {cost} as you cast this spell. If you \
                  do, put this card into your hand as it resolves.)"
@@ -79,6 +97,12 @@ impl OptionalAdditionalCostAbilityDef {
                  cast this spell.)"
             ),
             (OptionalAdditionalCostKindDef::Multikicker, None) => "Multikicker".into(),
+            (OptionalAdditionalCostKindDef::Repeatable, Some(cost)) => {
+                format!(
+                    "As an additional cost to cast this spell, you may pay {cost} any number of times."
+                )
+            }
+            (OptionalAdditionalCostKindDef::Repeatable, None) => "Additional cost".into(),
             (OptionalAdditionalCostKindDef::Squad, Some(cost)) => format!(
                 "Squad {cost} (As an additional cost to cast this spell, you may pay {cost} any \
                  number of times. When this creature enters, create that many tokens that are \
@@ -92,7 +116,7 @@ impl OptionalAdditionalCostAbilityDef {
     pub fn additional_cost(self, ability: AbilityId) -> AdditionalCostDef {
         AdditionalCostDef {
             id: AdditionalCostId(ability.0),
-            label: self.kind.label().into(),
+            label: self.label.into(),
             mana_cost: self.mana_cost,
             repeatable: self.kind.repeatable(),
         }

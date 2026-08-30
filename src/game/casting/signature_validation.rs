@@ -58,11 +58,14 @@ impl Game {
     /// every one of them is legal right now.
     pub(in crate::game) fn spell_target_selection_is_valid(
         &self,
+        option: &PlayOptionDef,
         target_defs: &[AbilityTargetDef],
         choices: &CastChoices,
         player: PlayerId,
         card_id: GameObjectId,
     ) -> bool {
+        let additional_cost_payments =
+            Self::additional_cost_payment_counts_for(option, choices.costs());
         target_defs.len() == choices.targets().len()
             && target_defs.iter().enumerate().zip(choices.targets()).all(
                 |((index, slot), selection)| {
@@ -77,12 +80,14 @@ impl Game {
                             card_id,
                             TriggerContext::empty(),
                             choices.x(),
+                            &additional_cost_payments,
                         ),
                     );
                     // Read through the same sentinel the enumerator used, so
                     // a slot counted by X is checked against the X this cast
                     // actually chose rather than against the sentinel.
-                    let (minimum, maximum) = slot.count_bounds(choices.x());
+                    let (minimum, maximum) =
+                        slot.count_bounds(choices.x(), &additional_cost_payments);
                     TargetSlotId::from_index(index) == Some(selection.slot())
                         && count >= usize::from(minimum)
                         && count <= usize::from(maximum)
@@ -293,7 +298,7 @@ impl Game {
             if kicked.len() != choices.targets().len() {
                 return None;
             }
-            if !self.spell_target_selection_is_valid(kicked, choices, player, card_id) {
+            if !self.spell_target_selection_is_valid(option, kicked, choices, player, card_id) {
                 return None;
             }
         } else if let Some((_, ability)) = Self::spell_ability(definition, option) {
@@ -305,7 +310,13 @@ impl Game {
             if plan.target_defs.len() != choices.targets().len() {
                 return None;
             }
-            if !self.spell_target_selection_is_valid(&plan.target_defs, choices, player, card_id) {
+            if !self.spell_target_selection_is_valid(
+                option,
+                &plan.target_defs,
+                choices,
+                player,
+                card_id,
+            ) {
                 return None;
             }
         } else if Self::uses_legacy_behavior_targets(definition, option) {

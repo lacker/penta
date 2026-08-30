@@ -235,6 +235,15 @@ pub enum TargetChooserDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityTargetPredicate {
     AnyTarget,
+    /// Selects the target restriction that applies to this cast according to
+    /// whether one optional additional cost was paid. This keeps Kicker and
+    /// similar costs compositional while still enforcing modified targeting
+    /// instructions during declaration.
+    IfAdditionalCostPaid {
+        cost: crate::AdditionalCostIndex,
+        if_paid: &'static AbilityTargetPredicate,
+        otherwise: &'static AbilityTargetPredicate,
+    },
     /// Any target matching one complete alternative. Each branch owns its
     /// object predicate, zones, and player relations, so a restriction from
     /// one side of a printed "or" cannot leak into another.
@@ -310,6 +319,9 @@ pub struct AbilityTargetDef {
     pub chooser: TargetChooserDef,
     pub minimum: u8,
     pub maximum: u8,
+    /// A cast-time value that fixes both bounds. This is the composable form
+    /// for counts such as "one plus the number of times kicker was paid".
+    pub exact_count: Option<ValueDef>,
     /// The total this slot divides among its targets, when the card says
     /// "divided as you choose". Every chosen target takes at least one, which
     /// is what makes the number of targets a consequence of the division.
@@ -387,6 +399,7 @@ impl AbilityTargetDef {
             chooser: TargetChooserDef::Controller,
             minimum: Self::CHOSEN_X,
             maximum: Self::CHOSEN_X,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,
@@ -403,6 +416,7 @@ impl AbilityTargetDef {
             chooser: TargetChooserDef::Controller,
             minimum: 0,
             maximum: Self::CHOSEN_X,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,
@@ -414,10 +428,21 @@ impl AbilityTargetDef {
     /// combinations, so an X larger than the board simply offers nothing --
     /// which is the same as saying the activation is not legal for that X.
     #[must_use]
-    pub const fn count_bounds(self, x: u16) -> (u8, u8) {
+    pub fn count_bounds(self, x: u16, additional_cost_payments: &[u16]) -> (u8, u8) {
+        if let Some(value) = self.exact_count {
+            let Some(count) = cast_target_count_value(value, x, additional_cost_payments) else {
+                debug_assert!(
+                    false,
+                    "catalog validation rejects unsupported target counts"
+                );
+                return (0, 0);
+            };
+            let count = u8::try_from(count.clamp(0, i32::from(u8::MAX))).unwrap_or_default();
+            return (count, count);
+        }
         // An X past 255 cannot be a target count on any real board, so it
         // saturates rather than wrapping.
-        let chosen = if x > u8::MAX as u16 {
+        let chosen = if x > u16::from(u8::MAX) {
             u8::MAX
         } else {
             #[allow(clippy::cast_possible_truncation, reason = "guarded above")]
@@ -425,17 +450,34 @@ impl AbilityTargetDef {
                 x as u8
             }
         };
-        let minimum = if self.minimum == Self::CHOSEN_X {
-            chosen
-        } else {
-            self.minimum
+        let resolve = |bound| {
+            if bound == Self::CHOSEN_X {
+                chosen
+            } else {
+                bound
+            }
         };
-        let maximum = if self.maximum == Self::CHOSEN_X {
-            chosen
-        } else {
-            self.maximum
-        };
+        let minimum = resolve(self.minimum);
+        let maximum = resolve(self.maximum);
         (minimum, maximum)
+    }
+
+    /// Exactly the number of targets computed from cast-time values.
+    #[must_use]
+    pub const fn exactly_value(predicate: AbilityTargetPredicate, count: ValueDef) -> Self {
+        Self {
+            predicate,
+            chooser: TargetChooserDef::Controller,
+            minimum: 0,
+            // The exact runtime value overrides these bounds. Keep the
+            // static projection conservative so validators never mistake a
+            // dynamic count for a singular target slot.
+            maximum: Self::UNLIMITED,
+            exact_count: Some(count),
+            divided_total: None,
+            another: false,
+            excludes_source: false,
+        }
     }
 
     #[must_use]
@@ -445,6 +487,7 @@ impl AbilityTargetDef {
             chooser: TargetChooserDef::Controller,
             minimum: 1,
             maximum: 1,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,
@@ -463,6 +506,7 @@ impl AbilityTargetDef {
             chooser: TargetChooserDef::Controller,
             minimum: 1,
             maximum: Self::UNLIMITED,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,
@@ -478,6 +522,7 @@ impl AbilityTargetDef {
             chooser: TargetChooserDef::Controller,
             minimum: 0,
             maximum,
+            exact_count: None,
             divided_total: None,
             another: false,
             excludes_source: false,
@@ -507,5 +552,35 @@ impl AbilityTargetDef {
             controller: None,
             owner: None,
         })
+    }
+}
+
+fn cast_target_count_value(value: ValueDef, x: u16, payments: &[u16]) -> Option<i32> {
+    match value {
+        ValueDef::Constant(value) => Some(value),
+        ValueDef::ChosenX => Some(i32::from(x)),
+        ValueDef::AdditionalCostPayments(index) => Some(i32::from(
+            payments.get(index.index()).copied().unwrap_or_default(),
+        )),
+        ValueDef::IfAdditionalCostPaid(conditional) => {
+            let paid = conditional.cost.index();
+            let paid = payments.get(paid).copied().unwrap_or_default();
+            let selected = if paid > 0 {
+                conditional.if_paid
+            } else {
+                conditional.otherwise
+            };
+            cast_target_count_value(selected, x, payments)
+        }
+        ValueDef::Negate(value) => cast_target_count_value(*value, x, payments)?.checked_neg(),
+        ValueDef::Scaled(scaled) => {
+            cast_target_count_value(scaled.value, x, payments)?.checked_mul(scaled.factor)
+        }
+        ValueDef::Sum(sum) => cast_target_count_value(sum.left, x, payments)?
+            .checked_add(cast_target_count_value(sum.right, x, payments)?),
+        ValueDef::Halved(halved) => {
+            Some(halved.apply(cast_target_count_value(halved.value, x, payments)?))
+        }
+        _ => None,
     }
 }

@@ -57,14 +57,6 @@ pub(in crate::card::sets) static ARMISTICE: CardRecord = CardRecord::new(
 );
 
 // MMQ 4 — Arrest
-/// Three prohibitions, applied together for the same duration, so the Aura
-/// leaving gives all three back at once.
-static ARREST_PROHIBITIONS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-];
-
 pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legacy_id(
     1952,
     "Arrest",
@@ -81,7 +73,13 @@ pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legac
                  activated.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&ARREST_PROHIBITIONS),
+                    // Three prohibitions, applied together for the same duration, so the Aura
+                    // leaving gives all three back at once.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                    ]),
                 },
             ),
         ]),
@@ -831,8 +829,6 @@ pub(in crate::card::sets) static GLOWING_ANEMONE: CardRecord = CardRecord::new(
 );
 
 // MMQ 82 — Gush
-static GUSH_COST: SpellAdditionalCostDef = return_islands(2);
-
 pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_id(
     2045,
     "Gush",
@@ -852,19 +848,11 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_
             Some("You may return two Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&GUSH_COST),
+        .with_alternative_additional_cost(&return_islands(2)),
     ]),
 );
 
 // MMQ 83 — High Seas
-static RED_OR_GREEN_CREATURE_SPELLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::Color(ManaColor::Red),
-        ObjectPredicateDef::Color(ManaColor::Green),
-    ]),
-]);
-
 pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f12eb6a6-14cc-4ad6-9684-ff33a39ba09f"),
     "High Seas",
@@ -875,7 +863,13 @@ pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
     crate::card::CardSet::MercadianMasques,
     CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(abilities::spell_cost_increase(
         "Red creature spells and green creature spells cost {1} more to cast.",
-        RED_OR_GREEN_CREATURE_SPELLS,
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::Color(ManaColor::Red),
+                ObjectPredicateDef::Color(ManaColor::Green),
+            ]),
+        ]),
         PlayerRelation::Any,
         mana_cost!("{1}"),
     )),
@@ -1129,31 +1123,27 @@ pub(in crate::card::sets) static STINGING_BARRIER: CardRecord = CardRecord::new(
 );
 
 // MMQ 108 — Thwart
-static THWART_COST: SpellAdditionalCostDef = return_islands(3);
-
-static TARGET_SPELL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Spell,
-        zones: &[ZoneKind::Stack],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legacy_id(
     2046,
     "Thwart",
     CardArt::new("c12a0717-e9ea-4be3-a29f-179671ed4489", "Christopher Moeller"),
     CardSet::MercadianMasques,
     CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        AbilityDef::counter_target("Counter target spell.", &TARGET_SPELL[0]),
+        AbilityDef::counter_target("Counter target spell.", &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )][0]),
         AbilityDef::alternative_cast(
             mana_cost!("{0}"),
             AlternativeCastKindDef::AlternativeCost,
             Some("You may return three Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&THWART_COST),
+        .with_alternative_additional_cost(&return_islands(3)),
     ]),
 );
 
@@ -1685,24 +1675,6 @@ pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new
 );
 
 // MMQ 162 — Snuff Out
-/// A Swamp on the battlefield, which is what the free cast is gated on.
-static YOU_CONTROL_A_SWAMP: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-static SNUFF_OUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-    ]),
-)];
-
 pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_legacy_id(
     2158,
     "Snuff Out",
@@ -1718,10 +1690,24 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_le
             EffectDef::None,
         )
         .with_alternative_life(4)
-        .with_alternative_condition(&YOU_CONTROL_A_SWAMP),
+        // A Swamp on the battlefield, which is what the free cast is gated on.
+        .with_alternative_condition(&TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }),
         AbilityDef::destroy_target(
             "Destroy target nonblack creature. It can't be regenerated.",
-            &SNUFF_OUT_TARGET[0],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )][0],
             false,
         ),
     ]),
@@ -2570,20 +2556,6 @@ pub(in crate::card::sets) static HUNTED_WUMPUS: CardRecord = CardRecord::new(
 );
 
 // MMQ 254 — Invigorate
-static YOU_CONTROL_A_FOREST: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-static INVIGORATE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 pub(in crate::card::sets) static INVIGORATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("406b343c-90b5-4a4d-91c3-2fddcc9a0e05"),
     "Invigorate",
@@ -2600,10 +2572,20 @@ pub(in crate::card::sets) static INVIGORATE: CardRecord = CardRecord::new(
             EffectDef::None,
         )
         .with_alternative_opponent_life_gain(3)
-        .with_alternative_condition(&YOU_CONTROL_A_FOREST),
+        .with_alternative_condition(&TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }),
         AbilityDef::spell_with_targets(
             "Target creature gets +4/+4 until end of turn.",
-            &INVIGORATE_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -3201,11 +3183,6 @@ pub(in crate::card::sets) static WORRY_BEADS: CardRecord = CardRecord::new(
 );
 
 // MMQ 316 — Dust Bowl
-static NONBASIC_LAND: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-]);
-
 pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_legacy_id(
     280,
     "Dust Bowl",
@@ -3223,7 +3200,12 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
                     controller: PlayerRelation::You,
                 },
             ],
-            &[AbilityTargetDef::exactly_one_permanent(NONBASIC_LAND)],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+            )],
             EffectDef::destroy_target(TargetIndex::PRIMARY, true),
         ),
     ]),

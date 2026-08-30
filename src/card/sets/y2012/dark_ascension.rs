@@ -1,20 +1,24 @@
 //! Dark Ascension card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::CostQuantityDef;
-use crate::card::sets::y2011::innistrad::morbid_entry_counters;
+use crate::card::sets::y2011::innistrad::{
+    WEREWOLF_BACK_TRANSFORM, WEREWOLF_FRONT_TRANSFORM, morbid_entry_counters,
+};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, ConditionalValueDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRelation,
-    QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SpellAdditionalCostDef, TargetConditionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldArrivalDef,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef, CostModificationDef,
+    CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef, DiscardFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, QuantifierDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
+    SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{AdditionalCostObjectIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
@@ -28,6 +32,9 @@ static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::e
 );
 
 static MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
+
+static CAST_FROM_GRAVEYARD: TriggerConditionDef =
+    TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard);
 
 /// "Search your library for a basic land card, put it onto the battlefield
 /// tapped, then shuffle."
@@ -302,13 +309,47 @@ pub(in crate::card::sets) static HOLLOWHENGE_SPIRIT: CardRecord = CardRecord::ne
 );
 
 // DKA 11 — Increasing Devotion
-// Audit: metadata-only — Needs a cast-from-graveyard condition to choose five versus ten Human tokens.
 pub(in crate::card::sets) static INCREASING_DEVOTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("87b5de81-65a6-4a74-8a71-767b92e89e91"),
     "Increasing Devotion",
     crate::card::CardArt::new("87b5de81-65a6-4a74-8a71-767b92e89e91", "Daniel Ljunggren"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&[
+        AbilityDef::spell(
+            "Create five 1/1 white Human creature tokens. If this spell was cast from a graveyard, create ten of those tokens instead.",
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &CAST_FROM_GRAVEYARD,
+                    then: &EffectDef::create_creature_token(
+                        &["Human"],
+                        &[ManaColor::White],
+                        1,
+                        1,
+                    )
+                    .with_art(CardArt::new(
+                        "8894949b-f190-461e-996a-cf2b39f08a5d",
+                        "Michael C. Hayes",
+                    ))
+                    .with_amount(10),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
+                    then: &EffectDef::create_creature_token(
+                        &["Human"],
+                        &[ManaColor::White],
+                        1,
+                        1,
+                    )
+                    .with_art(CardArt::new(
+                        "8894949b-f190-461e-996a-cf2b39f08a5d",
+                        "Michael C. Hayes",
+                    ))
+                    .with_amount(5),
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{7}{W}{W}")),
+    ]),
 );
 
 // DKA 12 — Lingering Souls
@@ -648,13 +689,32 @@ pub(in crate::card::sets) static ARTFUL_DODGE: CardRecord = CardRecord::new_with
 );
 
 // DKA 28 — Beguiler of Wills
-// Audit: metadata-only — Needs a target-power predicate bounded by the dynamic number of creatures you control, plus permanent control change.
 pub(in crate::card::sets) static BEGUILER_OF_WILLS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e21ae024-d565-48a1-8004-5aa320a5d24d"),
     "Beguiler of Wills",
     crate::card::CardArt::new("e21ae024-d565-48a1-8004-5aa320a5d24d", "Eric Deschamps"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Human", "Wizard"], 1, 1)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{T}: Gain control of target creature with power less than or equal to the number of creatures you control.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::PowerLessThan(ValueDef::Sum(&SumValueDef {
+                    left: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    right: ValueDef::Constant(1),
+                })),
+            ]))],
+            EffectDef::GainControl {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                duration: ControlDurationDef::Indefinitely,
+            },
+        )),
 );
 
 // DKA 29 — Bone to Ash
@@ -913,13 +973,40 @@ pub(in crate::card::sets) static HEADLESS_SKAAB: CardRecord = CardRecord::new_wi
 );
 
 // DKA 41 — Increasing Confusion
-// Audit: metadata-only — Needs a cast-from-graveyard condition that doubles the chosen X mill amount without producing a second mill event.
 pub(in crate::card::sets) static INCREASING_CONFUSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13f5bcdc-70bb-4d67-99e1-282f166ee4bf"),
     "Increasing Confusion",
     crate::card::CardArt::new("13f5bcdc-70bb-4d67-99e1-282f166ee4bf", "Dan Murayama Scott"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player mills X cards. If this spell was cast from a graveyard, that player mills twice that many cards instead.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &CAST_FROM_GRAVEYARD,
+                    then: &EffectDef::Mill {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Scaled(&ScaledValueDef::new(ValueDef::ChosenX, 2)),
+                        binding: None,
+                        then: None,
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
+                    then: &EffectDef::Mill {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::ChosenX,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{X}{U}")),
+    ]),
 );
 
 // DKA 42 — Mystic Retrieval
@@ -963,13 +1050,44 @@ pub(in crate::card::sets) static NEPHALIA_SEAKITE: CardRecord = CardRecord::new_
 );
 
 // DKA 44 — Niblis of the Breath
-// Audit: metadata-only — Needs a modal activated ability so tap versus untap is one activation choice rather than two separately identified abilities.
 pub(in crate::card::sets) static NIBLIS_OF_THE_BREATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0686843d-6d1e-4488-8c17-7c986a154195"),
     "Niblis of the Breath",
     crate::card::CardArt::new("0686843d-6d1e-4488-8c17-7c986a154195", "Igor Kieryluk"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Spirit"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::modal_activated(
+            "{U}, {T}: You may tap or untap target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[
+                AbilityDef::spell_with_targets(
+                    "Tap target creature",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Untap target creature",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Untap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                ),
+            ],
+            0,
+            1,
+            false,
+        ),
+    ]),
 );
 
 // DKA 45 — Relentless Skaabs
@@ -1035,13 +1153,22 @@ pub(in crate::card::sets) static SCREECHING_SKAAB: CardRecord = CardRecord::new_
 );
 
 // DKA 48 — Secrets of the Dead
-// Audit: metadata-only — Needs SpellCast trigger capture to distinguish a spell cast from its controller's graveyard.
 pub(in crate::card::sets) static SECRETS_OF_THE_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c982d679-581d-43e1-acd0-db77eb0987c2"),
     "Secrets of the Dead",
     crate::card::CardArt::new("c982d679-581d-43e1-acd0-db77eb0987c2", "Eytan Zana"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}")).with_ability(AbilityDef::triggered(
+        "Whenever you cast a spell from your graveyard, draw a card.",
+        TriggerEventDef::spell_cast_from(
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ZoneKind::Graveyard,
+        ),
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // DKA 49 — Shriekgeist
@@ -1162,13 +1289,37 @@ pub(in crate::card::sets) static BLACK_CAT: CardRecord = CardRecord::new_with_le
 );
 
 // DKA 55 — Chosen of Markov // Markov's Servant
-// Audit: metadata-only — Needs an activated cost that taps a different untapped Vampire you control before transforming this permanent.
-pub(in crate::card::sets) static CHOSEN_OF_MARKOV: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CHOSEN_OF_MARKOV: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("7c5a3c09-5656-4975-ba03-2d809903ed18"),
-    "Chosen of Markov",
+    "Chosen of Markov // Markov's Servant",
     crate::card::CardArt::new("7c5a3c09-5656-4975-ba03-2d809903ed18", "Steve Argyle"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Chosen of Markov",
+            CardRules::new_creature(mana_cost!("{2}{B}"), &["Human"], 2, 2).with_ability(
+                AbilityDef::activated(
+                    "{T}, Tap an untapped Vampire you control: Transform this creature.",
+                    &[
+                        AbilityCostDef::TapSource,
+                        AbilityCostDef::TapPermanents {
+                            object: ObjectPredicateDef::Subtype("Vampire"),
+                            controller: PlayerRelation::You,
+                            count: 1,
+                        },
+                    ],
+                    EffectDef::Transform {
+                        object: EffectRecipientDef::Source,
+                    },
+                ),
+            ),
+        ),
+        (
+            "Markov's Servant",
+            CardRules::new_creature_without_mana_cost(&["Vampire"], 4, 4)
+                .printed_colors(&[ManaColor::Black]),
+        ),
+    ],
 );
 
 // DKA 56 — Curse of Misfortunes
@@ -1460,13 +1611,52 @@ pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::n
 );
 
 // DKA 70 — Mikaeus, the Unhallowed
-// Audit: metadata-only — Needs a damage trigger keyed to Human sources plus a continuous effect that both excludes Humans and grants undying to other creatures.
 pub(in crate::card::sets) static MIKAEUS_THE_UNHALLOWED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("801b124d-3546-4882-a6e1-c9c353628a18"),
     "Mikaeus, the Unhallowed",
     crate::card::CardArt::new("801b124d-3546-4882-a6e1-c9c353628a18", "Chris Rahn"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}"), &["Zombie", "Cleric"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::intimidate(),
+            AbilityDef::triggered(
+                "Whenever a Human deals damage to you, destroy it.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    kind: DamageKindDef::Any,
+                    source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Subtype("Human")),
+                    recipient: DamageRecipientMatcherDef::Recipients(
+                        EffectRecipientDef::Controller,
+                    ),
+                }),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::TriggeringObject,
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::static_ability(
+                "Other non-Human creatures you control get +1/+1 and have undying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::undying()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // DKA 71 — Ravenous Demon // Archdemon of Greed
@@ -1547,13 +1737,29 @@ pub(in crate::card::sets) static SKIRSDAG_FLAYER: CardRecord = CardRecord::new_w
 );
 
 // DKA 75 — Spiteful Shadows
-// Audit: metadata-only — Needs damage dealt to the attached creature to be re-dealt with that creature, rather than the Aura, as the damage source.
 pub(in crate::card::sets) static SPITEFUL_SHADOWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ea0a94fe-11d6-48a7-9195-2cb5eff4b962"),
     "Spiteful Shadows",
     crate::card::CardArt::new("ea0a94fe-11d6-48a7-9195-2cb5eff4b962", "John Stanko"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+                "Whenever enchanted creature is dealt damage, it deals that much damage to its controller.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef::to(
+                    EffectRecipientDef::AttachedPermanent,
+                )),
+                EffectDef::DealDamageFrom {
+                    source: ObjectRefDef::DamagedObject,
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::DamagedObject,
+                    )),
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+        ]),
 );
 
 // DKA 76 — Tragic Slip
@@ -1649,23 +1855,89 @@ pub(in crate::card::sets) static WAKEDANCER: CardRecord = CardRecord::new_with_l
 );
 
 // DKA 80 — Zombie Apocalypse
-// Audit: metadata-only — Needs a mass graveyard return that makes the returned Zombie cards enter the battlefield tapped before destroying all Humans.
 pub(in crate::card::sets) static ZOMBIE_APOCALYPSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("756119c5-f10e-431b-9f8b-5da5850a72fd"),
     "Zombie Apocalypse",
     crate::card::CardArt::new("fe662a08-a8b1-4f25-b7c0-dca1c7ad7271", "Peter Mohrbacher"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}{B}{B}")).with_ability(AbilityDef::spell(
+        "Return all Zombie creature cards from your graveyard to the battlefield tapped, then destroy all Humans.",
+        EffectDef::Sequence(&[
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Zombie"),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Human"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // DKA 81 — Afflicted Deserter // Werewolf Ransacker
-// Audit: metadata-only — Needs a reusable complete double-faced Werewolf composition plus the back face's transform trigger that destroys an artifact and damages its controller.
-pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("a2c044c0-3625-4bdf-9445-b462394cecae"),
-    "Afflicted Deserter",
+    "Afflicted Deserter // Werewolf Ransacker",
     crate::card::CardArt::new("a2c044c0-3625-4bdf-9445-b462394cecae", "David Palumbo"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Afflicted Deserter",
+            CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Werewolf"], 3, 2)
+                .with_ability(WEREWOLF_FRONT_TRANSFORM),
+        ),
+        (
+            "Werewolf Ransacker",
+            CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 4)
+                .printed_colors(&[ManaColor::Red])
+                .with_abilities(&[
+                    AbilityDef::triggered_with_targets(
+                        "Whenever this creature transforms into Werewolf Ransacker, you may destroy target artifact. If that artifact is put into a graveyard this way, this creature deals 3 damage to that artifact's controller.",
+                        TriggerEventDef::transforms(ObjectPredicateDef::Source),
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                        )],
+                        EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::Destroy {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                can_regenerate: true,
+                                then: Some(DestroyFollowUpDef {
+                                    binding: ObjectSetBindingIndex::PRIMARY,
+                                    effect: &EffectDef::DealDamage {
+                                        recipient: EffectRecipientDef::ControllerOfTarget(
+                                            TargetIndex::PRIMARY,
+                                        ),
+                                        amount: ValueDef::Constant(3),
+                                    },
+                                }),
+                            },
+                        },
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
+        ),
+    ],
 );
 
 // DKA 82 — Alpha Brawl
@@ -1819,7 +2091,6 @@ pub(in crate::card::sets) static FIRES_OF_UNDEATH: CardRecord = CardRecord::new_
 );
 
 // DKA 89 — Flayer of the Hatebound
-// Audit: metadata-only — Needs the triggering creature's power as a value and that creature, rather than this permanent, as the source of the damage.
 pub(in crate::card::sets) static FLAYER_OF_THE_HATEBOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ffb17c3f-0154-49ee-bb5f-cd1df8546871"),
     "Flayer of the Hatebound",
@@ -1828,17 +2099,50 @@ pub(in crate::card::sets) static FLAYER_OF_THE_HATEBOUND: CardRecord = CardRecor
         "Jana Schirmer & Johannes Voss",
     ),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Devil"], 4, 2).with_abilities(&[
+        abilities::undying(),
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature or another creature enters from your graveyard, that creature deals damage equal to its power to any target.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                ]),
+                Some(ZoneKind::Graveyard),
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::DealDamageFrom {
+                source: ObjectRefDef::TriggeringObject,
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::TriggeringObjectPower,
+            },
+        ),
+    ]),
 );
 
 // DKA 90 — Fling
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b144452-2e91-4e46-abe9-ed76b39f8314"),
     "Fling",
     crate::card::CardArt::new("cf1ab466-44bb-45d5-a94f-21b8924f0d89", "Izzy"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature. Fling deals damage equal to the sacrificed creature's power to any target.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ObjectPower(ObjectRefDef::AdditionalCostObject(
+                    AdditionalCostObjectIndex::PRIMARY,
+                )),
+            },
+        ),
+    ),
 );
 
 // DKA 91 — Forge Devil
@@ -1922,23 +2226,80 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new_with_le
 );
 
 // DKA 94 — Hinterland Hermit // Hinterland Scourge
-// Audit: metadata-only — Needs a complete transforming Werewolf composition plus the back face's restriction that it can't be blocked by more than one creature.
-pub(in crate::card::sets) static HINTERLAND_HERMIT: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static HINTERLAND_HERMIT: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("b6edac85-78e7-4e90-b538-b67c88bb5c62"),
-    "Hinterland Hermit",
+    "Hinterland Hermit // Hinterland Scourge",
     crate::card::CardArt::new("b6edac85-78e7-4e90-b538-b67c88bb5c62", "Steven Belledin"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Hinterland Hermit",
+            CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Werewolf"], 2, 1)
+                .with_ability(WEREWOLF_FRONT_TRANSFORM),
+        ),
+        (
+            "Hinterland Scourge",
+            CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 2)
+                .printed_colors(&[ManaColor::Red])
+                .with_abilities(&[
+                    AbilityDef::static_ability(
+                        "This creature must be blocked if able.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                                ObjectPredicateDef::Any,
+                            )),
+                        },
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
+        ),
+    ],
 );
 
 // DKA 95 — Increasing Vengeance
-// Audit: metadata-only — Needs spell copies with new targets and a cast-from-graveyard branch that creates two copies instead of one.
 pub(in crate::card::sets) static INCREASING_VENGEANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d13afe4a-4a3d-42ae-ac0a-b789364c7e7e"),
     "Increasing Vengeance",
     crate::card::CardArt::new("d13afe4a-4a3d-42ae-ac0a-b789364c7e7e", "Anthony Francisco"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Copy target instant or sorcery spell you control. If this spell was cast from a graveyard, copy that spell twice instead. You may choose new targets for the copies.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            })],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &CAST_FROM_GRAVEYARD,
+                    then: &EffectDef::CopyStackObject(&CopyStackObjectDef {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        controller: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(2),
+                        retarget: true,
+                        colors: None,
+                    }),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
+                    then: &EffectDef::CopyStackObject(&CopyStackObjectDef {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        controller: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(1),
+                        retarget: true,
+                        colors: None,
+                    }),
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{3}{R}{R}")),
+    ]),
 );
 
 // DKA 96 — Markov Blademaster
@@ -1994,13 +2355,41 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
 );
 
 // DKA 98 — Mondronen Shaman // Tovolar's Magehunter
-// Audit: metadata-only — Needs a complete transforming Werewolf composition plus a back-face trigger that damages an opponent whenever they cast a spell.
-pub(in crate::card::sets) static MONDRONEN_SHAMAN: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static MONDRONEN_SHAMAN: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("98fc475a-809d-4278-be03-86eab62b46ce"),
-    "Mondronen Shaman",
+    "Mondronen Shaman // Tovolar's Magehunter",
     crate::card::CardArt::new("b150d71f-11c9-40d6-a461-4967ef437315", "Mike Sass"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Mondronen Shaman",
+            CardRules::new_creature(
+                mana_cost!("{3}{R}"),
+                &["Human", "Shaman", "Werewolf"],
+                3,
+                2,
+            )
+            .with_ability(WEREWOLF_FRONT_TRANSFORM),
+        ),
+        (
+            "Tovolar's Magehunter",
+            CardRules::new_creature_without_mana_cost(&["Werewolf"], 5, 5)
+                .printed_colors(&[ManaColor::Red])
+                .with_abilities(&[
+                    AbilityDef::triggered(
+                        "Whenever an opponent casts a spell, this creature deals 2 damage to that player.",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                            PlayerRelation::Opponent,
+                        )),
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::ControllerOfTriggeringObject,
+                            amount: ValueDef::Constant(2),
+                        },
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
+        ),
+    ],
 );
 
 // DKA 99 — Moonveil Dragon
@@ -2041,13 +2430,27 @@ pub(in crate::card::sets) static NEARHEATH_STALKER: CardRecord = CardRecord::new
 );
 
 // DKA 101 — Pyreheart Wolf
-// Audit: metadata-only — Needs the menace blocking restriction and a temporary mass grant of it to creatures you control.
 pub(in crate::card::sets) static PYREHEART_WOLF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9722f20c-e0d9-4165-8cd5-4abadc5378eb"),
     "Pyreheart Wolf",
     crate::card::CardArt::new("9722f20c-e0d9-4165-8cd5-4abadc5378eb", "Lars Grant-West"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Wolf"], 1, 1).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this creature attacks, creatures you control gain menace until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::menace()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::undying(),
+    ]),
 );
 
 // DKA 102 — Russet Wolves
@@ -2095,13 +2498,33 @@ pub(in crate::card::sets) static SCORCH_THE_FIELDS: CardRecord = CardRecord::new
 );
 
 // DKA 104 — Shattered Perception
-// Audit: metadata-only — Needs the pre-discard hand size captured for the later draw after the hand has become empty.
 pub(in crate::card::sets) static SHATTERED_PERCEPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f5223b4-e0d1-4fc6-a363-ebcdfeee56d1"),
     "Shattered Perception",
     crate::card::CardArt::new("0f5223b4-e0d1-4fc6-a363-ebcdfeee56d1", "Terese Nielsen"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Discard all the cards in your hand, then draw that many cards.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CardsInHandAbove {
+                    player: PlayerRelation::You,
+                    threshold: 0,
+                },
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: Some(DiscardFollowUpDef {
+                    counted: ObjectPredicateDef::Any,
+                    bound: None,
+                    effect: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::MatchedCount,
+                    },
+                }),
+            },
+        ),
+        abilities::flashback(mana_cost!("{5}{R}")),
+    ]),
 );
 
 // DKA 105 — Talons of Falkenrath
@@ -2170,13 +2593,22 @@ pub(in crate::card::sets) static TORCH_FIEND: CardRecord = CardRecord::new_with_
 );
 
 // DKA 107 — Wrack with Madness
-// Audit: metadata-only — Needs damage whose source is the targeted creature itself, including that source's damage abilities and prevention relations.
 pub(in crate::card::sets) static WRACK_WITH_MADNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f27ee20-b5c5-4867-b832-9cdade0eda03"),
     "Wrack with Madness",
     crate::card::CardArt::new("4f27ee20-b5c5-4867-b832-9cdade0eda03", "Todd Lockwood"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature deals damage to itself equal to its power.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::DealDamageFrom {
+            source: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // DKA 108 — Briarpack Alpha
@@ -2474,13 +2906,38 @@ pub(in crate::card::sets) static HUNGER_OF_THE_HOWLPACK: CardRecord = CardRecord
 );
 
 // DKA 120 — Increasing Savagery
-// Audit: metadata-only — Needs a cast-from-graveyard condition to choose five versus ten +1/+1 counters.
 pub(in crate::card::sets) static INCREASING_SAVAGERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29ab8737-151f-4702-a95d-7f7b60a5ee8a"),
     "Increasing Savagery",
     crate::card::CardArt::new("29ab8737-151f-4702-a95d-7f7b60a5ee8a", "Steve Prescott"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Put five +1/+1 counters on target creature. If this spell was cast from a graveyard, put ten +1/+1 counters on that creature instead.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &CAST_FROM_GRAVEYARD,
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(10),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(5),
+                    },
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{5}{G}{G}")),
+    ]),
 );
 
 // DKA 121 — Kessig Recluse
@@ -2494,13 +2951,34 @@ pub(in crate::card::sets) static KESSIG_RECLUSE: CardRecord = CardRecord::new_wi
 );
 
 // DKA 122 — Lambholt Elder // Silverpelt Werewolf
-// Audit: metadata-only — Needs a complete transforming Werewolf composition plus the back face's combat-damage card-draw trigger.
-pub(in crate::card::sets) static LAMBHOLT_ELDER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static LAMBHOLT_ELDER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("932d753d-9584-4ad8-9a5e-a3524184f961"),
-    "Lambholt Elder",
+    "Lambholt Elder // Silverpelt Werewolf",
     crate::card::CardArt::new("932d753d-9584-4ad8-9a5e-a3524184f961", "Matt Stewart"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Lambholt Elder",
+            CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Werewolf"], 1, 2)
+                .with_ability(WEREWOLF_FRONT_TRANSFORM),
+        ),
+        (
+            "Silverpelt Werewolf",
+            CardRules::new_creature_without_mana_cost(&["Werewolf"], 4, 5)
+                .printed_colors(&[ManaColor::Green])
+                .with_abilities(&[
+                    AbilityDef::triggered(
+                        "Whenever this creature deals combat damage to a player, draw a card.",
+                        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
+        ),
+    ],
 );
 
 // DKA 123 — Lost in the Woods
@@ -2542,13 +3020,35 @@ pub(in crate::card::sets) static PREDATOR_OOZE: CardRecord = CardRecord::new_wit
 );
 
 // DKA 125 — Scorned Villager // Moonscarred Werewolf
-// Audit: metadata-only — Needs a complete transforming Werewolf composition whose two faces expose different mana abilities while sharing the upkeep transforms.
-pub(in crate::card::sets) static SCORNED_VILLAGER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static SCORNED_VILLAGER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("6f35e364-81d9-4888-993b-acc7a53d963c"),
-    "Scorned Villager",
+    "Scorned Villager // Moonscarred Werewolf",
     crate::card::CardArt::new("6f35e364-81d9-4888-993b-acc7a53d963c", "Cynthia Sheppard"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    &[
+        (
+            "Scorned Villager",
+            CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Werewolf"], 1, 1)
+                .with_abilities(&[
+                    abilities::tap_for(ManaColor::Green),
+                    WEREWOLF_FRONT_TRANSFORM,
+                ]),
+        ),
+        (
+            "Moonscarred Werewolf",
+            CardRules::new_creature_without_mana_cost(&["Werewolf"], 2, 2)
+                .printed_colors(&[ManaColor::Green])
+                .with_abilities(&[
+                    abilities::vigilance(),
+                    AbilityDef::activated_mana(
+                        "{T}: Add {G}{G}.",
+                        &[AbilityCostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green).with_amount(2)),
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
+        ),
+    ],
 );
 
 // DKA 126 — Somberwald Dryad
@@ -2572,13 +3072,23 @@ pub(in crate::card::sets) static STRANGLEROOT_GEIST: CardRecord = CardRecord::ne
 );
 
 // DKA 128 — Tracker's Instincts
-// Audit: metadata-only — The top-card selection primitive cannot restrict the chosen card to a creature while moving all unchosen cards to the graveyard.
 pub(in crate::card::sets) static TRACKER_S_INSTINCTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59960387-3adf-4b9a-b0e6-c441579f7388"),
     "Tracker's Instincts",
     crate::card::CardArt::new("59960387-3adf-4b9a-b0e6-c441579f7388", "Jung Park"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Reveal the top four cards of your library. Put a creature card from among them into your hand and the rest into your graveyard.",
+            abilities::reveal_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::HasType(CardType::Creature),
+                0,
+                1,
+            ),
+        ),
+        abilities::flashback(mana_cost!("{2}{U}")),
+    ]),
 );
 
 // DKA 129 — Ulvenwald Bear
@@ -3384,13 +3894,36 @@ pub(in crate::card::sets) static GRIM_BACKWOODS: CardRecord = CardRecord::new_wi
 );
 
 // DKA 157 — Haunted Fengraf
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HAUNTED_FENGRAF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84bca9e1-c0b7-4dce-9ee4-370db2c322b6"),
     "Haunted Fengraf",
     crate::card::CardArt::new("84bca9e1-c0b7-4dce-9ee4-370db2c322b6", "Adam Paquette"),
     crate::card::CardSet::DarkAscension,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{3}, {T}, Sacrifice this land: Return a creature card at random from your graveyard to your hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::SelectAtRandomFromZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Graveyard,
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                amount: ValueDef::Constant(1),
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::PRIMARY,
+                    )),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            },
+        ),
+    ]),
 );
 
 // DKA 158 — Vault of the Archangel

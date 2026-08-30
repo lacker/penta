@@ -80,7 +80,7 @@ static TWO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCa
     amount: 2,
 };
 
-static WEREWOLF_FRONT_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
+pub(in crate::card::sets) static WEREWOLF_FRONT_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
     "At the beginning of each upkeep, if no spells were cast last turn, transform this creature.",
     TriggerEventDef::StepBegins {
         step: crate::card::TurnStepDef::Upkeep,
@@ -92,7 +92,7 @@ static WEREWOLF_FRONT_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
     },
 );
 
-static WEREWOLF_BACK_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
+pub(in crate::card::sets) static WEREWOLF_BACK_TRANSFORM: AbilityDef = AbilityDef::triggered_if(
     "At the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.",
     TriggerEventDef::StepBegins {
         step: crate::card::TurnStepDef::Upkeep,

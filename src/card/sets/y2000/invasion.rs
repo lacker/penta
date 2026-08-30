@@ -563,50 +563,6 @@ const FACT_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const FACT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
 const FACT_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
 
-static FACT_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(FACT_UNCHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Graveyard,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &EffectDef::None,
-});
-static FACT_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(FACT_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &FACT_PUT_UNCHOSEN,
-});
-static FACT_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
-    actor: PlayerRefDef::EffectController,
-    first: ObjectSetDef::Binding(FACT_FIRST),
-    second: ObjectSetDef::Binding(FACT_SECOND),
-    chosen: FACT_CHOSEN,
-    unchosen: FACT_UNCHOSEN,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &FACT_PUT_CHOSEN,
-});
-static FACT_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
-    actor: PlayerRefDef::Opponent,
-    input: ObjectSetDef::Binding(FACT_INSPECTED),
-    first: FACT_FIRST,
-    second: FACT_SECOND,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &FACT_CHOOSE,
-});
-static FACT_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
-    input: ObjectSetDef::Binding(FACT_INSPECTED),
-    then: &FACT_PARTITION,
-});
-static FACT_OR_FICTION_EFFECT: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(5),
-    FACT_INSPECTED,
-    &FACT_REVEAL,
-);
-
 pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
     277,
     "Fact or Fiction",
@@ -617,7 +573,44 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
     CardSet::Invasion,
     CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
         "Reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.",
-        FACT_OR_FICTION_EFFECT,
+        abilities::bind_top_cards_then(
+            PlayerRefDef::EffectController,
+            ValueDef::Constant(5),
+            FACT_INSPECTED,
+            &const { EffectDef::RevealObjects(RevealObjectsDef {
+                input: ObjectSetDef::Binding(FACT_INSPECTED),
+                then: &const { EffectDef::PartitionGroup(PartitionGroupDef {
+                    actor: PlayerRefDef::Opponent,
+                    input: ObjectSetDef::Binding(FACT_INSPECTED),
+                    first: FACT_FIRST,
+                    second: FACT_SECOND,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &const { EffectDef::ChooseGroup(ChooseGroupDef {
+                        actor: PlayerRefDef::EffectController,
+                        first: ObjectSetDef::Binding(FACT_FIRST),
+                        second: ObjectSetDef::Binding(FACT_SECOND),
+                        chosen: FACT_CHOSEN,
+                        unchosen: FACT_UNCHOSEN,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(FACT_CHOSEN),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(FACT_UNCHOSEN),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }) },
+                        }) },
+                    }) },
+                }) },
+            }) },
+        ),
     )),
 );
 
@@ -730,26 +723,6 @@ static COUNTER_TARGET_SPELL: EffectDef = EffectDef::Counter {
     placement: ZonePlacement::Top,
 };
 
-static SMALL_ENOUGH_TO_COUNTER: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(2),
-};
-
-static BIG_ENOUGH_TO_COUNTER_KICKED: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(4),
-};
-
-static PROHIBIT_UNKICKED: EffectDef = EffectDef::IfCondition {
-    condition: &SMALL_ENOUGH_TO_COUNTER,
-    then: &COUNTER_TARGET_SPELL,
-};
-
-static PROHIBIT_KICKED: EffectDef = EffectDef::IfCondition {
-    condition: &BIG_ENOUGH_TO_COUNTER_KICKED,
-    then: &COUNTER_TARGET_SPELL,
-};
-
 pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_legacy_id(
     2030,
     "Prohibit",
@@ -759,13 +732,25 @@ pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_leg
         AbilityDef::spell_with_targets(
             "Counter target spell if its mana value is 2 or less.",
             &TARGET_SPELL,
-            PROHIBIT_UNKICKED,
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(2),
+                },
+                then: &COUNTER_TARGET_SPELL,
+            },
         ),
         abilities::kicker(
             mana_cost!("{3}{U}"),
             "Counter target spell if its mana value is 4 or less.",
             &TARGET_SPELL,
-            PROHIBIT_KICKED,
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(4),
+                },
+                then: &COUNTER_TARGET_SPELL,
+            },
         ),
     ]),
 );
@@ -882,43 +867,6 @@ pub(in crate::card::sets) static SWAY_OF_ILLUSION: CardRecord = CardRecord::new(
 );
 
 // INV 78 — Teferi's Response
-/// A land you control, read off what the spell or ability already targets.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static RESPONSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::StackObject {
-        object: ObjectPredicateDef::TargetsObjectMatching(&A_LAND_YOU_CONTROL),
-        controller: Some(PlayerRelation::Opponent),
-        kind: StackTargetKindDef::SpellOrAbility,
-    },
-)];
-
-/// The destroy follows the counter rather than preceding it: the countered
-/// ability is retired with its source recorded, so the permanent is still
-/// findable afterwards, and a spell -- which has no such source -- leaves
-/// nothing to destroy.
-static RESPONSE_EFFECT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Counter {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::Destroy {
-        object: EffectRecipientDef::object(ObjectRefDef::SourceOfTargetedStackObject(
-            TargetIndex::PRIMARY,
-        )),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-]);
-
 pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_with_legacy_id(
     2058,
     "Teferi's Response",
@@ -928,8 +876,39 @@ pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_
     // came for it dies, and two cards make the exchange worth a card.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell or ability an opponent controls that targets a land you control. If a permanent's ability is countered this way, destroy that permanent.\nDraw two cards.",
-        &RESPONSE_TARGET,
-        RESPONSE_EFFECT,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::StackObject {
+                // A land you control, read off what the spell or ability already targets.
+                object: ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                controller: Some(PlayerRelation::Opponent),
+                kind: StackTargetKindDef::SpellOrAbility,
+            },
+        )],
+        // The destroy follows the counter rather than preceding it: the countered
+        // ability is retired with its source recorded, so the permanent is still
+        // findable afterwards, and a spell -- which has no such source -- leaves
+        // nothing to destroy.
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::Destroy {
+                object: EffectRecipientDef::object(ObjectRefDef::SourceOfTargetedStackObject(
+                    TargetIndex::PRIMARY,
+                )),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
     )),
 );
 
@@ -1689,26 +1668,6 @@ static DESTROY_TARGET_ARTIFACT: EffectDef = EffectDef::Destroy {
     then: None,
 };
 
-static ARTIFACT_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(2),
-};
-
-static ARTIFACT_SMALL_ENOUGH_KICKED: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(5),
-};
-
-static OVERLOAD_UNKICKED: EffectDef = EffectDef::IfCondition {
-    condition: &ARTIFACT_SMALL_ENOUGH,
-    then: &DESTROY_TARGET_ARTIFACT,
-};
-
-static OVERLOAD_KICKED: EffectDef = EffectDef::IfCondition {
-    condition: &ARTIFACT_SMALL_ENOUGH_KICKED,
-    then: &DESTROY_TARGET_ARTIFACT,
-};
-
 pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_legacy_id(
     2029,
     "Overload",
@@ -1720,13 +1679,25 @@ pub(in crate::card::sets) static OVERLOAD: CardRecord = CardRecord::new_with_leg
         AbilityDef::spell_with_targets(
             "Destroy target artifact if its mana value is 2 or less.",
             &TARGET_ARTIFACT,
-            OVERLOAD_UNKICKED,
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(2),
+                },
+                then: &DESTROY_TARGET_ARTIFACT,
+            },
         ),
         abilities::kicker(
             mana_cost!("{2}{R}"),
             "Destroy target artifact if its mana value is 5 or less.",
             &TARGET_ARTIFACT,
-            OVERLOAD_KICKED,
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(5),
+                },
+                then: &DESTROY_TARGET_ARTIFACT,
+            },
         ),
     ]),
 );

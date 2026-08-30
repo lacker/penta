@@ -861,10 +861,6 @@ pub(in crate::card::sets) static POLAR_KRAKEN: CardRecord = CardRecord::new(
 );
 
 // ICE 90 — Portent
-static PORTENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new_with_legacy_id(
     2051,
     "Portent",
@@ -872,7 +868,9 @@ pub(in crate::card::sets) static PORTENT: CardRecord = CardRecord::new_with_lega
     CardSet::IceAge,
     CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Look at the top three cards of target player's library, then put them back in any order. You may have that player shuffle.\nDraw a card at the beginning of the next turn's upkeep.",
-        &PORTENT_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::Sequence(&[
             abilities::look_at_top_cards_and_reorder(
                 PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -2074,19 +2072,6 @@ pub(in crate::card::sets) static ORCISH_LIBRARIAN: CardRecord = CardRecord::new(
 );
 
 // ICE 210 — Orcish Lumberjack
-/// "Sacrifice a Forest" reads the land type rather than the card name, so a
-/// dual land with the type counts and a Forest somebody enchanted still
-/// does. Which one is spent is chosen as the ability is activated.
-static LUMBERJACK_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificePermanent {
-        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-        controller: PlayerRelation::You,
-    },
-];
-
-static LUMBERJACK_COLORS: [ManaColor; 2] = [ManaColor::Red, ManaColor::Green];
-
 pub(in crate::card::sets) static ORCISH_LUMBERJACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21ef13e3-658c-43a3-a290-4c5dde8e8b55"),
     "Orcish Lumberjack",
@@ -2098,8 +2083,20 @@ pub(in crate::card::sets) static ORCISH_LUMBERJACK: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{R}"), &["Orc"], 1, 1).with_ability(
         AbilityDef::activated_mana(
             "{T}, Sacrifice a Forest: Add three mana in any combination of {R} and/or {G}.",
-            &LUMBERJACK_COST,
-            EffectDef::AddMana(AddManaEffectDef::combination(&LUMBERJACK_COLORS, 3)),
+            // "Sacrifice a Forest" reads the land type rather than the card name, so a
+            // dual land with the type counts and a Forest somebody enchanted still
+            // does. Which one is spent is chosen as the ability is activated.
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::AddMana(AddManaEffectDef::combination(
+                &[ManaColor::Red, ManaColor::Green],
+                3,
+            )),
         ),
     ),
 );
@@ -2886,24 +2883,6 @@ pub(in crate::card::sets) static FIERY_JUSTICE: CardRecord = CardRecord::new(
 );
 
 // ICE 289 — Fire Covenant
-/// "Any number of target creatures" is however many shares X splits into,
-/// and X is the life its caster was willing to spend rather than anything in
-/// the mana cost -- three mana kills a board if you have the life for it.
-static FIRE_COVENANT_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    minimum: 0,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: Some(DividedTotal::ChosenX),
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
 pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a0139c2-ad86-4c71-ab6d-4840c37d5d20"),
     "Fire Covenant",
@@ -2916,7 +2895,23 @@ pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
         AbilityDef::spell_with_targets(
             "As an additional cost to cast this spell, pay X life. This spell deals X damage \
              divided as you choose among any number of target creatures.",
-            &FIRE_COVENANT_TARGETS,
+            // "Any number of target creatures" is however many shares X splits into,
+            // and X is the life its caster was willing to spend rather than anything in
+            // the mana cost -- three mana kills a board if you have the life for it.
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                minimum: 0,
+                maximum: AbilityTargetDef::UNLIMITED,
+                divided_total: Some(DividedTotal::ChosenX),
+                another: false,
+                excludes_source: false,
+                chooser: TargetChooserDef::Controller,
+            }],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::DividedAmongTargets,
@@ -3464,35 +3459,6 @@ pub(in crate::card::sets) static TIME_BOMB: CardRecord = CardRecord::new(
 );
 
 // ICE 343 — Urza's Bauble
-/// "You draw a card at the beginning of the next turn's upkeep": a delayed
-/// draw rather than a cantrip, which is what makes the Bauble free to play
-/// and slow to pay.
-static BAUBLE_DRAWS: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next turn's upkeep, you draw a card.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-);
-
-static BAUBLE_PEEKS: [EffectDef; 2] = [
-    EffectDef::LookAtRandomCardInHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&BAUBLE_DRAWS)),
-];
-
-static BAUBLE_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
-
-static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static URZAS_BAUBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58c9e9a7-e170-4361-b7d5-22fc0771c489"),
     "Urza's Bauble",
@@ -3504,9 +3470,29 @@ pub(in crate::card::sets) static URZAS_BAUBLE: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{0}")).with_ability(AbilityDef::activated_with_targets(
         "{T}, Sacrifice this artifact: Look at a card at random in target player's hand. You draw \
          a card at the beginning of the next turn's upkeep.",
-        &BAUBLE_COST,
-        &A_PLAYER,
-        EffectDef::Sequence(&BAUBLE_PEEKS),
+        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::LookAtRandomCardInHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            // "You draw a card at the beginning of the next turn's upkeep": a delayed
+            // draw rather than a cantrip, which is what makes the Bauble free to play
+            // and slow to pay.
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next turn's upkeep, you draw a card.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ))),
+        ]),
     )),
 );
 

@@ -125,18 +125,6 @@ pub(in crate::card::sets) static DAMPING_FIELD: CardRecord = CardRecord::new_wit
 );
 
 // ATQ 6 — Martyrs of Korlis
-/// "As long as this creature is untapped": the condition rides on the
-/// recipient, so tapping it turns the redirection off and untapping turns it
-/// back on without the creature being touched.
-static MARTYRS_UNTAPPED: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Source,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
 pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new_with_legacy_id(
     1685,
     "Martyrs of Korlis",
@@ -150,7 +138,17 @@ pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new
             "As long as this creature is untapped, all damage that would be dealt to you by \
              artifacts is dealt to this creature instead.",
             EffectDef::StaticApply {
-                recipient: MARTYRS_UNTAPPED,
+                // "As long as this creature is untapped": the condition rides on the
+                // recipient, so tapping it turns the redirection off and untapping turns it
+                // back on without the creature being touched.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::RedirectPlayerDamageToThis(
                     DamageSourceGroupDef::Artifacts,
                 )),
@@ -160,15 +158,6 @@ pub(in crate::card::sets) static MARTYRS_OF_KORLIS: CardRecord = CardRecord::new
 );
 
 // ATQ 7 — Reverse Polarity
-/// Only what artifacts dealt counts, and it counts twice.
-static REVERSE_POLARITY_DOUBLED: ScaledValueDef = ScaledValueDef::new(
-    ValueDef::DamageTakenThisTurn {
-        player: PlayerRelation::You,
-        source: Some(DamageSourceGroupDef::Artifacts),
-    },
-    2,
-);
-
 pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new_with_legacy_id(
     1715,
     "Reverse Polarity",
@@ -179,7 +168,14 @@ pub(in crate::card::sets) static REVERSE_POLARITY: CardRecord = CardRecord::new_
          artifacts.",
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Scaled(&REVERSE_POLARITY_DOUBLED),
+            // Only what artifacts dealt counts, and it counts twice.
+            amount: ValueDef::Scaled(&ScaledValueDef::new(
+                ValueDef::DamageTakenThisTurn {
+                    player: PlayerRelation::You,
+                    source: Some(DamageSourceGroupDef::Artifacts),
+                },
+                2,
+            )),
         },
     )),
 );
@@ -195,20 +191,6 @@ pub(in crate::card::sets) static DRAFNA_S_RESTORATION: CardRecord = CardRecord::
 );
 
 // ATQ 9 — Energy Flux
-static ENERGY_FLUX_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered(
-    "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::You,
-    },
-    EffectDef::PayOr(PayOrDef::unless_mana(
-        mana_cost!("{2}"),
-        &EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    )),
-);
-
 pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_legacy_id(
     113,
     "Energy Flux",
@@ -219,7 +201,23 @@ pub(in crate::card::sets) static ENERGY_FLUX: CardRecord = CardRecord::new_with_
         "All artifacts have \"At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.\"",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Artifact), &[ZoneKind::Battlefield], PlayerRelation::Any),
-            effect: AppliedEffectDef::add_ability(&ENERGY_FLUX_GRANTED_ABILITY),
+            effect: AppliedEffectDef::add_ability(&const {
+                AbilityDef::triggered(
+                    "At the beginning of your upkeep, sacrifice this artifact unless you pay {2}.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::You,
+                    },
+                    EffectDef::PayOr(PayOrDef::unless_mana(
+                        mana_cost!("{2}"),
+                        &const {
+                            EffectDef::Sacrifice {
+                                object: EffectRecipientDef::Source,
+                            }
+                        },
+                    )),
+                )
+            }),
         },
     )]),
 );
@@ -363,10 +361,6 @@ pub(in crate::card::sets) static HAUNTING_WIND: CardRecord = CardRecord::new(
 );
 
 // ATQ 18 — Phyrexian Gremlins
-static GREMLIN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
 pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::new_with_legacy_id(
     1682,
     "Phyrexian Gremlins",
@@ -385,7 +379,9 @@ pub(in crate::card::sets) static PHYREXIAN_GREMLINS: CardRecord = CardRecord::ne
                 "{T}: Tap target artifact. It doesn't untap during its controller's untap step \
                  for as long as this creature remains tapped.",
                 &[AbilityCostDef::TapSource],
-                &GREMLIN_TARGET,
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
                 EffectDef::Sequence(&[
                     EffectDef::Tap {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -412,24 +408,6 @@ pub(in crate::card::sets) static PRIEST_OF_YAWGMOTH: CardRecord = CardRecord::ne
 );
 
 // ATQ 20 — Xenic Poltergeist
-/// Animation is a type and a base size together. Both numbers are the same
-/// value, read off the artifact the ability pointed at, and frozen as the
-/// ability resolves -- an artifact's mana value does not move afterwards.
-static XENIC_POLTERGEIST_ANIMATION: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_base_power_toughness(
-        ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-        ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-    ),
-];
-
-static XENIC_POLTERGEIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-    ]),
-)];
-
 pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new_with_legacy_id(
     1815,
     "Xenic Poltergeist",
@@ -440,10 +418,24 @@ pub(in crate::card::sets) static XENIC_POLTERGEIST: CardRecord = CardRecord::new
             "{T}: Until your next upkeep, target noncreature artifact becomes an artifact \
              creature with power and toughness each equal to its mana value.",
             &[AbilityCostDef::TapSource],
-            &XENIC_POLTERGEIST_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Composite(&XENIC_POLTERGEIST_ANIMATION),
+                // Animation is a type and a base size together. Both numbers are the same
+                // value, read off the artifact the ability pointed at, and frozen as the
+                // ability resolves -- an artifact's mana value does not move afterwards.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                        ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                    ),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
             },
         ),
@@ -500,29 +492,6 @@ pub(in crate::card::sets) static ATOG: CardRecord = CardRecord::new_with_legacy_
 // ATQ 23† — Atog (alternate printing)
 
 // ATQ 24 — Detonate
-/// The mana value is read off the spell's own X, so what Detonate can hit
-/// depends on what was paid for it.
-static DETONATE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
-    ]),
-)];
-
-/// The damage reads the controller as the spell resolves, so it still lands
-/// even though the artifact has just been destroyed.
-static DETONATE_EFFECT: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: false,
-        then: None,
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-        amount: ValueDef::ChosenX,
-    },
-];
-
 pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_legacy_id(
     8,
     "Detonate",
@@ -534,8 +503,27 @@ pub(in crate::card::sets) static DETONATE: CardRecord = CardRecord::new_with_leg
     CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Destroy target artifact with mana value X. It can't be regenerated. Detonate deals X damage to that artifact's controller.",
-            &DETONATE_TARGET,
-            EffectDef::Sequence(&DETONATE_EFFECT),
+            // The mana value is read off the spell's own X, so what Detonate can hit
+            // depends on what was paid for it.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
+                ]),
+            )],
+            // The damage reads the controller as the spell resolves, so it still lands
+            // even though the artifact has just been destroyed.
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: false,
+                    then: None,
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::ChosenX,
+                },
+            ]),
         ),
     ]),
 );
@@ -729,17 +717,15 @@ pub(in crate::card::sets) static CRUMBLE: CardRecord = CardRecord::new_with_lega
 );
 
 // ATQ 33 — Gaea's Avenger
-static ARTIFACTS_YOUR_OPPONENTS_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
 /// "Each equal to 1 plus the number of artifacts your opponents control":
 /// the one is part of the amount, not a printed body the count adds to.
 static ONE_PLUS_OPPONENT_ARTIFACTS: SumValueDef = SumValueDef::new(
     ValueDef::Constant(1),
-    ValueDef::CountMatchingObjects(&ARTIFACTS_YOUR_OPPONENTS_CONTROL),
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Artifact),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::Opponent,
+    )),
 );
 
 pub(in crate::card::sets) static GAEAS_AVENGER: CardRecord = CardRecord::new_with_legacy_id(
@@ -909,29 +895,6 @@ pub(in crate::card::sets) static ASHNODS_BATTLE_GEAR: CardRecord = CardRecord::n
 );
 
 // ATQ 40 — Ashnod's Transmogrant
-/// A counter and a type, both permanent: the artifact is gone by the time
-/// either lands, so nothing is scoped to it surviving.
-static ASHNODS_TRANSMOGRANT_EFFECT: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-];
-
-static ASHNODS_TRANSMOGRANT_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
-        ]),
-    )];
-
 pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::new_with_legacy_id(
     1810,
     "Ashnod's Transmogrant",
@@ -941,14 +904,30 @@ pub(in crate::card::sets) static ASHNODS_TRANSMOGRANT: CardRecord = CardRecord::
         "{T}, Sacrifice this artifact: Put a +1/+1 counter on target nonartifact creature. \
          That creature becomes an artifact in addition to its other types.",
         &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-        &ASHNODS_TRANSMOGRANT_TARGET,
-        EffectDef::Sequence(&ASHNODS_TRANSMOGRANT_EFFECT),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+            ]),
+        )],
+        // A counter and a type, both permanent: the artifact is gone by the time
+        // either lands, so nothing is scoped to it surviving.
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ]),
     )),
 );
 
 // ATQ 41 — Battering Ram
-static BATTERING_RAM_BANDING: AbilityDef = abilities::banding();
-
 pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new_with_legacy_id(
     1797,
     "Battering Ram",
@@ -964,7 +943,7 @@ pub(in crate::card::sets) static BATTERING_RAM: CardRecord = CardRecord::new_wit
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&BATTERING_RAM_BANDING),
+                effect: AppliedEffectDef::add_ability(&abilities::banding()),
                 duration: ResolvedEffectDurationDef::UntilEndOfCombat,
             },
         ),
@@ -990,18 +969,6 @@ pub(in crate::card::sets) static BRONZE_TABLET: CardRecord = CardRecord::new(
 );
 
 // ATQ 43 — Candelabra of Tawnos
-/// "X target lands": the count is the X that was paid, not a range chosen
-/// afterwards, so an X larger than the number of lands on the battlefield
-/// offers no declaration at all.
-static CANDELABRA_X_LANDS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_chosen_x(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Land),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::new_with_legacy_id(
     1829,
     "Candelabra of Tawnos",
@@ -1015,7 +982,17 @@ pub(in crate::card::sets) static CANDELABRA_OF_TAWNOS: CardRecord = CardRecord::
             AbilityCostDef::Mana(mana_cost!("{X}")),
             AbilityCostDef::TapSource,
         ],
-        &CANDELABRA_X_LANDS,
+        // "X target lands": the count is the X that was paid, not a range chosen
+        // afterwards, so an X larger than the number of lands on the battlefield
+        // offers no declaration at all.
+        &[AbilityTargetDef::exactly_chosen_x(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Untap {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
@@ -1134,23 +1111,6 @@ pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new_wit
 );
 
 // ATQ 50 — Feldon's Cane
-/// The documented composition: move the then shuffle the library they
-/// arrived in.
-static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::Any,
-            &[ZoneKind::Graveyard],
-            PlayerRelation::You,
-        ),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Controller,
-    },
-];
-
 pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with_legacy_id(
     1480,
     "Feldon's Cane",
@@ -1159,7 +1119,26 @@ pub(in crate::card::sets) static FELDONS_CANE: CardRecord = CardRecord::new_with
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
         "{T}, Exile this artifact: Shuffle your graveyard into your library.",
         &[AbilityCostDef::TapSource, AbilityCostDef::ExileSource],
-        EffectDef::Sequence(&FELDONS_CANE_SHUFFLE),
+        // The documented composition: move the then shuffle the library they
+        // arrived in.
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Any,
+                            &const { [ZoneKind::Graveyard] },
+                            PlayerRelation::You,
+                        ),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Controller,
+                    },
+                ]
+            },
+        ),
     )),
 );
 
@@ -1317,22 +1296,6 @@ pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new_with_le
 );
 
 // ATQ 57 — Mishra's War Machine
-/// The declined branch, which is one clause rather than two: "if it deals
-/// damage to you this way" is only ever true here, so the tap belongs to the
-/// same branch as the damage instead of watching for it.
-static MISHRAS_WAR_MACHINE_UNPAID: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::Tap {
-        object: EffectRecipientDef::Source,
-    },
-];
-
-static MISHRAS_WAR_MACHINE_UNPAID_SEQUENCE: EffectDef =
-    EffectDef::Sequence(&MISHRAS_WAR_MACHINE_UNPAID);
-
 pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::new_with_legacy_id(
     1835,
     "Mishra's War Machine",
@@ -1350,7 +1313,20 @@ pub(in crate::card::sets) static MISHRA_S_WAR_MACHINE: CardRecord = CardRecord::
             EffectDef::PayOr(PayOrDef {
                 payment: EffectPaymentDef::discard(PlayerSetDef::Related(PlayerRelation::You), 1),
                 if_paid: None,
-                otherwise: Some(&MISHRAS_WAR_MACHINE_UNPAID_SEQUENCE),
+                otherwise: Some(
+                    &// The declined branch, which is one clause rather than two: "if it deals
+                    // damage to you this way" is only ever true here, so the tap belongs to the
+                    // same branch as the damage instead of watching for it.
+                    EffectDef::Sequence(&[
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ]),
+                ),
                 visibility: ChoiceVisibilityDef::Public,
                 condition: None,
             }),
@@ -1426,28 +1402,6 @@ pub(in crate::card::sets) static PRIMAL_CLAY: CardRecord = CardRecord::new(
 );
 
 // ATQ 62 — Rakalite
-static RAKALITE_SHIELD: [EffectDef; 2] = [
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::amount(
-            DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-            ValueDef::Constant(1),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next end step, return this artifact to its owner's hand.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ))),
-];
-
 pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new_with_legacy_id(
     1583,
     "Rakalite",
@@ -1460,7 +1414,31 @@ pub(in crate::card::sets) static RAKALITE: CardRecord = CardRecord::new_with_leg
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::Sequence(&RAKALITE_SHIELD),
+        EffectDef::Sequence(&const {
+            [
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::amount(
+                        DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                    AbilityDef::triggered(
+                        "At the beginning of the next end step, return this artifact to its owner's hand.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    )
+                })),
+            ]
+        }),
     )),
 );
 
@@ -1810,30 +1788,6 @@ pub(in crate::card::sets) static YOTIAN_SOLDIER: CardRecord = CardRecord::new_wi
 );
 
 // ATQ 80a — Mishra's Factory
-/// Animating keeps the land: the creature and artifact types are added on
-/// top of what is printed.
-static MISHRAS_FACTORY_ANIMATION: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::add_card_types(
-        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
-    ),
-    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Assembly-Worker"])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-];
-
-/// The pump reaches any Assembly-Worker, including a Factory that has already
-/// animated itself and a second Factory across the table.
-static MISHRAS_FACTORY_PUMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Subtype("Assembly-Worker"),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_with_legacy_id(
     31,
     "Mishra's Factory",
@@ -1846,14 +1800,34 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_
             &[AbilityCostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&MISHRAS_FACTORY_ANIMATION),
+                // Animating keeps the land: the creature and artifact types are added on
+                // top of what is printed.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
+                    ),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Assembly-Worker"])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
         AbilityDef::activated_with_targets(
             "{T}: Target Assembly-Worker creature gets +1/+1 until end of turn.",
             &[AbilityCostDef::TapSource],
-            &MISHRAS_FACTORY_PUMP_TARGET,
+            // The pump reaches any Assembly-Worker, including a Factory that has already
+            // animated itself and a second Factory across the table.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Assembly-Worker"),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
@@ -1870,10 +1844,6 @@ pub(in crate::card::sets) static MISHRA_S_FACTORY: CardRecord = CardRecord::new_
 // ATQ 80d — Mishra's Factory (alternate printing)
 
 // ATQ 81 — Mishra's Workshop
-static MISHRA_S_WORKSHOP_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
 pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new_with_legacy_id(
     83,
     "Mishra's Workshop",
@@ -1885,7 +1855,9 @@ pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless)
                 .with_amount(3)
-                .with_restrictions(&MISHRA_S_WORKSHOP_RESTRICTIONS),
+                .with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                ))]),
         ),
     )]),
 );
@@ -2117,7 +2089,7 @@ pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
 
 #[cfg(test)]
 mod tests {
-    use super::{ENERGY_FLUX, ENERGY_FLUX_GRANTED_ABILITY};
+    use super::ENERGY_FLUX;
     use crate::card::{
         AbilityOperationDef, AppliedEffectDef, CardEffectStatus, CharacteristicOperationDef,
         DeclarativeAbilityDef, EffectDef, ImplementationStatus,
@@ -2137,23 +2109,21 @@ mod tests {
             DeclarativeAbilityDef::Static(_)
         ));
         assert_eq!(clauses[0].coverage.status, ImplementationStatus::Complete);
-        assert!(matches!(
-            clauses[0].declarative_effect(),
+        let granted = match clauses[0].declarative_effect() {
             Some(EffectDef::StaticApply {
-                effect: AppliedEffectDef::Characteristic(
-                    CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(granted))
-                ),
+                effect:
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                        AbilityOperationDef::Add(granted),
+                    )),
                 ..
-            }) if granted == &ENERGY_FLUX_GRANTED_ABILITY
-        ));
+            }) => granted,
+            other => panic!("expected Energy Flux to grant an ability, got {other:?}"),
+        };
         assert!(matches!(
-            ENERGY_FLUX_GRANTED_ABILITY.definition,
+            granted.definition,
             DeclarativeAbilityDef::Triggered(_)
         ));
-        assert_eq!(
-            ENERGY_FLUX_GRANTED_ABILITY.coverage.status,
-            ImplementationStatus::Complete
-        );
+        assert_eq!(granted.coverage.status, ImplementationStatus::Complete);
         assert_eq!(
             definition.implementation_status(),
             ImplementationStatus::Complete

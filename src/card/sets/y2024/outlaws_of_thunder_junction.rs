@@ -11,48 +11,6 @@ use crate::card::{
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // OTJ 45 — Duelist of the Mind
-/// "Draw a card. If you do, discard a card." A draw from an empty library
-/// does not happen, so the discard is conditional on the draw rather than
-/// sequenced after it.
-static DUELIST_DRAWS_THEN_DISCARDS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-]);
-
-static DUELIST_ABILITIES: [AbilityDef; 4] = [
-    abilities::flying(),
-    abilities::vigilance(),
-    AbilityDef::static_ability(
-        "Duelist of the Mind's power is equal to the number of cards you've drawn this turn.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            // The count defines her power outright, which is why it also
-            // answers in a hand or a graveyard; the printed toughness is
-            // left alone.
-            effect: AppliedEffectDef::define_power(ValueDef::CardsDrawnThisTurn(
-                PlayerRelation::You,
-            )),
-        },
-    ),
-    AbilityDef::triggered(
-        "Whenever you commit a crime, you may draw a card. If you do, discard a card. This ability triggers only once each turn.",
-        TriggerEventDef::CommittedCrime(PlayerRelation::You),
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &DUELIST_DRAWS_THEN_DISCARDS,
-        },
-    )
-    .triggering_at_most(1),
-];
-
 pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new_with_legacy_id(
     2200,
     "Duelist of the Mind",
@@ -61,7 +19,45 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
     // A 0/3 flier that grows with every draw and feeds itself once a turn,
     // provided you point something at your opponent.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Advisor"], 0, 3)
-        .with_abilities(&DUELIST_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::vigilance(),
+            AbilityDef::static_ability(
+                "Duelist of the Mind's power is equal to the number of cards you've drawn this turn.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    // The count defines her power outright, which is why it also
+                    // answers in a hand or a graveyard; the printed toughness is
+                    // left alone.
+                    effect: AppliedEffectDef::define_power(ValueDef::CardsDrawnThisTurn(
+                        PlayerRelation::You,
+                    )),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you commit a crime, you may draw a card. If you do, discard a card. This ability triggers only once each turn.",
+                TriggerEventDef::CommittedCrime(PlayerRelation::You),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    // "Draw a card. If you do, discard a card." A draw from an empty library
+                    // does not happen, so the discard is conditional on the draw rather than
+                    // sequenced after it.
+                    effect: &EffectDef::Sequence(&[
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Discard {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                            selection: DiscardSelectionDef::RecipientChooses,
+                            then: None,
+                        },
+                    ]),
+                },
+            )
+            .triggering_at_most(1),
+        ]),
 );
 
 // OTJ 61 — Phantom Interference
@@ -84,53 +80,9 @@ static BRONCO_IS_SADDLED: TriggerConditionDef = TriggerConditionDef::SourceMatch
     object: ObjectPredicateDef::Saddled,
 };
 
-static BRONCO_IS_NOT_SADDLED: TriggerConditionDef = TriggerConditionDef::Not(&BRONCO_IS_SADDLED);
-
-static BRONCO_DRAIN: EffectDef = EffectDef::LoseLife {
-    recipient: EffectRecipientDef::Opponent,
-    amount: ValueDef::MatchedManaValue,
-};
-
-static BRONCO_KICK: EffectDef = EffectDef::LoseLife {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::MatchedManaValue,
-};
-
-static BRONCO_PAYMENT: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &BRONCO_IS_NOT_SADDLED,
-        then: &BRONCO_KICK,
-    },
-    EffectDef::IfCondition {
-        condition: &BRONCO_IS_SADDLED,
-        then: &BRONCO_DRAIN,
-    },
-];
-
-static BRONCO_PAYMENT_SEQUENCE: EffectDef = EffectDef::Sequence(&BRONCO_PAYMENT);
-
 /// The reveal itself: one card off the top, shown to everybody, into your
 /// hand, and then the clause above reads what it cost.
 const BRONCO_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-static BRONCO_PUT_IN_HAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(BRONCO_CARD),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &BRONCO_PAYMENT_SEQUENCE,
-});
-static BRONCO_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
-    input: ObjectSetDef::Binding(BRONCO_CARD),
-    then: &BRONCO_PUT_IN_HAND,
-});
-static BRONCO_EFFECT: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(1),
-    BRONCO_CARD,
-    &BRONCO_REVEAL,
-);
-
 pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9a268ba-c442-4fe4-90b4-2810c8474f4e"),
     "Caustic Bronco",
@@ -145,7 +97,47 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                  into your hand. You lose life equal to that card's mana value if this creature \
                  isn't saddled. Otherwise, each opponent loses that much life.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                BRONCO_EFFECT,
+                abilities::bind_top_cards_then(
+                    PlayerRefDef::EffectController,
+                    ValueDef::Constant(1),
+                    BRONCO_CARD,
+                    &const {
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(BRONCO_CARD),
+                            then: &const {
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(BRONCO_CARD),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::Sequence(
+                                        &const {
+                                            [
+                                                EffectDef::IfCondition {
+                                                    condition: &TriggerConditionDef::Not(
+                                                        &BRONCO_IS_SADDLED,
+                                                    ),
+                                                    then: &EffectDef::LoseLife {
+                                                        recipient: EffectRecipientDef::Controller,
+                                                        amount: ValueDef::MatchedManaValue,
+                                                    },
+                                                },
+                                                EffectDef::IfCondition {
+                                                    condition: &BRONCO_IS_SADDLED,
+                                                    then: &EffectDef::LoseLife {
+                                                        recipient: EffectRecipientDef::Opponent,
+                                                        amount: ValueDef::MatchedManaValue,
+                                                    },
+                                                },
+                                            ]
+                                        },
+                                    ),
+                                })
+                            },
+                        })
+                    },
+                ),
             ),
             abilities::saddle(
                 3,
@@ -156,46 +148,6 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
 );
 
 // OTJ 157 — Bristly Bill, Spine Sower
-static BILL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static BILL_DOUBLE_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))];
-
-static BILL_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered_with_targets(
-        "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ]),
-            None,
-            Some(ZoneKind::Battlefield),
-        ),
-        &BILL_TARGET,
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    // Each creature doubles its own, so a board of one-counter creatures
-    // gains one apiece and a single large one gains everything it has.
-    AbilityDef::activated(
-        "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
-        &BILL_DOUBLE_COST,
-        EffectDef::DoubleCounters {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            kind: CounterKind::PlusOnePlusOne,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
     CardRecord::new_with_legacy_id(
         2177,
@@ -206,7 +158,41 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
         // turns a slow board into a lethal one in a single turn.
         CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Druid"], 2, 2)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&BILL_ABILITIES),
+            .with_abilities(&[
+                AbilityDef::triggered_with_targets(
+                    "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature.",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+                // Each creature doubles its own, so a board of one-counter creatures
+                // gains one apiece and a single large one gains everything it has.
+                AbilityDef::activated(
+                    "{3}{G}{G}: Double the number of +1/+1 counters on each creature you control.",
+                    &[AbilityCostDef::Mana(mana_cost!("{3}{G}{G}"))],
+                    EffectDef::DoubleCounters {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        kind: CounterKind::PlusOnePlusOne,
+                    },
+                ),
+            ]),
     );
 
 // OTJ 188 — Voracious Varmint
@@ -223,17 +209,6 @@ pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new
 );
 
 // OTJ 224 — Pillage the Bog
-/// "Twice the number of lands you control", which is what makes the card a
-/// land-count payoff rather than a fixed dig: six lands look at twelve.
-static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static TWICE_YOUR_LANDS: ScaledValueDef =
-    ScaledValueDef::new(ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL), 2);
-
 pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa3b415f-7901-4ab4-84fe-60b90d40ac90"),
     "Pillage the Bog",
@@ -248,7 +223,24 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
              control. Put one of them into your hand and the rest on the bottom of your library \
              in a random order.",
             abilities::look_at_top_cards_choose_to_hand_rest_random_bottom(
-                ValueDef::Scaled(&TWICE_YOUR_LANDS),
+                // "Twice the number of lands you control", which is what makes the card a
+                // land-count payoff rather than a fixed dig: six lands look at twelve.
+                ValueDef::Scaled(
+                    &const {
+                        ScaledValueDef::new(
+                            ValueDef::CountMatchingObjects(
+                                &const {
+                                    ObjectQueryDef::matching(
+                                        ObjectPredicateDef::HasType(CardType::Land),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    )
+                                },
+                            ),
+                            2,
+                        )
+                    },
+                ),
                 ObjectPredicateDef::Any,
                 1,
                 1,
@@ -259,14 +251,6 @@ pub(in crate::card::sets) static PILLAGE_THE_BOG: CardRecord = CardRecord::new(
 );
 
 // OTJ 243 — Lavaspur Boots
-/// Ward reads as one clause on the Boots, so the granted ability carries the
-/// whole of the printed reminder rather than a paraphrase of it.
-static LAVASPUR_WARD: AbilityDef = abilities::ward(
-    1,
-    "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
-     controls, counter it unless that player pays {1}.)",
-);
-
 pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_with_legacy_id(
     2252,
     "Lavaspur Boots",
@@ -285,7 +269,13 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_wi
                             ValueDef::Constant(0),
                         ),
                         AppliedEffectDef::add_ability(&abilities::haste()),
-                        AppliedEffectDef::add_ability(&LAVASPUR_WARD),
+                        // Ward reads as one clause on the Boots, so the granted ability carries the
+                        // whole of the printed reminder rather than a paraphrase of it.
+                        AppliedEffectDef::add_ability(&abilities::ward(
+                            1,
+                            "Ward {1} (Whenever this creature becomes the target of a spell or ability an opponent \
+                             controls, counter it unless that player pays {1}.)",
+                        )),
                     ]),
                 },
             ),
@@ -334,31 +324,6 @@ pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
 );
 
 // OTJ 335 — Slickshot Show-Off
-/// A noncreature spell you cast, which is prowess with a bigger number and
-/// no toughness: what the Bird wants is one turn with several spells in it.
-static A_NONCREATURE_SPELL_YOU_CAST_SLICKSHOT: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static SLICKSHOT_ABILITIES: [AbilityDef; 4] = [
-    abilities::flying(),
-    abilities::haste(),
-    AbilityDef::triggered(
-        "Whenever you cast a noncreature spell, this creature gets +2/+0 until end of turn.",
-        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST_SLICKSHOT),
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(2),
-                ValueDef::Constant(0),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    abilities::plot(mana_cost!("{1}{R}")),
-];
-
 pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("304523e7-f332-4c1d-9590-ff9a70daff26"),
     "Slickshot Show-Off",
@@ -367,8 +332,28 @@ pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::ne
     // Two mana for a hasty flier that grows with every spell after it, and
     // a plot cost that pays the two a turn early so the whole of a later
     // turn's mana can go into the spells it grows on.
-    CardRules::new_creature(mana_cost!("{1}{R}"), &["Bird", "Wizard"], 1, 2)
-        .with_abilities(&SLICKSHOT_ABILITIES),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Bird", "Wizard"], 1, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, this creature gets +2/+0 until end of turn.",
+            // A noncreature spell you cast, which is prowess with a bigger number and
+            // no toughness: what the Bird wants is one turn with several spells in it.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::plot(mana_cost!("{1}{R}")),
+    ]),
 );
 
 // OTJ 359 — Pillage the Bog (alternate printing)

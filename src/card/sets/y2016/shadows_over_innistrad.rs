@@ -28,13 +28,6 @@ pub(in crate::card::sets) static THRABEN_INSPECTOR: CardRecord = CardRecord::new
 );
 
 // SOI 233 — Tireless Tracker
-/// A land you control arriving, which is what landfall is: the Tracker's
-/// own arrival is not one, and neither is a land somebody else plays.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
 pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee8e9928-d9b2-4570-adb8-44b34115decd"),
     "Tireless Tracker",
@@ -46,7 +39,16 @@ pub(in crate::card::sets) static TIRELESS_TRACKER: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Landfall — Whenever a land you control enters, investigate. (Create a Clue token. \
              It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-            TriggerEventDef::zone_changed(A_LAND_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
+            // A land you control arriving, which is what landfall is: the Tracker's
+            // own arrival is not one, and neither is a land somebody else plays.
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
             EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
                 "f2c859e1-181e-44d1-afbd-bbd6e52cf42a",
                 "John Avon",

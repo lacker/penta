@@ -84,38 +84,6 @@ pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::ne
 );
 
 // CLB 180 — Gut, True Soul Zealot
-/// "Another creature or an artifact." Gut is neither an artifact nor another
-/// creature, so the exclusion covers both halves without saying so twice.
-static ANOTHER_CREATURE_OR_AN_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Artifact),
-    ]),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
-/// The token arrives already attacking, which is the whole point: it was
-/// never declared, so nothing that watches a declaration sees it, and it
-/// still connects this combat.
-static GUT_MAKES_A_SKELETON: EffectDef =
-    EffectDef::create_creature_token(&["Skeleton"], &[ManaColor::Black], 4, 1)
-        .with_abilities(&[abilities::menace()])
-        .with_art(CardArt::new(
-            "cf4c245f-af2f-46a7-81f3-670a04940901",
-            "David Astruga",
-        ))
-        .entering_tapped()
-        .entering_attacking();
-
-/// "Whenever you attack" is one or more creatures you control attacking,
-/// counted once for the declaration rather than once per attacker.
-static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    1,
-    None,
-);
-
 pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::new_with_legacy_id(
     2211,
     "Gut, True Soul Zealot",
@@ -128,12 +96,37 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
         .with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you attack, you may sacrifice another creature or an artifact. If you do, create a 4/1 black Skeleton creature token with menace that's tapped and attacking.",
-                WHENEVER_YOU_ATTACK,
+                // "Whenever you attack" is one or more creatures you control attacking,
+                // counted once for the declaration rather than once per attacker.
+                TriggerEventDef::attack_declared(
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    1,
+                    None,
+                ),
                 EffectDef::SacrificeOfChoice {
                     count: ValueDef::Constant(1),
                     player: EffectRecipientDef::Controller,
-                    object: ANOTHER_CREATURE_OR_AN_ARTIFACT,
-                    then: Some(&GUT_MAKES_A_SKELETON),
+                    // "Another creature or an artifact." Gut is neither an artifact nor another
+                    // creature, so the exclusion covers both halves without saying so twice.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                        ]),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    // The token arrives already attacking, which is the whole point: it was
+                    // never declared, so nothing that watches a declaration sees it, and it
+                    // still connects this combat.
+                    then: Some(&EffectDef::create_creature_token(&["Skeleton"], &[ManaColor::Black], 4, 1)
+                            .with_abilities(&[abilities::menace()])
+                            .with_art(CardArt::new(
+                                "cf4c245f-af2f-46a7-81f3-670a04940901",
+                                "David Astruga",
+                            ))
+                            .entering_tapped()
+                            .entering_attacking()),
                     amount: SacrificedAmountDef::Power,
                     otherwise: None,
                     optional: true,
@@ -161,145 +154,11 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
 
 // CLB 285 — Minsc & Boo, Timeless Heroes
 // Audit: partial — The minus names its damage target on activation instead of through a reflexive trigger, so an answered target counters the sacrifice too.
-static BOO_ABILITIES: [AbilityDef; 2] = [abilities::trample(), abilities::haste()];
-
-static BOO: TokenCharacteristics =
-    TokenCharacteristics::creature(&["Hamster"], &[ManaColor::Red], 1, 1)
-        .with_name("Boo")
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&BOO_ABILITIES);
-
-static MINSC_MAKES_BOO: EffectDef = EffectDef::create_token(BOO);
-
-/// One ability with two events rather than two abilities: the card prints
-/// one, and Boo arrives once per event either way.
-static MINSC_ENTERS_OR_UPKEEP: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::You,
-    },
-];
-
-static A_TRAMPLER_OR_A_HASTY_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::HasKeyword(KeywordAbility::Trample),
-                ObjectPredicateDef::HasKeyword(KeywordAbility::Haste),
-            ]),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
 /// "Where X is that creature's power": read off the creature that was
 /// sacrificed, from last-known information, since paying is what put it in
 /// the graveyard.
 static SACRIFICED_POWER: ValueDef =
     ValueDef::ObjectPower(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY));
-
-static THE_SACRIFICED_WAS_A_HAMSTER: TriggerConditionDef =
-    TriggerConditionDef::BoundObjectMatches {
-        binding: ObjectBindingIndex::PRIMARY,
-        object: ObjectPredicateDef::Subtype("Hamster"),
-    };
-
-static MINSC_DRAWS: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: SACRIFICED_POWER,
-};
-
-static MINSC_THROWS_IT: [EffectDef; 3] = [
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: SACRIFICED_POWER,
-    },
-    EffectDef::IfCondition {
-        condition: &THE_SACRIFICED_WAS_A_HAMSTER,
-        then: &MINSC_DRAWS,
-    },
-];
-
-static MINSC_THROWS_IT_SEQUENCE: EffectDef = EffectDef::Sequence(&MINSC_THROWS_IT);
-
-/// The creature is named as the ability resolves rather than as a cost, so
-/// it is still on the battlefield while the ability is on the stack -- and
-/// naming it is what lets the damage read its power afterwards.
-static MINSC_CHOOSES_A_CREATURE: ChooseDef = ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Creature),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    )),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &MINSC_THROWS_IT_SEQUENCE,
-};
-
-static MINSC_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::triggered(
-        "When Minsc & Boo enters and at the beginning of your upkeep, you may create Boo, a \
-         legendary 1/1 red Hamster creature token with trample and haste.",
-        TriggerEventDef::AnyOf(&MINSC_ENTERS_OR_UPKEEP),
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &MINSC_MAKES_BOO,
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "+1: Put three +1/+1 counters on up to one target creature with trample or haste.",
-        &[AbilityCostDef::Loyalty(1)],
-        &A_TRAMPLER_OR_A_HASTY_CREATURE,
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(3),
-        },
-    ),
-    // The target is declared as the ability is activated rather than when
-    // the sacrifice is actually made, which is the one place this differs
-    // from the printed reflexive trigger -- the same deviation Inti and
-    // Guide of Souls carry. A board with nothing to throw does not offer
-    // the ability at all. It follows that an answer to the target counters
-    // the whole ability rather than only the reflexive trigger, so the
-    // creature that would have been thrown survives; the printed card has
-    // already sacrificed it by then and loses only the damage and the cards.
-    AbilityDef::activated_with_targets(
-        "\u{2212}2: Sacrifice a creature. When you do, Minsc & Boo deals X damage to any target, \
-         where X is that creature's power. If the sacrificed creature was a Hamster, draw X cards.",
-        &[AbilityCostDef::Loyalty(-2)],
-        &ANY_TARGET,
-        EffectDef::Choose(MINSC_CHOOSES_A_CREATURE),
-    ),
-    AbilityDef::deck_construction(
-        "Minsc & Boo, Timeless Heroes can be your commander.",
-        DeckConstructionDef::MayBeCommander,
-        "The whole sentence is a deck-construction permission: a planeswalker \
-         may lead a Commander deck, which the deck layer checks and the game \
-         never revisits.",
-    ),
-];
-
-static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
 
 pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("928036c9-11b8-493e-b9f2-8fbd3487cd19"),
@@ -310,48 +169,118 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
     // both the thing the plus grows and the thing the minus throws.
     CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&MINSC_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "When Minsc & Boo enters and at the beginning of your upkeep, you may create Boo, a \
+                 legendary 1/1 red Hamster creature token with trample and haste.",
+                // One ability with two events rather than two abilities: the card prints
+                // one, and Boo arrives once per event either way.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::You,
+                    },
+                ]),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::create_token(TokenCharacteristics::creature(&["Hamster"], &[ManaColor::Red], 1, 1)
+                            .with_name("Boo")
+                            .with_supertype(CardSupertype::Legendary)
+                            .with_abilities(&[abilities::trample(), abilities::haste()])),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "+1: Put three +1/+1 counters on up to one target creature with trample or haste.",
+                &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasKeyword(KeywordAbility::Trample),
+                                ObjectPredicateDef::HasKeyword(KeywordAbility::Haste),
+                            ]),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            // The target is declared as the ability is activated rather than when
+            // the sacrifice is actually made, which is the one place this differs
+            // from the printed reflexive trigger -- the same deviation Inti and
+            // Guide of Souls carry. A board with nothing to throw does not offer
+            // the ability at all. It follows that an answer to the target counters
+            // the whole ability rather than only the reflexive trigger, so the
+            // creature that would have been thrown survives; the printed card has
+            // already sacrificed it by then and loses only the damage and the cards.
+            AbilityDef::activated_with_targets(
+                "\u{2212}2: Sacrifice a creature. When you do, Minsc & Boo deals X damage to any target, \
+                 where X is that creature's power. If the sacrificed creature was a Hamster, draw X cards.",
+                &[AbilityCostDef::Loyalty(-2)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                // The creature is named as the ability resolves rather than as a cost, so
+                // it is still on the battlefield while the ability is on the stack -- and
+                // naming it is what lets the damage read its power afterwards.
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                        },
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: SACRIFICED_POWER,
+                        },
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::BoundObjectMatches {
+                                    binding: ObjectBindingIndex::PRIMARY,
+                                    object: ObjectPredicateDef::Subtype("Hamster"),
+                                },
+                            then: &EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: SACRIFICED_POWER,
+                            },
+                        },
+                    ]),
+                }),
+            ),
+            AbilityDef::deck_construction(
+                "Minsc & Boo, Timeless Heroes can be your commander.",
+                DeckConstructionDef::MayBeCommander,
+                "The whole sentence is a deck-construction permission: a planeswalker \
+                 may lead a Commander deck, which the deck layer checks and the game \
+                 never revisits.",
+            ),
+        ]),
 );
 
 // CLB 560 — Displacer Kitten
-/// A noncreature spell you cast. What it does is no part of the condition:
-/// the Kitten reads the type line and nothing else.
-static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-/// "Up to one target nonland permanent you control": the trigger goes on the
-/// stack whether or not there is anything worth blinking.
-static UP_TO_ONE_NONLAND_PERMANENT_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-    1,
-)];
-
-/// Exiling links the permanent to the Kitten, which is what lets the return
-/// name the card the exile just made.
-static KITTEN_BLINKS: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        until_source_leaves: false,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        face_down: false,
-        then: None,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-];
-
 pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a53e8fc-bfd2-4866-a61c-f3204b0a98bf"),
     "Displacer Kitten",
@@ -365,43 +294,47 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
             "Avoidance — Whenever you cast a noncreature spell, exile up to one target nonland \
              permanent you control, then return that card to the battlefield under its owner's \
              control.",
-            TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
-            &UP_TO_ONE_NONLAND_PERMANENT_YOU_CONTROL,
-            EffectDef::Sequence(&KITTEN_BLINKS),
+            // A noncreature spell you cast. What it does is no part of the condition:
+            // the Kitten reads the type line and nothing else.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            // "Up to one target nonland permanent you control": the trigger goes on the
+            // stack whether or not there is anything worth blinking.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                1,
+            )],
+            // Exiling links the permanent to the Kitten, which is what lets the return
+            // name the card the exile just made.
+            EffectDef::Sequence(&[
+                EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    then: None,
+                },
+                EffectDef::ReturnLinkedExiles {
+                    object: ObjectPredicateDef::Any,
+                    counters: None,
+                    zone: ZoneKind::Battlefield,
+                    grant: None,
+                    controller: None,
+                    transformed: false,
+                },
+            ]),
         ),
     ),
 );
 
 // CLB 630 — Delayed Blast Fireball
-/// Two damage as the baseline and five when it was foretold, which is the
-/// whole of the card: the two mana spent a turn earlier buy three damage and
-/// one mana off the price.
-static FIREBALL_FOR_TWO: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-    amount: ValueDef::Constant(2),
-};
-
-static FIREBALL_FOR_FIVE: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-    amount: ValueDef::Constant(5),
-};
-
 static CAST_FROM_EXILE: TriggerConditionDef = TriggerConditionDef::SourceCastFrom(ZoneKind::Exile);
-
-/// "Instead": the two branches are exclusive, so each names the condition
-/// and the smaller one names its negation. Written this way rather than as
-/// one conditional with an else because that is what the card says -- a
-/// baseline, and a replacement for it.
-static DELAYED_BLAST_FIREBALL_EFFECT: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &CAST_FROM_EXILE,
-        then: &FIREBALL_FOR_FIVE,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::Not(&CAST_FROM_EXILE),
-        then: &FIREBALL_FOR_TWO,
-    },
-];
 
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -416,7 +349,29 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
                 "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
              control. If this spell was cast from exile, it deals 5 damage to each opponent and \
              each creature they control instead.",
-                EffectDef::Sequence(&DELAYED_BLAST_FIREBALL_EFFECT),
+                // "Instead": the two branches are exclusive, so each names the condition
+                // and the smaller one names its negation. Written this way rather than as
+                // one conditional with an else because that is what the card says -- a
+                // baseline, and a replacement for it.
+                EffectDef::Sequence(&[
+                    EffectDef::IfCondition {
+                        condition: &CAST_FROM_EXILE,
+                        then: &EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+                            amount: ValueDef::Constant(5),
+                        },
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::Not(&CAST_FROM_EXILE),
+                        // Two damage as the baseline and five when it was foretold, which is the
+                        // whole of the card: the two mana spent a turn earlier buy three damage and
+                        // one mana off the price.
+                        then: &EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+                            amount: ValueDef::Constant(2),
+                        },
+                    },
+                ]),
             ),
             abilities::foretell(mana_cost!("{4}{R}{R}")),
         ]),

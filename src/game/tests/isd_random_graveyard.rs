@@ -149,6 +149,70 @@ fn charmbreaker_upkeep_returns_only_an_instant_or_sorcery() {
     );
 }
 
+fn make_a_wish_result(seed: u64) -> Vec<CardDefinitionId> {
+    let mut game = ready_game_with_seed(seed);
+    game.players[0].graveyard = vec![
+        card(90_040, cards::GRIZZLY_BEARS, PlayerId::One),
+        card(90_041, cards::SAVANNAH_LIONS, PlayerId::One),
+        card(90_042, cards::LIGHTNING_BOLT, PlayerId::One),
+    ];
+    let wish = card(90_043, cards::MAKE_A_WISH, PlayerId::One);
+    let wish_id = wish.id;
+    game.players[0].hand.push(wish);
+    game.players[0].mana_pool.green = 1;
+    game.players[0].mana_pool.colorless = 3;
+
+    cast_from_hand(&mut game, wish_id);
+
+    assert!(
+        game.pending_decisions.is_empty(),
+        "the RNG, not a player, chooses"
+    );
+    assert_eq!(game.players[0].hand.len(), 2, "exactly two cards returned");
+    assert_eq!(
+        game.players[0]
+            .graveyard
+            .iter()
+            .filter(|card| card.definition != cards::MAKE_A_WISH)
+            .count(),
+        1,
+        "one of the three original graveyard cards remains",
+    );
+    game.players[0]
+        .hand
+        .iter()
+        .map(|card| card.definition)
+        .collect()
+}
+
+#[test]
+fn make_a_wish_returns_two_distinct_cards_and_replays_the_same_seed() {
+    let first = make_a_wish_result(0x004d_414b_4557);
+    let replay = make_a_wish_result(0x004d_414b_4557);
+
+    assert_eq!(first, replay, "the recorded seed reproduces both returns");
+    assert_ne!(first[0], first[1], "selection is without replacement");
+}
+
+#[test]
+fn make_a_wish_returns_the_only_available_card() {
+    let mut game = ready_game();
+    let graveyard_card = card(90_044, cards::GRIZZLY_BEARS, PlayerId::One);
+    game.players[0].graveyard.push(graveyard_card);
+    let wish = card(90_045, cards::MAKE_A_WISH, PlayerId::One);
+    let wish_id = wish.id;
+    game.players[0].hand.push(wish);
+    game.players[0].mana_pool.green = 1;
+    game.players[0].mana_pool.colorless = 3;
+
+    cast_from_hand(&mut game, wish_id);
+
+    assert_eq!(game.players[0].hand.len(), 1);
+    assert_eq!(game.players[0].hand[0].definition, cards::GRIZZLY_BEARS);
+    assert_eq!(game.players[0].graveyard.len(), 1);
+    assert_eq!(game.players[0].graveyard[0].definition, cards::MAKE_A_WISH);
+}
+
 fn cast_from_hand(game: &mut Game, id: GameObjectId) {
     let action = game
         .legal_actions(PlayerId::One)

@@ -185,14 +185,14 @@ pub enum EffectDef {
         binding: ObjectSetBindingIndex,
         then: &'static EffectDef,
     },
-    /// Picks one matching card from a player's zone with the recorded RNG,
-    /// binds that card, and continues. Nothing moves: the continuation says
-    /// what happens to the selected card. When nothing matches, it binds an
-    /// empty set and still continues.
+    /// Picks up to `amount` matching cards from a player's zone with the recorded RNG,
+    /// without replacement, binds them, and continues. The continuation moves them;
+    /// an empty selection is still bound and continued.
     SelectAtRandomFromZone {
         player: EffectRecipientDef,
         source: ZoneKind,
         object: ObjectPredicateDef,
+        amount: ValueDef,
         binding: ObjectSetBindingIndex,
         then: &'static EffectDef,
     },

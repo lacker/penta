@@ -47,12 +47,14 @@ fn validate_effect_references(
         EffectDef::SelectAtRandomFromZone {
             player,
             object,
+            amount,
             binding,
             then,
             ..
         } => {
             validate_recipient_target_references(player, target_count, scope)?;
             validate_object_predicate_references(object, target_count, scope)?;
+            validate_value_target_references(amount, target_count, scope)?;
             validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
         }
         EffectDef::Destroy {

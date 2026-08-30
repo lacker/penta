@@ -205,6 +205,7 @@ fn validate_effect_target_shapes(
             player,
             source,
             object,
+            amount,
             then,
             ..
         } => {
@@ -221,6 +222,7 @@ fn validate_effect_target_shapes(
             }
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(object, targets)?;
+            validate_value_shape(amount, targets)?;
             validate_effect_target_shapes(*then, targets, triggering_object_zone)
         }
         EffectDef::ChooseEffect { player, .. }

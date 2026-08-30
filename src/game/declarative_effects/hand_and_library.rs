@@ -606,10 +606,15 @@ impl Game {
                 player: recipient,
                 source,
                 object: predicate,
+                amount,
                 binding,
                 then,
             } => {
                 let effect_source = object.source.unwrap_or(object.id);
+                let count = self.effect_value(amount, object, context, scoped).max(0);
+                let Ok(count) = usize::try_from(count) else {
+                    return;
+                };
                 let mut selected = Vec::new();
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     let Target::Player(player) = target else {
@@ -622,18 +627,17 @@ impl Game {
                         ZoneKind::Exile => &self.players[player.index()].exile,
                         ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => continue,
                     };
-                    let matching = cards
+                    let mut matching = cards
                         .iter()
                         .filter(|card| {
                             self.card_object_matches(predicate, card, source, effect_source)
                         })
                         .map(|card| card.id)
                         .collect::<Vec<_>>();
-                    if matching.is_empty() {
-                        continue;
+                    for _ in 0..count.min(matching.len()) {
+                        let index = self.rng.index_below(matching.len());
+                        selected.push(Target::Card(matching.swap_remove(index)));
                     }
-                    let chosen = matching[self.rng.index_below(matching.len())];
-                    selected.push(Target::Card(chosen));
                 }
                 let mut context = context.clone();
                 context.bind_object_group(binding, selected);

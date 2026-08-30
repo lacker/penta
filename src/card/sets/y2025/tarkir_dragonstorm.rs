@@ -359,6 +359,7 @@ static TERSA_ABILITIES: [AbilityDef; 3] = [
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Graveyard,
             object: ObjectPredicateDef::Any,
+            amount: ValueDef::Constant(1),
             binding: ObjectSetBindingIndex::PRIMARY,
             then: &TERSA_EXILE_AND_PLAY,
         },

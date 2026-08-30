@@ -34,46 +34,6 @@ pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::
 );
 
 // DMU 24 — Leyline Binding
-/// "Until this enchantment leaves the battlefield" is one printed clause, so
-/// the return rides on a delayed trigger rather than appearing as a second
-/// ability the card does not print.
-static BINDING_RETURNS_IT: AbilityDef = AbilityDef::triggered(
-    "When this enchantment leaves the battlefield, return the exiled card to the battlefield \
-     under its owner's control.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        Some(ZoneKind::Battlefield),
-        None,
-    ),
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-);
-
-static A_NONLAND_PERMANENT_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-static BINDING_EXILES_IT: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        until_source_leaves: false,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        face_down: false,
-        then: None,
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&BINDING_RETURNS_IT)),
-];
-
 pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c3ac3dd-35db-447f-8674-37b4680a1ef7"),
     "Leyline Binding",
@@ -92,8 +52,42 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
         abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile target nonland permanent an opponent controls \
              until this enchantment leaves the battlefield.",
-            &A_NONLAND_PERMANENT_THEY_CONTROL,
-            EffectDef::Sequence(&BINDING_EXILES_IT),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    then: None,
+                },
+                // "Until this enchantment leaves the battlefield" is one printed clause, so
+                // the return rides on a delayed trigger rather than appearing as a second
+                // ability the card does not print.
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "When this enchantment leaves the battlefield, return the exiled card to the battlefield \
+                     under its owner's control.",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        Some(ZoneKind::Battlefield),
+                        None,
+                    ),
+                    EffectDef::ReturnLinkedExiles {
+                        object: ObjectPredicateDef::Any,
+                        counters: None,
+                        zone: ZoneKind::Battlefield,
+                        grant: None,
+                        controller: None,
+                        transformed: false,
+                    },
+                ))),
+            ]),
         ),
     ]),
 );
@@ -112,15 +106,6 @@ pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
 );
 
 // DMU 89 — Cut Down
-/// "Total power and toughness 5 or less" is read live, so a creature that
-/// was in range stops being a legal target the moment anything pumps it.
-static CUT_DOWN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::TotalPowerAndToughnessAtMost(5),
-    ]),
-)];
-
 pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_legacy_id(
     2204,
     "Cut Down",
@@ -130,7 +115,14 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_leg
     // nothing of what a big one does, which is the whole design.
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target creature with total power and toughness 5 or less.",
-        &CUT_DOWN_TARGET,
+        // "Total power and toughness 5 or less" is read live, so a creature that
+        // was in range stops being a legal target the moment anything pumps it.
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::TotalPowerAndToughnessAtMost(5),
+            ]),
+        )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
@@ -140,29 +132,6 @@ pub(in crate::card::sets) static CUT_DOWN: CardRecord = CardRecord::new_with_leg
 );
 
 // DMU 107 — Sheoldred, the Apocalypse
-/// Two clauses rather than one symmetrical one, because they are not
-/// symmetrical: yours gains and theirs loses, and a card that made both
-/// players lose would read very differently.
-static SHEOLDRED_ABILITIES: [AbilityDef; 3] = [
-    abilities::deathtouch(),
-    AbilityDef::triggered(
-        "Whenever you draw a card, you gain 2 life.",
-        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-    AbilityDef::triggered(
-        "Whenever an opponent draws a card, they lose 2 life.",
-        TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::EventPlayer,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
     CardRecord::new_with_legacy_id(
         2180,
@@ -174,7 +143,28 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
         // pays for it, every turn it survives.
         CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Praetor"], 4, 5)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&SHEOLDRED_ABILITIES),
+            // Two clauses rather than one symmetrical one, because they are not
+            // symmetrical: yours gains and theirs loses, and a card that made both
+            // players lose would read very differently.
+            .with_abilities(&[
+                abilities::deathtouch(),
+                AbilityDef::triggered(
+                    "Whenever you draw a card, you gain 2 life.",
+                    TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::You)),
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+                AbilityDef::triggered(
+                    "Whenever an opponent draws a card, they lose 2 life.",
+                    TriggerEventDef::DrewCard(DrawEventMatcherDef::any(PlayerRelation::Opponent)),
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::EventPlayer,
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+            ]),
     );
 
 // DMU 137 — Lightning Strike
@@ -186,21 +176,6 @@ pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     crate::card::CardSet::DominariaUnited,
     crate::card::CardRules::unsupported(),
 );
-
-/// What two mana buys, on either side of the board.
-static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ]),
-    )];
-
-/// What four buys instead. "Instead" is the point: the kicked spell targets
-/// once, not twice, and what it may name is wider rather than longer.
-static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-)];
 
 static TEAR_ASUNDER_EXILES: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -222,84 +197,29 @@ pub(in crate::card::sets) static TEAR_ASUNDER: CardRecord = CardRecord::new(
             "Kicker {1}{B} (You may pay an additional {1}{B} as you cast this spell.)\nExile \
              target artifact or enchantment. If this spell was kicked, exile target nonland \
              permanent instead.",
-            &AN_ARTIFACT_OR_ENCHANTMENT,
+            // What two mana buys, on either side of the board.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
             TEAR_ASUNDER_EXILES,
         ),
         abilities::kicker(
             mana_cost!("{2}{G}{B}"),
             "Exile target nonland permanent.",
-            &A_NONLAND_PERMANENT,
+            // What four buys instead. "Instead" is the point: the kicked spell targets
+            // once, not twice, and what it may name is wider rather than longer.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )],
             TEAR_ASUNDER_EXILES,
         ),
     ]),
 );
 
 // DMU 339 — Ertai Resurrected
-/// "Spell, activated ability, or triggered ability" is every stack object
-/// there is: mana abilities never use the stack, so the wider slot needs no
-/// clause excluding them.
-static A_SPELL_OR_ABILITY: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::StackObject {
-        object: ObjectPredicateDef::Any,
-        controller: None,
-        kind: StackTargetKindDef::SpellOrAbility,
-    },
-)];
-
-/// "Another" is the exclusion; Ertai himself has just arrived, so without it
-/// he would be a legal answer to his own trigger.
-static ANOTHER_CREATURE_OR_PLANESWALKER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::HasType(CardType::Planeswalker),
-            ]),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
-/// Both modes pay the same compensation, and both read it off the target
-/// after that target is gone: the countered or destroyed object is retired
-/// with its controller recorded, which is what "its controller" wants.
-static ERTAI_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Counter target spell, activated ability, or triggered ability. Its controller draws a \
-         card.",
-        &A_SPELL_OR_ABILITY,
-        EffectDef::Sequence(&[
-            EffectDef::Counter {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Graveyard,
-                placement: ZonePlacement::Top,
-            },
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
-        ]),
-    ),
-    AbilityDef::spell_with_targets(
-        "Destroy another target creature or planeswalker. Its controller draws a card.",
-        &ANOTHER_CREATURE_OR_PLANESWALKER,
-        EffectDef::Sequence(&[
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-                then: None,
-            },
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(1),
-            },
-        ]),
-    ),
-];
-
 pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c46a2ca-27fd-44d4-80d0-7c83ed0a564e"),
     "Ertai Resurrected",
@@ -328,7 +248,66 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &ERTAI_MODES,
+            // Both modes pay the same compensation, and both read it off the target
+            // after that target is gone: the countered or destroyed object is retired
+            // with its controller recorded, which is what "its controller" wants.
+            &[
+                AbilityDef::spell_with_targets(
+                    "Counter target spell, activated ability, or triggered ability. Its controller draws a \
+                     card.",
+                    // "Spell, activated ability, or triggered ability" is every stack object
+                    // there is: mana abilities never use the stack, so the wider slot needs no
+                    // clause excluding them.
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::StackObject {
+                            object: ObjectPredicateDef::Any,
+                            controller: None,
+                            kind: StackTargetKindDef::SpellOrAbility,
+                        },
+                    )],
+                    EffectDef::Sequence(&[
+                        EffectDef::Counter {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Destroy another target creature or planeswalker. Its controller draws a card.",
+                    // "Another" is the exclusion; Ertai himself has just arrived, so without it
+                    // he would be a legal answer to his own trigger.
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                ]),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::Sequence(&[
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            can_regenerate: true,
+                            then: None,
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]),
+                ),
+            ],
         ),
     ]),
 );
@@ -336,65 +315,6 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
 // DMU 387 — Leyline Binding (alternate printing)
 
 // DMU 388 — Serra Paragon
-/// What the permanent gains, and what makes the Paragon a value engine
-/// rather than a recursion loop: the card leaves for good, and the two life
-/// are the consolation.
-static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::dies_trigger(
-    "When this permanent is put into a graveyard from the battlefield, exile it and you gain 2 \
-     life.",
-    EffectDef::Sequence(&PARAGON_EXILE_AND_GAIN),
-);
-
-static PARAGON_EXILE_AND_GAIN: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::TriggeringZoneChangeResult,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-];
-
-static PARAGON_GRANT: AppliedEffectDef = AppliedEffectDef::add_ability(&PARAGON_EXILE_CLAUSE);
-
-/// "A land ... or a permanent spell with mana value 3 or less": one
-/// permission rather than two, because the once-each-turn bound is on the
-/// pair. Any play action, since which one it is follows from the card --
-/// nothing but a land is ever played as a land, and nothing but a spell is
-/// ever cast.
-static PARAGON_PERMISSION: PlayRestrictionDef = PlayRestrictionDef::new(
-    PlayActionMatcherDef::Any,
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Land),
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::HasType(CardType::Instant),
-                ObjectPredicateDef::HasType(CardType::Sorcery),
-            ])),
-            ObjectPredicateDef::ManaValueAtMost(3),
-        ]),
-    ]),
-);
-
-static SERRA_PARAGON_ABILITIES: [AbilityDef; 2] = [
-    abilities::flying(),
-    AbilityDef::static_ability(
-        "Once during each of your turns, you may play a land from your graveyard or cast a \
-         permanent spell with mana value 3 or less from your graveyard. If you do, it gains \
-         \"When this permanent is put into a graveyard from the battlefield, exile it and you \
-         gain 2 life.\"",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Controller,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-                GraveyardPlayPermissionDef::once_each_of_your_turns(PARAGON_PERMISSION)
-                    .granting(&PARAGON_GRANT),
-            )),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69284b53-f712-418c-94a0-4e5638117256"),
     "Serra Paragon",
@@ -403,7 +323,56 @@ pub(in crate::card::sets) static SERRA_PARAGON: CardRecord = CardRecord::new(
     // Four mana for a 3/4 flier that buys back a land or a cheap permanent
     // every turn it lives, and pays two life for each one on its way out.
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 3, 4)
-        .with_abilities(&SERRA_PARAGON_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::static_ability(
+                "Once during each of your turns, you may play a land from your graveyard or cast a \
+                 permanent spell with mana value 3 or less from your graveyard. If you do, it gains \
+                 \"When this permanent is put into a graveyard from the battlefield, exile it and you \
+                 gain 2 life.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                        // "A land ... or a permanent spell with mana value 3 or less": one
+                        // permission rather than two, because the once-each-turn bound is on the
+                        // pair. Any play action, since which one it is follows from the card --
+                        // nothing but a land is ever played as a land, and nothing but a spell is
+                        // ever cast.
+                        GraveyardPlayPermissionDef::once_each_of_your_turns(PlayRestrictionDef::new(
+                            PlayActionMatcherDef::Any,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
+                                        ObjectPredicateDef::HasType(CardType::Instant),
+                                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                                    ])),
+                                    ObjectPredicateDef::ManaValueAtMost(3),
+                                ]),
+                            ]),
+                        ))
+                            // What the permanent gains, and what makes the Paragon a value engine
+                            // rather than a recursion loop: the card leaves for good, and the two life
+                            // are the consolation.
+                            .granting(&AppliedEffectDef::add_ability(&abilities::dies_trigger(
+                                "When this permanent is put into a graveyard from the battlefield, exile it and you gain 2 \
+                                 life.",
+                                EffectDef::Sequence(&[
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                                        zone: ZoneKind::Exile,
+                                        placement: ZonePlacement::Top,
+                                    },
+                                    EffectDef::GainLife {
+                                        recipient: EffectRecipientDef::Controller,
+                                        amount: ValueDef::Constant(2),
+                                    },
+                                ]),
+                            ))),
+                    )),
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

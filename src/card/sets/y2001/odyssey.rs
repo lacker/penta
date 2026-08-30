@@ -204,26 +204,6 @@ pub(in crate::card::sets) static DELAYING_SHIELD: CardRecord = CardRecord::new(
 );
 
 // ODY 18 — Devoted Caretaker
-static DEVOTED_CARETAKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
-static DEVOTED_CARETAKER_PROTECTION: AbilityDef = AbilityDef::keyword(
-    "Protection from instant spells and from sorcery spells",
-    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Spell,
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Instant),
-            ObjectPredicateDef::HasType(CardType::Sorcery),
-        ]),
-    ])),
-);
-
 pub(in crate::card::sets) static DEVOTED_CARETAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d400b63-de3e-4805-a51d-c4c0dfbb7033"),
     "Devoted Caretaker",
@@ -236,10 +216,26 @@ pub(in crate::card::sets) static DEVOTED_CARETAKER: CardRecord = CardRecord::new
                 AbilityCostDef::Mana(mana_cost!("{W}")),
                 AbilityCostDef::TapSource,
             ],
-            &DEVOTED_CARETAKER_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&DEVOTED_CARETAKER_PROTECTION),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::keyword(
+                    "Protection from instant spells and from sorcery spells",
+                    KeywordAbility::ProtectionFrom(&ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ])),
+                )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1094,18 +1090,6 @@ pub(in crate::card::sets) static SHIFTY_DOPPELGANGER: CardRecord = CardRecord::n
 );
 
 // ODY 102 — Standstill
-/// Everyone who is not the caster draws, so casting into it is what makes it
-/// resolve against you. In a two-player game that is the opponent alone.
-static STANDSTILL_REFILL: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-        amount: ValueDef::Constant(3),
-    },
-]);
-
 pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new_with_legacy_id(
     2043,
     "Standstill",
@@ -1116,7 +1100,21 @@ pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new_with_l
     CardRules::new_enchantment(mana_cost!("{1}{U}")).with_ability(AbilityDef::triggered(
         "When a player casts a spell, sacrifice this enchantment. If you do, each of that player's opponents draws three cards.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-        STANDSTILL_REFILL,
+        // Everyone who is not the caster draws, so casting into it is what makes it
+        // resolve against you. In a two-player game that is the opponent alone.
+        EffectDef::Sequence(&const {
+            [
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::Opponent,
+                    )),
+                    amount: ValueDef::Constant(3),
+                },
+            ]
+        }),
     )),
 );
 
@@ -1498,33 +1496,6 @@ pub(in crate::card::sets) static GRAVESTORM: CardRecord = CardRecord::new(
 );
 
 // ODY 142 — Haunting Echoes
-/// Exile the yard, then hunt the library for every copy of what was taken.
-/// The library search reads the bound set after the graveyard has emptied,
-/// which is why the set is bound rather than queried twice.
-static ECHOES_EXILE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::SharingNameWithBinding {
-            binding: ObjectSetBindingIndex::PRIMARY,
-            player: PlayerRefDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-        }),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-]);
-
-static ECHOES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_with_legacy_id(
     2069,
     "Haunting Echoes",
@@ -1534,20 +1505,51 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
     // in the graveyard takes the other three as well.
     CardRules::new_sorcery(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Exile all cards from target player's graveyard other than basic land cards. For each card exiled this way, search that player's library for all cards with the same name as that card and exile them. Then that player shuffles.",
-        &ECHOES_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         abilities::bind_objects_then(
             crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
                 ObjectQueryDef::owned_by(
-                ObjectPredicateDef::Not(&ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ObjectPredicateDef::HasType(CardType::Land),
-                ])),
-                &[ZoneKind::Graveyard],
-                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ])),
+                    &[ZoneKind::Graveyard],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                 ),
             )),
             ObjectSetBindingIndex::PRIMARY,
-            &ECHOES_EXILE,
+            // Exile the yard, then hunt the library for every copy of what was taken.
+            // The library search reads the bound set after the graveyard has emptied,
+            // which is why the set is bound rather than queried twice.
+            &const {
+                EffectDef::Sequence(&const {
+                    [
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ObjectSetBindingIndex::PRIMARY,
+                            )),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(
+                                ObjectSetDef::SharingNameWithBinding {
+                                    binding: ObjectSetBindingIndex::PRIMARY,
+                                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                                    zone: ZoneKind::Library,
+                                },
+                            ),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ]
+                })
+            },
         ),
     )),
 );
@@ -1736,13 +1738,6 @@ pub(in crate::card::sets) static SCREAMS_OF_THE_DAMNED: CardRecord = CardRecord:
 );
 
 // ODY 161 — Skeletal Scrying
-/// X cards from your own graveyard, exiled as the spell is cast. The count is
-/// the X it is cast for, so a big Scrying costs the graveyard that fed it.
-static EXILE_X_FROM_YOUR_GRAVEYARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 0)
-        .counted_in_x()
-        .spent(SpendModeDef::Exile);
-
 pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_with_legacy_id(
     2066,
     "Skeletal Scrying",
@@ -1754,7 +1749,11 @@ pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, exile X cards from your graveyard.\nYou draw X cards and you lose X life.",
             &[],
-            EXILE_X_FROM_YOUR_GRAVEYARD,
+            // X cards from your own graveyard, exiled as the spell is cast. The count is
+            // the X it is cast for, so a big Scrying costs the graveyard that fed it.
+            SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 0)
+                    .counted_in_x()
+                    .spent(SpendModeDef::Exile),
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -2064,10 +2063,6 @@ pub(in crate::card::sets) static EPICENTER: CardRecord = CardRecord::new(
 );
 
 // ODY 193 — Firebolt
-static FIREBOLT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new_with_legacy_id(
     2152,
     "Firebolt",
@@ -2078,7 +2073,9 @@ pub(in crate::card::sets) static FIREBOLT: CardRecord = CardRecord::new_with_leg
     CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Firebolt deals 2 damage to any target.",
-            &FIREBOLT_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
@@ -3313,10 +3310,6 @@ pub(in crate::card::sets) static ABANDONED_OUTPOST: CardRecord = CardRecord::new
 );
 
 // ODY 313 — Barbarian Ring
-static BARBARIAN_RING_SHOT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new_with_legacy_id(
     2033,
     "Barbarian Ring",
@@ -3337,7 +3330,9 @@ pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new_wi
                 AbilityCostDef::TapSource,
                 AbilityCostDef::SacrificeSource,
             ],
-            &BARBARIAN_RING_SHOT,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
@@ -3378,23 +3373,6 @@ pub(in crate::card::sets) static CENTAUR_GARDEN: CardRecord = CardRecord::new(
 );
 
 // ODY 317 — Cephalid Coliseum
-static COLISEUM_DIG: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(3),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-]);
-
-static COLISEUM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new_with_legacy_id(
     2041,
     "Cephalid Coliseum",
@@ -3415,8 +3393,21 @@ pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new
                 AbilityCostDef::TapSource,
                 AbilityCostDef::SacrificeSource,
             ],
-            &COLISEUM_TARGET,
-            COLISEUM_DIG,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
         )
         .with_activation_condition(&THRESHOLD),
     ]),
@@ -3518,11 +3509,6 @@ pub(in crate::card::sets) static SHADOWBLOOD_RIDGE: CardRecord = CardRecord::new
 );
 
 // ODY 327 — Skycloud Expanse
-static SKYCLOUD_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-];
-
 pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new_with_legacy_id(
     2087,
     "Skycloud Expanse",
@@ -3533,7 +3519,10 @@ pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new_
     // on fixing rather than on the count.
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
         "{1}, {T}: Add {W}{U}.",
-        &SKYCLOUD_COSTS,
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::TapSource,
+        ],
         EffectDef::AddMana(AddManaEffectDef::one_of_each(
             ManaColor::White,
             ManaColor::Blue,

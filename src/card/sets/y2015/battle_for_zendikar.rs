@@ -30,37 +30,6 @@ pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
 );
 
 // BFZ 168 — Unnatural Aggression
-static UNNATURAL_AGGRESSION_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    }),
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    }),
-];
-
-static UNNATURAL_AGGRESSION_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Fight {
-        first: ObjectRefDef::Target(TargetIndex::PRIMARY),
-        second: ObjectRefDef::Target(TargetIndex(1)),
-        excess: None,
-    },
-    // This sentence is independent of whether the fight dealt damage. If the
-    // opponent's creature remains a legal target, any way it would die later
-    // this turn is replaced with exile.
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex(1)),
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
 pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8293c66d-9a9b-4817-9bc3-ffd57fda290c"),
     "Unnatural Aggression",
@@ -72,8 +41,35 @@ pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::
             abilities::devoid(),
             AbilityDef::spell_with_targets(
                 "Target creature you control fights target creature an opponent controls. If the creature an opponent controls would die this turn, exile it instead.",
-                &UNNATURAL_AGGRESSION_TARGETS,
-                EffectDef::Sequence(&UNNATURAL_AGGRESSION_EFFECTS),
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    }),
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::Fight {
+                        first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        second: ObjectRefDef::Target(TargetIndex(1)),
+                        excess: None,
+                    },
+                    // This sentence is independent of whether the fight dealt damage. If the
+                    // opponent's creature remains a legal target, any way it would die later
+                    // this turn is replaced with exile.
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::ExileInsteadOfDying),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
             ),
         ]),
 );

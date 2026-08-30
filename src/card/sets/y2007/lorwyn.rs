@@ -12,48 +12,6 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // LRW 56 — Cryptic Command
-static A_SPELL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
-static A_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Any,
-)];
-
-/// Two of four, and never the same one twice. Each targeting mode carries
-/// its own slot, so a Command that counters and bounces declares a spell and
-/// a permanent, and one that taps and draws declares nothing at all.
-static CRYPTIC_COMMAND_MODES: [AbilityDef; 4] = [
-    AbilityDef::counter_target("Counter target spell.", &A_SPELL[0]),
-    AbilityDef::spell_with_targets(
-        "Return target permanent to its owner's hand.",
-        &A_PERMANENT,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ),
-    // Their creatures, not everyone's: the Command is a Fog you get to keep
-    // the draw off, and tapping your own would defeat the point.
-    AbilityDef::spell(
-        "Tap all creatures your opponents control.",
-        EffectDef::Tap {
-            object: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::HasType(CardType::Creature),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::Opponent,
-            ),
-        },
-    ),
-    AbilityDef::spell(
-        "Draw a card.",
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_with_legacy_id(
     2272,
     "Cryptic Command",
@@ -65,7 +23,45 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_w
         "Choose two \u{2014}\n\u{2022} Counter target spell.\n\u{2022} Return target permanent \
          to its owner's hand.\n\u{2022} Tap all creatures your opponents control.\n\u{2022} \
          Draw a card.",
-        &CRYPTIC_COMMAND_MODES,
+        // Two of four, and never the same one twice. Each targeting mode carries
+        // its own slot, so a Command that counters and bounces declares a spell and
+        // a permanent, and one that taps and draws declares nothing at all.
+        &[
+            AbilityDef::counter_target(
+                "Counter target spell.",
+                &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)][0],
+            ),
+            AbilityDef::spell_with_targets(
+                "Return target permanent to its owner's hand.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            // Their creatures, not everyone's: the Command is a Fog you get to keep
+            // the draw off, and tapping your own would defeat the point.
+            AbilityDef::spell(
+                "Tap all creatures your opponents control.",
+                EffectDef::Tap {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                },
+            ),
+            AbilityDef::spell(
+                "Draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
         2,
         2,
         false,
@@ -113,24 +109,6 @@ pub(in crate::card::sets) static PONDER: CardRecord = CardRecord::new_with_legac
 );
 
 // LRW 145 — Thoughtseize
-static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-/// The hand is revealed rather than looked at: everybody sees it, which is
-/// what makes the choice checkable and what the card prints.
-static THOUGHTSEIZE_EFFECT: [EffectDef; 2] = [
-    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
-        PlayerRefDef::Target(TargetIndex::PRIMARY),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-    )),
-    // Unconditional: a hand of nothing but lands still costs you two.
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-];
-
 pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with_legacy_id(
     2240,
     "Thoughtseize",
@@ -141,8 +119,22 @@ pub(in crate::card::sets) static THOUGHTSEIZE: CardRecord = CardRecord::new_with
     CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target player reveals their hand. You choose a nonland card from it. That player \
          discards that card. You lose 2 life.",
-        &A_PLAYER,
-        EffectDef::Sequence(&THOUGHTSEIZE_EFFECT),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        // The hand is revealed rather than looked at: everybody sees it, which is
+        // what makes the choice checkable and what the card prints.
+        EffectDef::Sequence(&[
+            EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )),
+            // Unconditional: a hand of nothing but lands still costs you two.
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
     )),
 );
 
@@ -163,17 +155,15 @@ pub(in crate::card::sets) static TARFIRE: CardRecord = CardRecord::new(
         .with_subtypes(&["Goblin"])
         .with_ability(AbilityDef::spell_with_targets(
             "This spell deals 2 damage to any target.",
-            &TARFIRE_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
             },
         )),
 );
-
-static TARFIRE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
 
 // LRW 196 — Wild Ricochet
 // Audit: metadata-only — Card rules have not been implemented.
@@ -200,30 +190,6 @@ pub(in crate::card::sets) static THORN_OF_AMETHYST: CardRecord = CardRecord::new
 );
 
 // LRW 272 — Shelldock Isle
-/// "If a library has twenty or fewer cards in it" -- either library, which
-/// is why the two are asked separately rather than counted together.
-static A_LIBRARY_IS_NEARLY_EMPTY: TriggerConditionDef = TriggerConditionDef::AnyOf(&[
-    TriggerConditionDef::ValueComparison(&YOUR_LIBRARY_IS_NEARLY_EMPTY),
-    TriggerConditionDef::ValueComparison(&THEIR_LIBRARY_IS_NEARLY_EMPTY),
-]);
-
-static YOUR_LIBRARY_IS_NEARLY_EMPTY: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::LibrarySize(PlayerRelation::You),
-    comparison: ComparisonDef::LessOrEqual,
-    right: ValueDef::Constant(20),
-};
-
-static THEIR_LIBRARY_IS_NEARLY_EMPTY: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::LibrarySize(PlayerRelation::Opponent),
-    comparison: ComparisonDef::LessOrEqual,
-    right: ValueDef::Constant(20),
-};
-
-static SHELLDOCK_UNLOCK_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{U}")),
-    AbilityCostDef::TapSource,
-];
-
 pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4216656e-90e8-45fc-a0f6-0d0d79d0a021"),
     "Shelldock Isle",
@@ -246,7 +212,10 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{U}, {T}: You may play the exiled card without paying its mana cost if a library \
              has twenty or fewer cards in it.",
-            &SHELLDOCK_UNLOCK_COST,
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}")),
+                AbilityCostDef::TapSource,
+            ],
             // "You may play the exiled card": the offer stands while this
             // ability resolves and no longer, so a player who declines has
             // to pay the {U} and the tap again to be asked twice.
@@ -257,7 +226,20 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
                 grants_haste: false,
             }),
         )
-        .with_activation_condition(&A_LIBRARY_IS_NEARLY_EMPTY),
+        // "If a library has twenty or fewer cards in it" -- either library, which
+        // is why the two are asked separately rather than counted together.
+        .with_activation_condition(&TriggerConditionDef::AnyOf(&[
+            TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::LibrarySize(PlayerRelation::You),
+                comparison: ComparisonDef::LessOrEqual,
+                right: ValueDef::Constant(20),
+            }),
+            TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::LibrarySize(PlayerRelation::Opponent),
+                comparison: ComparisonDef::LessOrEqual,
+                right: ValueDef::Constant(20),
+            }),
+        ])),
     ]),
 );
 

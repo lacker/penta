@@ -11,54 +11,6 @@ use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
 
 // CHK 193 — Through the Breach
-static A_CREATURE_CARD_IN_HAND: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
-static BREACH_HASTE: AbilityDef = abilities::haste();
-
-/// The creature sacrifices itself rather than being named by a delayed
-/// trigger the spell installs: it is the object that arrived, and it carries
-/// the clause with it. Nothing else can name it -- the card was chosen only
-/// as this spell resolved, and what entered is a new object.
-static BREACH_SACRIFICE_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, sacrifice this creature.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-);
-
-static BREACH_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_ability(&BREACH_HASTE),
-    AppliedEffectDef::add_ability(&BREACH_SACRIFICE_AT_END),
-]);
-
-/// A minimum of zero is the printed "you may": the offer may be answered
-/// with nothing, and with no creature in hand it is never made at all.
-static BREACH_PUT_ONTO_BATTLEFIELD: EffectDef = EffectDef::WithZoneMoveResult {
-    effect: &EffectDef::ChooseCards {
-        player: EffectRecipientDef::Controller,
-        sources: &A_CREATURE_CARD_IN_HAND,
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        minimum: 0,
-        maximum: 1,
-        reveal: false,
-        destination: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-    },
-    binding: ObjectSetBindingIndex::PRIMARY,
-    then: &EffectDef::Apply {
-        recipient: EffectRecipientDef::binding_zone_change_successors(
-            ObjectSetBindingIndex::PRIMARY,
-        ),
-        effect: BREACH_POST_MOVE_EFFECT,
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-};
-
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
     2190,
     "Through the Breach",
@@ -69,7 +21,52 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
         .with_abilities(&[
             AbilityDef::spell(
                 "You may put a creature card from your hand onto the battlefield. That creature gains haste. Sacrifice that creature at the beginning of the next end step.",
-                BREACH_PUT_ONTO_BATTLEFIELD,
+                EffectDef::WithZoneMoveResult {
+                    // A minimum of zero is the printed "you may": the offer may be answered
+                    // with nothing, and with no creature in hand it is never made at all.
+                    effect: &const {
+                        EffectDef::ChooseCards {
+                            player: EffectRecipientDef::Controller,
+                            sources: &const { [CardChoiceSourceDef::Zone(ZoneKind::Hand)] },
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            minimum: 0,
+                            maximum: 1,
+                            reveal: false,
+                            destination: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        }
+                    },
+                    binding: ObjectSetBindingIndex::PRIMARY,
+                    then: &const {
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::binding_zone_change_successors(
+                                ObjectSetBindingIndex::PRIMARY,
+                            ),
+                            effect: AppliedEffectDef::Composite(&const {
+                                [
+                                    AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                                    // The creature sacrifices itself rather than being named by a delayed
+                                    // trigger the spell installs: it is the object that arrived, and it carries
+                                    // the clause with it. Nothing else can name it -- the card was chosen only
+                                    // as this spell resolved, and what entered is a new object.
+                                    AppliedEffectDef::add_ability(&const {
+                                        AbilityDef::triggered(
+                                            "At the beginning of the next end step, sacrifice this creature.",
+                                            TriggerEventDef::StepBegins {
+                                                step: TurnStepDef::End,
+                                                player: PlayerRelation::Any,
+                                            },
+                                            EffectDef::Sacrifice {
+                                                object: EffectRecipientDef::Source,
+                                            },
+                                        )
+                                    }),
+                                ]
+                            }),
+                            duration: ResolvedEffectDurationDef::Permanent,
+                        }
+                    },
+                },
             ),
             // Not a second spell ability and not a way to cast this card:
             // splice is a cast-time option on the card in hand, so the
@@ -90,21 +87,6 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
 );
 
 // CHK 268 — Sensei's Divining Top
-/// The draw and the trip back to the library are one clause: the Top is on
-/// the battlefield as the card is drawn and gone by the time anything could
-/// answer it, which is why it is never really spent.
-static TOP_DRAWS_AND_LEAVES: [EffectDef; 2] = [
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-];
-
 pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a08ca06-58db-4ce6-b490-be4bea8956a1"),
     "Sensei's Divining Top",
@@ -125,7 +107,24 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
         AbilityDef::activated(
             "{T}: Draw a card, then put this artifact on top of its owner's library.",
             &[AbilityCostDef::TapSource],
-            EffectDef::Sequence(&TOP_DRAWS_AND_LEAVES),
+            // The draw and the trip back to the library are one clause: the Top is on
+            // the battlefield as the card is drawn and gone by the time anything could
+            // answer it, which is why it is never really spent.
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Library,
+                            placement: ZonePlacement::Top,
+                        },
+                    ]
+                },
+            ),
         ),
     ]),
 );

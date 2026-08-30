@@ -212,6 +212,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                         | ObjectRefDef::DamagedObject,
                     )
                     | ObjectSetDef::Binding(_)
+                    | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::LinkedExiles(_)
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
@@ -368,6 +369,8 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::BecomeCopyOf { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
         | EffectDef::MoveToZone { .. }
+        | EffectDef::WithBattlefieldArrival { .. }
+        | EffectDef::WithZoneMoveResult { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateOngoingEffect(_)
         | EffectDef::PutOntoBattlefieldThen { .. }

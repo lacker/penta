@@ -5,6 +5,26 @@ fn validate_effect_references(
     scope: BindingScope,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        EffectDef::WithBattlefieldArrival { effect, arrival } => {
+            validate_effect_references(*effect, target_count, scope)?;
+            match arrival.attachment {
+                None | Some(ArrivalAttachmentDef::SourceToArrival) => Ok(()),
+                Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
+                    validate_object_reference(host, target_count, scope)
+                }
+                Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                    validate_player_reference(player, target_count, scope)
+                }
+            }
+        }
+        EffectDef::WithZoneMoveResult {
+            effect,
+            binding,
+            then,
+        } => {
+            validate_effect_references(*effect, target_count, scope)?;
+            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
+        }
         EffectDef::Sequence(effects) => {
             for effect in effects {
                 validate_effect_references(*effect, target_count, scope)?;
@@ -289,25 +309,12 @@ fn validate_effect_references(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. } => {
+        | EffectDef::ModifyCounters { object, .. }
+        | EffectDef::MoveToZone { object, .. } => {
             validate_recipient_target_references(object, target_count, scope)
         }
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_target_references(copy.object, target_count, scope)
-        }
-        EffectDef::MoveToZone {
-            object, attachment, ..
-        } => {
-            validate_recipient_target_references(object, target_count, scope)?;
-            match attachment {
-                None | Some(ArrivalAttachmentDef::SourceToArrival) => Ok(()),
-                Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
-                    validate_object_reference(host, target_count, scope)
-                }
-                Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
-                    validate_player_reference(player, target_count, scope)
-                }
-            }
         }
         EffectDef::Discard {
             recipient,

@@ -302,7 +302,6 @@ fn replacement_effect_tail_finishes_before_later_draws_and_outer_effects() {
             reveal: false,
             destination: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
         },
         EffectDef::LoseLife {
             recipient: EffectRecipientDef::Controller,

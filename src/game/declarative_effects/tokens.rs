@@ -347,7 +347,6 @@ impl Game {
         recipient: crate::card::EffectRecipientDef,
         binding: crate::ObjectSetBindingIndex,
         counters: Option<crate::card::TokenCountersDef>,
-        arrival_effect: Option<&'static crate::card::AppliedEffectDef>,
         then: &'static EffectDef,
         object: &StackObject,
         context: EffectResolutionContext,
@@ -373,9 +372,6 @@ impl Game {
                 Some(super::super::BattlefieldArrival::under(controller).with_counters(counters)),
                 crate::card::ZonePlacement::Top,
             ) {
-                if let Some(effect) = arrival_effect {
-                    self.apply_arrival_effect(arrived, *effect, object, &context, scoped);
-                }
                 arrivals.push(Target::Permanent(arrived));
             }
         }

@@ -1462,15 +1462,16 @@ static DEATH_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 )];
 
 static DEATH_EFFECTS: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: Some(PlayerRelation::You),
-        tapped: false,
+    EffectDef::WithBattlefieldArrival {
+        effect: &EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        },
+        arrival: crate::card::BattlefieldArrivalDef {
+            controller: Some(PlayerRelation::You),
+            ..crate::card::BattlefieldArrivalDef::DEFAULT
+        },
     },
     EffectDef::LoseLife {
         recipient: EffectRecipientDef::Controller,

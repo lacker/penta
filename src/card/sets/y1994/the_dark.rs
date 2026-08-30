@@ -348,14 +348,9 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -813,14 +808,9 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_wi
             }],
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    tapped: false,
                 },
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Controller,
@@ -952,14 +942,9 @@ pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new_wit
             )],
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    tapped: false,
                 },
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -1523,7 +1508,6 @@ static GOBLIN_WIZARD_CHOICE: EffectDef = EffectDef::ChooseCards {
     reveal: false,
     destination: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
 };
 
 pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_with_legacy_id(
@@ -1721,7 +1705,6 @@ static GAEAS_TOUCH_CHOICE: EffectDef = EffectDef::ChooseCards {
     reveal: false,
     destination: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
 };
 
 pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new_with_legacy_id(
@@ -2429,14 +2412,9 @@ pub(in crate::card::sets) static SKULL_OF_ORM: CardRecord = CardRecord::new_with
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -2482,7 +2460,6 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new_wit
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::cards_owned_by_target(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Graveyard],
@@ -2490,10 +2467,6 @@ pub(in crate::card::sets) static TORMODS_CRYPT: CardRecord = CardRecord::new_wit
             ),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -2639,7 +2612,6 @@ then: None,
                 then: Some(&EffectDef::ReturnLinkedExiles {
                     object: ObjectPredicateDef::Any,
                     counters: None,
-                    arrival_effect: None,
                     zone: ZoneKind::Battlefield,
                     grant: None,
                     controller: None,

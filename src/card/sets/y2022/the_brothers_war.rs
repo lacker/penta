@@ -150,12 +150,7 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: false,
             },
         ),
     ]),
@@ -305,15 +300,26 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
                 player: PlayerRelation::You,
             },
             &A_CREATURE_CARD_IN_A_GRAVEYARD,
-            EffectDef::MoveToZone {
-                counters: None,
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                arrival_effect: Some(&AS_A_PHYREXIAN),
-                attachment: None,
-                controller: Some(PlayerRelation::You),
-                tapped: false,
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        controller: Some(PlayerRelation::You),
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
+                },
+                binding: crate::ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successors(
+                        crate::ObjectSetBindingIndex::PRIMARY,
+                    ),
+                    effect: AS_A_PHYREXIAN,
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
             },
         ),
     ]),

@@ -28,14 +28,9 @@ static CRYPTIC_COMMAND_MODES: [AbilityDef; 4] = [
         "Return target permanent to its owner's hand.",
         &A_PERMANENT,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     // Their creatures, not everyone's: the Command is a Fog you get to keep

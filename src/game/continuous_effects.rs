@@ -540,11 +540,16 @@ impl Game {
                 .or_else(|| Self::immediate_attachment_target(*otherwise)),
             // Both of these carry a nested procedure the same way a sequence
             // does, so an Attach inside one is still part of the clause.
-            EffectDef::ForEachInBinding { effect, .. } => {
+            EffectDef::ForEachInBinding { effect, .. }
+            | EffectDef::WithBattlefieldArrival { effect, .. } => {
                 Self::immediate_attachment_target(*effect)
             }
             EffectDef::PutOntoBattlefieldThen { then, .. } => {
                 Self::immediate_attachment_target(*then)
+            }
+            EffectDef::WithZoneMoveResult { effect, then, .. } => {
+                Self::immediate_attachment_target(*effect)
+                    .or_else(|| Self::immediate_attachment_target(*then))
             }
             // These attach something, but never an Aura to the host its own
             // spell named: the first two put the source onto the object, and
@@ -906,6 +911,7 @@ impl Game {
                     | ObjectRefDef::DamagedObject,
                 )
                 | ObjectSetDef::Binding(_)
+                | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)

@@ -700,21 +700,11 @@ static ICHORID_EXILE_CHOSEN_CREATURE: [EffectDef; 2] = [
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Battlefield,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
 ];
 

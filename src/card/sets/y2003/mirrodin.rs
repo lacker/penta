@@ -74,14 +74,9 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
             &SPELLBOMB_BOUNCE_COST,
             &A_CREATURE,
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         AbilityDef::activated(

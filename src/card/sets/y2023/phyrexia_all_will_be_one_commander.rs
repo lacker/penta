@@ -3,9 +3,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::mana_cost;
 
@@ -88,15 +89,16 @@ static OTHARRI_ABILITIES: [AbilityDef; 5] = [
         "{2}{R}{W}, Tap an untapped Rebel you control: Return this card from your graveyard to \
          the battlefield tapped.",
         &OTHARRI_RETURN_COST,
-        EffectDef::MoveToZone {
-            counters: None,
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: true,
+        EffectDef::WithBattlefieldArrival {
+            effect: &EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
+            arrival: crate::card::BattlefieldArrivalDef {
+                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                ..crate::card::BattlefieldArrivalDef::DEFAULT
+            },
         },
     )
     .with_source_zones(&[ZoneKind::Graveyard]),

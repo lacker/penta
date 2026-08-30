@@ -129,7 +129,7 @@ impl Game {
         arrival: Option<(StackObject, EffectResolutionContext, ScopedEffect)>,
         source: GameObjectId,
         controller: PlayerId,
-    ) {
+    ) -> bool {
         let mut options = Vec::new();
         for source_def in sources {
             let (cards, zone, predicate_zone): (&[CardInstance], DecisionZone, ZoneKind) =
@@ -187,7 +187,7 @@ impl Game {
         // An impossible instruction does nothing. In particular, a Ring draw
         // is still replaced when neither exile nor the sideboard has a card.
         if options.is_empty() {
-            return;
+            return false;
         }
         let minimum = minimum.min(options.len());
         let maximum = maximum.min(options.len()).max(minimum);
@@ -229,5 +229,6 @@ impl Game {
                 }),
             },
         );
+        true
     }
 }

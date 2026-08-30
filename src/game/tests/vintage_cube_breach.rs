@@ -96,6 +96,26 @@ fn the_breach_puts_a_creature_down_hasty_without_casting_it() {
     );
 }
 
+/// The post-move effect waits for a prospective entry to finish. Meddling
+/// Mage pauses to choose a card name as it enters; haste must follow that
+/// decision and attach to the permanent identity the entry finally minted.
+#[test]
+fn the_post_move_effect_waits_for_an_as_enters_choice() {
+    let (mut game, breach_id) = breach_with(&[cards::MEDDLING_MAGE]);
+
+    cast_breach(&mut game, breach_id);
+
+    let mage = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == cards::MEDDLING_MAGE)
+        .expect("the Mage finished entering");
+    assert!(
+        game.permanent_has_executable_keyword(mage, KeywordAbility::Haste),
+        "the successor received haste after the as-enters decision",
+    );
+}
+
 /// The rent comes due at the next end step, and the creature is sacrificed
 /// by a clause it carries rather than by anything that still names it.
 #[test]

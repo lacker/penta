@@ -865,14 +865,9 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
         &A_NONLAND_PERMANENT,
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                            tapped: false,
 },
             CHAIN_OF_VAPOR_REBOUND,
         ]),

@@ -124,7 +124,6 @@ then: None,
             EffectDef::ReturnLinkedExiles {
                 object: ObjectPredicateDef::Any,
                 counters: None,
-                arrival_effect: None,
                 zone: ZoneKind::Hand,
                 grant: None,
                 controller: None,
@@ -502,18 +501,13 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new_wit
         abilities::enters_trigger(
             "When this enchantment enters, exile all graveyards.",
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
                     PlayerRelation::Any,
                 ),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         AbilityDef::replacement_for(
@@ -676,14 +670,9 @@ pub(in crate::card::sets) static TRAINED_CARACAL: CardRecord = keyword_creature(
 // RTR 28 — Trostani's Judgment
 static TROSTANIS_JUDGMENT_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     abilities::populate(),
 ];
@@ -838,32 +827,22 @@ pub(in crate::card::sets) static CYCLONIC_RIFT: CardRecord = CardRecord::new_wit
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::overload(
             mana_cost!("{6}{U}"),
             "Return each nonland permanent you don't control to its owner's hand.",
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::NotYou,
                 ),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -1100,24 +1079,14 @@ static JACE_ARCHITECT_ABILITIES: [AbilityDef; 3] = [
 
 static JACE_ARCHITECT_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::CHOSEN_PILE,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::UNCHOSEN_PILE,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Bottom,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 ]);
 
@@ -1348,14 +1317,9 @@ pub(in crate::card::sets) static TOWER_DRAKE: CardRecord = CardRecord::new_with_
 
 // RTR 56 — Voidwielder
 static VOIDWIELDER_RETURN: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Hand,
-    controller: None,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new_with_legacy_id(
@@ -1439,14 +1403,9 @@ pub(in crate::card::sets) static CREMATE: CardRecord = CardRecord::new_with_lega
         )],
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
@@ -3149,14 +3108,9 @@ pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
 // RTR 140 — Worldspine Wurm
 static WURM_SHUFFLES_ITSELF_BACK: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::players(PlayerSetDef::One(PlayerRefDef::OwnerOf(
@@ -3335,14 +3289,9 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new_wit
                     ObjectPredicateDef::AttackingOrBlocking,
                 ]),
             )], EffectDef::MoveToZone {
-                counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Library,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                                    tapped: false,
 }),
         ],
     )),
@@ -3597,7 +3546,6 @@ then: None,
             EffectDef::ReturnLinkedExiles {
                 object: ObjectPredicateDef::Any,
                 counters: None,
-                arrival_effect: None,
                 zone: ZoneKind::Battlefield,
                 grant: None,
                 controller: None,
@@ -3620,14 +3568,9 @@ pub(in crate::card::sets) static DRAMATIC_RESCUE: CardRecord = CardRecord::new_w
         )],
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
@@ -4401,14 +4344,9 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new_wi
                     ObjectPredicateDef::PowerAtLeast(5),
                 ]),
             )], EffectDef::MoveToZone {
-                counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                                    tapped: false,
 }),
             AbilityDef::spell(
                 "Create a 2/2 white Knight creature token with vigilance",
@@ -4443,14 +4381,9 @@ pub(in crate::card::sets) static SKULL_REND: CardRecord = CardRecord::new_with_l
 
 // RTR 196 — Skymark Roc
 static SKYMARK_ROC_RETURN: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Hand,
-    controller: None,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_legacy_id(
@@ -4657,14 +4590,9 @@ pub(in crate::card::sets) static TREASURED_FIND: CardRecord = CardRecord::new_wi
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::Exile),
@@ -4920,14 +4848,9 @@ pub(in crate::card::sets) static CRYPTBORN_HORROR: CardRecord = CardRecord::new(
 /// however much mana it makes (CR 605.1a).
 static DEATHRITE_EXILES_A_LAND_FOR_MANA: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::AddMana(AddManaEffectDef::choice(&ManaColor::COLORS)),
 ]);
@@ -4972,14 +4895,9 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
             )],
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                                    tapped: false,
 },
                 EffectDef::LoseLife {
                     recipient: EffectRecipientDef::Opponent,
@@ -5003,14 +4921,9 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
             )],
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
-                    controller: None,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                                    tapped: false,
 },
                 EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
@@ -5323,14 +5236,9 @@ pub(in crate::card::sets) static CODEX_SHREDDER: CardRecord = CardRecord::new_wi
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                            tapped: false,
 },
         ),
     ]),

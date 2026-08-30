@@ -808,14 +808,9 @@ pub(in crate::card::sets) static RESURRECTION: CardRecord = CardRecord::new_with
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ]),
@@ -930,14 +925,9 @@ pub(in crate::card::sets) static SWORDS_TO_PLOWSHARES: CardRecord = CardRecord::
         )],
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1850,14 +1840,9 @@ pub(in crate::card::sets) static UNSUMMON: CardRecord = CardRecord::new_with_leg
         "Return target creature to its owner's hand.",
         &ENCHANT_CREATURE_TARGET,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )]),
 );
@@ -1972,17 +1957,19 @@ static A_CREATURE_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef
 
 /// The reanimation and the attachment are one step: what arrives is a new
 /// object, so a following effect would have nothing left to name.
-static ANIMATE_DEAD_REANIMATES: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    // "Return enchanted creature card": what the Aura is already attached
-    // to, which is the card its own spell targeted.
-    object: EffectRecipientDef::AttachedPermanent,
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    controller: Some(PlayerRelation::You),
-    arrival_effect: None,
-    attachment: Some(ArrivalAttachmentDef::SourceToArrival),
-    tapped: false,
+static ANIMATE_DEAD_REANIMATES: EffectDef = EffectDef::WithBattlefieldArrival {
+    effect: &EffectDef::MoveToZone {
+        // "Return enchanted creature card": what the Aura is already attached
+        // to, which is the card its own spell targeted.
+        object: EffectRecipientDef::AttachedPermanent,
+        zone: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+    },
+    arrival: crate::card::BattlefieldArrivalDef {
+        controller: Some(PlayerRelation::You),
+        attachment: Some(ArrivalAttachmentDef::SourceToArrival),
+        ..crate::card::BattlefieldArrivalDef::DEFAULT
+    },
 };
 
 /// "If it's on the battlefield" is an intervening if, and it is what makes
@@ -2506,11 +2493,6 @@ pub(in crate::card::sets) static NETHER_SHADOW: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
-                    controller: None,
-                    arrival_effect: None,
-                    attachment: None,
-                    counters: None,
-                    tapped: false,
                 },
             },
         )
@@ -2689,14 +2671,9 @@ pub(in crate::card::sets) static RAISE_DEAD: CardRecord = CardRecord::new_with_l
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )]),
 );
@@ -4710,14 +4687,9 @@ pub(in crate::card::sets) static REGROWTH: CardRecord = CardRecord::new_with_leg
         "Return target card from your graveyard to your hand.",
         &REGROWTH_TARGET,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )]),
 );

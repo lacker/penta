@@ -207,7 +207,6 @@ static BAT_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Hand,
         grant: None,
         controller: None,

@@ -1275,14 +1275,9 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
             )], EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 },
             }),
     ]),
@@ -1698,14 +1693,9 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
                 AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget),
             ],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                            tapped: false,
 },
         )
         .with_coverage(AbilityCoverageDef::partial(
@@ -1776,14 +1766,9 @@ pub(in crate::card::sets) static OBZEDATS_AID: CardRecord = CardRecord::new_with
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -2129,14 +2114,9 @@ pub(in crate::card::sets) static SIRE_OF_INSANITY: CardRecord = CardRecord::new_
 
 // DGM 105 — Species Gorger
 static SPECIES_GORGER_RETURN: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Hand,
-    controller: None,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 static SPECIES_GORGER_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
@@ -2538,14 +2518,9 @@ pub(in crate::card::sets) static DOWN_DIRTY: CardRecord = CardRecord::new_fuse_w
                     "Return target card from your graveyard to your hand.",
                     &OWN_GRAVEYARD_CARD_TARGET,
                     EffectDef::MoveToZone {
-                        counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
-                        arrival_effect: None,
-                        attachment: None,
-                        controller: None,
-                        tapped: false,
                     },
                 ),
             ),
@@ -2568,14 +2543,9 @@ pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_fuse_wit
                     "Return target creature to its owner's hand.",
                     &CREATURE_TARGET,
                     EffectDef::MoveToZone {
-                        counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
-                        arrival_effect: None,
-                        attachment: None,
-                        controller: None,
-                        tapped: false,
                     },
                 ),
             ),

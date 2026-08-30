@@ -743,15 +743,17 @@ static NECROMANCY_CAST_AT_INSTANT_SPEED: TriggerConditionDef =
 /// The reanimation and the attachment are one step: what arrives is a new
 /// object, so a following effect would have nothing left to name.
 static NECROMANCY_REANIMATES: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        counters: None,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-        controller: Some(PlayerRelation::You),
-        arrival_effect: None,
-        attachment: Some(ArrivalAttachmentDef::SourceToArrival),
-        tapped: false,
+    EffectDef::WithBattlefieldArrival {
+        effect: &EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        },
+        arrival: crate::card::BattlefieldArrivalDef {
+            controller: Some(PlayerRelation::You),
+            attachment: Some(ArrivalAttachmentDef::SourceToArrival),
+            ..crate::card::BattlefieldArrivalDef::DEFAULT
+        },
     },
     EffectDef::IfCondition {
         condition: &NECROMANCY_CAST_AT_INSTANT_SPEED,

@@ -177,6 +177,69 @@ fn reassembling_skeleton_activates_from_the_graveyard_and_returns_tapped() {
 }
 
 #[test]
+fn entering_tapped_is_not_a_separate_tap_event() {
+    static WATCHER_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
+        "Whenever a creature you control becomes tapped, you gain 1 life.",
+        TriggerEventDef::tapped(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+        ])),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )];
+    let watcher_definition = CardDefinitionId::new(10_520);
+    let mut definition = CardDefinition::new(
+        watcher_definition,
+        "Tap-event watcher",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules =
+        CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_abilities(&WATCHER_ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).expect("the watcher fixture is valid");
+    game.battlefield
+        .push(creature(70_019, watcher_definition, PlayerId::One));
+    let skeleton = put_in_graveyard(
+        &mut game,
+        70_020,
+        cards::REASSEMBLING_SKELETON,
+        PlayerId::One,
+    );
+    game.players[0].mana_pool.black = 1;
+    game.players[0].mana_pool.colorless = 1;
+    let life = game.players[0].life;
+
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateAbility { source, .. } if *source == skeleton)
+        })
+        .expect("the graveyard activation is offered");
+    game.apply(PlayerId::One, activation).unwrap();
+    drain_pending(&mut game);
+
+    assert!(permanent(&game, cards::REASSEMBLING_SKELETON).tapped);
+    assert_eq!(
+        game.players[0].life, life,
+        "arriving tapped does not trigger a becomes-tapped ability",
+    );
+}
+
+#[test]
 fn an_exact_source_reference_does_not_follow_a_card_out_of_the_graveyard() {
     let mut game = ready();
     let skeleton = put_in_graveyard(

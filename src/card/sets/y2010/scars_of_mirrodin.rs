@@ -451,11 +451,6 @@ pub(in crate::card::sets) static REVOKE_EXISTENCE: CardRecord = CardRecord::new(
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            counters: None,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )),
 );
@@ -491,11 +486,6 @@ pub(in crate::card::sets) static SALVAGE_SCOUT: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ),
@@ -760,11 +750,6 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
             object: EffectRecipientDef::TriggeringObject,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            counters: None,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )),
 );
@@ -840,11 +825,6 @@ pub(in crate::card::sets) static LUMENGRID_DRAKE: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -1449,15 +1429,17 @@ pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord
                     owner: Some(PlayerRelation::Opponent),
                 })],
                 EffectDef::Sequence(&[
-                    EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
-                        counters: None,
-                        controller: Some(PlayerRelation::You),
-                        arrival_effect: None,
-                        attachment: None,
-                        tapped: true,
+                    EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        },
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            modifications: &[BattlefieldEntryModificationDef::Tapped],
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
                     },
                     EffectDef::Mill {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
@@ -1707,11 +1689,6 @@ static PSYCHIC_MIASMA_RETURN: EffectDef = EffectDef::IfCondition {
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        counters: None,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
 };
 
@@ -2267,15 +2244,16 @@ pub(in crate::card::sets) static KULDOTHA_PHOENIX: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Metalcraft — {4}: Return this card from your graveyard to the battlefield. Activate only during your upkeep and only if you control three or more artifacts.",
             &[AbilityCostDef::Mana(mana_cost!("{4}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                counters: None,
-                controller: Some(PlayerRelation::You),
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: crate::card::BattlefieldArrivalDef {
+                    controller: Some(PlayerRelation::You),
+                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                },
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard])
@@ -3057,11 +3035,6 @@ static VENSER_EMBLEM_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        counters: None,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
 );
 
@@ -3387,11 +3360,6 @@ pub(in crate::card::sets) static CORPSE_CUR: CardRecord = CardRecord::new(
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
-                        counters: None,
-                        controller: None,
-                        arrival_effect: None,
-                        attachment: None,
-                        tapped: false,
                     },
                 },
             ),
@@ -4515,11 +4483,6 @@ pub(in crate::card::sets) static NEUROK_REPLICA: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ),
@@ -4546,11 +4509,6 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
                 ),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         AbilityDef::triggered(

@@ -49,14 +49,9 @@ static OUTCOME_OWNED_BY_YOU: ObjectSetBindingIndex = ObjectSetBindingIndex::new(
 /// because afterwards the cards have new identities.
 static OUTCOME_RETURN_AND_DRAW: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,

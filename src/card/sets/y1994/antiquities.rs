@@ -49,14 +49,9 @@ pub(in crate::card::sets) static ARGIVIAN_ARCHAEOLOGIST: CardRecord =
                     },
                 )],
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                    tapped: false,
                 },
             )]),
     );
@@ -241,17 +236,12 @@ pub(in crate::card::sets) static HURKYLS_RECALL: CardRecord = CardRecord::new_wi
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::objects_owned_by_target(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 TargetIndex::PRIMARY,
             ),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )]),
 );
@@ -283,14 +273,9 @@ pub(in crate::card::sets) static RECONSTRUCTION: CardRecord = CardRecord::new_wi
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )]),
 );
@@ -1153,18 +1138,13 @@ pub(in crate::card::sets) static DRAGON_ENGINE: CardRecord = CardRecord::new_wit
 /// arrived in.
 static FELDONS_CANE_SHUFFLE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::matching_objects(
             ObjectPredicateDef::Any,
             &[ZoneKind::Graveyard],
             PlayerRelation::You,
         ),
         zone: ZoneKind::Library,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::Controller,
@@ -1400,14 +1380,9 @@ pub(in crate::card::sets) static OBELISK_OF_UNDOING: CardRecord = CardRecord::ne
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ]),
@@ -1466,14 +1441,9 @@ static RAKALITE_SHIELD: [EffectDef; 2] = [
             player: PlayerRelation::Any,
         },
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ))),
 ];

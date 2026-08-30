@@ -986,7 +986,6 @@ pub(in crate::card::sets) static SHOW_AND_TELL: CardRecord = CardRecord::new(
             reveal: false,
             destination: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
         },
     )),
 );
@@ -1418,7 +1417,6 @@ pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legac
             reveal: false,
             destination: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
         },
     )),
 );
@@ -2045,7 +2043,6 @@ static GOBLIN_LACKEY_TRIGGER: EffectDef = EffectDef::ChooseCards {
     reveal: false,
     destination: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
 };
 
 pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new_with_legacy_id(
@@ -2367,16 +2364,24 @@ static SNEAK_SACRIFICE_LATER: EffectDef =
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&SNEAK_SACRIFICES_IT));
 
 static SNEAK_HASTE: AbilityDef = abilities::haste();
-static SNEAK_ARRIVAL_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&SNEAK_HASTE);
+static SNEAK_HASTE_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&SNEAK_HASTE);
 
-/// Haste rides along with the arrival rather than being applied afterward:
-/// the permanent entering the battlefield is a new object.
+static SNEAK_AFTER_MOVE: [EffectDef; 2] = [
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(SNEAK_ARRIVAL)),
+        effect: SNEAK_HASTE_EFFECT,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+    SNEAK_SACRIFICE_LATER,
+];
+
+/// Haste and the delayed sacrifice are separate effects on the permanent
+/// created by the move.
 static SNEAK_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     binding: SNEAK_ARRIVAL,
     counters: None,
-    arrival_effect: Some(&SNEAK_ARRIVAL_EFFECT),
-    then: &SNEAK_SACRIFICE_LATER,
+    then: &EffectDef::Sequence(&SNEAK_AFTER_MOVE),
 };
 
 static A_CREATURE_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::matching(

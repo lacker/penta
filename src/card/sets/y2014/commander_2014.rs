@@ -62,14 +62,9 @@ static TITANIA_ABILITIES: [AbilityDef; 2] = [
         "When Titania enters, return target land card from your graveyard to the battlefield.",
         &A_LAND_CARD_IN_YOUR_GRAVEYARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     AbilityDef::triggered(

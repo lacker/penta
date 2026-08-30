@@ -1,9 +1,8 @@
 //! Reanimating something and saying what it now is.
 //!
 //! A permanent that enters the battlefield is a new object with a new
-//! identity, so a following effect would have nothing left to name -- the
-//! card in the graveyard and the creature on the battlefield do not share
-//! one. The clause therefore travels with the move.
+//! identity. The characteristic effect follows the move by explicitly
+//! resolving the graveyard card's zone-change successor.
 
 use super::*;
 
@@ -85,8 +84,8 @@ fn it_adds_black_and_zombie_without_removing_what_was_there() {
     assert!(subtypes.contains(&"Bear"), "and still a Bear");
 }
 
-/// The object it lands on is a new one, which is the whole reason the clause
-/// travels with the move rather than following it.
+/// The object it lands on is a new one, so the following characteristic
+/// effect must resolve the move's successor rather than reuse the old ID.
 #[test]
 fn the_permanent_is_not_the_card_that_was_in_the_graveyard() {
     let (mut game, spell, body) = board(cards::GRIZZLY_BEARS, PlayerId::Two);

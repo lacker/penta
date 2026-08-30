@@ -31,14 +31,9 @@ static ENDING_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMat
 };
 
 static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
@@ -87,14 +82,9 @@ static ANOTHER_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 /// read from is the one the creature had as it left the battlefield.
 static SOLITUDE_EXILES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::GainLife {
         recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
@@ -1046,14 +1036,9 @@ static KAVU_MODES: [AbilityDef; 2] = [
         "Exile up to one target card from a graveyard.",
         &A_CARD_IN_A_GRAVEYARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ),
 ];
@@ -1097,14 +1082,9 @@ static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
         )),
     }),
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::DamagedObject,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 );
 

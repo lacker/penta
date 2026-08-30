@@ -65,14 +65,9 @@ static LION_SASH_EXILE: [EffectDef; 2] = [
         then: &SASH_GROWS,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
 ];
 
@@ -125,7 +120,6 @@ static TOUCH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -244,14 +238,9 @@ static FIRST_STRIKE: AbilityDef = abilities::first_strike();
 
 static EMPEROR_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
@@ -588,14 +577,9 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
                 OTAWARA_CHANNEL_COST,
                 &ONE_NONLAND_PERMANENT,
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                    tapped: false,
                 },
             )
             .with_source_zones(&[ZoneKind::Hand])

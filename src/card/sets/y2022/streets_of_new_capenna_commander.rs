@@ -59,11 +59,6 @@ static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Graveyard,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
 };
 
 static CONVERTER_PAYS_A_TREASURE: [EffectDef; 2] = [

@@ -751,7 +751,7 @@ fn a_choice_that_puts_a_permanent_onto_the_battlefield_reconstructs_unanswered()
                 ..
             })
         ),
-        "the pending choice carries the resolution its arrival belongs to",
+        "the pending choice carries its composed post-move resolution",
     );
     assert_reconstructs(&game, "a creature chosen for the battlefield, unanswered");
 }

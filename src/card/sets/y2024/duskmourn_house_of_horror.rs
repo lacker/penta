@@ -41,15 +41,20 @@ static IT_WAS_A_CREATURE: TriggerConditionDef = TriggerConditionDef::SourceMatch
     object: ObjectPredicateDef::HasType(CardType::Creature),
 };
 
-static INNOCENCE_RETURNS: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    object: EffectRecipientDef::TriggeringZoneChangeResult,
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: Some(&ENDURES_AS_AN_ENCHANTMENT),
-    attachment: None,
-    tapped: false,
+static INNOCENCE_RETURNS: EffectDef = EffectDef::WithZoneMoveResult {
+    effect: &EffectDef::MoveToZone {
+        object: EffectRecipientDef::TriggeringZoneChangeResult,
+        zone: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+    },
+    binding: ObjectSetBindingIndex::PRIMARY,
+    then: &EffectDef::Apply {
+        recipient: EffectRecipientDef::binding_zone_change_successors(
+            ObjectSetBindingIndex::PRIMARY,
+        ),
+        effect: ENDURES_AS_AN_ENCHANTMENT,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
 };
 
 static ENDURING_INNOCENCE_ABILITIES: [AbilityDef; 3] = [
@@ -178,14 +183,9 @@ static A_NON_AVATAR_CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredica
 ]);
 
 static OVERLORD_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 /// The whole graveyard, not only what the mill just put there: the clause
@@ -666,6 +666,25 @@ static A_FLYING_COUNTER: TokenCountersDef = TokenCountersDef {
     amount: ValueDef::Constant(1),
 };
 
+const GHOST_VACUUM_RETURNED: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
+
+static GHOST_VACUUM_RETURN: EffectDef = EffectDef::WithZoneMoveResult {
+    effect: &EffectDef::ReturnLinkedExiles {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        zone: ZoneKind::Battlefield,
+        grant: None,
+        counters: Some(A_FLYING_COUNTER),
+        transformed: false,
+        controller: Some(PlayerRelation::You),
+    },
+    binding: GHOST_VACUUM_RETURNED,
+    then: &EffectDef::Apply {
+        recipient: EffectRecipientDef::binding_zone_change_successors(GHOST_VACUUM_RETURNED),
+        effect: AS_A_ONE_ONE_SPIRIT,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+};
+
 static GHOST_VACUUM_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::activated_with_targets(
         "{T}: Exile target card from a graveyard.",
@@ -686,17 +705,7 @@ static GHOST_VACUUM_ABILITIES: [AbilityDef; 2] = [
          the battlefield under your control with a flying counter on it. Each of them is a 1/1 \
          Spirit in addition to its other types. Activate only as a sorcery.",
         &VACUUM_CASH_IN_COST,
-        EffectDef::ReturnLinkedExiles {
-            // Only the creature cards: a Brainstorm the Vacuum ate stays
-            // exiled, still linked to a source that is no longer there.
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zone: ZoneKind::Battlefield,
-            grant: None,
-            counters: Some(A_FLYING_COUNTER),
-            arrival_effect: Some(&AS_A_ONE_ONE_SPIRIT),
-            transformed: false,
-            controller: Some(PlayerRelation::You),
-        },
+        GHOST_VACUUM_RETURN,
     )
     .with_activation_timing(ActivationTimingDef::SorcerySpeed),
 ];

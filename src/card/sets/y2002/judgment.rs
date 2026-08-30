@@ -1345,14 +1345,9 @@ pub(in crate::card::sets) static IRONSHELL_BEETLE: CardRecord = CardRecord::new(
 /// library the cards join is the one that gets randomized.
 static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),

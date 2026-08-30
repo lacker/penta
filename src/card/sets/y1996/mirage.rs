@@ -675,7 +675,6 @@ static FLASH_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     binding: FLASH_ARRIVAL,
     counters: None,
-    arrival_effect: None,
     then: &FLASH_UNLESS_PAID,
 };
 
@@ -1447,18 +1446,13 @@ static GRAVE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
         player: PlayerRelation::Any,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 );
 
-static GRAVE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
+static GRAVE_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_ability(&GRAVE_HASTE),
     AppliedEffectDef::add_ability(&GRAVE_EXILE_AT_END),
 ]);
@@ -1472,19 +1466,24 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_wit
     // that wants it is the one whose creature only has to attack once.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
         "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
-        EffectDef::MoveToZone {
-            counters: None,
-            object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                player: PlayerRefDef::EffectController,
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-            }),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            arrival_effect: Some(&GRAVE_ARRIVAL),
-            attachment: None,
-            controller: None,
-                    tapped: false,
-},
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::MoveToZone {
+                object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                    player: PlayerRefDef::EffectController,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                }),
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &EffectDef::Apply {
+                recipient: EffectRecipientDef::binding_zone_change_successors(
+                    ObjectSetBindingIndex::PRIMARY,
+                ),
+                effect: GRAVE_POST_MOVE_EFFECT,
+                duration: crate::card::ResolvedEffectDurationDef::Permanent,
+            },
+        },
     )),
 );
 

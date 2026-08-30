@@ -32,14 +32,9 @@ static FRACTURED_IDENTITY_EFFECTS: [EffectDef; 2] = [
         TargetIndex::PRIMARY,
     ))),
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 ];
 

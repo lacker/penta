@@ -61,7 +61,6 @@ static RETURN_THEN: EffectDef = EffectDef::PutOntoBattlefieldThen {
     )),
     binding: ObjectSetBindingIndex::PRIMARY,
     counters: None,
-    arrival_effect: None,
     then: &CREATE_TOKEN,
 };
 

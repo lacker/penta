@@ -45,11 +45,6 @@ static SERUM_POWDER_EXILE_AND_DRAW: [EffectDef; 2] = [
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,

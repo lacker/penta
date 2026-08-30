@@ -48,7 +48,6 @@ static BINDING_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -204,14 +203,9 @@ static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_o
 )];
 
 static TEAR_ASUNDER_EXILES: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    controller: None,
-    tapped: false,
 };
 
 // DMU 183 — Tear Asunder
@@ -353,14 +347,9 @@ static PARAGON_EXILE_CLAUSE: AbilityDef = abilities::dies_trigger(
 
 static PARAGON_EXILE_AND_GAIN: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::TriggeringZoneChangeResult,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,

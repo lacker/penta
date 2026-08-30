@@ -80,6 +80,27 @@ fn validate_effect_target_shapes(
         EffectDef::ForEachInBinding { effect, .. } => {
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
+        EffectDef::WithBattlefieldArrival { effect, arrival } => {
+            validate_battlefield_arrival_target_shapes(
+                effect,
+                arrival,
+                targets,
+                triggering_object_zone,
+            )
+        }
+        EffectDef::WithZoneMoveResult {
+            effect,
+            binding,
+            then,
+        } => {
+            validate_zone_move_result_target_shapes(
+                effect,
+                binding,
+                then,
+                targets,
+                triggering_object_zone,
+            )
+        }
         EffectDef::PayOr(payment) => {
             validate_payment_shape(payment.payment, targets)?;
             for effect in payment.if_paid.iter().chain(payment.otherwise.iter()) {
@@ -412,25 +433,12 @@ fn validate_effect_target_shapes(
         | EffectDef::PutSpellIntoOwnersLibrary { object }
         | EffectDef::Endure { object, .. }
         | EffectDef::ChooseCounterKind { object, .. }
-        | EffectDef::ModifyCounters { object, .. } => {
+        | EffectDef::ModifyCounters { object, .. }
+        | EffectDef::MoveToZone { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)
         }
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_shape(copy.object, targets, RecipientExpectation::Object)
-        }
-        EffectDef::MoveToZone {
-            object, attachment, ..
-        } => {
-            validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
-            match attachment {
-                None | Some(ArrivalAttachmentDef::SourceToArrival) => Ok(()),
-                Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
-                    validate_object_reference_shape(host, targets)
-                }
-                Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
-                    validate_player_reference_shape(player, targets)
-                }
-            }
         }
         EffectDef::Destroy {
             object,
@@ -444,9 +452,19 @@ fn validate_effect_target_shapes(
         | EffectDef::MayCastTargetWithoutPaying { object, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Any)
         }
-        EffectDef::PutOntoBattlefieldThen { object, then, .. } => {
+        EffectDef::PutOntoBattlefieldThen {
+            object,
+            binding,
+            then,
+            ..
+        } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+            validate_zone_move_follow_up_shapes(
+                *then,
+                Some(EffectRecipientDef::objects(ObjectSetDef::Binding(binding))),
+                targets,
+                triggering_object_zone,
+            )
         }
         // A player keeps counters too -- experience is put on the player
         // rather than on anything they control -- so this admits either.

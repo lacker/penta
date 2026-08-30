@@ -105,16 +105,11 @@ static RAGAVAN_IS_EXILED_AT_END_OF_COMBAT: EffectDef =
             player: PlayerRelation::Any,
         },
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
                 ObjectSetBindingIndex::PRIMARY,
             )),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )));
 

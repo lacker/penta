@@ -988,14 +988,9 @@ pub(in crate::card::sets) static BOOMERANG: CardRecord = CardRecord::new_with_le
             ObjectPredicateDef::Any,
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -1179,14 +1174,9 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 )],
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 },
             ),
         ],
@@ -1906,14 +1896,9 @@ pub(in crate::card::sets) static CYCLOPEAN_MUMMY: CardRecord = CardRecord::new_w
         abilities::dies_trigger(
             "When this creature dies, exile it.",
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::TriggeringZoneChangeResult,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ),
@@ -2148,14 +2133,9 @@ pub(in crate::card::sets) static HELLS_CARETAKER: CardRecord = CardRecord::new_w
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         )
         .with_activation_timing(ActivationTimingDef::YourUpkeep),
@@ -2639,14 +2619,9 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
                 )],
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 },
             ),
         ],
@@ -4153,14 +4128,9 @@ pub(in crate::card::sets) static SUBDUE: CardRecord = CardRecord::new_with_legac
 
 // LEG 207 — Sylvan Library
 static SYLVAN_PUT_BACK: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Library,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    controller: None,
-    tapped: false,
 };
 
 static SYLVAN_SETTLE_CARD: EffectDef = EffectDef::PayOr(PayOrDef::unless(
@@ -4398,14 +4368,9 @@ pub(in crate::card::sets) static ADUN_OAKENSHIELD: CardRecord = CardRecord::new_
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         )),
 );
@@ -6138,14 +6103,9 @@ pub(in crate::card::sets) static KARAKAS: CardRecord = CardRecord::new_with_lega
                     ]),
                 )],
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                    tapped: false,
                 },
             ),
         ]),

@@ -24,14 +24,9 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             "Return target permanent to its owner's hand. Exile Reality Strobe with three time counters on it.",
             &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any)],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
@@ -69,11 +64,6 @@ pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            counters: None,
-            tapped: false,
         },
     )),
 );
@@ -83,11 +73,6 @@ static NARCOMOEBA_ENTERS: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::Source,
     zone: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
 };
 
 pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
@@ -170,11 +155,6 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: false,
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -318,11 +298,6 @@ static EPOCHRASITE_RETURNS: [EffectDef; 3] = [
         object: EffectRecipientDef::TriggeringZoneChangeResult,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
     EffectDef::AddCounters {
         object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
@@ -377,17 +352,18 @@ static A_ONE_ONE_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
 /// The attachment rides the return rather than following it: what comes back
 /// from the graveyard is a new object, so a later effect would have nothing
 /// left to name.
-static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::MoveToZone {
-    counters: None,
-    object: EffectRecipientDef::Source,
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
-        ObjectRefDef::TriggeringObject,
-    )),
-    tapped: false,
+static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::WithBattlefieldArrival {
+    effect: &EffectDef::MoveToZone {
+        object: EffectRecipientDef::Source,
+        zone: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+    },
+    arrival: crate::card::BattlefieldArrivalDef {
+        attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
+            ObjectRefDef::TriggeringObject,
+        )),
+        ..crate::card::BattlefieldArrivalDef::DEFAULT
+    },
 };
 
 static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [

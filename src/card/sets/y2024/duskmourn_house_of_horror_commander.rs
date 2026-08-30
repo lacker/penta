@@ -45,15 +45,16 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
             "When this creature enters, return up to one target creature card from your graveyard \
              to the battlefield with a lifelink counter on it.",
             &A_CREATURE_IN_YOUR_GRAVEYARD,
-            EffectDef::MoveToZone {
-                counters: Some(A_LIFELINK_COUNTER),
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                controller: None,
-                placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: crate::card::BattlefieldArrivalDef {
+                    counters: Some(A_LIFELINK_COUNTER),
+                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                },
             },
         ),
         abilities::miracle(mana_cost!("{1}{B}")),

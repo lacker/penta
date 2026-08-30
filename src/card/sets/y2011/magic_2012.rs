@@ -4,10 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CopyAbilityDef, CopyExceptionsDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -74,11 +75,6 @@ pub(in crate::card::sets) static ARCHON_OF_JUSTICE: CardRecord = CardRecord::new
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -137,11 +133,6 @@ pub(in crate::card::sets) static CELESTIAL_PURGE: CardRecord = CardRecord::new(
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            counters: None,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )),
 );
@@ -505,11 +496,6 @@ pub(in crate::card::sets) static AETHER_ADEPT: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                counters: None,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ),
@@ -1175,15 +1161,16 @@ pub(in crate::card::sets) static REASSEMBLING_SKELETON: CardRecord = CardRecord:
         AbilityDef::activated(
             "{1}{B}: Return this card from your graveyard to the battlefield tapped.",
             &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::object(ObjectRefDef::Source),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: true,
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::object(ObjectRefDef::Source),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: crate::card::BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                },
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -1920,11 +1907,6 @@ pub(in crate::card::sets) static RECLAIM: CardRecord = CardRecord::new(
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
-            counters: None,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )),
 );

@@ -10,6 +10,26 @@ use crate::card::{EffectDef, EffectRecipientDef};
 use crate::game::GameObjectId;
 
 impl Game {
+    pub(super) fn matching_linked_exiles(
+        &self,
+        predicate: crate::card::ObjectPredicateDef,
+        object: &StackObject,
+    ) -> Vec<Target> {
+        let source = object.source.unwrap_or(object.id);
+        self.linked_exiles
+            .iter()
+            .filter(|(exiled_by, _)| *exiled_by == source)
+            .map(|(_, card)| *card)
+            .filter(|card| {
+                self.card_in_nonbattlefield_zone(*card)
+                    .is_some_and(|(zone, instance)| {
+                        self.card_object_matches(predicate, instance, zone, source)
+                    })
+            })
+            .map(Target::Card)
+            .collect()
+    }
+
     /// Turns a linked exile face down. That is a fact about the exile rather
     /// than about who may play the card: what it buys the owner is a look at
     /// their own pile, and everybody else a count of it.
@@ -111,21 +131,16 @@ impl Game {
                 zone,
                 grant,
                 counters,
-                arrival_effect,
                 controller,
                 transformed,
             } => {
                 let source = object.source.unwrap_or(object.id);
                 let returning = self
-                    .linked_exiles
-                    .iter()
-                    .filter(|(exiled_by, _)| *exiled_by == source)
-                    .map(|(_, card)| *card)
-                    .filter(|card| {
-                        self.card_in_nonbattlefield_zone(*card)
-                            .is_some_and(|(zone, instance)| {
-                                self.card_object_matches(predicate, instance, zone, source)
-                            })
+                    .matching_linked_exiles(predicate, object)
+                    .into_iter()
+                    .filter_map(|target| match target {
+                        Target::Card(card) => Some(card),
+                        _ => None,
                     })
                     .collect::<Vec<_>>();
                 // Only what comes back stops being linked: a pile the clause
@@ -156,7 +171,7 @@ impl Game {
                     }
                 });
                 for card in returning {
-                    let arrived = self.return_exiled_card(
+                    self.return_exiled_card(
                         card,
                         zone,
                         grant,
@@ -164,11 +179,6 @@ impl Game {
                         transformed,
                         counters,
                     );
-                    // Applied as the move happens: what arrives is a new
-                    // object, so a later effect would have nothing to name.
-                    if let (Some(effect), Some(arrived)) = (arrival_effect, arrived) {
-                        self.apply_arrival_effect(arrived, *effect, object, context, scoped);
-                    }
                 }
             }
             _ => {}

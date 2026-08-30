@@ -33,7 +33,6 @@ static EPHEMERATE_BLINKS: [EffectDef; 3] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -143,14 +142,9 @@ static WINDS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
 
 static WINDS_SINGLE: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Exile,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     // The searcher is the creature's controller, read from the announced
     // target: by now the creature is in exile and cannot be asked.
@@ -187,14 +181,9 @@ static WINDS_OVERLOADED_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
 /// off that binding rather than off a board the creatures have left.
 static WINDS_OVERLOADED_STEPS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Exile,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::SearchZone {
         player: EffectRecipientDef::Opponent,
@@ -857,14 +846,9 @@ static WRENN_ABILITIES: [AbilityDef; 3] = [
         &[AbilityCostDef::Loyalty(1)],
         &UP_TO_ONE_LAND_IN_YOUR_GRAVEYARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ),
     AbilityDef::activated_with_targets(

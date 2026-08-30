@@ -4,9 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
     CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ResolvedEffectDurationDef, TopCardSelectionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
+use crate::ids::ObjectSetBindingIndex;
 use crate::mana_cost;
 
 // CHK 193 — Through the Breach
@@ -30,23 +31,32 @@ static BREACH_SACRIFICE_AT_END: AbilityDef = AbilityDef::triggered(
     },
 );
 
-static BREACH_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
+static BREACH_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_ability(&BREACH_HASTE),
     AppliedEffectDef::add_ability(&BREACH_SACRIFICE_AT_END),
 ]);
 
 /// A minimum of zero is the printed "you may": the offer may be answered
 /// with nothing, and with no creature in hand it is never made at all.
-static BREACH_PUT_ONTO_BATTLEFIELD: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &A_CREATURE_CARD_IN_HAND,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    arrival_effect: Some(&BREACH_ARRIVAL),
+static BREACH_PUT_ONTO_BATTLEFIELD: EffectDef = EffectDef::WithZoneMoveResult {
+    effect: &EffectDef::ChooseCards {
+        player: EffectRecipientDef::Controller,
+        sources: &A_CREATURE_CARD_IN_HAND,
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        minimum: 0,
+        maximum: 1,
+        reveal: false,
+        destination: ZoneKind::Battlefield,
+        placement: ZonePlacement::Top,
+    },
+    binding: ObjectSetBindingIndex::PRIMARY,
+    then: &EffectDef::Apply {
+        recipient: EffectRecipientDef::binding_zone_change_successors(
+            ObjectSetBindingIndex::PRIMARY,
+        ),
+        effect: BREACH_POST_MOVE_EFFECT,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
 };
 
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
@@ -115,14 +125,9 @@ static TOP_DRAWS_AND_LEAVES: [EffectDef; 2] = [
         amount: ValueDef::Constant(1),
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
 ];
 

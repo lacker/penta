@@ -898,12 +898,11 @@ impl Game {
                 reveal,
                 destination,
                 placement,
-                arrival_effect,
             } => {
                 let source = object.source.unwrap_or(object.id);
                 for target in self.effect_recipients(recipient, object, context, scoped) {
                     if let Target::Player(player) = target {
-                        self.queue_owned_card_choice(
+                        let _ = self.queue_owned_card_choice(
                             player,
                             sources,
                             predicate,
@@ -912,9 +911,7 @@ impl Game {
                             reveal,
                             destination,
                             placement,
-                            // Only a battlefield arrival can carry anything,
-                            // and only the clauses that print one do.
-                            arrival_effect.map(|_| (object.clone(), context.clone(), scoped)),
+                            None,
                             source,
                             object.controller,
                         );

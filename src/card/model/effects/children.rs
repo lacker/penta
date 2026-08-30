@@ -33,9 +33,11 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::RevealAtRandomFromHand { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
+        | EffectDef::WithBattlefieldArrival { effect, .. }
         | EffectDef::ExileLinkedToSource {
             then: Some(effect), ..
         } => vec![*effect],
+        EffectDef::WithZoneMoveResult { effect, then, .. } => vec![*effect, *then],
         EffectDef::ChooseEffect { choices, .. } => {
             choices.iter().map(|choice| choice.effect).collect()
         }
@@ -177,8 +179,8 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
 mod tests {
     use super::*;
     use crate::card::{
-        CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef, MillUntilDef, ObjectPredicateDef,
-        TokenCharacteristics, ValueDef, ZoneKind,
+        BattlefieldEntryModificationDef, CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef,
+        MillUntilDef, ObjectPredicateDef, TokenCharacteristics, ValueDef, ZoneKind, ZonePlacement,
     };
     use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 
@@ -207,6 +209,40 @@ mod tests {
             vec![CHILD],
         );
         assert!(child_effects(create(None)).is_empty());
+    }
+
+    #[test]
+    fn battlefield_arrival_wraps_a_zone_move() {
+        static MOVE: EffectDef = EffectDef::MoveToZone {
+            object: EffectRecipientDef::Source,
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        };
+        let wrapped = EffectDef::WithBattlefieldArrival {
+            effect: &MOVE,
+            arrival: super::super::BattlefieldArrivalDef {
+                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                ..super::super::BattlefieldArrivalDef::DEFAULT
+            },
+        };
+
+        assert_eq!(child_effects(wrapped), vec![MOVE]);
+    }
+
+    #[test]
+    fn zone_move_result_exposes_the_move_and_follow_up() {
+        static MOVE: EffectDef = EffectDef::MoveToZone {
+            object: EffectRecipientDef::Source,
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        };
+        let wrapped = EffectDef::WithZoneMoveResult {
+            effect: &MOVE,
+            binding: ObjectSetBindingIndex::PRIMARY,
+            then: &CHILD,
+        };
+
+        assert_eq!(child_effects(wrapped), vec![MOVE, CHILD]);
     }
 
     #[test]

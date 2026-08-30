@@ -36,7 +36,6 @@ static JACE_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,

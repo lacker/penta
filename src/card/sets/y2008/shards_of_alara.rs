@@ -163,7 +163,6 @@ static TIDEHOLLOW_SCULLER_ABILITIES: [AbilityDef; 2] = [
         EffectDef::ReturnLinkedExiles {
             object: ObjectPredicateDef::Any,
             counters: None,
-            arrival_effect: None,
             zone: ZoneKind::Hand,
             grant: None,
             controller: None,

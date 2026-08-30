@@ -55,14 +55,9 @@ const fn petty_theft_rules() -> CardRules {
                 "Return target nonland permanent an opponent controls to its owner's hand.",
                 &A_NONLAND_PERMANENT_THEY_CONTROL,
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                    tapped: false,
                 },
             )
             .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),

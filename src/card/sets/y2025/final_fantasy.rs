@@ -161,14 +161,9 @@ static SUPLEX_MODES: [AbilityDef; 2] = [
         "Exile target artifact.",
         &AN_ARTIFACT,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ),
 ];

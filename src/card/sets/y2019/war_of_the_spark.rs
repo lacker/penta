@@ -476,14 +476,9 @@ static TAMIYO_ABILITIES: [AbilityDef; 3] = [
         &[AbilityCostDef::Loyalty(-3)],
         &TAMIYO_RETURN_TARGET,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
 ];
@@ -539,14 +534,9 @@ static AN_ARTIFACT_CREATURE_OR_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTarg
 /// ability resolves and draws whether or not anything was named.
 static TEFERI_BOUNCES_AND_DRAWS: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Hand,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,

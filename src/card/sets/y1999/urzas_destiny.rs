@@ -201,14 +201,9 @@ pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
         "Return all enchantment cards from your graveyard to the battlefield.",
         EffectDef::MoveToZone {
-            counters: None,
             object: ENCHANTMENTS_IN_YOUR_GRAVEYARD,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );

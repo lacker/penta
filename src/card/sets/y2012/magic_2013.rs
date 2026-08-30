@@ -337,14 +337,9 @@ pub(in crate::card::sets) static ERASE: CardRecord = CardRecord::new_with_legacy
             ObjectPredicateDef::HasType(CardType::Enchantment),
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -498,7 +493,6 @@ then: None,
             EffectDef::ReturnLinkedExiles {
                 object: ObjectPredicateDef::Any,
                 counters: None,
-                arrival_effect: None,
                 zone: ZoneKind::Battlefield,
                 grant: None,
                 controller: None,
@@ -818,14 +812,9 @@ pub(in crate::card::sets) static ARCHAEOMANCER: CardRecord = CardRecord::new_wit
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })], EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                            tapped: false,
 }),
     ),
 );
@@ -1338,24 +1327,14 @@ pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
 // M13 69 — Sphinx of Uthuun
 static SPHINX_OF_UTHUUN_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::CHOSEN_PILE,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::UNCHOSEN_PILE,
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 ]);
 
@@ -1797,14 +1776,9 @@ pub(in crate::card::sets) static DISENTOMB: CardRecord = CardRecord::new_with_le
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -2158,16 +2132,27 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
                 owner: None,
             },
         )],
-        EffectDef::MoveToZone {
-            counters: None,
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            controller: Some(PlayerRelation::You),
-            placement: ZonePlacement::Top,
-            arrival_effect: Some(&A_BLACK_ZOMBIE_AS_WELL),
-            attachment: None,
-                    tapped: false,
-},
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: crate::card::BattlefieldArrivalDef {
+                    controller: Some(PlayerRelation::You),
+                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                },
+            },
+            binding: crate::ObjectSetBindingIndex::PRIMARY,
+            then: &EffectDef::Apply {
+                recipient: EffectRecipientDef::binding_zone_change_successors(
+                    crate::ObjectSetBindingIndex::PRIMARY,
+                ),
+                effect: A_BLACK_ZOMBIE_AS_WELL,
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        },
     )),
 );
 
@@ -2284,14 +2269,9 @@ pub(in crate::card::sets) static VILE_REBIRTH: CardRecord = CardRecord::new_with
         )],
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
             EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
                 CardArt::new("1966d7e6-cd4a-47ff-bc3e-f8e0db8a3439", "Lucas Graciano"),
@@ -3086,11 +3066,6 @@ pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new_with_le
                 ),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: false,
             },
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::matching_objects(
@@ -3100,11 +3075,6 @@ pub(in crate::card::sets) static WORLDFIRE: CardRecord = CardRecord::new_with_le
                 ),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: false,
             },
             EffectDef::SetLifeTotal {
                 recipient: EffectRecipientDef::players(PlayerSetDef::All),
@@ -3647,14 +3617,9 @@ pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new_with_legac
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );

@@ -107,6 +107,8 @@ EffectDef::ReduceGenericCostBy(_) | EffectDef::ModifyCost(_) |
 EffectDef::LandwalkCanBeBlocked(_) | EffectDef::CannotAttackUnless(_) |
 EffectDef::CannotAttackIf(_) | EffectDef::PutIntoLibraryBeneathTop { .. } |
 EffectDef::MoveToZone { .. } |
+EffectDef::WithBattlefieldArrival { .. } |
+EffectDef::WithZoneMoveResult { .. } |
 EffectDef::Attach { .. } | EffectDef::AttachToSource { .. } |
 EffectDef::PairWithSource { .. } | EffectDef::Reconfigure { .. } |
 EffectDef::Unattach { .. } | EffectDef::PhaseOut { .. } |

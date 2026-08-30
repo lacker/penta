@@ -372,9 +372,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     shared_stack_effect_at_position(*effect, deferred_decision_allowed)
                 })
         }
-        // Everything it does belongs to the arrival, so what is left to
-        // check is that the card it takes is one the shared walk can name
-        // and that the follow-up naming the arrival is itself supported.
+        // The move binds the permanent it created, so what is left to check
+        // is that the card it takes and the composed follow-up are supported.
         EffectDef::PutOntoBattlefieldThen {
             object: recipient,
             then,
@@ -624,6 +623,22 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::ForEachInBinding { effect, .. } => {
             shared_stack_effect_at_position(*effect, deferred_decision_allowed)
         }
+        EffectDef::WithBattlefieldArrival { effect, arrival } => {
+            shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+                && match arrival.attachment {
+                    None | Some(ArrivalAttachmentDef::SourceToArrival) => true,
+                    Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
+                        shared_effect_recipient(EffectRecipientDef::object(host))
+                    }
+                    Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
+                        shared_effect_recipient(EffectRecipientDef::player(player))
+                    }
+                }
+        }
+        EffectDef::WithZoneMoveResult { effect, then, .. } => {
+            shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+                && shared_stack_effect_at_position(*then, true)
+        }
         // Installing an ability is a resolution like any other; what it
         // installs has to be an ability the shared runtime can fire.
         EffectDef::InstallTrigger(trigger) => shared_definition_ability(trigger.ability),
@@ -681,12 +696,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         } => shared_resolving_apply(recipient, effect, duration),
         // Only the moves the runtime actually performs are inside the
         // boundary. A move to the stack or command zone is still a seam.
-        EffectDef::MoveToZone {
-            object,
-            zone,
-            attachment,
-            ..
-        } => {
+        EffectDef::MoveToZone { object, zone, .. } => {
             matches!(
                 zone,
                 ZoneKind::Battlefield
@@ -695,15 +705,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     | ZoneKind::Exile
                     | ZoneKind::Library
             ) && shared_effect_recipient(object)
-                && match attachment {
-                    None | Some(ArrivalAttachmentDef::SourceToArrival) => true,
-                    Some(ArrivalAttachmentDef::ArrivalToHost(host)) => {
-                        shared_effect_recipient(EffectRecipientDef::object(host))
-                    }
-                    Some(ArrivalAttachmentDef::ArrivalToPlayer(player)) => {
-                        shared_effect_recipient(EffectRecipientDef::player(player))
-                    }
-                }
         }
         EffectDef::None | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice

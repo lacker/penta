@@ -643,6 +643,24 @@ impl Game {
             .collect()
     }
 
+    fn zone_change_successors_of_binding(
+        &self,
+        binding: crate::ObjectSetBindingIndex,
+        context: &EffectResolutionContext,
+    ) -> Vec<Target> {
+        context
+            .object_group(binding)
+            .iter()
+            .filter_map(|bound| match bound {
+                Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => {
+                    self.zone_change_successor_target(*id)
+                }
+                Target::Player(_) => None,
+            })
+            .collect()
+    }
+
+    #[allow(clippy::too_many_lines)]
     pub(super) fn effect_objects(
         &self,
         objects: ObjectSetDef,
@@ -663,6 +681,9 @@ impl Game {
                     .collect()
             }
             ObjectSetDef::Binding(binding) => context.object_group(binding).to_vec(),
+            ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding) => {
+                self.zone_change_successors_of_binding(binding, context)
+            }
             ObjectSetDef::CardsDrawnThisTurnInHand(player) => {
                 let Some(player) = self.player_reference(player, object, context, scoped) else {
                     return Vec::new();

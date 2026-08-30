@@ -381,6 +381,10 @@ pub(super) enum ArrivalAttachment {
 pub(super) struct BattlefieldArrival {
     pub(super) controller: PlayerId,
     pub(super) tapped: bool,
+    /// Instruction-level state composed around the move. These modify the
+    /// prospective permanent before replacement effects and entry triggers
+    /// observe it.
+    pub(super) modifications: &'static [BattlefieldEntryModificationDef],
     /// The attachment this permanent makes as it enters, in whichever
     /// direction. "Put target creature card onto the battlefield and attach
     /// this to it" cannot be two steps: what arrives is a new object, and by
@@ -409,6 +413,7 @@ impl BattlefieldArrival {
         Self {
             controller,
             tapped: false,
+            modifications: &[],
             transformed: false,
             attachment: None,
             face_down: None,
@@ -427,6 +432,7 @@ impl BattlefieldArrival {
         Self {
             controller,
             tapped: false,
+            modifications: &[],
             transformed: false,
             attachment: None,
             face_down: Some(face_down),
@@ -439,6 +445,7 @@ impl BattlefieldArrival {
         Self {
             controller,
             tapped: true,
+            modifications: &[],
             transformed: false,
             attachment: None,
             face_down: None,
@@ -451,12 +458,21 @@ impl BattlefieldArrival {
         Self {
             controller,
             tapped: false,
+            modifications: &[],
             transformed: true,
             attachment: None,
             face_down: None,
             turn_up_for_mana_cost: false,
             counters: None,
         }
+    }
+
+    pub(super) const fn with_modifications(
+        mut self,
+        modifications: &'static [BattlefieldEntryModificationDef],
+    ) -> Self {
+        self.modifications = modifications;
+        self
     }
 
     /// The resolving source attaches to what arrives.

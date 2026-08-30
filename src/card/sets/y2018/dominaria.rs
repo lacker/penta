@@ -49,14 +49,9 @@ static YOUR_SILVER_CARDS: ObjectQueryDef = ObjectQueryDef::owned_by(
 );
 
 static KARN_RETURNS_IT: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 /// "This token gets +1/+1 for each artifact you control", which counts the
@@ -182,25 +177,15 @@ static TEFERI_TUCK_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 /// and unlike a bounce it answers a permanent that would rather be in a hand
 /// or a graveyard.
 static TEFERI_TUCKS_IT: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Library,
     placement: ZonePlacement::FromTop(3),
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 static TEFERI_EMBLEM_EXILES_IT: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 static TEFERI_EMBLEM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(

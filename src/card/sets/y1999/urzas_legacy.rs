@@ -883,14 +883,9 @@ pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
              battlefield.",
             &A_SMALL_CREATURE_IN_YOUR_GRAVEYARD,
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
         abilities::cycling(
@@ -1325,14 +1320,9 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
             // It is the same trigger either way, and the card that comes back
             // is the one already in the graveyard.
             abilities::dies_trigger("When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.", EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::TriggeringZoneChangeResult,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 }),
         ]),
 );
@@ -1574,7 +1564,6 @@ static JAR_GIVES_THEM_BACK: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Hand,
         grant: None,
         controller: None,

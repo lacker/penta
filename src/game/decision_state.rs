@@ -327,11 +327,8 @@ pub(super) enum DecisionContinuation {
         destination: ZoneKind,
         placement: ZonePlacement,
         reveal: bool,
-        /// The resolution this choice belongs to, carried only when the
-        /// choice puts a permanent onto the battlefield carrying something.
-        /// What it arrives with is read back off the effect itself, so the
-        /// continuation stores the resolution rather than a second copy of
-        /// the printed clause.
+        /// The resolution this choice belongs to when a composed follow-up
+        /// needs the identities created by moving the chosen cards.
         arrival: Option<Box<SearchFollowUp>>,
     },
     /// The affected player chooses which of several applicable next-draw

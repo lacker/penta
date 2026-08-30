@@ -5,11 +5,12 @@
 //! here is one clause whose parameters all describe the same arrival.
 
 use super::{
-    ArrivalAttachment, ArrivalAttachmentDef, BattlefieldArrival, EffectResolutionContext, Game,
-    ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    ArrivalAttachment, ArrivalAttachmentDef, BattlefieldArrival, EffectDef,
+    EffectResolutionContext, Game, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause,
+    ZonePlacement,
 };
 use crate::card::{
-    AppliedEffectDef, CounterKind, EffectRecipientDef, PlayerRelation, TokenCountersDef,
+    BattlefieldArrivalDef, CounterKind, EffectRecipientDef, PlayerRelation, TokenCountersDef,
 };
 
 /// How a permanent this effect moves arrives, when it arrives at all.
@@ -20,17 +21,17 @@ fn battlefield_arrival(
     arriving_controller: Option<crate::PlayerId>,
     attachment: Option<ArrivalAttachment>,
     counters: Option<(CounterKind, u16)>,
-    tapped: bool,
+    modifications: &'static [crate::card::BattlefieldEntryModificationDef],
 ) -> Option<BattlefieldArrival> {
-    if arriving_controller.is_none() && attachment.is_none() && counters.is_none() && !tapped {
+    if arriving_controller.is_none()
+        && attachment.is_none()
+        && counters.is_none()
+        && modifications.is_empty()
+    {
         return None;
     }
     let controller = arriving_controller.unwrap_or(owner);
-    let arrival = if tapped {
-        BattlefieldArrival::tapped_under(controller)
-    } else {
-        BattlefieldArrival::under(controller)
-    };
+    let arrival = BattlefieldArrival::under(controller).with_modifications(modifications);
     let arrival = match attachment {
         Some(ArrivalAttachment::SourceToArrival(source)) => arrival.attaching(source),
         Some(ArrivalAttachment::ArrivalToHost(host)) => arrival.attached_to(host),
@@ -48,13 +49,138 @@ pub(super) struct MoveToZoneClause {
     pub(super) zone: ZoneKind,
     pub(super) controller: Option<PlayerRelation>,
     pub(super) placement: ZonePlacement,
-    pub(super) arrival_effect: Option<&'static AppliedEffectDef>,
     pub(super) attachment: Option<ArrivalAttachmentDef>,
     pub(super) counters: Option<TokenCountersDef>,
-    pub(super) tapped: bool,
+    pub(super) modifications: &'static [crate::card::BattlefieldEntryModificationDef],
 }
 
 impl Game {
+    pub(super) fn resolve_move_to_zone_effect(
+        &mut self,
+        effect: EffectDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        let (move_effect, arrival) = match effect {
+            effect @ EffectDef::MoveToZone { .. } => (effect, BattlefieldArrivalDef::DEFAULT),
+            EffectDef::WithBattlefieldArrival {
+                effect: move_effect @ &EffectDef::MoveToZone { .. },
+                arrival,
+            } => (*move_effect, arrival),
+            EffectDef::WithBattlefieldArrival { .. } => {
+                unreachable!("battlefield arrival must wrap a zone move")
+            }
+            _ => unreachable!("move-to-zone resolver received another effect"),
+        };
+        let EffectDef::MoveToZone {
+            object: recipient,
+            zone,
+            placement,
+        } = move_effect
+        else {
+            unreachable!("move effect was checked above")
+        };
+        self.resolve_move_to_zone(
+            MoveToZoneClause {
+                recipient,
+                zone,
+                controller: arrival.controller,
+                placement,
+                attachment: arrival.attachment,
+                counters: arrival.counters,
+                modifications: arrival.modifications,
+            },
+            object,
+            context,
+            scoped,
+        );
+    }
+
+    pub(super) fn resolve_zone_move_result(
+        &mut self,
+        effect: &'static EffectDef,
+        binding: crate::ObjectSetBindingIndex,
+        then: &'static EffectDef,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        let move_recipient = match effect {
+            EffectDef::MoveToZone {
+                object: recipient, ..
+            } => Some(*recipient),
+            EffectDef::WithBattlefieldArrival { effect: inner, .. } => match **inner {
+                EffectDef::MoveToZone {
+                    object: recipient, ..
+                } => Some(recipient),
+                _ => unreachable!("battlefield arrival must wrap a zone move"),
+            },
+            _ => None,
+        };
+        if let Some(recipient) = move_recipient {
+            let moved = self.effect_recipients(recipient, object, &context, scoped);
+            context.bind_object_group(binding, moved);
+            self.resolve_effects_in_order(
+                vec![scoped.with_effect(*effect), scoped.with_effect(*then)],
+                object,
+                context,
+                None,
+            );
+            return;
+        }
+
+        match effect {
+            EffectDef::ReturnLinkedExiles {
+                object: predicate, ..
+            } => {
+                let moved = self.matching_linked_exiles(*predicate, object);
+                context.bind_object_group(binding, moved);
+                self.resolve_effects_in_order(
+                    vec![scoped.with_effect(*effect), scoped.with_effect(*then)],
+                    object,
+                    context,
+                    None,
+                );
+            }
+            EffectDef::ChooseCards {
+                player: recipient,
+                sources,
+                object: predicate,
+                minimum,
+                maximum,
+                reveal,
+                destination,
+                placement,
+            } => {
+                let source = object.source.unwrap_or(object.id);
+                let mut queued = false;
+                for target in self.effect_recipients(*recipient, object, &context, scoped) {
+                    if let Target::Player(player) = target {
+                        queued |= self.queue_owned_card_choice(
+                            player,
+                            sources,
+                            *predicate,
+                            *minimum,
+                            *maximum,
+                            *reveal,
+                            *destination,
+                            *placement,
+                            Some((object.clone(), context.clone(), scoped)),
+                            source,
+                            object.controller,
+                        );
+                    }
+                }
+                if !queued {
+                    context.bind_object_group(binding, Vec::new());
+                    self.resolve_effect_def(scoped.with_effect(*then), object, context);
+                }
+            }
+            _ => unreachable!("zone-move result must wrap a zone-moving effect"),
+        }
+    }
+
     fn resolved_arrival_counters(
         &self,
         counters: Option<TokenCountersDef>,
@@ -102,10 +228,9 @@ impl Game {
             zone,
             controller,
             placement,
-            arrival_effect,
             attachment,
             counters,
-            tapped,
+            modifications,
         } = clause;
         let attachment = attachment
             .and_then(|attachment| self.arrival_attachment(attachment, object, context, scoped));
@@ -157,7 +282,7 @@ impl Game {
             if lost_its_host && self.moving_card_is_an_aura(target) {
                 continue;
             }
-            let arrived = self.move_target_to_zone(
+            self.move_target_to_zone(
                 target,
                 zone,
                 ZoneMoveCause::Effect {
@@ -171,16 +296,10 @@ impl Game {
                     arriving_controller,
                     attachment,
                     arriving_counters,
-                    tapped,
+                    modifications,
                 ),
                 placement,
             );
-            // Applied as the move happens: the identity a permanent gets on
-            // arrival is not the one the card had in the graveyard it came
-            // from, so a later effect would have nothing to name.
-            if let (Some(effect), Some(arrived)) = (arrival_effect, arrived) {
-                self.apply_arrival_effect(arrived, *effect, object, context, scoped);
-            }
         }
     }
 

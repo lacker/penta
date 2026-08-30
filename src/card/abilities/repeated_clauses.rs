@@ -13,11 +13,6 @@ static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
 };
 
 /// Reveal one player's hand, let the effect controller choose exactly one
@@ -83,7 +78,6 @@ static RETURN_EXILE_WHEN_SOURCE_LEAVES: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -119,7 +113,6 @@ static RETURN_EXILE_AT_NEXT_END_STEP: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -136,7 +129,6 @@ static RETURN_EXILE_AT_NEXT_END_STEP_UNDER_YOUR_CONTROL: AbilityDef = AbilityDef
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: Some(PlayerRelation::You),
@@ -182,7 +174,6 @@ pub const fn exile_until_next_end_step_under_your_control(
 static RETURN_LINKED_EXILES_TRANSFORMED: EffectDef = EffectDef::ReturnLinkedExiles {
     object: ObjectPredicateDef::Any,
     counters: None,
-    arrival_effect: None,
     zone: ZoneKind::Battlefield,
     grant: None,
     controller: Some(PlayerRelation::You),
@@ -258,7 +249,6 @@ static BRAINSTORM_STEPS: [EffectDef; 2] = [
         reveal: false,
         destination: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
     },
 ];
 
@@ -311,7 +301,6 @@ pub const fn shuffle_back_and_draw_seven() -> EffectDef {
 
 static WHEEL_STEPS: [EffectDef; 3] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::matching_objects(
             ObjectPredicateDef::Any,
             &[ZoneKind::Hand, ZoneKind::Graveyard],
@@ -319,10 +308,6 @@ static WHEEL_STEPS: [EffectDef; 3] = [
         ),
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-            tapped: false,
 },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::EachPlayer,

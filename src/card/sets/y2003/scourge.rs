@@ -212,14 +212,9 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
             "{3}{W}{W}: Return this card from your graveyard to your hand. Activate only during your upkeep.",
             &[AbilityCostDef::Mana(mana_cost!("{3}{W}{W}"))],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                            tapped: false,
 },
         )
         .with_source_zones(&[ZoneKind::Graveyard])
@@ -1122,17 +1117,19 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
                 ),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        controller: Some(PlayerRelation::You),
-                        placement: ZonePlacement::Top,
-                        arrival_effect: None,
-                        attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
-                            ObjectRefDef::TriggeringObject,
-                        )),
-                        counters: None,
-                        tapped: false,
+                    effect: &EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        },
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
+                                ObjectRefDef::TriggeringObject,
+                            )),
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
                     },
                 },
             )

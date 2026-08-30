@@ -89,39 +89,6 @@ impl Game {
         }
     }
 
-    /// Attach a continuous effect to a permanent that has just arrived,
-    /// under the resolving object's own source and timestamp. It lasts as
-    /// long as the permanent does, which is what "that creature is a black
-    /// Zombie" means with no duration printed.
-    pub(super) fn apply_arrival_effect(
-        &mut self,
-        arrived: GameObjectId,
-        effect: AppliedEffectDef,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) {
-        let timestamp = self.allocate_continuous_effect_timestamp();
-        let mut components = Vec::new();
-        Self::flatten_applied_effect(effect, &mut components);
-        for (index, component) in components.into_iter().enumerate() {
-            let component_order = u16::try_from(index)
-                .expect("one applied effect contains at most 65,536 components");
-            self.apply_applied_effect_component(
-                Target::Permanent(arrived),
-                component,
-                ResolvedAppliedEffect {
-                    duration: ResolvedEffectDurationDef::Permanent,
-                    timestamp,
-                    object,
-                    context,
-                    scoped,
-                    component_order,
-                },
-            );
-        }
-    }
-
     pub(super) fn resolve_applied_effect(
         &mut self,
         recipient: EffectRecipientDef,

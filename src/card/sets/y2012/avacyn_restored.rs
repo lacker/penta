@@ -32,7 +32,6 @@ static BLINK_UNDER_YOUR_CONTROL: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: Some(PlayerRelation::You),
@@ -175,14 +174,9 @@ pub(in crate::card::sets) static BANISHING_STROKE: CardRecord = CardRecord::new_
                 ]),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Bottom,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
         abilities::miracle(mana_cost!("{W}")),
@@ -547,14 +541,9 @@ pub(in crate::card::sets) static HOLY_JUSTICIAR: CardRecord = CardRecord::new_wi
                 EffectDef::IfCondition {
                     condition: &HOLY_JUSTICIAR_ZOMBIE,
                     then: &EffectDef::MoveToZone {
-                        counters: None,
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
-                        arrival_effect: None,
-                        attachment: None,
-                        controller: None,
-                        tapped: false,
                     },
                 },
             ]),
@@ -744,7 +733,6 @@ then: None,
                     EffectDef::ReturnLinkedExiles {
                         object: ObjectPredicateDef::Any,
                         counters: None,
-                        arrival_effect: None,
                         zone: ZoneKind::Battlefield,
                         grant: None,
                         controller: Some(PlayerRelation::You),
@@ -861,14 +849,9 @@ pub(in crate::card::sets) static TERMINUS: CardRecord = CardRecord::new_with_leg
         AbilityDef::spell(
             "Put all creatures on the bottom of their owners' libraries.",
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
                 zone: ZoneKind::Library,
-                controller: None,
                 placement: ZonePlacement::Bottom,
-                arrival_effect: None,
-                attachment: None,
-                            tapped: false,
 },
         )
         .with_coverage(AbilityCoverageDef::partial(
@@ -1359,14 +1342,9 @@ pub(in crate::card::sets) static INTO_THE_VOID: CardRecord = CardRecord::new_wit
             2,
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -1465,14 +1443,9 @@ pub(in crate::card::sets) static MIST_RAVEN: CardRecord = CardRecord::new_with_l
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ]),
@@ -1552,24 +1525,14 @@ pub(in crate::card::sets) static PEEL_FROM_REALITY: CardRecord = CardRecord::new
             ],
             EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 },
                 EffectDef::MoveToZone {
-                    counters: None,
                     object: EffectRecipientDef::Target(TargetIndex(1)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
-                    attachment: None,
-                    controller: None,
-                                    tapped: false,
 },
             ]),
         ),
@@ -1769,14 +1732,9 @@ pub(in crate::card::sets) static VANISHMENT: CardRecord = CardRecord::new_with_l
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
         abilities::miracle(mana_cost!("{U}")),
@@ -1947,14 +1905,9 @@ pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new_wit
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ),
@@ -2075,8 +2028,8 @@ pub(in crate::card::sets) static DESCENT_INTO_MADNESS: CardRecord = CardRecord::
 
 // AVR 98 — Dread Slaver
 /// "In addition to its other colors and types", so both leaves add rather
-/// than set. It travels with the move because the permanent that arrives is
-/// a new object: nothing following the move would still name it.
+/// than set. The follow-up targets the new permanent through the move's
+/// explicit successor binding.
 static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::Black])),
     AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Zombie"])),
@@ -2091,16 +2044,27 @@ pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Zombie", "Horror"], 3, 5).with_ability(
         abilities::creature_damaged_by_source_dies_trigger(
             "Whenever a creature dealt damage by this creature this turn dies, return it to the battlefield under your control. That creature is a black Zombie in addition to its other colors and types.",
-            EffectDef::MoveToZone {
-                counters: None,
-                object: EffectRecipientDef::TriggeringZoneChangeResult,
-                zone: ZoneKind::Battlefield,
-                controller: Some(PlayerRelation::You),
-                placement: ZonePlacement::Top,
-                arrival_effect: Some(&A_BLACK_ZOMBIE_AS_WELL),
-                attachment: None,
-                            tapped: false,
-},
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        controller: Some(PlayerRelation::You),
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
+                },
+                binding: crate::ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successors(
+                        crate::ObjectSetBindingIndex::PRIMARY,
+                    ),
+                    effect: A_BLACK_ZOMBIE_AS_WELL,
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            },
         ),
     ),
 );
@@ -2121,14 +2085,9 @@ pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::ne
                 controller: None,
                 owner: Some(PlayerRelation::You),
             })], EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                            tapped: false,
 }),
     ),
 );
@@ -2590,14 +2549,9 @@ pub(in crate::card::sets) static ARCHWING_DRAGON: CardRecord = CardRecord::new_w
                 player: PlayerRelation::Any,
             },
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                tapped: false,
             },
         ),
     ]),
@@ -4788,14 +4742,9 @@ pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord
                 controller: None,
                 owner: None,
             })], EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Library,
                 placement: ZonePlacement::Bottom,
-                arrival_effect: None,
-                attachment: None,
-                controller: None,
-                            tapped: false,
 }),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",

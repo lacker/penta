@@ -35,11 +35,6 @@ pub const fn begin_game_on_battlefield(text: &'static str) -> AbilityDef {
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            counters: None,
-            tapped: false,
         },
     )
 }

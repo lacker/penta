@@ -417,7 +417,9 @@ fn validate_object_set_target_references(
         | ObjectSetDef::SharingNameWith(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
-        ObjectSetDef::Binding(binding) | ObjectSetDef::MatchingBinding { binding, .. } => {
+        ObjectSetDef::Binding(binding)
+        | ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding)
+        | ObjectSetDef::MatchingBinding { binding, .. } => {
             if scope.object_sets & (1 << binding.index()) != 0 {
                 Ok(())
             } else {

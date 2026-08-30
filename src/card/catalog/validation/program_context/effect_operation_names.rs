@@ -131,6 +131,10 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Transform { .. } => "Transform",
         EffectDef::PutIntoLibraryBeneathTop { .. } => "PutIntoLibraryBeneathTop",
         EffectDef::MoveToZone { .. } => "MoveToZone",
+        EffectDef::WithBattlefieldArrival { .. } => {
+            "WithBattlefieldArrival"
+        }
+        EffectDef::WithZoneMoveResult { .. } => "WithZoneMoveResult",
         EffectDef::StaticApply { .. } => "StaticApply",
         EffectDef::Apply { .. } => "Apply",
         EffectDef::Special(_) => "Special",

@@ -125,6 +125,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
@@ -769,6 +770,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::CannotAttackIf(_)
                     | EffectDef::PutIntoLibraryBeneathTop { .. }
                     | EffectDef::MoveToZone { .. }
+                    | EffectDef::WithBattlefieldArrival { .. }
+                    | EffectDef::WithZoneMoveResult { .. }
                     | EffectDef::StaticApply { .. }
                     | EffectDef::Apply { .. }
                     | EffectDef::Special(_) => false,

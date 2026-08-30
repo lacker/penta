@@ -558,24 +558,14 @@ pub(in crate::card::sets) static EXCLUDE: CardRecord = CardRecord::new(
 // INV 57 — Fact or Fiction
 static FACT_OR_FICTION_PILE_MOVES: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::CHOSEN_PILE,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: abilities::UNCHOSEN_PILE,
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 ]);
 

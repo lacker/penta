@@ -237,7 +237,6 @@ static URO_PUTS_A_LAND_DOWN: EffectDef = EffectDef::ChooseCards {
     reveal: false,
     destination: ZoneKind::Battlefield,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
 };
 
 static URO_GROWS: [EffectDef; 3] = [
@@ -324,14 +323,9 @@ static SOUL_GUIDE_LANTERN_ABILITIES: [AbilityDef; 3] = [
         "When this artifact enters, exile target card from a graveyard.",
         &LANTERN_EXILES_ONE_CARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ),
     // Untargeted, so it does not care whether those graveyards hold
@@ -341,7 +335,6 @@ static SOUL_GUIDE_LANTERN_ABILITIES: [AbilityDef; 3] = [
         "{T}, Sacrifice this artifact: Exile each opponent's graveyard.",
         &LANTERN_CASHES_IN,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Graveyard],
@@ -349,10 +342,6 @@ static SOUL_GUIDE_LANTERN_ABILITIES: [AbilityDef; 3] = [
             ),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     ),
     AbilityDef::activated(

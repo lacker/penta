@@ -78,10 +78,9 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         destination: ZoneKindSnapshot,
         placement: ZonePlacementSnapshot,
         reveal: bool,
-        /// The resolution a battlefield arrival belongs to, relocated in the
-        /// catalog rather than carried as executable state. Absent from a
-        /// payload written before any choice put a permanent onto the
-        /// battlefield carrying something.
+        /// A composed post-move resolution, relocated in the catalog rather
+        /// than carried as executable state. The field keeps its legacy wire
+        /// name for checkpoint compatibility.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         arrival: Option<EffectContinuationSnapshot>,
     },

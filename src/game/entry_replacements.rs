@@ -4,7 +4,7 @@ use super::{
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext, EntryCompletion,
     Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef, PendingBattlefieldEntry,
-    PendingEvent, PendingReplacementEffect, PlayerId, PlayerRelation, ReplaceableEvent,
+    PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
     ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
@@ -518,22 +518,29 @@ impl Game {
         modification: BattlefieldEntryModificationDef,
     ) {
         let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
+        Self::modify_battlefield_entry_permanent(&mut entry.permanent, modification);
+    }
+
+    pub(super) fn modify_battlefield_entry_permanent(
+        permanent: &mut Permanent,
+        modification: BattlefieldEntryModificationDef,
+    ) {
         match modification {
-            BattlefieldEntryModificationDef::Tapped => entry.permanent.tapped = true,
+            BattlefieldEntryModificationDef::Tapped => permanent.tapped = true,
             BattlefieldEntryModificationDef::AddCounters { kind, amount } => {
-                entry.permanent.add_counters(kind, amount);
+                permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddCastXCounters { kind } => {
-                let amount = entry.permanent.cast_x;
-                entry.permanent.add_counters(kind, amount);
+                let amount = permanent.cast_x;
+                permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddKickCounters { kind } => {
-                let amount = entry.permanent.cast_kicks;
-                entry.permanent.add_counters(kind, amount);
+                let amount = permanent.cast_kicks;
+                permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddColorsSpentCounters { kind } => {
-                let amount = entry.permanent.cast_colors;
-                entry.permanent.add_counters(kind, amount);
+                let amount = permanent.cast_colors;
+                permanent.add_counters(kind, amount);
             }
         }
     }

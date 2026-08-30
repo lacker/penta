@@ -235,7 +235,6 @@ static PHELIA_RETURNS_IT: [EffectDef; 2] = [
         zone: ZoneKind::Battlefield,
         grant: None,
         counters: None,
-        arrival_effect: None,
         transformed: false,
         controller: None,
     },
@@ -310,7 +309,6 @@ static PRISON_RETURNS_IT: AbilityDef = AbilityDef::triggered(
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -409,7 +407,6 @@ static BRAINSURGE_STEPS: [EffectDef; 2] = [
         reveal: false,
         destination: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
     },
 ];
 
@@ -496,7 +493,16 @@ static EMPEROR_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
 const EMPEROR_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
 static EMPEROR_HASTE: AbilityDef = abilities::haste();
-static EMPEROR_ARRIVAL_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&EMPEROR_HASTE);
+static EMPEROR_HASTE_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&EMPEROR_HASTE);
+
+static EMPEROR_AFTER_MOVE: [EffectDef; 2] = [
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(EMPEROR_ARRIVAL)),
+        effect: EMPEROR_HASTE_EFFECT,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&EMPEROR_SACRIFICES_IT)),
+];
 
 static EMPEROR_REANIMATES: EffectDef = EffectDef::PutOntoBattlefieldThen {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
@@ -505,8 +511,7 @@ static EMPEROR_REANIMATES: EffectDef = EffectDef::PutOntoBattlefieldThen {
         kind: CounterKind::Finality,
         amount: ValueDef::Constant(1),
     }),
-    arrival_effect: Some(&EMPEROR_ARRIVAL_EFFECT),
-    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&EMPEROR_SACRIFICES_IT)),
+    then: &EffectDef::Sequence(&EMPEROR_AFTER_MOVE),
 };
 
 static EMPEROR_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
@@ -1092,14 +1097,9 @@ static A_MILLED_LAND_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
 static SIX_TAKEN_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 
 static SIX_TAKES_IT: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(SIX_TAKEN_LAND)),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 /// A minimum of zero is the "you may": milling three and taking nothing is a
@@ -1198,14 +1198,9 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
         &MYCOSPAWN_KICKED,
         &MYCOSPAWN_EXILE_TARGET,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Exile,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
 ];
@@ -1809,7 +1804,6 @@ static AJANI_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -2052,14 +2046,9 @@ static A_SPELL_OR_NONLAND_PERMANENT_OF_THEIRS: [AbilityTargetDef; 1] =
 /// Returning a spell is not countering it: one that cannot be countered is
 /// answered all the same, and its controller keeps the card.
 static STUPOR_RETURNS_IT: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    controller: None,
-    tapped: false,
 };
 
 static SPRINGS_PAID: [ReplacementEffectDef; 0] = [];
@@ -2272,7 +2261,6 @@ static TAMIYO_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,
@@ -2344,14 +2332,9 @@ static TAMIYO_GREEN_REBATE: TargetConditionDef = TargetConditionDef {
 
 static TAMIYO_RETURNS_AND_REBATES: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::AddMana(
         AddManaEffectDef::any_color()
@@ -2467,7 +2450,6 @@ static SORIN_TURNS_OVER: [EffectDef; 2] = [
     EffectDef::ReturnLinkedExiles {
         object: ObjectPredicateDef::Any,
         counters: None,
-        arrival_effect: None,
         zone: ZoneKind::Battlefield,
         grant: None,
         controller: None,

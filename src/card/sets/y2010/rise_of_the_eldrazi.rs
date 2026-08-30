@@ -15,18 +15,13 @@ static EMRAKUL_GRAVEYARD_ZONES: [ZoneKind; 1] = [ZoneKind::Graveyard];
 
 static EMRAKUL_SHUFFLES_GRAVEYARD: [EffectDef; 2] = [
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
             ObjectPredicateDef::Any,
             &[ZoneKind::Graveyard],
             PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
         ))),
         zone: ZoneKind::Library,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),

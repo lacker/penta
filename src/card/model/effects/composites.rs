@@ -5,9 +5,10 @@
 //! reach for, rather than a variant of any one of them.
 
 use super::super::{
-    AbilityDef, CardTypeSet, ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerSetDef, ResolvedEffectDurationDef, ValueDef, ZoneKind,
+    AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardTypeSet,
+    ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, ValueDef, ZoneKind,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 
@@ -200,6 +201,27 @@ impl InstalledTriggerDef {
 pub struct TokenCountersDef {
     pub kind: CounterKind,
     pub amount: ValueDef,
+}
+
+/// Everything an authored effect adds to a permanent's battlefield entry.
+/// The wrapped effect still owns the zone move; this value only describes
+/// the prospective permanent that move creates.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct BattlefieldArrivalDef {
+    /// `None` uses the card's owner.
+    pub controller: Option<PlayerRelation>,
+    pub modifications: &'static [BattlefieldEntryModificationDef],
+    pub attachment: Option<ArrivalAttachmentDef>,
+    pub counters: Option<TokenCountersDef>,
+}
+
+impl BattlefieldArrivalDef {
+    pub const DEFAULT: Self = Self {
+        controller: None,
+        modifications: &[],
+        attachment: None,
+        counters: None,
+    };
 }
 
 /// What happens next to the tokens a clause just created.

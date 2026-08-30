@@ -1726,14 +1726,9 @@ static GLACIERS_RETURN: EffectDef =
             player: PlayerRelation::Any,
         },
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )));
 

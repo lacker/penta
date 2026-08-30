@@ -7,8 +7,6 @@ use super::{
     ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 use crate::card::{ArrivalAttachmentDef, InstalledTriggerLifetimeDef};
-use move_to_zone::MoveToZoneClause;
-
 mod attachment;
 mod damage;
 mod exile_to_play;
@@ -417,18 +415,10 @@ impl Game {
                 object: recipient,
                 binding,
                 counters,
-                arrival_effect,
                 then,
             } => {
                 self.put_onto_battlefield_then(
-                    recipient,
-                    binding,
-                    counters,
-                    arrival_effect,
-                    then,
-                    object,
-                    context,
-                    scoped,
+                    recipient, binding, counters, then, object, context, scoped,
                 );
             }
             EffectDef::Transform { object: recipient } => {
@@ -881,30 +871,14 @@ impl Game {
                 effect,
                 duration,
             } => self.resolve_applied_effect(recipient, effect, duration, object, &context, scoped),
-            EffectDef::MoveToZone {
-                object: recipient,
-                zone,
-                controller,
-                placement,
-                arrival_effect,
-                attachment,
-                counters,
-                tapped,
-            } => self.resolve_move_to_zone(
-                MoveToZoneClause {
-                    recipient,
-                    zone,
-                    controller,
-                    placement,
-                    arrival_effect,
-                    attachment,
-                    counters,
-                    tapped,
-                },
-                object,
-                &context,
-                scoped,
-            ),
+            effect @ (EffectDef::MoveToZone { .. } | EffectDef::WithBattlefieldArrival { .. }) => {
+                self.resolve_move_to_zone_effect(effect, object, &context, scoped);
+            }
+            EffectDef::WithZoneMoveResult {
+                effect,
+                binding,
+                then,
+            } => self.resolve_zone_move_result(effect, binding, then, object, context, scoped),
             EffectDef::Attach { object: recipient } => {
                 self.resolve_attach_effect(recipient, false, object, &context, scoped);
             }

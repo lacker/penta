@@ -73,12 +73,7 @@ static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matchi
 static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::MoveToZone {
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
     zone: ZoneKind::Hand,
-    controller: None,
     placement: ZonePlacement::Top,
-    arrival_effect: None,
-    attachment: None,
-    counters: None,
-    tapped: false,
 };
 
 static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
@@ -179,14 +174,9 @@ pub(in crate::card::sets) static ANGEL_OF_FLIGHT_ALABASTER: CardRecord = CardRec
                 owner: Some(PlayerRelation::You),
             })],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                            tapped: false,
 },
         ),
     ]),
@@ -581,7 +571,6 @@ then: None,
                 EffectDef::ReturnLinkedExiles {
                     object: ObjectPredicateDef::Any,
                     counters: None,
-                    arrival_effect: None,
                     zone: ZoneKind::Battlefield,
                     grant: None,
                     controller: None,
@@ -932,14 +921,9 @@ pub(in crate::card::sets) static PURIFY_THE_GRAVE: CardRecord = CardRecord::new_
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{W}")),
@@ -1034,14 +1018,9 @@ pub(in crate::card::sets) static SILVERCHASE_FOX: CardRecord = CardRecord::new_w
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ),
@@ -1722,14 +1701,9 @@ pub(in crate::card::sets) static GRASP_OF_PHANTOMS: CardRecord = CardRecord::new
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Library,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{7}{U}")),
@@ -1801,14 +1775,9 @@ pub(in crate::card::sets) static LANTERN_SPIRIT: CardRecord = CardRecord::new_wi
             "{U}: Return this creature to its owner's hand.",
             &[AbilityCostDef::Mana(mana_cost!("{U}"))],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
     ]),
@@ -1835,14 +1804,9 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
                 placement: ZonePlacement::Top,
             },
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex(1)),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ]),
     )),
@@ -1953,11 +1917,6 @@ pub(in crate::card::sets) static MEMORY_S_JOURNEY: CardRecord = CardRecord::new(
                     object: EffectRecipientDef::Target(TargetIndex(1)),
                     zone: ZoneKind::Library,
                     placement: ZonePlacement::Top,
-                    controller: None,
-                    arrival_effect: None,
-                    attachment: None,
-                    counters: None,
-                    tapped: false,
                 },
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2019,11 +1978,6 @@ static MIRROR_MAD_STEPS: [EffectDef; 3] = [
         ),
         zone: ZoneKind::Library,
         placement: ZonePlacement::Top,
-        controller: None,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
@@ -2143,14 +2097,9 @@ pub(in crate::card::sets) static RUNIC_REPETITION: CardRecord = CardRecord::new(
             },
         )],
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )),
 );
@@ -2226,14 +2175,9 @@ pub(in crate::card::sets) static SILENT_DEPARTURE: CardRecord = CardRecord::new_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{4}{U}")),
@@ -2828,7 +2772,6 @@ pub(in crate::card::sets) static CURSE_OF_OBLIVION: CardRecord = CardRecord::new
                     reveal: false,
                     destination: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
-                    arrival_effect: None,
                 },
             ),
         ]),
@@ -3003,28 +2946,18 @@ static GHOULCALLERS_CHANT_MODES: [AbilityDef; 2] = [
         "Return target creature card from your graveyard to your hand.",
         &GHOULCALLERS_CHANT_ONE_TARGET,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     AbilityDef::spell_with_targets(
         "Return two target Zombie cards from your graveyard to your hand.",
         &GHOULCALLERS_CHANT_TWO_TARGETS,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
-            controller: None,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
 ];
@@ -3455,14 +3388,9 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{5}{B}{B}")),
@@ -3598,14 +3526,9 @@ pub(in crate::card::sets) static UNBURIAL_RITES: CardRecord = CardRecord::new_wi
                 },
             )],
             EffectDef::MoveToZone {
-                counters: None,
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
-                controller: None,
                 placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                tapped: false,
             },
         ),
         abilities::flashback(mana_cost!("{3}{W}")),
@@ -5949,11 +5872,6 @@ static GEIST_EXILES_ANGEL: EffectDef =
             )),
             zone: ZoneKind::Exile,
             placement: ZonePlacement::Top,
-            counters: None,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     )));
 
@@ -6281,30 +6199,40 @@ pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::
                     },
                     AbilityCostDef::SacrificeSource,
                 ],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Graveyard],
+                EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::new(
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    &[ZoneKind::Graveyard],
+                                ),
+                            )),
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        },
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
+                    },
+                    binding: ObjectSetBindingIndex::PRIMARY,
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::binding_zone_change_successors(
+                            ObjectSetBindingIndex::PRIMARY,
                         ),
-                    )),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    controller: Some(PlayerRelation::You),
-                    // "In addition to their other colors and types", so both
-                    // leaves add rather than set. The effect travels with each
-                    // arrival because moving a card creates a new object.
-                    arrival_effect: Some(&AppliedEffectDef::Composite(&[
+                        // "In addition to their other colors and types", so
+                        // both leaves add rather than set on each successor.
+                        effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::add_colors(ColorSet::from_colors(&[
                             ManaColor::Black,
                         ])),
                         AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
                             "Zombie",
                         ])),
-                    ])),
-                    attachment: None,
-                    counters: None,
-                    tapped: false,
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
                 },
             ),
         ]),

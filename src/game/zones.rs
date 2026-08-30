@@ -647,6 +647,9 @@ impl Game {
         // Set before entry replacements run, the same way an as-enters clause
         // would, so nothing observes the permanent arriving untapped first.
         permanent.tapped = arrival.tapped;
+        for modification in arrival.modifications {
+            Self::modify_battlefield_entry_permanent(&mut permanent, *modification);
+        }
         // A card put onto the battlefield face down was never face up there,
         // so these are part of the arrival rather than a later turn-over.
         permanent.face_down = arrival.face_down;

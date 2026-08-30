@@ -150,12 +150,6 @@ pub enum EffectDef {
         reveal: bool,
         destination: ZoneKind,
         placement: ZonePlacement,
-        /// A continuous effect a permanent this choice puts onto the
-        /// battlefield arrives carrying, for the same reason
-        /// [`Self::MoveToZone`] has one: what enters is a new object, and by
-        /// the time a following effect ran there would be nothing to name.
-        /// Ignored for every other destination.
-        arrival_effect: Option<&'static AppliedEffectDef>,
     },
     /// Return a spell from the stack to its owner's hand. Not a counter: the
     /// spell is never countered, so "can't be countered" does not stop this
@@ -663,27 +657,20 @@ pub enum EffectDef {
         /// Which end of a library the card lands on. Meaningless for every
         /// other destination.
         placement: ZonePlacement,
-        /// Who controls the permanent when the destination is the
-        /// battlefield. `None` is the ordinary case, where a card arrives
-        /// under its owner's control; reanimation that steals names a
-        /// relation instead.
-        controller: Option<PlayerRelation>,
-        /// A continuous effect the permanent arrives carrying, for the
-        /// clauses that say what the thing they just reanimated now is. It
-        /// belongs here rather than in a following effect because a
-        /// permanent that enters is a new object with a new identity: by the
-        /// time the next effect ran, nothing would name it. Lasts as long as
-        /// the permanent does.
-        arrival_effect: Option<&'static AppliedEffectDef>,
-        /// Which way an attachment participates in the battlefield arrival.
-        attachment: Option<ArrivalAttachmentDef>,
-        /// Counters the permanent arrives carrying. Separate from
-        /// `arrival_effect` because a counter is not a continuous effect: it
-        /// sits on the permanent and outlives every duration, which is the
-        /// whole point of "with a lifelink counter on it".
-        counters: Option<TokenCountersDef>,
-        /// Whether a permanent moved to the battlefield arrives tapped.
-        tapped: bool,
+    },
+    /// Composes a prospective permanent's entry state around a zone-moving
+    /// effect. Nothing here is a later effect such as [`Self::Tap`].
+    WithBattlefieldArrival {
+        effect: &'static EffectDef,
+        arrival: BattlefieldArrivalDef,
+    },
+    /// Runs `then` after a zone-moving effect, with the moved objects saved
+    /// in `binding`. The continuation explicitly follows each object's next
+    /// zone-change successor, so it remains correct across a delayed entry.
+    WithZoneMoveResult {
+        effect: &'static EffectDef,
+        binding: ObjectSetBindingIndex,
+        then: &'static EffectDef,
     },
     /// "…then mill a card. If an Insect card was milled this way, … and
     /// repeat this process." The mill belongs to the loop because a binding
@@ -844,10 +831,6 @@ pub enum EffectDef {
         /// the arrival for the same reason the controller does: what enters
         /// is a new object, and a later clause would have nothing to name.
         counters: Option<TokenCountersDef>,
-        /// A continuous effect each arriving permanent carries, for the
-        /// clauses that say what the thing they just returned now is. Lasts
-        /// as long as the permanent does.
-        arrival_effect: Option<&'static AppliedEffectDef>,
         /// "Return him to the battlefield transformed." The returning card
         /// is a new object, so which face it shows is settled as it arrives
         /// rather than by a transform afterwards.
@@ -991,7 +974,6 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         binding: ObjectSetBindingIndex,
         counters: Option<TokenCountersDef>,
-        arrival_effect: Option<&'static AppliedEffectDef>,
         then: &'static EffectDef,
     },
     /// Turns a double-faced permanent over to its other face.

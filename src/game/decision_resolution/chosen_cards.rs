@@ -7,9 +7,36 @@
 #![allow(clippy::wildcard_imports)]
 
 use super::*;
+use crate::game::PendingProcedure;
 use crate::game::decision_state::SearchFollowUp;
 
 impl Game {
+    fn finish_chosen_card_move_result(
+        &mut self,
+        follow_up: &SearchFollowUp,
+        binding: crate::ObjectSetBindingIndex,
+        then: &'static crate::card::EffectDef,
+        moved: Vec<Target>,
+    ) {
+        let mut context = follow_up.context.clone();
+        context.bind_object_group(binding, moved);
+        let effect = follow_up.effect.with_effect(*then);
+        if !self.pending_decisions.is_empty()
+            || !self.pending_events.is_empty()
+            || !self.pending_procedures.is_empty()
+        {
+            self.pending_procedures
+                .push_back(PendingProcedure::ResolveEffects {
+                    effects: vec![effect],
+                    object: Box::new(follow_up.object.clone()),
+                    context,
+                    custom_followup: None,
+                });
+        } else {
+            self.resolve_effect_def(effect, &follow_up.object, context);
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(super) fn move_chosen_cards(
         &mut self,
@@ -22,15 +49,15 @@ impl Game {
         offered: &[DecisionOption],
         options: &[u32],
     ) {
-        // Read back off the effect the choice came from: what a
-        // permanent arrives carrying is part of that printed clause,
-        // not a second thing the continuation has to remember.
-        let arrival_effect = arrival
-            .as_ref()
-            .and_then(|arrival| match arrival.effect.effect {
-                crate::card::EffectDef::ChooseCards { arrival_effect, .. } => arrival_effect,
-                _ => None,
-            });
+        let move_result = arrival.and_then(|follow_up| match follow_up.effect.effect {
+            crate::card::EffectDef::WithZoneMoveResult { binding, then, .. } => {
+                Some((follow_up, binding, then))
+            }
+            _ => None,
+        });
+        let mut later_procedures = move_result
+            .is_some()
+            .then(|| std::mem::take(&mut self.pending_procedures));
         let selected = options
             .iter()
             .filter_map(|selected| offered.iter().find(|option| option.id == *selected))
@@ -49,6 +76,7 @@ impl Game {
                 })
             }));
         }
+        let mut moved = Vec::new();
         for option in selected {
             let Some((id, _)) = option.card else {
                 continue;
@@ -67,6 +95,7 @@ impl Game {
                 let owner = card.owner;
                 let (card, _zone_change) = self.zone_change_card(card);
                 self.players[owner.index()].hand.push(card);
+                moved.push(Target::Card(id));
                 continue;
             }
             let source = match option.zone {
@@ -81,7 +110,7 @@ impl Game {
                 | crate::game::DecisionZone::DrawnThisStep
                 | crate::game::DecisionZone::None => continue,
             };
-            let Some((moved, actual_destination)) = self.move_card_from_nonbattlefield_zone(
+            let Some((moved_card, actual_destination)) = self.move_card_from_nonbattlefield_zone(
                 id,
                 source,
                 destination,
@@ -90,29 +119,24 @@ impl Game {
             ) else {
                 continue;
             };
+            moved.push(Target::Card(id));
             if actual_destination == ZoneKind::Library
                 && placement == ZonePlacement::Bottom
-                && let Some(card) =
-                    remove_card(&mut self.players[moved.owner.index()].library, moved.id)
+                && let Some(card) = remove_card(
+                    &mut self.players[moved_card.owner.index()].library,
+                    moved_card.id,
+                )
             {
-                self.players[moved.owner.index()].library.insert(0, card);
+                self.players[moved_card.owner.index()]
+                    .library
+                    .insert(0, card);
             }
-            // What arrived is a new object: the card that left the
-            // hand and the permanent now standing there are two
-            // identities, and only the second one can carry
-            // anything.
-            if actual_destination == ZoneKind::Battlefield
-                && let (Some(effect), Some(arrival), Some(arrived)) =
-                    (arrival_effect, arrival.as_ref(), self.arrived)
-            {
-                self.apply_arrival_effect(
-                    arrived,
-                    *effect,
-                    &arrival.object,
-                    &arrival.context,
-                    arrival.effect,
-                );
-            }
+        }
+        if let Some((follow_up, binding, then)) = move_result {
+            self.finish_chosen_card_move_result(follow_up, binding, then, moved);
+        }
+        if let Some(later) = later_procedures.as_mut() {
+            self.pending_procedures.append(later);
         }
     }
 }

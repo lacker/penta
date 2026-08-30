@@ -1213,7 +1213,6 @@ pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new_with_leg
     CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_ability(AbilityDef::spell(
         "Return all permanents to their owners' hands.",
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::matching_objects(
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Battlefield],
@@ -1221,10 +1220,6 @@ pub(in crate::card::sets) static UPHEAVAL: CardRecord = CardRecord::new_with_leg
             ),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )),
 );
@@ -1508,17 +1503,11 @@ pub(in crate::card::sets) static GRAVESTORM: CardRecord = CardRecord::new(
 /// which is why the set is bound rather than queried twice.
 static ECHOES_EXILE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::SharingNameWithBinding {
             binding: ObjectSetBindingIndex::PRIMARY,
             player: PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -1526,10 +1515,6 @@ static ECHOES_EXILE: EffectDef = EffectDef::Sequence(&[
         }),
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::ShuffleLibrary {
         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),

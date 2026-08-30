@@ -685,24 +685,14 @@ pub(in crate::card::sets) static INTERDICT: CardRecord = CardRecord::new(
 /// names the rest as well as the pick.
 static INTUITION_DISTRIBUTE: EffectDef = EffectDef::Sequence(&[
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
         zone: ZoneKind::Graveyard,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 ]);
 
@@ -1191,18 +1181,13 @@ static DANCE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
         player: PlayerRelation::Any,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Exile,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-        tapped: false,
     },
 );
 
-static DANCE_ARRIVAL: AppliedEffectDef = AppliedEffectDef::Composite(&[
+static DANCE_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
     AppliedEffectDef::add_ability(&DANCE_HASTE),
     AppliedEffectDef::add_ability(&DANCE_EXILE_AT_END),
 ]);
@@ -1219,19 +1204,24 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
         abilities::buyback(mana_cost!("{2}")),
         AbilityDef::spell(
             "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
-            EffectDef::MoveToZone {
-                counters: None,
-                object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                    player: PlayerRefDef::EffectController,
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                }),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                arrival_effect: Some(&DANCE_ARRIVAL),
-                attachment: None,
-                controller: None,
-                            tapped: false,
-},
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                        player: PlayerRefDef::EffectController,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                    }),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successors(
+                        ObjectSetBindingIndex::PRIMARY,
+                    ),
+                    effect: DANCE_POST_MOVE_EFFECT,
+                    duration: crate::card::ResolvedEffectDurationDef::Permanent,
+                },
+            },
         ),
     ]),
 );
@@ -1551,16 +1541,17 @@ pub(in crate::card::sets) static REANIMATE: CardRecord = CardRecord::new_with_le
             owner: None,
         })],
         EffectDef::Sequence(&[
-            EffectDef::MoveToZone {
-                counters: None,
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                arrival_effect: None,
-                attachment: None,
-                controller: Some(PlayerRelation::You),
-                            tapped: false,
-},
+            EffectDef::WithBattlefieldArrival {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                arrival: crate::card::BattlefieldArrivalDef {
+                    controller: Some(PlayerRelation::You),
+                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                },
+            },
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),

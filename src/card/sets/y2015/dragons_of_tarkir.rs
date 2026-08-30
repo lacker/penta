@@ -71,14 +71,9 @@ static KOLAGHAN_COMMAND_MODES: [AbilityDef; 4] = [
         "Return target creature card from your graveyard to your hand.",
         &A_CREATURE_CARD_IN_YOUR_GRAVEYARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     AbilityDef::spell_with_targets(

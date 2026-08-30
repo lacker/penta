@@ -283,7 +283,8 @@ fn validate_object_set_shape(
             validate_target_projection(target, targets, RecipientExpectation::Object)
         }
         ObjectSetDef::Binding(_)
-                | ObjectSetDef::MatchingBinding { .. }
+        | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
+        | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::SharingNameWithBinding { .. }
@@ -686,6 +687,7 @@ fn recipient_may_name_nonbattlefield_object(
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject,
             )
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
@@ -753,6 +755,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
                 ObjectRefDef::Binding(_) | ObjectRefDef::AdditionalCostObject(_),
             )
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)

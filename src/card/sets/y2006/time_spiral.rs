@@ -368,18 +368,19 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
                 "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.",
                 PregameConditionDef::NotStartingPlayer,
                 &GEMSTONE_CAVERNS_OPENING_COST,
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Source,
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    controller: None,
-                    arrival_effect: None,
-                    attachment: None,
-                    counters: Some(TokenCountersDef {
-                        kind: CounterKind::Luck,
-                        amount: ValueDef::Constant(1),
-                    }),
-                    tapped: false,
+                EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        counters: Some(TokenCountersDef {
+                            kind: CounterKind::Luck,
+                            amount: ValueDef::Constant(1),
+                        }),
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
                 },
             ),
             AbilityDef::not_implemented(

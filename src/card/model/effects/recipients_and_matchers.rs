@@ -104,6 +104,9 @@ pub enum ObjectSetDef {
     /// A set of objects saved by an earlier choice or partition in this
     /// resolution.
     Binding(ObjectSetBindingIndex),
+    /// The live object created by one zone change of each bound object.
+    /// Missing or subsequently moved successors are omitted.
+    ZoneChangeSuccessorsOfBinding(ObjectSetBindingIndex),
     /// Cards the named player actually drew this turn that remain in that
     /// player's hand. The identities are rules history rather than a zone
     /// characteristic: a card that began the turn in hand is not included,
@@ -228,6 +231,11 @@ impl EffectRecipientDef {
     }
 
     #[must_use]
+    pub const fn binding_zone_change_successors(binding: ObjectSetBindingIndex) -> Self {
+        Self::objects(ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding))
+    }
+
+    #[must_use]
     pub const fn objects(objects: ObjectSetDef) -> Self {
         Self(EffectRecipientSetDef::Objects(objects))
     }
@@ -272,6 +280,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::Binding(_)
+                | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
@@ -297,6 +306,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(_)
                 | ObjectSetDef::Binding(_)
+                | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)

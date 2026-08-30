@@ -52,14 +52,9 @@ static A_MILLED_CREATURE_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
 };
 
 static BARROWGOYF_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
-    counters: None,
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
-    controller: None,
-    arrival_effect: None,
-    attachment: None,
-    tapped: false,
 };
 
 /// Where the chosen card is saved, kept apart from the milled pile so that
@@ -250,14 +245,9 @@ static TALON_GATES_ABILITIES: [AbilityDef; 4] = [
         "{4}: Put this card from your hand onto the battlefield.",
         &TALON_GATES_CRASH,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
-            arrival_effect: None,
-            attachment: None,
-            controller: None,
-            tapped: false,
         },
     )
     .with_source_zones(&[ZoneKind::Hand]),

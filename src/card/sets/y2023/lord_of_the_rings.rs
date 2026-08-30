@@ -152,12 +152,7 @@ static REPRIEVE_EFFECTS: [EffectDef; 2] = [
     EffectDef::MoveToZone {
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         zone: ZoneKind::Hand,
-        controller: None,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        counters: None,
-        tapped: false,
     },
     EffectDef::DrawCards {
         recipient: EffectRecipientDef::Controller,

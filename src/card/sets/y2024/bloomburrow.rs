@@ -171,14 +171,9 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
         TriggerEventDef::BecomesLevel(2),
         &AN_INSTANT_OR_SORCERY_IN_YOUR_GRAVEYARD,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     AbilityDef::activated(

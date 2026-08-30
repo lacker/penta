@@ -368,8 +368,14 @@ impl HandcraftedPolicy {
             // An optional effect is worth what it would do if taken. Iteration
             // has the same child profile; multiplicity is intentionally not a
             // separate policy weight here.
-            EffectDef::May { effect, .. } | EffectDef::ForEachInBinding { effect, .. } => {
+            EffectDef::May { effect, .. }
+            | EffectDef::ForEachInBinding { effect, .. }
+            | EffectDef::WithBattlefieldArrival { effect, .. } => {
                 Self::collect_spell_effect_profile(*effect, x, targets, profile);
+            }
+            EffectDef::WithZoneMoveResult { effect, then, .. } => {
+                Self::collect_spell_effect_profile(*effect, x, targets, profile);
+                Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
             EffectDef::DealDamage { recipient, amount }
             | EffectDef::DealDamageFrom {

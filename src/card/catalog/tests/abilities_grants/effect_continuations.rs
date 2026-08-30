@@ -39,7 +39,6 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 5] {
             object: EffectRecipientDef::Source,
             binding: ObjectSetBindingIndex::PRIMARY,
             counters: None,
-            arrival_effect: None,
             then: child,
         },
     ]

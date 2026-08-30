@@ -31,4 +31,5 @@ enum RecipientExpectation {
 }
 
 include!("targeting/shapes.rs");
+include!("targeting/zone_move_shapes.rs");
 include!("targeting/effect_shapes.rs");

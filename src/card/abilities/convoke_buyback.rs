@@ -145,14 +145,9 @@ static DASH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
         player: PlayerRelation::Any,
     },
     EffectDef::MoveToZone {
-        counters: None,
         object: EffectRecipientDef::Source,
         zone: ZoneKind::Hand,
         placement: ZonePlacement::Top,
-        arrival_effect: None,
-        attachment: None,
-        controller: None,
-            tapped: false,
 },
 );
 

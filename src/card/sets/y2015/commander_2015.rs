@@ -30,14 +30,9 @@ static MYSTIC_CONFLUENCE_MODES: [AbilityDef; 3] = [
         "Return target creature to its owner's hand.",
         &A_CREATURE,
         EffectDef::MoveToZone {
-            counters: None,
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
-            controller: None,
-            arrival_effect: None,
-            attachment: None,
-            tapped: false,
         },
     ),
     AbilityDef::spell(

@@ -52,11 +52,6 @@ pub(in crate::card::sets) static ARCLIGHT_PHOENIX: CardRecord = CardRecord::new(
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Battlefield,
                 placement: ZonePlacement::Top,
-                controller: None,
-                arrival_effect: None,
-                attachment: None,
-                counters: None,
-                tapped: false,
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),

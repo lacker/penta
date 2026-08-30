@@ -1,4 +1,4 @@
-//! Three Innistrad cards about tokens.
+//! Innistrad cards about tokens.
 //!
 //! A token predicate, a tapped-token creation and a halved count were all
 //! built for other cards. The clauses worth pinning are the ones that are
@@ -128,4 +128,112 @@ fn endless_ranks_rounds_the_zombie_count_down() {
     assert_eq!(upkeep_with(1), 0, "half of one, rounded down");
     assert_eq!(upkeep_with(2), 1);
     assert_eq!(upkeep_with(5), 2, "half of five, rounded down");
+}
+
+fn attack(game: &mut Game, attacker: GameObjectId) {
+    game.step = Step::DeclareAttackers;
+    game.attackers_declared = false;
+    game.apply(
+        PlayerId::One,
+        Action::DeclareAttacker {
+            attacker,
+            defender: AttackDefender::Player(PlayerId::Two),
+        },
+    )
+    .expect("the creature may attack");
+    game.apply(PlayerId::One, Action::FinishDeclaringAttackers)
+        .expect("the declaration finishes");
+}
+
+fn token_count(game: &Game, token: TokenCharacteristics) -> usize {
+    game.battlefield
+        .iter()
+        .filter(|permanent| is_token_with(permanent, token))
+        .count()
+}
+
+/// Cagebreakers counts on resolution, and only creature cards contribute.
+#[test]
+fn cagebreakers_make_attacking_wolves_from_the_resolved_graveyard() {
+    let mut game = ready();
+    let cagebreakers = game
+        .put_onto_battlefield(PlayerId::One, cards::KESSIG_CAGEBREAKERS)
+        .expect("Kessig Cagebreakers is cataloged");
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == cagebreakers)
+        .expect("the Cagebreakers are present")
+        .entered_controller_turn = 0;
+    game.players[0].graveyard = vec![
+        card(90_001, cards::GRIZZLY_BEARS, PlayerId::One),
+        card(90_002, cards::LIGHTNING_BOLT, PlayerId::One),
+    ];
+
+    attack(&mut game, cagebreakers);
+    game.players[0]
+        .graveyard
+        .push(card(90_003, cards::WALKING_CORPSE, PlayerId::One));
+    drain_pending(&mut game);
+
+    assert_eq!(
+        token_count(
+            &game,
+            tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2),
+        ),
+        2,
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .filter(|permanent| {
+                is_token_with(
+                    permanent,
+                    tokens::creature(&["Wolf"], &[ManaColor::Green], 2, 2),
+                )
+            })
+            .all(|wolf| wolf.tapped && wolf.attacking),
+        "both Wolves enter tapped and attacking",
+    );
+}
+
+/// Geist's delayed trigger names exactly the Angel made by its attack.
+#[test]
+fn geist_makes_an_attacking_angel_and_exiles_it_at_end_of_combat() {
+    let mut game = ready();
+    let geist = game
+        .put_onto_battlefield(PlayerId::One, cards::GEIST_OF_SAINT_TRAFT)
+        .expect("Geist of Saint Traft is cataloged");
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == geist)
+        .expect("Geist is present")
+        .entered_controller_turn = 0;
+
+    attack(&mut game, geist);
+    drain_pending(&mut game);
+
+    let angel = game
+        .battlefield
+        .iter()
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                token_with_flying(tokens::creature(&["Angel"], &[ManaColor::White], 4, 4)),
+            )
+        })
+        .expect("Geist created its Angel");
+    assert!(angel.tapped && angel.attacking);
+    assert!(game.permanent_has_executable_keyword(angel, KeywordAbility::Flying));
+
+    game.step = Step::EndOfCombat;
+    game.begin_step_triggers();
+    drain_pending(&mut game);
+
+    assert_eq!(
+        token_count(
+            &game,
+            token_with_flying(tokens::creature(&["Angel"], &[ManaColor::White], 4, 4,)),
+        ),
+        0,
+    );
 }

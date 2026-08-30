@@ -10,15 +10,16 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
     ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectExecutionDef,
-    EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef,
-    KeywordAbility, ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
-    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CreatedTokensDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef,
+    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
+    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TargetConditionDef,
+    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -5321,13 +5322,28 @@ pub(in crate::card::sets) static HOLLOWHENGE_SCAVENGER: CardRecord = CardRecord:
 );
 
 // ISD 189 — Kessig Cagebreakers
-// Audit: metadata-only — Needs a dynamic number of Wolf tokens entering tapped and attacking.
 pub(in crate::card::sets) static KESSIG_CAGEBREAKERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fae22886-da03-49f2-873c-98a7ea2ee17d"),
     "Kessig Cagebreakers",
-    crate::card::CardArt::new("fae22886-da03-49f2-873c-98a7ea2ee17d", "Wayne England"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fae22886-da03-49f2-873c-98a7ea2ee17d", "Wayne England"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Human", "Rogue"], 3, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, create a 2/2 green Wolf creature token that's \
+             tapped and attacking for each creature card in your graveyard.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+                .with_art(CardArt::new(
+                    "a53f8031-aaa8-424c-929a-5478538a8cc6",
+                    "David Palumbo",
+                ))
+                .with_count(ValueDef::CountMatchingObjects(
+                    &CREATURE_CARDS_IN_YOUR_GRAVEYARD,
+                ))
+                .entering_tapped()
+                .entering_attacking(),
+        ),
+    ),
 );
 
 // ISD 190 — Kindercatch
@@ -5878,13 +5894,54 @@ pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
 );
 
 // ISD 213 — Geist of Saint Traft
-// Audit: metadata-only — Needs a token entering tapped and attacking, linked to exile at end of combat.
+static GEIST_EXILES_ANGEL: EffectDef =
+    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        "Exile that token at end of combat.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::EndOfCombat,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                ObjectSetBindingIndex::PRIMARY,
+            )),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            counters: None,
+            controller: None,
+            arrival_effect: None,
+            attachment: None,
+            tapped: false,
+        },
+    )));
+
 pub(in crate::card::sets) static GEIST_OF_SAINT_TRAFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35b57113-b39a-460b-b4aa-02606b40bbd0"),
     "Geist of Saint Traft",
-    crate::card::CardArt::new("35b57113-b39a-460b-b4aa-02606b40bbd0", "Igor Kieryluk"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("35b57113-b39a-460b-b4aa-02606b40bbd0", "Igor Kieryluk"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Spirit", "Cleric"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::hexproof(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, create a 4/4 white Angel creature token with \
+                 flying that's tapped and attacking. Exile that token at end of combat.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::create_creature_token(&["Angel"], &[ManaColor::White], 4, 4)
+                    .with_abilities(&[abilities::flying()])
+                    .with_art(CardArt::new(
+                        "a0d7d857-2a54-4d0e-a97c-11400053194c",
+                        "Winona Nelson",
+                    ))
+                    .entering_tapped()
+                    .entering_attacking()
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: ObjectSetBindingIndex::PRIMARY,
+                        then: &GEIST_EXILES_ANGEL,
+                    }),
+            ),
+        ]),
 );
 
 // ISD 214 — Grimgrin, Corpse-Born

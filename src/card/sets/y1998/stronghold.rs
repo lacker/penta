@@ -1045,12 +1045,6 @@ pub(in crate::card::sets) static CARNASSID: CardRecord = CardRecord::new(
 );
 
 // STH 104 — Constant Mists
-static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Land),
-    ZoneKind::Battlefield,
-    1,
-);
-
 pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97a8a5fe-0391-489b-9556-0a1bf7e1900d"),
     "Constant Mists",
@@ -1059,7 +1053,11 @@ pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         abilities::buyback_with_additional_cost(
             "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &SACRIFICE_A_LAND,
+            &SpellAdditionalCostDef::new(
+                ObjectPredicateDef::HasType(CardType::Land),
+                ZoneKind::Battlefield,
+                1,
+            ),
         ),
         AbilityDef::spell(
             "Prevent all combat damage that would be dealt this turn.",
@@ -1102,21 +1100,6 @@ pub(in crate::card::sets) static ENDANGERED_ARMODON: CardRecord = CardRecord::ne
 );
 
 // STH 108 — Hermit Druid
-static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
-    player: EffectRecipientDef::Controller,
-    object: A_BASIC_LAND_CARD,
-    matched_zone: ZoneKind::Hand,
-    binding: None,
-    then: None,
-};
-
-/// Basic lands only, which is why the Druid empties a library that holds
-/// none: what it does not find, it passes over into the graveyard.
-static A_BASIC_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
-
 pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with_legacy_id(
     2070,
     "Hermit Druid",
@@ -1132,7 +1115,18 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with
                 AbilityCostDef::Mana(mana_cost!("{G}")),
                 AbilityCostDef::TapSource,
             ],
-            EffectDef::MillUntil(&MILL_UNTIL_1),
+            EffectDef::MillUntil(&MillUntilDef {
+                player: EffectRecipientDef::Controller,
+                // Basic lands only, which is why the Druid empties a library that holds
+                // none: what it does not find, it passes over into the graveyard.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+                matched_zone: ZoneKind::Hand,
+                binding: None,
+                then: None,
+            }),
         ),
     ),
 );
@@ -1385,11 +1379,6 @@ pub(in crate::card::sets) static BULLWHIP: CardRecord = CardRecord::new(
 );
 
 // STH 133 — Ensnaring Bridge
-static ENSNARING_BRIDGE_HAND_SIZE: ValueDef = ValueDef::CardsInHandAbove {
-    player: PlayerRelation::You,
-    threshold: 0,
-};
-
 pub(in crate::card::sets) static ENSNARING_BRIDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27d838a1-2739-45f7-a856-6202334fa76a"),
     "Ensnaring Bridge",
@@ -1401,7 +1390,10 @@ pub(in crate::card::sets) static ENSNARING_BRIDGE: CardRecord = CardRecord::new(
             recipient: EffectRecipientDef::EachPlayer,
             effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
                 AttackRestrictionDef::prohibit(
-                    ObjectPredicateDef::PowerGreaterThan(ENSNARING_BRIDGE_HAND_SIZE),
+                    ObjectPredicateDef::PowerGreaterThan(ValueDef::CardsInHandAbove {
+                        player: PlayerRelation::You,
+                        threshold: 0,
+                    }),
                     AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker,
                 ),
             )),
@@ -1453,21 +1445,6 @@ pub(in crate::card::sets) static JINXED_RING: CardRecord = CardRecord::new(
 );
 
 // STH 138 — Mox Diamond
-/// A land card from hand, which is the whole cost. A hand with none cannot
-/// pay at all, and the Mox goes straight to the graveyard.
-static A_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::HasType(CardType::Land);
-
-static MOX_DIAMOND_ENTRY: ReplacementEffectDef = ReplacementEffectDef::PayOr {
-    payment: EffectPaymentDef {
-        payer: PlayerSetDef::Related(PlayerRelation::You),
-        cost: EffectPaymentCostDef::DiscardMatching(A_LAND_CARD),
-    },
-    // Paying changes nothing about the entry: the Mox arrives as it was
-    // going to. Declining is what redirects it.
-    if_paid: &[],
-    if_declined: &[ReplacementEffectDef::MoveToZone(ZoneKind::Graveyard)],
-};
-
 pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_legacy_id(
     2052,
     "Mox Diamond",
@@ -1478,7 +1455,18 @@ pub(in crate::card::sets) static MOX_DIAMOND: CardRecord = CardRecord::new_with_
     CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[
         AbilityDef::replacement(
             "If this artifact would enter, you may discard a land card instead. If you do, put this artifact onto the battlefield. If you don't, put it into its owner's graveyard.",
-            MOX_DIAMOND_ENTRY,
+            ReplacementEffectDef::PayOr {
+                payment: EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    // A land card from hand, which is the whole cost. A hand with none cannot
+                    // pay at all, and the Mox goes straight to the graveyard.
+                    cost: EffectPaymentCostDef::DiscardMatching(ObjectPredicateDef::HasType(CardType::Land)),
+                },
+                // Paying changes nothing about the entry: the Mox arrives as it was
+                // going to. Declining is what redirects it.
+                if_paid: &[],
+                if_declined: &[ReplacementEffectDef::MoveToZone(ZoneKind::Graveyard)],
+            },
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",

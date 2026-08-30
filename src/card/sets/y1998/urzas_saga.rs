@@ -727,21 +727,6 @@ pub(in crate::card::sets) static ENERGY_FIELD: CardRecord = CardRecord::new(
 // USG 75 — Fog Bank (reprint)
 
 // USG 76 — Gilded Drake
-/// One effect rather than two control changes: both controllers are read
-/// before either permanent moves, and failure runs the printed sacrifice.
-static DRAKE_ENTERS: EffectDef = EffectDef::ExchangeControl {
-    first: EffectRecipientDef::Source,
-    second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    otherwise: Some(&EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    }),
-};
-
-static A_CREATURE_AN_OPPONENT_CONTROLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-]);
-
 pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with_legacy_id(
     2083,
     "Gilded Drake",
@@ -753,13 +738,24 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
         abilities::flying(),
         abilities::enters_trigger_with_targets("When this creature enters, exchange control of this creature and up to one target creature an opponent controls. If you don't or can't make an exchange, sacrifice this creature. This ability still resolves if its target becomes illegal.", &[AbilityTargetDef::up_to(
                 AbilityTargetPredicate::Object {
-                    object: A_CREATURE_AN_OPPONENT_CONTROLS,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    ]),
                     zones: &[ZoneKind::Battlefield],
                     controller: Some(PlayerRelation::Opponent),
                     owner: None,
                 },
                 1,
-            )], DRAKE_ENTERS)
+            // One effect rather than two control changes: both controllers are read
+            // before either permanent moves, and failure runs the printed sacrifice.
+            )], EffectDef::ExchangeControl {
+                first: EffectRecipientDef::Source,
+                second: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                otherwise: Some(&EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                }),
+            })
             .resolves_with_illegal_targets(),
     ]),
 );
@@ -947,23 +943,6 @@ pub(in crate::card::sets) static SANDBAR_SERPENT: CardRecord = CardRecord::new(
 );
 
 // USG 96 — Show and Tell
-/// Each player looks only at their own hand, and what they put down arrives
-/// under their own control. The active player chooses first and the other
-/// knows what they chose (CR 101.4a); what this cannot do is land both
-/// cards at the same instant, so the first is already a permanent as the
-/// second is chosen.
-static SHOW_AND_TELL_EACH_HAND: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
-/// Everything a permanent card can be except a planeswalker or a battle,
-/// which is what the card listed before either existed.
-static A_PERMANENT_CARD_IT_NAMES: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
-
 pub(in crate::card::sets) static SHOW_AND_TELL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b851c17-55ed-4671-b471-dc7b34944432"),
     "Show and Tell",
@@ -977,8 +956,20 @@ pub(in crate::card::sets) static SHOW_AND_TELL: CardRecord = CardRecord::new(
          onto the battlefield.",
         EffectDef::ChooseCards {
             player: EffectRecipientDef::players(PlayerSetDef::All),
-            sources: &SHOW_AND_TELL_EACH_HAND,
-            object: A_PERMANENT_CARD_IT_NAMES,
+            // Each player looks only at their own hand, and what they put down arrives
+            // under their own control. The active player chooses first and the other
+            // knows what they chose (CR 101.4a); what this cannot do is land both
+            // cards at the same instant, so the first is already a permanent as the
+            // second is chosen.
+            sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+            // Everything a permanent card can be except a planeswalker or a battle,
+            // which is what the card listed before either existed.
+            object: ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
             // "May": nobody has to, and a player with nothing it names is
             // never asked.
             minimum: 0,
@@ -1051,34 +1042,6 @@ pub(in crate::card::sets) static TELEPATHY: CardRecord = CardRecord::new(
 );
 
 // USG 103 — Time Spiral
-static UNTAP_THE_CHOSEN_LANDS: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-/// "Up to six", and not your own: the lands are chosen as the spell resolves
-/// rather than targeted, and nothing in the clause says who controls them.
-/// A minimum of none is what "up to" means.
-static UNTAP_UP_TO_SIX_LANDS: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Land),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    )),
-    exclude: None,
-    minimum: 0,
-    maximum: 6,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &UNTAP_THE_CHOSEN_LANDS,
-});
-
-static TIME_SPIRAL_EFFECT: [EffectDef; 2] = [
-    abilities::shuffle_back_and_draw_seven(),
-    UNTAP_UP_TO_SIX_LANDS,
-];
-
 pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_legacy_id(
     2290,
     "Time Spiral",
@@ -1090,7 +1053,31 @@ pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_
         AbilityDef::spell(
             "Exile Time Spiral. Each player shuffles their hand and graveyard into their \
              library, then draws seven cards. You untap up to six lands.",
-            EffectDef::Sequence(&TIME_SPIRAL_EFFECT),
+            EffectDef::Sequence(&[
+                abilities::shuffle_back_and_draw_seven(),
+                // "Up to six", and not your own: the lands are chosen as the spell resolves
+                // rather than targeted, and nothing in the clause says who controls them.
+                // A minimum of none is what "up to" means.
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 6,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::Untap {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        )),
+                    },
+                }),
+            ]),
         )
         // "Exile Time Spiral" is the first thing printed and the last thing
         // that happens: the card is on the stack while the rest resolves, so
@@ -1391,12 +1378,6 @@ pub(in crate::card::sets) static EASTERN_PALADIN: CardRecord = CardRecord::new(
 );
 
 // USG 134 — Exhume
-/// Each player looks only at their own graveyard, and what they find arrives
-/// under their own control: the choice is asked of each of them in turn
-/// rather than made once by the caster.
-static EXHUME_EACH_GRAVEYARD: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Graveyard)];
-
 pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legacy_id(
     2267,
     "Exhume",
@@ -1408,7 +1389,10 @@ pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legac
         "Each player puts a creature card from their graveyard onto the battlefield.",
         EffectDef::ChooseCards {
             player: EffectRecipientDef::players(PlayerSetDef::All),
-            sources: &EXHUME_EACH_GRAVEYARD,
+            // Each player looks only at their own graveyard, and what they find arrives
+            // under their own control: the choice is asked of each of them in turn
+            // rather than made once by the caster.
+            sources: &[CardChoiceSourceDef::Zone(ZoneKind::Graveyard)],
             object: ObjectPredicateDef::HasType(CardType::Creature),
             // Not a "may": a player with a creature card down there has to
             // put one back, and one with none is never asked.
@@ -1788,41 +1772,6 @@ pub(in crate::card::sets) static YAWGMOTH_S_EDICT: CardRecord = CardRecord::new(
 );
 
 // USG 171 — Yawgmoth's Will
-/// Everything, played every way: the permission names no card type and no
-/// one play action, which is the whole of "play lands and cast spells".
-static ANY_CARD_ANY_WAY: PlayRestrictionDef =
-    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any);
-
-/// "A card", not "a card or token": a token put into a graveyard goes there
-/// and ceases to exist as it always would.
-static WILL_EXILES_INSTEAD: AbilityDef = AbilityDef::replacement_for(
-    "If a card would be put into your graveyard from anywhere this turn, exile that card instead.",
-    ReplacementEventDef::AnyObjectWouldMove {
-        to: ZoneKind::Graveyard,
-        owner: PlayerRelation::You,
-        tokens: false,
-    },
-    ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
-);
-
-/// The permission belongs to the player. The replacement belongs to nothing
-/// at all: the card making it is in the graveyard -- or in exile, by its own
-/// clause -- before it applies, so it is created as an effect object that
-/// lasts the turn rather than granted to a source that will not be there.
-static WILL_UNLOCKS_THE_GRAVEYARD: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Controller,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
-            GraveyardPlayPermissionDef::unlimited(ANY_CARD_ANY_WAY),
-        )),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::CreateOngoingEffect(OngoingEffectDef::unbound(
-        &WILL_EXILES_INSTEAD,
-        ResolvedEffectDurationDef::UntilEndOfTurn,
-    )),
-];
-
 pub(in crate::card::sets) static YAWGMOTH_S_WILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d3e3c3a-d351-4d91-8884-312d4b6f540d"),
     "Yawgmoth's Will",
@@ -1833,7 +1782,35 @@ pub(in crate::card::sets) static YAWGMOTH_S_WILL: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell(
         "Until end of turn, you may play lands and cast spells from your graveyard.\nIf a card \
          would be put into your graveyard from anywhere this turn, exile that card instead.",
-        EffectDef::Sequence(&WILL_UNLOCKS_THE_GRAVEYARD),
+        // The permission belongs to the player. The replacement belongs to nothing
+        // at all: the card making it is in the graveyard -- or in exile, by its own
+        // clause -- before it applies, so it is created as an effect object that
+        // lasts the turn rather than granted to a source that will not be there.
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromGraveyard(
+                    // Everything, played every way: the permission names no card type and no
+                    // one play action, which is the whole of "play lands and cast spells".
+                    GraveyardPlayPermissionDef::unlimited(PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::Any)),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::CreateOngoingEffect(OngoingEffectDef::unbound(
+                // "A card", not "a card or token": a token put into a graveyard goes there
+                // and ceases to exist as it always would.
+                &AbilityDef::replacement_for(
+                    "If a card would be put into your graveyard from anywhere this turn, exile that card instead.",
+                    ReplacementEventDef::AnyObjectWouldMove {
+                        to: ZoneKind::Graveyard,
+                        owner: PlayerRelation::You,
+                        tokens: false,
+                    },
+                    ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
+                ),
+                ResolvedEffectDurationDef::UntilEndOfTurn,
+            )),
+        ]),
     )),
 );
 
@@ -2020,31 +1997,6 @@ pub(in crate::card::sets) static GOBLIN_CADETS: CardRecord = CardRecord::new(
 );
 
 // USG 190 — Goblin Lackey
-/// "A Goblin permanent card": Gempalm Incinerator is a Goblin card that is
-/// also a creature, and nothing in the pool is a Goblin instant, but the
-/// clause names permanents rather than creatures and so does this.
-static A_GOBLIN_PERMANENT_IN_HAND: [CardChoiceSourceDef; 1] =
-    [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
-/// A minimum of zero is the "you may": the offer may be answered with
-/// nothing, and with no Goblin in hand it is never made at all.
-static GOBLIN_LACKEY_TRIGGER: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &A_GOBLIN_PERMANENT_IN_HAND,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Instant),
-            ObjectPredicateDef::HasType(CardType::Sorcery),
-        ])),
-    ]),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new_with_legacy_id(
     2017,
     "Goblin Lackey",
@@ -2056,7 +2008,33 @@ pub(in crate::card::sets) static GOBLIN_LACKEY: CardRecord = CardRecord::new_wit
         AbilityDef::triggered(
             "Whenever this creature deals damage to a player, you may put a Goblin permanent card from your hand onto the battlefield.",
             TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Any),
-            GOBLIN_LACKEY_TRIGGER,
+            // A minimum of zero is the "you may": the offer may be answered with
+            // nothing, and with no Goblin in hand it is never made at all.
+            EffectDef::ChooseCards {
+                player: EffectRecipientDef::Controller,
+                // "A Goblin permanent card": Gempalm Incinerator is a Goblin card that is
+                // also a creature, and nothing in the pool is a Goblin instant, but the
+                // clause names permanents rather than creatures and so does this.
+                sources: &const { [CardChoiceSourceDef::Zone(ZoneKind::Hand)] },
+                object: ObjectPredicateDef::All(&const {
+                    [
+                        ObjectPredicateDef::Subtype("Goblin"),
+                        ObjectPredicateDef::Not(&const {
+                            ObjectPredicateDef::AnyOf(&const {
+                                [
+                                    ObjectPredicateDef::HasType(CardType::Instant),
+                                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                                ]
+                            })
+                        }),
+                    ]
+                }),
+                minimum: 0,
+                maximum: 1,
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
         ),
     ),
 );
@@ -2344,66 +2322,6 @@ pub(in crate::card::sets) static SHOWER_OF_SPARKS: CardRecord = CardRecord::new(
 /// the delayed sacrifice cannot name the card that was in hand.
 const SNEAK_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
-/// "At the beginning of the next end step", whoever's turn it is: a creature
-/// cheated in on their turn is sacrificed at the end of that turn rather
-/// than surviving to yours.
-static SNEAK_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
-    "Sacrifice the creature at the beginning of the next end step.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(SNEAK_ARRIVAL)),
-    },
-);
-
-/// Installed as the creature arrives, so it names that permanent rather than
-/// whatever is on the battlefield when the end step comes.
-static SNEAK_SACRIFICE_LATER: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&SNEAK_SACRIFICES_IT));
-
-static SNEAK_HASTE: AbilityDef = abilities::haste();
-static SNEAK_HASTE_EFFECT: AppliedEffectDef = AppliedEffectDef::add_ability(&SNEAK_HASTE);
-
-static SNEAK_AFTER_MOVE: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(SNEAK_ARRIVAL)),
-        effect: SNEAK_HASTE_EFFECT,
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-    SNEAK_SACRIFICE_LATER,
-];
-
-/// Haste and the delayed sacrifice are separate effects on the permanent
-/// created by the move.
-static SNEAK_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    binding: SNEAK_ARRIVAL,
-    counters: None,
-    then: &EffectDef::Sequence(&SNEAK_AFTER_MOVE),
-};
-
-static A_CREATURE_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Hand],
-    PlayerRelation::You,
-);
-
-/// "You may": a minimum of none, so activating it with nothing worth
-/// cheating in is legal and does nothing.
-static SNEAK_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(A_CREATURE_CARD_IN_YOUR_HAND),
-    exclude: None,
-    minimum: 0,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &SNEAK_PUTS_IT_IN,
-});
-
 pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d07dc95d-82a8-4a58-8ea2-d4513bd7316d"),
     "Sneak Attack",
@@ -2415,7 +2333,67 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
         "{R}: You may put a creature card from your hand onto the battlefield. That creature \
          gains haste. Sacrifice the creature at the beginning of the next end step.",
         &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-        SNEAK_CHOOSES,
+        // "You may": a minimum of none, so activating it with nothing worth
+        // cheating in is legal and does nothing.
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Hand],
+                PlayerRelation::You,
+            )),
+            exclude: None,
+            minimum: 0,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            // Haste and the delayed sacrifice are separate effects on the permanent
+            // created by the move.
+            then: &const {
+                EffectDef::PutOntoBattlefieldThen {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                        ObjectBindingIndex::PRIMARY,
+                    )),
+                    binding: SNEAK_ARRIVAL,
+                    counters: None,
+                    then: &const {
+                        EffectDef::Sequence(&const {
+                            [
+                                EffectDef::Apply {
+                                    recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        SNEAK_ARRIVAL,
+                                    )),
+                                    effect: AppliedEffectDef::add_ability(&const {
+                                        abilities::haste()
+                                    }),
+                                    duration: ResolvedEffectDurationDef::Permanent,
+                                },
+                                // Installed as the creature arrives, so it names that permanent rather than
+                                // whatever is on the battlefield when the end step comes.
+                                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                                    // "At the beginning of the next end step", whoever's turn it is: a creature
+                                    // cheated in on their turn is sacrificed at the end of that turn rather
+                                    // than surviving to yours.
+                                    AbilityDef::triggered(
+                                        "Sacrifice the creature at the beginning of the next end step.",
+                                        TriggerEventDef::StepBegins {
+                                            step: TurnStepDef::End,
+                                            player: PlayerRelation::Any,
+                                        },
+                                        EffectDef::Sacrifice {
+                                            object: EffectRecipientDef::objects(
+                                                ObjectSetDef::Binding(SNEAK_ARRIVAL),
+                                            ),
+                                        },
+                                    )
+                                })),
+                            ]
+                        })
+                    },
+                }
+            },
+        }),
     )),
 );
 
@@ -3454,12 +3432,6 @@ pub(in crate::card::sets) static DRIFTING_MEADOW: CardRecord = CardRecord::new(
 );
 
 // USG 321 — Gaea's Cradle
-static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with_legacy_id(
     2111,
     "Gaea's Cradle",
@@ -3472,7 +3444,11 @@ pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with
             &[AbilityCostDef::TapSource],
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
-                amount: ValueDef::CountMatchingObjects(&CREATURES_YOU_CONTROL),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
             },
         )),
 );
@@ -3558,12 +3534,6 @@ pub(in crate::card::sets) static THRAN_QUARRY: CardRecord = CardRecord::new(
 );
 
 // USG 330 — Tolarian Academy
-static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static TOLARIAN_ACADEMY: CardRecord = CardRecord::new_with_legacy_id(
     2112,
     "Tolarian Academy",
@@ -3576,7 +3546,11 @@ pub(in crate::card::sets) static TOLARIAN_ACADEMY: CardRecord = CardRecord::new_
             &[AbilityCostDef::TapSource],
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Blue,
-                amount: ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
             },
         )),
 );

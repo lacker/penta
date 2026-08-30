@@ -253,17 +253,6 @@ pub(in crate::card::sets) static CHARGING_GRIFFIN: CardRecord = CardRecord::new_
 );
 
 // M14 14 — Congregate
-/// Every creature on the battlefield, both sides included: the card says "on
-/// the battlefield" rather than "you control".
-static CONGREGATE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static CONGREGATE_AMOUNT: ScaledValueDef =
-    ScaledValueDef::new(ValueDef::CountMatchingObjects(&CONGREGATE_CREATURES), 2);
-
 pub(in crate::card::sets) static CONGREGATE: CardRecord = CardRecord::new_with_legacy_id(
     1861,
     "Congregate",
@@ -276,7 +265,15 @@ pub(in crate::card::sets) static CONGREGATE: CardRecord = CardRecord::new_with_l
         )],
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Scaled(&CONGREGATE_AMOUNT),
+            amount: ValueDef::Scaled(
+                &// Every creature on the battlefield, both sides included: the card says "on
+                // the battlefield" rather than "you control".
+                ScaledValueDef::new(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                )), 2),
+            ),
         },
     )),
 );
@@ -717,29 +714,6 @@ pub(in crate::card::sets) static ELITE_ARCANIST: CardRecord = CardRecord::new(
 // M14 55 — Essence Scatter (reprint)
 
 // M14 56 — Frost Breath
-/// "Up to two", so nothing at all is a legal declaration, and the skip is
-/// counted on each creature separately -- the two may belong to different
-/// players, who do not reach their untap steps together.
-static FROST_BREATH_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    2,
-)];
-
-static FROST_BREATH_EFFECT: [EffectDef; 2] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::SkipNextUntapSteps {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        count: 1,
-    },
-];
-
 pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new_with_legacy_id(
     1850,
     "Frost Breath",
@@ -748,8 +722,27 @@ pub(in crate::card::sets) static FROST_BREATH: CardRecord = CardRecord::new_with
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Tap up to two target creatures. Those creatures don't untap during their controller's \
          next untap step.",
-        &FROST_BREATH_TARGETS,
-        EffectDef::Sequence(&FROST_BREATH_EFFECT),
+        // "Up to two", so nothing at all is a legal declaration, and the skip is
+        // counted on each creature separately -- the two may belong to different
+        // players, who do not reach their untap steps together.
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            2,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::SkipNextUntapSteps {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                count: 1,
+            },
+        ]),
     )),
 );
 
@@ -998,14 +991,6 @@ pub(in crate::card::sets) static TRAINED_CONDOR: CardRecord = CardRecord::new_wi
 );
 
 // M14 77 — Traumatize
-/// Half of what the library holds when the spell resolves, rounded down.
-/// Reading it from the target rather than from a fixed count is the whole
-/// clause: a Traumatize into an empty library mills nothing.
-static HALF_THEIR_LIBRARY: HalvedValueDef = HalvedValueDef::new(
-    ValueDef::TargetLibrarySize(TargetIndex::PRIMARY),
-    RoundingDef::Down,
-);
-
 pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new_with_legacy_id(
     2008,
     "Traumatize",
@@ -1018,7 +1003,13 @@ pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new_with_l
         )],
         EffectDef::Mill {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Halved(&HALF_THEIR_LIBRARY),
+            // Half of what the library holds when the spell resolves, rounded down.
+            // Reading it from the target rather than from a fixed count is the whole
+            // clause: a Traumatize into an empty library mills nothing.
+            amount: ValueDef::Halved(&HalvedValueDef::new(
+                ValueDef::TargetLibrarySize(TargetIndex::PRIMARY),
+                RoundingDef::Down,
+            )),
             binding: None,
             then: None,
         },
@@ -1438,16 +1429,6 @@ pub(in crate::card::sets) static LIFEBANE_ZOMBIE: CardRecord = CardRecord::new_w
 // M14 102 — Liliana of the Dark Realms (reprint)
 
 // M14 103 — Liliana's Reaver
-static LILIANAS_REAVER_STRIKE: [EffectDef; 2] = [
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::EventPlayer,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    TAPPED_ZOMBIE,
-];
-
 pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new_with_legacy_id(
     1631,
     "Liliana's Reaver",
@@ -1459,7 +1440,15 @@ pub(in crate::card::sets) static LILIANAS_REAVER: CardRecord = CardRecord::new_w
             "Whenever this creature deals combat damage to a player, that player discards a \
              card and you create a tapped 2/2 black Zombie creature token.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            EffectDef::Sequence(&LILIANAS_REAVER_STRIKE),
+            EffectDef::Sequence(&[
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                TAPPED_ZOMBIE,
+            ]),
         ),
     ]),
 );
@@ -1525,14 +1514,12 @@ pub(in crate::card::sets) static NIGHTWING_SHADE: CardRecord = CardRecord::new_w
 );
 
 // M14 110 — Quag Sickness
-static QUAG_SICKNESS_SWAMPS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Swamp"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 static QUAG_SICKNESS_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
-    ValueDef::CountMatchingObjects(&QUAG_SICKNESS_SWAMPS),
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        ObjectPredicateDef::Subtype("Swamp"),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    )),
     -1,
 ));
 
@@ -1610,19 +1597,6 @@ pub(in crate::card::sets) static SHADOWBORN_APOSTLE: CardRecord = CardRecord::ne
 );
 
 // M14 115 — Shadowborn Demon
-/// Fewer than six is at most five. The count is of creature cards in your
-/// own graveyard, which the Demon feeds on and which is why it stops eating
-/// your board once the graveyard is full enough.
-static SHADOWBORN_DEMON_UPKEEP_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Creature),
-        &[ZoneKind::Graveyard],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::LessOrEqual,
-    amount: 5,
-};
-
 pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_with_legacy_id(
     211,
     "Shadowborn Demon",
@@ -1652,7 +1626,18 @@ pub(in crate::card::sets) static SHADOWBORN_DEMON: CardRecord = CardRecord::new_
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            &SHADOWBORN_DEMON_UPKEEP_CONDITION,
+            // Fewer than six is at most five. The count is of creature cards in your
+            // own graveyard, which the Demon feeds on and which is why it stops eating
+            // your board once the graveyard is full enough.
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::LessOrEqual,
+                amount: 5,
+            },
             EffectDef::SacrificeOfChoice {
                 count: ValueDef::Constant(1),
                 player: EffectRecipientDef::Controller,
@@ -1733,11 +1718,6 @@ pub(in crate::card::sets) static UNDEAD_MINOTAUR: CardRecord = CardRecord::new_w
 );
 
 // M14 120 — Vampire Warlord
-static ANOTHER_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
 pub(in crate::card::sets) static VAMPIRE_WARLORD: CardRecord = CardRecord::new_with_legacy_id(
     1484,
     "Vampire Warlord",
@@ -1747,7 +1727,10 @@ pub(in crate::card::sets) static VAMPIRE_WARLORD: CardRecord = CardRecord::new_w
         abilities::regenerate_self(
             "Sacrifice another creature: Regenerate this creature.",
             &[AbilityCostDef::SacrificePermanent {
-                object: ANOTHER_CREATURE,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
                 controller: PlayerRelation::You,
             }],
         ),
@@ -1779,14 +1762,6 @@ pub(in crate::card::sets) static WRING_FLESH: CardRecord = CardRecord::new_with_
 );
 
 // M14 123 — Xathrid Necromancer
-/// "This creature or another Human creature you control" is every Human
-/// creature its controller controls, since the Necromancer is one itself.
-static YOUR_HUMAN_CREATURES: [ObjectPredicateDef; 3] = [
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Subtype("Human"),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-];
-
 pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::new_with_legacy_id(
     1632,
     "Xathrid Necromancer",
@@ -1797,7 +1772,13 @@ pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::n
             "Whenever this creature or another Human creature you control dies, create a \
              tapped 2/2 black Zombie creature token.",
             TriggerEventDef::zone_changed(
-                ObjectPredicateDef::All(&YOUR_HUMAN_CREATURES),
+                // "This creature or another Human creature you control" is every Human
+                // creature its controller controls, since the Necromancer is one itself.
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Human"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
@@ -1819,14 +1800,6 @@ pub(in crate::card::sets) static ACADEMY_RAIDER: CardRecord = CardRecord::new(
 // M14 125 — Act of Treason (reprint)
 
 // M14 126 — Awaken the Ancient
-static AWAKEN_THE_ANCIENT_EFFECTS: [AppliedEffectDef; 5] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Giant"])),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(7), ValueDef::Constant(7)),
-    AppliedEffectDef::add_ability(&abilities::haste()),
-];
-
 pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::new_with_legacy_id(
     1195,
     "Awaken the Ancient",
@@ -1851,7 +1824,16 @@ pub(in crate::card::sets) static AWAKEN_THE_ANCIENT: CardRecord = CardRecord::ne
                 "Enchanted Mountain is a 7/7 red Giant creature with haste. It's still a land.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&AWAKEN_THE_ANCIENT_EFFECTS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Giant"])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(7),
+                            ValueDef::Constant(7),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
                 },
             ),
         ]),
@@ -2377,18 +2359,6 @@ pub(in crate::card::sets) static STRIKING_SLIVER: CardRecord = CardRecord::new_w
 );
 
 // M14 158 — Thorncaster Sliver
-static THORNCASTER_SLIVER_GRANTED_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
-    "Whenever this creature attacks, it deals 1 damage to any target.",
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-);
-
 pub(in crate::card::sets) static THORNCASTER_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
     1211,
     "Thorncaster Sliver",
@@ -2402,7 +2372,17 @@ pub(in crate::card::sets) static THORNCASTER_SLIVER: CardRecord = CardRecord::ne
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Subtype("Sliver"),
                     ]), &[ZoneKind::Battlefield], PlayerRelation::You),
-                effect: AppliedEffectDef::add_ability(&THORNCASTER_SLIVER_GRANTED_ABILITY),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                    "Whenever this creature attacks, it deals 1 damage to any target.",
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    },
+                )),
             },
         ),
     ),
@@ -2522,16 +2502,6 @@ pub(in crate::card::sets) static ELVISH_MYSTIC: CardRecord = CardRecord::new_wit
 );
 
 // M14 170 — Enlarge
-/// Trample and the requirement work together: something has to block it, and
-/// blocking barely slows seven extra power down.
-static ENLARGE_GROWTH: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(7), ValueDef::Constant(7)),
-    AppliedEffectDef::add_ability(&abilities::trample()),
-    AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
-        ObjectPredicateDef::HasType(CardType::Creature),
-    )),
-];
-
 pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_legacy_id(
     1740,
     "Enlarge",
@@ -2545,7 +2515,18 @@ pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_lega
         )],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Composite(&ENLARGE_GROWTH),
+            // Trample and the requirement work together: something has to block it, and
+            // blocking barely slows seven extra power down.
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(7),
+                    ValueDef::Constant(7),
+                ),
+                AppliedEffectDef::add_ability(&abilities::trample()),
+                AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )),
+            ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
@@ -2612,12 +2593,6 @@ pub(in crate::card::sets) static GROUNDSHAKER_SLIVER: CardRecord = CardRecord::n
 );
 
 // M14 178 — Howl of the Night Pack
-static M14_FORESTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord =
     CardRecord::new_with_legacy_id(
         1218,
@@ -2631,7 +2606,11 @@ pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord =
                     "309f1bd4-78af-4722-9d45-b5f40b001570",
                     "Lars Grant-West",
                 ))
-                .with_count(ValueDef::CountMatchingObjects(&M14_FORESTS_YOU_CONTROL)),
+                .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ))),
         )),
     );
 
@@ -2646,46 +2625,11 @@ pub(in crate::card::sets) static HUNT_THE_WEAK: CardRecord = CardRecord::new(
 );
 
 // M14 180 — Into the Wilds
-/// Only a land may be taken, and taking it is optional -- a minimum of zero
-/// is the "you may". Whatever is not taken goes back on top rather than
-/// anywhere else, so a nonland card is still the next draw.
+/// Only a land may be taken, and taking it is optional. Whatever is not
+/// taken remains on top, so a nonland card is still the next draw.
 const WILDS_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 const WILDS_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const WILDS_OTHER: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const WILDS_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-static WILDS_PUT_LAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(WILDS_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &EffectDef::None,
-});
-static WILDS_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(WILDS_CHOSEN),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Binding(WILDS_LAND),
-    exclude: None,
-    minimum: 0,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Private,
-    then: &WILDS_PUT_LAND,
-});
-static WILDS_CLASSIFY: EffectDef = EffectDef::ClassifyObjects(ClassifyObjectsDef {
-    input: ObjectSetDef::Binding(WILDS_INSPECTED),
-    object: ObjectPredicateDef::HasType(CardType::Land),
-    matching: WILDS_LAND,
-    remainder: WILDS_OTHER,
-    then: &WILDS_CHOOSE,
-});
-static INTO_THE_WILDS_LOOK: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(1),
-    WILDS_INSPECTED,
-    &WILDS_CLASSIFY,
-);
-
 pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_with_legacy_id(
     2007,
     "Into the Wilds",
@@ -2699,7 +2643,35 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        INTO_THE_WILDS_LOOK,
+        abilities::bind_top_cards_then(
+            PlayerRefDef::EffectController,
+            ValueDef::Constant(1),
+            WILDS_INSPECTED,
+            &const { EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                input: ObjectSetDef::Binding(WILDS_INSPECTED),
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                matching: WILDS_LAND,
+                remainder: ObjectSetBindingIndex::new(2),
+                then: &EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(WILDS_CHOSEN),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Binding(WILDS_LAND),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(WILDS_CHOSEN),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                }),
+            }) },
+        ),
     )),
 );
 
@@ -2752,12 +2724,6 @@ pub(in crate::card::sets) static LAY_OF_THE_LAND: CardRecord = CardRecord::new_w
 );
 
 // M14 184 — Manaweft Sliver
-static MANAWEFT_SLIVER_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_mana(
-    "{T}: Add one mana of any color.",
-    &[AbilityCostDef::TapSource],
-    EffectDef::AddMana(AddManaEffectDef::any_color()),
-);
-
 pub(in crate::card::sets) static MANAWEFT_SLIVER: CardRecord = CardRecord::new_with_legacy_id(
     1221,
     "Manaweft Sliver",
@@ -2775,7 +2741,11 @@ pub(in crate::card::sets) static MANAWEFT_SLIVER: CardRecord = CardRecord::new_w
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-                effect: AppliedEffectDef::add_ability(&MANAWEFT_SLIVER_GRANTED_ABILITY),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                    "{T}: Add one mana of any color.",
+                    &[AbilityCostDef::TapSource],
+                    EffectDef::AddMana(AddManaEffectDef::any_color()),
+                )),
             },
         ),
     ),
@@ -3024,16 +2994,6 @@ pub(in crate::card::sets) static SPOREMOUND: CardRecord = CardRecord::new_with_l
 );
 
 // M14 197 — Trollhide
-static TROLLHIDE_GRANT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-    AppliedEffectDef::add_ability(&TROLLHIDE_REGENERATION),
-];
-
-static TROLLHIDE_REGENERATION: AbilityDef = abilities::regenerate_self(
-    "{1}{G}: Regenerate this creature.",
-    &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
-);
-
 pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new_with_legacy_id(
     1485,
     "Trollhide",
@@ -3047,7 +3007,16 @@ pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new_with_le
                 "Enchanted creature gets +2/+2 and has \"{1}{G}: Regenerate this creature.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&TROLLHIDE_GRANT),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::regenerate_self(
+                            "{1}{G}: Regenerate this creature.",
+                            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+                        )),
+                    ]),
                 },
             ),
         ]),
@@ -3111,28 +3080,6 @@ pub(in crate::card::sets) static WITCHSTALKER: CardRecord = CardRecord::new(
 );
 
 // M14 203 — Woodborn Behemoth
-static WOODBORN_BEHEMOTH_TRAMPLE: AbilityDef = abilities::trample();
-
-static WOODBORN_BEHEMOTH_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-    AppliedEffectDef::add_ability(&WOODBORN_BEHEMOTH_TRAMPLE),
-];
-
-static EIGHT_LANDS: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Land),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 8,
-};
-
-static WOODBORN_BEHEMOTH_GRANT: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Composite(&WOODBORN_BEHEMOTH_BONUS),
-};
-
 pub(in crate::card::sets) static WOODBORN_BEHEMOTH: CardRecord = CardRecord::new_with_legacy_id(
     1919,
     "Woodborn Behemoth",
@@ -3145,21 +3092,31 @@ pub(in crate::card::sets) static WOODBORN_BEHEMOTH: CardRecord = CardRecord::new
             "As long as you control eight or more lands, this creature gets +4/+4 and has \
              trample.",
             EffectDef::IfCondition {
-                condition: &EIGHT_LANDS,
-                then: &WOODBORN_BEHEMOTH_GRANT,
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 8,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                },
             },
         ),
     ),
 );
 
 // M14 204 — Accorder's Shield
-static ACCORDERS_SHIELD_VIGILANCE: AbilityDef = abilities::vigilance();
-
-static ACCORDERS_SHIELD_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(3)),
-    AppliedEffectDef::add_ability(&ACCORDERS_SHIELD_VIGILANCE),
-];
-
 pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new_with_legacy_id(
     1624,
     "Accorder's Shield",
@@ -3172,7 +3129,13 @@ pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new_
                 "Equipped creature gets +0/+3 and has vigilance.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&ACCORDERS_SHIELD_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
                 },
             ),
             abilities::equip(
@@ -3227,8 +3190,6 @@ pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new
 // M14 209 — Elixir of Immortality (reprint)
 
 // M14 210 — Fireshrieker
-static FIRESHRIEKER_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
-
 pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with_legacy_id(
     1625,
     "Fireshrieker",
@@ -3244,7 +3205,7 @@ pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with
                 "Equipped creature has double strike.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&FIRESHRIEKER_DOUBLE_STRIKE),
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
                 },
             ),
             abilities::equip(
@@ -3266,25 +3227,6 @@ pub(in crate::card::sets) static GUARDIAN_OF_THE_AGES: CardRecord = CardRecord::
 );
 
 // M14 212 — Haunted Plate Mail
-static HAUNTED_PLATE_MAIL_NO_CREATURES: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Creature),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::Equal,
-    amount: 0,
-};
-
-static HAUNTED_PLATE_MAIL_ANIMATION: [AppliedEffectDef; 4] = [
-    AppliedEffectDef::set_card_types(
-        CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
-    ),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Spirit"])),
-    AppliedEffectDef::remove_subtypes(&["Equipment"]),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-];
-
 pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::new_with_legacy_id(
     2312,
     "Haunted Plate Mail",
@@ -3308,11 +3250,26 @@ pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::ne
                 &[],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Composite(&HAUNTED_PLATE_MAIL_ANIMATION),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_card_types(
+                            CardTypeSet::single(CardType::Artifact).with(CardType::Creature),
+                        ),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Spirit"])),
+                        AppliedEffectDef::remove_subtypes(&["Equipment"]),
+                        AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
+                    ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             )
-            .with_activation_condition(&HAUNTED_PLATE_MAIL_NO_CREATURES),
+            .with_activation_condition(&TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            }),
             abilities::equip(
                 &[AbilityCostDef::Mana(mana_cost!("{4}"))],
                 "Equip {4} ({4}: Attach to target creature you control. Equip only as a sorcery.)",
@@ -3644,14 +3601,6 @@ pub(in crate::card::sets) static ENCROACHING_WASTES: CardRecord = CardRecord::ne
 );
 
 // M14 228 — Mutavault
-/// The animation keeps the land types Mutavault is printed with, so the
-/// creature types are added rather than replacing anything.
-static MUTAVAULT_ANIMATION: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-];
-
 pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new_with_legacy_id(
     189,
     "Mutavault",
@@ -3664,7 +3613,13 @@ pub(in crate::card::sets) static MUTAVAULT: CardRecord = CardRecord::new_with_le
             &[AbilityCostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&MUTAVAULT_ANIMATION),
+                // The animation keeps the land types Mutavault is printed with, so the
+                // creature types are added rather than replacing anything.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::ALL),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

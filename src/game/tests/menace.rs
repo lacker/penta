@@ -38,6 +38,13 @@ fn attacker_of(game: &Game) -> GameObjectId {
         .id
 }
 
+fn permanent(game: &Game, id: GameObjectId) -> &Permanent {
+    game.battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == id)
+        .expect("the permanent remains on the battlefield")
+}
+
 fn may_finish(game: &Game) -> bool {
     game.legal_actions(PlayerId::Two)
         .iter()
@@ -143,5 +150,58 @@ fn the_war_drums_menace_your_creatures_and_not_theirs() {
     assert!(
         !game.permanent_has_executable_keyword(blocker, KeywordAbility::Menace),
         "the other side's creatures are not the Drums' creatures"
+    );
+}
+
+#[test]
+fn terror_of_kruin_pass_grants_menace_only_to_your_werewolves() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+
+    let outlaw = creature(10_000, cards::KRUIN_OUTLAW, PlayerId::One);
+    let outlaw_id = outlaw.card.id;
+    game.battlefield.push(outlaw);
+
+    let ally = creature(10_100, cards::TORMENTED_PARIAH, PlayerId::One);
+    let ally_id = ally.card.id;
+    game.battlefield.push(ally);
+
+    let non_werewolf = creature(10_200, cards::SEDGE_TROLL, PlayerId::One);
+    let non_werewolf_id = non_werewolf.card.id;
+    game.battlefield.push(non_werewolf);
+
+    let opponent = creature(10_300, cards::TORMENTED_PARIAH, PlayerId::Two);
+    let opponent_id = opponent.card.id;
+    game.battlefield.push(opponent);
+
+    assert!(game.permanent_has_executable_keyword(
+        permanent(&game, outlaw_id),
+        KeywordAbility::FirstStrike,
+    ));
+    assert!(
+        !game.permanent_has_executable_keyword(permanent(&game, ally_id), KeywordAbility::Menace,)
+    );
+
+    game.transform_permanent(outlaw_id);
+
+    assert!(game.permanent_has_executable_keyword(
+        permanent(&game, outlaw_id),
+        KeywordAbility::DoubleStrike,
+    ));
+    assert!(
+        game.permanent_has_executable_keyword(permanent(&game, outlaw_id), KeywordAbility::Menace,)
+    );
+    assert!(
+        game.permanent_has_executable_keyword(permanent(&game, ally_id), KeywordAbility::Menace,)
+    );
+    assert!(!game.permanent_has_executable_keyword(
+        permanent(&game, non_werewolf_id),
+        KeywordAbility::Menace,
+    ));
+    assert!(
+        !game.permanent_has_executable_keyword(
+            permanent(&game, opponent_id),
+            KeywordAbility::Menace,
+        )
     );
 }

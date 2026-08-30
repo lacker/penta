@@ -66,20 +66,6 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with
     )),
 );
 
-static BLOODGHAST_OPPONENT_AT_TEN_VALUES: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::LifeTotal(PlayerRelation::Opponent),
-    comparison: ComparisonDef::LessOrEqual,
-    right: ValueDef::Constant(10),
-};
-
-static BLOODGHAST_OPPONENT_AT_TEN: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&BLOODGHAST_OPPONENT_AT_TEN_VALUES);
-
-static BLOODGHAST_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
 // ZEN 83 — Bloodghast
 pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63870c81-63bf-4a9a-aeb5-74c6eaded9f1"),
@@ -98,7 +84,11 @@ pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
             AbilityDef::static_ability(
                 "This creature has haste as long as an opponent has 10 or less life.",
                 EffectDef::IfCondition {
-                    condition: &BLOODGHAST_OPPONENT_AT_TEN,
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::LifeTotal(PlayerRelation::Opponent),
+                            comparison: ComparisonDef::LessOrEqual,
+                            right: ValueDef::Constant(10),
+                        }),
                     then: &EffectDef::StaticApply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::add_ability(&abilities::haste()),
@@ -108,7 +98,10 @@ pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
             AbilityDef::triggered(
                 "Landfall — Whenever a land you control enters, you may return this card from your graveyard to the battlefield.",
                 TriggerEventDef::zone_changed(
-                    BLOODGHAST_LAND_YOU_CONTROL,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
@@ -136,18 +129,6 @@ pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
 );
 
 // ZEN 114 — Vampire Hexmage
-/// Any permanent, which is the point: what it takes off a planeswalker is
-/// the loyalty, and a planeswalker with no loyalty is put into a graveyard
-/// by the ordinary state-based action.
-static ANY_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93d2c4d1-6205-404a-b03d-995b90a3a33a"),
     "Vampire Hexmage",
@@ -160,7 +141,17 @@ pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Remove all counters from target permanent.",
             &[AbilityCostDef::SacrificeSource],
-            &ANY_PERMANENT,
+            // Any permanent, which is the point: what it takes off a planeswalker is
+            // the loyalty, and a planeswalker with no loyalty is put into a graveyard
+            // by the ordinary state-based action.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::RemoveAllCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: None,
@@ -184,16 +175,6 @@ static BURST_LIGHTNING_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactl
     AbilityTargetPredicate::AnyTarget,
 )];
 
-static BURST_LIGHTNING_SMALL: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::Constant(2),
-};
-
-static BURST_LIGHTNING_KICKED: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::Constant(4),
-};
-
 pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2dc16614-5cf8-444d-a5ae-cac25018af68"),
     "Burst Lightning",
@@ -208,13 +189,19 @@ pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
             "Kicker {4} (You may pay an additional {4} as you cast this spell.)\nBurst Lightning \
              deals 2 damage to any target. If this spell was kicked, it deals 4 damage instead.",
             &BURST_LIGHTNING_TARGET,
-            BURST_LIGHTNING_SMALL,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
         ),
         abilities::kicker(
             mana_cost!("{4}{R}"),
             "Burst Lightning deals 4 damage to any target.",
             &BURST_LIGHTNING_TARGET,
-            BURST_LIGHTNING_KICKED,
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(4),
+            },
         ),
     ]),
 );
@@ -230,29 +217,6 @@ pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::ne
 );
 
 // ZEN 168 — Lotus Cobra
-/// A land you control, not any land: their fetchland does nothing for her.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static ANY_COLOR: [ManaColor; 5] = [
-    ManaColor::White,
-    ManaColor::Blue,
-    ManaColor::Black,
-    ManaColor::Red,
-    ManaColor::Green,
-];
-
-/// Not a mana ability: it triggers off a land entering rather than off mana
-/// being made (CR 605.1b), so it uses the stack, and the colour is named as
-/// it resolves rather than when it triggers.
-static COBRA_LANDFALL: AbilityDef = AbilityDef::triggered(
-    "Landfall — Whenever a land you control enters, add one mana of any color.",
-    TriggerEventDef::zone_changed(A_LAND_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
-    EffectDef::AddMana(AddManaEffectDef::choice(&ANY_COLOR)),
-);
-
 pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19adde22-e5eb-4815-beb6-c520b3274cc9"),
     "Lotus Cobra",
@@ -260,7 +224,30 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
     CardSet::Zendikar,
     // Two mana that turns every land after it into a Lotus Petal, which is
     // what makes a fetchland a ritual.
-    CardRules::new_creature(mana_cost!("{1}{G}"), &["Snake"], 2, 1).with_ability(COBRA_LANDFALL),
+    // Not a mana ability: it triggers off a land entering rather than off mana
+    // being made (CR 605.1b), so it uses the stack, and the colour is named as
+    // it resolves rather than when it triggers.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Snake"], 2, 1).with_ability(
+        AbilityDef::triggered(
+            "Landfall — Whenever a land you control enters, add one mana of any color.",
+            // A land you control, not any land: their fetchland does nothing for her.
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+                ManaColor::Black,
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ),
 );
 
 // ZEN 193 — Vines of Vastwood
@@ -277,22 +264,6 @@ pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new
 );
 
 // ZEN 197 — Blazing Torch
-static BLAZING_TORCH_GRANTED_ABILITY: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
-    &[
-        AbilityCostDef::TapSource,
-        AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
-    ],
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamageFrom {
-        source: ObjectRefDef::AbilityGrantSource,
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-);
-
 pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_with_legacy_id(
     2314,
     "Blazing Torch",
@@ -317,7 +288,21 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
                 "Equipped creature has \"{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&BLAZING_TORCH_GRANTED_ABILITY),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
+                        &[
+                            AbilityCostDef::TapSource,
+                            AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
+                        ],
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::DealDamageFrom {
+                            source: ObjectRefDef::AbilityGrantSource,
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                    )),
                 },
             ),
             abilities::equip(
@@ -328,12 +313,6 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
 );
 
 // ZEN 201 — Expedition Map
-static EXPEDITION_MAP_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{2}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
-];
-
 pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_with_legacy_id(
     2245,
     "Expedition Map",
@@ -344,7 +323,11 @@ pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_wi
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
         "{2}, {T}, Sacrifice this artifact: Search your library for a land card, reveal it, put \
          it into your hand, then shuffle.",
-        &EXPEDITION_MAP_COST,
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::SacrificeSource,
+        ],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,

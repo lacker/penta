@@ -12,44 +12,6 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // CON 15 — Path to Exile
-/// Any creature, including one of your own: the compensation is what keeps
-/// the printed cost at one mana, not a restriction on whom it may hit.
-static PATH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static PATH_STEPS: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    // The searcher is the creature's controller, read from the announced
-    // target: by now the creature is in exile and cannot be asked. A minimum
-    // of zero is the printed "may" -- declining to search and searching
-    // without finding are the same answer from a hidden zone.
-    EffectDef::SearchZone {
-        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-            TargetIndex::PRIMARY,
-        ))),
-        source: ZoneKind::Library,
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Land),
-            ObjectPredicateDef::Supertype(CardSupertype::Basic),
-        ]),
-        minimum: 0,
-        maximum: ValueDef::Constant(1),
-        reveal: false,
-        destination: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-        shuffle: true,
-        enters_tapped: true,
-        attachment: None,
-        binding: None,
-        then: None,
-    },
-];
-
 pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_with_legacy_id(
     2189,
     "Path to Exile",
@@ -57,27 +19,46 @@ pub(in crate::card::sets) static PATH_TO_EXILE: CardRecord = CardRecord::new_wit
     CardSet::Conflux,
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
         "Exile target creature. Its controller may search their library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
-        &PATH_TARGET,
-        EffectDef::Sequence(&PATH_STEPS),
+        // Any creature, including one of your own: the compensation is what keeps
+        // the printed cost at one mana, not a restriction on whom it may hit.
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+            // The searcher is the creature's controller, read from the announced
+            // target: by now the creature is in exile and cannot be asked. A minimum
+            // of zero is the printed "may" -- declining to search and searching
+            // without finding are the same answer from a hidden zone.
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ]),
     )),
 );
 
 // CON 87 — Noble Hierarch
-static HIERARCH_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-static NOBLE_HIERARCH_ABILITIES: [AbilityDef; 2] = [
-    abilities::exalted(),
-    AbilityDef::activated_mana(
-        "{T}: Add {G}, {W}, or {U}.",
-        &HIERARCH_MANA_COST,
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Green,
-            ManaColor::White,
-            ManaColor::Blue,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static NOBLE_HIERARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6adfe928-1305-444d-b709-1e714544daaf"),
     "Noble Hierarch",
@@ -86,8 +67,18 @@ pub(in crate::card::sets) static NOBLE_HIERARCH: CardRecord = CardRecord::new(
     // A one-mana accelerant for three colours whose body is beside the
     // point, except that exalted makes the 0/1 into a real attacker's
     // dividend on any turn nothing else attacks.
-    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 0, 1)
-        .with_abilities(&NOBLE_HIERARCH_ABILITIES),
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 0, 1).with_abilities(&[
+        abilities::exalted(),
+        AbilityDef::activated_mana(
+            "{T}: Add {G}, {W}, or {U}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // CON 113 — Knight of the Reliquary
@@ -100,54 +91,6 @@ static RELIQUARY_LAND_CARDS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-/// A Forest or a Plains by basic land type rather than by name, so a dual
-/// with either type pays for her too.
-static A_FOREST_OR_PLAINS: ObjectPredicateDef =
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]);
-
-static KNIGHT_FETCH_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificePermanent {
-        object: A_FOREST_OR_PLAINS,
-        controller: PlayerRelation::You,
-    },
-];
-
-static KNIGHT_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::static_ability(
-        "This creature gets +1/+1 for each land card in your graveyard.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
-                ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
-            ),
-        },
-    ),
-    AbilityDef::activated(
-        "{T}, Sacrifice a Forest or Plains: Search your library for a land card, put it onto the \
-         battlefield, then shuffle.",
-        &KNIGHT_FETCH_COST,
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::HasType(CardType::Land),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: false,
-            destination: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            // Untapped, unlike the Wight's: the land she finds can be used
-            // the turn it arrives.
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ad8b8518-c09e-4cb7-95b2-08e4e370d89c"),
     "Knight of the Reliquary",
@@ -156,7 +99,48 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_RELIQUARY: CardRecord = CardRecor
     // Three mana for a body that grows a point every time it fetches, which
     // is what makes the utility lands in the deck worth a card each.
     CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Human", "Knight"], 2, 2)
-        .with_abilities(&KNIGHT_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "This creature gets +1/+1 for each land card in your graveyard.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
+                        ValueDef::CountMatchingObjects(&RELIQUARY_LAND_CARDS),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{T}, Sacrifice a Forest or Plains: Search your library for a land card, put it onto the \
+                 battlefield, then shuffle.",
+                &[
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::SacrificePermanent {
+                        // A Forest or a Plains by basic land type rather than by name, so a dual
+                        // with either type pays for her too.
+                        object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest, BasicLandType::Plains]),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    // Untapped, unlike the Wight's: the land she finds can be used
+                    // the turn it arrives.
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // CON 142 — Exotic Orchard

@@ -81,40 +81,6 @@ pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
 );
 
 // LTR 7 — Eagles of the North
-static EAGLES_FIRST_STRIKE: AbilityDef = abilities::first_strike();
-
-static EAGLES_CHARGE: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&EAGLES_FIRST_STRIKE),
-];
-
-/// Every creature you control as the trigger resolves, the Eagles included:
-/// they are on the battlefield by the time their own arrival is read.
-static CREATURES_YOU_CONTROL_EAGLES: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static EAGLES_ABILITIES: [AbilityDef; 3] = [
-    abilities::flying(),
-    abilities::enters_trigger(
-        "When this creature enters, creatures you control get +1/+0 and gain first strike until \
-         end of turn.",
-        EffectDef::Apply {
-            recipient: CREATURES_YOU_CONTROL_EAGLES,
-            effect: AppliedEffectDef::Composite(&EAGLES_CHARGE),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    abilities::typecycling(
-        "Plainscycling {1} ({1}, Discard this card: Search your library for a Plains card, \
-         reveal it, put it into your hand, then shuffle.)",
-        mana_cost!("{1}"),
-        ObjectPredicateDef::Subtype("Plains"),
-    ),
-];
-
 pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1bd3bc0-77bd-40fe-b4f1-835a04cb6e41"),
     "Eagles of the North",
@@ -124,28 +90,36 @@ pub(in crate::card::sets) static EAGLES_OF_THE_NORTH: CardRecord = CardRecord::n
     // and the six is what the last copy in the deck is worth on a board
     // that is already wide.
     CardRules::new_creature(mana_cost!("{5}{W}"), &["Bird", "Soldier"], 3, 3)
-        .with_abilities(&EAGLES_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger(
+                "When this creature enters, creatures you control get +1/+0 and gain first strike until \
+                 end of turn.",
+                EffectDef::Apply {
+                    // Every creature you control as the trigger resolves, the Eagles included:
+                    // they are on the battlefield by the time their own arrival is read.
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            abilities::typecycling(
+                "Plainscycling {1} ({1}, Discard this card: Search your library for a Plains card, \
+                 reveal it, put it into your hand, then shuffle.)",
+                mana_cost!("{1}"),
+                ObjectPredicateDef::Subtype("Plains"),
+            ),
+        ]),
 );
 
 // LTR 26 — Reprieve
-static REPRIEVE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
-/// Returning the spell is not countering it, so a spell that cannot be
-/// countered is answered all the same -- and its controller keeps the card,
-/// which is the price. Drawing pays for the tempo either way.
-static REPRIEVE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_legacy_id(
     2168,
     "Reprieve",
@@ -153,8 +127,21 @@ pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_leg
     CardSet::LordOfTheRings,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Return target spell to its owner's hand.\nDraw a card.",
-        &REPRIEVE_TARGET,
-        EffectDef::Sequence(&REPRIEVE_EFFECTS),
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        // Returning the spell is not countering it, so a spell that cannot be
+        // countered is answered all the same -- and its controller keeps the card,
+        // which is the price. Drawing pays for the tempo either way.
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -184,18 +171,6 @@ pub(in crate::card::sets) static LORIEN_REVEALED: CardRecord = CardRecord::new_w
 );
 
 // LTR 71 — Stern Scolding
-/// "Power or toughness 2 or less" is a disjunction, not a pair of bounds: a
-/// 5/1 is small enough and a 1/5 is too. Written as "less than 3" because
-/// that is the comparison the predicate offers.
-static STERN_SCOLDING_TARGET: AbilityTargetDef =
-    AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
-            ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
-        ]),
-    ]));
-
 pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_with_legacy_id(
     2125,
     "Stern Scolding",
@@ -203,99 +178,27 @@ pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_wi
     CardSet::LordOfTheRings,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::counter_target(
         "Counter target creature spell with power or toughness 2 or less.",
-        &STERN_SCOLDING_TARGET,
+        // "Power or toughness 2 or less" is a disjunction, not a pair of bounds: a
+        // 5/1 is small enough and a 1/5 is too. Written as "less than 3" because
+        // that is the comparison the predicate offers.
+        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+            ]),
+        ])),
     )),
 );
 
 // LTR 103 — Orcish Bowmasters
-static BOWMASTERS_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
-/// The enters clause and the draws clause are one printed ability with two
-/// ways to fire, not two abilities, so the damage and the amass are written
-/// once and both events reach them.
-static BOWMASTERS_EVENTS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::DrewCard(DrawEventMatcherDef::except_first_in_draw_step(
-        PlayerRelation::Opponent,
-    )),
-];
-
 static AN_ARMY_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::controlled_by(
     ObjectPredicateDef::Subtype("Army"),
     &[ZoneKind::Battlefield],
     PlayerSetDef::Related(PlayerRelation::You),
 );
 
-static NO_ARMY_YOU_CONTROL: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: AN_ARMY_YOU_CONTROL,
-    comparison: ComparisonDef::Equal,
-    amount: 0,
-};
-
-static AMASS_MAKES_AN_ARMY: EffectDef =
-    EffectDef::create_creature_token(&["Orc", "Army"], &[ManaColor::Black], 0, 0).with_art(
-        CardArt::new("6943f966-fd21-427c-a13f-44727edcaa4b", "Veli Nyström"),
-    );
-
 static AMASSED_ARMY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
-/// Amass chooses among the Armies you control, so the counter and the type
-/// both land on the same one -- and the type is added rather than set, which
-/// is what keeps an Army that was already something else both things.
-static AMASS_GROWS_THE_ARMY: EffectDef = EffectDef::Sequence(&[
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
-        effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Orc"])),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-]);
-
-static BOWMASTERS_SHOOTS: [EffectDef; 3] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-    // The token is made first so that the choice below always has something
-    // to find; with an Army already out, nothing new arrives.
-    EffectDef::IfCondition {
-        condition: &NO_ARMY_YOU_CONTROL,
-        then: &AMASS_MAKES_AN_ARMY,
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Objects(AMASSED_ARMY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(AN_ARMY_YOU_CONTROL),
-        exclude: None,
-        minimum: 1,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &AMASS_GROWS_THE_ARMY,
-    }),
-];
-
-static BOWMASTERS_ABILITIES: [AbilityDef; 2] = [
-    abilities::flash(),
-    AbilityDef::triggered_with_targets(
-        "When this creature enters and whenever an opponent draws a card except the first one they \
-         draw in each of their draw steps, this creature deals 1 damage to any target. Then amass \
-         Orcs 1.",
-        TriggerEventDef::AnyOf(&BOWMASTERS_EVENTS),
-        &BOWMASTERS_TARGETS,
-        EffectDef::Sequence(&BOWMASTERS_SHOOTS),
-    ),
-];
 
 pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new_with_legacy_id(
     2215,
@@ -305,28 +208,76 @@ pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new
     // Flash makes the entry itself an ambush, and every extra card an
     // opponent draws afterwards is another arrow and another counter.
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Orc", "Archer"], 1, 1)
-        .with_abilities(&BOWMASTERS_ABILITIES),
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::triggered_with_targets(
+                "When this creature enters and whenever an opponent draws a card except the first one they \
+                 draw in each of their draw steps, this creature deals 1 damage to any target. Then amass \
+                 Orcs 1.",
+                // The enters clause and the draws clause are one printed ability with two
+                // ways to fire, not two abilities, so the damage and the amass are written
+                // once and both events reach them.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::DrewCard(DrawEventMatcherDef::except_first_in_draw_step(
+                        PlayerRelation::Opponent,
+                    )),
+                ]),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    },
+                    // The token is made first so that the choice below always has something
+                    // to find; with an Army already out, nothing new arrives.
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ObjectCount {
+                            query: AN_ARMY_YOU_CONTROL,
+                            comparison: ComparisonDef::Equal,
+                            amount: 0,
+                        },
+                        then: &EffectDef::create_creature_token(&["Orc", "Army"], &[ManaColor::Black], 0, 0).with_art(
+                                CardArt::new("6943f966-fd21-427c-a13f-44727edcaa4b", "Veli Nyström"),
+                            ),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(AMASSED_ARMY),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(AN_ARMY_YOU_CONTROL),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        // Amass chooses among the Armies you control, so the counter and the type
+                        // both land on the same one -- and the type is added rather than set, which
+                        // is what keeps an Army that was already something else both things.
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::AddCounters {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::Constant(1),
+                            },
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
+                                effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Orc"])),
+                                duration: ResolvedEffectDurationDef::Permanent,
+                            },
+                        ]),
+                    }),
+                ]),
+            ),
+        ]),
 );
 
 // LTR 111 — Troll of Khazad-dûm
-static TROLL_ABILITIES: [AbilityDef; 2] = [
-    // Menace with a bigger number, which is why it is written out rather
-    // than printed as the keyword.
-    AbilityDef::static_ability(
-        "This creature can't be blocked except by three or more creatures.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedExceptByAtLeast(3)),
-        },
-    ),
-    abilities::typecycling(
-        "Swampcycling {1} ({1}, Discard this card: Search your library for a Swamp card, reveal \
-         it, put it into your hand, then shuffle.)",
-        mana_cost!("{1}"),
-        ObjectPredicateDef::Subtype("Swamp"),
-    ),
-];
-
 pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6539e26-b63b-4725-9407-caaf451de084"),
     "Troll of Khazad-dûm",
@@ -335,7 +286,23 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
     // Six mana for a body nobody blocks, or one mana for the Swamp the deck
     // was missing. It is in the cube for the second half.
     CardRules::new_creature(mana_cost!("{5}{B}"), &["Troll"], 6, 5)
-        .with_abilities(&TROLL_ABILITIES),
+        .with_abilities(&[
+            // Menace with a bigger number, which is why it is written out rather
+            // than printed as the keyword.
+            AbilityDef::static_ability(
+                "This creature can't be blocked except by three or more creatures.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedExceptByAtLeast(3)),
+                },
+            ),
+            abilities::typecycling(
+                "Swampcycling {1} ({1}, Discard this card: Search your library for a Swamp card, reveal \
+                 it, put it into your hand, then shuffle.)",
+                mana_cost!("{1}"),
+                ObjectPredicateDef::Subtype("Swamp"),
+            ),
+        ]),
 );
 
 // LTR 137 — Improvised Club
@@ -349,26 +316,6 @@ pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
 );
 
 // LTR 139 — Oliphaunt
-static OLIPHAUNT_TRAMPLE: AbilityDef = abilities::trample();
-
-/// What the charge lends: the same trample the Oliphaunt already has, and
-/// two more power to push it through with.
-static OLIPHAUNT_CHARGE: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&OLIPHAUNT_TRAMPLE),
-];
-
-/// "Another": the Oliphaunt cannot lend itself the bonus, which is why the
-/// trigger does nothing when it attacks alone.
-static ANOTHER_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-    )];
-
 pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6989018c-37b1-4282-a4af-9cc97f160b4d"),
     "Oliphaunt",
@@ -383,10 +330,23 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
             "Whenever this creature attacks, another target creature you control gets +2/+0 and \
              gains trample until end of turn.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            &ANOTHER_CREATURE_YOU_CONTROL,
+            // "Another": the Oliphaunt cannot lend itself the bonus, which is why the
+            // trigger does nothing when it attacks alone.
+            &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Composite(&OLIPHAUNT_CHARGE),
+                // What the charge lends: the same trample the Oliphaunt already has, and
+                // two more power to push it through with.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -409,17 +369,6 @@ pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord:
 );
 
 // LTR 158 — Delighted Halfling
-static HALFLING_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CastSpell(
-    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
-)];
-
-/// The rider is the reason the card is played: uncounterable is not a
-/// property of the Halfling but of whatever its mana paid for.
-static HALFLING_MANA_SPEND_EFFECTS: [ManaSpendEffectDef; 1] =
-    [ManaSpendEffectDef::ApplyToPaidSpell(
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-    )];
-
 pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::new_with_legacy_id(
     2153,
     "Delighted Halfling",
@@ -432,8 +381,14 @@ pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::ne
             &[AbilityCostDef::TapSource],
             EffectDef::AddMana(
                 AddManaEffectDef::any_color()
-                    .with_restrictions(&HALFLING_MANA_RESTRICTIONS)
-                    .with_spend_effects(&HALFLING_MANA_SPEND_EFFECTS),
+                    .with_restrictions(&[ManaRestrictionDef::CastSpell(
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                    )])
+                    // The rider is the reason the card is played: uncounterable is not a
+                    // property of the Halfling but of whatever its mana paid for.
+                    .with_spend_effects(&[ManaSpendEffectDef::ApplyToPaidSpell(
+                            AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+                        )]),
             ),
         ),
     ]),
@@ -462,76 +417,6 @@ pub(in crate::card::sets) static GENEROUS_ENT: CardRecord = CardRecord::new_with
 );
 
 // LTR 193 — Arwen, Mortal Queen
-static ARWEN_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::Indestructible,
-        amount: 1,
-    },
-];
-
-/// "Another target creature": Arwen is not among the choices, which is what
-/// keeps her from handing herself the counters twice.
-static ANOTHER_CREATURE: [AbilityTargetDef; 1] =
-    [
-        AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))
-            .excluding_source(),
-    ];
-
-static ARWEN_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
-/// The counter she spends buys the other creature a turn of
-/// indestructibility outright, and both of them keep the pair of counters
-/// afterwards -- so the ability is a trade of her own safety for two
-/// permanently bigger creatures.
-static ARWEN_BLESSING: [EffectDef; 5] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&ARWEN_INDESTRUCTIBLE),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        kind: CounterKind::Lifelink,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::Lifelink,
-        amount: ValueDef::Constant(1),
-    },
-];
-
-static ARWEN_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::as_enters(
-        "Arwen enters with an indestructible counter on her.",
-        ReplacementEffectDef::ModifyBattlefieldEntry(
-            BattlefieldEntryModificationDef::AddCounters {
-                kind: CounterKind::Indestructible,
-                amount: 1,
-            },
-        ),
-    ),
-    AbilityDef::activated_with_targets(
-        "{1}, Remove an indestructible counter from Arwen: Another target creature gains \
-         indestructible until end of turn. Put a +1/+1 counter and a lifelink counter on that \
-         creature and a +1/+1 counter and a lifelink counter on Arwen.",
-        &ARWEN_COST,
-        &ANOTHER_CREATURE,
-        EffectDef::Sequence(&ARWEN_BLESSING),
-    ),
-];
-
 pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("547f92d4-cd1d-4ca7-a6e2-6473b4d3c832"),
     "Arwen, Mortal Queen",
@@ -542,54 +427,69 @@ pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::ne
     // good when she does.
     CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Elf", "Noble"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ARWEN_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::as_enters(
+                "Arwen enters with an indestructible counter on her.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCounters {
+                        kind: CounterKind::Indestructible,
+                        amount: 1,
+                    },
+                ),
+            ),
+            AbilityDef::activated_with_targets(
+                "{1}, Remove an indestructible counter from Arwen: Another target creature gains \
+                 indestructible until end of turn. Put a +1/+1 counter and a lifelink counter on that \
+                 creature and a +1/+1 counter and a lifelink counter on Arwen.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{1}")),
+                    AbilityCostDef::RemoveCountersFromSource {
+                        kind: CounterKind::Indestructible,
+                        amount: 1,
+                    },
+                ],
+                // "Another target creature": Arwen is not among the choices, which is what
+                // keeps her from handing herself the counters twice.
+                &[
+                        AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature))
+                            .excluding_source(),
+                    ],
+                // The counter she spends buys the other creature a turn of
+                // indestructibility outright, and both of them keep the pair of counters
+                // afterwards -- so the ability is a trade of her own safety for two
+                // permanently bigger creatures.
+                EffectDef::Sequence(&[
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::Lifelink,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::Lifelink,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // LTR 203 — Flame of Anor
-/// The condition is read as the spell is cast, not as it resolves, so a
-/// Wizard that dies in response has already done its work.
-static FLAME_OF_ANOR_WIZARD: ConditionDef = ConditionDef::Exists(ObjectQueryDef::controlled_by(
-    ObjectPredicateDef::Subtype("Wizard"),
-    &[ZoneKind::Battlefield],
-    PlayerSetDef::Related(PlayerRelation::You),
-));
-
-static FLAME_OF_ANOR_MODES: [AbilityDef; 3] = [
-    AbilityDef::spell_with_targets(
-        "Target player draws two cards.",
-        &FLAME_OF_ANOR_DRAW_TARGET,
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
-    ),
-    AbilityDef::destroy_target(
-        "Destroy target artifact.",
-        &FLAME_OF_ANOR_ARTIFACT_TARGET,
-        true,
-    ),
-    AbilityDef::spell_with_targets(
-        "This spell deals 5 damage to target creature.",
-        &FLAME_OF_ANOR_CREATURE_TARGET,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(5),
-        },
-    ),
-];
-
-static FLAME_OF_ANOR_DRAW_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static FLAME_OF_ANOR_ARTIFACT_TARGET: AbilityTargetDef =
-    AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact));
-
-static FLAME_OF_ANOR_CREATURE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::HasType(CardType::Creature),
-    )];
-
 pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_with_legacy_id(
     2163,
     "Flame of Anor",
@@ -598,12 +498,44 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
     CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_ability(
         AbilityDef::modal_spell(
             "Choose one. If you control a Wizard as you cast this spell, you may choose two instead.\n• Target player draws two cards.\n• Destroy target artifact.\n• This spell deals 5 damage to target creature.",
-            &FLAME_OF_ANOR_MODES,
+            &[
+                AbilityDef::spell_with_targets(
+                    "Target player draws two cards.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+                AbilityDef::destroy_target(
+                    "Destroy target artifact.",
+                    &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
+                    true,
+                ),
+                AbilityDef::spell_with_targets(
+                    "This spell deals 5 damage to target creature.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(5),
+                    },
+                ),
+            ],
             1,
             1,
             false,
         )
-        .with_conditional_mode_maximum(FLAME_OF_ANOR_WIZARD, 2),
+        // The condition is read as the spell is cast, not as it resolves, so a
+        // Wizard that dies in response has already done its work.
+        .with_conditional_mode_maximum(ConditionDef::Exists(ObjectQueryDef::controlled_by(
+            ObjectPredicateDef::Subtype("Wizard"),
+            &[ZoneKind::Battlefield],
+            PlayerSetDef::Related(PlayerRelation::You),
+        )), 2),
     ),
 );
 

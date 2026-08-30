@@ -12,8 +12,6 @@ use crate::card::{
 use crate::{ObjectBindingIndex, TargetIndex, mana_cost};
 
 // FUT 43 — Reality Strobe
-static REALITY_STROBE_TIME_COUNTERS: [(CounterKind, u16); 1] = [(CounterKind::named("time"), 3)];
-
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
     1709,
     "Reality Strobe",
@@ -30,7 +28,7 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
             },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
-            &REALITY_STROBE_TIME_COUNTERS,
+            &[(CounterKind::named("time"), 3)],
         )),
         abilities::suspend("Suspend 3—{2}{U}", 3, &mana_cost!("{2}{U}")),
     ]),
@@ -69,12 +67,6 @@ pub(in crate::card::sets) static VENSERS_DIFFUSION: CardRecord = CardRecord::new
 );
 
 // FUT 54 — Narcomoeba
-static NARCOMOEBA_ENTERS: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Source,
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f76b3746-2e2c-4560-a2d2-e7b5b92833b2"),
     "Narcomoeba",
@@ -91,7 +83,13 @@ pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
             ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &NARCOMOEBA_ENTERS,
+                effect: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    }
+                },
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -111,17 +109,6 @@ pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
 static BRIDGE_FROM_BELOW_IS_IN_GRAVEYARD: TriggerConditionDef =
     TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
 
-static BRIDGE_FROM_BELOW_OWN_NONTOKEN_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-]);
-
-static BRIDGE_FROM_BELOW_OPPONENT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
-]);
-
 // FUT 81 — Bridge from Below
 pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52c44610-6d4b-4c14-839f-2c085badec90"),
@@ -135,7 +122,11 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
         AbilityDef::triggered_if(
             "Whenever a nontoken creature is put into your graveyard from the battlefield, if this card is in your graveyard, create a 2/2 black Zombie creature token.",
             TriggerEventDef::zone_changed(
-                BRIDGE_FROM_BELOW_OWN_NONTOKEN_CREATURE,
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                ]),
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
@@ -146,7 +137,10 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
         AbilityDef::triggered_if(
             "When a creature is put into an opponent's graveyard from the battlefield, if this card is in your graveyard, exile this card.",
             TriggerEventDef::zone_changed(
-                BRIDGE_FROM_BELOW_OPPONENT_CREATURE,
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
+                ]),
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
@@ -162,7 +156,6 @@ pub(in crate::card::sets) static BRIDGE_FROM_BELOW: CardRecord = CardRecord::new
 );
 
 // FUT 94 — Arc Blade
-static ARC_BLADE_TIME: [(CounterKind, u16); 1] = [(CounterKind::named("time"), 3)];
 pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d1c04fb-213f-4be1-9bba-94c737826bf8"),
     "Arc Blade",
@@ -180,7 +173,7 @@ pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
             },
         )
         .with_resolution_destination(SpellResolutionDestinationDef::ExileWithCounters(
-            &ARC_BLADE_TIME,
+            &[(CounterKind::named("time"), 3)],
         )),
         abilities::suspend("Suspend 3—{2}{R}", 3, &mana_cost!("{2}{R}")),
     ]),
@@ -203,31 +196,6 @@ pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
 );
 
 // FUT 157 — Jhoira of the Ghitu
-static JHOIRA_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{2}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::MoveToZone(
-        crate::card::MoveToZoneCostDef::new(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            ZoneKind::Hand,
-            ZoneKind::Exile,
-            1,
-        )
-        .binding(ObjectBindingIndex::PRIMARY),
-    ),
-];
-static JHOIRA_GRANTS_SUSPEND: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
-        kind: CounterKind::named("time"),
-        amount: ValueDef::Constant(4),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-];
 pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f437128-3a87-4958-97d0-3940d8761cba"),
     "Jhoira of the Ghitu",
@@ -237,28 +205,35 @@ pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::n
         .with_supertype(crate::card::CardSupertype::Legendary)
         .with_ability(AbilityDef::activated(
             "{2}, Exile a nonland card from your hand: Put four time counters on the exiled card. If it doesn't have suspend, it gains suspend.",
-            &JHOIRA_COST,
-            EffectDef::Sequence(&JHOIRA_GRANTS_SUSPEND),
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::MoveToZone(
+                    crate::card::MoveToZoneCostDef::new(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ZoneKind::Hand,
+                        ZoneKind::Exile,
+                        1,
+                    )
+                    .binding(ObjectBindingIndex::PRIMARY),
+                ),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+                    kind: CounterKind::named("time"),
+                    amount: ValueDef::Constant(4),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
         )),
 );
 
 // FUT 161 — Coalition Relic
-/// The printed clause removes the counters and then adds the mana, but the
-/// amount is read off the counters, so the two steps are written the other
-/// way round. One resolution, no priority in between, and nothing else in
-/// the pool watches a charge counter leave: what is observable is that the
-/// counters are gone and that many mana arrived.
-static RELIC_CASHES_IN: [EffectDef; 2] = [
-    EffectDef::AddMana(
-        AddManaEffectDef::any_color()
-            .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
-    ),
-    EffectDef::RemoveAllCounters {
-        object: EffectRecipientDef::Source,
-        kind: Some(CounterKind::named("charge")),
-    },
-];
-
 pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_with_legacy_id(
     2197,
     "Coalition Relic",
@@ -287,29 +262,26 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
                 step: TurnStepDef::PrecombatMain,
                 player: PlayerRelation::You,
             },
-            EffectDef::Sequence(&RELIC_CASHES_IN),
+            // The printed clause removes the counters and then adds the mana, but the
+            // amount is read off the counters, so the two steps are written the other
+            // way round. One resolution, no priority in between, and nothing else in
+            // the pool watches a charge counter leave: what is observable is that the
+            // counters are gone and that many mana arrived.
+            EffectDef::Sequence(&[
+                EffectDef::AddMana(
+                    AddManaEffectDef::any_color()
+                        .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
+                ),
+                EffectDef::RemoveAllCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: Some(CounterKind::named("charge")),
+                },
+            ]),
         ),
     ]),
 );
 
 // FUT 162 — Epochrasite
-static EPOCHRASITE_RETURNS: [EffectDef; 3] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::TriggeringZoneChangeResult,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
-        kind: CounterKind::named("time"),
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
-        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-];
 pub(in crate::card::sets) static EPOCHRASITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7971f6a6-c26c-4f8f-8de7-afc40563967d"),
     "Epochrasite",
@@ -333,66 +305,30 @@ pub(in crate::card::sets) static EPOCHRASITE: CardRecord = CardRecord::new(
                 Some(ZoneKind::Battlefield),
                 Some(ZoneKind::Graveyard),
             ),
-            EffectDef::Sequence(&EPOCHRASITE_RETURNS),
+            EffectDef::Sequence(&const {
+                [
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                        kind: CounterKind::named("time"),
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::TriggeringZoneChangeResultSuccessor,
+                        effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                ]
+            }),
         ),
     ]),
 );
 
 // FUT 165 — Sword of the Meek
-/// Read as the creature enters, so a 1/1 that is only a 1/1 because of what
-/// is already on the battlefield still counts, and a 2/2 shrunk to 1/1 does
-/// too.
-static A_ONE_ONE_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::PowerExactly(1),
-    ObjectPredicateDef::ToughnessExactly(1),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-/// The attachment rides the return rather than following it: what comes back
-/// from the graveyard is a new object, so a later effect would have nothing
-/// left to name.
-static SWORD_RETURNS_AND_EQUIPS: EffectDef = EffectDef::WithBattlefieldArrival {
-    effect: &EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-    },
-    arrival: crate::card::BattlefieldArrivalDef {
-        attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
-            ObjectRefDef::TriggeringObject,
-        )),
-        ..crate::card::BattlefieldArrivalDef::DEFAULT
-    },
-};
-
-static SWORD_OF_THE_MEEK_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "Equipped creature gets +1/+2.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::AttachedPermanent,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(2),
-            ),
-        },
-    ),
-    abilities::equip(
-        &[AbilityCostDef::Mana(mana_cost!("{2}"))],
-        "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
-    ),
-    AbilityDef::triggered(
-        "Whenever a 1/1 creature you control enters, you may return this card from your graveyard \
-         to the battlefield, then attach it to that creature.",
-        TriggerEventDef::zone_changed(A_ONE_ONE_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &SWORD_RETURNS_AND_EQUIPS,
-        },
-    )
-    .with_source_zones(&[ZoneKind::Graveyard]),
-];
-
 pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new_with_legacy_id(
     2220,
     "Sword of the Meek",
@@ -402,7 +338,65 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
     // free it is an engine that never runs out of Swords.
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
-        .with_abilities(&SWORD_OF_THE_MEEK_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
+            ),
+            AbilityDef::triggered(
+                "Whenever a 1/1 creature you control enters, you may return this card from your graveyard \
+                 to the battlefield, then attach it to that creature.",
+                // Read as the creature enters, so a 1/1 that is only a 1/1 because of what
+                // is already on the battlefield still counts, and a 2/2 shrunk to 1/1 does
+                // too.
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&const {
+                        [
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::PowerExactly(1),
+                            ObjectPredicateDef::ToughnessExactly(1),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]
+                    }),
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    // The attachment rides the return rather than following it: what comes back
+                    // from the graveyard is a new object, so a later effect would have nothing
+                    // left to name.
+                    effect: &const {
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &const {
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::Source,
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                }
+                            },
+                            arrival: crate::card::BattlefieldArrivalDef {
+                                attachment: Some(ArrivalAttachmentDef::ArrivalToHost(
+                                    ObjectRefDef::TriggeringObject,
+                                )),
+                                ..crate::card::BattlefieldArrivalDef::DEFAULT
+                            },
+                        }
+                    },
+                },
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // FUT 167 — Darksteel Garrison
@@ -460,11 +454,6 @@ pub(in crate::card::sets) static DRYAD_ARBOR: CardRecord = CardRecord::new_with_
 );
 
 // FUT 177 — Horizon Canopy
-static HORIZON_CANOPY_COLORS: [ManaColor; 2] = [ManaColor::Green, ManaColor::White];
-
-static HORIZON_CANOPY_ABILITIES: [AbilityDef; 2] =
-    abilities::horizon_land("{T}, Pay 1 life: Add {G} or {W}.", &HORIZON_CANOPY_COLORS);
-
 pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_with_legacy_id(
     2285,
     "Horizon Canopy",
@@ -473,7 +462,10 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
     // The original of the cycle Modern Horizons finished twelve years later,
     // and still the one the cube wants: a dual that costs life to use and a
     // card when there is nothing left to use it on.
-    CardRules::new_land(&[]).with_abilities(&HORIZON_CANOPY_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
+        "{T}, Pay 1 life: Add {G} or {W}.",
+        &[ManaColor::Green, ManaColor::White],
+    )),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

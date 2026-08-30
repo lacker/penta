@@ -142,15 +142,6 @@ pub(in crate::card::sets) static MARTYR_S_CAUSE: CardRecord = CardRecord::new(
 );
 
 // ULG 14 — Mother of Runes
-static MOTHER_OF_RUNES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_with_legacy_id(
     2119,
     "Mother of Runes",
@@ -160,7 +151,14 @@ pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_w
         AbilityDef::activated_with_targets(
             "{T}: Target creature you control gains protection from the color of your choice until end of turn.",
             &[AbilityCostDef::TapSource],
-            &MOTHER_OF_RUNES_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
             EffectDef::ChooseColor {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 operation: ColorChoiceOperationDef::ProtectionFromChosenColor,
@@ -347,41 +345,6 @@ pub(in crate::card::sets) static FLEETING_IMAGE: CardRecord = CardRecord::new(
 );
 
 // ULG 32 — Frantic Search
-/// Any lands, not only your own: the printed clause names no controller,
-/// which is what lets it untap a land an opponent's effect left tapped.
-static ANY_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-/// The untap follows the discard rather than preceding it, which is the
-/// printed order and the reason the card is free: the lands it untaps can
-/// pay for the spell it just found.
-static SEARCH_UNTAP: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-static SEARCH_DISCARD_THEN_UNTAP: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ANY_LANDS),
-        exclude: None,
-        minimum: 0,
-        maximum: 3,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SEARCH_UNTAP,
-    }),
-]);
-
 pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_with_legacy_id(
     2078,
     "Frantic Search",
@@ -396,7 +359,38 @@ pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_wi
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
             },
-            SEARCH_DISCARD_THEN_UNTAP,
+            EffectDef::Sequence(&[
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    // Any lands, not only your own: the printed clause names no controller,
+                    // which is what lets it untap a land an opponent's effect left tapped.
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 3,
+                    visibility: ChoiceVisibilityDef::Public,
+                    // The untap follows the discard rather than preceding it, which is the
+                    // printed order and the reason the card is free: the lands it untaps can
+                    // pay for the spell it just found.
+                    then: &EffectDef::Untap {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        )),
+                    },
+                }),
+            ]),
         ]),
     )),
 );
@@ -518,19 +512,6 @@ pub(in crate::card::sets) static THORNWIND_FAERIES: CardRecord = CardRecord::new
 );
 
 // ULG 45 — Tinker
-/// Any artifact at all, and the one you give up is usually the cheapest
-/// thing you own: what the cost measures is a card on the battlefield rather
-/// than what it was worth.
-static SACRIFICE_AN_ARTIFACT: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Artifact),
-    zone: ZoneKind::Battlefield,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
 pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7da23b15-dfb8-4267-9b33-d7a4c035c434"),
     "Tinker",
@@ -543,7 +524,18 @@ pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
             "As an additional cost to cast this spell, sacrifice an artifact.\nSearch your \
              library for an artifact card, put that card onto the battlefield, then shuffle.",
             &[],
-            SACRIFICE_AN_ARTIFACT,
+            // Any artifact at all, and the one you give up is usually the cheapest
+            // thing you own: what the cost measures is a card on the battlefield rather
+            // than what it was worth.
+            SpellAdditionalCostDef {
+                or_life: None,
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zone: ZoneKind::Battlefield,
+                count: 1,
+                counted: SpellAdditionalCostCountDef::Printed,
+                spend: SpendModeDef::ByZone,
+                or: None,
+            },
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -614,14 +606,6 @@ pub(in crate::card::sets) static BRINK_OF_MADNESS: CardRecord = CardRecord::new(
 );
 
 // ULG 51 — Engineered Plague
-/// Creatures of whatever type the Plague named. The chosen type lives on the
-/// enchantment, so the predicate reads it from the ability's source rather
-/// than naming a tribe the way a printed lord does.
-static CREATURES_OF_THE_CHOSEN_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CreatureType),
-]);
-
 pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new_with_legacy_id(
     2048,
     "Engineered Plague",
@@ -641,7 +625,15 @@ pub(in crate::card::sets) static ENGINEERED_PLAGUE: CardRecord = CardRecord::new
             "All creatures of the chosen type get -1/-1.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    CREATURES_OF_THE_CHOSEN_TYPE,
+                    // Creatures of whatever type the Plague named. The chosen type lives on the
+                    // enchantment, so the predicate reads it from the ability's source rather
+                    // than naming a tribe the way a printed lord does.
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasSourcesChosenScalar(
+                            BattlefieldEntryChoiceDestinationDef::CreatureType,
+                        ),
+                    ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
@@ -855,21 +847,6 @@ pub(in crate::card::sets) static TREACHEROUS_LINK: CardRecord = CardRecord::new(
 );
 
 // ULG 72 — Unearth
-/// "Creature card with mana value 3 or less" in your own graveyard. The
-/// bound is what keeps a one-mana reanimation honest: it buys back the
-/// creature you were going to cast anyway, not the one you cheated in.
-static A_SMALL_CREATURE_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ManaValueAtMost(3),
-        ]),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
 pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6cb2549-e485-44d6-9d65-7605c568909e"),
     "Unearth",
@@ -881,7 +858,20 @@ pub(in crate::card::sets) static UNEARTH: CardRecord = CardRecord::new(
         AbilityDef::spell_with_targets(
             "Return target creature card with mana value 3 or less from your graveyard to the \
              battlefield.",
-            &A_SMALL_CREATURE_IN_YOUR_GRAVEYARD,
+            // "Creature card with mana value 3 or less" in your own graveyard. The
+            // bound is what keeps a one-mana reanimation honest: it buys back the
+            // creature you were going to cast anyway, not the one you cheated in.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ManaValueAtMost(3),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Battlefield,
@@ -1144,19 +1134,6 @@ pub(in crate::card::sets) static BLOATED_TOAD: CardRecord = CardRecord::new(
 );
 
 // ULG 98 — Crop Rotation
-/// Sacrificing a land is what makes this an instant-speed tutor rather than a
-/// ramp spell: the land you give up pays for the one you go and get, so the
-/// board count never moves.
-static SACRIFICE_A_LAND: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Land),
-    zone: ZoneKind::Battlefield,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
 pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_with_legacy_id(
     2143,
     "Crop Rotation",
@@ -1166,7 +1143,18 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_wit
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a land.\nSearch your library for a land card, put that card onto the battlefield, then shuffle.",
             &[],
-            SACRIFICE_A_LAND,
+            // Sacrificing a land is what makes this an instant-speed tutor rather than a
+            // ramp spell: the land you give up pays for the one you go and get, so the
+            // board count never moves.
+            SpellAdditionalCostDef {
+                or_life: None,
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zone: ZoneKind::Battlefield,
+                count: 1,
+                counted: SpellAdditionalCostCountDef::Printed,
+                spend: SpendModeDef::ByZone,
+                or: None,
+            },
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1292,13 +1280,6 @@ pub(in crate::card::sets) static MULTANI_S_PRESENCE: CardRecord = CardRecord::ne
 );
 
 // ULG 110 — Rancor
-static RANCOR_GRANT: AbilityDef = abilities::trample();
-
-static RANCOR_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&RANCOR_GRANT),
-];
-
 pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legacy_id(
     2124,
     "Rancor",
@@ -1312,7 +1293,10 @@ pub(in crate::card::sets) static RANCOR: CardRecord = CardRecord::new_with_legac
                 "Enchanted creature gets +2/+0 and has trample.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&RANCOR_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
                 },
             ),
             // An Aura put into the graveyard with its host still triggers, so
@@ -1541,66 +1525,6 @@ pub(in crate::card::sets) static JHOIRA_S_TOOLBOX: CardRecord = CardRecord::new(
 );
 
 // ULG 129 — Memory Jar
-/// Everything in both hands, wherever it came from. The exile is linked to
-/// the Jar so the end step can name exactly these cards rather than
-/// everything that happens to be in exile by then.
-static EVERY_CARD_IN_HAND: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerRelation::Any,
-);
-
-/// `Discard` saturates at the recipient's hand size, so the largest amount
-/// is how "their hand" is said.
-static WHOLE_HAND: ValueDef = ValueDef::Constant(i32::MAX);
-
-static JAR_GIVES_THEM_BACK: [EffectDef; 2] = [
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::EachPlayer,
-        amount: WHOLE_HAND,
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        zone: ZoneKind::Hand,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-];
-
-static MEMORY_JAR_EFFECT: [EffectDef; 3] = [
-    // Face down: the point of the clause is that nobody learns what the
-    // other player put away, only how much of it there was.
-    EffectDef::ExileLinkedToSource {
-        until_source_leaves: false,
-        object: EVERY_CARD_IN_HAND,
-        face_down: true,
-        then: None,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::EachPlayer,
-        amount: ValueDef::Constant(7),
-    },
-    // The discard comes first and the return second, which is what makes
-    // the seven new cards a loan rather than a hand: whatever is left of
-    // them at the end step is thrown away.
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next end step, each player discards their hand and returns to \
-         their hand each card they exiled this way.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::Sequence(&JAR_GIVES_THEM_BACK),
-    ))),
-];
-
-static MEMORY_JAR_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
-
 pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a15d33d6-7213-4482-a1be-ac0a73644af6"),
     "Memory Jar",
@@ -1613,8 +1537,63 @@ pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
         "{T}, Sacrifice this artifact: Each player exiles all cards from their hand face down \
          and draws seven cards. At the beginning of the next end step, each player discards \
          their hand and returns to their hand each card they exiled this way.",
-        &MEMORY_JAR_COST,
-        EffectDef::Sequence(&MEMORY_JAR_EFFECT),
+        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        EffectDef::Sequence(&const {
+            [
+                // Face down: the point of the clause is that nobody learns what the
+                // other player put away, only how much of it there was.
+                EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    // Everything in both hands, wherever it came from. The exile is linked to
+                    // the Jar so the end step can name exactly these cards rather than
+                    // everything that happens to be in exile by then.
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &const { [ZoneKind::Hand] },
+                        PlayerRelation::Any,
+                    ),
+                    face_down: true,
+                    then: None,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(7),
+                },
+                // The discard comes first and the return second, which is what makes
+                // the seven new cards a loan rather than a hand: whatever is left of
+                // them at the end step is thrown away.
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                    AbilityDef::triggered(
+                        "At the beginning of the next end step, each player discards their hand and returns to \
+                         their hand each card they exiled this way.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::Sequence(&const {
+                            [
+                                EffectDef::Discard {
+                                    recipient: EffectRecipientDef::EachPlayer,
+                                    // `Discard` saturates at the recipient's hand size, so the largest amount
+                                    // is how "their hand" is said.
+                                    amount: ValueDef::Constant(i32::MAX),
+                                    selection: DiscardSelectionDef::RecipientChooses,
+                                    then: None,
+                                },
+                                EffectDef::ReturnLinkedExiles {
+                                    object: ObjectPredicateDef::Any,
+                                    counters: None,
+                                    zone: ZoneKind::Hand,
+                                    grant: None,
+                                    controller: None,
+                                    transformed: false,
+                                },
+                            ]
+                        }),
+                    )
+                })),
+            ]
+        }),
     )),
 );
 

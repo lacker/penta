@@ -651,53 +651,6 @@ pub(in crate::card::sets) static ETHER_WELL: CardRecord = CardRecord::new(
 /// so "sacrifice it unless you pay" cannot name the card that was in hand.
 const FLASH_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
-static FLASH_SACRIFICE: EffectDef = EffectDef::Sacrifice {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(FLASH_ARRIVAL)),
-};
-
-/// "Its mana cost reduced by {2}", which is a discount on the generic half
-/// and nothing else: the coloured pips are still paid in their colours.
-static FLASH_UNLESS_PAID: EffectDef = EffectDef::PayOr(PayOrDef {
-    payment: EffectPaymentDef {
-        payer: PlayerSetDef::Related(PlayerRelation::You),
-        cost: EffectPaymentCostDef::ObjectManaCostReducedBy {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(FLASH_ARRIVAL)),
-            generic: 2,
-        },
-    },
-    if_paid: None,
-    otherwise: Some(&FLASH_SACRIFICE),
-    visibility: ChoiceVisibilityDef::Public,
-    condition: None,
-});
-
-static FLASH_PUTS_IT_IN: EffectDef = EffectDef::PutOntoBattlefieldThen {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    binding: FLASH_ARRIVAL,
-    counters: None,
-    then: &FLASH_UNLESS_PAID,
-};
-
-static A_CREATURE_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Hand],
-    PlayerRelation::You,
-);
-
-/// "You may": a minimum of none, so a hand with nothing worth cheating in
-/// leaves the spell doing nothing at all.
-static FLASH_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(A_CREATURE_CARD_IN_YOUR_HAND),
-    exclude: None,
-    minimum: 0,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &FLASH_PUTS_IT_IN,
-});
-
 // MIR 66 — Flash
 pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63af3c26-5b1f-46f6-9aa2-036c615bf5ea"),
@@ -709,7 +662,58 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell(
         "You may put a creature card from your hand onto the battlefield. If you do, sacrifice \
          it unless you pay its mana cost reduced by {2}.",
-        FLASH_CHOOSES,
+        // "You may": a minimum of none, so a hand with nothing worth cheating in
+        // leaves the spell doing nothing at all.
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Hand],
+                PlayerRelation::You,
+            )),
+            exclude: None,
+            minimum: 0,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &const {
+                EffectDef::PutOntoBattlefieldThen {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                        ObjectBindingIndex::PRIMARY,
+                    )),
+                    binding: FLASH_ARRIVAL,
+                    counters: None,
+                    // "Its mana cost reduced by {2}", which is a discount on the generic half
+                    // and nothing else: the coloured pips are still paid in their colours.
+                    then: &const {
+                        EffectDef::PayOr(PayOrDef {
+                            payment: EffectPaymentDef {
+                                payer: PlayerSetDef::Related(PlayerRelation::You),
+                                cost: EffectPaymentCostDef::ObjectManaCostReducedBy {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        FLASH_ARRIVAL,
+                                    )),
+                                    generic: 2,
+                                },
+                            },
+                            if_paid: None,
+                            otherwise: Some(
+                                &const {
+                                    EffectDef::Sacrifice {
+                                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            FLASH_ARRIVAL,
+                                        )),
+                                    }
+                                },
+                            ),
+                            visibility: ChoiceVisibilityDef::Public,
+                            condition: None,
+                        })
+                    },
+                }
+            },
+        }),
     )),
 );
 
@@ -1435,28 +1439,6 @@ pub(in crate::card::sets) static SHADOW_GUILDMAGE: CardRecord = CardRecord::new(
 );
 
 // MIR 141 — Shallow Grave
-static GRAVE_HASTE: AbilityDef = abilities::haste();
-
-/// The creature exiles itself rather than being named by a delayed trigger:
-/// it is the object that arrived, and it carries the clause with it.
-static GRAVE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, exile this creature.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-);
-
-static GRAVE_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_ability(&GRAVE_HASTE),
-    AppliedEffectDef::add_ability(&GRAVE_EXILE_AT_END),
-]);
-
 pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
     2072,
     "Shallow Grave",
@@ -1467,21 +1449,45 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_wit
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell(
         "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
         EffectDef::WithZoneMoveResult {
-            effect: &EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                    player: PlayerRefDef::EffectController,
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                }),
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
+            effect: &const {
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                        player: PlayerRefDef::EffectController,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                    }),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                }
             },
             binding: ObjectSetBindingIndex::PRIMARY,
-            then: &EffectDef::Apply {
-                recipient: EffectRecipientDef::binding_zone_change_successors(
-                    ObjectSetBindingIndex::PRIMARY,
-                ),
-                effect: GRAVE_POST_MOVE_EFFECT,
-                duration: crate::card::ResolvedEffectDurationDef::Permanent,
+            then: &const {
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::binding_zone_change_successors(
+                        ObjectSetBindingIndex::PRIMARY,
+                    ),
+                    effect: AppliedEffectDef::Composite(&const {
+                        [
+                            AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                            // The creature exiles itself rather than being named by a delayed trigger:
+                            // it is the object that arrived, and it carries the clause with it.
+                            AppliedEffectDef::add_ability(&const {
+                                AbilityDef::triggered(
+                                    "At the beginning of the next end step, exile this creature.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::Source,
+                                        zone: ZoneKind::Exile,
+                                        placement: ZonePlacement::Top,
+                                    },
+                                )
+                            }),
+                        ]
+                    }),
+                    duration: crate::card::ResolvedEffectDurationDef::Permanent,
+                }
             },
         },
     )),
@@ -1858,21 +1864,6 @@ pub(in crate::card::sets) static GOBLIN_SOOTHSAYER: CardRecord = CardRecord::new
 );
 
 // MIR 180 — Goblin Tinkerer
-/// The damage is read after the destruction, from the target slot's own
-/// last-known information: the artifact is already in a graveyard by then,
-/// which is the only time the reading is interesting.
-static GOBLIN_TINKERER_PROGRAM: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Source,
-        amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-    },
-];
-
 pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_with_legacy_id(
     2022,
     "Goblin Tinkerer",
@@ -1890,7 +1881,20 @@ pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_w
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
-            EffectDef::Sequence(&GOBLIN_TINKERER_PROGRAM),
+            // The damage is read after the destruction, from the target slot's own
+            // last-known information: the artifact is already in a graveyard by then,
+            // which is the only time the reading is interesting.
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Source,
+                    amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                },
+            ]),
         ),
     ),
 );
@@ -3186,14 +3190,6 @@ pub(in crate::card::sets) static LEAD_GOLEM: CardRecord = CardRecord::new(
 );
 
 // MIR 307 — Lion's Eye Diamond
-/// The hand is the cost and the clause is the drawback: "activate only as an
-/// instant" is what stops it from paying for the spell you are holding,
-/// because that spell is still in the hand it discards. What the deck
-/// playing it wants is the hand already emptied -- a graveyard the discard
-/// filled, or a spell already on the stack.
-static LION_S_EYE_DIAMOND_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::DiscardHand, AbilityCostDef::SacrificeSource];
-
 pub(in crate::card::sets) static LION_S_EYE_DIAMOND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63bacc32-d6ba-420c-9b49-299c08e5fb39"),
     "Lion's Eye Diamond",
@@ -3207,7 +3203,12 @@ pub(in crate::card::sets) static LION_S_EYE_DIAMOND: CardRecord = CardRecord::ne
         AbilityDef::activated_mana(
             "Discard your hand, Sacrifice this artifact: Add three mana of any one color. \
              Activate only as an instant.",
-            &LION_S_EYE_DIAMOND_COST,
+            // The hand is the cost and the clause is the drawback: "activate only as an
+            // instant" is what stops it from paying for the spell you are holding,
+            // because that spell is still in the hand it discards. What the deck
+            // playing it wants is the hand already emptied -- a graveyard the discard
+            // filled, or a spell already on the stack.
+            &[AbilityCostDef::DiscardHand, AbilityCostDef::SacrificeSource],
             EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(3)),
         )
         .only_as_instant(),
@@ -3288,19 +3289,6 @@ pub(in crate::card::sets) static PAUPERS_CAGE: CardRecord = CardRecord::new(
 );
 
 // MIR 315 — Phyrexian Dreadnought
-/// Twelve power, paid in creatures. A board that cannot reach it is never
-/// asked, which is the ordinary case: the deck plays this to be answered by
-/// its own Stifle, not to be paid for.
-static DREADNOUGHT_COST: PayOrDef = PayOrDef::unless(
-    EffectPaymentDef {
-        payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-        cost: EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(12),
-    },
-    &EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-);
-
 pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord::new_with_legacy_id(
     2085,
     "Phyrexian Dreadnought",
@@ -3311,7 +3299,18 @@ pub(in crate::card::sets) static PHYREXIAN_DREADNOUGHT: CardRecord = CardRecord:
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Phyrexian", "Dreadnought"], 12, 12)
         .with_abilities(&[
             abilities::trample(),
-            abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(DREADNOUGHT_COST)),
+            // Twelve power, paid in creatures. A board that cannot reach it is never
+            // asked, which is the ordinary case: the deck plays this to be answered by
+            // its own Stifle, not to be paid for.
+            abilities::enters_trigger("When this creature enters, sacrifice it unless you sacrifice any number of creatures with total power 12 or greater.", EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                    cost: EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(12),
+                },
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            ))),
         ]),
 );
 

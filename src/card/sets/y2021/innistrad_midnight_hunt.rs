@@ -9,52 +9,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // MID 1 — Adeline, Resplendent Cathar
-static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// "Whenever you attack" is one or more creatures you control attacking,
-/// counted once for the declaration rather than once per attacker.
-static WHENEVER_YOU_ATTACK: TriggerEventDef = TriggerEventDef::attack_declared(
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    1,
-    None,
-);
-
-static ADELINE_ABILITIES: [AbilityDef; 3] = [
-    abilities::vigilance(),
-    AbilityDef::static_ability(
-        "Adeline's power is equal to the number of creatures you control.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            // Adeline is a creature you control, so she counts herself, and
-            // every token she makes adds one more before damage. The count
-            // defines her power rather than adding to it, which is why it
-            // also answers in a hand or a graveyard.
-            effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
-                &CREATURES_YOU_CONTROL,
-            )),
-        },
-    ),
-    // The token was never declared as an attacker, so nothing watching a
-    // declaration sees it -- and with two players the one opponent is the
-    // only thing it could be attacking.
-    AbilityDef::triggered(
-        "Whenever you attack, for each opponent, create a 1/1 white Human creature token that's \
-         tapped and attacking that player or a planeswalker they control.",
-        WHENEVER_YOU_ATTACK,
-        EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
-            .with_art(CardArt::new(
-                "7d13a93a-a43d-4cf5-8300-8341f3b7f1b1",
-                "Miguel Mercado",
-            ))
-            .entering_tapped()
-            .entering_attacking(),
-    ),
-];
-
 pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
     CardRecord::new_with_legacy_id(
         2280,
@@ -65,18 +19,50 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
         // every turn after that, because each token it makes makes it bigger.
         CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&ADELINE_ABILITIES),
+            .with_abilities(&[
+                abilities::vigilance(),
+                AbilityDef::static_ability(
+                    "Adeline's power is equal to the number of creatures you control.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        // Adeline is a creature you control, so she counts herself, and
+                        // every token she makes adds one more before damage. The count
+                        // defines her power rather than adding to it, which is why it
+                        // also answers in a hand or a graveyard.
+                        effect: AppliedEffectDef::define_power(ValueDef::CountMatchingObjects(
+                            &ObjectQueryDef::matching(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                    },
+                ),
+                // The token was never declared as an attacker, so nothing watching a
+                // declaration sees it -- and with two players the one opponent is the
+                // only thing it could be attacking.
+                AbilityDef::triggered(
+                    "Whenever you attack, for each opponent, create a 1/1 white Human creature token that's \
+                     tapped and attacking that player or a planeswalker they control.",
+                    // "Whenever you attack" is one or more creatures you control attacking,
+                    // counted once for the declaration rather than once per attacker.
+                    TriggerEventDef::attack_declared(
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        1,
+                        None,
+                    ),
+                    EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
+                        .with_art(CardArt::new(
+                            "7d13a93a-a43d-4cf5-8300-8341f3b7f1b1",
+                            "Miguel Mercado",
+                        ))
+                        .entering_tapped()
+                        .entering_attacking(),
+                ),
+            ]),
     );
 
 // MID 10 — Cathar Commando
-static AN_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ]),
-    )];
-
 pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_with_legacy_id(
     2273,
     "Cathar Commando",
@@ -92,7 +78,12 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
                 AbilityCostDef::Mana(mana_cost!("{1}")),
                 AbilityCostDef::SacrificeSource,
             ],
-            &AN_ARTIFACT_OR_ENCHANTMENT,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
             EffectDef::destroy_target(TargetIndex::PRIMARY, true),
         ),
     ]),
@@ -160,25 +151,6 @@ pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new
 );
 
 // MID 107 — Infernal Grasp
-/// The life is part of the resolution rather than a cost, so a target that
-/// survives being destroyed still costs it -- and a Grasp that never
-/// resolves at all costs nothing.
-static INFERNAL_GRASP_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17824929-f131-4b8d-addb-66c25323155e"),
     "Infernal Grasp",
@@ -188,8 +160,23 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
     // whole of the price.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target creature. You lose 2 life.",
-        &A_CREATURE,
-        EffectDef::Sequence(&INFERNAL_GRASP_EFFECTS),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        // The life is part of the resolution rather than a cost, so a target that
+        // survives being destroyed still costs it -- and a Grasp that never
+        // resolves at all costs nothing.
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
     )),
 );
 

@@ -15,34 +15,6 @@ use crate::mana_cost;
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
 // P94 1 — Arena
-static ARENA_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    }),
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    })
-    .chosen_by_opponent(),
-];
-static ARENA_EFFECTS: [EffectDef; 3] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Tap {
-        object: EffectRecipientDef::Target(TargetIndex(1)),
-    },
-    EffectDef::Fight {
-        first: ObjectRefDef::Target(TargetIndex::PRIMARY),
-        second: ObjectRefDef::Target(TargetIndex(1)),
-        excess: None,
-    },
-];
 pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f989fda-2e54-427c-9154-4820c48abb02"),
     "Arena",
@@ -54,8 +26,34 @@ pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
             AbilityCostDef::Mana(mana_cost!("{3}")),
             AbilityCostDef::TapSource,
         ],
-        &ARENA_TARGETS,
-        EffectDef::Sequence(&ARENA_EFFECTS),
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            })
+            .chosen_by_opponent(),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex(1)),
+            },
+            EffectDef::Fight {
+                first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                second: ObjectRefDef::Target(TargetIndex(1)),
+                excess: None,
+            },
+        ]),
     )),
 );
 
@@ -70,35 +68,6 @@ pub(in crate::card::sets) static SEWERS_OF_ESTARK: CardRecord = CardRecord::new(
 );
 
 // P94 3 — Nalathni Dragon
-/// The pump is the whole ability: the fourth activation in a turn installs the
-/// delayed sacrifice, the way Dragon Whelp's does.
-static NALATHNI_DRAGON_PUMP: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(1),
-            ValueDef::Constant(0),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::SourceActivationsThisTurn {
-            comparison: ComparisonDef::GreaterOrEqual,
-            amount: 4,
-        },
-        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-            "At the beginning of the next end step, sacrifice this creature.",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::End,
-                player: PlayerRelation::Any,
-            },
-            EffectDef::Sacrifice {
-                object: EffectRecipientDef::Source,
-            },
-        ))),
-    },
-];
-
 pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_with_legacy_id(
     1781,
     "Nalathni Dragon",
@@ -110,7 +79,34 @@ pub(in crate::card::sets) static NALATHNI_DRAGON: CardRecord = CardRecord::new_w
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step.",
             &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-            EffectDef::Sequence(&NALATHNI_DRAGON_PUMP),
+            // The pump is the whole ability: the fourth activation in a turn installs the
+            // delayed sacrifice, the way Dragon Whelp's does.
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceActivationsThisTurn {
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 4,
+                    },
+                    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                        "At the beginning of the next end step, sacrifice this creature.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ))),
+                },
+            ]),
         ),
     ]),
 );

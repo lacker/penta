@@ -63,27 +63,6 @@ pub(in crate::card::sets) static FARREL_S_MANTLE: CardRecord = CardRecord::new(
 );
 
 // FEM 3a — Farrel's Zealot
-static FARRELS_ZEALOT_STRIKE: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
-static FARRELS_ZEALOT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static FARRELS_ZEALOT: CardRecord = CardRecord::new_with_legacy_id(
     1720,
     "Farrel's Zealot",
@@ -96,10 +75,27 @@ pub(in crate::card::sets) static FARRELS_ZEALOT: CardRecord = CardRecord::new_wi
             TriggerEventDef::AttacksAndIsNotBlocked {
                 attacker: ObjectPredicateDef::Source,
             },
-            &FARRELS_ZEALOT_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Sequence(&FARRELS_ZEALOT_STRIKE),
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
             },
         ),
     ),
@@ -445,34 +441,6 @@ pub(in crate::card::sets) static ORDER_OF_LEITBUR: CardRecord = CardRecord::new_
 // FEM 16c — Order of Leitbur (alternate printing)
 
 // FEM 17 — Deep Spawn
-static DEEP_SPAWN_SHROUD: AbilityDef = abilities::shroud();
-
-/// One activation buys three things at once, and the untap prohibition is
-/// what pays for the other two: shroud until end of turn, no untap next turn,
-/// and the tap that puts the creature away in the first place.
-static DEEP_SPAWN_HIDE: [EffectDef; 3] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&DEEP_SPAWN_SHROUD),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    // Until the upkeep after next, which outlives the untap step it has to
-    // reach: an until-end-of-turn effect would be gone before the untap
-    // happens at all.
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-        duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
-    },
-    EffectDef::Tap {
-        object: EffectRecipientDef::Source,
-    },
-];
-
-static DEEP_SPAWN_SACRIFICE: EffectDef = EffectDef::Sacrifice {
-    object: EffectRecipientDef::Source,
-};
-
 pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_legacy_id(
     1834,
     "Deep Spawn",
@@ -489,7 +457,9 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
             EffectDef::PayOr(PayOrDef {
                 payment: EffectPaymentDef::mill(PlayerSetDef::Related(PlayerRelation::You), 2),
                 if_paid: None,
-                otherwise: Some(&DEEP_SPAWN_SACRIFICE),
+                otherwise: Some(&EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                }),
                 visibility: ChoiceVisibilityDef::Public,
                 condition: None,
             }),
@@ -498,7 +468,27 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
             "{U}: This creature gains shroud until end of turn and doesn't untap during your \
              next untap step. Tap this creature.",
             &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::Sequence(&DEEP_SPAWN_HIDE),
+            // One activation buys three things at once, and the untap prohibition is
+            // what pays for the other two: shroud until end of turn, no untap next turn,
+            // and the tap that puts the creature away in the first place.
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                // Until the upkeep after next, which outlives the untap step it has to
+                // reach: an until-end-of-turn effect would be gone before the untap
+                // happens at all.
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                    duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
+                },
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Source,
+                },
+            ]),
         ),
     ]),
 );
@@ -518,37 +508,6 @@ pub(in crate::card::sets) static HIGH_TIDE: CardRecord = CardRecord::new(
 // FEM 18c — High Tide (alternate printing)
 
 // FEM 19a — Homarid
-static HOMARID_ONE_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::named("tide"),
-    comparison: ComparisonDef::Equal,
-    amount: 1,
-};
-
-static HOMARID_THREE_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::named("tide"),
-    comparison: ComparisonDef::Equal,
-    amount: 3,
-};
-
-static HOMARID_FOUR_TIDE: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::named("tide"),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 4,
-};
-
-static HOMARID_SHRINK: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::modify_power_toughness(
-        ValueDef::Constant(-1),
-        ValueDef::Constant(-1),
-    ),
-};
-
-static HOMARID_GROW: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-};
-
 pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_legacy_id(
     1588,
     "Homarid",
@@ -579,22 +538,46 @@ pub(in crate::card::sets) static HOMARID: CardRecord = CardRecord::new_with_lega
         AbilityDef::static_ability(
             "As long as there is exactly one tide counter on this creature, it gets -1/-1.",
             EffectDef::IfCondition {
-                condition: &HOMARID_ONE_TIDE,
-                then: &HOMARID_SHRINK,
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("tide"),
+                    comparison: ComparisonDef::Equal,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
+                },
             },
         ),
         AbilityDef::static_ability(
             "As long as there are exactly three tide counters on this creature, it gets +1/+1.",
             EffectDef::IfCondition {
-                condition: &HOMARID_THREE_TIDE,
-                then: &HOMARID_GROW,
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("tide"),
+                    comparison: ComparisonDef::Equal,
+                    amount: 3,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
             },
         ),
         AbilityDef::triggered_if(
             "Whenever there are four or more tide counters on this creature, remove all tide \
              counters from it.",
             TriggerEventDef::StateCondition,
-            &HOMARID_FOUR_TIDE,
+            &TriggerConditionDef::SourceCounters {
+                kind: CounterKind::named("tide"),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 4,
+            },
             EffectDef::RemoveAllCounters {
                 object: EffectRecipientDef::Source,
                 kind: Some(CounterKind::named("tide")),
@@ -772,22 +755,6 @@ pub(in crate::card::sets) static TIDAL_INFLUENCE: CardRecord = CardRecord::new(
 );
 
 // FEM 29 — Vodalian Knights
-static DEFENDER_CONTROLS_AN_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
-static YOU_CONTROL_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::Equal,
-    amount: 0,
-};
-
 pub(in crate::card::sets) static VODALIAN_KNIGHTS: CardRecord = CardRecord::new_with_legacy_id(
     1403,
     "Vodalian Knights",
@@ -798,12 +765,24 @@ pub(in crate::card::sets) static VODALIAN_KNIGHTS: CardRecord = CardRecord::new_
             abilities::first_strike(),
             AbilityDef::static_ability(
                 "This creature can't attack unless defending player controls an Island.",
-                EffectDef::CannotAttackUnless(&DEFENDER_CONTROLS_AN_ISLAND),
+                EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                )),
             ),
             AbilityDef::triggered_if(
                 "When you control no Islands, sacrifice this creature.",
                 TriggerEventDef::StateCondition,
-                &YOU_CONTROL_NO_ISLANDS,
+                &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::Equal,
+                    amount: 0,
+                },
                 EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
                 },
@@ -1017,18 +996,6 @@ pub(in crate::card::sets) static INITIATES_OF_THE_EBON_HAND: CardRecord = CardRe
 // FEM 39c — Initiates of the Ebon Hand (alternate printing)
 
 // FEM 40a — Mindstab Thrull
-static MINDSTAB_THRULL_STRIKE: [EffectDef; 2] = [
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Opponent,
-        amount: ValueDef::Constant(3),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-];
-
 pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_with_legacy_id(
     1579,
     "Mindstab Thrull",
@@ -1046,7 +1013,17 @@ pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_w
             },
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Sequence(&MINDSTAB_THRULL_STRIKE),
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(3),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
             },
         ),
     ),
@@ -1057,28 +1034,6 @@ pub(in crate::card::sets) static MINDSTAB_THRULL: CardRecord = CardRecord::new_w
 // FEM 40c — Mindstab Thrull (alternate printing)
 
 // FEM 41a — Necrite
-static NECRITE_STRIKE: [EffectDef; 2] = [
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-    // "It can't be regenerated" is the destruction's own flag rather than a
-    // separate prohibition: nothing else this turn is being denied a shield.
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: false,
-        then: None,
-    },
-];
-
-static NECRITE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_legacy_id(
     1580,
     "Necrite",
@@ -1091,10 +1046,28 @@ pub(in crate::card::sets) static NECRITE: CardRecord = CardRecord::new_with_lega
             TriggerEventDef::AttacksAndIsNotBlocked {
                 attacker: ObjectPredicateDef::Source,
             },
-            &NECRITE_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Sequence(&NECRITE_STRIKE),
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::Source,
+                    },
+                    // "It can't be regenerated" is the destruction's own flag rather than a
+                    // separate prohibition: nothing else this turn is being denied a shield.
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: false,
+                        then: None,
+                    },
+                ]),
             },
         ),
     ),
@@ -1418,49 +1391,6 @@ pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new_wi
 // FEM 56c — Goblin Grenade (alternate printing)
 
 // FEM 57 — Goblin Kites
-/// Berserk's shape with a coin in it: pump now, and a delayed trigger that
-/// remembers the same target and may take it away.
-static GOBLIN_KITES_EFFECT: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&GOBLIN_KITES_FLYING),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "Flip a coin at the beginning of the next end step. If you lose the flip, sacrifice \
-         that creature.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::Randomized {
-            likelihood: LikelihoodDef::new(0.5),
-            on_success: &EffectDef::None,
-            on_failure: &GOBLIN_KITES_SACRIFICE,
-        },
-    ))),
-];
-
-static GOBLIN_KITES_FLYING: AbilityDef = abilities::flying();
-
-static GOBLIN_KITES_SACRIFICE: EffectDef = EffectDef::Sacrifice {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-};
-
-/// "Toughness 2 or less", said as a strict bound because that is the shape the
-/// predicate takes.
-static GOBLIN_KITES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new_with_legacy_id(
     1800,
     "Goblin Kites",
@@ -1472,15 +1402,48 @@ pub(in crate::card::sets) static GOBLIN_KITES: CardRecord = CardRecord::new_with
              of turn. Flip a coin at the beginning of the next end step. If you lose the \
              flip, sacrifice that creature.",
             &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-            &GOBLIN_KITES_TARGET,
-            EffectDef::Sequence(&GOBLIN_KITES_EFFECT),
+            // "Toughness 2 or less", said as a strict bound because that is the shape the
+            // predicate takes.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            // Berserk's shape with a coin in it: pump now, and a delayed trigger that
+            // remembers the same target and may take it away.
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "Flip a coin at the beginning of the next end step. If you lose the flip, sacrifice \
+                     that creature.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::Randomized {
+                        likelihood: LikelihoodDef::new(0.5),
+                        on_success: &EffectDef::None,
+                        on_failure: &EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    },
+                ))),
+            ]),
         ),
     ),
 );
 
 // FEM 58a — Goblin War Drums
-static GOBLIN_WAR_DRUMS_MENACE: AbilityDef = abilities::menace();
-
 pub(in crate::card::sets) static GOBLIN_WAR_DRUMS: CardRecord = CardRecord::new_with_legacy_id(
     1801,
     "Goblin War Drums",
@@ -1494,7 +1457,7 @@ pub(in crate::card::sets) static GOBLIN_WAR_DRUMS: CardRecord = CardRecord::new_
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
-            effect: AppliedEffectDef::add_ability(&GOBLIN_WAR_DRUMS_MENACE),
+            effect: AppliedEffectDef::add_ability(&abilities::menace()),
         },
     )),
 );
@@ -1516,14 +1479,6 @@ pub(in crate::card::sets) static GOBLIN_WARRENS: CardRecord = CardRecord::new(
 );
 
 // FEM 60 — Orcish Captain
-/// A coin is an even chance, which is the whole of what "flip a coin" means
-/// to the seeded randomiser.
-const COIN_FLIP: LikelihoodDef = LikelihoodDef::new(0.5);
-
-static ORCISH_CAPTAIN_WON: EffectDef = orcish_captain_pump(2, 0);
-
-static ORCISH_CAPTAIN_LOST: EffectDef = orcish_captain_pump(0, -2);
-
 const fn orcish_captain_pump(power: i32, toughness: i32) -> EffectDef {
     EffectDef::Apply {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1552,19 +1507,17 @@ pub(in crate::card::sets) static ORCISH_CAPTAIN: CardRecord = CardRecord::new_wi
                 ]),
             )],
             EffectDef::Randomized {
-                likelihood: COIN_FLIP,
-                on_success: &ORCISH_CAPTAIN_WON,
-                on_failure: &ORCISH_CAPTAIN_LOST,
+                // A coin is an even chance, which is the whole of what "flip a coin" means
+                // to the seeded randomiser.
+                likelihood: LikelihoodDef::new(0.5),
+                on_success: &orcish_captain_pump(2, 0),
+                on_failure: &orcish_captain_pump(0, -2),
             },
         ),
     ),
 );
 
 // FEM 61a — Orcish Spy
-static ORCISH_SPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static ORCISH_SPY: CardRecord = CardRecord::new_with_legacy_id(
     1725,
     "Orcish Spy",
@@ -1574,7 +1527,9 @@ pub(in crate::card::sets) static ORCISH_SPY: CardRecord = CardRecord::new_with_l
         AbilityDef::activated_with_targets(
             "{T}: Look at the top three cards of target player's library.",
             &[AbilityCostDef::TapSource],
-            &ORCISH_SPY_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             abilities::look_at_top_cards(
                 PlayerRefDef::Target(TargetIndex::PRIMARY),
                 ValueDef::Constant(3),
@@ -1588,14 +1543,6 @@ pub(in crate::card::sets) static ORCISH_SPY: CardRecord = CardRecord::new_with_l
 // FEM 61c — Orcish Spy (alternate printing)
 
 // FEM 62a — Orcish Veteran
-/// The restriction is authored as the permission it leaves behind: anything
-/// that is not both white and big enough.
-static NOT_A_BIG_WHITE_CREATURE: ObjectPredicateDef =
-    ObjectPredicateDef::Not(&ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Color(ManaColor::White),
-        ObjectPredicateDef::PowerAtLeast(2),
-    ]));
-
 pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_with_legacy_id(
     1730,
     "Orcish Veteran",
@@ -1607,7 +1554,12 @@ pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_wi
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-                    NOT_A_BIG_WHITE_CREATURE,
+                    // The restriction is authored as the permission it leaves behind: anything
+                    // that is not both white and big enough.
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Color(ManaColor::White),
+                        ObjectPredicateDef::PowerAtLeast(2),
+                    ])),
                 )),
             },
         ),
@@ -1630,17 +1582,6 @@ pub(in crate::card::sets) static ORCISH_VETERAN: CardRecord = CardRecord::new_wi
 // FEM 62d — Orcish Veteran (alternate printing)
 
 // FEM 63 — Orgg
-/// "Defending player controls an untapped creature with power 3 or greater."
-static ORGG_DETERRENT: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::PowerAtLeast(3),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
 pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_id(
     1713,
     "Orgg",
@@ -1651,7 +1592,16 @@ pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_
         AbilityDef::static_ability(
             "This creature can't attack if defending player controls an untapped creature with \
              power 3 or greater.",
-            EffectDef::CannotAttackIf(&ORGG_DETERRENT),
+            // "Defending player controls an untapped creature with power 3 or greater."
+            EffectDef::CannotAttackIf(&ObjectQueryDef::matching(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::PowerAtLeast(3),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )),
         ),
         AbilityDef::static_ability(
             "This creature can't block creatures with power 3 or greater.",
@@ -1789,39 +1739,6 @@ pub(in crate::card::sets) static ELVISH_HUNTER: CardRecord = CardRecord::new_wit
 // FEM 67c — Elvish Hunter (alternate printing)
 
 // FEM 68a — Elvish Scout
-/// The two shields are one printed clause but two rules: prevention names a
-/// source or a recipient, never both at once, so "to and dealt by it" is the
-/// creature on each side in turn.
-static ELVISH_SCOUT_RESCUE: [EffectDef; 3] = [
-    EffectDef::Untap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
-            EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        )),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_from(
-            ObjectRefDef::Target(TargetIndex::PRIMARY),
-        )),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
-static ELVISH_SCOUT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Attacking,
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static ELVISH_SCOUT: CardRecord = CardRecord::new_with_legacy_id(
     1737,
     "Elvish Scout",
@@ -1835,8 +1752,37 @@ pub(in crate::card::sets) static ELVISH_SCOUT: CardRecord = CardRecord::new_with
                 AbilityCostDef::Mana(mana_cost!("{G}")),
                 AbilityCostDef::TapSource,
             ],
-            &ELVISH_SCOUT_TARGET,
-            EffectDef::Sequence(&ELVISH_SCOUT_RESCUE),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            // The two shields are one printed clause but two rules: prevention names a
+            // source or a recipient, never both at once, so "to and dealt by it" is the
+            // creature on each side in turn.
+            EffectDef::Sequence(&[
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_from(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
         ),
     ),
 );
@@ -1875,10 +1821,6 @@ pub(in crate::card::sets) static FERAL_THALLID: CardRecord = CardRecord::new_wit
 );
 
 // FEM 70 — Fungal Bloom
-static FUNGUS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Subtype("Fungus"),
-)];
-
 pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new_with_legacy_id(
     1416,
     "Fungal Bloom",
@@ -1888,7 +1830,9 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new_with
         AbilityDef::activated_with_targets(
             "{G}{G}: Put a spore counter on target Fungus.",
             &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
-            &FUNGUS_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Fungus"),
+            )],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::named("spore"),
@@ -1913,34 +1857,6 @@ pub(in crate::card::sets) static NIGHT_SOIL: CardRecord = CardRecord::new(
 // FEM 71c — Night Soil (alternate printing)
 
 // FEM 72a — Spore Cloud
-/// Three clauses in printed order. The tap comes first so it reaches the
-/// blockers while they are still blocking; the skip is separate from it,
-/// because a creature already tapped still owes the untap step it misses.
-static SPORE_CLOUD_EFFECT: [EffectDef; 3] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::Blocking,
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Any,
-        ),
-    },
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    // Counted per permanent rather than expressed as a duration: each
-    // creature sits out its own controller's next untap step, and the two
-    // sides do not reach that step at the same time.
-    EffectDef::SkipNextUntapSteps {
-        object: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::AttackingOrBlocking,
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Any,
-        ),
-        count: 1,
-    },
-];
-
 pub(in crate::card::sets) static SPORE_CLOUD: CardRecord = CardRecord::new_with_legacy_id(
     1842,
     "Spore Cloud",
@@ -1950,7 +1866,33 @@ pub(in crate::card::sets) static SPORE_CLOUD: CardRecord = CardRecord::new_with_
         "Tap all blocking creatures. Prevent all combat damage that would be dealt this turn. \
          Each attacking creature and each blocking creature doesn't untap during its \
          controller's next untap step.",
-        EffectDef::Sequence(&SPORE_CLOUD_EFFECT),
+        // Three clauses in printed order. The tap comes first so it reaches the
+        // blockers while they are still blocking; the skip is separate from it,
+        // because a creature already tapped still owes the untap step it misses.
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Blocking,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+            },
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            // Counted per permanent rather than expressed as a duration: each
+            // creature sits out its own controller's next untap step, and the two
+            // sides do not reach that step at the same time.
+            EffectDef::SkipNextUntapSteps {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AttackingOrBlocking,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                count: 1,
+            },
+        ]),
     )),
 );
 
@@ -2101,11 +2043,6 @@ pub(in crate::card::sets) static THELON_S_CURSE: CardRecord = CardRecord::new(
 );
 
 // FEM 78 — Thelonite Druid
-static THELONITE_DRUID_ANIMATION: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(3)),
-];
-
 pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new_with_legacy_id(
     601,
     "Thelonite Druid",
@@ -2132,7 +2069,10 @@ pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new_w
         ],
         EffectDef::Apply {
             recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]), &[ZoneKind::Battlefield], PlayerRelation::You),
-            effect: AppliedEffectDef::Composite(&THELONITE_DRUID_ANIMATION),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(CardType::Creature)),
+                AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(3)),
+            ]),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),

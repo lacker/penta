@@ -14,16 +14,6 @@ use crate::{TargetIndex, mana_cost};
 
 // M3C 4 — Ulalek, Fused Atrocity
 // Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
-static ULALEK_ABILITIES: [AbilityDef; 2] = [
-    abilities::devoid().with_coverage(AbilityCoverageDef::metadata_only(
-        "Ulalek's colorlessness is represented directly in its printed color metadata.",
-    )),
-    AbilityDef::not_implemented(
-        "Whenever you cast an Eldrazi spell, you may pay {C}{C}. If you do, copy all spells you control, then copy all other activated and triggered abilities you control. You may choose new targets for the copies. (Mana abilities can't be copied.)",
-        "Copying every spell and nonmana ability one player controls, while preserving each copy's choices and allowing new targets, is not modeled.",
-    ),
-];
-
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c"),
     "Ulalek, Fused Atrocity",
@@ -33,7 +23,15 @@ pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord:
         .with_supertype(CardSupertype::Legendary)
         .with_metadata_only_creature_body()
         .printed_colors(&[])
-        .with_abilities(&ULALEK_ABILITIES),
+        .with_abilities(&[
+            abilities::devoid().with_coverage(AbilityCoverageDef::metadata_only(
+                "Ulalek's colorlessness is represented directly in its printed color metadata.",
+            )),
+            AbilityDef::not_implemented(
+                "Whenever you cast an Eldrazi spell, you may pay {C}{C}. If you do, copy all spells you control, then copy all other activated and triggered abilities you control. You may choose new targets for the copies. (Mana abilities can't be copied.)",
+                "Copying every spell and nonmana ability one player controls, while preserving each copy's choices and allowing new targets, is not modeled.",
+            ),
+        ]),
 );
 
 /// "That number plus 1", shared by both Lhurgoyfs in this set: each counts
@@ -44,43 +42,9 @@ static GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS: SumValueDef = SumValueDef::new(
 );
 
 // M3C 50 — Barrowgoyf
-/// "From among them" is what the mill just put there, not what the
-/// graveyard already held -- and only a creature card among those.
-static A_MILLED_CREATURE_CARD: ObjectSetDef = ObjectSetDef::MatchingBinding {
-    binding: ObjectSetBindingIndex::PRIMARY,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-};
-
-static BARROWGOYF_TAKES_ONE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
-
 /// Where the chosen card is saved, kept apart from the milled pile so that
 /// "them" and "the one you took" are two different sets.
 static BARROWGOYF_TAKEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-/// A minimum of zero is the second "you may": milling and taking nothing is
-/// a legal answer, and a pile with no creature in it never asks.
-static BARROWGOYF_CHOOSES: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: A_MILLED_CREATURE_CARD,
-    exclude: None,
-    minimum: 0,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &BARROWGOYF_TAKES_ONE,
-});
-
-static BARROWGOYF_MILLS: EffectDef = EffectDef::Mill {
-    player: EffectRecipientDef::Controller,
-    amount: ValueDef::TriggerEventAmount,
-    binding: Some(ObjectSetBindingIndex::PRIMARY),
-    then: Some(&BARROWGOYF_CHOOSES),
-};
 
 pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
     2213,
@@ -109,53 +73,39 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &BARROWGOYF_MILLS,
+                effect: &EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::TriggerEventAmount,
+                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    // A minimum of zero is the second "you may": milling and taking nothing is
+                    // a legal answer, and a pile with no creature in it never asks.
+                    then: Some(&EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        // "From among them" is what the mill just put there, not what the
+                        // graveyard already held -- and only a creature card among those.
+                        candidates: ObjectSetDef::MatchingBinding {
+                            binding: ObjectSetBindingIndex::PRIMARY,
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        },
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    })),
+                },
             },
         ),
     ]),
 );
 
 // M3C 59 — Pyrogoyf
-/// A Lhurgoyf you control -- this one included, which is what "this creature
-/// or another" comes to.
-static A_LHURGOYF_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Subtype("Lhurgoyf"),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static PYROGOYF_DAMAGE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
-static PYROGOYF_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::static_ability(
-        "Pyrogoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            // The same shape Barrowgoyf has, counted over the same pile.
-            effect: AppliedEffectDef::define_power_toughness(
-                ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
-                ValueDef::Sum(&GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS),
-            ),
-        },
-    ),
-    AbilityDef::triggered_with_targets(
-        "Whenever this creature or another Lhurgoyf creature you control enters, that creature deals damage equal to its power to any target.",
-        TriggerEventDef::zone_changed(A_LHURGOYF_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
-        &PYROGOYF_DAMAGE_TARGET,
-        // "That creature" deals it, not Pyrogoyf: the Lhurgoyf that entered
-        // is both where the amount is read and what the damage is from, so
-        // protection and redirection answer the right object when the one
-        // entering is some other Lhurgoyf.
-        EffectDef::DealDamageFrom {
-            source: ObjectRefDef::TriggeringObject,
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::TriggeringObjectPower,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_legacy_id(
     2141,
     "Pyrogoyf",
@@ -164,32 +114,44 @@ pub(in crate::card::sets) static PYROGOYF: CardRecord = CardRecord::new_with_leg
     // The printed 0/1 is only what the corner says; the ability below is
     // what it is, wherever it is.
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Lhurgoyf"], 0, 1)
-        .with_abilities(&PYROGOYF_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Pyrogoyf's power is equal to the number of card types among cards in all graveyards and its toughness is equal to that number plus 1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    // The same shape Barrowgoyf has, counted over the same pile.
+                    effect: AppliedEffectDef::define_power_toughness(
+                        ValueDef::CardTypesAmongGraveyards(PlayerRelation::Any),
+                        ValueDef::Sum(&GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS),
+                    ),
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature or another Lhurgoyf creature you control enters, that creature deals damage equal to its power to any target.",
+                // A Lhurgoyf you control -- this one included, which is what "this creature
+                // or another" comes to.
+                TriggerEventDef::zone_changed(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Lhurgoyf"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]), None, Some(ZoneKind::Battlefield)),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                // "That creature" deals it, not Pyrogoyf: the Lhurgoyf that entered
+                // is both where the amount is read and what the damage is from, so
+                // protection and redirection answer the right object when the one
+                // entering is some other Lhurgoyf.
+                EffectDef::DealDamageFrom {
+                    source: ObjectRefDef::TriggeringObject,
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::TriggeringObjectPower,
+                },
+            ),
+        ]),
 );
 
 // M3C 70 — Bloodbraid Challenger
-/// Three cards out of your own graveyard, exiled to pay. The card being cast
-/// is on the stack by the time costs are paid, so "other" takes care of
-/// itself: it is not there to be chosen.
-static EXILE_THREE_OTHER_CARDS: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 3)
-        .spent(SpendModeDef::Exile);
-
-static BLOODBRAID_CHALLENGER_ABILITIES: [AbilityDef; 3] = [
-    abilities::cascade(),
-    abilities::haste(),
-    AbilityDef::alternative_cast(
-        mana_cost!("{3}{R}{G}"),
-        AlternativeCastKindDef::Escape,
-        Some(
-            "Escape—{3}{R}{G}, Exile three other cards from your graveyard. (You may cast this \
-             card from your graveyard for its escape cost.)",
-        ),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_THREE_OTHER_CARDS),
-];
-
 pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord::new_with_legacy_id(
     2255,
     "Bloodbraid Challenger",
@@ -198,60 +160,27 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
     // Five mana for a hasty 4/3 and a free spell, and the graveyard keeps
     // handing it back for five more.
     CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Elf", "Berserker"], 4, 3)
-        .with_abilities(&BLOODBRAID_CHALLENGER_ABILITIES),
+        .with_abilities(&[
+        abilities::cascade(),
+        abilities::haste(),
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{R}{G}"),
+            AlternativeCastKindDef::Escape,
+            Some(
+                "Escape—{3}{R}{G}, Exile three other cards from your graveyard. (You may cast this \
+                     card from your graveyard for its escape cost.)",
+            ),
+            EffectDef::None,
+        )
+        // Three cards out of your own graveyard, exiled to pay. The card being cast
+        // is on the stack by the time costs are paid, so "other" takes care of
+        // itself: it is not there to be chosen.
+        .with_alternative_additional_cost(
+            &SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 3)
+                .spent(SpendModeDef::Exile),
+        ),
+    ]),
 );
-
-static TALON_GATES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static TALON_GATES_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-static TALON_GATES_FILTER: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-];
-
-static TALON_GATES_CRASH: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{4}"))];
-
-static TALON_GATES_ABILITIES: [AbilityDef; 4] = [
-    abilities::enters_trigger_with_targets(
-        "When this land enters, up to one target creature phases out.",
-        &TALON_GATES_TARGET,
-        EffectDef::PhaseOut {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-    AbilityDef::activated_mana(
-        "{T}: Add {C}.",
-        &TALON_GATES_TAP,
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-    ),
-    AbilityDef::activated_mana(
-        "{1}, {T}: Add one mana of any color.",
-        &TALON_GATES_FILTER,
-        EffectDef::AddMana(AddManaEffectDef::any_color()),
-    ),
-    // Activated from hand, which is the only zone the clause names: what it
-    // does is move itself, so the land arrives without using a land drop and
-    // its enter trigger fires like any other.
-    AbilityDef::activated(
-        "{4}: Put this card from your hand onto the battlefield.",
-        &TALON_GATES_CRASH,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
-    )
-    .with_source_zones(&[ZoneKind::Hand]),
-];
 
 // M3C 134 — Talon Gates of Madara
 pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord::new(
@@ -261,7 +190,49 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
     CardSet::ModernHorizons3Commander,
     // A land that answers a creature on the way in, and four mana that puts
     // it there on a turn the land drop is already spent.
-    CardRules::new_land(&["Gate"]).with_abilities(&TALON_GATES_ABILITIES),
+    CardRules::new_land(&["Gate"]).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this land enters, up to one target creature phases out.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::PhaseOut {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        // Activated from hand, which is the only zone the clause names: what it
+        // does is move itself, so the land arrives without using a land drop and
+        // its enter trigger fires like any other.
+        AbilityDef::activated(
+            "{4}: Put this card from your hand onto the battlefield.",
+            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // M3C 320 — Basilisk Gate

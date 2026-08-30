@@ -213,14 +213,6 @@ pub(in crate::card::sets) static HERO_S_RESOLVE: CardRecord = CardRecord::new(
 );
 
 // TMP 24 — Humility
-/// Everything at once, in one static effect: the abilities go in layer 6 and
-/// the stats are set in layer 7b, and a creature that arrives later is caught
-/// by the same continuous effect rather than needing its own.
-static HUMBLED: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-];
-
 pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new_with_legacy_id(
     2055,
     "Humility",
@@ -236,7 +228,16 @@ pub(in crate::card::sets) static HUMILITY: CardRecord = CardRecord::new_with_leg
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::Composite(&HUMBLED),
+            // Everything at once, in one static effect: the abilities go in layer 6 and
+            // the stats are set in layer 7b, and a creature that arrives later is caught
+            // by the same continuous effect rather than needing its own.
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+            ]),
         },
     )),
 );
@@ -680,43 +681,9 @@ pub(in crate::card::sets) static INTERDICT: CardRecord = CardRecord::new(
 );
 
 // TMP 70 — Intuition
-/// The one the opponent hands over, and the two they keep back. Both halves
-/// are one partition of the three that were found, which is why the choice
-/// names the rest as well as the pick.
-static INTUITION_DISTRIBUTE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-    },
-]);
-
-/// The opponent picks which of the three is worth giving up, out of the
-/// cards the search found rather than out of the library it found them in.
-static INTUITION_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: Some(ObjectSetBindingIndex::PRIMARY),
-    chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
-    candidates: ObjectSetDef::Binding(INTUITION_FOUND),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &INTUITION_DISTRIBUTE,
-});
-
 /// The three the search turned up, kept apart from the partition bindings so
 /// that "the rest" is measured against them rather than against itself.
 static INTUITION_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-static INTUITION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
 
 pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_legacy_id(
     2084,
@@ -728,7 +695,9 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
     // graveyard and keeps the piece it needs.
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Search your library for three cards and reveal them. Target opponent chooses one. Put that card into your hand and the rest into your graveyard. Then shuffle.",
-        &INTUITION_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+        )],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -742,7 +711,43 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
             enters_tapped: false,
             attachment: None,
             binding: Some(INTUITION_FOUND),
-            then: Some(&INTUITION_CHOICE),
+            // The opponent picks which of the three is worth giving up, out of the
+            // cards the search found rather than out of the library it found them in.
+            then: Some(&const {
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    unchosen: Some(ObjectSetBindingIndex::PRIMARY),
+                    chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    candidates: ObjectSetDef::Binding(INTUITION_FOUND),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    // The one the opponent hands over, and the two they keep back. Both halves
+                    // are one partition of the three that were found, which is why the choice
+                    // names the rest as well as the pick.
+                    then: &const {
+                        EffectDef::Sequence(&const {
+                            [
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                        ObjectBindingIndex::PRIMARY,
+                                    )),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                },
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ObjectSetBindingIndex::PRIMARY,
+                                    )),
+                                    zone: ZoneKind::Graveyard,
+                                    placement: ZonePlacement::Top,
+                                },
+                            ]
+                        })
+                    },
+                })
+            }),
         },
     )),
 );
@@ -987,10 +992,6 @@ pub(in crate::card::sets) static THALAKOS_SENTRY: CardRecord = CardRecord::new(
 // TMP 96 — Time Ebb (reprint)
 
 // TMP 97 — Time Warp
-static TIME_WARP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new_with_legacy_id(
     2109,
     "Time Warp",
@@ -998,7 +999,9 @@ pub(in crate::card::sets) static TIME_WARP: CardRecord = CardRecord::new_with_le
     CardSet::Tempest,
     CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Target player takes an extra turn after this one.",
-        &TIME_WARP_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::TakeExtraTurn {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
@@ -1170,28 +1173,6 @@ pub(in crate::card::sets) static COMMANDER_GREVEN_IL_VEC: CardRecord = CardRecor
 );
 
 // TMP 116 — Corpse Dance
-static DANCE_HASTE: AbilityDef = abilities::haste();
-
-/// The creature exiles itself rather than being named by a delayed trigger:
-/// it is the object that arrived, and it carries the clause with it.
-static DANCE_EXILE_AT_END: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next end step, exile this creature.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-);
-
-static DANCE_POST_MOVE_EFFECT: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_ability(&DANCE_HASTE),
-    AppliedEffectDef::add_ability(&DANCE_EXILE_AT_END),
-]);
-
 pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with_legacy_id(
     2187,
     "Corpse Dance",
@@ -1205,21 +1186,45 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
         AbilityDef::spell(
             "Return the top creature card of your graveyard to the battlefield. That creature gains haste until end of turn. Exile it at the beginning of the next end step.",
             EffectDef::WithZoneMoveResult {
-                effect: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
-                        player: PlayerRefDef::EffectController,
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                    }),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
+                effect: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
+                            player: PlayerRefDef::EffectController,
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        }),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    }
                 },
                 binding: ObjectSetBindingIndex::PRIMARY,
-                then: &EffectDef::Apply {
-                    recipient: EffectRecipientDef::binding_zone_change_successors(
-                        ObjectSetBindingIndex::PRIMARY,
-                    ),
-                    effect: DANCE_POST_MOVE_EFFECT,
-                    duration: crate::card::ResolvedEffectDurationDef::Permanent,
+                then: &const {
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::binding_zone_change_successors(
+                            ObjectSetBindingIndex::PRIMARY,
+                        ),
+                        effect: AppliedEffectDef::Composite(&const {
+                            [
+                                AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                                // The creature exiles itself rather than being named by a delayed trigger:
+                                // it is the object that arrived, and it carries the clause with it.
+                                AppliedEffectDef::add_ability(&const {
+                                    AbilityDef::triggered(
+                                        "At the beginning of the next end step, exile this creature.",
+                                        TriggerEventDef::StepBegins {
+                                            step: TurnStepDef::End,
+                                            player: PlayerRelation::Any,
+                                        },
+                                        EffectDef::MoveToZone {
+                                            object: EffectRecipientDef::Source,
+                                            zone: ZoneKind::Exile,
+                                            placement: ZonePlacement::Top,
+                                        },
+                                    )
+                                }),
+                            ]
+                        }),
+                        duration: crate::card::ResolvedEffectDurationDef::Permanent,
+                    }
                 },
             },
         ),
@@ -1826,10 +1831,6 @@ pub(in crate::card::sets) static FURNACE_OF_RATH: CardRecord = CardRecord::new(
 // TMP 178 — Giant Strength (reprint)
 
 // TMP 179 — Goblin Bombardment
-static GOBLIN_BOMBARDMENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::new_with_legacy_id(
     2110,
     "Goblin Bombardment",
@@ -1842,7 +1843,9 @@ pub(in crate::card::sets) static GOBLIN_BOMBARDMENT: CardRecord = CardRecord::ne
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
-            &GOBLIN_BOMBARDMENT_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),
@@ -2810,23 +2813,6 @@ pub(in crate::card::sets) static ALTAR_OF_DEMENTIA: CardRecord = CardRecord::new
 );
 
 // TMP 277 — Booby Trap
-static BOOBY_TRAP_ENTRY_CHOICES: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
-    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-        crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME_OTHER_THAN_BASIC_LAND,
-    )),
-];
-
-static BOOBY_TRAP_SACRIFICES_AND_HITS: [EffectDef; 2] = [
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::EventPlayer,
-        amount: ValueDef::Constant(10),
-    },
-];
-
 pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfedc78e-47dc-43e3-aed7-2d5c8e97fdac"),
     "Booby Trap",
@@ -2835,7 +2821,12 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
         AbilityDef::as_enters(
             "As this artifact enters, choose an opponent and a card name other than a basic land card name.",
-            ReplacementEffectDef::Sequence(&BOOBY_TRAP_ENTRY_CHOICES),
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME_OTHER_THAN_BASIC_LAND,
+                )),
+            ]),
         ),
         AbilityDef::static_ability(
             "The chosen player reveals each card they draw.",
@@ -2853,7 +2844,15 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
                 abilities::SOURCES_CHOSEN_CARD_NAME,
             )),
             &TriggerConditionDef::SourceOnBattlefield,
-            EffectDef::Sequence(&BOOBY_TRAP_SACRIFICES_AND_HITS),
+            EffectDef::Sequence(&[
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(10),
+                },
+            ]),
         ),
     ]),
 );
@@ -2897,37 +2896,6 @@ static NAMED_CARD: ObjectBindingIndex = ObjectBindingIndex::PRIMARY;
 
 static REVEALED_CARD: ObjectBindingIndex = ObjectBindingIndex::new(1);
 
-static SCROLL_NAMES_MATCH: TriggerConditionDef = TriggerConditionDef::BoundObjectsShareName {
-    first: NAMED_CARD,
-    second: REVEALED_CARD,
-};
-
-static SCROLL_SHOT: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::Constant(2),
-};
-
-static SCROLL_IF_MATCHED: EffectDef = EffectDef::IfCondition {
-    condition: &SCROLL_NAMES_MATCH,
-    then: &SCROLL_SHOT,
-};
-
-static SCROLL_REVEAL: EffectDef = EffectDef::RevealAtRandomFromHand {
-    player: EffectRecipientDef::Controller,
-    binding: REVEALED_CARD,
-    then: &SCROLL_IF_MATCHED,
-};
-
-static CARDS_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerSetDef::Related(PlayerRelation::You),
-);
-
-static SCROLL_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2944,17 +2912,36 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
             AbilityCostDef::Mana(mana_cost!("{3}")),
             AbilityCostDef::TapSource,
         ],
-        &SCROLL_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
         EffectDef::Choose(ChooseDef {
             binding: ObjectChoiceBindingDef::Object(NAMED_CARD),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(CARDS_IN_YOUR_HAND),
+            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Hand],
+                PlayerSetDef::Related(PlayerRelation::You),
+            )),
             exclude: None,
             minimum: 1,
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
-            then: &SCROLL_REVEAL,
+            then: &EffectDef::RevealAtRandomFromHand {
+                player: EffectRecipientDef::Controller,
+                binding: REVEALED_CARD,
+                then: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::BoundObjectsShareName {
+                        first: NAMED_CARD,
+                        second: REVEALED_CARD,
+                    },
+                    then: &EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                },
+            },
         }),
     )),
 );

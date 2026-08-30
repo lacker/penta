@@ -49,53 +49,6 @@ pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
 );
 
 // DFT 191 — Brightglass Gearhulk
-/// "Artifact, creature, and/or enchantment cards with mana value 1 or less."
-/// The three types are alternatives and the mana value applies to all of
-/// them, so the bound is outside the choice rather than inside it.
-static A_CHEAP_PERMANENT_CARD: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-    ]),
-    ObjectPredicateDef::ManaValueAtMost(1),
-]);
-
-/// "Up to two" and revealed: a minimum of none, and everything taken is
-/// shown, which is what stops the search being private information.
-static GEARHULK_SEARCH: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: A_CHEAP_PERMANENT_CARD,
-    minimum: 0,
-    maximum: ValueDef::Constant(2),
-    reveal: true,
-    destination: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: false,
-    attachment: None,
-    binding: None,
-    then: None,
-};
-
-static BRIGHTGLASS_GEARHULK_ABILITIES: [AbilityDef; 3] = [
-    abilities::first_strike(),
-    abilities::trample(),
-    // "You may" on top of a search that already allows none: declining and
-    // finding nothing look the same from the outside, and the card offers
-    // both because a library nobody wants to shuffle is a real answer.
-    abilities::enters_trigger(
-        "When this creature enters, you may search your library for up to two artifact, creature, \
-         and/or enchantment cards with mana value 1 or less, reveal them, put them into your \
-         hand, then shuffle.",
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &GEARHULK_SEARCH,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::new_with_legacy_id(
     2301,
     "Brightglass Gearhulk",
@@ -104,24 +57,51 @@ pub(in crate::card::sets) static BRIGHTGLASS_GEARHULK: CardRecord = CardRecord::
     // A 4/4 first striker with trample that also finds the two one-drops the
     // deck is built around, which is what four coloured pips buy.
     CardRules::new_artifact_creature(mana_cost!("{G}{G}{W}{W}"), &["Construct"], 4, 4)
-        .with_abilities(&BRIGHTGLASS_GEARHULK_ABILITIES),
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::trample(),
+            // "You may" on top of a search that already allows none: declining and
+            // finding nothing look the same from the outside, and the card offers
+            // both because a library nobody wants to shuffle is a real answer.
+            abilities::enters_trigger(
+                "When this creature enters, you may search your library for up to two artifact, creature, \
+                 and/or enchantment cards with mana value 1 or less, reveal them, put them into your \
+                 hand, then shuffle.",
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    // "Up to two" and revealed: a minimum of none, and everything taken is
+                    // shown, which is what stops the search being private information.
+                    effect: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        // "Artifact, creature, and/or enchantment cards with mana value 1 or less."
+                        // The three types are alternatives and the mana value applies to all of
+                        // them, so the bound is outside the choice rather than inside it.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ]),
+                            ObjectPredicateDef::ManaValueAtMost(1),
+                        ]),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(2),
+                        reveal: true,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                },
+            ),
+        ]),
 );
 
 // DFT 250 — Bleachbone Verge
-/// The verge condition in this cycle's Orzhov colours. Either type answers
-/// it, so a Godless Shrine is both halves at once.
-static A_PLAINS_OR_A_SWAMP_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains, BasicLandType::Swamp]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static BLEACHBONE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: A_PLAINS_OR_A_SWAMP_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52dcdabd-a186-45fe-9fee-6c0f1afeaf16"),
     "Bleachbone Verge",
@@ -138,7 +118,20 @@ pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
         AbilityDef::activated_mana_if(
             "{T}: Add {W}. Activate only if you control a Plains or a Swamp.",
             &[AbilityCostDef::TapSource],
-            &BLEACHBONE_HAS_ITS_LAND,
+            &TriggerConditionDef::ObjectCount {
+                // The verge condition in this cycle's Orzhov colours. Either type answers
+                // it, so a Godless Shrine is both halves at once.
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Plains,
+                        BasicLandType::Swamp,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
         ),
     ]),
@@ -155,20 +148,6 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
 );
 
 // DFT 260 — Riverpyre Verge
-/// The same verge condition in this cycle's other pair of colours: either
-/// type answers it, so a Volcanic Island is both halves at once.
-static AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island, BasicLandType::Mountain]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static RIVERPYRE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: AN_ISLAND_OR_A_MOUNTAIN_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57a93a71-d77c-417f-85d0-cd420f573331"),
     "Riverpyre Verge",
@@ -185,27 +164,26 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
         AbilityDef::activated_mana_if(
             "{T}: Add {U}. Activate only if you control an Island or a Mountain.",
             &[AbilityCostDef::TapSource],
-            &RIVERPYRE_HAS_ITS_LAND,
+            &TriggerConditionDef::ObjectCount {
+                // The same verge condition in this cycle's other pair of colours: either
+                // type answers it, so a Volcanic Island is both halves at once.
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Island,
+                        BasicLandType::Mountain,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
         ),
     ]),
 );
 
 // DFT 264 — Sunbillow Verge
-/// The verge condition in this cycle's Boros colours. Either type answers
-/// it, so a Plateau is both halves at once.
-static A_MOUNTAIN_OR_A_PLAINS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain, BasicLandType::Plains]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static SUNBILLOW_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: A_MOUNTAIN_OR_A_PLAINS_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94ed132f-b818-4dbf-9b4a-e5acb067e0a4"),
     "Sunbillow Verge",
@@ -222,28 +200,26 @@ pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
         AbilityDef::activated_mana_if(
             "{T}: Add {R}. Activate only if you control a Mountain or a Plains.",
             &[AbilityCostDef::TapSource],
-            &SUNBILLOW_HAS_ITS_LAND,
+            &TriggerConditionDef::ObjectCount {
+                // The verge condition in this cycle's Boros colours. Either type answers
+                // it, so a Plateau is both halves at once.
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Mountain,
+                        BasicLandType::Plains,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
     ]),
 );
 
 // DFT 268 — Wastewood Verge
-/// The verge condition: any land you control with either type answers it,
-/// so a Bayou is both halves at once and a land whose types were changed
-/// counts for what it is now rather than what it was printed as.
-static A_SWAMP_OR_A_FOREST_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp, BasicLandType::Forest]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static VERGE_HAS_ITS_LAND: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: A_SWAMP_OR_A_FOREST_YOU_CONTROL,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_with_legacy_id(
     2196,
     "Wastewood Verge",
@@ -260,7 +236,21 @@ pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_w
         AbilityDef::activated_mana_if(
             "{T}: Add {B}. Activate only if you control a Swamp or a Forest.",
             &[AbilityCostDef::TapSource],
-            &VERGE_HAS_ITS_LAND,
+            &TriggerConditionDef::ObjectCount {
+                // The verge condition: any land you control with either type answers it,
+                // so a Bayou is both halves at once and a land whose types were changed
+                // counts for what it is now rather than what it was printed as.
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Swamp,
+                        BasicLandType::Forest,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
         ),
     ]),

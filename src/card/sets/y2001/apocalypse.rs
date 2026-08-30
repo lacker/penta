@@ -1037,23 +1037,6 @@ pub(in crate::card::sets) static GAEA_S_SKYFOLK: CardRecord = CardRecord::new(
 );
 
 // APC 102 — Gerrard's Verdict
-/// Three life a land, counted among the two cards that actually went. The
-/// discard is the opponent's choice, so the payoff cannot be known until
-/// they have made it.
-static VERDICT_LIFE: EffectDef = EffectDef::GainLife {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Scaled(&VERDICT_PER_LAND),
-};
-
-static VERDICT_PER_LAND: ScaledValueDef = ScaledValueDef {
-    value: ValueDef::MatchedCount,
-    factor: 3,
-};
-
-static VERDICT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_with_legacy_id(
     2067,
     "Gerrard's Verdict",
@@ -1063,7 +1046,9 @@ pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_
     // play against a deck full of lands.
     CardRules::new_sorcery(mana_cost!("{W}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target player discards two cards. You gain 3 life for each land card discarded this way.",
-        &VERDICT_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::Discard {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::Constant(2),
@@ -1071,7 +1056,16 @@ pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_
             then: Some(DiscardFollowUpDef {
                 counted: ObjectPredicateDef::HasType(CardType::Land),
                 bound: None,
-                effect: &VERDICT_LIFE,
+                // Three life a land, counted among the two cards that actually went. The
+                // discard is the opponent's choice, so the payoff cannot be known until
+                // they have made it.
+                effect: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Scaled(&ScaledValueDef {
+                        value: ValueDef::MatchedCount,
+                        factor: 3,
+                    }),
+                },
             }),
         },
     )),
@@ -1346,30 +1340,6 @@ pub(in crate::card::sets) static YAVIMAYA_S_EMBRACE: CardRecord = CardRecord::ne
 );
 
 // APC 128 — Fire // Ice
-static FIRE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::AnyTarget,
-    minimum: 1,
-    maximum: 2,
-    divided_total: Some(DividedTotal::Fixed(2)),
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
-static ICE_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Any,
-)];
-
-static ICE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_with_legacy_id(
     306,
     "Fire // Ice",
@@ -1384,7 +1354,15 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_wi
             CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
                 AbilityDef::spell_with_targets(
                     "Fire deals 2 damage divided as you choose among one or two targets.",
-                    &FIRE_TARGETS,
+                    &[AbilityTargetDef {
+                        predicate: AbilityTargetPredicate::AnyTarget,
+                        minimum: 1,
+                        maximum: 2,
+                        divided_total: Some(DividedTotal::Fixed(2)),
+                        another: false,
+                        excludes_source: false,
+                        chooser: TargetChooserDef::Controller,
+                    }],
                     EffectDef::DealDamage {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::DividedAmongTargets,
@@ -1397,8 +1375,18 @@ pub(in crate::card::sets) static FIRE_ICE: CardRecord = CardRecord::new_split_wi
             CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(
                 AbilityDef::spell_with_targets(
                     "Tap target permanent.\nDraw a card.",
-                    &ICE_TARGETS,
-                    EffectDef::Sequence(&ICE_EFFECTS),
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )],
+                    EffectDef::Sequence(&[
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]),
                 ),
             ),
         ),
@@ -1419,42 +1407,6 @@ pub(in crate::card::sets) static ILLUSION_REALITY: CardRecord = CardRecord::new(
 );
 
 // APC 130 — Life // Death
-/// "They're still lands" is not flavour: adding the creature type rather
-/// than replacing the land one is what keeps them tapping for mana, and what
-/// makes a board wipe answer the whole mana base.
-static LIFE_ANIMATION: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-];
-
-static DEATH_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        // Reanimate takes one from any graveyard; this half is narrower.
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
-static DEATH_EFFECTS: [EffectDef; 2] = [
-    EffectDef::WithBattlefieldArrival {
-        effect: &EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
-        arrival: crate::card::BattlefieldArrivalDef {
-            controller: Some(PlayerRelation::You),
-            ..crate::card::BattlefieldArrivalDef::DEFAULT
-        },
-    },
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-    },
-];
-
 pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_with_legacy_id(
     2123,
     "Life // Death",
@@ -1474,7 +1426,20 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
-                    effect: AppliedEffectDef::Composite(&LIFE_ANIMATION),
+                    // "They're still lands" is not flavour: adding the creature type rather
+                    // than replacing the land one is what keeps them tapping for mana, and what
+                    // makes a board wipe answer the whole mana base.
+                    effect: AppliedEffectDef::Composite(&const {
+                        [
+                            AppliedEffectDef::add_card_types(
+                                crate::card::CardTypeSet::single(CardType::Creature),
+                            ),
+                            AppliedEffectDef::set_base_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                        ]
+                    }),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             )),
@@ -1484,8 +1449,36 @@ pub(in crate::card::sets) static LIFE_DEATH: CardRecord = CardRecord::new_split_
             CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
                 AbilityDef::spell_with_targets(
                     "Return target creature card from your graveyard to the battlefield. You lose life equal to its mana value.",
-                    &DEATH_TARGETS,
-                    EffectDef::Sequence(&DEATH_EFFECTS),
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            // Reanimate takes one from any graveyard; this half is narrower.
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::Sequence(&const {
+                        [
+                            EffectDef::WithBattlefieldArrival {
+                                effect: &const {
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                        zone: ZoneKind::Battlefield,
+                                        placement: ZonePlacement::Top,
+                                    }
+                                },
+                                arrival: crate::card::BattlefieldArrivalDef {
+                                    controller: Some(PlayerRelation::You),
+                                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                                },
+                            },
+                            EffectDef::LoseLife {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
+                            },
+                        ]
+                    }),
                 ),
             ),
         ),

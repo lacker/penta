@@ -19,65 +19,7 @@ static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
 );
 
 // KLD 60 — Paradoxical Outcome
-/// A permanent that is neither a land nor a token. The slot names the
-/// controller, so the predicate only has to say what kind of thing it is.
-static A_NONLAND_NONTOKEN_PERMANENT: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-]);
-
-static OUTCOME_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::Object {
-        object: A_NONLAND_NONTOKEN_PERMANENT,
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-    minimum: 0,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: None,
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
-static OUTCOME_OWNED_BY_YOU: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
-/// The draw counts what reached your hand, which is not always what left the
-/// battlefield: a permanent you control but do not own goes back to somebody
-/// else's hand and pays you nothing. The count is taken before the move,
-/// because afterwards the cards have new identities.
-static OUTCOME_RETURN_AND_DRAW: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::BoundObjectCount(OUTCOME_OWNED_BY_YOU),
-    },
-];
-
-static OUTCOME_COUNT_YOURS: EffectDef = abilities::bind_objects_then(
-    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::MatchingBinding {
-        binding: ObjectSetBindingIndex::PRIMARY,
-        object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-    }),
-    OUTCOME_OWNED_BY_YOU,
-    &EffectDef::Sequence(&OUTCOME_RETURN_AND_DRAW),
-);
-
-/// Only the targets still legal as this resolves are returned, which is what
-/// "each card returned this way" counts.
-static OUTCOME_EFFECT: EffectDef = abilities::bind_objects_then(
-    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
-        TargetIndex::PRIMARY,
-    )),
-    ObjectSetBindingIndex::PRIMARY,
-    &OUTCOME_COUNT_YOURS,
-);
-
+const OUTCOME_OWNED_BY_YOU: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
     2242,
     "Paradoxical Outcome",
@@ -89,76 +31,69 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
     CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Return any number of target nonland, nontoken permanents you control to their owners' \
          hands. Draw a card for each card returned to your hand this way.",
-        &OUTCOME_TARGETS,
-        OUTCOME_EFFECT,
+        &[AbilityTargetDef {
+            predicate: AbilityTargetPredicate::Object {
+                // A permanent that is neither a land nor a token. The slot names the
+                // controller, so the predicate only has to say what kind of thing it is.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+            minimum: 0,
+            maximum: AbilityTargetDef::UNLIMITED,
+            divided_total: None,
+            another: false,
+            excludes_source: false,
+            chooser: TargetChooserDef::Controller,
+        }],
+        // Only the targets still legal as this resolves are returned, which is what
+        // "each card returned this way" counts.
+        abilities::bind_objects_then(
+            crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
+                TargetIndex::PRIMARY,
+            )),
+            ObjectSetBindingIndex::PRIMARY,
+            &const {
+                abilities::bind_objects_then(
+                    crate::card::ObjectCollectionSourceDef::ObjectSet(
+                        ObjectSetDef::MatchingBinding {
+                            binding: ObjectSetBindingIndex::PRIMARY,
+                            object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                        },
+                    ),
+                    OUTCOME_OWNED_BY_YOU,
+                    // The draw counts what reached your hand, which is not always what left the
+                    // battlefield: a permanent you control but do not own goes back to somebody
+                    // else's hand and pays you nothing. The count is taken before the move,
+                    // because afterwards the cards have new identities.
+                    &EffectDef::Sequence(
+                        &const {
+                            [
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ObjectSetBindingIndex::PRIMARY,
+                                    )),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                },
+                                EffectDef::DrawCards {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::BoundObjectCount(OUTCOME_OWNED_BY_YOU),
+                                },
+                            ]
+                        },
+                    ),
+                )
+            },
+        ),
     )),
 );
 
 // KLD 110 — Chandra, Torch of Defiance
-/// "If you don't" is the whole of the first ability's tension: the exile
-/// happens either way, and the card is either spent now at its own cost or
-/// traded for two damage.
-static CHANDRA_SHOOTS_INSTEAD: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Opponent,
-    amount: ValueDef::Constant(2),
-};
-
-static CHANDRA_EMBLEM_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
-static CHANDRA_TORCH_OF_DEFIANCE_EMBLEM_ABILITIES: [AbilityDef; 1] =
-    [AbilityDef::triggered_with_targets(
-        "Whenever you cast a spell, this emblem deals 5 damage to any target.",
-        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-        &CHANDRA_EMBLEM_TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(5),
-        },
-    )];
-
-static CHANDRA_DAMAGE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static CHANDRA_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::activated(
-        "+1: Exile the top card of your library. You may cast that card. If you don't, Chandra, \
-         Torch of Defiance deals 2 damage to each opponent.",
-        &[AbilityCostDef::Loyalty(1)],
-        EffectDef::ExileTopAndMayCast {
-            player: EffectRecipientDef::Controller,
-            otherwise: Some(&CHANDRA_SHOOTS_INSTEAD),
-        },
-    ),
-    // A loyalty ability is never a mana ability (CR 605.1a), so this one uses
-    // the stack like the rest of her.
-    AbilityDef::activated(
-        "+1: Add {R}{R}.",
-        &[AbilityCostDef::Loyalty(1)],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
-    ),
-    AbilityDef::activated_with_targets(
-        "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
-        &[AbilityCostDef::Loyalty(-3)],
-        &CHANDRA_DAMAGE_TARGET,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-        },
-    ),
-    AbilityDef::activated(
-        "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
-         any target.\"",
-        &[AbilityCostDef::Loyalty(-7)],
-        EffectDef::create_emblem(
-            "Chandra, Torch of Defiance emblem",
-            &CHANDRA_TORCH_OF_DEFIANCE_EMBLEM_ABILITIES,
-        ),
-    ),
-];
-
 pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
     CardRecord::new_with_legacy_id(
         2217,
@@ -169,7 +104,60 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
         // the game somehow goes long she ends it by herself.
         CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Chandra"], 4)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&CHANDRA_ABILITIES),
+            .with_abilities(&[
+                AbilityDef::activated(
+                    "+1: Exile the top card of your library. You may cast that card. If you don't, Chandra, \
+                     Torch of Defiance deals 2 damage to each opponent.",
+                    &[AbilityCostDef::Loyalty(1)],
+                    EffectDef::ExileTopAndMayCast {
+                        player: EffectRecipientDef::Controller,
+                        // "If you don't" is the whole of the first ability's tension: the exile
+                        // happens either way, and the card is either spent now at its own cost or
+                        // traded for two damage.
+                        otherwise: Some(&EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Opponent,
+                            amount: ValueDef::Constant(2),
+                        }),
+                    },
+                ),
+                // A loyalty ability is never a mana ability (CR 605.1a), so this one uses
+                // the stack like the rest of her.
+                AbilityDef::activated(
+                    "+1: Add {R}{R}.",
+                    &[AbilityCostDef::Loyalty(1)],
+                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
+                ),
+                AbilityDef::activated_with_targets(
+                    "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
+                    &[AbilityCostDef::Loyalty(-3)],
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(4),
+                    },
+                ),
+                AbilityDef::activated(
+                    "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
+                     any target.\"",
+                    &[AbilityCostDef::Loyalty(-7)],
+                    EffectDef::create_emblem(
+                        "Chandra, Torch of Defiance emblem",
+                        &[AbilityDef::triggered_with_targets(
+                                "Whenever you cast a spell, this emblem deals 5 damage to any target.",
+                                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                                &[AbilityTargetDef::exactly_one(
+                                    AbilityTargetPredicate::AnyTarget,
+                                )],
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(5),
+                                },
+                            )],
+                    ),
+                ),
+            ]),
     );
 
 // KLD 138 — Thriving Grubs
@@ -202,50 +190,6 @@ pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
-/// "Attacks or blocks" is one printed clause with two ways in, so it is one
-/// ability rather than two: a Copter that does both in a turn still loots
-/// once for each.
-static COPTER_ATTACKS_OR_BLOCKS: TriggerEventDef = TriggerEventDef::AnyOf(&[
-    TriggerEventDef::Attacks(AttackEventMatcherDef::any(ObjectPredicateDef::Source)),
-    TriggerEventDef::Blocks {
-        blocked: ObjectPredicateDef::Any,
-    },
-]);
-
-static COPTER_LOOTS: [EffectDef; 2] = [
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-];
-
-/// "If you do" rather than a second clause: declining the draw declines the
-/// discard with it.
-static COPTER_MAY_LOOT: EffectDef = EffectDef::Sequence(&COPTER_LOOTS);
-
-static SMUGGLER_S_COPTER_ABILITIES: [AbilityDef; 3] = [
-    abilities::flying(),
-    AbilityDef::triggered(
-        "Whenever this Vehicle attacks or blocks, you may draw a card. If you do, discard a card.",
-        COPTER_ATTACKS_OR_BLOCKS,
-        EffectDef::May {
-            player: EffectRecipientDef::Controller,
-            effect: &COPTER_MAY_LOOT,
-        },
-    ),
-    abilities::crew(
-        "Crew 1 (Tap any number of creatures you control with total power 1 or more: This \
-         Vehicle becomes an artifact creature until end of turn.)",
-        1,
-    ),
-];
-
 // KLD 235 — Smuggler's Copter
 pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7832abb5-5107-4603-904e-491b221bd3e3"),
@@ -258,109 +202,135 @@ pub(in crate::card::sets) static SMUGGLER_S_COPTER: CardRecord = CardRecord::new
     // Two mana for a 3/3 flier that any one creature can turn on, and that
     // fixes every draw it connects with. Banned in Standard for exactly
     // that.
-    CardRules::new_vehicle(mana_cost!("{2}"), 3, 3).with_abilities(&SMUGGLER_S_COPTER_ABILITIES),
+    CardRules::new_vehicle(mana_cost!("{2}"), 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this Vehicle attacks or blocks, you may draw a card. If you do, discard a card.",
+            // "Attacks or blocks" is one printed clause with two ways in, so it is one
+            // ability rather than two: a Copter that does both in a turn still loots
+            // once for each.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::Attacks(AttackEventMatcherDef::any(ObjectPredicateDef::Source)),
+                TriggerEventDef::Blocks {
+                    blocked: ObjectPredicateDef::Any,
+                },
+            ]),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                // "If you do" rather than a second clause: declining the draw declines the
+                // discard with it.
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            },
+        ),
+        abilities::crew(
+            "Crew 1 (Tap any number of creatures you control with total power 1 or more: This \
+             Vehicle becomes an artifact creature until end of turn.)",
+            1,
+        ),
+    ]),
 );
 
 // KLD 243 — Blooming Marsh
-static BLOOMING_MARSH_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {B} or {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Black,
-            ManaColor::Green,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_with_legacy_id(
     2136,
     "Blooming Marsh",
     CardArt::new("90da33d4-fe9c-42fe-b326-2fe337dc3ecd", "Adam Paquette"),
     CardSet::Kaladesh,
-    CardRules::new_land(&[]).with_abilities(&BLOOMING_MARSH_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {G}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // KLD 244 — Botanical Sanctum
-static BOTANICAL_SANCTUM_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {G} or {U}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Green,
-            ManaColor::Blue,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new_with_legacy_id(
     2137,
     "Botanical Sanctum",
     CardArt::new("8744471b-a528-47d9-84d0-4526273f55e9", "Christine Choi"),
     CardSet::Kaladesh,
-    CardRules::new_land(&[]).with_abilities(&BOTANICAL_SANCTUM_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {U}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // KLD 245 — Concealed Courtyard
-static CONCEALED_COURTYARD_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {W} or {B}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::White,
-            ManaColor::Black,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::new_with_legacy_id(
     2138,
     "Concealed Courtyard",
     CardArt::new("c8769e97-aee8-4466-a9d7-0f4245ae4a97", "Jung Park"),
     CardSet::Kaladesh,
-    CardRules::new_land(&[]).with_abilities(&CONCEALED_COURTYARD_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {B}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // KLD 246 — Inspiring Vantage
-static INSPIRING_VANTAGE_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {R} or {W}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Red,
-            ManaColor::White,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new_with_legacy_id(
     2139,
     "Inspiring Vantage",
     CardArt::new("160ac412-005f-48ca-a204-10207307c6c2", "Jonas De Ro"),
     CardSet::Kaladesh,
-    CardRules::new_land(&[]).with_abilities(&INSPIRING_VANTAGE_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {W}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // KLD 249 — Spirebluff Canal
-static SPIREBLUFF_CANAL_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {U} or {R}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
-    ),
-];
-
 pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_with_legacy_id(
     2140,
     "Spirebluff Canal",
     CardArt::new("4e587ea7-0632-4789-ba75-3c410da2bb96", "Adam Paquette"),
     CardSet::Kaladesh,
-    CardRules::new_land(&[]).with_abilities(&SPIREBLUFF_CANAL_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

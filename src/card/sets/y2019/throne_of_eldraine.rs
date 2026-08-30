@@ -38,58 +38,57 @@ pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::ne
 );
 
 // ELD 39 — Brazen Borrower
-static A_NONLAND_PERMANENT_THEY_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-const fn petty_theft_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{U}"))
-        .with_subtypes(&["Adventure"])
-        .with_ability(
-            AbilityDef::spell_with_targets(
-                "Return target nonland permanent an opponent controls to its owner's hand.",
-                &A_NONLAND_PERMANENT_THEY_CONTROL,
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            )
-            .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
-        )
-}
-
-/// "Can block only creatures with flying" is the price of a 3/1 flier with
-/// flash: it answers what is in the air and nothing on the ground.
-static A_FLYER: ObjectPredicateDef = ObjectPredicateDef::HasKeyword(KeywordAbility::Flying);
-
-static BORROWER_BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(A_FLYER)),
-};
-
-static BORROWER_ABILITIES: [AbilityDef; 3] = [
-    abilities::flash(),
-    abilities::flying(),
-    AbilityDef::static_ability(
-        "This creature can block only creatures with flying.",
-        BORROWER_BLOCKS_ONLY_FLYERS,
-    ),
-];
-
 const fn brazen_borrower_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Faerie", "Rogue"], 3, 1)
-        .with_abilities(&BORROWER_ABILITIES)
+    CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Faerie", "Rogue"], 3, 1).with_abilities(
+        &const {
+            [
+                abilities::flash(),
+                abilities::flying(),
+                AbilityDef::static_ability(
+                    "This creature can block only creatures with flying.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        // "Can block only creatures with flying" is the price of a 3/1 flier with
+                        // flash: it answers what is in the air and nothing on the ground.
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        )),
+                    },
+                ),
+            ]
+        },
+    )
 }
 
 fn brazen_borrower_composition() -> CardComposition {
     let borrower = brazen_borrower_rules();
-    let theft = petty_theft_rules();
+    let theft = const {
+        CardRules::new_instant(mana_cost!("{1}{U}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Return target nonland permanent an opponent controls to its owner's hand.",
+                    &const {
+                        [AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                    CardType::Land,
+                                )),
+                                zones: &const { [ZoneKind::Battlefield] },
+                                controller: Some(PlayerRelation::Opponent),
+                                owner: None,
+                            },
+                        )]
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Brazen Borrower", borrower),
@@ -136,43 +135,6 @@ pub(in crate::card::sets) static BRAZEN_BORROWER: CardRecord = CardRecord::new(
 .with_composition(brazen_borrower_composition);
 
 // ELD 110 — Wishclaw Talisman
-static WISHCLAW_COSTS: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::named("wish"),
-        amount: 1,
-    },
-];
-
-/// The tutor and the handover are one clause resolving in order, so the card
-/// is in hand before the artifact changes sides -- and the opponent inherits
-/// two counters they may spend on their own turn.
-static WISHCLAW_GRANTS_A_WISH: [EffectDef; 2] = [
-    EffectDef::SearchZone {
-        player: EffectRecipientDef::Controller,
-        source: ZoneKind::Library,
-        object: ObjectPredicateDef::Any,
-        minimum: 1,
-        maximum: ValueDef::Constant(1),
-        reveal: false,
-        destination: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-        shuffle: true,
-        enters_tapped: false,
-        attachment: None,
-        binding: None,
-        then: None,
-    },
-    EffectDef::GainControl {
-        object: EffectRecipientDef::Source,
-        controller: PlayerRefDef::Opponent,
-        // Nothing holds the change and no cleanup ends it: the artifact is
-        // theirs from here (CR 611.2b).
-        duration: ControlDurationDef::Indefinitely,
-    },
-];
-
 pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new_with_legacy_id(
     2166,
     "Wishclaw Talisman",
@@ -193,60 +155,91 @@ pub(in crate::card::sets) static WISHCLAW_TALISMAN: CardRecord = CardRecord::new
         ),
         AbilityDef::activated(
             "{1}, {T}, Remove a wish counter from this artifact: Search your library for a card, put it into your hand, then shuffle. An opponent gains control of this artifact. Activate only during your turn.",
-            &WISHCLAW_COSTS,
-            EffectDef::Sequence(&WISHCLAW_GRANTS_A_WISH),
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("wish"),
+                    amount: 1,
+                },
+            ],
+            // The tutor and the handover are one clause resolving in order, so the card
+            // is in hand before the artifact changes sides -- and the opponent inherits
+            // two counters they may spend on their own turn.
+            EffectDef::Sequence(&[
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Any,
+                    minimum: 1,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Source,
+                    controller: PlayerRefDef::Opponent,
+                    // Nothing holds the change and no cleanup ends it: the artifact is
+                    // theirs from here (CR 611.2b).
+                    duration: ControlDurationDef::Indefinitely,
+                },
+            ]),
         )
         .with_activation_timing(ActivationTimingDef::YourTurn),
     ]),
 );
 
 // ELD 115 — Bonecrusher Giant
-static STOMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
-/// The two sentences are one clause resolving in order, and the order is what
-/// the card is for: prevention is off before the damage arrives, so a
-/// protection that would have stopped it does not.
-static STOMP_EFFECTS: [EffectDef; 2] = [
-    EffectDef::DamageCannotBePreventedThisTurn,
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-];
-
-const fn stomp_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Damage can't be prevented this turn.\nStomp deals 2 damage to any target.",
-            &STOMP_TARGET,
-            EffectDef::Sequence(&STOMP_EFFECTS),
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
-    )
-}
-
-/// The punishment half. Answering the Giant with a removal spell costs two
-/// life whether or not the spell works, which is what makes it awkward to
-/// answer at all.
-static BONECRUSHER_PUNISHES: AbilityDef = AbilityDef::triggered(
-    "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
-    TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::EventPlayer,
-        amount: ValueDef::Constant(2),
-    },
-);
-
 const fn bonecrusher_rules() -> CardRules {
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Giant"], 4, 3)
-        .with_ability(BONECRUSHER_PUNISHES)
+        // The punishment half. Answering the Giant with a removal spell costs two
+        // life whether or not the spell works, which is what makes it awkward to
+        // answer at all.
+        .with_ability(AbilityDef::triggered(
+            "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
+            TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(2),
+            },
+        ))
 }
 
 fn bonecrusher_composition() -> CardComposition {
     let giant = bonecrusher_rules();
-    let stomp = stomp_rules();
+    let stomp = const {
+        CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+            AbilityDef::spell_with_targets(
+                "Damage can't be prevented this turn.\nStomp deals 2 damage to any target.",
+                &const {
+                    [AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )]
+                },
+                // The two sentences are one clause resolving in order, and the order is what
+                // the card is for: prevention is off before the damage arrives, so a
+                // protection that would have stopped it does not.
+                EffectDef::Sequence(
+                    &const {
+                        [
+                            EffectDef::DamageCannotBePreventedThisTurn,
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(2),
+                            },
+                        ]
+                    },
+                ),
+            )
+            .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+        )
+    };
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Bonecrusher Giant", giant),
@@ -292,10 +285,6 @@ pub(in crate::card::sets) static BONECRUSHER_GIANT: CardRecord = CardRecord::new
 .with_composition(bonecrusher_composition);
 
 // ELD 122 — Embereth Shieldbreaker
-static BATTLE_DISPLAY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
 /// The adventure half. Answering an artifact for one red leaves the body
 /// waiting in exile, which is the whole bargain of the mechanic.
 fn battle_display_rules() -> CardRules {
@@ -304,7 +293,11 @@ fn battle_display_rules() -> CardRules {
         .with_ability(
             AbilityDef::spell_with_targets(
                 "Destroy target artifact.",
-                &BATTLE_DISPLAY_TARGET,
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    )]
+                },
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     can_regenerate: true,
@@ -377,24 +370,6 @@ pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
 );
 
 // ELD 138 — Robber of the Rich
-/// "If defending player has more cards in hand than you", which is two hand
-/// sizes compared rather than either measured: a hand above nothing is the
-/// whole of it.
-static THEY_HAVE_MORE_CARDS: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::CardsInHandAbove {
-        player: PlayerRelation::Opponent,
-        threshold: 0,
-    },
-    comparison: ComparisonDef::Greater,
-    right: ValueDef::CardsInHandAbove {
-        player: PlayerRelation::You,
-        threshold: 0,
-    },
-};
-
-static ROBBER_STEALS_IF_THEY_ARE_RICHER: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&THEY_HAVE_MORE_CARDS);
-
 pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ecbe097-ba51-42e5-957c-382eb66c08f0"),
     "Robber of the Rich",
@@ -413,7 +388,20 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
                  Rogue, you may cast that card and you may spend mana as though it were mana of \
                  any color to cast that spell.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                &ROBBER_STEALS_IF_THEY_ARE_RICHER,
+                &// "If defending player has more cards in hand than you", which is two hand
+                    // sizes compared rather than either measured: a hand above nothing is the
+                    // whole of it.
+                    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CardsInHandAbove {
+                            player: PlayerRelation::Opponent,
+                            threshold: 0,
+                        },
+                        comparison: ComparisonDef::Greater,
+                        right: ValueDef::CardsInHandAbove {
+                            player: PlayerRelation::You,
+                            threshold: 0,
+                        },
+                    }),
                 EffectDef::ExileTopOfLibraryToPlay {
                     player: EffectRecipientDef::Opponent,
                     amount: ValueDef::Constant(1),
@@ -431,24 +419,6 @@ pub(in crate::card::sets) static ROBBER_OF_THE_RICH: CardRecord = CardRecord::ne
 );
 
 // ELD 169 — Once Upon a Time
-/// "You may reveal a creature or land card from among them": the two types
-/// the deck casting this on turn one is actually short of.
-static A_CREATURE_OR_LAND_CARD: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
-
-/// The spell asking is counted as it goes on the stack, so a spell that is
-/// the first one asks about a tally still standing at zero.
-static NOTHING_CAST_YET: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::SpellsCastThisGame(PlayerRelation::You),
-    comparison: ComparisonDef::Equal,
-    right: ValueDef::Constant(0),
-};
-
-static IT_IS_YOUR_FIRST_SPELL: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&NOTHING_CAST_YET);
-
 pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4034e5ba-9974-43e3-bde7-8d9b4586c3a4"),
     "Once Upon a Time",
@@ -466,14 +436,27 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
             ),
             EffectDef::None,
         )
-        .with_alternative_condition(&IT_IS_YOUR_FIRST_SPELL),
+        .with_alternative_condition(
+            &// The spell asking is counted as it goes on the stack, so a spell that is
+            // the first one asks about a tally still standing at zero.
+            TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                left: ValueDef::SpellsCastThisGame(PlayerRelation::You),
+                comparison: ComparisonDef::Equal,
+                right: ValueDef::Constant(0),
+            }),
+        ),
         AbilityDef::spell(
             "Look at the top five cards of your library. You may reveal a creature or land card \
              from among them and put it into your hand. Put the rest on the bottom of your \
              library in a random order.",
             abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
                 ValueDef::Constant(5),
-                A_CREATURE_OR_LAND_CARD,
+                // "You may reveal a creature or land card from among them": the two types
+                // the deck casting this on turn one is actually short of.
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
                 0,
                 1,
             ),
@@ -482,89 +465,6 @@ pub(in crate::card::sets) static ONCE_UPON_A_TIME: CardRecord = CardRecord::new(
 );
 
 // ELD 197 — Oko, Thief of Crowns
-/// "Loses all abilities and becomes a green Elk creature with base power and
-/// toughness 3/3." Five operations in one clause, and no duration at all:
-/// what Oko does to a Mox is permanent.
-static OKO_ELK: [AppliedEffectDef; 5] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elk"])),
-    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
-];
-
-static AN_ARTIFACT_OR_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
-/// The exchange names one of each: something of yours, and something small
-/// of theirs. An Elk the +1 just made is exactly the kind of thing the
-/// first slot is for.
-static OKO_EXCHANGE_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    }),
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        // "Power 3 or less" said the way the vocabulary has it: a creature
-        // always has a power, so failing to reach four is having at most
-        // three.
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(4)),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    }),
-];
-
-static OKO_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated(
-        "+2: Create a Food token.",
-        &[AbilityCostDef::Loyalty(2)],
-        EffectDef::create_token(tokens::food()).with_art(CardArt::new(
-            "4a029bdc-92e3-4d85-8af5-e33429a5f017",
-            "L J Koh",
-        )),
-    ),
-    AbilityDef::activated_with_targets(
-        "+1: Target artifact or creature loses all abilities and becomes a green Elk creature \
-         with base power and toughness 3/3.",
-        &[AbilityCostDef::Loyalty(1)],
-        &AN_ARTIFACT_OR_CREATURE,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Composite(&OKO_ELK),
-            duration: ResolvedEffectDurationDef::Permanent,
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "−5: Exchange control of target artifact or creature you control and target creature an \
-         opponent controls with power 3 or less.",
-        &[AbilityCostDef::Loyalty(-5)],
-        &OKO_EXCHANGE_TARGETS,
-        EffectDef::ExchangeControl {
-            first: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            second: EffectRecipientDef::Target(TargetIndex(1)),
-            otherwise: None,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3462a3d0-5552-49fa-9eb7-100960c55891"),
     "Oko, Thief of Crowns",
@@ -575,7 +475,82 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
     // reason it was banned everywhere.
     CardRules::new_planeswalker(mana_cost!("{1}{G}{U}"), &["Oko"], 4)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&OKO_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+2: Create a Food token.",
+                &[AbilityCostDef::Loyalty(2)],
+                EffectDef::create_token(tokens::food()).with_art(CardArt::new(
+                    "4a029bdc-92e3-4d85-8af5-e33429a5f017",
+                    "L J Koh",
+                )),
+            ),
+            AbilityDef::activated_with_targets(
+                "+1: Target artifact or creature loses all abilities and becomes a green Elk creature \
+                 with base power and toughness 3/3.",
+                &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    // "Loses all abilities and becomes a green Elk creature with base power and
+                    // toughness 3/3." Five operations in one clause, and no duration at all:
+                    // what Oko does to a Mox is permanent.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elk"])),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−5: Exchange control of target artifact or creature you control and target creature an \
+                 opponent controls with power 3 or less.",
+                &[AbilityCostDef::Loyalty(-5)],
+                // The exchange names one of each: something of yours, and something small
+                // of theirs. An Elk the +1 just made is exactly the kind of thing the
+                // first slot is for.
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    }),
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        // "Power 3 or less" said the way the vocabulary has it: a creature
+                        // always has a power, so failing to reach four is having at most
+                        // three.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(4)),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    }),
+                ],
+                EffectDef::ExchangeControl {
+                    first: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    second: EffectRecipientDef::Target(TargetIndex(1)),
+                    otherwise: None,
+                },
+            ),
+        ]),
 );
 
 // ELD 219 — Gingerbrute
@@ -630,55 +605,6 @@ pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
 );
 
 // ELD 342 — Emry, Lurker of the Loch
-static ARTIFACTS_YOU_CONTROL_EMRY: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static AN_ARTIFACT_CARD_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Artifact),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
-static EMRY_TAP_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-static EMRY_ABILITIES: [AbilityDef; 3] = [
-    // Affinity is a discount the card prints about itself, read from hand
-    // where the spell is being paid for rather than off the battlefield.
-    AbilityDef::static_ability(
-        "Affinity for artifacts (This spell costs {1} less to cast for each artifact you \
-         control.)",
-        EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL_EMRY)),
-    )
-    .with_source_zones(&[ZoneKind::Hand]),
-    abilities::enters_trigger(
-        "When Emry enters, mill four cards.",
-        EffectDef::Mill {
-            player: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(4),
-            binding: None,
-            then: None,
-        },
-    ),
-    // The cost is still owed and the timing rules still apply: what the
-    // permission buys is that the graveyard is a legal place to cast the
-    // named card from, and only until the turn is over.
-    AbilityDef::activated_with_targets(
-        "{T}: Choose target artifact card in your graveyard. You may cast that card this turn. \
-         (You still pay its costs. Timing rules still apply.)",
-        &EMRY_TAP_COST,
-        &AN_ARTIFACT_CARD_IN_YOUR_GRAVEYARD,
-        EffectDef::PermitCastFromGraveyardThisTurn {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("157f343d-8583-4827-a77d-d916e6a5caa1"),
     "Emry, Lurker of the Loch",
@@ -688,67 +614,51 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
     // arrives with is where she finds what to recast.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&EMRY_ABILITIES),
+        .with_abilities(&[
+            // Affinity is a discount the card prints about itself, read from hand
+            // where the spell is being paid for rather than off the battlefield.
+            AbilityDef::static_ability(
+                "Affinity for artifacts (This spell costs {1} less to cast for each artifact you \
+                 control.)",
+                EffectDef::ReduceGenericCostBy(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ))),
+            )
+            .with_source_zones(&[ZoneKind::Hand]),
+            abilities::enters_trigger(
+                "When Emry enters, mill four cards.",
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(4),
+                    binding: None,
+                    then: None,
+                },
+            ),
+            // The cost is still owed and the timing rules still apply: what the
+            // permission buys is that the graveyard is a legal place to cast the
+            // named card from, and only until the turn is over.
+            AbilityDef::activated_with_targets(
+                "{T}: Choose target artifact card in your graveyard. You may cast that card this turn. \
+                 (You still pay its costs. Timing rules still apply.)",
+                &[AbilityCostDef::TapSource],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::PermitCastFromGraveyardThisTurn {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ]),
 );
 
 // ELD 372 — Questing Beast
-/// "Power 2 or less" is strictly-less-than-three, which is the comparison
-/// the engine has and the same set of creatures.
-static A_SMALL_BLOCKER: ObjectPredicateDef =
-    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3));
-
-static CREATURES_YOU_CONTROL_QB: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// "That player controls": with two players the player just dealt combat
-/// damage by the Beast is the opponent, so the relation says it exactly.
-static THEIR_PLANESWALKER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Planeswalker),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-static QUESTING_BEAST_ABILITIES: [AbilityDef; 6] = [
-    abilities::vigilance(),
-    abilities::deathtouch(),
-    abilities::haste(),
-    AbilityDef::static_ability(
-        "This creature can't be blocked by creatures with power 2 or less.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(A_SMALL_BLOCKER)),
-        },
-    ),
-    AbilityDef::static_ability(
-        "Combat damage that would be dealt by creatures you control can't be prevented.",
-        EffectDef::StaticApply {
-            recipient: CREATURES_YOU_CONTROL_QB,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CombatDamageCannotBePrevented),
-        },
-    ),
-    // "That much damage" is the combat damage that was actually dealt, so a
-    // Beast whose damage was reduced deals the reduced amount here too.
-    AbilityDef::triggered_with_targets(
-        "Whenever this creature deals combat damage to an opponent, it deals that much damage to \
-         target planeswalker that player controls.",
-        TriggerEventDef::combat_damage_to_related_player(
-            ObjectPredicateDef::Source,
-            PlayerRelation::Opponent,
-        ),
-        &THEIR_PLANESWALKER,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::TriggerEventAmount,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5357e802-2d25-48d3-a188-101c142787b7"),
     "Questing Beast",
@@ -759,53 +669,58 @@ pub(in crate::card::sets) static QUESTING_BEAST: CardRecord = CardRecord::new(
     // with the player.
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&QUESTING_BEAST_ABILITIES),
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::deathtouch(),
+            abilities::haste(),
+            AbilityDef::static_ability(
+                "This creature can't be blocked by creatures with power 2 or less.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    // "Power 2 or less" is strictly-less-than-three, which is the comparison
+                    // the engine has and the same set of creatures.
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)))),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Combat damage that would be dealt by creatures you control can't be prevented.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CombatDamageCannotBePrevented),
+                },
+            ),
+            // "That much damage" is the combat damage that was actually dealt, so a
+            // Beast whose damage was reduced deals the reduced amount here too.
+            AbilityDef::triggered_with_targets(
+                "Whenever this creature deals combat damage to an opponent, it deals that much damage to \
+                 target planeswalker that player controls.",
+                TriggerEventDef::combat_damage_to_related_player(
+                    ObjectPredicateDef::Source,
+                    PlayerRelation::Opponent,
+                ),
+                // "That player controls": with two players the player just dealt combat
+                // damage by the Beast is the opponent, so the relation says it exactly.
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+        ]),
 );
 
 // ELD 391 — Fabled Passage
-/// Counted after the search, so the land that just arrived is one of the
-/// four -- and the Passage itself is not, having sacrificed itself to pay.
-/// Three lands beside it is the threshold in practice.
-static FABLED_FOUR_LANDS: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasType(CardType::Land),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 4,
-};
-
-/// "Untap that land": the one this search found rather than any land, which
-/// is why the search binds what it took.
-static FABLED_UNTAPS_IT: EffectDef = EffectDef::Untap {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-static FABLED_MAY_UNTAP: EffectDef = EffectDef::IfCondition {
-    condition: &FABLED_FOUR_LANDS,
-    then: &FABLED_UNTAPS_IT,
-};
-
-static FABLED_PASSAGE_FETCH: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Land),
-        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-    ]),
-    minimum: 0,
-    maximum: ValueDef::Constant(1),
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: true,
-    attachment: None,
-    binding: Some(ObjectSetBindingIndex::PRIMARY),
-    then: Some(&FABLED_MAY_UNTAP),
-};
-
 pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57645743-27fa-4a75-9511-acfc32dd349a"),
     "Fabled Passage",
@@ -818,7 +733,44 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
          battlefield tapped, then shuffle. Then if you control four or more lands, untap that \
          land.",
         &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-        FABLED_PASSAGE_FETCH,
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+            ]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: Some(ObjectSetBindingIndex::PRIMARY),
+            then: Some(&EffectDef::IfCondition {
+                // Counted after the search, so the land that just arrived is one of the
+                // four -- and the Passage itself is not, having sacrificed itself to pay.
+                // Three lands beside it is the threshold in practice.
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 4,
+                },
+                // "Untap that land": the one this search found rather than any land, which
+                // is why the search binds what it took.
+                then: &EffectDef::Untap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::PRIMARY,
+                    )),
+                },
+            }),
+        },
     )),
 );
 

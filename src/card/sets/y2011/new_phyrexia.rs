@@ -77,22 +77,6 @@ pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::ne
 );
 
 // NPH 6 — Chancellor of the Annex
-static CHANCELLOR_ANNEX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "When each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
-    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
-    EffectDef::PayOr(PayOrDef::unless(
-        EffectPaymentDef::mana(
-            PlayerSetDef::One(PlayerRefDef::EventPlayer),
-            mana_cost!("{1}"),
-        ),
-        &EffectDef::Counter {
-            object: EffectRecipientDef::TriggeringObject,
-            zone: ZoneKind::Graveyard,
-            placement: ZonePlacement::Top,
-        },
-    )),
-);
-
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("be1b482a-badb-4b9a-ab63-2e7944826aa0"),
     "Chancellor of the Annex",
@@ -102,7 +86,21 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecor
         .with_abilities(&[
             AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, when each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_ANNEX_OPENING_TRIGGER)),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "When each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+                    EffectDef::PayOr(PayOrDef::unless(
+                        EffectPaymentDef::mana(
+                            PlayerSetDef::One(PlayerRefDef::EventPlayer),
+                            mana_cost!("{1}"),
+                        ),
+                        &EffectDef::Counter {
+                            object: EffectRecipientDef::TriggeringObject,
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                        },
+                    )),
+                ))),
             ),
             abilities::flying(),
             AbilityDef::triggered(
@@ -246,26 +244,6 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
 );
 
 // NPH 12 — Inquisitor Exarch
-static INQUISITOR_EXARCH_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell(
-        "You gain 2 life.",
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target opponent loses 2 life.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )],
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static INQUISITOR_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49e241a0-a027-494b-8187-6ecb006d1d33"),
     "Inquisitor Exarch",
@@ -279,7 +257,25 @@ pub(in crate::card::sets) static INQUISITOR_EXARCH: CardRecord = CardRecord::new
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &INQUISITOR_EXARCH_MODES,
+            &[
+                AbilityDef::spell(
+                    "You gain 2 life.",
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target opponent loses 2 life.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                    )],
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+            ],
         ),
     ),
 );
@@ -392,20 +388,6 @@ pub(in crate::card::sets) static PORCELAIN_LEGIONNAIRE: CardRecord = CardRecord:
 );
 
 // NPH 20 — Puresteel Paladin
-static PURESTEEL_EQUIP_ZERO: AbilityDef = abilities::equip(
-    &[],
-    "Equip {0} ({0}: Attach to target creature you control. Equip only as a sorcery.)",
-);
-
-static PURESTEEL_METALCRAFT: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::Subtype("Equipment"),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::add_ability(&PURESTEEL_EQUIP_ZERO),
-};
-
 pub(in crate::card::sets) static PURESTEEL_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca100248-fcd6-41ed-8d75-bcb473845edd"),
     "Puresteel Paladin",
@@ -434,48 +416,23 @@ pub(in crate::card::sets) static PURESTEEL_PALADIN: CardRecord = CardRecord::new
             "Metalcraft — Equipment you control have equip {0} as long as you control three or more artifacts.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
-                then: &PURESTEEL_METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Subtype("Equipment"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::equip(
+                        &[],
+                        "Equip {0} ({0}: Attach to target creature you control. Equip only as a sorcery.)",
+                    )),
+                },
             },
         ),
     ]),
 );
 
 // NPH 21 — Remember the Fallen
-static REMEMBER_THE_FALLEN_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Return target creature card from your graveyard to your hand.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            },
-        )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Return target artifact card from your graveyard to your hand.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Artifact),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            },
-        )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d9b8325-2a28-4312-b778-40087f8ea778"),
     "Remember the Fallen",
@@ -483,7 +440,40 @@ pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::n
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_spell(
         "Choose one or both —\n• Return target creature card from your graveyard to your hand.\n• Return target artifact card from your graveyard to your hand.",
-        &REMEMBER_THE_FALLEN_MODES,
+        &[
+            AbilityDef::spell_with_targets(
+                "Return target creature card from your graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Return target artifact card from your graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ],
         1,
         2,
         false,
@@ -570,19 +560,6 @@ pub(in crate::card::sets) static SUTURE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // NPH 26 — War Report
-static WAR_REPORT_CREATURES: ObjectQueryDef = ObjectQueryDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-);
-static WAR_REPORT_ARTIFACTS: ObjectQueryDef = ObjectQueryDef::new(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Battlefield],
-);
-static WAR_REPORT_TOTAL: SumValueDef = SumValueDef::new(
-    ValueDef::CountMatchingObjects(&WAR_REPORT_CREATURES),
-    ValueDef::CountMatchingObjects(&WAR_REPORT_ARTIFACTS),
-);
-
 pub(in crate::card::sets) static WAR_REPORT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d837262-cd5d-4fc9-96dd-39ed04166883"),
     "War Report",
@@ -592,7 +569,16 @@ pub(in crate::card::sets) static WAR_REPORT: CardRecord = CardRecord::new(
         "You gain life equal to the number of creatures on the battlefield plus the number of artifacts on the battlefield.",
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Sum(&WAR_REPORT_TOTAL),
+            amount: ValueDef::Sum(&SumValueDef::new(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                )),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                )),
+            )),
         },
     )),
 );
@@ -624,27 +610,6 @@ pub(in crate::card::sets) static ARGENT_MUTATION: CardRecord = CardRecord::new(
 );
 
 // NPH 28 — Arm with Aether
-static ARM_WITH_AETHER_BOUNCE: AbilityDef = AbilityDef::triggered_with_targets(
-    "Whenever this creature deals damage to an opponent, you may return target creature that player controls to its owner's hand.",
-    TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent),
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zones: &[ZoneKind::Battlefield],
-            controller: Some(PlayerRelation::EventPlayer),
-            owner: None,
-        },
-    )],
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    },
-);
-
 pub(in crate::card::sets) static ARM_WITH_AETHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0878b20-315d-49fa-a4d7-232ba1ed6b0d"),
     "Arm with Aether",
@@ -658,7 +623,26 @@ pub(in crate::card::sets) static ARM_WITH_AETHER: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             ),
-            effect: AppliedEffectDef::add_ability(&ARM_WITH_AETHER_BOUNCE),
+            effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                "Whenever this creature deals damage to an opponent, you may return target creature that player controls to its owner's hand.",
+                TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::EventPlayer),
+                        owner: None,
+                    },
+                )],
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                },
+            )),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
     )),
@@ -688,27 +672,6 @@ pub(in crate::card::sets) static CHAINED_THROATSEEKER: CardRecord = CardRecord::
 );
 
 // NPH 31 — Chancellor of the Spires
-static CHANCELLOR_SPIRES_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the first upkeep, each opponent mills seven cards.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Mill {
-        player: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-        amount: ValueDef::Constant(7),
-        binding: None,
-        then: None,
-    },
-);
-
-static CHANCELLOR_OF_THE_SPIRES_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
-    mana_cost!("{0}"),
-    AlternativeCastKindDef::WithoutPayingManaCost,
-    Some("Cast without paying its mana cost."),
-    EffectDef::None,
-);
-
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b1e06e16-96fa-4611-b4a9-512eeeeddd3c"),
     "Chancellor of the Spires",
@@ -718,7 +681,19 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
         .with_abilities(&[
             AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent mills seven cards.",
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_SPIRES_OPENING_TRIGGER)),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the first upkeep, each opponent mills seven cards.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                        amount: ValueDef::Constant(7),
+                        binding: None,
+                        then: None,
+                    },
+                ))),
             ),
             abilities::flying(),
             abilities::enters_trigger_with_targets(
@@ -736,7 +711,12 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
                 )],
                 EffectDef::MayCastTargetWithoutPaying {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    ability: &CHANCELLOR_OF_THE_SPIRES_FREE_CAST,
+                    ability: &AbilityDef::alternative_cast(
+                        mana_cost!("{0}"),
+                        AlternativeCastKindDef::WithoutPayingManaCost,
+                        Some("Cast without paying its mana cost."),
+                        EffectDef::None,
+                    ),
                 },
             ),
         ]),
@@ -753,37 +733,6 @@ pub(in crate::card::sets) static CORRUPTED_RESOLVE: CardRecord = CardRecord::new
 );
 
 // NPH 33 — Deceiver Exarch
-static DECEIVER_EXARCH_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Untap target permanent you control.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::You),
-                owner: None,
-            },
-        )],
-        EffectDef::Untap {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Tap target permanent an opponent controls.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Battlefield],
-                controller: Some(PlayerRelation::Opponent),
-                owner: None,
-            },
-        )],
-        EffectDef::Tap {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static DECEIVER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f123ad6-fe84-4fed-9c0f-6b41921e9c26"),
     "Deceiver Exarch",
@@ -799,7 +748,36 @@ pub(in crate::card::sets) static DECEIVER_EXARCH: CardRecord = CardRecord::new(
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                &DECEIVER_EXARCH_MODES,
+                &[
+                    AbilityDef::spell_with_targets(
+                        "Untap target permanent you control.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Any,
+                                zones: &[ZoneKind::Battlefield],
+                                controller: Some(PlayerRelation::You),
+                                owner: None,
+                            },
+                        )],
+                        EffectDef::Untap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Tap target permanent an opponent controls.",
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Any,
+                                zones: &[ZoneKind::Battlefield],
+                                controller: Some(PlayerRelation::Opponent),
+                                owner: None,
+                            },
+                        )],
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ),
+                ],
             ),
         ]),
 );
@@ -828,23 +806,6 @@ pub(in crate::card::sets) static DEFENSIVE_STANCE: CardRecord = CardRecord::new(
 );
 
 // NPH 35 — Gitaxian Probe
-/// Any player, including yourself: looking at your own hand does nothing,
-/// but the clause does not stop you, and a Probe with no opponent worth
-/// reading is still a free card.
-static ANY_PLAYERS_HAND: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static PROBE_LOOKS_THEN_DRAWS: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static GITAXIAN_PROBE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("995486ce-58bb-4753-a812-0ca73ef1a235"),
     "Gitaxian Probe",
@@ -854,8 +815,21 @@ pub(in crate::card::sets) static GITAXIAN_PROBE: CardRecord = CardRecord::new(
     // counts spells cast, the look is beside the point.
     CardRules::new_sorcery(mana_cost!("{U/P}")).with_ability(AbilityDef::spell_with_targets(
         "Look at target player's hand.\nDraw a card.",
-        &ANY_PLAYERS_HAND,
-        EffectDef::Sequence(&PROBE_LOOKS_THEN_DRAWS),
+        // Any player, including yourself: looking at your own hand does nothing,
+        // but the clause does not stop you, and a Probe with no opponent worth
+        // reading is still a free card.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::LookAtHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1043,14 +1017,6 @@ pub(in crate::card::sets) static PHYREXIAN_INGESTER: CardRecord = CardRecord::ne
 );
 
 // NPH 42 — Phyrexian Metamorph
-/// "Any artifact or creature", which is wider than either Clone or Copy
-/// Artifact: what it copies may be the other player's best creature or your
-/// own best artifact, and the four mana is really three and two life.
-static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Creature),
-]);
-
 pub(in crate::card::sets) static PHYREXIAN_METAMORPH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8903546d-4f9a-4e90-8dd8-5ab068d40907"),
     "Phyrexian Metamorph",
@@ -1067,7 +1033,13 @@ pub(in crate::card::sets) static PHYREXIAN_METAMORPH: CardRecord = CardRecord::n
             "You may have this creature enter as a copy of any artifact or creature on the \
          battlefield, except it's an artifact in addition to its other types.",
             ReplacementEffectDef::CopyEntering {
-                object: AN_ARTIFACT_OR_CREATURE,
+                // "Any artifact or creature", which is wider than either Clone or Copy
+                // Artifact: what it copies may be the other player's best creature or your
+                // own best artifact, and the four mana is really three and two life.
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
                 exceptions: CopyExceptionsDef::NONE
                     .with_added_types(CardTypeSet::single(CardType::Artifact)),
             },
@@ -1291,24 +1263,6 @@ pub(in crate::card::sets) static CARESS_OF_PHYREXIA: CardRecord = CardRecord::ne
 );
 
 // NPH 54 — Chancellor of the Dross
-static CHANCELLOR_DROSS_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Sequence(&[
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-            amount: ValueDef::Constant(3),
-        },
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(3),
-        },
-    ]),
-);
-
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_DROSS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eec6d85e-6263-44b4-a91f-d51585c561c2"),
     "Chancellor of the Dross",
@@ -1318,7 +1272,23 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_DROSS: CardRecord = CardRecor
         .with_abilities(&[
             AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_DROSS_OPENING_TRIGGER)),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the first upkeep, each opponent loses 3 life, then you gain life equal to the life lost this way.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::Sequence(&[
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                            amount: ValueDef::Constant(3),
+                        },
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                    ]),
+                ))),
             ),
             abilities::flying(),
             abilities::lifelink(),
@@ -1435,35 +1405,6 @@ pub(in crate::card::sets) static ENSLAVE: CardRecord = CardRecord::new(
 );
 
 // NPH 59 — Entomber Exarch
-static ENTOMBER_EXARCH_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Return target creature card from your graveyard to your hand.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                zones: &[ZoneKind::Graveyard],
-                controller: None,
-                owner: Some(PlayerRelation::You),
-            },
-        )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target opponent reveals their hand. You choose a noncreature card from it. That player discards that card.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )],
-        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-        )),
-    ),
-];
-
 pub(in crate::card::sets) static ENTOMBER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f58020e-6d4d-474d-8d4b-cfb7d5a5e9a8"),
     "Entomber Exarch",
@@ -1477,7 +1418,34 @@ pub(in crate::card::sets) static ENTOMBER_EXARCH: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &ENTOMBER_EXARCH_MODES,
+            &[
+                AbilityDef::spell_with_targets(
+                    "Return target creature card from your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target opponent reveals their hand. You choose a noncreature card from it. That player discards that card.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                    )],
+                    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                        PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    )),
+                ),
+            ],
         )),
 );
 
@@ -1575,11 +1543,6 @@ pub(in crate::card::sets) static GRIM_AFFLICTION: CardRecord = CardRecord::new(
 );
 
 // NPH 64 — Ichor Explosion
-static ICHOR_EXPLOSION_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ZoneKind::Battlefield,
-    1,
-);
 static NEGATIVE_ADDITIONAL_COST_POWER: ValueDef = ValueDef::Negate(&ValueDef::ObjectPower(
     ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY),
 ));
@@ -1593,7 +1556,11 @@ pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature.\nAll creatures get -X/-X until end of turn, where X is the sacrificed creature's power.",
             &[],
-            ICHOR_EXPLOSION_COST,
+            SpellAdditionalCostDef::new(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ZoneKind::Battlefield,
+                1,
+            ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1685,9 +1652,6 @@ pub(in crate::card::sets) static MORTIS_DOGS: CardRecord = CardRecord::new(
 );
 
 // NPH 67 — Parasitic Implant
-static PARASITIC_IMPLANT_TOKEN: EffectDef =
-    EffectDef::create_artifact_creature_token(&["Phyrexian", "Myr"], &[], 1, 1);
-
 pub(in crate::card::sets) static PARASITIC_IMPLANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e34f1bf3-9f3a-47f0-9761-8b2356328a39"),
     "Parasitic Implant",
@@ -1709,7 +1673,7 @@ pub(in crate::card::sets) static PARASITIC_IMPLANT: CardRecord = CardRecord::new
                     )),
                     object: ObjectPredicateDef::AttachedToSource,
                     count: ValueDef::Constant(1),
-                    then: Some(&PARASITIC_IMPLANT_TOKEN),
+                    then: Some(&EffectDef::create_artifact_creature_token(&["Phyrexian", "Myr"], &[], 1, 1)),
                     amount: SacrificedAmountDef::Power,
                     otherwise: None,
                     optional: false,
@@ -1956,15 +1920,6 @@ pub(in crate::card::sets) static ACT_OF_AGGRESSION: CardRecord = CardRecord::new
 );
 
 // NPH 79 — Artillerize
-static ARTILLERIZE_ADDITIONAL_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-    ]),
-    ZoneKind::Battlefield,
-    1,
-);
-
 pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("034522ae-f531-44d9-b186-ada046ce0abc"),
     "Artillerize",
@@ -1974,7 +1929,14 @@ pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice an artifact or creature.\nThis spell deals 5 damage to any target.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            ARTILLERIZE_ADDITIONAL_COST,
+            SpellAdditionalCostDef::new(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                ZoneKind::Battlefield,
+                1,
+            ),
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(5),
@@ -1994,22 +1956,6 @@ pub(in crate::card::sets) static BLUDGEON_BRAWL: CardRecord = CardRecord::new(
 );
 
 // NPH 81 — Chancellor of the Forge
-static CHANCELLOR_FORGE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::create_creature_token(&["Phyrexian", "Goblin"], &[ManaColor::Red], 1, 1)
-        .with_abilities(&[abilities::haste()]),
-);
-
-static CHANCELLOR_OF_THE_FORGE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_FORGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd3520a7-a55f-4c00-b4f1-c1c154adfc8f"),
     "Chancellor of the Forge",
@@ -2019,7 +1965,15 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_FORGE: CardRecord = CardRecor
         .with_abilities(&[
             AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_FORGE_OPENING_TRIGGER)),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the first upkeep, create a 1/1 red Phyrexian Goblin creature token with haste.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::create_creature_token(&["Phyrexian", "Goblin"], &[ManaColor::Red], 1, 1)
+                        .with_abilities(&[abilities::haste()]),
+                ))),
             ),
             abilities::enters_trigger(
                 "When this creature enters, create X 1/1 red Phyrexian Goblin creature tokens with haste, where X is the number of creatures you control.",
@@ -2031,7 +1985,11 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_FORGE: CardRecord = CardRecor
                 )
                 .with_abilities(&[abilities::haste()])
                 .with_count(ValueDef::CountMatchingObjects(
-                    &CHANCELLOR_OF_THE_FORGE_CREATURES,
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                 )),
             ),
         ]),
@@ -2105,12 +2063,6 @@ pub(in crate::card::sets) static FURNACE_SCAMP: CardRecord = CardRecord::new(
 );
 
 // NPH 85 — Geosurge
-static GEOSURGE_MANA_RESTRICTIONS: [ManaRestrictionDef; 1] =
-    [ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-    ]))];
-
 pub(in crate::card::sets) static GEOSURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("118b7aa3-bb05-4691-978e-51486435bf05"),
     "Geosurge",
@@ -2121,16 +2073,15 @@ pub(in crate::card::sets) static GEOSURGE: CardRecord = CardRecord::new(
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Red)
                 .with_amount(7)
-                .with_restrictions(&GEOSURGE_MANA_RESTRICTIONS),
+                .with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]))]),
         ),
     )),
 );
 
 // NPH 86 — Gut Shot
-static GUT_SHOT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a54a2a30-b96a-49c7-9151-1f4b0d4a4413"),
     "Gut Shot",
@@ -2138,7 +2089,9 @@ pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
     CardSet::NewPhyrexia,
     CardRules::new_instant(mana_cost!("{R/P}")).with_ability(AbilityDef::spell_with_targets(
         "Gut Shot deals 1 damage to any target.",
-        &GUT_SHOT_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::Constant(1),
@@ -2265,12 +2218,6 @@ pub(in crate::card::sets) static RUTHLESS_INVASION: CardRecord = CardRecord::new
 );
 
 // NPH 94 — Scrapyard Salvo
-static ARTIFACT_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    &[ZoneKind::Graveyard],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static SCRAPYARD_SALVO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a4874eb-635b-47f0-bbee-6bd8b26e2f10"),
     "Scrapyard Salvo",
@@ -2284,7 +2231,11 @@ pub(in crate::card::sets) static SCRAPYARD_SALVO: CardRecord = CardRecord::new(
             )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&ARTIFACT_CARDS_IN_YOUR_GRAVEYARD),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
             },
         ),
     ),
@@ -2325,37 +2276,6 @@ pub(in crate::card::sets) static SLASH_PANTHER: CardRecord = CardRecord::new(
 );
 
 // NPH 97 — Tormentor Exarch
-static TORMENTOR_EXARCH_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Target creature gets +2/+0 until end of turn.",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(2),
-                ValueDef::Constant(0),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target creature gets -0/-2 until end of turn.",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(0),
-                ValueDef::Constant(-2),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static TORMENTOR_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4886eb6a-0f6a-4ea7-8e85-4a27d1a6f03b"),
     "Tormentor Exarch",
@@ -2369,7 +2289,36 @@ pub(in crate::card::sets) static TORMENTOR_EXARCH: CardRecord = CardRecord::new(
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &TORMENTOR_EXARCH_MODES,
+            &[
+                AbilityDef::spell_with_targets(
+                    "Target creature gets +2/+0 until end of turn.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target creature gets -0/-2 until end of turn.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(-2),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ],
         ),
     ),
 );
@@ -2520,9 +2469,6 @@ pub(in crate::card::sets) static BEAST_WITHIN: CardRecord = CardRecord::new(
 );
 
 // NPH 104 — Birthing Pod
-static BIRTHING_POD_MANA_VALUE: SumValueDef =
-    SumValueDef::new(ValueDef::SacrificedManaValue, ValueDef::Constant(1));
-
 pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b768efa2-e56b-4a7e-ace8-d673f10e0714"),
     "Birthing Pod",
@@ -2544,7 +2490,7 @@ pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&BIRTHING_POD_MANA_VALUE)),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Sum(&SumValueDef::new(ValueDef::SacrificedManaValue, ValueDef::Constant(1)))),
                 ]),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
@@ -2563,38 +2509,6 @@ pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
 );
 
 // NPH 105 — Brutalizer Exarch
-static BRUTALIZER_EXARCH_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell(
-        "Search your library for a creature card, reveal it, then shuffle and put that card on top.",
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: true,
-            destination: ZoneKind::Library,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Put target noncreature permanent on the bottom of its owner's library.",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-        )],
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Library,
-            placement: ZonePlacement::Bottom,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static BRUTALIZER_EXARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ddfa4ed-70fb-4e25-875d-df0f973f7294"),
     "Brutalizer Exarch",
@@ -2608,21 +2522,42 @@ pub(in crate::card::sets) static BRUTALIZER_EXARCH: CardRecord = CardRecord::new
                 None,
                 Some(ZoneKind::Battlefield),
             ),
-            &BRUTALIZER_EXARCH_MODES,
+            &[
+                AbilityDef::spell(
+                    "Search your library for a creature card, reveal it, then shuffle and put that card on top.",
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Put target noncreature permanent on the bottom of its owner's library.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
+                    },
+                ),
+            ],
         ),
     ),
 );
 
 // NPH 106 — Chancellor of the Tangle
-static CHANCELLOR_TANGLE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of your first precombat main phase, add {G}.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::PrecombatMain,
-        player: PlayerRelation::You,
-    },
-    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
-);
-
 pub(in crate::card::sets) static CHANCELLOR_OF_THE_TANGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d129aa8-b637-451e-8123-5221e08cc2cc"),
     "Chancellor of the Tangle",
@@ -2632,7 +2567,14 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_TANGLE: CardRecord = CardReco
         .with_abilities(&[
             AbilityDef::opening_hand_reveal(
                 "You may reveal this card from your opening hand. If you do, at the beginning of your first precombat main phase, add {G}.",
-                EffectDef::InstallTrigger(InstalledTriggerDef::once(&CHANCELLOR_TANGLE_OPENING_TRIGGER)),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of your first precombat main phase, add {G}.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::PrecombatMain,
+                        player: PlayerRelation::You,
+                    },
+                    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+                ))),
             ),
             abilities::vigilance(),
             abilities::reach(),
@@ -2737,10 +2679,6 @@ pub(in crate::card::sets) static GLISTENER_ELF: CardRecord = CardRecord::new(
 );
 
 // NPH 112 — Greenhilt Trainee
-static GREENHILT_TRAINEE_POWER: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::PowerAtLeast(4),
-};
-
 pub(in crate::card::sets) static GREENHILT_TRAINEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("370f8ef5-c809-43cc-903a-077fad33cd30"),
     "Greenhilt Trainee",
@@ -2762,7 +2700,9 @@ pub(in crate::card::sets) static GREENHILT_TRAINEE: CardRecord = CardRecord::new
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
-        .with_activation_condition(&GREENHILT_TRAINEE_POWER),
+        .with_activation_condition(&TriggerConditionDef::SourceMatches {
+            object: ObjectPredicateDef::PowerAtLeast(4),
+        }),
     ),
 );
 
@@ -3057,15 +2997,6 @@ pub(in crate::card::sets) static VORINCLEX_VOICE_OF_HUNGER: CardRecord = CardRec
 );
 
 // NPH 128 — Jor Kadeen, the Prevailer
-static JOR_KADEEN_BONUS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::HasType(CardType::Creature),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(0)),
-};
-
 pub(in crate::card::sets) static JOR_KADEEN_THE_PREVAILER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfd8d7de-a2e1-4f83-85f9-7057eebf0c37"),
     "Jor Kadeen, the Prevailer",
@@ -3079,7 +3010,14 @@ pub(in crate::card::sets) static JOR_KADEEN_THE_PREVAILER: CardRecord = CardReco
                 "Metalcraft — Creatures you control get +3/+0 as long as you control three or more artifacts.",
                 EffectDef::IfCondition {
                     condition: &METALCRAFT,
-                    then: &JOR_KADEEN_BONUS,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(0)),
+                    },
                 },
             ),
         ]),

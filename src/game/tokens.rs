@@ -203,6 +203,7 @@ impl Game {
     /// Creates a token with the complete copiable values of another permanent.
     /// Token nature belongs to the new object shell, independently of whether
     /// those values came from a printed card or another token.
+    #[cfg(test)]
     pub(super) fn create_token_copy(
         &mut self,
         controller: PlayerId,

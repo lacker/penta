@@ -10,13 +10,6 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // EVE 6 — Flickerwisp
-/// "Another target permanent": his own arrival cannot answer itself, and
-/// nothing else is out of reach -- a land is as blinkable as a creature,
-/// which is what separates him from every other flicker in white.
-static ANOTHER_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-)];
-
 pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bb3cb5c-8d66-4f5e-a9a9-917e6045f024"),
     "Flickerwisp",
@@ -30,7 +23,12 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
         abilities::enters_trigger_with_targets(
             "When this creature enters, exile another target permanent. Return that card to the \
              battlefield under its owner's control at the beginning of the next end step.",
-            &ANOTHER_PERMANENT,
+            // "Another target permanent": his own arrival cannot answer itself, and
+            // nothing else is out of reach -- a land is as blinkable as a creature,
+            // which is what separates him from every other flicker in white.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            )],
             abilities::exile_until_next_end_step(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         ),
     ]),
@@ -57,97 +55,6 @@ pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
 );
 
 // EVE 139 — Figure of Destiny
-/// Each step repaints the whole creature-type line rather than adding to it,
-/// which is what "becomes a Kithkin Spirit Warrior" says: the types it lists
-/// are the types it has. None of them ends, so every one is permanent and
-/// the next step reads the one before it off the board.
-static FIGURE_BECOMES_A_SPIRIT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Kithkin", "Spirit"])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-];
-
-static FIGURE_BECOMES_A_WARRIOR: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
-        "Kithkin", "Spirit", "Warrior",
-    ])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-];
-
-static FIGURE_BECOMES_AN_AVATAR: [AppliedEffectDef; 4] = [
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
-        "Kithkin", "Spirit", "Warrior", "Avatar",
-    ])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(8), ValueDef::Constant(8)),
-    AppliedEffectDef::add_ability(&FIGURE_FLYING),
-    AppliedEffectDef::add_ability(&FIGURE_FIRST_STRIKE),
-];
-
-static FIGURE_FLYING: AbilityDef = abilities::flying();
-
-static FIGURE_FIRST_STRIKE: AbilityDef = abilities::first_strike();
-
-/// "If this creature is a Spirit" is read as the ability resolves, so a
-/// Figure that was answered in response is a 1/1 again and the second
-/// activation does nothing.
-static FIGURE_IS_A_SPIRIT: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::Subtype("Spirit"),
-};
-
-static FIGURE_IS_A_WARRIOR: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::Subtype("Warrior"),
-};
-
-static FIGURE_WARRIOR_STEP: EffectDef = EffectDef::Apply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Composite(&FIGURE_BECOMES_A_WARRIOR),
-    duration: ResolvedEffectDurationDef::Permanent,
-};
-
-static FIGURE_AVATAR_STEP: EffectDef = EffectDef::Apply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Composite(&FIGURE_BECOMES_AN_AVATAR),
-    duration: ResolvedEffectDurationDef::Permanent,
-};
-
-static FIGURE_FIRST_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{R/W}"))];
-
-static FIGURE_SECOND_COST: [AbilityCostDef; 1] =
-    [AbilityCostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))];
-
-static FIGURE_THIRD_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!(
-    "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}"
-))];
-
-static FIGURE_OF_DESTINY_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated(
-        "{R/W}: This creature becomes a Kithkin Spirit with base power and toughness 2/2.",
-        &FIGURE_FIRST_COST,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Composite(&FIGURE_BECOMES_A_SPIRIT),
-            duration: ResolvedEffectDurationDef::Permanent,
-        },
-    ),
-    AbilityDef::activated(
-        "{R/W}{R/W}{R/W}: If this creature is a Spirit, it becomes a Kithkin Spirit Warrior with \
-         base power and toughness 4/4.",
-        &FIGURE_SECOND_COST,
-        EffectDef::IfCondition {
-            condition: &FIGURE_IS_A_SPIRIT,
-            then: &FIGURE_WARRIOR_STEP,
-        },
-    ),
-    AbilityDef::activated(
-        "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}: If this creature is a Warrior, it becomes a Kithkin \
-         Spirit Warrior Avatar with base power and toughness 8/8, flying, and first strike.",
-        &FIGURE_THIRD_COST,
-        EffectDef::IfCondition {
-            condition: &FIGURE_IS_A_WARRIOR,
-            then: &FIGURE_AVATAR_STEP,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new_with_legacy_id(
     2260,
     "Figure of Destiny",
@@ -156,7 +63,71 @@ pub(in crate::card::sets) static FIGURE_OF_DESTINY: CardRecord = CardRecord::new
     // A one-drop that is never a dead draw: it is a 1/1 on turn one and an
     // 8/8 flier on turn six, and every point of mana in between goes into it.
     CardRules::new_creature(mana_cost!("{R/W}"), &["Kithkin"], 1, 1)
-        .with_abilities(&FIGURE_OF_DESTINY_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{R/W}: This creature becomes a Kithkin Spirit with base power and toughness 2/2.",
+                &[AbilityCostDef::Mana(mana_cost!("{R/W}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    // Each step repaints the whole creature-type line rather than adding to it,
+                    // which is what "becomes a Kithkin Spirit Warrior" says: the types it lists
+                    // are the types it has. None of them ends, so every one is permanent and
+                    // the next step reads the one before it off the board.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Kithkin", "Spirit"])),
+                        AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+            AbilityDef::activated(
+                "{R/W}{R/W}{R/W}: If this creature is a Spirit, it becomes a Kithkin Spirit Warrior with \
+                 base power and toughness 4/4.",
+                &[AbilityCostDef::Mana(mana_cost!("{R/W}{R/W}{R/W}"))],
+                EffectDef::IfCondition {
+                    // "If this creature is a Spirit" is read as the ability resolves, so a
+                    // Figure that was answered in response is a 1/1 again and the second
+                    // activation does nothing.
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Subtype("Spirit"),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                                "Kithkin", "Spirit", "Warrior",
+                            ])),
+                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                },
+            ),
+            AbilityDef::activated(
+                "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}: If this creature is a Warrior, it becomes a Kithkin \
+                 Spirit Warrior Avatar with base power and toughness 8/8, flying, and first strike.",
+                &[AbilityCostDef::Mana(mana_cost!(
+                    "{R/W}{R/W}{R/W}{R/W}{R/W}{R/W}"
+                ))],
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Subtype("Warrior"),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                                "Kithkin", "Spirit", "Warrior", "Avatar",
+                            ])),
+                            AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(8), ValueDef::Constant(8)),
+                            AppliedEffectDef::add_ability(&abilities::flying()),
+                            AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

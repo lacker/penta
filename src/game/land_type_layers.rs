@@ -172,7 +172,15 @@ impl Game {
                 .iter()
                 .copied()
                 .any(Self::effect_contains_land_type_operation),
-            EffectDef::IfCondition { then, .. } => Self::effect_contains_land_type_operation(*then),
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                Self::effect_contains_land_type_operation(*conditional.then)
+                    || conditional.otherwise.is_some_and(|otherwise| {
+                        Self::effect_contains_land_type_operation(*otherwise)
+                    })
+            }
             EffectDef::StaticApply { effect, .. } => {
                 Self::applied_effect_contains_land_type_operation(effect)
             }
@@ -333,24 +341,28 @@ impl Game {
                     );
                 }
             }
-            EffectDef::IfCondition { condition, then }
-                if self.trigger_condition_holds(
-                    condition,
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                let condition_holds = self.trigger_condition_holds(
+                    conditional.condition,
                     source.card.id,
                     source.controller,
                     TriggerContext::empty(),
                     None,
                     None,
-                ) =>
-            {
-                self.collect_land_type_operations_from_effect(
-                    *then,
-                    source,
-                    affected,
-                    source_timestamp,
-                    component_order,
-                    operations,
                 );
+                if let Some(branch) = conditional.branch(condition_holds) {
+                    self.collect_land_type_operations_from_effect(
+                        *branch,
+                        source,
+                        affected,
+                        source_timestamp,
+                        component_order,
+                        operations,
+                    );
+                }
             }
             EffectDef::StaticApply { recipient, effect }
                 if self.land_type_recipient_matches(recipient, source, affected) =>

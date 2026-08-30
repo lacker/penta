@@ -333,7 +333,7 @@ impl Game {
         &self,
         effect: EffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
-        conditions: &mut Vec<&'static TriggerConditionDef>,
+        conditions: &mut Vec<(&'static TriggerConditionDef, bool)>,
         kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
@@ -349,12 +349,32 @@ impl Game {
                 }
                 ControlFlow::Continue(())
             }
-            EffectDef::IfCondition { condition, then } => {
-                conditions.push(condition);
-                let result =
-                    self.visit_static_effect_tree(*then, traversal, conditions, kind, visitor);
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                conditions.push((conditional.condition, true));
+                let result = self.visit_static_effect_tree(
+                    *conditional.then,
+                    traversal,
+                    conditions,
+                    kind,
+                    visitor,
+                );
                 conditions.pop();
-                result
+                if result.is_break() || conditional.otherwise.is_none() {
+                    return result;
+                }
+                conditions.push((conditional.condition, false));
+                let otherwise_result = self.visit_static_effect_tree(
+                    *conditional.otherwise.expect("checked above"),
+                    traversal,
+                    conditions,
+                    kind,
+                    visitor,
+                );
+                conditions.pop();
+                otherwise_result
             }
             EffectDef::StaticApply { recipient, effect } => {
                 // CR 613.6 keeps one recipient set for every component of a
@@ -427,7 +447,7 @@ impl Game {
         effect: AppliedEffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
         recipient_matches: bool,
-        conditions: &[&'static TriggerConditionDef],
+        conditions: &[(&'static TriggerConditionDef, bool)],
         kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
@@ -475,7 +495,7 @@ impl Game {
                 // permanent or continuous-effect layer is being assembled.
                 let include_effect = recipient_matches
                     && kind.includes(effect)
-                    && conditions.iter().all(|condition| {
+                    && conditions.iter().all(|(condition, expected)| {
                         self.trigger_condition_holds(
                             condition,
                             traversal.source.card.id,
@@ -483,7 +503,7 @@ impl Game {
                             TriggerContext::empty(),
                             None,
                             None,
-                        )
+                        ) == *expected
                     });
                 if include_effect {
                     visitor(StaticAppliedEffect {
@@ -668,6 +688,7 @@ impl Game {
                 | EffectDef::Detain { .. }
                 | EffectDef::GainControl { .. }
                 | EffectDef::IfCondition { .. }
+                | EffectDef::IfElseCondition { .. }
                 | EffectDef::InstallTrigger(_)
                 | EffectDef::CannotBeForcedToSacrifice
                 | EffectDef::CannotBeForcedToDiscard

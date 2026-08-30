@@ -67,17 +67,35 @@ impl Game {
                     self.collect_untap_limits(*effect, source, affected_player, enabled, limits);
                 }
             }
-            EffectDef::IfCondition { condition, then } => {
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
                 let holds = enabled
                     && self.trigger_condition_holds(
-                        condition,
+                        conditional.condition,
                         source.card.id,
                         source.controller,
                         TriggerContext::empty(),
                         None,
                         None,
                     );
-                self.collect_untap_limits(*then, source, affected_player, holds, limits);
+                self.collect_untap_limits(
+                    *conditional.then,
+                    source,
+                    affected_player,
+                    holds,
+                    limits,
+                );
+                if let Some(otherwise) = conditional.otherwise {
+                    self.collect_untap_limits(
+                        *otherwise,
+                        source,
+                        affected_player,
+                        enabled && !holds,
+                        limits,
+                    );
+                }
             }
             EffectDef::StaticApply { recipient, effect }
                 if enabled

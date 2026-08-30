@@ -236,6 +236,7 @@ impl Game {
             | EffectDef::GainControl { .. }
             | EffectDef::ExchangeControl { .. }
             | EffectDef::IfCondition { .. }
+            | EffectDef::IfElseCondition { .. }
             | EffectDef::InstallTrigger(_)
             | EffectDef::ReduceGenericCostBy(_)
             | EffectDef::ModifyCost(_)

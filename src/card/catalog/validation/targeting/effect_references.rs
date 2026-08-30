@@ -697,9 +697,15 @@ fn validate_effect_references(
             // recipient through the declared binding.
             validate_program_references(ongoing.ability.effect.definition, 0, nested)
         }
-        EffectDef::IfCondition { condition, then } => {
-            validate_trigger_condition(*condition, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope)
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            validate_trigger_condition(*conditional.condition, target_count, scope)?;
+            validate_effect_references(*conditional.then, target_count, scope)?;
+            conditional.otherwise.map_or(Ok(()), |otherwise| {
+                validate_effect_references(*otherwise, target_count, scope)
+            })
         }
         EffectDef::IfFormat {
             then, otherwise, ..

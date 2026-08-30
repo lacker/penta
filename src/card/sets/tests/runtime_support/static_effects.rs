@@ -266,10 +266,16 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 && shared_card_characteristics(effect);
             battlefield_effect || stack_source_effect || card_source_effect
         }
-        EffectDef::IfCondition { condition, then } => {
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
             battlefield_only(source_zones)
-                && shared_static_trigger_condition(*condition)
-                && shared_static_effect(source_zones, *then)
+                && shared_static_trigger_condition(*conditional.condition)
+                && shared_static_effect(source_zones, *conditional.then)
+                && conditional
+                    .otherwise
+                    .is_none_or(|otherwise| shared_static_effect(source_zones, *otherwise))
         }
         // None of these is a static ability; all execute from the stack.
         EffectDef::BindOutput { .. }

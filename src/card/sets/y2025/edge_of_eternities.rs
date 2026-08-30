@@ -257,9 +257,6 @@ const fn consult_choice(cards: usize) -> EffectDef {
     })
 }
 
-static CONSULT_WAS_KICKED: TriggerConditionDef =
-    TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked);
-
 pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a16a6555-2e3a-4587-aacd-0307d696b26c"),
     "Consult the Star Charts",
@@ -282,28 +279,21 @@ pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecor
              control. Put one of those cards into your hand. If this spell was kicked, put two \
              of those cards into your hand instead. Put the rest on the bottom of your library \
              in a random order.",
-            // The two halves are complementary conditions on one fact rather than an
-            // effect with a branch, so each reads the way its own printed clause does.
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CONSULT_WAS_KICKED),
-                    then: &abilities::bind_top_cards_then(
-                        PlayerRefDef::EffectController,
-                        ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-                        CONSULT_INSPECTED,
-                        &consult_choice(1),
-                    ),
-                },
-                EffectDef::IfCondition {
-                    condition: &CONSULT_WAS_KICKED,
-                    then: &abilities::bind_top_cards_then(
-                        PlayerRefDef::EffectController,
-                        ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-                        CONSULT_INSPECTED,
-                        &consult_choice(2),
-                    ),
-                },
-            ]),
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                then: &abilities::bind_top_cards_then(
+                    PlayerRefDef::EffectController,
+                    ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
+                    CONSULT_INSPECTED,
+                    &consult_choice(2),
+                ),
+                otherwise: &abilities::bind_top_cards_then(
+                    PlayerRefDef::EffectController,
+                    ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
+                    CONSULT_INSPECTED,
+                    &consult_choice(1),
+                ),
+            },
         ),
     ]),
 );

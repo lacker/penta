@@ -44,7 +44,6 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::WithBattlefieldArrival { effect, .. }
@@ -52,6 +51,14 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ExileLinkedToSource {
             then: Some(effect), ..
         } => vec![*effect],
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            std::iter::once(*conditional.then)
+                .chain(conditional.otherwise.copied())
+                .collect()
+        }
         EffectDef::WithZoneMoveResult { effect, then, .. } => vec![*effect, *then],
         EffectDef::ChooseEffect { choices, .. } => {
             choices.iter().map(|choice| choice.effect).collect()

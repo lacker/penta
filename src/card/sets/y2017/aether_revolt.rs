@@ -23,8 +23,6 @@ pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
 );
 
 // AER 57 — Fatal Push
-static REVOLT: TriggerConditionDef = TriggerConditionDef::ControllerHadPermanentLeaveThisTurn;
-
 static PUSH_IT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
@@ -45,33 +43,26 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        // The revolt clause replaces the threshold rather than adding to it, so the
-        // two branches are written as the exclusive pair the card prints and only
-        // one of them can ever destroy anything.
-        EffectDef::Sequence(&[
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::All(
-                    &// The mana value is read as the spell resolves rather than as it is cast,
-                    // so anything targetable is a legal target and a creature grown too
-                    // expensive in between simply survives.
-                    [TriggerConditionDef::Not(&REVOLT), TriggerConditionDef::TargetMatches {
-                        slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::ManaValueAtMost(2),
-                    }],
-                ),
+        // The mana value is read as the spell resolves rather than as it is cast,
+        // so anything targetable is a legal target and a creature grown too
+        // expensive in between simply survives.
+        EffectDef::IfElseCondition {
+            condition: &TriggerConditionDef::ControllerHadPermanentLeaveThisTurn,
+            then: &EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(4),
+                },
                 then: &PUSH_IT,
             },
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::All(&[
-                    REVOLT,
-                    TriggerConditionDef::TargetMatches {
-                        slot: TargetIndex::PRIMARY,
-                        object: ObjectPredicateDef::ManaValueAtMost(4),
-                    },
-                ]),
+            otherwise: &EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMost(2),
+                },
                 then: &PUSH_IT,
             },
-        ]),
+        },
     )),
 );
 

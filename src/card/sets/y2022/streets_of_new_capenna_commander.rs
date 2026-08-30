@@ -13,14 +13,6 @@ use crate::ids::ObjectBindingIndex;
 use crate::mana_cost;
 
 // NCC 81 — Currency Converter
-/// The card the cash-out chose, asked about while the choice still names it.
-/// A land pays a Treasure and anything else pays a body, so the two are
-/// complementary and exactly one of them runs.
-static CHOSEN_IS_A_LAND: TriggerConditionDef = TriggerConditionDef::BoundObjectMatches {
-    binding: ObjectBindingIndex::PRIMARY,
-    object: ObjectPredicateDef::HasType(CardType::Land),
-};
-
 /// The card goes back to the graveyard it came from -- its owner's, which is
 /// where a card exiled from a graveyard belongs however it got to exile.
 static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
@@ -86,22 +78,27 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::Sequence(&[
-                    EffectDef::IfCondition {
-                        condition: &CHOSEN_IS_A_LAND,
-                        then: &EffectDef::Sequence(&[
-                            CONVERTER_RETURNS_THE_CARD,
-                            EffectDef::create_token(tokens::treasure()),
-                        ]),
+                then: &EffectDef::IfElseCondition {
+                    // The card the cash-out chose, asked about while the choice still names it.
+                    // A land pays a Treasure and anything else pays a body.
+                    condition: &TriggerConditionDef::BoundObjectMatches {
+                        binding: ObjectBindingIndex::PRIMARY,
+                        object: ObjectPredicateDef::HasType(CardType::Land),
                     },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::Not(&CHOSEN_IS_A_LAND),
-                        then: &EffectDef::Sequence(&[
-                            CONVERTER_RETURNS_THE_CARD,
-                            EffectDef::create_token(tokens::creature(&["Rogue"], &[ManaColor::Black], 2, 2)),
-                        ]),
-                    },
-                ]),
+                    then: &EffectDef::Sequence(&[
+                        CONVERTER_RETURNS_THE_CARD,
+                        EffectDef::create_token(tokens::treasure()),
+                    ]),
+                    otherwise: &EffectDef::Sequence(&[
+                        CONVERTER_RETURNS_THE_CARD,
+                        EffectDef::create_token(tokens::creature(
+                            &["Rogue"],
+                            &[ManaColor::Black],
+                            2,
+                            2,
+                        )),
+                    ]),
+                },
             }),
         ),
     ]),

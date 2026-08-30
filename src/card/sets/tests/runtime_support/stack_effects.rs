@@ -655,9 +655,17 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // therefore be the delayed effect's root even when scheduling it
         // is itself one component of a sequence.
         EffectDef::BindOutput { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::ForEachInBinding { effect, .. } => {
             shared_stack_effect_at_position(*effect, deferred_decision_allowed)
+        }
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            shared_stack_effect_at_position(*conditional.then, deferred_decision_allowed)
+                && conditional.otherwise.is_none_or(|otherwise| {
+                    shared_stack_effect_at_position(*otherwise, deferred_decision_allowed)
+                })
         }
         EffectDef::WithBattlefieldArrival { effect, arrival } => {
             shared_stack_effect_at_position(*effect, deferred_decision_allowed)

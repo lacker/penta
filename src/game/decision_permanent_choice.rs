@@ -377,10 +377,17 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
                     .otherwise
                     .is_some_and(|effect| effect_removes_binding(*effect, binding))
         }
-        EffectDef::May { effect, .. }
-        | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
+        EffectDef::May { effect, .. } | EffectDef::ReplaceNextDrawThisTurn { effect, .. } => {
             effect_removes_binding(*effect, binding)
+        }
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            effect_removes_binding(*conditional.then, binding)
+                || conditional
+                    .otherwise
+                    .is_some_and(|otherwise| effect_removes_binding(*otherwise, binding))
         }
         EffectDef::InstallTrigger(installed) => installed
             .ability

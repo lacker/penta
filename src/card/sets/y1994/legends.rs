@@ -3463,42 +3463,33 @@ pub(in crate::card::sets) static COCOON: CardRecord = CardRecord::new_with_legac
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                // Two complementary conditions rather than a branch: one takes a counter off
-                // while any remain, the other opens the Cocoon once none do.
-                EffectDef::Sequence(&[
-                    EffectDef::IfCondition {
-                        condition: &COCOON_STILL_WRAPPED,
-                        then: &EffectDef::RemoveCounters {
-                            object: EffectRecipientDef::Source,
-                            kind: CounterKind::named("pupa"),
+                // Choose the branch before removing the last counter: the upkeep that sheds it
+                // is not also the upkeep that opens the Cocoon.
+                EffectDef::IfElseCondition {
+                    condition: &COCOON_STILL_WRAPPED,
+                    then: &EffectDef::RemoveCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("pupa"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    // The reward is handed out before the Aura goes, though the card prints it
+                    // after: once the Aura leaves there is nothing attached to give it to.
+                    otherwise: &EffectDef::Sequence(&[
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::AttachedPermanent,
+                            kind: CounterKind::PlusOnePlusOne,
                             amount: ValueDef::Constant(1),
                         },
-                    },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::SourceCounters {
-                            kind: CounterKind::named("pupa"),
-                            comparison: ComparisonDef::Equal,
-                            amount: 0,
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::AttachedPermanent,
+                            effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                            duration: ResolvedEffectDurationDef::Permanent,
                         },
-                        // The reward is handed out before the Aura goes, though the card prints it
-                        // after: once the Aura leaves there is nothing attached to give it to.
-                        then: &EffectDef::Sequence(&[
-                            EffectDef::AddCounters {
-                                object: EffectRecipientDef::AttachedPermanent,
-                                kind: CounterKind::PlusOnePlusOne,
-                                amount: ValueDef::Constant(1),
-                            },
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::AttachedPermanent,
-                                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                                duration: ResolvedEffectDurationDef::Permanent,
-                            },
-                            EffectDef::Sacrifice {
-                                object: EffectRecipientDef::Source,
-                            },
-                        ]),
-                    },
-                ]),
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ]),
+                },
             ),
         ]),
 );

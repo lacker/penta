@@ -117,7 +117,8 @@ EffectDef::MayPlayWithoutPaying { .. } | EffectDef::ExileGrantingOwnerPlay { .. 
 EffectDef::ExileGrantingControllerPlayThisTurn { .. } |
 EffectDef::ReturnLinkedExiles { .. } | EffectDef::Detain { .. } |
 EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } |
-EffectDef::IfCondition { .. } | EffectDef::InstallTrigger(_) |
+EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. } |
+EffectDef::InstallTrigger(_) |
 EffectDef::ReduceGenericCostBy(_) | EffectDef::ModifyCost(_) |
 EffectDef::LandwalkCanBeBlocked(_) | EffectDef::CannotAttackUnless(_) |
 EffectDef::CannotAttackIf(_) | EffectDef::PutIntoLibraryBeneathTop { .. } |

@@ -334,8 +334,6 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
 );
 
 // CLB 630 — Delayed Blast Fireball
-static CAST_FROM_EXILE: TriggerConditionDef = TriggerConditionDef::SourceCastFrom(ZoneKind::Exile);
-
 pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     CardRecord::new_with_legacy_id(
         2299,
@@ -349,29 +347,20 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
                 "Delayed Blast Fireball deals 2 damage to each opponent and each creature they \
              control. If this spell was cast from exile, it deals 5 damage to each opponent and \
              each creature they control instead.",
-                // "Instead": the two branches are exclusive, so each names the condition
-                // and the smaller one names its negation. Written this way rather than as
-                // one conditional with an else because that is what the card says -- a
-                // baseline, and a replacement for it.
-                EffectDef::Sequence(&[
-                    EffectDef::IfCondition {
-                        condition: &CAST_FROM_EXILE,
-                        then: &EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-                            amount: ValueDef::Constant(5),
-                        },
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Exile),
+                    then: &EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+                        amount: ValueDef::Constant(5),
                     },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::Not(&CAST_FROM_EXILE),
-                        // Two damage as the baseline and five when it was foretold, which is the
-                        // whole of the card: the two mana spent a turn earlier buy three damage and
-                        // one mana off the price.
-                        then: &EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
-                            amount: ValueDef::Constant(2),
-                        },
+                    // Two damage as the baseline and five when it was foretold, which is the
+                    // whole of the card: the two mana spent a turn earlier buy three damage and
+                    // one mana off the price.
+                    otherwise: &EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EachOpponentAndTheirCreatures,
+                        amount: ValueDef::Constant(2),
                     },
-                ]),
+                },
             ),
             abilities::foretell(mana_cost!("{4}{R}{R}")),
         ]),

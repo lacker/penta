@@ -113,16 +113,29 @@ fn validate_static_effect(
             }
             Ok(())
         }
-        EffectDef::IfCondition { condition, then }
-            if matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard])
-                && static_trigger_condition_supported(*condition) =>
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. })
+            if matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard]) =>
         {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            if !static_trigger_condition_supported(*conditional.condition) {
+                return Err(effect_operation_name(effect));
+            }
             validate_static_effect(
-                *then,
+                *conditional.then,
                 source_zones,
                 StaticPosition::Traversed,
                 has_external_enforcement_explanation,
-            )
+            )?;
+            conditional.otherwise.map_or(Ok(()), |otherwise| {
+                validate_static_effect(
+                    *otherwise,
+                    source_zones,
+                    StaticPosition::Traversed,
+                    has_external_enforcement_explanation,
+                )
+            })
         }
         EffectDef::StaticApply { recipient, effect } => {
             validate_static_apply(source_zones, recipient, effect)

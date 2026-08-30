@@ -452,8 +452,16 @@ impl HandcraftedPolicy {
                         .find_map(|effect| Self::target_condition_in(**effect))
                 })
             }
-            EffectDef::May { effect, .. } | EffectDef::IfCondition { then: effect, .. } => {
-                Self::target_condition_in(*effect)
+            EffectDef::May { effect, .. } => Self::target_condition_in(*effect),
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                Self::target_condition_in(*conditional.then).or_else(|| {
+                    conditional
+                        .otherwise
+                        .and_then(|otherwise| Self::target_condition_in(*otherwise))
+                })
             }
             EffectDef::InstallTrigger(trigger) => trigger
                 .ability

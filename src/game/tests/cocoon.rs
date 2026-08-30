@@ -88,9 +88,22 @@ fn it_holds_the_creature_down_while_counters_remain() {
 #[test]
 fn the_fourth_upkeep_hatches_it() {
     let (mut game, host, aura) = cocooned();
-    for _ in 0..4 {
+    for _ in 0..3 {
         take_an_upkeep(&mut game);
     }
+
+    assert_eq!(
+        pupa_on(&game, aura),
+        Some(0),
+        "shedding the last counter does not also hatch it",
+    );
+    assert_eq!(
+        host_of(&game, host).counters(CounterKind::PlusOnePlusOne),
+        0,
+        "the reward waits for the upkeep that finds no counter",
+    );
+
+    take_an_upkeep(&mut game);
 
     assert_eq!(pupa_on(&game, aura), None, "the Aura is gone");
     let host = host_of(&game, host);

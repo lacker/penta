@@ -209,16 +209,7 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
             // "If you can't, sacrifice it." Checked as its own clause because the
             // removal above is what fails, and a permanent with no counters left has to
             // go rather than simply skip a turn.
-            EffectDef::Sequence(&[EffectDef::IfCondition {
-                condition: &TriggerConditionDef::SourceCounters {
-                    kind: CounterKind::named("fade"),
-                    comparison: ComparisonDef::LessOrEqual,
-                    amount: 0,
-                },
-                then: &EffectDef::Sacrifice {
-                    object: EffectRecipientDef::Source,
-                },
-            }, EffectDef::IfCondition {
+            EffectDef::IfElseCondition {
                 condition: &TriggerConditionDef::SourceCounters {
                     kind: CounterKind::named("fade"),
                     comparison: ComparisonDef::GreaterOrEqual,
@@ -229,7 +220,10 @@ pub(in crate::card::sets) static PARALLAX_WAVE: CardRecord = CardRecord::new_wit
                     kind: CounterKind::named("fade"),
                     amount: ValueDef::Constant(1),
                 },
-            }]),
+                otherwise: &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            },
         ),
         AbilityDef::activated_with_targets(
             "Remove a fade counter from this enchantment: Exile target creature.",

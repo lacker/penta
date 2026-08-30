@@ -71,15 +71,6 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
 );
 
 // OTJ 82 — Caustic Bronco
-/// "You lose life equal to that card's mana value if this creature isn't
-/// saddled. Otherwise, each opponent loses that much life." Two clauses
-/// reading one number, which is the mana value of the card the reveal just
-/// put in hand -- gone from anywhere the resolution could look at it by the
-/// time either half asks.
-static BRONCO_IS_SADDLED: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::Saddled,
-};
-
 /// The reveal itself: one card off the top, shown to everybody, into your
 /// hand, and then the clause above reads what it cost.
 const BRONCO_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
@@ -111,28 +102,19 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                                     zone: ZoneKind::Hand,
                                     placement: ZonePlacement::Top,
                                     moved: None,
-                                    then: &EffectDef::Sequence(
-                                        &const {
-                                            [
-                                                EffectDef::IfCondition {
-                                                    condition: &TriggerConditionDef::Not(
-                                                        &BRONCO_IS_SADDLED,
-                                                    ),
-                                                    then: &EffectDef::LoseLife {
-                                                        recipient: EffectRecipientDef::Controller,
-                                                        amount: ValueDef::MatchedManaValue,
-                                                    },
-                                                },
-                                                EffectDef::IfCondition {
-                                                    condition: &BRONCO_IS_SADDLED,
-                                                    then: &EffectDef::LoseLife {
-                                                        recipient: EffectRecipientDef::Opponent,
-                                                        amount: ValueDef::MatchedManaValue,
-                                                    },
-                                                },
-                                            ]
+                                    then: &EffectDef::IfElseCondition {
+                                        condition: &TriggerConditionDef::SourceMatches {
+                                            object: ObjectPredicateDef::Saddled,
                                         },
-                                    ),
+                                        then: &EffectDef::LoseLife {
+                                            recipient: EffectRecipientDef::Opponent,
+                                            amount: ValueDef::MatchedManaValue,
+                                        },
+                                        otherwise: &EffectDef::LoseLife {
+                                            recipient: EffectRecipientDef::Controller,
+                                            amount: ValueDef::MatchedManaValue,
+                                        },
+                                    },
                                 })
                             },
                         })

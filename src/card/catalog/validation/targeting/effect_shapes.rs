@@ -488,9 +488,15 @@ fn validate_effect_target_shapes(
             ..
         }))
         | EffectDef::AddManaEqualTo { amount: count, .. } => validate_value_shape(count, targets),
-        EffectDef::IfCondition { condition, then } => {
-            validate_trigger_condition_shape(*condition, targets)?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+        effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+            let conditional = effect
+                .conditional()
+                .expect("conditional variants expose their shared shape");
+            validate_trigger_condition_shape(*conditional.condition, targets)?;
+            validate_effect_target_shapes(*conditional.then, targets, triggering_object_zone)?;
+            conditional.otherwise.map_or(Ok(()), |otherwise| {
+                validate_effect_target_shapes(*otherwise, targets, triggering_object_zone)
+            })
         }
         EffectDef::IfFormat {
             then, otherwise, ..

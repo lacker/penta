@@ -242,27 +242,20 @@ pub(in crate::card::sets) static BONDS_OF_FAITH: CardRecord = CardRecord::new(
             abilities::enchant_creature(),
             AbilityDef::static_ability(
                 "Enchanted creature gets +2/+2 as long as it's a Human. Otherwise, it can't attack or block.",
-                EffectDef::Sequence(&[
-                    EffectDef::IfCondition {
-                        condition: &ATTACHED_PERMANENT_IS_HUMAN,
-                        then: &EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::AttachedPermanent,
-                            effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-                        },
+                EffectDef::IfElseCondition {
+                    condition: &ATTACHED_PERMANENT_IS_HUMAN,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
                     },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::AttachedPermanentMatches {
-                                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Human")),
-                            },
-                        then: &EffectDef::StaticApply {
-                            recipient: EffectRecipientDef::AttachedPermanent,
-                            effect: AppliedEffectDef::Composite(&[
-                                AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-                                AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-                            ]),
-                        },
+                    otherwise: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        ]),
                     },
-                ]),
+                },
             ),
         ]),
 );

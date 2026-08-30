@@ -120,23 +120,40 @@ impl Game {
                 }
                 ControlFlow::Continue(())
             }
-            EffectDef::IfCondition { condition, then } => {
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
                 let condition_holds = enabled
                     && self.trigger_condition_holds(
-                        condition,
+                        conditional.condition,
                         source.card.id,
                         source.controller,
                         TriggerContext::empty(),
                         None,
                         None,
                     );
-                self.visit_static_attack_restrictions(
-                    *then,
+                let then_result = self.visit_static_attack_restrictions(
+                    *conditional.then,
                     source,
                     affected_player,
                     condition_holds,
                     visitor,
-                )
+                );
+                if then_result.is_break() {
+                    return then_result;
+                }
+                conditional
+                    .otherwise
+                    .map_or(ControlFlow::Continue(()), |otherwise| {
+                        self.visit_static_attack_restrictions(
+                            *otherwise,
+                            source,
+                            affected_player,
+                            enabled && !condition_holds,
+                            visitor,
+                        )
+                    })
             }
             EffectDef::StaticApply { recipient, effect } => {
                 if !enabled
@@ -457,10 +474,13 @@ impl Game {
                     );
                 }
             }
-            EffectDef::IfCondition { condition, then } => {
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
                 let condition_holds = enabled
                     && self.trigger_condition_holds(
-                        condition,
+                        conditional.condition,
                         source.card.id,
                         source.controller,
                         TriggerContext::empty(),
@@ -468,13 +488,23 @@ impl Game {
                         None,
                     );
                 self.collect_static_play_restrictions(
-                    *then,
+                    *conditional.then,
                     source,
                     affected_player,
                     condition_holds,
                     component_order,
                     restrictions,
                 );
+                if let Some(otherwise) = conditional.otherwise {
+                    self.collect_static_play_restrictions(
+                        *otherwise,
+                        source,
+                        affected_player,
+                        enabled && !condition_holds,
+                        component_order,
+                        restrictions,
+                    );
+                }
             }
             EffectDef::StaticApply { recipient, effect } => {
                 let include = enabled

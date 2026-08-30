@@ -632,16 +632,20 @@ impl Game {
                     self.resolve_effect_def(scoped.with_effect(*otherwise), object, context);
                 }
             }
-            EffectDef::IfCondition { condition, then } => {
-                if self.trigger_condition_holds(
-                    condition,
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                let condition_holds = self.trigger_condition_holds(
+                    conditional.condition,
                     object.source.unwrap_or(object.id),
                     object.controller,
                     context.trigger,
                     object.ability.as_ref().map(|ability| ability.origin),
                     Some((object, scoped, &context)),
-                ) {
-                    self.resolve_effect_def(scoped.with_effect(*then), object, context);
+                );
+                if let Some(branch) = conditional.branch(condition_holds) {
+                    self.resolve_effect_def(scoped.with_effect(*branch), object, context);
                 }
             }
             EffectDef::InstallTrigger(installed) => {

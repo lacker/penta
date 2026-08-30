@@ -780,6 +780,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ExchangeControl { .. }
                     | EffectDef::InstallTrigger(_)
                     | EffectDef::IfCondition { .. }
+                    | EffectDef::IfElseCondition { .. }
                     | EffectDef::ReduceGenericCostBy(_)
                     | EffectDef::ModifyCost(_)
                     | EffectDef::LandwalkCanBeBlocked(_)

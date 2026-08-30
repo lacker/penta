@@ -1403,9 +1403,6 @@ pub(in crate::card::sets) static HIGHBORN_GHOUL: CardRecord = CardRecord::new_wi
 );
 
 // DKA 69 — Increasing Ambition
-static INCREASING_AMBITION_FROM_GRAVEYARD: TriggerConditionDef =
-    TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard);
-
 pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::new_with_legacy_id(
     1692,
     "Increasing Ambition",
@@ -1415,44 +1412,39 @@ pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::n
         CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&const { [
             AbilityDef::spell(
                 "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
-                EffectDef::Sequence(&const { [
-                    EffectDef::IfCondition {
-                        condition: &INCREASING_AMBITION_FROM_GRAVEYARD,
-                        then: &EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::Any,
-                            minimum: 2,
-                            maximum: ValueDef::Constant(2),
-                            reveal: false,
-                            destination: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: false,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                    then: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 2,
+                        maximum: ValueDef::Constant(2),
+                        reveal: false,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
                     },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::Not(&INCREASING_AMBITION_FROM_GRAVEYARD),
-                        then: &EffectDef::SearchZone {
-                            player: EffectRecipientDef::Controller,
-                            source: ZoneKind::Library,
-                            object: ObjectPredicateDef::Any,
-                            minimum: 1,
-                            maximum: ValueDef::Constant(1),
-                            reveal: false,
-                            destination: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                            shuffle: true,
-                            enters_tapped: false,
-                            attachment: None,
-                            binding: None,
-                            then: None,
-                        },
+                    otherwise: &EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::Any,
+                        minimum: 1,
+                        maximum: ValueDef::Constant(1),
+                        reveal: false,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
                     },
-                ] }),
+                },
             ),
             abilities::flashback(mana_cost!("{7}{B}")),
         ] })

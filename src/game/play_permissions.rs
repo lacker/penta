@@ -501,19 +501,24 @@ impl Game {
             // "During your turn, ... have retrace": a permission can be
             // gated, and a gate that is shut is not a permission at all.
             let effect = match effect {
-                super::EffectDef::IfCondition { condition, then }
-                    if self.trigger_condition_holds(
-                        condition,
+                conditional @ (super::EffectDef::IfCondition { .. }
+                | super::EffectDef::IfElseCondition { .. }) => {
+                    let conditional = conditional
+                        .conditional()
+                        .expect("conditional variants expose their shared shape");
+                    let condition_holds = self.trigger_condition_holds(
+                        conditional.condition,
                         source.card.id,
                         source.controller,
                         super::TriggerContext::empty(),
                         None,
                         None,
-                    ) =>
-                {
-                    *then
+                    );
+                    let Some(branch) = conditional.branch(condition_holds) else {
+                        continue;
+                    };
+                    *branch
                 }
-                super::EffectDef::IfCondition { .. } => continue,
                 effect => effect,
             };
             let super::EffectDef::StaticApply { recipient, effect } = effect else {

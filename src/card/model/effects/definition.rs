@@ -455,6 +455,15 @@ pub enum EffectDef {
         condition: &'static TriggerConditionDef,
         then: &'static EffectDef,
     },
+    /// Chooses exactly one branch from a condition evaluated where this
+    /// effect resolves. Unlike two sequential [`Self::IfCondition`] effects,
+    /// the chosen branch cannot change the condition before the alternative
+    /// is selected.
+    IfElseCondition {
+        condition: &'static TriggerConditionDef,
+        then: &'static EffectDef,
+        otherwise: &'static EffectDef,
+    },
     /// Resolve one branch under a particular per-game format profile. Card
     /// definitions remain format-neutral; only the rules procedure varies.
     IfFormat {

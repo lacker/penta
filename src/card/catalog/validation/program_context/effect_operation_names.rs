@@ -122,6 +122,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ReturnLinkedExiles { .. } => "ReturnLinkedExiles",
         EffectDef::GainControl { .. } | EffectDef::ExchangeControl { .. } => "GainControl",
         EffectDef::IfCondition { .. } => "IfCondition",
+        EffectDef::IfElseCondition { .. } => "IfElseCondition",
         EffectDef::InstallTrigger(_) => "InstallTrigger",
         EffectDef::CreateOngoingEffect(_) => "CreateOngoingEffect",
         EffectDef::CannotBeForcedToSacrifice => "CannotBeForcedToSacrifice",

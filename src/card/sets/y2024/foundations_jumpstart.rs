@@ -23,15 +23,6 @@ pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord:
 );
 
 // J25 24 — Scythecat Cub
-/// The count includes the resolution asking, so the second land of the turn
-/// reads two. A third reads three and is not the second time, which is why
-/// the two branches are one condition and its negation rather than a pair of
-/// numbers.
-static CUB_SECOND_TIME: TriggerConditionDef = TriggerConditionDef::SourceResolutionsThisTurn {
-    comparison: ComparisonDef::Equal,
-    amount: 2,
-};
-
 pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3dd3c7d-4685-4579-b483-14ddaaaddf5b"),
     "Scythecat Cub",
@@ -65,26 +56,26 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
                     owner: None,
                 },
             )],
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CUB_SECOND_TIME),
-                    then: &EffectDef::AddCounters {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(1),
-                    },
+            EffectDef::IfElseCondition {
+                // The count includes the resolution asking, so the second land of the turn
+                // reads two. A third reads three and takes the other branch.
+                condition: &TriggerConditionDef::SourceResolutionsThisTurn {
+                    comparison: ComparisonDef::Equal,
+                    amount: 2,
                 },
-                EffectDef::IfCondition {
-                    condition: &CUB_SECOND_TIME,
-                    // "Double the number of +1/+1 counters on that creature": what it has, not
-                    // what this ability put there, so a creature somebody else grew doubles
-                    // just as readily.
-                    then: &EffectDef::DoubleCounters {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
-                    },
+                // "Double the number of +1/+1 counters on that creature": what it has, not
+                // what this ability put there, so a creature somebody else grew doubles
+                // just as readily.
+                then: &EffectDef::DoubleCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
                 },
-            ]),
+                otherwise: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
     ]),
 );

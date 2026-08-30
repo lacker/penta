@@ -34,6 +34,9 @@ sha2 = "0.11"
 sha2 = "0.11"
 toml = "1.1"
 
+[dev-dependencies]
+syn = { version = "2", features = ["full", "visit"] }
+
 # Keep profiling representative of release behavior while retaining enough
 # symbol information for sampled stacks and source-level views.
 [profile.profiling]

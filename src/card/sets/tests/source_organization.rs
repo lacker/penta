@@ -7,6 +7,8 @@ use super::SET_MODULES;
 use crate::card::{CardCatalog, CardStructure};
 use crate::{CardSet, Format};
 
+mod inline_helpers;
+
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
 const HEADER_PREFIX: &str = "// ";
 const HEADER_SEPARATOR: &str = " — ";

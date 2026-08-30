@@ -4320,27 +4320,6 @@ pub(in crate::card::sets) static KESSIG_WOLF: CardRecord = CardRecord::new_with_
 );
 
 // ISD 152 — Kruin Outlaw // Terror of Kruin Pass
-static KRUIN_OUTLAW_ABILITIES: [AbilityDef; 2] =
-    [abilities::first_strike(), WEREWOLF_FRONT_TRANSFORM];
-
-static TERROR_OF_KRUIN_PASS_MENACE: AbilityDef = abilities::menace();
-
-static TERROR_OF_KRUIN_PASS_ABILITIES: [AbilityDef; 3] = [
-    abilities::double_strike(),
-    AbilityDef::static_ability(
-        "Werewolves you control have menace. (A creature with menace can't be blocked except by two or more creatures.)",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::matching_objects(
-                ObjectPredicateDef::Subtype("Werewolf"),
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::add_ability(&TERROR_OF_KRUIN_PASS_MENACE),
-        },
-    ),
-    WEREWOLF_BACK_TRANSFORM,
-];
-
 pub(in crate::card::sets) static KRUIN_OUTLAW: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("ec00d2d2-6597-474a-9353-345bbedfe57e"),
     "Kruin Outlaw // Terror of Kruin Pass",
@@ -4355,13 +4334,27 @@ pub(in crate::card::sets) static KRUIN_OUTLAW: CardRecord = CardRecord::new_dfc(
                 2,
                 2,
             )
-            .with_abilities(&KRUIN_OUTLAW_ABILITIES),
+            .with_abilities(&[abilities::first_strike(), WEREWOLF_FRONT_TRANSFORM]),
         ),
         (
             "Terror of Kruin Pass",
             CardRules::new_creature_without_mana_cost(&["Werewolf"], 3, 3)
                 .printed_colors(&[ManaColor::Red])
-                .with_abilities(&TERROR_OF_KRUIN_PASS_ABILITIES),
+                .with_abilities(&[
+                    abilities::double_strike(),
+                    AbilityDef::static_ability(
+                        "Werewolves you control have menace. (A creature with menace can't be blocked except by two or more creatures.)",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::Subtype("Werewolf"),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::menace()),
+                        },
+                    ),
+                    WEREWOLF_BACK_TRANSFORM,
+                ]),
         ),
     ],
 );

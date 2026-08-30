@@ -33,31 +33,6 @@ pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::n
 );
 
 // SNC 46 — Ledger Shredder
-/// Exactly the second, not the second or later: the spell that caused the
-/// trigger has already been counted by the time this is read. "Their"
-/// second, so the count is the casting player's own rather than anybody's.
-static THEIR_SECOND_SPELL: TriggerConditionDef = TriggerConditionDef::SpellsCastThisTurn {
-    quantifier: QuantifierDef::Any,
-    player: PlayerRelation::EventPlayer,
-    comparison: ComparisonDef::Equal,
-    amount: 2,
-};
-
-static LEDGER_SHREDDER_ABILITIES: [AbilityDef; 2] = [
-    abilities::flying(),
-    // A player, not you: the Shredder grows on their turn as readily as on
-    // yours, which is what makes it a two-drop worth playing in a deck that
-    // is not casting two spells a turn itself.
-    AbilityDef::triggered_if(
-        "Whenever a player casts their second spell each turn, this creature connives. (Draw a \
-         card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on this \
-         creature.)",
-        TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
-        &THEIR_SECOND_SPELL,
-        abilities::connive(),
-    ),
-];
-
 pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_with_legacy_id(
     2286,
     "Ledger Shredder",
@@ -66,7 +41,28 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_w
     // Two mana that filters a hand and gets bigger for it, and does both on
     // the opponent's turn too.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird", "Advisor"], 1, 3)
-        .with_abilities(&LEDGER_SHREDDER_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            // A player, not you: the Shredder grows on their turn as readily as on
+            // yours, which is what makes it a two-drop worth playing in a deck that
+            // is not casting two spells a turn itself.
+            AbilityDef::triggered_if(
+                "Whenever a player casts their second spell each turn, this creature connives. (Draw a \
+                 card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on this \
+                 creature.)",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+                // Exactly the second, not the second or later: the spell that caused the
+                // trigger has already been counted by the time this is read. "Their"
+                // second, so the count is the casting player's own rather than anybody's.
+                &TriggerConditionDef::SpellsCastThisTurn {
+                    quantifier: QuantifierDef::Any,
+                    player: PlayerRelation::EventPlayer,
+                    comparison: ComparisonDef::Equal,
+                    amount: 2,
+                },
+                abilities::connive(),
+            ),
+        ]),
 );
 
 // SNC 66 — Witness Protection

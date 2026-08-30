@@ -10,13 +10,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // SHM 57 — Beseech the Queen
-/// The lands the caster controls when Beseech the Queen resolves.
-static BESEECH_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64ee0a93-0f6d-42be-bdca-1de5422d8d54"),
     "Beseech the Queen",
@@ -28,7 +21,12 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
             object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::CountMatchingObjects(
-                &BESEECH_LANDS,
+                // The lands the caster controls when Beseech the Queen resolves.
+                &ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
             )),
             minimum: 0,
             maximum: ValueDef::Constant(1),
@@ -45,26 +43,6 @@ pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new
 );
 
 // SHM 135 — Woodfall Primus
-/// A noncreature permanent: lands and artifacts above all, which is what
-/// eight mana of Treefolk is being paid to answer twice.
-static A_NONCREATURE_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-)];
-
-static PRIMUS_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, destroy target noncreature permanent.",
-        &A_NONCREATURE_PERMANENT,
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
-            then: None,
-        },
-    ),
-    abilities::persist(),
-];
-
 pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
     "Woodfall Primus",
@@ -73,28 +51,26 @@ pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
     // Eight mana for two Naturalizes and a trampling body that has to be
     // answered twice.
     CardRules::new_creature(mana_cost!("{5}{G}{G}{G}"), &["Treefolk", "Shaman"], 6, 6)
-        .with_abilities(&PRIMUS_ABILITIES),
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, destroy target noncreature permanent.",
+                // A noncreature permanent: lands and artifacts above all, which is what
+                // eight mana of Treefolk is being paid to answer twice.
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            abilities::persist(),
+        ]),
 );
 
 // SHM 211 — Manamorphose
-static EVERY_COLOR: [ManaColor; 5] = [
-    ManaColor::White,
-    ManaColor::Blue,
-    ManaColor::Black,
-    ManaColor::Red,
-    ManaColor::Green,
-];
-
-/// "In any combination of colors" is one question per mana rather than one
-/// for the pair, which is what lets it fix two colours at once.
-static MANAMORPHOSE_EFFECT: [EffectDef; 2] = [
-    EffectDef::AddMana(AddManaEffectDef::combination(&EVERY_COLOR, 2)),
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with_legacy_id(
     2238,
     "Manamorphose",
@@ -104,7 +80,24 @@ pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with
     // wants it wants a spell that replaces itself and moves the storm count.
     CardRules::new_instant(mana_cost!("{1}{R/G}")).with_ability(AbilityDef::spell(
         "Add two mana in any combination of colors.\nDraw a card.",
-        EffectDef::Sequence(&MANAMORPHOSE_EFFECT),
+        // "In any combination of colors" is one question per mana rather than one
+        // for the pair, which is what lets it fix two colours at once.
+        EffectDef::Sequence(&[
+            EffectDef::AddMana(AddManaEffectDef::combination(
+                &[
+                    ManaColor::White,
+                    ManaColor::Blue,
+                    ManaColor::Black,
+                    ManaColor::Red,
+                    ManaColor::Green,
+                ],
+                2,
+            )),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 

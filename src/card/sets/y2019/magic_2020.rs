@@ -57,35 +57,6 @@ pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord:
 );
 
 // M20 169 — Elvish Reclaimer
-/// "Three or more land cards in your graveyard": the fetchlands that made
-/// him a 3/4 are the same ones his own ability puts there, which is why he
-/// grows on the turn he is used.
-static LAND_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Graveyard],
-    PlayerSetDef::Related(PlayerRelation::You),
-);
-
-static THREE_LANDS_IN_YOUR_GRAVEYARD: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: LAND_CARDS_IN_YOUR_GRAVEYARD,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 3,
-};
-
-static RECLAIMER_GROWS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-};
-
-static RECLAIMER_FETCH_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{2}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificePermanent {
-        object: ObjectPredicateDef::HasType(CardType::Land),
-        controller: PlayerRelation::You,
-    },
-];
-
 pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39c431d7-d94b-46c4-bb89-f3db56214ab4"),
     "Elvish Reclaimer",
@@ -102,14 +73,38 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
             "This creature gets +2/+2 as long as there are three or more land cards in your \
              graveyard.",
             EffectDef::IfCondition {
-                condition: &THREE_LANDS_IN_YOUR_GRAVEYARD,
-                then: &RECLAIMER_GROWS,
+                condition: &TriggerConditionDef::ObjectCount {
+                    // "Three or more land cards in your graveyard": the fetchlands that made
+                    // him a 3/4 are the same ones his own ability puts there, which is why he
+                    // grows on the turn he is used.
+                    query: ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 3,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
             },
         ),
         AbilityDef::activated(
             "{2}, {T}, Sacrifice a land: Search your library for a land card, put it onto the \
              battlefield tapped, then shuffle.",
-            &RECLAIMER_FETCH_COST,
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                },
+            ],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -143,19 +138,6 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
 );
 
 // M20 230 — Manifold Key
-/// "Another" excludes the Key itself, which is what stops it untapping
-/// itself for free every turn.
-static ANOTHER_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-)];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with_legacy_id(
     2207,
     "Manifold Key",
@@ -170,7 +152,14 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
                 AbilityCostDef::Mana(mana_cost!("{1}")),
                 AbilityCostDef::TapSource,
             ],
-            &ANOTHER_ARTIFACT,
+            // "Another" excludes the Key itself, which is what stops it untapping
+            // itself for free every turn.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
             EffectDef::Untap {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -181,7 +170,9 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
                 AbilityCostDef::Mana(mana_cost!("{3}")),
                 AbilityCostDef::TapSource,
             ],
-            &A_CREATURE,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
@@ -192,45 +183,6 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
 );
 
 // M20 247 — Field of the Dead
-/// The Field itself is one of the seven, and so is every other land you
-/// control -- what is counted is names rather than lands, which is why a
-/// deck built for this plays one of each dual rather than four of one.
-static SEVEN_DIFFERENT_LAND_NAMES: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::DistinctNamesAmong(&LANDS_YOU_CONTROL),
-    comparison: ComparisonDef::GreaterOrEqual,
-    right: ValueDef::Constant(7),
-};
-
-static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static FIELD_HAS_SEVEN_NAMES: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&SEVEN_DIFFERENT_LAND_NAMES);
-
-/// "This land or another land you control": the Field's own arrival counts,
-/// which is what makes the seventh land the one that starts it.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static FIELD_OF_THE_DEAD_ABILITIES: [AbilityDef; 3] = [
-    abilities::enters_tapped("This land enters tapped."),
-    abilities::tap_for(ManaColor::Colorless),
-    AbilityDef::triggered_if(
-        "Whenever this land or another land you control enters, if you control seven or more \
-         lands with different names, create a 2/2 black Zombie creature token.",
-        TriggerEventDef::zone_changed(A_LAND_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
-        &FIELD_HAS_SEVEN_NAMES,
-        EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
-            CardArt::new("18f0436e-9328-4266-9cf8-80b557a0c17c", "Anna Steinbauer"),
-        ),
-    ),
-];
-
 pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("470ca3f4-29aa-4c4c-8ff2-8cdd70c69943"),
     "Field of the Dead",
@@ -238,7 +190,39 @@ pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new
     CardSet::Magic2020,
     // A land that makes colourless and comes in tapped, which is what a deck
     // pays for turning every land drop after the seventh into a 2/2.
-    CardRules::new_land(&[]).with_abilities(&FIELD_OF_THE_DEAD_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::triggered_if(
+            "Whenever this land or another land you control enters, if you control seven or more \
+             lands with different names, create a 2/2 black Zombie creature token.",
+            // "This land or another land you control": the Field's own arrival counts,
+            // which is what makes the seventh land the one that starts it.
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &// The Field itself is one of the seven, and so is every other land you
+                // control -- what is counted is names rather than lands, which is why a
+                // deck built for this plays one of each dual rather than four of one.
+                TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Constant(7),
+                }),
+            EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_art(
+                CardArt::new("18f0436e-9328-4266-9cf8-80b557a0c17c", "Anna Steinbauer"),
+            ),
+        ),
+    ]),
 );
 
 // M20 297 — Wildfire Elemental

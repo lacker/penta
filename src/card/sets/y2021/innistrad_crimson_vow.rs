@@ -32,94 +32,89 @@ pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
 );
 
 // VOW 101 — Concealing Curtains // Revealing Eye
-/// What the Eye does with the card it picked. Written as a walk over the
-/// chosen set rather than a plain sequence, because "if you do" gates the
-/// draw as well as the discard: an Eye that looked and took nothing leaves
-/// the opponent with the hand they had.
-static REVEALING_EYE_TAKE_IT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-]);
-
-static REVEALING_EYE_CHOSEN: EffectDef = EffectDef::ForEachInBinding {
-    objects: ObjectSetBindingIndex::PRIMARY,
-    binding: ObjectBindingIndex::PRIMARY,
-    effect: &REVEALING_EYE_TAKE_IT,
-};
-
-/// "You may choose a nonland card from it": a choice of none is a legal
-/// answer, which is why the minimum is zero rather than one.
-static REVEALING_EYE_EFFECT: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 0,
-        maximum: 1,
-        visibility: ChoiceVisibilityDef::Public,
-        then: &REVEALING_EYE_CHOSEN,
-    }),
-];
-
-static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
-static CURTAINS_ABILITIES: [AbilityDef; 2] = [
-    abilities::defender(),
-    AbilityDef::activated(
-        "{2}{B}: Transform this creature. Activate only as a sorcery.",
-        &[AbilityCostDef::Mana(mana_cost!("{2}{B}"))],
-        EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        },
-    )
-    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-];
-
-static REVEALING_EYE_ABILITIES: [AbilityDef; 2] = [
-    abilities::menace(),
-    AbilityDef::triggered_with_targets(
-        "When this creature transforms into Revealing Eye, target opponent reveals their hand. \
-         You may choose a nonland card from it. If you do, that player discards that card, then \
-         draws a card.",
-        TriggerEventDef::transforms(ObjectPredicateDef::Source),
-        &AN_OPPONENT,
-        EffectDef::Sequence(&REVEALING_EYE_EFFECT),
-    ),
-];
-
-const fn concealing_curtains_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{B}"), &["Wall"], 0, 4).with_abilities(&CURTAINS_ABILITIES)
-}
-
-const fn revealing_eye_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Eye", "Horror"], 3, 4)
-        .with_abilities(&REVEALING_EYE_ABILITIES)
-}
-
 pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1"),
     "Concealing Curtains // Revealing Eye",
     CardArt::new("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1", "Brian Valeza"),
     CardSet::InnistradCrimsonVow,
     &[
-        ("Concealing Curtains", concealing_curtains_rules()),
-        ("Revealing Eye", revealing_eye_rules()),
+        (
+            "Concealing Curtains",
+            const {
+                CardRules::new_creature(mana_cost!("{B}"), &const { ["Wall"] }, 0, 4)
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::defender(),
+                                AbilityDef::activated(
+                                    "{2}{B}: Transform this creature. Activate only as a sorcery.",
+                                    &const { [AbilityCostDef::Mana(mana_cost!("{2}{B}"))] },
+                                    EffectDef::Transform {
+                                        object: EffectRecipientDef::Source,
+                                    },
+                                )
+                                .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                            ]
+                        },
+                    )
+            },
+        ),
+        (
+            "Revealing Eye",
+            const {
+                CardRules::new_creature_without_mana_cost(&const { ["Eye", "Horror"] }, 3, 4)
+                .with_abilities(&const { [
+                    abilities::menace(),
+                    AbilityDef::triggered_with_targets(
+                        "When this creature transforms into Revealing Eye, target opponent reveals their hand. \
+                         You may choose a nonland card from it. If you do, that player discards that card, then \
+                         draws a card.",
+                        TriggerEventDef::transforms(ObjectPredicateDef::Source),
+                        &const { [AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                        )] },
+                        // "You may choose a nonland card from it": a choice of none is a legal
+                        // answer, which is why the minimum is zero rather than one.
+                        EffectDef::Sequence(&const { [
+                            EffectDef::RevealHand {
+                                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                            EffectDef::Choose(ChooseDef {
+                                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                                unchosen: None,
+                                chooser: PlayerRefDef::EffectController,
+                                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                                    &const { [ZoneKind::Hand] },
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                )),
+                                exclude: None,
+                                minimum: 0,
+                                maximum: 1,
+                                visibility: ChoiceVisibilityDef::Public,
+                                then: &EffectDef::ForEachInBinding {
+                                    objects: ObjectSetBindingIndex::PRIMARY,
+                                    binding: ObjectBindingIndex::PRIMARY,
+                                    // What the Eye does with the card it picked. Written as a walk over the
+                                    // chosen set rather than a plain sequence, because "if you do" gates the
+                                    // draw as well as the discard: an Eye that looked and took nothing leaves
+                                    // the opponent with the hand they had.
+                                    effect: &EffectDef::Sequence(&const { [
+                                        EffectDef::DiscardCards {
+                                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                                        },
+                                        EffectDef::DrawCards {
+                                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                            amount: ValueDef::Constant(1),
+                                        },
+                                    ] }),
+                                },
+                            }),
+                        ] }),
+                    ),
+                ] })
+            },
+        ),
     ],
 );
 
@@ -134,17 +129,6 @@ pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
 );
 
 // VOW 182 — Voldaren Epicure
-/// One clause with two instructions in the order it prints them: the damage
-/// is the reason the one-drop is played and the Blood is what it leaves
-/// behind.
-static EPICURE_ENTERS: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Opponent,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::create_token(crate::card::tokens::blood()),
-];
-
 pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae154e64-f626-45fb-bd52-840c1c27b2d3"),
     "Voldaren Epicure",
@@ -157,7 +141,16 @@ pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
             "When this creature enters, it deals 1 damage to each opponent. Create a Blood token. \
              (It's an artifact with \"{1}, {T}, Discard a card, Sacrifice this token: Draw a \
              card.\")",
-            EffectDef::Sequence(&EPICURE_ENTERS),
+            // One clause with two instructions in the order it prints them: the damage
+            // is the reason the one-drop is played and the Blood is what it leaves
+            // behind.
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_token(crate::card::tokens::blood()),
+            ]),
         ),
     ),
 );
@@ -173,120 +166,84 @@ pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
 );
 
 // VOW 225 — Ulvenwald Oddity // Ulvenwald Behemoth
-static ODDITY_TRAMPLE: AbilityDef = abilities::trample();
-
-static ODDITY_HASTE: AbilityDef = abilities::haste();
-
-/// What the back face hands the rest of the board. The keywords are the ones
-/// it already has, which is the joke: the 8/8 makes everything else look
-/// like a smaller version of itself.
-static BEHEMOTH_GRANT: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::add_ability(&ODDITY_TRAMPLE),
-    AppliedEffectDef::add_ability(&ODDITY_HASTE),
-];
-
-/// "Other creatures you control", which excludes the Behemoth itself: it
-/// already has both keywords and does not need the counters.
-static OTHER_CREATURES_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static ODDITY_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    abilities::haste(),
-    AbilityDef::activated(
-        "{5}{G}{G}: Transform this creature.",
-        &[AbilityCostDef::Mana(mana_cost!("{5}{G}{G}"))],
-        EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        },
-    ),
-];
-
-static BEHEMOTH_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    abilities::haste(),
-    AbilityDef::static_ability(
-        "Other creatures you control get +1/+1 and have trample and haste.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::matching_objects(
-                OTHER_CREATURES_YOU_CONTROL,
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::Composite(&BEHEMOTH_GRANT),
-        },
-    ),
-];
-
-const fn ulvenwald_oddity_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Beast"], 4, 4)
-        .with_abilities(&ODDITY_ABILITIES)
-}
-
-const fn ulvenwald_behemoth_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Beast", "Horror"], 8, 8)
-        .with_abilities(&BEHEMOTH_ABILITIES)
-}
-
 pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("5fdf5fc4-69c8-4a59-9095-c2feefb64371"),
     "Ulvenwald Oddity // Ulvenwald Behemoth",
     CardArt::new("5fdf5fc4-69c8-4a59-9095-c2feefb64371", "Brent Hollowell"),
     CardSet::InnistradCrimsonVow,
     &[
-        ("Ulvenwald Oddity", ulvenwald_oddity_rules()),
-        ("Ulvenwald Behemoth", ulvenwald_behemoth_rules()),
+        (
+            "Ulvenwald Oddity",
+            const {
+                CardRules::new_creature(mana_cost!("{2}{G}{G}"), &const { ["Beast"] }, 4, 4)
+                    .with_abilities(
+                        &const {
+                            [
+                                abilities::trample(),
+                                abilities::haste(),
+                                AbilityDef::activated(
+                                    "{5}{G}{G}: Transform this creature.",
+                                    &const { [AbilityCostDef::Mana(mana_cost!("{5}{G}{G}"))] },
+                                    EffectDef::Transform {
+                                        object: EffectRecipientDef::Source,
+                                    },
+                                ),
+                            ]
+                        },
+                    )
+            },
+        ),
+        (
+            "Ulvenwald Behemoth",
+            const {
+                CardRules::new_creature_without_mana_cost(&const { ["Beast", "Horror"] }, 8, 8)
+                .with_abilities(&const { [
+                    abilities::trample(),
+                    abilities::haste(),
+                    AbilityDef::static_ability(
+                        "Other creatures you control get +1/+1 and have trample and haste.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                // "Other creatures you control", which excludes the Behemoth itself: it
+                                // already has both keywords and does not need the counters.
+                                ObjectPredicateDef::All(&const { [
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                                ] }),
+                                &const { [ZoneKind::Battlefield] },
+                                PlayerRelation::You,
+                            ),
+                            // What the back face hands the rest of the board. The keywords are the ones
+                            // it already has, which is the joke: the 8/8 makes everything else look
+                            // like a smaller version of itself.
+                            effect: AppliedEffectDef::Composite(&const { [
+                                AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+                                AppliedEffectDef::add_ability(&const { abilities::trample() }),
+                                AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                            ] }),
+                        },
+                    ),
+                ] })
+            },
+        ),
     ],
 );
 
 // VOW 310 — Bloodtithe Harvester
-/// Nothing but a token carries the Blood artifact type, so naming it is
-/// enough: the count is read as the ability resolves, and the token the
-/// Harvester's own arrival made is one of them.
-static BLOOD_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Blood"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 /// Twice the count, and downward. Two Blood is -4/-4, which is what makes
 /// the second token worth keeping around rather than cashing in.
 static HARVESTER_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
-    ValueDef::CountMatchingObjects(&BLOOD_YOU_CONTROL),
+    // Nothing but a token carries the Blood artifact type, so naming it is
+    // enough: the count is read as the ability resolves, and the token the
+    // Harvester's own arrival made is one of them.
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        ObjectPredicateDef::Subtype("Blood"),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    )),
     -2,
 ));
-
-static HARVESTER_SHRINKS_IT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static HARVESTER_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
-
-static BLOODTITHE_HARVESTER_ABILITIES: [AbilityDef; 2] = [
-    abilities::enters_trigger(
-        "When this creature enters, create a Blood token.",
-        EffectDef::create_token(crate::card::tokens::blood()),
-    ),
-    // Sacrificing the Harvester is what pays for the removal, so the body
-    // and the answer are the same card twice rather than both at once.
-    AbilityDef::activated_with_targets(
-        "{T}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is \
-         twice the number of Blood tokens you control. Activate only as a sorcery.",
-        &HARVESTER_COST,
-        &HARVESTER_SHRINKS_IT,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(HARVESTER_PENALTY, HARVESTER_PENALTY),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    )
-    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-];
 
 pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("01182501-2b50-4b87-835a-fea3c5e6e330"),
@@ -296,7 +253,28 @@ pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::
     // Two mana for a 3/2 that replaces itself with a card later, and can
     // instead be spent as removal the turn it stops attacking.
     CardRules::new_creature(mana_cost!("{B}{R}"), &["Vampire"], 3, 2)
-        .with_abilities(&BLOODTITHE_HARVESTER_ABILITIES),
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this creature enters, create a Blood token.",
+                EffectDef::create_token(crate::card::tokens::blood()),
+            ),
+            // Sacrificing the Harvester is what pays for the removal, so the body
+            // and the answer are the same card twice rather than both at once.
+            AbilityDef::activated_with_targets(
+                "{T}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is \
+                 twice the number of Blood tokens you control. Activate only as a sorcery.",
+                &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(HARVESTER_PENALTY, HARVESTER_PENALTY),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            )
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

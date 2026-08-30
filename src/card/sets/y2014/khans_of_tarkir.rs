@@ -87,10 +87,6 @@ pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new
 );
 
 // KTK 227 — Ugin's Nexus
-static TAKE_EXTRA_TURN_CONTROLLER: EffectDef = EffectDef::TakeExtraTurn {
-    player: EffectRecipientDef::Controller,
-};
-
 pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_legacy_id(
     1368,
     "Ugin's Nexus",
@@ -116,7 +112,9 @@ pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_
                 },
                 ReplacementEffectDef::Sequence(&[
                     ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
-                    ReplacementEffectDef::Perform(&TAKE_EXTRA_TURN_CONTROLLER),
+                    ReplacementEffectDef::Perform(&EffectDef::TakeExtraTurn {
+                        player: EffectRecipientDef::Controller,
+                    }),
                 ]),
             ),
         ]),

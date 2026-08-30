@@ -1456,35 +1456,6 @@ pub(in crate::card::sets) static DROMAR_S_CAVERN: CardRecord = CardRecord::new(
 );
 
 // PLS 139 — Forsaken City
-/// A card from your own hand, whichever you can spare. The exile is the
-/// upkeep cost of a land that would otherwise stay tapped forever.
-static A_CARD_IN_YOUR_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerSetDef::Related(PlayerRelation::You),
-);
-
-static CITY_EXILE_AND_UNTAP: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(A_CARD_IN_YOUR_HAND),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &EffectDef::Sequence(&[
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
-        EffectDef::Untap {
-            object: EffectRecipientDef::Source,
-        },
-    ]),
-});
-
 pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_with_legacy_id(
     2059,
     "Forsaken City",
@@ -1508,7 +1479,40 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_wit
             },
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &CITY_EXILE_AND_UNTAP,
+                effect: &const {
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        // A card from your own hand, whichever you can spare. The exile is the
+                        // upkeep cost of a land that would otherwise stay tapped forever.
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &const { [ZoneKind::Hand] },
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        )),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &const {
+                            EffectDef::Sequence(&const {
+                                [
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                            ObjectBindingIndex::PRIMARY,
+                                        )),
+                                        zone: ZoneKind::Exile,
+                                        placement: ZonePlacement::Top,
+                                    },
+                                    EffectDef::Untap {
+                                        object: EffectRecipientDef::Source,
+                                    },
+                                ]
+                            })
+                        },
+                    })
+                },
             },
         ),
         AbilityDef::activated_mana(
@@ -1550,16 +1554,6 @@ pub(in crate::card::sets) static TERMINAL_MORAINE: CardRecord = CardRecord::new(
 );
 
 // PLS 143 — Treva's Ruins
-static TREVA_COLORS: [ManaColor; 3] = [ManaColor::Green, ManaColor::White, ManaColor::Blue];
-
-/// The Lair itself is excluded by its own subtype, so a second one cannot pay
-/// for the first.
-static NON_LAIR_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
 pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with_legacy_id(
     2060,
     "Treva's Ruins",
@@ -1572,7 +1566,13 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
                     cost: EffectPaymentCostDef::MovePermanentMatching {
-                        object: NON_LAIR_LAND_YOU_CONTROL,
+                        // The Lair itself is excluded by its own subtype, so a second one cannot pay
+                        // for the first.
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Lair")),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
                         zone: ZoneKind::Hand,
                     },
                 },
@@ -1583,7 +1583,7 @@ pub(in crate::card::sets) static TREVAS_RUINS: CardRecord = CardRecord::new_with
         AbilityDef::activated_mana(
             "{T}: Add {G}, {W}, or {U}.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&TREVA_COLORS)),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Green, ManaColor::White, ManaColor::Blue])),
         ),
     ]),
 );

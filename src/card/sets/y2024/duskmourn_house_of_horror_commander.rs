@@ -10,27 +10,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // DSC 21 — Metamorphosis Fanatic
-/// "Up to one target creature card from your graveyard." Your own, so this
-/// never reaches across the table the way an opponent-facing reanimator
-/// would, and choosing none is already a legal declaration.
-static A_CREATURE_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-    1,
-)];
-
-/// A counter rather than a granted keyword (CR 122.1b): what comes back has
-/// lifelink for exactly as long as the counter is on it, which outlives
-/// every duration a spell could have named.
-static A_LIFELINK_COUNTER: TokenCountersDef = TokenCountersDef {
-    kind: CounterKind::Lifelink,
-    amount: ValueDef::Constant(1),
-};
-
 pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16448d95-ee21-4def-b880-26f6f159c213"),
     "Metamorphosis Fanatic",
@@ -44,7 +23,18 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
         abilities::enters_trigger_with_targets(
             "When this creature enters, return up to one target creature card from your graveyard \
              to the battlefield with a lifelink counter on it.",
-            &A_CREATURE_IN_YOUR_GRAVEYARD,
+            // "Up to one target creature card from your graveyard." Your own, so this
+            // never reaches across the table the way an opponent-facing reanimator
+            // would, and choosing none is already a legal declaration.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            )],
             EffectDef::WithBattlefieldArrival {
                 effect: &EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -52,7 +42,13 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
                     placement: ZonePlacement::Top,
                 },
                 arrival: crate::card::BattlefieldArrivalDef {
-                    counters: Some(A_LIFELINK_COUNTER),
+                    // A counter rather than a granted keyword (CR 122.1b): what comes back has
+                    // lifelink for exactly as long as the counter is on it, which outlives
+                    // every duration a spell could have named.
+                    counters: Some(TokenCountersDef {
+                        kind: CounterKind::Lifelink,
+                        amount: ValueDef::Constant(1),
+                    }),
                     ..crate::card::BattlefieldArrivalDef::DEFAULT
                 },
             },
@@ -62,43 +58,6 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
 );
 
 // DSC 36 — Ursine Monstrosity
-static MONSTROSITY_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
-/// "This creature attacks that player this combat if able." In a two-player
-/// game the chosen opponent is the only player there is to attack, so what
-/// the requirement names is that seat; a planeswalker they control does not
-/// satisfy it, which is what separates this from the plain "attacks each
-/// combat if able". It is granted for the turn rather than printed, and the
-/// trigger renews it at the beginning of every combat.
-static MONSTROSITY_MUST_ATTACK: AbilityDef = abilities::attacks_player_each_combat_if_able(
-    "This creature attacks that player this combat if able.",
-);
-
-static MONSTROSITY_GROWS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::add_ability(&MONSTROSITY_INDESTRUCTIBLE),
-    AppliedEffectDef::add_ability(&MONSTROSITY_MUST_ATTACK),
-    // Read as the trigger resolves, which is after the mill: the card it
-    // just put there counts toward its own bonus.
-    AppliedEffectDef::modify_power_toughness(
-        ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
-        ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
-    ),
-];
-
-static MONSTROSITY_COMBAT: [EffectDef; 2] = [
-    EffectDef::Mill {
-        player: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        binding: None,
-        then: None,
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Composite(&MONSTROSITY_GROWS),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
 pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new_with_legacy_id(
     2195,
     "Ursine Monstrosity",
@@ -114,7 +73,36 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
                 step: TurnStepDef::BeginningOfCombat,
                 player: PlayerRelation::You,
             },
-            EffectDef::Sequence(&MONSTROSITY_COMBAT),
+            EffectDef::Sequence(&[
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    binding: None,
+                    then: None,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        // "This creature attacks that player this combat if able." In a two-player
+                        // game the chosen opponent is the only player there is to attack, so what
+                        // the requirement names is that seat; a planeswalker they control does not
+                        // satisfy it, which is what separates this from the plain "attacks each
+                        // combat if able". It is granted for the turn rather than printed, and the
+                        // trigger renews it at the beginning of every combat.
+                        AppliedEffectDef::add_ability(&abilities::attacks_player_each_combat_if_able(
+                            "This creature attacks that player this combat if able.",
+                        )),
+                        // Read as the trigger resolves, which is after the mill: the card it
+                        // just put there counts toward its own bonus.
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
+                            ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
         ),
     ]),
 );

@@ -11,39 +11,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // BRO 12 — Loran of the Third Path
-/// "Up to one target artifact or enchantment": an Loran with nothing worth
-/// answering still arrives as a 2/1 that draws.
-static UP_TO_ONE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
-/// "You and target opponent each draw a card." Two draws rather than one
-/// instruction naming both, because only one of them is targeted: the
-/// opponent has to be a legal target and you never are.
-static LORAN_DRAWS: [EffectDef; 2] = [
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59faa45d-868b-4bc7-934c-0e077642e129"),
     "Loran of the Third Path",
@@ -57,14 +24,41 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
             abilities::vigilance(),
             abilities::enters_trigger_with_targets(
                 "When this creature enters, destroy up to one target artifact or enchantment.",
-                &UP_TO_ONE_ARTIFACT_OR_ENCHANTMENT,
+                // "Up to one target artifact or enchantment": an Loran with nothing worth
+                // answering still arrives as a 2/1 that draws.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
                 EffectDef::destroy_target(TargetIndex::PRIMARY, true),
             ),
             AbilityDef::activated_with_targets(
                 "{T}: You and target opponent each draw a card.",
                 &[AbilityCostDef::TapSource],
-                &AN_OPPONENT,
-                EffectDef::Sequence(&LORAN_DRAWS),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                // "You and target opponent each draw a card." Two draws rather than one
+                // instruction naming both, because only one of them is targeted: the
+                // opponent has to be a legal target and you never are.
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
             ),
         ]),
 );
@@ -103,26 +97,6 @@ pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
 );
 
 // BRO 199 — Haywire Mite
-/// "Noncreature artifact or noncreature enchantment." The two types are
-/// alternatives and the exclusion applies to both, so it sits outside the
-/// choice rather than inside it -- which is what leaves a creature that
-/// happens to be an artifact alone.
-static A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::AnyOf(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                ]),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-            ]),
-            zones: &[ZoneKind::Battlefield],
-            controller: None,
-            owner: None,
-        },
-    )];
-
 pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("847a175e-ead1-4596-baf3-5f7f57859e0b"),
     "Haywire Mite",
@@ -146,7 +120,24 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
                 AbilityCostDef::Mana(mana_cost!("{G}")),
                 AbilityCostDef::SacrificeSource,
             ],
-            &A_NONCREATURE_ARTIFACT_OR_ENCHANTMENT,
+            // "Noncreature artifact or noncreature enchantment." The two types are
+            // alternatives and the exclusion applies to both, so it sits outside the
+            // choice rather than inside it -- which is what leaves a creature that
+            // happens to be an artifact alone.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
@@ -157,14 +148,6 @@ pub(in crate::card::sets) static HAYWIRE_MITE: CardRecord = CardRecord::new(
 );
 
 // BRO 223 — Third Path Iconoclast
-/// A noncreature spell of your own. What it does is no part of the trigger:
-/// the Soldier arrives whether the spell resolves, is countered, or is
-/// answered on the stack.
-static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-]);
-
 pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f1a21287-e244-4960-84fb-c4f6e5c346d9"),
     "Third Path Iconoclast",
@@ -176,48 +159,19 @@ pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord:
         AbilityDef::triggered(
             "Whenever you cast a noncreature spell, create a 1/1 colorless Soldier artifact \
              creature token.",
-            TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
+            // A noncreature spell of your own. What it does is no part of the trigger:
+            // the Soldier arrives whether the spell resolves, is countered, or is
+            // answered on the stack.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ])),
             EffectDef::create_artifact_creature_token(&["Soldier"], &[], 1, 1),
         ),
     ),
 );
 
 // BRO 238 — The Mightstone and Weakstone
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static MIGHTSTONE_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell(
-        "Draw two cards.",
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target creature gets -5/-5 until end of turn.",
-        &A_CREATURE,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(-5),
-                ValueDef::Constant(-5),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-];
-
-/// A Powerstone's restriction is a prohibition rather than a permission:
-/// this mana activates abilities and pays for artifact spells, and the one
-/// thing it cannot do is cast a spell that is not an artifact.
-static POWERSTONE_RESTRICTIONS: [ManaRestrictionDef; 1] = [ManaRestrictionDef::CannotCastSpell(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
-)];
-
-static MIGHTSTONE_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
 pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02aea379-b444-46a3-82f4-3038f698d4f4"),
     "The Mightstone and Weakstone",
@@ -238,40 +192,50 @@ pub(in crate::card::sets) static THE_MIGHTSTONE_AND_WEAKSTONE: CardRecord = Card
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
-                &MIGHTSTONE_MODES,
+                &[
+                    AbilityDef::spell(
+                        "Draw two cards.",
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(2),
+                        },
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Target creature gets -5/-5 until end of turn.",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(-5),
+                                ValueDef::Constant(-5),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ),
+                ],
             ),
             AbilityDef::activated_mana(
                 "{T}: Add {C}{C}. This mana can't be spent to cast nonartifact spells.",
-                &MIGHTSTONE_TAP,
+                &[AbilityCostDef::TapSource],
                 EffectDef::AddMana(
                     AddManaEffectDef::one(ManaColor::Colorless)
                         .with_amount(2)
-                        .with_restrictions(&POWERSTONE_RESTRICTIONS),
+                        // A Powerstone's restriction is a prohibition rather than a permission:
+                        // this mana activates abilities and pays for artifact spells, and the one
+                        // thing it cannot do is cast a spell that is not an artifact.
+                        .with_restrictions(&[ManaRestrictionDef::CannotCastSpell(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                                CardType::Artifact,
+                            )),
+                        )]),
                 ),
             ),
         ]),
 );
 
 // BRO 240 — Portal to Phyrexia
-/// "It's a Phyrexian in addition to its other types." Added rather than set:
-/// what comes back through the Portal keeps whatever it already was, and is
-/// a Phyrexian as well.
-static AS_A_PHYREXIAN: AppliedEffectDef =
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-        SetOperationDef::Add(CreatureTypeSetDef::named(&["Phyrexian"])),
-    ));
-
-/// Any graveyard, not only yours: the Portal is as happy to take back what
-/// it made an opponent sacrifice as anything of your own.
-static A_CREATURE_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f608efc-0dbc-4cc3-aadd-ed473bfc29ab"),
     "Portal to Phyrexia",
@@ -299,7 +263,16 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            &A_CREATURE_CARD_IN_A_GRAVEYARD,
+            // Any graveyard, not only yours: the Portal is as happy to take back what
+            // it made an opponent sacrifice as anything of your own.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::WithZoneMoveResult {
                 effect: &EffectDef::WithBattlefieldArrival {
                     effect: &EffectDef::MoveToZone {
@@ -317,7 +290,14 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
                     recipient: EffectRecipientDef::binding_zone_change_successors(
                         crate::ObjectSetBindingIndex::PRIMARY,
                     ),
-                    effect: AS_A_PHYREXIAN,
+                    // "It's a Phyrexian in addition to its other types." Added rather than set:
+                    // what comes back through the Portal keeps whatever it already was, and is
+                    // a Phyrexian as well.
+                    effect: AppliedEffectDef::Characteristic(
+                        CharacteristicOperationDef::CreatureTypes(SetOperationDef::Add(
+                            CreatureTypeSetDef::named(&["Phyrexian"]),
+                        )),
+                    ),
                     duration: ResolvedEffectDurationDef::Permanent,
                 },
             },

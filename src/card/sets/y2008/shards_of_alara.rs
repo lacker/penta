@@ -11,81 +11,6 @@ use crate::ids::ObjectBindingIndex;
 use crate::{TargetIndex, mana_cost};
 
 // ALA 9 — Elspeth, Knight-Errant
-/// The four types the emblem names, which between them are every permanent
-/// a white deck is likely to control. Written as one alternation because the
-/// emblem grants one thing to all of them.
-static A_PERMANENT_THE_EMBLEM_PROTECTS: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
-
-static ELSPETH_EMBLEM_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
-static ELSPETH_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-    "Artifacts, creatures, enchantments, and lands you control have indestructible.",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::matching_objects(
-            A_PERMANENT_THE_EMBLEM_PROTECTS,
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        effect: AppliedEffectDef::add_ability(&ELSPETH_EMBLEM_INDESTRUCTIBLE),
-    },
-)];
-
-static ELSPETH_FLYING: AbilityDef = abilities::flying();
-
-static ELSPETH_PUMP: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
-    AppliedEffectDef::add_ability(&ELSPETH_FLYING),
-];
-
-static ELSPETH_PUMP_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static ELSPETH_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated(
-        "+1: Create a 1/1 white Soldier creature token.",
-        &[AbilityCostDef::Loyalty(1)],
-        EffectDef::CreateToken {
-            token: tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
-            copy: None,
-            controller: None,
-            count: ValueDef::Constant(1),
-            tapped: false,
-            attacking: false,
-            counters: None,
-            created: None,
-        },
-    ),
-    // The second plus is what makes her a threat rather than a hedge: any
-    // creature, so the token she made last turn is a 4/4 flier this one.
-    AbilityDef::activated_with_targets(
-        "+1: Target creature gets +3/+3 and gains flying until end of turn.",
-        &[AbilityCostDef::Loyalty(1)],
-        &ELSPETH_PUMP_TARGET,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::Composite(&ELSPETH_PUMP),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::activated(
-        "\u{2212}8: You get an emblem with \"Artifacts, creatures, enchantments, and lands you \
-         control have indestructible.\"",
-        &[AbilityCostDef::Loyalty(-8)],
-        EffectDef::create_emblem("Elspeth, Knight-Errant emblem", &ELSPETH_EMBLEM_ABILITIES),
-    ),
-];
-
 pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44c52e52-2b1c-4ca8-ab6d-20d97a342704"),
     "Elspeth, Knight-Errant",
@@ -96,7 +21,68 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
     // the game against anything that answers permanents.
     CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &["Elspeth"], 4)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ELSPETH_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Create a 1/1 white Soldier creature token.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::CreateToken {
+                    token: tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+                    copy: None,
+                    controller: None,
+                    count: ValueDef::Constant(1),
+                    tapped: false,
+                    attacking: false,
+                    counters: None,
+                    created: None,
+                },
+            ),
+            // The second plus is what makes her a threat rather than a hedge: any
+            // creature, so the token she made last turn is a 4/4 flier this one.
+            AbilityDef::activated_with_targets(
+                "+1: Target creature gets +3/+3 and gains flying until end of turn.",
+                &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::activated(
+                "\u{2212}8: You get an emblem with \"Artifacts, creatures, enchantments, and lands you \
+                 control have indestructible.\"",
+                &[AbilityCostDef::Loyalty(-8)],
+                EffectDef::create_emblem("Elspeth, Knight-Errant emblem", &[AbilityDef::static_ability(
+                    "Artifacts, creatures, enchantments, and lands you control have indestructible.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            // The four types the emblem names, which between them are every permanent
+                            // a white deck is likely to control. Written as one alternation because the
+                            // emblem grants one thing to all of them.
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    },
+                )]),
+            ),
+        ]),
 );
 
 // ALA 104 — Hissing Iguanar
@@ -130,54 +116,50 @@ pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
 );
 
 // ALA 202 — Tidehollow Sculler
-/// Linked to the Sculler rather than exiled outright, which is the whole
-/// bargain: the card is gone only for as long as the body survives.
-static SCULLER_EXILE: EffectDef = EffectDef::ExileLinkedToSource {
-    until_source_leaves: false,
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    face_down: false,
-    then: None,
-};
-
-static TIDEHOLLOW_SCULLER_ABILITIES: [AbilityDef; 2] = [
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, target opponent reveals their hand and you choose a nonland card from it. Exile that card.",
-        &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-        )],
-        EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &SCULLER_EXILE,
-        )),
-    ),
-    // Leaves, not dies: bouncing or exiling the Sculler gives the card back
-    // just as killing it does.
-    AbilityDef::triggered(
-        "When this creature leaves the battlefield, return the exiled card to its owner's hand.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            Some(ZoneKind::Battlefield),
-            None,
-        ),
-        EffectDef::ReturnLinkedExiles {
-            object: ObjectPredicateDef::Any,
-            counters: None,
-            zone: ZoneKind::Hand,
-            grant: None,
-            controller: None,
-            transformed: false,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::new_with_legacy_id(
     2145,
     "Tidehollow Sculler",
     CardArt::new("1abecc77-07f2-43e4-8585-0a8199cdcf01", "rk post"),
     CardSet::ShardsOfAlara,
     CardRules::new_artifact_creature(mana_cost!("{W}{B}"), &["Zombie"], 2, 2)
-        .with_abilities(&TIDEHOLLOW_SCULLER_ABILITIES),
+        .with_abilities(&[
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target opponent reveals their hand and you choose a nonland card from it. Exile that card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+                    PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    // Linked to the Sculler rather than exiled outright, which is the whole
+                    // bargain: the card is gone only for as long as the body survives.
+                    &EffectDef::ExileLinkedToSource {
+                        until_source_leaves: false,
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                        face_down: false,
+                        then: None,
+                    },
+                )),
+            ),
+            // Leaves, not dies: bouncing or exiling the Sculler gives the card back
+            // just as killing it does.
+            AbilityDef::triggered(
+                "When this creature leaves the battlefield, return the exiled card to its owner's hand.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    None,
+                ),
+                EffectDef::ReturnLinkedExiles {
+                    object: ObjectPredicateDef::Any,
+                    counters: None,
+                    zone: ZoneKind::Hand,
+                    grant: None,
+                    controller: None,
+                    transformed: false,
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

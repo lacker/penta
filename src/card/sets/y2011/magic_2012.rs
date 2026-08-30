@@ -811,24 +811,6 @@ static PHANTASMAL_IMAGE_SACRIFICE: AbilityDef = AbilityDef::triggered(
     },
 );
 
-static PHANTASMAL_IMAGE_COPY_ABILITIES: [CopyAbilityDef; 1] =
-    [CopyAbilityDef::Ability(&PHANTASMAL_IMAGE_SACRIFICE)];
-
-static PHANTASMAL_IMAGE_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::replacement(
-        "You may have this creature enter as a copy of any creature on the battlefield, except \
-         it's an Illusion in addition to its other types and it has \"When this creature becomes \
-         the target of a spell or ability, sacrifice it.\"",
-        ReplacementEffectDef::CopyEntering {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            exceptions: CopyExceptionsDef::NONE
-                .with_added_creature_types(&["Illusion"])
-                .with_abilities(&PHANTASMAL_IMAGE_COPY_ABILITIES),
-        },
-    ),
-    PHANTASMAL_IMAGE_SACRIFICE,
-];
-
 pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_with_legacy_id(
     2276,
     "Phantasmal Image",
@@ -837,7 +819,20 @@ pub(in crate::card::sets) static PHANTASMAL_IMAGE: CardRecord = CardRecord::new_
     // Two mana for the best creature on the board, which the cube is happy to
     // pay because the drawback only matters to a deck holding removal.
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Illusion"], 0, 0)
-        .with_abilities(&PHANTASMAL_IMAGE_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::replacement(
+                "You may have this creature enter as a copy of any creature on the battlefield, except \
+                 it's an Illusion in addition to its other types and it has \"When this creature becomes \
+                 the target of a spell or ability, sacrifice it.\"",
+                ReplacementEffectDef::CopyEntering {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    exceptions: CopyExceptionsDef::NONE
+                        .with_added_creature_types(&["Illusion"])
+                        .with_abilities(&[CopyAbilityDef::Ability(&PHANTASMAL_IMAGE_SACRIFICE)]),
+                },
+            ),
+            PHANTASMAL_IMAGE_SACRIFICE,
+        ]),
 );
 
 // M12 73 — Ponder (reprint)
@@ -1050,27 +1045,6 @@ pub(in crate::card::sets) static DUSKHUNTER_BAT: CardRecord = CardRecord::new(
 );
 
 // M12 98 — Grave Titan
-/// One printed ability with two ways in, the way every Titan prints it: a
-/// Titan that lands and then attacks makes four Zombies, and it makes them
-/// as two separate triggers.
-static TITAN_ENTERS_OR_ATTACKS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-];
-
-static GRAVE_TITAN_ABILITIES: [AbilityDef; 2] = [
-    abilities::deathtouch(),
-    AbilityDef::triggered(
-        "Whenever this creature enters or attacks, create two 2/2 black Zombie creature tokens.",
-        TriggerEventDef::AnyOf(&TITAN_ENTERS_OR_ATTACKS),
-        EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_amount(2),
-    ),
-];
-
 pub(in crate::card::sets) static GRAVE_TITAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5fa6d385-6b8e-45ad-83dc-b477799c05a5"),
     "Grave Titan",
@@ -1079,7 +1053,24 @@ pub(in crate::card::sets) static GRAVE_TITAN: CardRecord = CardRecord::new(
     // Ten power over three bodies for six mana, and killing the Titan still
     // leaves four of it behind.
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Giant"], 6, 6)
-        .with_abilities(&GRAVE_TITAN_ABILITIES),
+        .with_abilities(&[
+            abilities::deathtouch(),
+            AbilityDef::triggered(
+                "Whenever this creature enters or attacks, create two 2/2 black Zombie creature tokens.",
+                // One printed ability with two ways in, the way every Titan prints it: a
+                // Titan that lands and then attacks makes four Zombies, and it makes them
+                // as two separate triggers.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                ]),
+                EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2).with_amount(2),
+            ),
+        ]),
 );
 
 // M12 99 — Gravedigger

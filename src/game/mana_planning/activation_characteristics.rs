@@ -4,50 +4,6 @@
 // parent module's.
 
 impl Game {
-    /// Whether this mana activation leaves the chosen permanent available to
-    /// pay a later tap cost. A different source can be incompatible too when
-    /// its mana ability would sacrifice the chosen permanent.
-    pub(super) fn mana_activation_preserves_tap_cost_payer(
-        permanent: &Permanent,
-        activation: &ManaAbilityActivation,
-        payer: GameObjectId,
-    ) -> bool {
-        if activation.cost_object == Some(payer) {
-            return false;
-        }
-        if activation.source != payer {
-            return true;
-        }
-        if activation.costs.iter().any(|cost| {
-            matches!(
-                cost,
-                AbilityCostDef::TapSource
-                    | AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
-            )
-        }) {
-            return false;
-        }
-        activation
-            .effect
-            .sacrifice_source_when_out_of
-            .is_none_or(|kind| {
-                let removed = activation.costs.iter().fold(0_u16, |removed, cost| {
-                    if let AbilityCostDef::RemoveCountersFromSource {
-                        kind: removed_kind,
-                        amount,
-                    } = cost
-                        && *removed_kind == kind
-                    {
-                        return removed.saturating_add(*amount);
-                    }
-                    removed
-                });
-                permanent.counters(kind) > removed
-            })
-    }
-
     /// Whether an ability turns its own source into a creature.
     pub(super) fn effect_animates_source(effect: Option<EffectDef>) -> bool {
         match effect {

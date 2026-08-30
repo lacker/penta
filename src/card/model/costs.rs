@@ -113,12 +113,16 @@ pub enum CostDef {
     /// printed characteristic -- so unlike the costs above this one names no
     /// predicate at all.
     ReturnUnblockedAttackerToHand,
-    /// Tap a chosen untapped permanent other than the source, for "tap an
-    /// untapped Gate you control". Unlike [`Self::TapSource`] the permanent
-    /// paying is selected when the ability is activated.
-    TapPermanent {
+    /// Tap exactly that many matching untapped permanents, chosen one at a
+    /// time as the ability is activated. A single payer is carried directly
+    /// by the activation so mana planning can reserve it; larger quotas use a
+    /// bounded decision instead of enumerating every combination. The source
+    /// may pay when it remains untapped after every other cost. Unlike crew,
+    /// the quota counts permanents rather than total power.
+    TapPermanents {
         object: ObjectPredicateDef,
         controller: PlayerRelation,
+        count: u8,
     },
     ExileSource,
     /// Exert the permanent carrying this ability (CR 701.39): it will not

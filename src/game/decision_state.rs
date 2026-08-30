@@ -14,7 +14,7 @@ use super::{
     DrawReplacement, EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
     PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger, PileChosen, PileSplit,
     PilesSeparated, ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota,
-    SacrificedAmountDef, ScopedEffect, StackObject, TriggerPlacementBatch,
+    SacrificedAmountDef, ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
 };
 
 /// What runs once a demanded sacrifice has been chosen and made. The
@@ -299,6 +299,14 @@ pub(super) enum DecisionContinuation {
         /// How much power is still owed. Zero or less means the payer may
         /// stop, and the offer includes a way to.
         remaining: i32,
+        pending: Box<PendingActivation>,
+        chosen: Vec<GameObjectId>,
+    },
+    /// An exact-count tap cost, paid one matching permanent at a time while
+    /// the activation waits.
+    ActivationCostTapPermanents {
+        player: PlayerId,
+        quota: TapQuota,
         pending: Box<PendingActivation>,
         chosen: Vec<GameObjectId>,
     },

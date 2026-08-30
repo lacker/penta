@@ -963,8 +963,8 @@ fn continuation_snapshot(
                 None => None,
             },
         },
-        // The pair is not yet chosen, so what a land substitution would do
-        // to the board is not writable down either.
+        // The pair is not yet chosen, so what a land substitution would do to
+        // the board is not writable down either.
         DecisionContinuation::BasicLandTypeSubstitution { .. }
         // An entry paused mid-flight carries a prospective permanent that
         // this format has no place for yet.
@@ -975,11 +975,11 @@ fn continuation_snapshot(
         // format has no place for yet.
         | DecisionContinuation::ActivationCostSacrifice { .. }
         | DecisionContinuation::ActivationCostTap { .. }
+        | DecisionContinuation::ActivationCostTapPermanents { .. }
         | DecisionContinuation::ActivationTargeting { .. } => return None,
     };
     Some(value)
 }
-
 include!("decision/parse_observation.rs");
 
 include!("decision/continuation.rs");

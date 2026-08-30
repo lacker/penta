@@ -9,12 +9,14 @@ use super::*;
 
 const MANA_AND_TAP_ELF_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_090);
 const COUNTER_MANA_ELF_ID: CardDefinitionId = CardDefinitionId::new(10_091);
+const COUNT_ONE_SOURCE_EQUIPMENT_ID: CardDefinitionId = CardDefinitionId::new(10_092);
 
 static MANA_AND_TAP_ELF_EQUIP_COSTS: [AbilityCostDef; 2] = [
     AbilityCostDef::Mana(mana_cost!("{G}")),
-    AbilityCostDef::TapPermanent {
+    AbilityCostDef::TapPermanents {
         object: ObjectPredicateDef::Subtype("Elf"),
         controller: PlayerRelation::You,
+        count: 1,
     },
 ];
 
@@ -32,6 +34,20 @@ static COUNTER_MANA_ELF_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana
     "Remove a charge counter from this creature: Add {G}.",
     &COUNTER_MANA_ELF_COSTS,
     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+)];
+
+static COUNT_ONE_SOURCE_EQUIP_COSTS: [AbilityCostDef; 2] = [
+    AbilityCostDef::Mana(mana_cost!("{G}")),
+    AbilityCostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Artifact),
+        controller: PlayerRelation::You,
+        count: 1,
+    },
+];
+
+static COUNT_ONE_SOURCE_EQUIP_ABILITIES: [AbilityDef; 1] = [abilities::equip(
+    &COUNT_ONE_SOURCE_EQUIP_COSTS,
+    "{G}, Tap an untapped artifact you control: Attach this Equipment to target creature you control. Equip only as a sorcery.",
 )];
 
 fn mana_and_tap_elf_equipment_definition() -> CardDefinition {
@@ -59,6 +75,21 @@ fn counter_mana_elf_definition() -> CardDefinition {
     );
     definition.rules = CardRules::new_creature(ManaCost::default(), &["Elf"], 1, 1)
         .with_abilities(&COUNTER_MANA_ELF_ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+    definition
+}
+
+fn count_one_source_equipment_definition() -> CardDefinition {
+    let mut definition = CardDefinition::new(
+        COUNT_ONE_SOURCE_EQUIPMENT_ID,
+        "Count-one source Equipment test",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules = CardRules::new_artifact(ManaCost::default())
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&COUNT_ONE_SOURCE_EQUIP_ABILITIES);
     synchronize_single_part_definition(&mut definition);
     definition
 }
@@ -262,6 +293,34 @@ fn a_non_tapping_mana_ability_can_share_the_equip_tap_cost_payer() {
     assert_eq!(mana_elf.counters(CounterKind::named("charge")), 0);
     assert_eq!(game.players[PlayerId::One.index()].mana_pool.green, 0);
 
+    drain_pending(&mut game);
+    assert_eq!(attached_to(&game, equipment_id), Some(host_id));
+}
+
+#[test]
+fn a_count_one_tap_cost_can_use_its_untapped_source() {
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(count_one_source_equipment_definition());
+    game.catalog = CardCatalog::new(definitions).unwrap();
+
+    let equipment = creature(10_000, COUNT_ONE_SOURCE_EQUIPMENT_ID, PlayerId::One);
+    let equipment_id = equipment.card.id;
+    let host = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
+    let host_id = host.card.id;
+    game.battlefield.extend([equipment, host]);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 1);
+
+    let action = mixed_cost_equip_action(&game, equipment_id, host_id, equipment_id)
+        .expect("the eligible untapped source can pay the count-one tap cost");
+    game.apply(PlayerId::One, action).expect("it activates");
+
+    assert!(is_tapped(&game, equipment_id));
     drain_pending(&mut game);
     assert_eq!(attached_to(&game, equipment_id), Some(host_id));
 }

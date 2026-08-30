@@ -48,9 +48,10 @@ static YOUR_COUNTERED_CREATURES: [ObjectPredicateDef; 2] = [
 static MILL_TO_THE_FIRST_LAND: EffectDef = EffectDef::MillUntil(&MILL_UNTIL_1);
 
 /// "Tap an untapped Gate you control."
-static TAP_A_GATE: AbilityCostDef = AbilityCostDef::TapPermanent {
+static TAP_A_GATE: AbilityCostDef = AbilityCostDef::TapPermanents {
     object: ObjectPredicateDef::Subtype("Gate"),
     controller: PlayerRelation::You,
+    count: 1,
 };
 
 /// The Keyrune animation, identical across the cycle: it keeps its artifact

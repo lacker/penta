@@ -360,9 +360,10 @@ static URZA_CONSTRUCT: TokenCharacteristics =
 
 /// "Tap an untapped artifact you control", which the Construct itself
 /// answers -- and so does every Mox, every Lotus, and everything they made.
-static TAP_AN_ARTIFACT: AbilityCostDef = AbilityCostDef::TapPermanent {
+static TAP_AN_ARTIFACT: AbilityCostDef = AbilityCostDef::TapPermanents {
     object: ObjectPredicateDef::HasType(CardType::Artifact),
     controller: PlayerRelation::You,
+    count: 1,
 };
 
 static URZA_DIG: [EffectDef; 2] = [

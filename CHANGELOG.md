@@ -1362,7 +1362,7 @@ distinguishes snapshots of the covered source and build inputs.
   a source is already public.
 
 - **A permanent chosen for a tap cost could also be planned as the mana
-  source for that activation.** Mixed mana and `TapPermanent` costs could
+  source for that activation.** Mixed mana and single-permanent tap costs could
   therefore offer an action that tried to tap the same permanent twice. Mana
   planning now carries the chosen tap payer through enumeration, previews, and
   payment, excluding only mana abilities that would tap, sacrifice, or move

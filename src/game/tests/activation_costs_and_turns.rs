@@ -1,6 +1,84 @@
 use super::*;
 
 #[test]
+fn exact_count_tap_cost_can_include_its_untapped_source() {
+    static COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+        count: 2,
+    }];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
+        "Tap two untapped creatures you control: You gain 1 life.",
+        &COSTS,
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )];
+    let definition_id = CardDefinitionId::new(10_099);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Exact-count tap cost test",
+        CardSet::Magic2014,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules =
+        CardRules::new_creature(ManaCost::default(), &["Cleric"], 1, 1).with_abilities(&ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+
+    let mut game = ready_game();
+    let mut definitions = game
+        .catalog
+        .definitions()
+        .into_iter()
+        .cloned()
+        .collect::<Vec<_>>();
+    definitions.push(definition);
+    game.catalog = CardCatalog::new(definitions).unwrap();
+    let source = creature(10_000, definition_id, PlayerId::One);
+    let source_id = source.card.id;
+    let helper = creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One);
+    let helper_id = helper.card.id;
+    game.battlefield.extend([source, helper]);
+
+    let action = Action::ActivateAbility {
+        source: source_id,
+        ability: primary_ability(definition_id),
+        targets: Vec::new(),
+        cost_objects: Vec::new(),
+        x: 0,
+        modes: Vec::new(),
+        mana_payment: None,
+    };
+    assert!(game.legal_actions(PlayerId::One).contains(&action));
+    game.apply(PlayerId::One, action).unwrap();
+
+    for payer in [source_id, helper_id] {
+        let decision = game.observe(PlayerId::One).decision.unwrap();
+        let option = decision
+            .options
+            .iter()
+            .find(|option| option.card.is_some_and(|(id, _)| id == payer))
+            .unwrap()
+            .id;
+        game.apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![option],
+            },
+        )
+        .unwrap();
+    }
+
+    assert_eq!(game.stack.len(), 1);
+    assert!(game.battlefield.iter().all(|permanent| permanent.tapped));
+    pass_priority_pair(&mut game);
+    assert_eq!(game.players[PlayerId::One.index()].life, 21);
+}
+
+#[test]
 fn duplicate_source_counter_costs_are_aggregated_before_an_activation_is_offered() {
     static COSTS: [AbilityCostDef; 2] = [
         AbilityCostDef::RemoveCountersFromSource {

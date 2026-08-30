@@ -76,7 +76,7 @@ impl Game {
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::MillCards(_)
                 | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanent { .. }
+                | AbilityCostDef::TapPermanents { .. }
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                 | AbilityCostDef::Special(_) => {
                     unreachable!("unsupported mana-ability costs are not enumerated")

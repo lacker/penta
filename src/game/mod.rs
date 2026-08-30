@@ -49,9 +49,11 @@ mod ability_actions;
 mod ability_layers;
 mod ability_targeting;
 mod activation;
+mod activation_completion;
 mod activation_sacrifice;
 mod activation_saddle;
 mod activation_state;
+mod activation_tap;
 mod activation_targeting;
 mod api;
 mod attachments;
@@ -127,6 +129,7 @@ mod state_based;
 mod state_checkpoint;
 mod static_animation;
 mod suspend;
+mod tap_payment;
 mod targeting;
 mod tokens;
 mod trigger_capture;
@@ -168,6 +171,7 @@ use observation::{LastSeenHand, PublicCard};
 
 use activation_sacrifice::SacrificeQuota;
 use activation_state::{ActivationChoices, FrozenActivatedAbility, PendingActivation};
+use activation_tap::TapQuota;
 use activation_targeting::PendingActivationTargeting;
 use casting_state::{
     CastCostContext, CastOffer, CastOfferCost, CastSourceZone, SelectedSpellPlan,

@@ -46,7 +46,7 @@ impl Game {
     /// A colored creature has one choice per color; a colorless creature has
     /// a generic-only contribution that can never satisfy `{C}`.
     fn convoke_outputs(&self, permanent: &Permanent) -> ManaSourceOutputs {
-        if permanent.tapped
+        if !Self::permanent_can_pay_tap_cost(permanent, &[])
             || !self
                 .permanent_types(permanent)
                 .is_some_and(|types| types.contains(CardType::Creature))
@@ -123,18 +123,15 @@ impl Game {
     /// activated in 601.2g and then have that same source tapped for convoke
     /// in 601.2h. A tap or source-leaving cost makes the two uses mutually
     /// exclusive, which is the Llanowar Elves case.
-    fn mana_activation_can_also_contribute(activation: &ManaAbilityActivation) -> bool {
-        activation.cost_object != Some(activation.source)
-            && !activation.costs.iter().any(|cost| {
-                matches!(
-                    cost,
-                    AbilityCostDef::TapSource
-                        | AbilityCostDef::SacrificeSource
-                        | AbilityCostDef::ExileSource
-                        | AbilityCostDef::ReturnSourceToHand
-                        | AbilityCostDef::SacrificePermanents { .. }
-                )
-            })
+    fn mana_activation_can_also_contribute(
+        permanent: &Permanent,
+        activation: &ManaAbilityActivation,
+    ) -> bool {
+        Self::mana_activation_preserves_tap_payment(
+            permanent,
+            activation,
+            permanent.card.id,
+        )
     }
 
     /// An unlimited ability whose concrete cost consumes a different object
@@ -241,7 +238,7 @@ impl Game {
                 }
             } else {
                 single = single.max(amount);
-                if Self::mana_activation_can_also_contribute(activation) {
+                if Self::mana_activation_can_also_contribute(permanent, activation) {
                     single_with_contribution =
                         single_with_contribution.max(amount.saturating_add(contribution));
                 }
@@ -255,13 +252,14 @@ impl Game {
     }
 
     fn mana_and_contribution_outputs(
+        permanent: &Permanent,
         activations: &[ManaAbilityActivation],
         mana_outputs: &[ManaSourceOutput],
         contribution_outputs: &[ManaSourceOutput],
     ) -> ManaSourceOutputs {
         let mut combined = Vec::new();
         for (activation, mana) in activations.iter().zip(mana_outputs) {
-            if !Self::mana_activation_can_also_contribute(activation) {
+            if !Self::mana_activation_can_also_contribute(permanent, activation) {
                 continue;
             }
             for contribution in contribution_outputs {

@@ -137,6 +137,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         }
         | DecisionContinuation::ActivationCostTap {
             pending, chosen, ..
+        }
+        | DecisionContinuation::ActivationCostTapPermanents {
+            pending, chosen, ..
         } => {
             ids.push(pending.source);
             ids.push(pending.source_card.id);

@@ -68,9 +68,10 @@ static OTHARRI_ATTACK: [EffectDef; 2] = [
 
 static OTHARRI_RETURN_COST: [AbilityCostDef; 2] = [
     AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
-    AbilityCostDef::TapPermanent {
+    AbilityCostDef::TapPermanents {
         object: ObjectPredicateDef::Subtype("Rebel"),
         controller: PlayerRelation::You,
+        count: 1,
     },
 ];
 

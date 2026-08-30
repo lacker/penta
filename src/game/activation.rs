@@ -1,11 +1,10 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, ActivationChoices, ActivationTimingDef,
-    BattlefieldExitCompletion, CardBehavior, CardInstance, CharacteristicContext,
-    CommittedTriggerEvent, CounterKind, DeclarativeAbilityDef, FrozenActivatedAbility, Game,
-    GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
-    ObjectInstance, PendingActivation, PendingActivationTargeting, PlayRestriction, PlayerId,
-    SacrificeQuota, Step, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
-    remove_card,
+    CardBehavior, CardInstance, CharacteristicContext, CommittedTriggerEvent, CounterKind,
+    DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
+    ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, PendingActivation,
+    PendingActivationTargeting, PlayRestriction, PlayerId, SacrificeQuota, Step, TapQuota, Target,
+    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 
 use crate::ManaPaymentChoice;
@@ -232,7 +231,7 @@ impl Game {
         if definition
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::TapPermanent { .. }))
+            .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
             && let Some(chosen) = cost_objects.first()
         {
             let _ = self.tap_permanent(*chosen);
@@ -252,7 +251,7 @@ impl Game {
                     let _ = self.pay_player_cost_for(player, cost, x, payment_purpose);
                 }
                 // Paid above, before anything else could tap it.
-                AbilityCostDef::TapPermanent { .. } => {}
+                AbilityCostDef::TapPermanents { count: 1, .. } => {}
                 AbilityCostDef::ExileSource => self.exile_graveyard_source(player, source),
                 _ => unreachable!("unsupported graveyard-zone costs are not offered"),
             }
@@ -472,7 +471,7 @@ impl Game {
                     | AbilityCostDef::DiscardCardsAtRandom(_)
                     | AbilityCostDef::SacrificePermanent { .. }
                     | AbilityCostDef::SacrificePermanents { .. }
-                    | AbilityCostDef::TapPermanent { .. }
+                    | AbilityCostDef::TapPermanents { .. }
                     | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                     | AbilityCostDef::ExileSource
                     | AbilityCostDef::Loyalty(_)
@@ -633,7 +632,7 @@ impl Game {
             let tap_cost_payer = if definition
                 .costs
                 .iter()
-                .any(|cost| matches!(cost, AbilityCostDef::TapPermanent { .. }))
+                .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
             {
                 cost_objects.first().copied()
             } else {
@@ -643,7 +642,7 @@ impl Game {
                 matches!(
                     cost,
                     AbilityCostDef::ReturnUnblockedAttackerToHand
-                        | AbilityCostDef::TapPermanent { .. }
+                        | AbilityCostDef::TapPermanents { count: 1, .. }
                 )
             }) {
                 // Ahead of the loop, so automatic mana payment cannot tap the
@@ -739,7 +738,7 @@ impl Game {
                     // enumeration replaced it with a sized one.
                     AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
                     | AbilityCostDef::ReturnUnblockedAttackerToHand
-                    | AbilityCostDef::TapPermanent { .. }
+                    | AbilityCostDef::TapPermanents { .. }
                     // Paid by decision after everything else, the way a
                     // multiple sacrifice is.
                     | AbilityCostDef::TapCreaturesWithTotalPower { .. }
@@ -868,6 +867,40 @@ impl Game {
                     chosen_permanents.push(*chosen);
                 }
             }
+            // Multi-permanent tap costs name their payers by decision after
+            // fixed costs have made their own payers unavailable. A single
+            // payer was carried by the activation and tapped before mana.
+            if let Some(AbilityCostDef::TapPermanents {
+                object,
+                controller,
+                count,
+            }) = definition
+                .costs
+                .iter()
+                .find(|cost| matches!(cost, AbilityCostDef::TapPermanents { .. }))
+                && *count > 1
+            {
+                self.queue_activation_tap(
+                    player,
+                    TapQuota {
+                        remaining: *count,
+                        object: *object,
+                        controller: *controller,
+                    },
+                    PendingActivation {
+                        source,
+                        source_card,
+                        controller: player,
+                        frozen: frozen_ability,
+                        targets: frozen_targets,
+                        chosen_permanents,
+                        remaining_sacrifices,
+                    },
+                    Vec::new(),
+                );
+                self.consecutive_passes = 0;
+                return;
+            }
             // Crew and saddle name the creatures that pay by decision too,
             // and the total they owe is what the offer counts down.
             if let Some(AbilityCostDef::TapCreaturesWithTotalPower { minimum }) = definition
@@ -949,47 +982,6 @@ impl Game {
                 Vec::new(),
             );
         }
-        self.consecutive_passes = 0;
-        self.check_state_based_actions();
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn continue_activated_ability_costs(
-        &mut self,
-        source: GameObjectId,
-        source_card: ObjectInstance,
-        controller: PlayerId,
-        frozen: FrozenActivatedAbility,
-        targets: Vec<TargetSelection>,
-        chosen_permanents: Vec<GameObjectId>,
-        mut remaining_sacrifices: Vec<GameObjectId>,
-    ) {
-        if !remaining_sacrifices.is_empty() {
-            let sacrificed = remaining_sacrifices.remove(0);
-            self.capture_sacrifices(&[sacrificed]);
-            self.move_permanents_to_graveyard_then(
-                &[sacrificed],
-                Some(BattlefieldExitCompletion::CompleteActivatedAbility {
-                    source,
-                    source_card,
-                    controller,
-                    frozen,
-                    targets,
-                    chosen_permanents,
-                    remaining_sacrifices,
-                }),
-            );
-            return;
-        }
-
-        self.push_activated_ability(
-            source,
-            &source_card,
-            controller,
-            frozen,
-            targets,
-            chosen_permanents,
-        );
         self.consecutive_passes = 0;
         self.check_state_based_actions();
     }

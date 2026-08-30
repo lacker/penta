@@ -121,7 +121,7 @@ impl Game {
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }
                 | AbilityCostDef::SacrificePermanents { .. }
-                | AbilityCostDef::TapPermanent { .. }
+                | AbilityCostDef::TapPermanents { .. }
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                 | AbilityCostDef::ExileSource
                 | AbilityCostDef::Loyalty(_)
@@ -301,7 +301,11 @@ impl Game {
                 // card in a graveyard can still name something out there to
                 // tap.
                 AbilityCostDef::ExileSource => {}
-                AbilityCostDef::TapPermanent { object, controller } if taps.is_none() => {
+                AbilityCostDef::TapPermanents {
+                    object,
+                    controller,
+                    count: 1,
+                } if taps.is_none() => {
                     taps = Some((*object, *controller));
                 }
                 _ => return None,

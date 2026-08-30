@@ -307,6 +307,18 @@ impl Game {
                 let answer = options.first().copied();
                 self.continue_activation_saddle(player, remaining, *pending, chosen, answer);
             }
+            DecisionContinuation::ActivationCostTapPermanents {
+                player,
+                quota,
+                pending,
+                chosen,
+            } => {
+                let answer = options
+                    .first()
+                    .copied()
+                    .and_then(|option| usize::try_from(option).ok());
+                self.continue_activation_tap(player, quota, *pending, chosen, answer);
+            }
             DecisionContinuation::ActivationTargeting {
                 pending,
                 candidates,

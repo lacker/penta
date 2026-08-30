@@ -116,6 +116,32 @@ fn activated_cost_boundary_is_specific_to_the_source_zone() {
         &[ZoneKind::Battlefield],
         &[AbilityCostDef::SacrificeSource, AbilityCostDef::ExileSource,],
     ));
+    let exact_taps = AbilityCostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+        count: 2,
+    };
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[exact_taps],
+    ));
+    assert!(!shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[mana, exact_taps],
+    ));
+    let one_tap = AbilityCostDef::TapPermanents {
+        object: ObjectPredicateDef::HasType(CardType::Creature),
+        controller: PlayerRelation::You,
+        count: 1,
+    };
+    assert!(shared_activated_costs(
+        &[ZoneKind::Battlefield],
+        &[mana, one_tap],
+    ));
+    assert!(shared_activated_costs(
+        &[ZoneKind::Graveyard],
+        &[mana, one_tap],
+    ));
 }
 
 #[test]

@@ -36,7 +36,7 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
                 AbilityCostDef::SacrificePermanent { .. }
                     | AbilityCostDef::SacrificePermanents { .. }
                     | AbilityCostDef::ReturnUnblockedAttackerToHand
-                    | AbilityCostDef::TapPermanent { .. }
+                    | AbilityCostDef::TapPermanents { .. }
                     | AbilityCostDef::MoveToZone(_)
                     | AbilityCostDef::DiscardCardMatching(_)
                     | AbilityCostDef::ExileCardFromHand(_)
@@ -46,6 +46,51 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
     priced_bindings.len() <= 1
         && (priced_bindings.is_empty()
             || (battlefield && moved_bindings == priced_bindings && chosen_object_costs == 1))
+}
+
+fn at_most_one_deferred_activation_cost(costs: &[AbilityCostDef]) -> bool {
+    costs
+        .iter()
+        .filter(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::SacrificePermanents { .. }
+                    | AbilityCostDef::TapPermanents { .. }
+                    | AbilityCostDef::TapCreaturesWithTotalPower { .. }
+            )
+        })
+        .count()
+        <= 1
+}
+
+/// Multiple tap payers are currently chosen after the mana plan. Keep that
+/// mixed shape outside advertised shared coverage until both use one joint
+/// plan. A single payer is enumerated early enough to be reserved by it.
+fn multi_tap_cost_has_no_mana_component(costs: &[AbilityCostDef]) -> bool {
+    !costs
+        .iter()
+        .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count, .. } if *count > 1))
+        || !costs.iter().any(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::Mana(_) | AbilityCostDef::ManaCostOf(_)
+            )
+        })
+}
+
+fn at_most_one_source_exit_cost(costs: &[AbilityCostDef]) -> bool {
+    costs
+        .iter()
+        .filter(|cost| {
+            matches!(
+                cost,
+                AbilityCostDef::SacrificeSource
+                    | AbilityCostDef::ExileSource
+                    | AbilityCostDef::ReturnSourceToHand
+            )
+        })
+        .count()
+        <= 1
 }
 
 pub(in super::super) fn shared_activated_costs(
@@ -64,25 +109,15 @@ pub(in super::super) fn shared_activated_costs(
         .iter()
         .filter(|cost| matches!(cost, AbilityCostDef::SacrificeObject(_)))
         .count();
-    let source_exit_costs = costs
-        .iter()
-        .filter(|cost| {
-            matches!(
-                cost,
-                AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
-            )
-        })
-        .count();
     sacrifice_choices <= 1
         && fixed_sacrifices <= 1
-        && source_exit_costs <= 1
+        && at_most_one_source_exit_cost(costs)
+        && at_most_one_deferred_activation_cost(costs)
+        && multi_tap_cost_has_no_mana_component(costs)
         && linked_card_mana_costs_supported(battlefield, costs)
         && costs.iter().all(|cost| match cost {
-            // A variable X is offered one activation per affordable
-            // value. More than one X in the same cost is not: nothing
-            // enumerates a cost that charges X twice.
+            // A variable X is offered one activation per affordable value.
+            // More than one is not: nothing enumerates a cost charging X twice.
             AbilityCostDef::Mana(cost) => cost.x_multiplier <= 1,
             // The chosen object comes from the battlefield or from the
             // activating player's own graveyard, so only the predicate
@@ -111,8 +146,10 @@ pub(in super::super) fn shared_activated_costs(
             // What pays the tap is out on the battlefield wherever the
             // ability is activated from, so a card in a graveyard can name
             // one too.
-            AbilityCostDef::TapPermanent { object, .. } => {
-                (battlefield || graveyard) && shared_object_predicate(*object)
+            AbilityCostDef::TapPermanents { object, count, .. } => {
+                *count > 0
+                    && (battlefield || (graveyard && *count == 1))
+                    && shared_object_predicate(*object)
             }
             // Exiling the source is the one cost a card can pay from its own
             // graveyard; the rest of these need a permanent to act on.

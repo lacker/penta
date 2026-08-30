@@ -368,6 +368,18 @@ impl Game {
                         // the other untapped creatures add up.
                         AbilityCostDef::TapCreaturesWithTotalPower { minimum } => !self
                             .can_pay_total_power_tap(player, permanent.card.id, *minimum),
+                        AbilityCostDef::TapPermanents {
+                            object,
+                            controller,
+                            count,
+                        } => !self.can_pay_tap_permanents(
+                            player,
+                            permanent.card.id,
+                            *object,
+                            *controller,
+                            *count,
+                            taps_source || leaves_source,
+                        ),
                         // A loyalty ability is sorcery speed, once per turn,
                         // and only removes counters the permanent has.
                         AbilityCostDef::Loyalty(change) => {
@@ -394,7 +406,6 @@ impl Game {
                         | AbilityCostDef::SacrificePermanent { .. }
                         | AbilityCostDef::SacrificePermanents { .. }
                         | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanent { .. }
                         // Payability is decided by whether any card qualifies,
                         // which the choice list below answers.
                         | AbilityCostDef::MoveToZone(_)
@@ -431,7 +442,7 @@ impl Game {
                         AbilityCostDef::SacrificePermanent { .. }
                             | AbilityCostDef::SacrificePermanents { .. }
                             | AbilityCostDef::ReturnUnblockedAttackerToHand
-                            | AbilityCostDef::TapPermanent { .. }
+                            | AbilityCostDef::TapPermanents { .. }
                             | AbilityCostDef::MoveToZone(_)
                             | AbilityCostDef::DiscardCardMatching(_)
                             | AbilityCostDef::ExileCardFromHand(_)
@@ -441,10 +452,11 @@ impl Game {
                 if object_costs.next().is_some() {
                     return;
                 }
-                let taps_chosen_permanent =
-                    matches!(object_cost, Some(AbilityCostDef::TapPermanent { .. }));
+                let taps_chosen_permanent = matches!(
+                    object_cost,
+                    Some(AbilityCostDef::TapPermanents { count: 1, .. })
+                );
                 let cost_object_choices = match object_cost {
-                    None => vec![Vec::new()],
                     Some(AbilityCostDef::SacrificePermanent { object, controller }) => self
                         .battlefield
                         .iter()
@@ -466,29 +478,28 @@ impl Game {
                         })
                         .map(|candidate| vec![candidate.card.id])
                         .collect(),
-                    // The permanent paying has to be untapped and cannot be
-                    // the source, which is already tapping itself if asked.
-                    Some(AbilityCostDef::TapPermanent { object, controller }) => self
-                        .battlefield
-                        .iter()
-                        .filter(|candidate| {
-                            !candidate.tapped
-                                && candidate.card.id != permanent.card.id
-                                && self.player_relation_matches(
-                                    candidate.controller,
-                                    *controller,
-                                    player,
-                                    TriggerContext::empty(),
-                                )
-                                && self.trigger_object_matches(
-                                    *object,
-                                    &self.trigger_event_object(candidate),
-                                    permanent.card.id,
-                                    false,
-                                )
-                        })
-                        .map(|candidate| vec![candidate.card.id])
+                    // One payer travels with the activation so mana planning
+                    // can reserve it. The source may pay unless another cost
+                    // has already committed it to tap or leave play.
+                    Some(AbilityCostDef::TapPermanents {
+                        object,
+                        controller,
+                        count: 1,
+                    }) => self
+                        .activation_tap_candidates(
+                            player,
+                            *object,
+                            *controller,
+                            permanent.card.id,
+                            &fixed_sacrifices,
+                            taps_source || leaves_source,
+                        )
+                        .into_iter()
+                        .map(|candidate| vec![candidate])
                         .collect(),
+                    // Larger exact-count tap costs make their choices through
+                    // a bounded decision after the activation is selected.
+                    None | Some(AbilityCostDef::TapPermanents { .. }) => vec![Vec::new()],
                     // The one cost that can name more than one card, so every
                     // combination of that many is its own activation.
                     Some(AbilityCostDef::MoveToZone(movement)) => {

@@ -3500,13 +3500,31 @@ pub(in crate::card::sets) static SKELETAL_GRIMACE: CardRecord = CardRecord::new_
 );
 
 // ISD 117 — Skirsdag High Priest
-// Audit: metadata-only — Needs tapping two separately chosen other creatures as an activation cost and a morbid activation restriction.
 pub(in crate::card::sets) static SKIRSDAG_HIGH_PRIEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("09aa6b66-f69b-4f89-b802-e30c247f90e3"),
     "Skirsdag High Priest",
-    crate::card::CardArt::new("09aa6b66-f69b-4f89-b802-e30c247f90e3", "Jason A. Engle"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("09aa6b66-f69b-4f89-b802-e30c247f90e3", "Jason A. Engle"),
+    CardSet::Innistrad,
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "Morbid — {T}, Tap two untapped creatures you control: Create a 5/5 black Demon creature token with flying. Activate only if a creature died this turn.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::TapPermanents {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                    count: 2,
+                },
+            ],
+            EffectDef::create_creature_token(&["Demon"], &[ManaColor::Black], 5, 5)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "771ae1f8-70b3-40da-8352-421a36c7abb5",
+                    "Kev Walker",
+                )),
+        )
+        .with_activation_condition(&ISD_MORBID_A_CREATURE_DIED),
+    ),
 );
 
 // ISD 118 — Stromkirk Patrol

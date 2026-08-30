@@ -175,6 +175,7 @@ mod isd_delver_of_secrets;
 mod isd_m14_deck_cards;
 mod isd_memorys_journey;
 mod isd_random_graveyard;
+mod isd_skirsdag_high_priest;
 mod isd_token_cards;
 mod jade_statue;
 mod keymaster_rogue;

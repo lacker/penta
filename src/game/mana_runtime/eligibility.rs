@@ -57,7 +57,7 @@ impl Game {
                 | AbilityCostDef::SacrificePermanent { .. }
                 | AbilityCostDef::SacrificePermanents { .. }
                 | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanent { .. }
+                | AbilityCostDef::TapPermanents { .. }
                 | AbilityCostDef::TapCreaturesWithTotalPower { .. }
                 | AbilityCostDef::ExileSource
                 | AbilityCostDef::MoveToZone(_)
@@ -153,7 +153,7 @@ impl Game {
             | AbilityCostDef::DiscardCardsAtRandom(_)
             | AbilityCostDef::MillCards(_)
             | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanent { .. }
+            | AbilityCostDef::TapPermanents { .. }
             | AbilityCostDef::TapCreaturesWithTotalPower { .. }
             | AbilityCostDef::MoveToZone(_)
             | AbilityCostDef::Special(_) => false,

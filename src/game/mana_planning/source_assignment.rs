@@ -312,6 +312,7 @@ impl Game {
                 let contribution_outputs =
                     self.permanent_contribution_outputs(permanent, contributions);
                 let combined = Self::mana_and_contribution_outputs(
+                    permanent,
                     &activations,
                     &mana_outputs,
                     &contribution_outputs,
@@ -422,7 +423,7 @@ impl Game {
         request: ManaPlanningRequest<'_>,
     ) -> bool {
         let preserves_tap_cost_payer = request.options.tap_cost_payer.is_none_or(|payer| {
-            Self::mana_activation_preserves_tap_cost_payer(permanent, activation, payer)
+            Self::mana_activation_preserves_tap_payment(permanent, activation, payer)
         });
         let preserves_required_source = !matches!(
             request.purpose,

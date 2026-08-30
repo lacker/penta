@@ -179,7 +179,7 @@ impl Game {
         let tap_cost_payer = if definition
             .costs
             .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::TapPermanent { .. }))
+            .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
         {
             cost_objects.first().copied()
         } else {

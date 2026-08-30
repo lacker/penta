@@ -9,20 +9,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // AFR 33 — Portable Hole
-/// A cheap nonland permanent across the table. Mana value is read off the
-/// card, so a token is a zero and qualifies.
-static HOLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            ObjectPredicateDef::ManaValueAtMost(2),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_with_legacy_id(
     2256,
     "Portable Hole",
@@ -36,7 +22,19 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
         abilities::enters_trigger_with_targets(
             "When this artifact enters, exile target nonland permanent an opponent controls with \
          mana value 2 or less until this artifact leaves the battlefield.",
-            &HOLE_TARGET,
+            // A cheap nonland permanent across the table. Mana value is read off the
+            // card, so a token is a zero and qualifies.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        ObjectPredicateDef::ManaValueAtMost(2),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
             abilities::exile_until_source_leaves(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         ),
     ),

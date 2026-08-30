@@ -20,20 +20,6 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
 );
 
 // ONE 108 — Sheoldred's Edict
-/// Three edicts in one card, and the split is what makes it an answer
-/// rather than a gamble: the mode that names tokens leaves the real
-/// creature alone, and the mode that names nontokens cannot be paid with a
-/// Servo.
-static A_NONTOKEN_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-]);
-
-static A_CREATURE_TOKEN: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Token,
-]);
-
 /// "Of their choice", which is what makes it an edict: the sacrifice is
 /// theirs to make, so hexproof and protection never come into it.
 const fn edict(text: &'static str, object: ObjectPredicateDef) -> AbilityDef {
@@ -51,21 +37,6 @@ const fn edict(text: &'static str, object: ObjectPredicateDef) -> AbilityDef {
     )
 }
 
-static SHEOLDRED_S_EDICT_MODES: [AbilityDef; 3] = [
-    edict(
-        "Each opponent sacrifices a nontoken creature of their choice.",
-        A_NONTOKEN_CREATURE,
-    ),
-    edict(
-        "Each opponent sacrifices a creature token of their choice.",
-        A_CREATURE_TOKEN,
-    ),
-    edict(
-        "Each opponent sacrifices a planeswalker of their choice.",
-        ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ),
-];
-
 pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9225cc3-90f0-448f-a8d9-7c6c2796d077"),
     "Sheoldred's Edict",
@@ -77,7 +48,30 @@ pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new
         "Choose one —\n• Each opponent sacrifices a nontoken creature of their choice.\n• Each \
          opponent sacrifices a creature token of their choice.\n• Each opponent sacrifices a \
          planeswalker of their choice.",
-        &SHEOLDRED_S_EDICT_MODES,
+        &[
+            edict(
+                "Each opponent sacrifices a nontoken creature of their choice.",
+                // Three edicts in one card, and the split is what makes it an answer
+                // rather than a gamble: the mode that names tokens leaves the real
+                // creature alone, and the mode that names nontokens cannot be paid with a
+                // Servo.
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ]),
+            ),
+            edict(
+                "Each opponent sacrifices a creature token of their choice.",
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Token,
+                ]),
+            ),
+            edict(
+                "Each opponent sacrifices a planeswalker of their choice.",
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ),
+        ],
     )),
 );
 
@@ -102,32 +96,6 @@ pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
 );
 
 // ONE 161 — Cankerbloom
-static AN_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-static AN_ENCHANTMENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-)];
-
-/// Two of the three answer something and the third answers nothing, which is
-/// the point: a mode that only needs a counter on the board is what keeps
-/// the card from being dead against a deck with no artifacts.
-static CANKERBLOOM_MODES: [AbilityDef; 3] = [
-    AbilityDef::destroy_target("Destroy target artifact.", &AN_ARTIFACT[0], true),
-    AbilityDef::destroy_target("Destroy target enchantment.", &AN_ENCHANTMENT[0], true),
-    AbilityDef::spell(
-        "Proliferate. (Choose any number of permanents and/or players, then give each another \
-         counter of each kind already there.)",
-        EffectDef::Proliferate,
-    ),
-];
-
-static CANKERBLOOM_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::SacrificeSource,
-];
-
 pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_legacy_id(
     2292,
     "Cankerbloom",
@@ -139,8 +107,26 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
         AbilityDef::modal_activated(
             "{1}, Sacrifice this creature: Choose one —\n• Destroy target artifact.\n• Destroy \
              target enchantment.\n• Proliferate.",
-            &CANKERBLOOM_COST,
-            &CANKERBLOOM_MODES,
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::SacrificeSource,
+            ],
+            // Two of the three answer something and the third answers nothing, which is
+            // the point: a mode that only needs a counter on the board is what keeps
+            // the card from being dead against a deck with no artifacts.
+            &[
+                AbilityDef::destroy_target("Destroy target artifact.", &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )][0], true),
+                AbilityDef::destroy_target("Destroy target enchantment.", &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )][0], true),
+                AbilityDef::spell(
+                    "Proliferate. (Choose any number of permanents and/or players, then give each another \
+                     counter of each kind already there.)",
+                    EffectDef::Proliferate,
+                ),
+            ],
             1,
             1,
             false,
@@ -171,71 +157,6 @@ const ATRAXA_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 const ATRAXA_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 const ATRAXA_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const ATRAXA_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-
-static ATRAXA_CARD_TYPES: [ObjectPredicateDef; 7] = [
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    ObjectPredicateDef::HasType(CardType::Instant),
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ObjectPredicateDef::HasType(CardType::Sorcery),
-];
-static ATRAXA_PUT_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(ATRAXA_RANDOMIZED),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Library,
-    placement: ZonePlacement::Bottom,
-    moved: None,
-    then: &EffectDef::None,
-});
-static ATRAXA_RANDOMIZE_REST: EffectDef =
-    EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
-        input: ObjectSetDef::Binding(ATRAXA_REST),
-        randomized: ATRAXA_RANDOMIZED,
-        then: &ATRAXA_PUT_REST,
-    });
-static ATRAXA_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &ATRAXA_RANDOMIZE_REST,
-});
-static ATRAXA_CHOOSE: EffectDef = EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
-    actor: PlayerRefDef::EffectController,
-    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
-    predicates: &ATRAXA_CARD_TYPES,
-    chosen: ATRAXA_CHOSEN,
-    remainder: ATRAXA_REST,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &ATRAXA_PUT_CHOSEN,
-});
-static ATRAXA_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
-    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
-    then: &ATRAXA_CHOOSE,
-});
-static ATRAXA_DIGS_TEN: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(10),
-    ATRAXA_INSPECTED,
-    &ATRAXA_REVEAL,
-);
-
-static ATRAXA_ABILITIES: [AbilityDef; 5] = [
-    abilities::flying(),
-    abilities::vigilance(),
-    abilities::deathtouch(),
-    abilities::lifelink(),
-    abilities::enters_trigger(
-        "When this creature enters, reveal the top ten cards of your library. For each card \
-         type, you may put a card of that type from among the revealed cards into your hand. Put \
-         the rest on the bottom of your library in a random order.",
-        ATRAXA_DIGS_TEN,
-    ),
-];
-
 pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a1f905f-1d55-4d02-9d24-e58070793d3f"),
     "Atraxa, Grand Unifier",
@@ -245,7 +166,76 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
     // the life back, and refills the hand on the way in.
     CardRules::new_creature(mana_cost!("{3}{G}{W}{U}{B}"), &["Phyrexian", "Angel"], 7, 7)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ATRAXA_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::vigilance(),
+            abilities::deathtouch(),
+            abilities::lifelink(),
+            abilities::enters_trigger(
+                "When this creature enters, reveal the top ten cards of your library. For each card \
+                 type, you may put a card of that type from among the revealed cards into your hand. Put \
+                 the rest on the bottom of your library in a random order.",
+                abilities::bind_top_cards_then(
+                    PlayerRefDef::EffectController,
+                    ValueDef::Constant(10),
+                    ATRAXA_INSPECTED,
+                    &const {
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
+                            then: &const {
+                                EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
+                                    actor: PlayerRefDef::EffectController,
+                                    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
+                                    predicates: &const {
+                                        [
+                                            ObjectPredicateDef::HasType(CardType::Artifact),
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                                            ObjectPredicateDef::HasType(CardType::Instant),
+                                            ObjectPredicateDef::HasType(CardType::Land),
+                                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                                        ]
+                                    },
+                                    chosen: ATRAXA_CHOSEN,
+                                    remainder: ATRAXA_REST,
+                                    visibility: ChoiceVisibilityDef::Public,
+                                    then: &const {
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Hand,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &const {
+                                                EffectDef::RandomizeObjectOrder(
+                                                    RandomizeObjectOrderDef {
+                                                        input: ObjectSetDef::Binding(ATRAXA_REST),
+                                                        randomized: ATRAXA_RANDOMIZED,
+                                                        then: &EffectDef::MoveObjects(
+                                                            MoveObjectsDef {
+                                                                input: ObjectSetDef::Binding(
+                                                                    ATRAXA_RANDOMIZED,
+                                                                ),
+                                                                from: Some(ZoneKind::Library),
+                                                                zone: ZoneKind::Library,
+                                                                placement: ZonePlacement::Bottom,
+                                                                moved: None,
+                                                                then: &EffectDef::None,
+                                                            },
+                                                        ),
+                                                    },
+                                                )
+                                            },
+                                        })
+                                    },
+                                })
+                            },
+                        })
+                    },
+                ),
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

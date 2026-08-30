@@ -5283,33 +5283,6 @@ pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new
 );
 
 // ISD 186 — Gutter Grime
-static GUTTER_GRIME_SLIME_COUNTERS: ObjectCounterValueDef =
-    ObjectCounterValueDef::new(ObjectRefDef::CreatingSource, CounterKind::named("slime"));
-
-static GUTTER_GRIME_OOZE_ABILITY: AbilityDef = AbilityDef::static_ability(
-    "This token's power and toughness are each equal to the number of slime counters on Gutter Grime.",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::define_power_toughness(
-            ValueDef::CountersOnObject(&GUTTER_GRIME_SLIME_COUNTERS),
-            ValueDef::CountersOnObject(&GUTTER_GRIME_SLIME_COUNTERS),
-        ),
-    },
-);
-
-static GUTTER_GRIME_OOZE: EffectDef =
-    EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
-        .with_abilities(&[GUTTER_GRIME_OOZE_ABILITY]);
-
-static GUTTER_GRIME_TRIGGER_STEPS: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::named("slime"),
-        amount: ValueDef::Constant(1),
-    },
-    GUTTER_GRIME_OOZE,
-];
-
 pub(in crate::card::sets) static GUTTER_GRIME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9d007a2-163d-4e09-a70b-280a6fa3203b"),
     "Gutter Grime",
@@ -5325,7 +5298,30 @@ pub(in crate::card::sets) static GUTTER_GRIME: CardRecord = CardRecord::new(
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
             ]),
-            EffectDef::Sequence(&GUTTER_GRIME_TRIGGER_STEPS),
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("slime"),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
+                    .with_abilities(&[AbilityDef::static_ability(
+                        "This token's power and toughness are each equal to the number of slime counters on Gutter Grime.",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::define_power_toughness(
+                                ValueDef::CountersOnObject(&ObjectCounterValueDef::new(
+                                    ObjectRefDef::CreatingSource,
+                                    CounterKind::named("slime"),
+                                )),
+                                ValueDef::CountersOnObject(&ObjectCounterValueDef::new(
+                                    ObjectRefDef::CreatingSource,
+                                    CounterKind::named("slime"),
+                                )),
+                            ),
+                        },
+                    )]),
+            ]),
         ),
     ),
 );

@@ -148,13 +148,6 @@ pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
 // RTR 3 — Arrest (reprint)
 
 // RTR 4 — Avenging Arrow
-static DAMAGE_DEALER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::DealtDamageThisTurn,
-    ]),
-)];
-
 pub(in crate::card::sets) static AVENGING_ARROW: CardRecord = CardRecord::new_with_legacy_id(
     1905,
     "Avenging Arrow",
@@ -164,7 +157,12 @@ pub(in crate::card::sets) static AVENGING_ARROW: CardRecord = CardRecord::new_wi
     // combat is as legal a target as one that connected.
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target creature that dealt damage this turn.",
-        &DAMAGE_DEALER_TARGET,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::DealtDamageThisTurn,
+            ]),
+        )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,
@@ -198,16 +196,6 @@ pub(in crate::card::sets) static AZORIUS_ARRESTER: CardRecord = CardRecord::new_
 );
 
 // RTR 6 — Azorius Justiciar
-static UP_TO_TWO_OPPOSING_CREATURES: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-    2,
-)];
-
 pub(in crate::card::sets) static AZORIUS_JUSTICIAR: CardRecord = CardRecord::new_with_legacy_id(
     1530,
     "Azorius Justiciar",
@@ -216,7 +204,15 @@ pub(in crate::card::sets) static AZORIUS_JUSTICIAR: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Wizard"], 2, 2).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, detain up to two target creatures your opponents control.",
-            &UP_TO_TWO_OPPOSING_CREATURES,
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+                2,
+            )],
             EffectDef::Detain {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -267,8 +263,6 @@ pub(in crate::card::sets) static CONCORDIA_PEGASUS: CardRecord = keyword_creatur
 );
 
 // RTR 9 — Ethereal Armor
-static ETHEREAL_ARMOR_FIRST_STRIKE: AbilityDef = abilities::first_strike();
-
 /// The Armor is itself an enchantment you control, so it always counts at
 /// least one -- and every other Aura and enchantment adds to it live.
 static ETHEREAL_ARMOR_ENCHANTMENTS: ObjectQueryDef = ObjectQueryDef::matching(
@@ -276,14 +270,6 @@ static ETHEREAL_ARMOR_ENCHANTMENTS: ObjectQueryDef = ObjectQueryDef::matching(
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
-
-static ETHEREAL_ARMOR_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(
-        ValueDef::CountMatchingObjects(&ETHEREAL_ARMOR_ENCHANTMENTS),
-        ValueDef::CountMatchingObjects(&ETHEREAL_ARMOR_ENCHANTMENTS),
-    ),
-    AppliedEffectDef::add_ability(&ETHEREAL_ARMOR_FIRST_STRIKE),
-];
 
 pub(in crate::card::sets) static ETHEREAL_ARMOR: CardRecord = CardRecord::new_with_legacy_id(
     1956,
@@ -299,23 +285,19 @@ pub(in crate::card::sets) static ETHEREAL_ARMOR: CardRecord = CardRecord::new_wi
                  strike.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&ETHEREAL_ARMOR_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::CountMatchingObjects(&ETHEREAL_ARMOR_ENCHANTMENTS),
+                            ValueDef::CountMatchingObjects(&ETHEREAL_ARMOR_ENCHANTMENTS),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    ]),
                 },
             ),
         ]),
 );
 
 // RTR 10 — Eyes in the Skies
-static EYES_IN_THE_SKIES_EFFECTS: [EffectDef; 2] = [
-    EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
-        .with_abilities(&[abilities::flying()])
-        .with_art(CardArt::new(
-            "05b4dbe1-12ac-404f-a1fe-96e0b620533e",
-            "James Ryman",
-        )),
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static EYES_IN_THE_SKIES: CardRecord = CardRecord::new_with_legacy_id(
     1615,
     "Eyes in the Skies",
@@ -323,7 +305,15 @@ pub(in crate::card::sets) static EYES_IN_THE_SKIES: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
         "Create a 1/1 white Bird creature token with flying, then populate.",
-        EffectDef::Sequence(&EYES_IN_THE_SKIES_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
+                .with_abilities(&[abilities::flying()])
+                .with_art(CardArt::new(
+                    "05b4dbe1-12ac-404f-a1fe-96e0b620533e",
+                    "James Ryman",
+                )),
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -444,15 +434,6 @@ pub(in crate::card::sets) static PALISADE_GIANT: CardRecord = CardRecord::new(
 );
 
 // RTR 16 — Phantom General
-static PHANTOM_GENERAL_TOKENS: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Token,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static PHANTOM_GENERAL: CardRecord = CardRecord::new_with_legacy_id(
     1890,
     "Phantom General",
@@ -466,7 +447,14 @@ pub(in crate::card::sets) static PHANTOM_GENERAL: CardRecord = CardRecord::new_w
         AbilityDef::static_ability(
             "Creature tokens you control get +1/+1.",
             EffectDef::StaticApply {
-                recipient: PHANTOM_GENERAL_TOKENS,
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Token,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
                 effect: AppliedEffectDef::modify_power_toughness(
                     ValueDef::Constant(1),
                     ValueDef::Constant(1),
@@ -525,21 +513,6 @@ pub(in crate::card::sets) static REST_IN_PEACE: CardRecord = CardRecord::new_wit
 );
 
 // RTR 19 — Rootborn Defenses
-static ROOTBORN_DEFENSES_EFFECTS: [EffectDef; 2] = [
-    abilities::populate(),
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        effect: AppliedEffectDef::add_ability(&ROOTBORN_INDESTRUCTIBLE),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
-static ROOTBORN_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
 pub(in crate::card::sets) static ROOTBORN_DEFENSES: CardRecord = CardRecord::new_with_legacy_id(
     1616,
     "Rootborn Defenses",
@@ -547,7 +520,18 @@ pub(in crate::card::sets) static ROOTBORN_DEFENSES: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::spell(
         "Populate. Creatures you control gain indestructible until end of turn.",
-        EffectDef::Sequence(&ROOTBORN_DEFENSES_EFFECTS),
+        EffectDef::Sequence(&[
+            abilities::populate(),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
     )),
 );
 
@@ -670,15 +654,6 @@ pub(in crate::card::sets) static TRAINED_CARACAL: CardRecord = keyword_creature(
 );
 
 // RTR 28 — Trostani's Judgment
-static TROSTANIS_JUDGMENT_EFFECTS: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static TROSTANIS_JUDGMENT: CardRecord = CardRecord::new_with_legacy_id(
     1618,
     "Trostani's Judgment",
@@ -692,7 +667,14 @@ pub(in crate::card::sets) static TROSTANIS_JUDGMENT: CardRecord = CardRecord::ne
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::Sequence(&TROSTANIS_JUDGMENT_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -863,15 +845,6 @@ pub(in crate::card::sets) static DISPEL: CardRecord = CardRecord::new_with_legac
 );
 
 // RTR 37 — Doorkeeper
-static DEFENDERS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Defender),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static DOORKEEPER: CardRecord = CardRecord::new_with_legacy_id(
     1255,
     "Doorkeeper",
@@ -890,7 +863,14 @@ pub(in crate::card::sets) static DOORKEEPER: CardRecord = CardRecord::new_with_l
             ))],
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::CountMatchingObjects(&DEFENDERS_YOU_CONTROL),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Defender),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
                 binding: None,
                 then: None,
             },
@@ -964,16 +944,6 @@ pub(in crate::card::sets) static HOVER_BARRIER: CardRecord = CardRecord::new_wit
 );
 
 // RTR 41 — Inaction Injunction
-static INACTION_INJUNCTION_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Detain {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static INACTION_INJUNCTION: CardRecord = CardRecord::new_with_legacy_id(
     1532,
     "Inaction Injunction",
@@ -989,7 +959,15 @@ pub(in crate::card::sets) static INACTION_INJUNCTION: CardRecord = CardRecord::n
                 owner: None,
             },
         )],
-        EffectDef::Sequence(&INACTION_INJUNCTION_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::Detain {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 
@@ -1038,103 +1016,12 @@ pub(in crate::card::sets) static ISPERIAS_SKYWATCH: CardRecord = CardRecord::new
 
 // RTR 44 — Jace, Architect of Thought
 // Audit: partial — The -8 cannot search every player's library and grant permission to cast the exiled cards without paying their mana costs.
-/// The ability Jace's first one leaves behind. It belongs to no permanent,
-/// so "an opponent" is read against the player who installed it.
-static JACE_ATTACK_TAX: AbilityDef = AbilityDef::triggered(
-    "Whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
-    TriggerEventDef::attacks(ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-    ])),
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::TriggeringObject,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(-1),
-            ValueDef::Constant(0),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-);
-
-static JACE_ARCHITECT_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated(
-        "+1: Until your next turn, whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
-        &[AbilityCostDef::Loyalty(1)],
-        EffectDef::InstallTrigger(InstalledTriggerDef::until_next_turn(
-            &JACE_ATTACK_TAX,
-            PlayerRefDef::EffectController,
-        )),
-    ),
-    AbilityDef::activated(
-        "−2: Reveal the top three cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other on the bottom of your library in any order.",
-        &[AbilityCostDef::Loyalty(-2)],
-        JACE_ARCHITECT_PILES,
-    ),
-    AbilityDef::not_implemented(
-        "−8: For each player, search that player's library for a nonland card and exile it, then that player shuffles. You may cast those cards without paying their mana costs.",
-        "Casting an exiled card without paying its mana cost is not an available alternative cost.",
-    ),
-];
-
 const JACE_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 const JACE_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 const JACE_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const JACE_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
 const JACE_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
 const JACE_ORDERED_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
-
-static JACE_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(JACE_ORDERED_UNCHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Library,
-    placement: ZonePlacement::Bottom,
-    moved: None,
-    then: &EffectDef::None,
-});
-static JACE_ARRANGE_UNCHOSEN: EffectDef = EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
-    actor: PlayerRefDef::EffectController,
-    input: ObjectSetDef::Binding(JACE_UNCHOSEN),
-    ordered: JACE_ORDERED_UNCHOSEN,
-    placement: ZonePlacement::Bottom,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &JACE_PUT_UNCHOSEN,
-});
-static JACE_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(JACE_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &JACE_ARRANGE_UNCHOSEN,
-});
-static JACE_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
-    actor: PlayerRefDef::EffectController,
-    first: ObjectSetDef::Binding(JACE_FIRST),
-    second: ObjectSetDef::Binding(JACE_SECOND),
-    chosen: JACE_CHOSEN,
-    unchosen: JACE_UNCHOSEN,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &JACE_PUT_CHOSEN,
-});
-static JACE_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
-    actor: PlayerRefDef::Opponent,
-    input: ObjectSetDef::Binding(JACE_INSPECTED),
-    first: JACE_FIRST,
-    second: JACE_SECOND,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &JACE_CHOOSE,
-});
-static JACE_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
-    input: ObjectSetDef::Binding(JACE_INSPECTED),
-    then: &JACE_PARTITION,
-});
-static JACE_ARCHITECT_PILES: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(3),
-    JACE_INSPECTED,
-    &JACE_REVEAL,
-);
-
 pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
     CardRecord::new_with_legacy_id(
         180,
@@ -1143,7 +1030,89 @@ pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
         CardSet::ReturnToRavnica,
         CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 4)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&JACE_ARCHITECT_ABILITIES),
+            .with_abilities(&[
+                AbilityDef::activated(
+                    "+1: Until your next turn, whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
+                    &[AbilityCostDef::Loyalty(1)],
+                    EffectDef::InstallTrigger(InstalledTriggerDef::until_next_turn(
+                        // The ability Jace's first one leaves behind. It belongs to no permanent,
+                        // so "an opponent" is read against the player who installed it.
+                        &const { AbilityDef::triggered(
+                            "Whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
+                            TriggerEventDef::attacks(ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                            ])),
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::TriggeringObject,
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(-1),
+                                    ValueDef::Constant(0),
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        ) },
+                        PlayerRefDef::EffectController,
+                    )),
+                ),
+                AbilityDef::activated(
+                    "−2: Reveal the top three cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other on the bottom of your library in any order.",
+                    &[AbilityCostDef::Loyalty(-2)],
+                    abilities::bind_top_cards_then(
+                        PlayerRefDef::EffectController,
+                        ValueDef::Constant(3),
+                        JACE_INSPECTED,
+                        &const { EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(JACE_INSPECTED),
+                            then: &EffectDef::PartitionGroup(PartitionGroupDef {
+                                actor: PlayerRefDef::Opponent,
+                                input: ObjectSetDef::Binding(JACE_INSPECTED),
+                                first: JACE_FIRST,
+                                second: JACE_SECOND,
+                                visibility: ChoiceVisibilityDef::Public,
+                                then: &EffectDef::ChooseGroup(ChooseGroupDef {
+                                    actor: PlayerRefDef::EffectController,
+                                    first: ObjectSetDef::Binding(JACE_FIRST),
+                                    second: ObjectSetDef::Binding(JACE_SECOND),
+                                    chosen: JACE_CHOSEN,
+                                    unchosen: JACE_UNCHOSEN,
+                                    visibility: ChoiceVisibilityDef::Public,
+                                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                        input: ObjectSetDef::Binding(JACE_CHOSEN),
+                                        from: Some(ZoneKind::Library),
+                                        zone: ZoneKind::Hand,
+                                        placement: ZonePlacement::Top,
+                                        moved: None,
+                                        then: &EffectDef::ChooseObjectOrder(
+                                            ChooseObjectOrderDef {
+                                                actor: PlayerRefDef::EffectController,
+                                                input: ObjectSetDef::Binding(JACE_UNCHOSEN),
+                                                ordered: JACE_ORDERED_UNCHOSEN,
+                                                placement: ZonePlacement::Bottom,
+                                                visibility: ChoiceVisibilityDef::Public,
+                                                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                                                    input: ObjectSetDef::Binding(
+                                                        JACE_ORDERED_UNCHOSEN,
+                                                    ),
+                                                    from: Some(ZoneKind::Library),
+                                                    zone: ZoneKind::Library,
+                                                    placement: ZonePlacement::Bottom,
+                                                    moved: None,
+                                                    then: &EffectDef::None,
+                                                }),
+                                            },
+                                        ),
+                                    }),
+                                }),
+                            }),
+                        }) },
+                    ),
+                ),
+                AbilityDef::not_implemented(
+                    "−8: For each player, search that player's library for a nonland card and exile it, then that player shuffles. You may cast those cards without paying their mana costs.",
+                    "Casting an exiled card without paying its mana cost is not an available alternative cost.",
+                ),
+            ]),
     );
 
 // RTR 45 — Mizzium Skin
@@ -1361,12 +1330,6 @@ pub(in crate::card::sets) static TOWER_DRAKE: CardRecord = CardRecord::new_with_
 );
 
 // RTR 56 — Voidwielder
-static VOIDWIELDER_RETURN: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new_with_legacy_id(
     1265,
     "Voidwielder",
@@ -1385,7 +1348,11 @@ pub(in crate::card::sets) static VOIDWIELDER: CardRecord = CardRecord::new_with_
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &VOIDWIELDER_RETURN,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
             },
         ),
     ),
@@ -1491,19 +1458,6 @@ pub(in crate::card::sets) static DEAD_REVELER: CardRecord = CardRecord::new_with
 );
 
 // RTR 63 — Desecration Demon
-/// What the Demon takes when an opponent feeds it: it stays home for the turn
-/// and grows permanently.
-static DESECRATION_DEMON_TRIBUTE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Tap {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-]);
-
 pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new_with_legacy_id(
     152,
     "Desecration Demon",
@@ -1528,7 +1482,18 @@ pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new
                 count: ValueDef::Constant(1),
                 player: EffectRecipientDef::Opponent,
                 object: ObjectPredicateDef::HasType(CardType::Creature),
-                then: Some(&DESECRATION_DEMON_TRIBUTE),
+                // What the Demon takes when an opponent feeds it: it stays home for the turn
+                // and grows permanently.
+                then: Some(&EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ])),
                 amount: SacrificedAmountDef::Power,
                 otherwise: None,
                 optional: true,
@@ -1548,16 +1513,6 @@ pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::
 );
 
 // RTR 65 — Deviant Glee
-static DEVIANT_GLEE_TRAMPLE: AbilityDef = AbilityDef::activated(
-    "{R}: This creature gains trample until end of turn.",
-    &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&abilities::trample()),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-);
-
 pub(in crate::card::sets) static DEVIANT_GLEE: CardRecord = CardRecord::new_with_legacy_id(
     1270,
     "Deviant Glee",
@@ -1581,7 +1536,15 @@ pub(in crate::card::sets) static DEVIANT_GLEE: CardRecord = CardRecord::new_with
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
-                        AppliedEffectDef::add_ability(&DEVIANT_GLEE_TRAMPLE),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated(
+                            "{R}: This creature gains trample until end of turn.",
+                            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )),
                     ]),
                 },
             ),
@@ -1589,13 +1552,6 @@ pub(in crate::card::sets) static DEVIANT_GLEE: CardRecord = CardRecord::new_with
 );
 
 // RTR 66 — Drainpipe Vermin
-static DRAINPIPE_VERMIN_DISCARD: EffectDef = EffectDef::Discard {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::Constant(1),
-    selection: DiscardSelectionDef::RecipientChooses,
-    then: None,
-};
-
 pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_with_legacy_id(
     1271,
     "Drainpipe Vermin",
@@ -1612,7 +1568,12 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{B}"),
                 ),
-                &DRAINPIPE_VERMIN_DISCARD,
+                &EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
             )),
         ),
     ),
@@ -1685,23 +1646,6 @@ pub(in crate::card::sets) static NECROPOLIS_REGENT: CardRecord = CardRecord::new
 );
 
 // RTR 72 — Ogre Jailbreaker
-static OGRE_JAILBREAKER_HAS_A_GATE: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Subtype("Gate"),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-/// A permission rather than an ability removal: the Ogre keeps defender, so
-/// anything reading "a creature with defender" still finds one.
-static OGRE_JAILBREAKER_PERMISSION: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
-};
-
 pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_with_legacy_id(
     1957,
     "Ogre Jailbreaker",
@@ -1713,8 +1657,21 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
             "This creature can attack as though it didn't have defender as long as you control a \
              Gate.",
             EffectDef::IfCondition {
-                condition: &OGRE_JAILBREAKER_HAS_A_GATE,
-                then: &OGRE_JAILBREAKER_PERMISSION,
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Gate"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                // A permission rather than an ability removal: the Ogre keeps defender, so
+                // anything reading "a creature with defender" still finds one.
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
+                },
             },
         ),
     ]),
@@ -1770,18 +1727,6 @@ pub(in crate::card::sets) static SEWER_SHAMBLER: CardRecord = CardRecord::new_wi
 );
 
 // RTR 76 — Shrieking Affliction
-static SHRIEKING_AFFLICTION_HAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerRelation::EventPlayer,
-);
-
-static SHRIEKING_AFFLICTION_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: SHRIEKING_AFFLICTION_HAND,
-    comparison: ComparisonDef::LessOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static SHRIEKING_AFFLICTION: CardRecord = CardRecord::new_with_legacy_id(
     1274,
     "Shrieking Affliction",
@@ -1793,7 +1738,15 @@ pub(in crate::card::sets) static SHRIEKING_AFFLICTION: CardRecord = CardRecord::
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::Opponent,
         },
-        &SHRIEKING_AFFLICTION_CONDITION,
+        &TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Hand],
+                PlayerRelation::EventPlayer,
+            ),
+            comparison: ComparisonDef::LessOrEqual,
+            amount: 1,
+        },
         EffectDef::LoseLife {
             recipient: EffectRecipientDef::EventPlayer,
             amount: ValueDef::Constant(3),
@@ -1912,15 +1865,6 @@ pub(in crate::card::sets) static ULTIMATE_PRICE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 83 — Underworld Connections
-static UNDERWORLD_CONNECTIONS_DRAW: AbilityDef = AbilityDef::activated(
-    "{T}, Pay 1 life: Draw a card.",
-    &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)],
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-);
-
 pub(in crate::card::sets) static UNDERWORLD_CONNECTIONS: CardRecord =
     CardRecord::new_with_legacy_id(
         233,
@@ -1948,7 +1892,14 @@ pub(in crate::card::sets) static UNDERWORLD_CONNECTIONS: CardRecord =
                     "Enchanted land has \"{T}, Pay 1 life: Draw a card.\"",
                     EffectDef::StaticApply {
                         recipient: EffectRecipientDef::AttachedPermanent,
-                        effect: AppliedEffectDef::add_ability(&UNDERWORLD_CONNECTIONS_DRAW),
+                        effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                            "{T}, Pay 1 life: Draw a card.",
+                            &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)],
+                            EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(1),
+                            },
+                        )),
                     },
                 ),
             ]),
@@ -1990,12 +1941,6 @@ pub(in crate::card::sets) static ASH_ZEALOT: CardRecord = CardRecord::new(
 );
 
 // RTR 87 — Batterhorn
-static BATTERHORN_DESTROY: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-    then: None,
-};
-
 pub(in crate::card::sets) static BATTERHORN: CardRecord = CardRecord::new_with_legacy_id(
     1276,
     "Batterhorn",
@@ -2014,7 +1959,11 @@ pub(in crate::card::sets) static BATTERHORN: CardRecord = CardRecord::new_with_l
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &BATTERHORN_DESTROY,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
             },
         ),
     ),
@@ -2056,19 +2005,6 @@ pub(in crate::card::sets) static BLOODFRAY_GIANT: CardRecord = CardRecord::new_w
 );
 
 // RTR 90 — Chaos Imps
-static CHAOS_IMPS_HAS_A_COUNTER: TriggerConditionDef = TriggerConditionDef::SourceCounters {
-    kind: CounterKind::PlusOnePlusOne,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-static CHAOS_IMPS_TRAMPLE_GRANT: AbilityDef = abilities::trample();
-
-static CHAOS_IMPS_TRAMPLE: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::add_ability(&CHAOS_IMPS_TRAMPLE_GRANT),
-};
-
 pub(in crate::card::sets) static CHAOS_IMPS: CardRecord = CardRecord::new_with_legacy_id(
     1622,
     "Chaos Imps",
@@ -2081,8 +2017,15 @@ pub(in crate::card::sets) static CHAOS_IMPS: CardRecord = CardRecord::new_with_l
         AbilityDef::static_ability(
             "This creature has trample as long as it has a +1/+1 counter on it.",
             EffectDef::IfCondition {
-                condition: &CHAOS_IMPS_HAS_A_COUNTER,
-                then: &CHAOS_IMPS_TRAMPLE,
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                },
             },
         ),
     ]),
@@ -2339,16 +2282,6 @@ pub(in crate::card::sets) static MIZZIUM_MORTARS: CardRecord = CardRecord::new_w
 );
 
 // RTR 102 — Pursuit of Flight
-static PURSUIT_OF_FLIGHT_FLYING: AbilityDef = AbilityDef::activated(
-    "{U}: This creature gains flying until end of turn.",
-    &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&abilities::flying()),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-);
-
 pub(in crate::card::sets) static PURSUIT_OF_FLIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1286,
     "Pursuit of Flight",
@@ -2372,7 +2305,15 @@ pub(in crate::card::sets) static PURSUIT_OF_FLIGHT: CardRecord = CardRecord::new
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-                        AppliedEffectDef::add_ability(&PURSUIT_OF_FLIGHT_FLYING),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated(
+                            "{U}: This creature gains flying until end of turn.",
+                            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+                            EffectDef::Apply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        )),
                     ]),
                 },
             ),
@@ -2403,19 +2344,6 @@ pub(in crate::card::sets) static PYROCONVERGENCE: CardRecord = CardRecord::new_w
 );
 
 // RTR 104 — Racecourse Fury
-static RACECOURSE_FURY_HASTE: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}: Target creature gains haste until end of turn.",
-    &[AbilityCostDef::TapSource],
-    &[AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::HasType(CardType::Creature),
-    )],
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&abilities::haste()),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-);
-
 pub(in crate::card::sets) static RACECOURSE_FURY: CardRecord = CardRecord::new_with_legacy_id(
     1288,
     "Racecourse Fury",
@@ -2437,7 +2365,18 @@ pub(in crate::card::sets) static RACECOURSE_FURY: CardRecord = CardRecord::new_w
                 "Enchanted land has \"{T}: Target creature gains haste until end of turn.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&RACECOURSE_FURY_HASTE),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}: Target creature gains haste until end of turn.",
+                        &[AbilityCostDef::TapSource],
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    )),
                 },
             ),
         ]),
@@ -2844,18 +2783,6 @@ pub(in crate::card::sets) static DRUDGE_BEETLE: CardRecord = CardRecord::new_wit
 );
 
 // RTR 123 — Druid's Deliverance
-/// "Dealt to you", so the shield is scoped to its controller rather than
-/// covering the whole combat the way a Fog does.
-static DRUIDS_DELIVERANCE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
-            EffectRecipientDef::Controller,
-        )),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static DRUIDS_DELIVERANCE: CardRecord = CardRecord::new_with_legacy_id(
     1864,
     "Druid's Deliverance",
@@ -2863,7 +2790,17 @@ pub(in crate::card::sets) static DRUIDS_DELIVERANCE: CardRecord = CardRecord::ne
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
         "Prevent all combat damage that would be dealt to you this turn. Populate.",
-        EffectDef::Sequence(&DRUIDS_DELIVERANCE_EFFECTS),
+        // "Dealt to you", so the shield is scoped to its controller rather than
+        // covering the whole combat the way a Fog does.
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
+                    EffectRecipientDef::Controller,
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -2960,16 +2897,6 @@ pub(in crate::card::sets) static GOLGARI_DECOY: CardRecord = CardRecord::new_wit
 );
 
 // RTR 128 — Horncaller's Chant
-static HORNCALLERS_CHANT_EFFECTS: [EffectDef; 2] = [
-    EffectDef::create_creature_token(&["Rhino"], &[ManaColor::Green], 4, 4)
-        .with_abilities(&[abilities::trample()])
-        .with_art(CardArt::new(
-            "1331008a-ae86-4640-b823-a73be766ac16",
-            "Tomasz Jedruszek",
-        )),
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static HORNCALLERS_CHANT: CardRecord = CardRecord::new_with_legacy_id(
     1619,
     "Horncaller's Chant",
@@ -2977,7 +2904,15 @@ pub(in crate::card::sets) static HORNCALLERS_CHANT: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_sorcery(mana_cost!("{7}{G}")).with_ability(AbilityDef::spell(
         "Create a 4/4 green Rhino creature token with trample, then populate.",
-        EffectDef::Sequence(&HORNCALLERS_CHANT_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Rhino"], &[ManaColor::Green], 4, 4)
+                .with_abilities(&[abilities::trample()])
+                .with_art(CardArt::new(
+                    "1331008a-ae86-4640-b823-a73be766ac16",
+                    "Tomasz Jedruszek",
+                )),
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -3151,45 +3086,6 @@ pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
 );
 
 // RTR 140 — Worldspine Wurm
-static WURM_SHUFFLES_ITSELF_BACK: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::players(PlayerSetDef::One(PlayerRefDef::OwnerOf(
-            ObjectRefDef::Source,
-        ))),
-    },
-];
-
-static WORLDSPINE_WURM_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    // A separate ability from the shuffle below, and it only watches the
-    // battlefield: a Wurm milled out of a library makes nothing.
-    abilities::dies_trigger(
-        "When this creature dies, create three 5/5 green Wurm creature tokens with trample.",
-        EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 5, 5)
-            .with_abilities(&[abilities::trample()])
-            .with_art(CardArt::new(
-                "33ee3f6c-5df6-4271-b2f9-86b9afffab7b",
-                "Anthony Palumbo",
-            ))
-            .with_amount(3),
-    ),
-    // A trigger rather than a replacement. The ability belongs to the new
-    // graveyard object, even when the previous object was a permanent; the
-    // separate dies ability above is the one that looks back at the battlefield.
-    AbilityDef::triggered(
-        "When Worldspine Wurm is put into a graveyard from anywhere, shuffle it into its owner's \
-         library.",
-        TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
-        EffectDef::Sequence(&WURM_SHUFFLES_ITSELF_BACK),
-    )
-    .with_source_zones(&[ZoneKind::Graveyard]),
-];
-
 pub(in crate::card::sets) static WORLDSPINE_WURM: CardRecord = CardRecord::new_with_legacy_id(
     2259,
     "Worldspine Wurm",
@@ -3198,7 +3094,42 @@ pub(in crate::card::sets) static WORLDSPINE_WURM: CardRecord = CardRecord::new_w
     // Eleven mana nobody pays: it is reanimated or put onto the battlefield
     // some other way, and the shuffle is what stops that from being repeatable.
     CardRules::new_creature(mana_cost!("{8}{G}{G}{G}"), &["Wurm"], 15, 15)
-        .with_abilities(&WORLDSPINE_WURM_ABILITIES),
+        .with_abilities(&[
+            abilities::trample(),
+            // A separate ability from the shuffle below, and it only watches the
+            // battlefield: a Wurm milled out of a library makes nothing.
+            abilities::dies_trigger(
+                "When this creature dies, create three 5/5 green Wurm creature tokens with trample.",
+                EffectDef::create_creature_token(&["Wurm"], &[ManaColor::Green], 5, 5)
+                    .with_abilities(&[abilities::trample()])
+                    .with_art(CardArt::new(
+                        "33ee3f6c-5df6-4271-b2f9-86b9afffab7b",
+                        "Anthony Palumbo",
+                    ))
+                    .with_amount(3),
+            ),
+            // A trigger rather than a replacement. The ability belongs to the new
+            // graveyard object, even when the previous object was a permanent; the
+            // separate dies ability above is the one that looks back at the battlefield.
+            AbilityDef::triggered(
+                "When Worldspine Wurm is put into a graveyard from anywhere, shuffle it into its owner's \
+                 library.",
+                TriggerEventDef::zone_changed(ObjectPredicateDef::Source, None, Some(ZoneKind::Graveyard)),
+                EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::players(PlayerSetDef::One(PlayerRefDef::OwnerOf(
+                            ObjectRefDef::Source,
+                        ))),
+                    },
+                ]),
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // RTR 141 — Abrupt Decay
@@ -3232,16 +3163,6 @@ pub(in crate::card::sets) static ABRUPT_DECAY: CardRecord = CardRecord::new_with
 );
 
 // RTR 142 — Archon of the Triumvirate
-static UP_TO_TWO_OPPOSING_NONLANDS: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-    2,
-)];
-
 pub(in crate::card::sets) static ARCHON_OF_THE_TRIUMVIRATE: CardRecord =
     CardRecord::new_with_legacy_id(
         1534,
@@ -3254,7 +3175,17 @@ pub(in crate::card::sets) static ARCHON_OF_THE_TRIUMVIRATE: CardRecord =
                 "Whenever this creature attacks, detain up to two target nonland permanents your \
              opponents control.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                &UP_TO_TWO_OPPOSING_NONLANDS,
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                    2,
+                )],
                 EffectDef::Detain {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
@@ -3539,13 +3470,6 @@ pub(in crate::card::sets) static COUNTERFLUX: CardRecord = CardRecord::new_with_
 );
 
 // RTR 154 — Coursers' Accord
-static COURSERS_ACCORD_EFFECTS: [EffectDef; 2] = [
-    EffectDef::create_creature_token(&["Centaur"], &[ManaColor::Green], 3, 3).with_art(
-        CardArt::new("880d5dc1-ceec-4c5f-93c2-c88b7dbfcac2", "Slawomir Maniak"),
-    ),
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static COURSERS_ACCORD: CardRecord = CardRecord::new_with_legacy_id(
     1620,
     "Coursers' Accord",
@@ -3553,7 +3477,12 @@ pub(in crate::card::sets) static COURSERS_ACCORD: CardRecord = CardRecord::new_w
     CardSet::ReturnToRavnica,
     CardRules::new_sorcery(mana_cost!("{4}{G}{W}")).with_ability(AbilityDef::spell(
         "Create a 3/3 green Centaur creature token, then populate.",
-        EffectDef::Sequence(&COURSERS_ACCORD_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Centaur"], &[ManaColor::Green], 3, 3).with_art(
+                CardArt::new("880d5dc1-ceec-4c5f-93c2-c88b7dbfcac2", "Slawomir Maniak"),
+            ),
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -3731,11 +3660,6 @@ pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::
 );
 
 // RTR 163 — Goblin Electromancer
-static INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Instant),
-    ObjectPredicateDef::HasType(CardType::Sorcery),
-]);
-
 pub(in crate::card::sets) static GOBLIN_ELECTROMANCER: CardRecord = CardRecord::new_with_legacy_id(
     1760,
     "Goblin Electromancer",
@@ -3745,7 +3669,10 @@ pub(in crate::card::sets) static GOBLIN_ELECTROMANCER: CardRecord = CardRecord::
         AbilityDef::static_ability(
             "Instant and sorcery spells you cast cost {1} less to cast.",
             EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                INSTANT_OR_SORCERY,
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
                 PlayerRelation::You,
                 ValueDef::Constant(1),
             )),
@@ -3994,15 +3921,6 @@ pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
 );
 
 // RTR 176 — Korozda Guildmage
-/// One Saproling per point of toughness the sacrifice had.
-static KOROZDA_GUILDMAGE_PAYOFF: EffectDef =
-    EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1)
-        .with_art(CardArt::new(
-            "e6544989-91b4-4db7-ad44-f1355f1d6e6b",
-            "Raoul Vitale",
-        ))
-        .with_count(ValueDef::TriggerEventAmount);
-
 pub(in crate::card::sets) static KOROZDA_GUILDMAGE: CardRecord = CardRecord::new_with_legacy_id(
     1977,
     "Korozda Guildmage",
@@ -4039,7 +3957,13 @@ pub(in crate::card::sets) static KOROZDA_GUILDMAGE: CardRecord = CardRecord::new
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                 ]),
-                then: Some(&KOROZDA_GUILDMAGE_PAYOFF),
+                // One Saproling per point of toughness the sacrifice had.
+                then: Some(&EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1)
+                        .with_art(CardArt::new(
+                            "e6544989-91b4-4db7-ad44-f1355f1d6e6b",
+                            "Raoul Vitale",
+                        ))
+                        .with_count(ValueDef::TriggerEventAmount)),
                 amount: SacrificedAmountDef::Toughness,
                 otherwise: None,
                 optional: false,
@@ -4121,8 +4045,6 @@ pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::n
 );
 
 // RTR 181 — New Prahv Guildmage
-static NEW_PRAHV_FLYING: AbilityDef = abilities::flying();
-
 pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::new_with_legacy_id(
     1544,
     "New Prahv Guildmage",
@@ -4137,7 +4059,7 @@ pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::n
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&NEW_PRAHV_FLYING),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -4429,12 +4351,6 @@ pub(in crate::card::sets) static SKULL_REND: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 196 — Skymark Roc
-static SKYMARK_ROC_RETURN: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_legacy_id(
     1325,
     "Skymark Roc",
@@ -4458,7 +4374,11 @@ pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &SKYMARK_ROC_RETURN,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
             },
         ),
     ]),
@@ -4665,14 +4585,6 @@ pub(in crate::card::sets) static TRESTLE_TROLL: CardRecord = CardRecord::new_wit
 );
 
 // RTR 206 — Trostani, Selesnya's Voice
-/// "Another creature you control", which is three conditions rather than one:
-/// a creature, yours, and not Trostani herself.
-static TROSTANI_ANOTHER_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
 pub(in crate::card::sets) static TROSTANI_SELESNYAS_VOICE: CardRecord =
     CardRecord::new_with_legacy_id(
         1857,
@@ -4688,7 +4600,13 @@ pub(in crate::card::sets) static TROSTANI_SELESNYAS_VOICE: CardRecord =
                     "Whenever another creature you control enters, you gain life equal to that \
                  creature's toughness.",
                     TriggerEventDef::zone_changed(
-                        TROSTANI_ANOTHER_CREATURE,
+                        // "Another creature you control", which is three conditions rather than one:
+                        // a creature, yours, and not Trostani herself.
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
                         None,
                         Some(ZoneKind::Battlefield),
                     ),
@@ -4733,69 +4651,6 @@ pub(in crate::card::sets) static VITU_GHAZI_GUILDMAGE: CardRecord = CardRecord::
 );
 
 // RTR 208 — Vraska the Unseen
-/// The delayed trigger Vraska's +1 hangs on herself. It reads damage arriving
-/// at the planeswalker, which only became reachable once a creature could
-/// attack one.
-static VRASKA_RETALIATION: AbilityDef = AbilityDef::triggered(
-    "Whenever a creature deals combat damage to Vraska, destroy that creature.",
-    TriggerEventDef::combat_damage_to_source(ObjectPredicateDef::HasType(CardType::Creature)),
-    EffectDef::Destroy {
-        object: EffectRecipientDef::TriggeringObject,
-        can_regenerate: true,
-        then: None,
-    },
-);
-
-static ASSASSIN_TOKEN_ABILITY: AbilityDef = AbilityDef::triggered(
-    "Whenever this token deals combat damage to a player, that player loses the game.",
-    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-    EffectDef::LoseTheGame {
-        player: EffectRecipientDef::EventPlayer,
-    },
-);
-
-static VRASKA_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated(
-        "+1: Until your next turn, whenever a creature deals combat damage to Vraska, destroy that creature.",
-        &[AbilityCostDef::Loyalty(1)],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::add_ability(&VRASKA_RETALIATION),
-            duration: ResolvedEffectDurationDef::UntilYourNextTurn,
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "−3: Destroy target nonland permanent.",
-        &[AbilityCostDef::Loyalty(-3)],
-        &VRASKA_DESTROY_TARGET,
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
-            then: None,
-        },
-    ),
-    AbilityDef::activated(
-        "−7: Create three 1/1 black Assassin creature tokens with \"Whenever this token deals combat damage to a player, that player loses the game.\"",
-        &[AbilityCostDef::Loyalty(-7)],
-        EffectDef::create_creature_token(&["Assassin"], &[ManaColor::Black], 1, 1)
-            .with_abilities(&[ASSASSIN_TOKEN_ABILITY])
-            .with_art(CardArt::new(
-                "89eb9f92-d189-4438-b6fe-cb253055d63e",
-                "Svetlin Velinov",
-            ))
-            .with_amount(3),
-    ),
-];
-
-static VRASKA_DESTROY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static VRASKA_THE_UNSEEN: CardRecord = CardRecord::new_with_legacy_id(
     240,
     "Vraska the Unseen",
@@ -4803,7 +4658,62 @@ pub(in crate::card::sets) static VRASKA_THE_UNSEEN: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_planeswalker(mana_cost!("{3}{B}{G}"), &["Vraska"], 5)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&VRASKA_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Until your next turn, whenever a creature deals combat damage to Vraska, destroy that creature.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    // The delayed trigger Vraska's +1 hangs on herself. It reads damage arriving
+                    // at the planeswalker, which only became reachable once a creature could
+                    // attack one.
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "Whenever a creature deals combat damage to Vraska, destroy that creature.",
+                        TriggerEventDef::combat_damage_to_source(ObjectPredicateDef::HasType(CardType::Creature)),
+                        EffectDef::Destroy {
+                            object: EffectRecipientDef::TriggeringObject,
+                            can_regenerate: true,
+                            then: None,
+                        },
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Destroy target nonland permanent.",
+                &[AbilityCostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::activated(
+                "−7: Create three 1/1 black Assassin creature tokens with \"Whenever this token deals combat damage to a player, that player loses the game.\"",
+                &[AbilityCostDef::Loyalty(-7)],
+                EffectDef::create_creature_token(&["Assassin"], &[ManaColor::Black], 1, 1)
+                    .with_abilities(&[AbilityDef::triggered(
+                        "Whenever this token deals combat damage to a player, that player loses the game.",
+                        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                        EffectDef::LoseTheGame {
+                            player: EffectRecipientDef::EventPlayer,
+                        },
+                    )])
+                    .with_art(CardArt::new(
+                        "89eb9f92-d189-4438-b6fe-cb253055d63e",
+                        "Svetlin Velinov",
+                    ))
+                    .with_amount(3),
+            ),
+        ]),
 );
 
 // RTR 209 — Wayfaring Temple
@@ -4811,12 +4721,6 @@ static WAYFARING_TEMPLE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
-);
-
-/// Counted live and including itself, so a lone Temple is a 1/1.
-static WAYFARING_TEMPLE_SIZE: AppliedEffectDef = AppliedEffectDef::set_base_power_toughness(
-    ValueDef::CountMatchingObjects(&WAYFARING_TEMPLE_CREATURES),
-    ValueDef::CountMatchingObjects(&WAYFARING_TEMPLE_CREATURES),
 );
 
 pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_with_legacy_id(
@@ -4830,7 +4734,11 @@ pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_
              you control.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: WAYFARING_TEMPLE_SIZE,
+                // Counted live and including itself, so a lone Temple is a 1/1.
+                effect: AppliedEffectDef::set_base_power_toughness(
+                    ValueDef::CountMatchingObjects(&WAYFARING_TEMPLE_CREATURES),
+                    ValueDef::CountMatchingObjects(&WAYFARING_TEMPLE_CREATURES),
+                ),
             },
         ),
         AbilityDef::triggered(
@@ -4892,27 +4800,6 @@ pub(in crate::card::sets) static CRYPTBORN_HORROR: CardRecord = CardRecord::new(
 );
 
 // RTR 213 — Deathrite Shaman
-/// "Add one mana of any color", named as the ability resolves. It is not a
-/// mana ability at all: it targets, and a targeted ability uses the stack
-/// however much mana it makes (CR 605.1a).
-static DEATHRITE_EXILES_A_LAND_FOR_MANA: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::AddMana(AddManaEffectDef::choice(&ManaColor::COLORS)),
-]);
-
-static A_LAND_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Land),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_with_legacy_id(
     1330,
     "Deathrite Shaman",
@@ -4922,8 +4809,25 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
         AbilityDef::activated_with_targets(
             "{T}: Exile target land card from a graveyard. Add one mana of any color.",
             &[AbilityCostDef::TapSource],
-            &A_LAND_CARD_IN_A_GRAVEYARD,
-            DEATHRITE_EXILES_A_LAND_FOR_MANA,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            // "Add one mana of any color", named as the ability resolves. It is not a
+            // mana ability at all: it targets, and a targeted ability uses the stack
+            // however much mana it makes (CR 605.1a).
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+                EffectDef::AddMana(AddManaEffectDef::choice(&ManaColor::COLORS)),
+            ]),
         ),
         AbilityDef::activated_with_targets(
             "{B}, {T}: Exile target instant or sorcery card from a graveyard. Each opponent loses 2 life.",
@@ -5111,25 +5015,6 @@ pub(in crate::card::sets) static SLITHERHEAD: CardRecord = CardRecord::new_with_
 );
 
 // RTR 223 — Sundering Growth
-/// "Artifact or enchantment", which is one target slot rather than two.
-static SUNDERING_GROWTH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-    ]),
-)];
-
-/// The destruction comes first, so a token the destroyed permanent was
-/// keeping alive is already gone when the copy is chosen.
-static SUNDERING_GROWTH_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    abilities::populate(),
-];
-
 pub(in crate::card::sets) static SUNDERING_GROWTH: CardRecord = CardRecord::new_with_legacy_id(
     1856,
     "Sundering Growth",
@@ -5137,8 +5022,23 @@ pub(in crate::card::sets) static SUNDERING_GROWTH: CardRecord = CardRecord::new_
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{G/W}{G/W}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target artifact or enchantment, then populate.",
-        &SUNDERING_GROWTH_TARGET,
-        EffectDef::Sequence(&SUNDERING_GROWTH_EFFECTS),
+        // "Artifact or enchantment", which is one target slot rather than two.
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            ]),
+        )],
+        // The destruction comes first, so a token the destroyed permanent was
+        // keeping alive is already gone when the copy is chosen.
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            abilities::populate(),
+        ]),
     )),
 );
 
@@ -5156,13 +5056,6 @@ pub(in crate::card::sets) static VASSAL_SOUL: CardRecord = keyword_creature(
 );
 
 // RTR 225 — Azorius Keyrune
-static AZORIUS_KEYRUNE_ANIMATION: [AppliedEffectDef; 4] = keyrune_animation(
-    2,
-    2,
-    &["Bird"],
-    ColorSet::from_colors(&[ManaColor::White, ManaColor::Blue]),
-);
-
 pub(in crate::card::sets) static AZORIUS_KEYRUNE: CardRecord = CardRecord::new_with_legacy_id(
     1336,
     "Azorius Keyrune",
@@ -5183,7 +5076,12 @@ pub(in crate::card::sets) static AZORIUS_KEYRUNE: CardRecord = CardRecord::new_w
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::Composite(&AZORIUS_KEYRUNE_ANIMATION),
+                    AppliedEffectDef::Composite(&keyrune_animation(
+                        2,
+                        2,
+                        &["Bird"],
+                        ColorSet::from_colors(&[ManaColor::White, ManaColor::Blue]),
+                    )),
                     AppliedEffectDef::add_ability(&abilities::flying()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -5294,13 +5192,6 @@ pub(in crate::card::sets) static CODEX_SHREDDER: CardRecord = CardRecord::new_wi
 );
 
 // RTR 229 — Golgari Keyrune
-static GOLGARI_KEYRUNE_ANIMATION: [AppliedEffectDef; 4] = keyrune_animation(
-    2,
-    2,
-    &["Insect"],
-    ColorSet::from_colors(&[ManaColor::Black, ManaColor::Green]),
-);
-
 pub(in crate::card::sets) static GOLGARI_KEYRUNE: CardRecord = CardRecord::new_with_legacy_id(
     1339,
     "Golgari Keyrune",
@@ -5321,7 +5212,12 @@ pub(in crate::card::sets) static GOLGARI_KEYRUNE: CardRecord = CardRecord::new_w
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::Composite(&GOLGARI_KEYRUNE_ANIMATION),
+                    AppliedEffectDef::Composite(&keyrune_animation(
+                        2,
+                        2,
+                        &["Insect"],
+                        ColorSet::from_colors(&[ManaColor::Black, ManaColor::Green]),
+                    )),
                     AppliedEffectDef::add_ability(&abilities::deathtouch()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -5331,35 +5227,6 @@ pub(in crate::card::sets) static GOLGARI_KEYRUNE: CardRecord = CardRecord::new_w
 );
 
 // RTR 230 — Izzet Keyrune
-static IZZET_KEYRUNE_LOOT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-]);
-
-static IZZET_KEYRUNE_COMBAT: AbilityDef = AbilityDef::triggered(
-    "Whenever this artifact deals combat damage to a player, you may draw a card. If you do, discard a card.",
-    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &IZZET_KEYRUNE_LOOT,
-    },
-);
-
-static IZZET_KEYRUNE_ANIMATION: [AppliedEffectDef; 4] = keyrune_animation(
-    2,
-    1,
-    &["Elemental"],
-    ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Red]),
-);
-
 pub(in crate::card::sets) static IZZET_KEYRUNE: CardRecord = CardRecord::new_with_legacy_id(
     1340,
     "Izzet Keyrune",
@@ -5379,11 +5246,34 @@ pub(in crate::card::sets) static IZZET_KEYRUNE: CardRecord = CardRecord::new_wit
             &[AbilityCostDef::Mana(mana_cost!("{U}{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&IZZET_KEYRUNE_ANIMATION),
+                effect: AppliedEffectDef::Composite(&keyrune_animation(
+                    2,
+                    1,
+                    &["Elemental"],
+                    ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Red]),
+                )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        IZZET_KEYRUNE_COMBAT,
+        AbilityDef::triggered(
+            "Whenever this artifact deals combat damage to a player, you may draw a card. If you do, discard a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            },
+        ),
     ]),
 );
 
@@ -5405,13 +5295,6 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 232 — Rakdos Keyrune
-static RAKDOS_KEYRUNE_ANIMATION: [AppliedEffectDef; 4] = keyrune_animation(
-    3,
-    1,
-    &["Devil"],
-    ColorSet::from_colors(&[ManaColor::Black, ManaColor::Red]),
-);
-
 pub(in crate::card::sets) static RAKDOS_KEYRUNE: CardRecord = CardRecord::new_with_legacy_id(
     1341,
     "Rakdos Keyrune",
@@ -5432,7 +5315,12 @@ pub(in crate::card::sets) static RAKDOS_KEYRUNE: CardRecord = CardRecord::new_wi
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
-                    AppliedEffectDef::Composite(&RAKDOS_KEYRUNE_ANIMATION),
+                    AppliedEffectDef::Composite(&keyrune_animation(
+                        3,
+                        1,
+                        &["Devil"],
+                        ColorSet::from_colors(&[ManaColor::Black, ManaColor::Red]),
+                    )),
                     AppliedEffectDef::add_ability(&abilities::first_strike()),
                 ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -5442,13 +5330,6 @@ pub(in crate::card::sets) static RAKDOS_KEYRUNE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 233 — Selesnya Keyrune
-static SELESNYA_KEYRUNE_ANIMATION: [AppliedEffectDef; 4] = keyrune_animation(
-    3,
-    3,
-    &["Wolf"],
-    ColorSet::from_colors(&[ManaColor::Green, ManaColor::White]),
-);
-
 pub(in crate::card::sets) static SELESNYA_KEYRUNE: CardRecord = CardRecord::new_with_legacy_id(
     1342,
     "Selesnya Keyrune",
@@ -5468,7 +5349,12 @@ pub(in crate::card::sets) static SELESNYA_KEYRUNE: CardRecord = CardRecord::new_
             &[AbilityCostDef::Mana(mana_cost!("{G}{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&SELESNYA_KEYRUNE_ANIMATION),
+                effect: AppliedEffectDef::Composite(&keyrune_animation(
+                    3,
+                    3,
+                    &["Wolf"],
+                    ColorSet::from_colors(&[ManaColor::Green, ManaColor::White]),
+                )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

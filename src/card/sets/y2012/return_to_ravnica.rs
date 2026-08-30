@@ -6210,38 +6210,14 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
 );
 
 // RTR 240 — Grove of the Guardian
+// Audit: metadata-only — The activation planner cannot yet reserve two chosen
+// untapped creatures jointly with the ability's mana payment.
 pub(in crate::card::sets) static GROVE_OF_THE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cf60ca0-e01f-499c-8d04-d59050f38c33"),
     "Grove of the Guardian",
     crate::card::CardArt::new("3cf60ca0-e01f-499c-8d04-d59050f38c33", "Christine Choi"),
     crate::card::CardSet::ReturnToRavnica,
-    CardRules::new_land(&[]).with_abilities(&[
-        AbilityDef::activated_mana(
-            "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-        ),
-        AbilityDef::activated(
-            "{3}{G}{W}, {T}, Tap two untapped creatures you control, Sacrifice this land: Create an 8/8 green and white Elemental creature token with vigilance.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}{G}{W}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::TapPermanents {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                    count: 2,
-                },
-                AbilityCostDef::SacrificeSource,
-            ],
-            EffectDef::create_creature_token(
-                &["Elemental"],
-                &[ManaColor::Green, ManaColor::White],
-                8,
-                8,
-            )
-            .with_abilities(&[abilities::vigilance()]),
-        ),
-    ]),
+    CardRules::unsupported(),
 );
 
 // RTR 241 — Hallowed Fountain

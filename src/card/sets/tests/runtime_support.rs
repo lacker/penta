@@ -305,14 +305,19 @@ pub(super) fn shared_mana_effect(effect: EffectDef, choices_are_supported: bool)
                 }
         }
     };
-    // "Where X is this creature's power" is resolved against the permanent
-    // as the ability is offered, exactly as the counted forms above are, so
-    // a printed amount of zero is the whole amount only when no value
+    // "Where X is this creature's power" and "where X is the number of
+    // permanents you control matching a predicate" are resolved against the
+    // permanent as the ability is offered, exactly as the counted forms above
+    // are, so a printed amount of zero is the whole amount only when no value
     // replaces it.
     let amount_is_known = mana.amount > 0
         || matches!(
             mana.variable_amount,
-            Some(ValueDef::CountersOnSource(_) | ValueDef::SourcePower)
+            Some(
+                ValueDef::CountersOnSource(_)
+                    | ValueDef::SourcePower
+                    | ValueDef::CountMatchingObjects(_)
+            )
         );
     selection_is_supported
         && amount_is_known

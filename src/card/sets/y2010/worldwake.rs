@@ -12,24 +12,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // WWK 20 — Stoneforge Mystic
-static AN_EQUIPMENT_IN_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
-
-/// The second half of the card, and the reason the first half is worth
-/// finding: a minimum of zero is the printed "you may", and with no
-/// Equipment in hand the choice is never offered at all.
-static MYSTIC_PUT_EQUIPMENT_DOWN: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &AN_EQUIPMENT_IN_HAND,
-    object: ObjectPredicateDef::Subtype("Equipment"),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    // It arrives as itself: nothing about the Equipment changes on the way
-    // down, and it is not attached to anything.
-};
-
 pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new_with_legacy_id(
     2191,
     "Stoneforge Mystic",
@@ -61,7 +43,21 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
                     AbilityCostDef::Mana(mana_cost!("{1}{W}")),
                     AbilityCostDef::TapSource,
                 ],
-                MYSTIC_PUT_EQUIPMENT_DOWN,
+                // The second half of the card, and the reason the first half is worth
+                // finding: a minimum of zero is the printed "you may", and with no
+                // Equipment in hand the choice is never offered at all.
+                EffectDef::ChooseCards {
+                    player: EffectRecipientDef::Controller,
+                    sources: &[CardChoiceSourceDef::Zone(ZoneKind::Hand)],
+                    object: ObjectPredicateDef::Subtype("Equipment"),
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    // It arrives as itself: nothing about the Equipment changes on the way
+                    // down, and it is not attached to anything.
+                },
             ),
         ]),
 );
@@ -70,82 +66,6 @@ pub(in crate::card::sets) static STONEFORGE_MYSTIC: CardRecord = CardRecord::new
 static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Any),
 )];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-/// Their whole library, named by owner rather than by relation: the ultimate
-/// points at a player and empties that one.
-static THE_TARGET_PLAYERS_LIBRARY: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Library],
-    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-);
-
-static THE_TARGET_PLAYERS_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Hand],
-    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-);
-
-static JACE_ULTIMATE: [EffectDef; 3] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
-            THE_TARGET_PLAYERS_LIBRARY,
-        )),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
-            THE_TARGET_PLAYERS_HAND,
-        )),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-    // The shuffle is what leaves them a library at all, so it is the whole
-    // difference between this and drawing from nothing next upkeep.
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-];
-
-static JACE_THE_MIND_SCULPTOR_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::activated_with_targets(
-        "+2: Look at the top card of target player's library. You may put that card on the \
-         bottom of that player's library.",
-        &[AbilityCostDef::Loyalty(2)],
-        &A_PLAYER,
-        abilities::fateseal(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ValueDef::Constant(1),
-        ),
-    ),
-    AbilityDef::activated(
-        "0: Draw three cards, then put two cards from your hand on top of your library in any \
-         order.",
-        &[AbilityCostDef::Loyalty(0)],
-        abilities::brainstorm(),
-    ),
-    AbilityDef::activated_with_targets(
-        "−1: Return target creature to its owner's hand.",
-        &[AbilityCostDef::Loyalty(-1)],
-        &A_CREATURE,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "−12: Exile all cards from target player's library, then that player shuffles their hand \
-         into their library.",
-        &[AbilityCostDef::Loyalty(-12)],
-        &A_PLAYER,
-        EffectDef::Sequence(&JACE_ULTIMATE),
-    ),
-];
 
 pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -158,37 +78,76 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
         // under pressure does forever.
         CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 3)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&JACE_THE_MIND_SCULPTOR_ABILITIES),
+            .with_abilities(&[
+                AbilityDef::activated_with_targets(
+                    "+2: Look at the top card of target player's library. You may put that card on the \
+                     bottom of that player's library.",
+                    &[AbilityCostDef::Loyalty(2)],
+                    &A_PLAYER,
+                    abilities::fateseal(
+                        PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::Constant(1),
+                    ),
+                ),
+                AbilityDef::activated(
+                    "0: Draw three cards, then put two cards from your hand on top of your library in any \
+                     order.",
+                    &[AbilityCostDef::Loyalty(0)],
+                    abilities::brainstorm(),
+                ),
+                AbilityDef::activated_with_targets(
+                    "−1: Return target creature to its owner's hand.",
+                    &[AbilityCostDef::Loyalty(-1)],
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+                AbilityDef::activated_with_targets(
+                    "−12: Exile all cards from target player's library, then that player shuffles their hand \
+                     into their library.",
+                    &[AbilityCostDef::Loyalty(-12)],
+                    &A_PLAYER,
+                    EffectDef::Sequence(&[
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                                // Their whole library, named by owner rather than by relation: the ultimate
+                                // points at a player and empties that one.
+                                ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Library],
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                ),
+                            )),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(crate::card::ObjectSetDef::Query(
+                                ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::Any,
+                                    &[ZoneKind::Hand],
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                ),
+                            )),
+                            zone: ZoneKind::Library,
+                            placement: ZonePlacement::Top,
+                        },
+                        // The shuffle is what leaves them a library at all, so it is the whole
+                        // difference between this and drawing from nothing next upkeep.
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    ]),
+                ),
+            ]),
     );
 
 // WWK 123 — Everflowing Chalice
-/// The counters are the whole card: a Chalice cast for nothing is a nothing
-/// that taps for nothing, and every {2} on the way in is a mana every turn
-/// afterwards.
-static CHALICE_ENTERS_KICKED: AbilityDef = AbilityDef::as_enters(
-    "This artifact enters with a charge counter on it for each time it was kicked.",
-    ReplacementEffectDef::ModifyBattlefieldEntry(
-        BattlefieldEntryModificationDef::AddKickCounters {
-            kind: CounterKind::named("charge"),
-        },
-    ),
-);
-
-static CHALICE_TAPS_FOR_ITS_COUNTERS: AbilityDef = AbilityDef::activated_mana(
-    "{T}: Add {C} for each charge counter on this artifact.",
-    &[AbilityCostDef::TapSource],
-    EffectDef::AddMana(
-        AddManaEffectDef::one(ManaColor::Colorless)
-            .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
-    ),
-);
-
-static EVERFLOWING_CHALICE_ABILITIES: [AbilityDef; 3] = [
-    abilities::multikicker(mana_cost!("{2}")),
-    CHALICE_ENTERS_KICKED,
-    CHALICE_TAPS_FOR_ITS_COUNTERS,
-];
-
 pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1fdcc0c3-4029-4fc3-a486-5d7f45c910bd"),
     "Everflowing Chalice",
@@ -196,27 +155,31 @@ pub(in crate::card::sets) static EVERFLOWING_CHALICE: CardRecord = CardRecord::n
     crate::card::CardSet::Worldwake,
     // A mana rock whose size is chosen as it is cast, which is why it is
     // played on turn two and on turn ten.
-    CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&EVERFLOWING_CHALICE_ABILITIES),
+    CardRules::new_artifact(mana_cost!("{0}")).with_abilities(&[
+        abilities::multikicker(mana_cost!("{2}")),
+        // The counters are the whole card: a Chalice cast for nothing is a nothing
+        // that taps for nothing, and every {2} on the way in is a mana every turn
+        // afterwards.
+        AbilityDef::as_enters(
+            "This artifact enters with a charge counter on it for each time it was kicked.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddKickCounters {
+                    kind: CounterKind::named("charge"),
+                },
+            ),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C} for each charge counter on this artifact.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(
+                AddManaEffectDef::one(ManaColor::Colorless)
+                    .with_variable_amount(ValueDef::CountersOnSource(CounterKind::named("charge"))),
+            ),
+        ),
+    ]),
 );
 
 // WWK 133 — Celestial Colonnade
-static COLONNADE_FLYING: AbilityDef = abilities::flying();
-
-static COLONNADE_VIGILANCE: AbilityDef = abilities::vigilance();
-
-/// "It's still a land" is the type being added rather than set: everything
-/// else about the animation replaces, and the land stays a land.
-static COLONNADE_ANIMATION: [AppliedEffectDef; 6] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::White, ManaColor::Blue])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(4), ValueDef::Constant(4)),
-    AppliedEffectDef::add_ability(&COLONNADE_FLYING),
-    AppliedEffectDef::add_ability(&COLONNADE_VIGILANCE),
-];
-
-static COLONNADE_COLORS: [ManaColor; 2] = [ManaColor::White, ManaColor::Blue];
-
 pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::new_with_legacy_id(
     2239,
     "Celestial Colonnade",
@@ -229,7 +192,10 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&COLONNADE_COLORS)),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
         ),
         AbilityDef::activated(
             "{3}{W}{U}: Until end of turn, this land becomes a 4/4 white and blue Elemental \
@@ -237,7 +203,22 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
             &[AbilityCostDef::Mana(mana_cost!("{3}{W}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&COLONNADE_ANIMATION),
+                // "It's still a land" is the type being added rather than set: everything
+                // else about the animation replaces, and the land stays a land.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[
+                        ManaColor::White,
+                        ManaColor::Blue,
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::vigilance()),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -245,18 +226,6 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
 );
 
 // WWK 134 — Creeping Tar Pit
-static TAR_PIT_ANIMATION: [AppliedEffectDef; 5] = [
-    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
-    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
-    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
-    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
-    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
-        ObjectPredicateDef::Any,
-    )),
-];
-
-static TAR_PIT_COLORS: [ManaColor; 2] = [ManaColor::Blue, ManaColor::Black];
-
 pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f427f0b-034c-4821-8758-e395c0042d8a"),
     "Creeping Tar Pit",
@@ -267,14 +236,22 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&TAR_PIT_COLORS)),
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Black])),
         ),
         AbilityDef::activated(
             "{1}{U}{B}: Until end of turn, this land becomes a 3/2 blue and black Elemental creature. It's still a land. It can't be blocked this turn.",
             &[AbilityCostDef::Mana(mana_cost!("{1}{U}{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&TAR_PIT_ANIMATION),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Elemental"])),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Blue, ManaColor::Black])),
+                    AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(2)),
+                    AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                        ObjectPredicateDef::Any,
+                    )),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -282,16 +259,6 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
 );
 
 // WWK 140 — Quicksand
-static QUICKSAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Attacking,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
-            crate::card::KeywordAbility::Flying,
-        )),
-    ]),
-)];
-
 pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11370658-8d80-4d2f-afa5-ec6df6dee369"),
     "Quicksand",
@@ -306,7 +273,15 @@ pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this land: Target attacking creature without flying gets -1/-2 until end of turn.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-            &QUICKSAND_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        crate::card::KeywordAbility::Flying,
+                    )),
+                ]),
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::modify_power_toughness(

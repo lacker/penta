@@ -1,8 +1,9 @@
 # Implementing cards
 
 This guide describes where card behavior belongs in the current engine. The
-[design doctrine](design-doctrine.md) explains why these boundaries are
-preferences rather than purity requirements.
+[design doctrine](design-doctrine.md) explains why implementation boundaries
+are preferences rather than purity requirements. The source-layout rules in
+this guide are invariants.
 
 ## Definition boundary
 
@@ -29,20 +30,18 @@ deck-list lookup alias. Define both modeled faces together with
 `CardRecord::new_dfc` for a transforming card or `CardRecord::new_mdfc` for a
 modal double-faced card; pass their named face rules directly to those
 constructors so they can derive the parts, topology, and play options.
-Ordinarily the header immediately starts the declaration block. Keep
-every helper constant, static, or function
-used by only that card inside the block, after the header and before the
-`CardRecord`, so the declaration and the vocabulary it composes remain readable
-together. Within that block, prefer keeping one-use costs, targets, effects,
-and ability construction inline in the `CardRecord` and its ordered
-`CardRules` clauses. Do not split a card into named pieces merely to shorten the
-declaration. Extract a card-local component when it is repeated, recursive or
-self-referential. Recursive copied abilities and power/toughness value
-definitions are common examples. Keep any extracted components adjacent to the
-declaration and in printed-clause order.
-This is direction for new or already-in-scope work, not a reason to rewrite
-existing definitions solely for layout. A complete definition that still uses
-custom execution puts
+The header immediately starts the declaration block. Inline every card-local
+cost, target, effect, ability, predicate, query, value, and collection directly
+in the `CardRecord` and its ordered `CardRules` clauses. A named card-local
+component is allowed only when the definition references it more than once or
+when it is genuinely recursive or self-referential. Shortening or visually
+decomposing a declaration is not a reason to extract a component. A shared
+power/toughness value qualifies because both characteristics reference it;
+power/toughness values are not otherwise a special exception. Keep every
+allowed extracted component after the header and before the `CardRecord`,
+adjacent to the clause it supports and in printed-clause order.
+
+A complete definition that still uses custom execution puts
 `// Audit: custom — Needs ...` immediately below the header, naming the work
 required to migrate it to declarative execution; card-local helpers follow the
 audit. An incomplete identity uses `blocked`, `partial`, or `metadata-only` as

@@ -221,6 +221,8 @@ fn static_spell_cost_modification_supported(
                 CostAdjustmentDef::Add(CostAmountDef::Generic(value))
                 | CostAdjustmentDef::Subtract(CostAmountDef::Generic(value)) => {
                     static_spell_cost_value_supported(value)
+                        || (source_zones == [ZoneKind::Battlefield]
+                            && matches!(value, ValueDef::CountersOnSource(_)))
                 }
                 CostAdjustmentDef::Subtract(CostAmountDef::Mana(amount)) => {
                     amount.hybrid.iter().all(|count| *count == 0)

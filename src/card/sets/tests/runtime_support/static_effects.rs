@@ -66,6 +66,8 @@ fn shared_cost_modification(source_zones: &[ZoneKind], modification: CostModific
                 CostAdjustmentDef::Add(CostAmountDef::Generic(value))
                 | CostAdjustmentDef::Subtract(CostAmountDef::Generic(value)) => {
                     shared_spell_cost_value(value)
+                        || (source_zones == [ZoneKind::Battlefield]
+                            && matches!(value, ValueDef::CountersOnSource(_)))
                 }
                 CostAdjustmentDef::Subtract(CostAmountDef::Mana(amount)) => {
                     amount.hybrid.iter().all(|count| *count == 0)

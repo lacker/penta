@@ -1,8 +1,7 @@
-//! Three Avacyn Restored cards resting on machinery that existed.
+//! Avacyn Restored cards resting on machinery that existed.
 //!
-//! Swampwalk, a doubled count and a dynamic generic payment were all built.
-//! What is worth pinning is that two of the three say "other creatures you
-//! control", which is the clause easiest to get wrong in either direction.
+//! The focused cases here pin both older audit promotions and cards unlocked
+//! by newer shared target and combat-requirement primitives.
 
 use super::*;
 
@@ -66,6 +65,119 @@ fn the_explorer_has_swampwalk() {
         permanent,
         KeywordAbility::Landwalk(BasicLandType::Swamp),
     ));
+}
+
+#[test]
+fn outwit_sees_only_spells_with_a_player_target() {
+    let mut game = ready();
+    let outwit = card(10_000, cards::OUTWIT, PlayerId::One);
+    let outwit_id = outwit.id;
+    game.players[0].hand.push(outwit);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 1);
+
+    let creature = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
+    let creature_id = creature.card.id;
+    game.battlefield.push(creature);
+    let player_spell = spell_with_targets(
+        10_002,
+        cards::LIGHTNING_BOLT,
+        PlayerId::Two,
+        vec![Target::Player(PlayerId::One)],
+        0,
+    );
+    let player_spell_id = player_spell.id;
+    let creature_spell = spell_with_targets(
+        10_003,
+        cards::LIGHTNING_BOLT,
+        PlayerId::Two,
+        vec![Target::Permanent(creature_id)],
+        0,
+    );
+    let creature_spell_id = creature_spell.id;
+    game.stack.push(player_spell);
+    game.stack.push(creature_spell);
+
+    let targets = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .filter_map(|action| match action {
+            Action::CastSpell { card, choices, .. } if card == outwit_id => {
+                choices.iter_targets().find_map(|target| match target {
+                    Target::Spell(spell) => Some(*spell),
+                    _ => None,
+                })
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(targets, vec![player_spell_id]);
+    assert!(!targets.contains(&creature_spell_id));
+}
+
+#[test]
+fn revenge_pumps_and_pulls_every_able_blocker() {
+    let mut game = ready();
+    let target = creature(10_000, cards::GRIZZLY_BEARS, PlayerId::One);
+    let target_id = target.card.id;
+    game.battlefield.push(target);
+    let other = creature(10_001, cards::GRIZZLY_BEARS, PlayerId::One);
+    let other_id = other.card.id;
+    game.battlefield.push(other);
+    let revenge = card(10_002, cards::REVENGE_OF_THE_HUNTED, PlayerId::One);
+    let revenge_id = revenge.id;
+    game.players[0].hand.push(revenge);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 2);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 4);
+
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| match action {
+            Action::CastSpell { card, choices, .. } => {
+                *card == revenge_id
+                    && choices
+                        .iter_targets()
+                        .any(|target| *target == Target::Permanent(target_id))
+            }
+            _ => false,
+        })
+        .expect("Revenge can target the creature");
+    game.apply(PlayerId::One, cast).expect("the spell casts");
+    drain_pending(&mut game);
+
+    assert_eq!(game.current_or_last_known_power(target_id), Some(8));
+    let target = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == target_id)
+        .expect("the target remains");
+    assert!(game.permanent_has_executable_keyword(target, KeywordAbility::Trample));
+
+    game.step = Step::DeclareBlockers;
+    game.priority = PlayerId::Two;
+    for attacker in [target_id, other_id] {
+        let permanent = game
+            .battlefield
+            .iter_mut()
+            .find(|permanent| permanent.card.id == attacker)
+            .expect("the attacker remains");
+        permanent.attacking = true;
+        permanent.attack_defender = Some(AttackDefender::Player(PlayerId::Two));
+    }
+    let blocker = creature(10_003, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let blocker_id = blocker.card.id;
+    game.battlefield.push(blocker);
+
+    let seats = game
+        .legal_actions(PlayerId::Two)
+        .into_iter()
+        .filter_map(|action| match action {
+            Action::DeclareBlocker { blocker, attacker } if blocker == blocker_id => Some(attacker),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(seats, vec![target_id]);
 }
 
 /// Two per *other* creature, so the Redeemer's own arrival is not counted.

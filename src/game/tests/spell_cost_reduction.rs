@@ -88,6 +88,21 @@ fn discounts_stack() {
     assert_eq!(reduction(&game, cards::LIGHTNING_BOLT, card), 3);
 }
 
+/// Herald reads the changing counter total from the battlefield source. The
+/// same count applies to either named subtype and to no other creature spell.
+#[test]
+fn herald_of_war_spends_its_counter_count_on_angels_and_humans() {
+    fn reduction_with_three_counters(spell: CardDefinitionId) -> u16 {
+        let (mut game, card) = cost_of(spell, &[(cards::HERALD_OF_WAR, PlayerId::One)]);
+        game.battlefield[0].add_counters(CounterKind::PlusOnePlusOne, 3);
+        reduction(&game, spell, card)
+    }
+
+    assert_eq!(reduction_with_three_counters(cards::RESTORATION_ANGEL), 3);
+    assert_eq!(reduction_with_three_counters(cards::AVACYNIAN_PRIEST), 3);
+    assert_eq!(reduction_with_three_counters(cards::SEDGE_TROLL), 0);
+}
+
 /// Planar Gate and Mana Matrix name different halves of the card pool, and
 /// each ignores the other's.
 #[test]

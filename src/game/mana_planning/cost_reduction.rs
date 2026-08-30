@@ -617,6 +617,11 @@ impl Game {
     ) -> u16 {
         match value {
             ValueDef::Constant(amount) => u16::try_from(amount.max(0)).unwrap_or(u16::MAX),
+            ValueDef::CountersOnSource(kind) => self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == source)
+                .map_or(0, |permanent| permanent.counters(kind)),
             ValueDef::CountMatchingObjects(query) => u16::try_from(
                 self.objects_matching_query(*query, player, source, TriggerContext::empty())
                     .len(),

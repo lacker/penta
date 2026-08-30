@@ -5,20 +5,22 @@ use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha;
 use crate::card::sets::y2003::mirrodin as catalog_mrd;
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
-    ControlDurationDef, CostModificationDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ManaRestrictionDef, ManaSpendEffectDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BindObjectsDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
+    CounterKind, CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, DividedTotal, EffectChoiceDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaRestrictionDef,
+    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{TargetIndex, mana_cost};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 /// Exile and return in one resolution, and the return names your control
 /// rather than the card's owner. The two differ exactly when the creature
@@ -78,13 +80,55 @@ static SOULBOND_PAIR_RECIPIENT: EffectRecipientDef = EffectRecipientDef::matchin
 );
 
 // AVR 1 — Angel of Glory's Rise
-// Audit: metadata-only — Needs simultaneous batch movement for all Zombies and all returned Humans rather than processing each object as a separate zone change.
 pub(in crate::card::sets) static ANGEL_OF_GLORY_S_RISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a8be765-0949-491c-875c-0385fb83e4b9"),
     "Angel of Glory's Rise",
     crate::card::CardArt::new("7a8be765-0949-491c-875c-0385fb83e4b9", "James Ryman"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Angel"], 4, 6).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, exile all Zombies, then return all Human creature cards from your graveyard to the battlefield.",
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Zombie"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                )),
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::BindObjects(BindObjectsDef {
+                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                            ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Subtype("Human"),
+                                ]),
+                                &[ZoneKind::Graveyard],
+                                PlayerRelation::You,
+                            ),
+                        )),
+                        binding: ObjectSetBindingIndex::new(1),
+                        then: &EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(1)),
+                            from: Some(ZoneKind::Graveyard),
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                    }),
+                }),
+            }),
+        ),
+    ]),
 );
 
 // AVR 2 — Angel of Jubilation
@@ -212,13 +256,43 @@ pub(in crate::card::sets) static BUILDERS_BLESSING: CardRecord = CardRecord::new
 );
 
 // AVR 9 — Call to Serve
-// Audit: metadata-only — Needs an attachment-scoped effect that adds the Angel subtype without replacing the creature's existing types.
 pub(in crate::card::sets) static CALL_TO_SERVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce4a3e80-6e95-4346-8ab8-eecc1a09ca24"),
     "Call to Serve",
     crate::card::CardArt::new("ce4a3e80-6e95-4346-8ab8-eecc1a09ca24", "Jaime Jones"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant nonblack creature",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+2, has flying, and is an Angel in addition to its other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Angel",
+                        ])),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // AVR 10 — Cathars' Crusade
@@ -267,13 +341,23 @@ pub(in crate::card::sets) static CATHEDRAL_SANCTIFIER: CardRecord = CardRecord::
 );
 
 // AVR 12 — Cloudshift
-// Audit: metadata-only — Linked exile returns a blinked permanent under its owner rather than preserving the spell controller required for a stolen creature.
 pub(in crate::card::sets) static CLOUDSHIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35b06c8f-5f08-43bd-a548-2a98ba30fd41"),
     "Cloudshift",
     crate::card::CardArt::new("35b06c8f-5f08-43bd-a548-2a98ba30fd41", "Howard Lyon"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile target creature you control, then return that card to the battlefield under your control.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&BLINK_UNDER_YOUR_CONTROL),
+    )),
 );
 
 // AVR 13 — Commander's Authority
@@ -369,23 +453,76 @@ pub(in crate::card::sets) static DEFANG: CardRecord = CardRecord::new_with_legac
 );
 
 // AVR 16 — Defy Death
-// Audit: metadata-only — Needs a continuation that retains the moved graveyard target's new object identity for the Angel test and +1/+1 counters.
 pub(in crate::card::sets) static DEFY_DEATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("028028d7-80ff-4d63-8b84-795f257a3456"),
     "Defy Death",
     crate::card::CardArt::new("028028d7-80ff-4d63-8b84-795f257a3456", "Karl Kopinski"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Return target creature card from your graveyard to the battlefield. If it's an Angel, put two +1/+1 counters on it.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        ),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Subtype(
+                            "Angel",
+                        )),
+                    }),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ),
+    ),
 );
 
 // AVR 17 — Devout Chaplain
-// Audit: metadata-only — Needs an activation cost that taps two separately chosen untapped Humans you control.
 pub(in crate::card::sets) static DEVOUT_CHAPLAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84ceb7f1-14b7-4102-ade2-fbeb835d3804"),
     "Devout Chaplain",
     crate::card::CardArt::new("84ceb7f1-14b7-4102-ade2-fbeb835d3804", "Lucas Graciano"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Tap two untapped Humans you control: Exile target artifact or enchantment.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::TapPermanents {
+                    object: ObjectPredicateDef::Subtype("Human"),
+                    controller: PlayerRelation::You,
+                    count: 2,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // AVR 18 — Divine Deflection
@@ -399,13 +536,35 @@ pub(in crate::card::sets) static DIVINE_DEFLECTION: CardRecord = CardRecord::new
 );
 
 // AVR 19 — Emancipation Angel
-// Audit: metadata-only — Needs a resolving non-target choice of a permanent you control to return to its owner's hand.
 pub(in crate::card::sets) static EMANCIPATION_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a4bc00e-28ca-4152-b832-f36425d2b615"),
     "Emancipation Angel",
     crate::card::CardArt::new("7a4bc00e-28ca-4152-b832-f36425d2b615", "Scott Chou"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Angel"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, return a permanent you control to its owner's hand.",
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::PermanentsControlledBy(PlayerRefDef::EffectController),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+            }),
+        ),
+    ]),
 );
 
 // AVR 20 — Entreat the Angels
@@ -499,13 +658,34 @@ pub(in crate::card::sets) static GOLDNIGHT_REDEEMER: CardRecord = CardRecord::ne
 );
 
 // AVR 24 — Herald of War
-// Audit: metadata-only — Needs a battlefield static cost reduction for other Angel and Human spells whose amount is the source's +1/+1-counter count.
 pub(in crate::card::sets) static HERALD_OF_WAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77e92bbb-c22d-4879-9437-b87a3ff70a2d"),
     "Herald of War",
     crate::card::CardArt::new("77e92bbb-c22d-4879-9437-b87a3ff70a2d", "Eric Deschamps"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Angel"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, put a +1/+1 counter on it.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Angel spells and Human spells you cast cost {1} less to cast for each +1/+1 counter on this creature.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype("Angel"),
+                    ObjectPredicateDef::Subtype("Human"),
+                ]),
+                PlayerRelation::You,
+                ValueDef::CountersOnSource(CounterKind::PlusOnePlusOne),
+            )),
+        ),
+    ]),
 );
 
 // AVR 25 — Holy Justiciar
@@ -910,13 +1090,42 @@ pub(in crate::card::sets) static ALCHEMISTS_APPRENTICE: CardRecord = CardRecord:
 );
 
 // AVR 43 — Amass the Components
-// Audit: metadata-only — Needs a resolving hand-card choice after drawing and a continuation that puts the chosen card on the bottom of its owner's library.
 pub(in crate::card::sets) static AMASS_THE_COMPONENTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5b48d60-fc99-4d21-9293-4f7ce1c02928"),
     "Amass the Components",
     crate::card::CardArt::new("f5b48d60-fc99-4d21-9293-4f7ce1c02928", "Matt Stewart"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
+        "Draw three cards, then put a card from your hand on the bottom of your library.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Private,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    from: Some(ZoneKind::Hand),
+                    zone: ZoneKind::Library,
+                    placement: ZonePlacement::Bottom,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+            }),
+        ]),
+    )),
 );
 
 // AVR 44 — Arcane Melee
@@ -941,13 +1150,58 @@ pub(in crate::card::sets) static ARCANE_MELEE: CardRecord = CardRecord::new_with
 );
 
 // AVR 45 — Captain of the Mists
-// Audit: metadata-only — Needs a tap-or-untap choice on a single activated ability; the shared modal vocabulary currently covers spells only.
 pub(in crate::card::sets) static CAPTAIN_OF_THE_MISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c43aa68e-a182-4006-b4d6-b4fc67e68583"),
     "Captain of the Mists",
     crate::card::CardArt::new("c43aa68e-a182-4006-b4d6-b4fc67e68583", "Allen Williams"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever another Human you control enters, untap this creature.",
+            TriggerEventDef::ZoneChanged(ZoneChangeEventMatcherDef::new(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Human"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            )),
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{U}, {T}: You may tap or untap target permanent.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{U}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Tap it",
+                            effect: EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Untap it",
+                            effect: EffectDef::Untap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                    ],
+                },
+            },
+        ),
+    ]),
 );
 
 // AVR 46 — Crippling Chill
@@ -981,23 +1235,76 @@ pub(in crate::card::sets) static CRIPPLING_CHILL: CardRecord = CardRecord::new_w
 );
 
 // AVR 47 — Deadeye Navigator
-// Audit: metadata-only — Needs soulbond pairing state, paired-object identity, and an activated blink ability granted to both paired creatures.
 pub(in crate::card::sets) static DEADEYE_NAVIGATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa94262b-f740-48fb-a937-75776864c9ee"),
     "Deadeye Navigator",
     crate::card::CardArt::new("fa94262b-f740-48fb-a937-75776864c9ee", "Tomasz Jedruszek"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Spirit"], 5, 5).with_abilities(&[
+        SOULBOND_ABILITIES[0],
+        SOULBOND_ABILITIES[1],
+        AbilityDef::static_ability(
+            "As long as this creature is paired with another creature, each of those creatures has \"{1}{U}: Exile this creature, then return it to the battlefield under your control.\"",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceIsPaired,
+                then: &EffectDef::StaticApply {
+                    recipient: SOULBOND_PAIR_RECIPIENT,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{1}{U}: Exile this creature, then return it to the battlefield under your control.",
+                        &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
+                        EffectDef::Sequence(&[
+                            EffectDef::ExileLinkedToSource {
+                                until_source_leaves: false,
+                                object: EffectRecipientDef::Source,
+                                face_down: false,
+                                then: None,
+                            },
+                            EffectDef::ReturnLinkedExiles {
+                                object: ObjectPredicateDef::Any,
+                                counters: None,
+                                zone: ZoneKind::Battlefield,
+                                grant: None,
+                                controller: Some(PlayerRelation::You),
+                                transformed: false,
+                            },
+                        ]),
+                    )),
+                },
+            },
+        ),
+    ]),
 );
 
 // AVR 48 — Devastation Tide
-// Audit: metadata-only — Needs simultaneous batch movement for all nonland permanents rather than processing each battlefield exit separately.
 pub(in crate::card::sets) static DEVASTATION_TIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23b62be6-1a80-4f16-a94a-374203052662"),
     "Devastation Tide",
     crate::card::CardArt::new("23b62be6-1a80-4f16-a94a-374203052662", "Raymond Swanland"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[
+        AbilityDef::spell(
+            "Return all nonland permanents to their owners' hands.",
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                )),
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+            }),
+        ),
+        abilities::miracle(mana_cost!("{1}{U}")),
+    ]),
 );
 
 // AVR 49 — Dreadwaters
@@ -1232,23 +1539,86 @@ pub(in crate::card::sets) static GHOSTFORM: CardRecord = CardRecord::new_with_le
 );
 
 // AVR 57 — Ghostly Flicker
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOSTLY_FLICKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0a44373-0c50-4e14-a7c6-0de66796b81e"),
     "Ghostly Flicker",
     crate::card::CardArt::new("f0a44373-0c50-4e14-a7c6-0de66796b81e", "Raymond Swanland"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Exile two target artifacts, creatures, and/or lands you control, then return those cards to the battlefield under your control.",
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+                chooser: TargetChooserDef::Controller,
+                minimum: 2,
+                maximum: 2,
+                exact_count: None,
+                divided_total: None,
+                another: false,
+                excludes_source: false,
+            }],
+            EffectDef::Sequence(&BLINK_UNDER_YOUR_CONTROL),
+        ),
+    ),
 );
 
 // AVR 58 — Ghostly Touch
-// Audit: metadata-only — Needs a tap-or-untap choice inside the triggered ability granted by an Aura.
 pub(in crate::card::sets) static GHOSTLY_TOUCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3ebae54a-47e0-4e82-8a29-b5d9354a748b"),
     "Ghostly Touch",
     crate::card::CardArt::new("3ebae54a-47e0-4e82-8a29-b5d9354a748b", "Jason Felix"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"Whenever this creature attacks, you may tap or untap target permanent.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                        "Whenever this creature attacks, you may tap or untap target permanent.",
+                        TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::Any,
+                        )],
+                        EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::ChooseEffect {
+                                player: EffectRecipientDef::Controller,
+                                choices: &[
+                                    EffectChoiceDef {
+                                        label: "Tap it",
+                                        effect: EffectDef::Tap {
+                                            object: EffectRecipientDef::Target(
+                                                TargetIndex::PRIMARY,
+                                            ),
+                                        },
+                                    },
+                                    EffectChoiceDef {
+                                        label: "Untap it",
+                                        effect: EffectDef::Untap {
+                                            object: EffectRecipientDef::Target(
+                                                TargetIndex::PRIMARY,
+                                            ),
+                                        },
+                                    },
+                                ],
+                            },
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // AVR 59 — Gryff Vanguard
@@ -1270,13 +1640,39 @@ pub(in crate::card::sets) static GRYFF_VANGUARD: CardRecord = CardRecord::new_wi
 );
 
 // AVR 60 — Havengul Skaab
-// Audit: metadata-only — Needs a resolving non-target choice of another creature you control to return to its owner's hand.
 pub(in crate::card::sets) static HAVENGUL_SKAAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c7ff97f-fb06-4a61-98cd-50965a6522d4"),
     "Havengul Skaab",
     crate::card::CardArt::new("4c7ff97f-fb06-4a61-98cd-50965a6522d4", "Vincent Proce"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}"), &["Zombie", "Horror"], 4, 5).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature attacks, return another creature you control to its owner's hand.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                exclude: Some(ObjectRefDef::Source),
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    from: Some(ZoneKind::Battlefield),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+            }),
+        ),
+    ),
 );
 
 // AVR 61 — Infinite Reflection
@@ -1334,13 +1730,40 @@ pub(in crate::card::sets) static LATCH_SEEKER: CardRecord = CardRecord::new_with
 );
 
 // AVR 64 — Lone Revenant
-// Audit: metadata-only — Needs ordered bottom-of-library placement for the unchosen cards after the conditional top-four selection.
 pub(in crate::card::sets) static LONE_REVENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e12186e-9c93-4136-9ea3-e8d2ae1ee2e5"),
     "Lone Revenant",
     crate::card::CardArt::new("2e12186e-9c93-4136-9ea3-e8d2ae1ee2e5", "Jaime Jones"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Spirit"], 4, 4).with_abilities(&[
+        abilities::hexproof(),
+        AbilityDef::triggered_if(
+            "Whenever this creature deals combat damage to a player, if you control no other creatures, look at the top four cards of your library. Put one of them into your hand and the rest on the bottom of your library in any order.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                kind: DamageKindDef::Combat,
+                source: DamageSourceMatcherDef::Matching(ObjectPredicateDef::Source),
+                recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::EachPlayer),
+            }),
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
+            abilities::look_at_top_cards_choose_to_hand_rest_bottom(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
+        ),
+    ]),
 );
 
 // AVR 65 — Lunar Mystic
@@ -1454,13 +1877,26 @@ pub(in crate::card::sets) static NEPHALIA_SMUGGLER: CardRecord = CardRecord::new
 );
 
 // AVR 70 — Outwit
-// Audit: metadata-only — Needs a stack-object predicate for a spell that currently targets a player.
 pub(in crate::card::sets) static OUTWIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("429f7cf0-579a-4003-b5cf-4baf5d420796"),
     "Outwit",
     crate::card::CardArt::new("429f7cf0-579a-4003-b5cf-4baf5d420796", "Erica Yang"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell that targets a player.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasDeclaredPlayerTarget(PlayerRelation::Any),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::counter_target(TargetIndex::PRIMARY),
+    )),
 );
 
 // AVR 71 — Peel from Reality
@@ -1548,23 +1984,65 @@ pub(in crate::card::sets) static SECOND_GUESS: CardRecord = CardRecord::new(
 );
 
 // AVR 75 — Spectral Prison
-// Audit: metadata-only — Needs an event for the enchanted creature becoming the target of a spell and an attachment-derived event subject.
 pub(in crate::card::sets) static SPECTRAL_PRISON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("89d141bc-7307-40c2-a7ed-427caaec5efc"),
     "Spectral Prison",
     crate::card::CardArt::new("89d141bc-7307-40c2-a7ed-427caaec5efc", "Vincent Proce"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Whenever enchanted creature becomes the target of a spell, sacrifice this Aura.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "Whenever this creature becomes the target of a spell, sacrifice the Aura granting this ability.",
+                        TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::object(ObjectRefDef::AbilityGrantSource),
+                        },
+                    )),
+                },
+            ),
+        ]),
 );
 
 // AVR 76 — Spirit Away
-// Audit: metadata-only — Needs an attachment-scoped continuous control-changing effect.
 pub(in crate::card::sets) static SPIRIT_AWAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8823bdc-0467-47f1-9bef-a281b4a7071d"),
     "Spirit Away",
     crate::card::CardArt::new("d8823bdc-0467-47f1-9bef-a281b4a7071d", "Greg Staples"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{U}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "You control enchanted creature.",
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // AVR 77 — Stern Mentor
@@ -1601,7 +2079,7 @@ pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with
 );
 
 // AVR 78 — Stolen Goods
-// Audit: metadata-only — Needs repeat-until library exile plus temporary permission to cast the resulting card without paying its mana cost.
+// Audit: metadata-only — Exile-until now exists, but its free-cast permission is resolution-scoped; this card needs the matched card castable through end of turn.
 pub(in crate::card::sets) static STOLEN_GOODS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53203dfc-5ad5-4c17-9802-ca2f874d327a"),
     "Stolen Goods",
@@ -1719,13 +2197,39 @@ pub(in crate::card::sets) static WINGCRAFTER: CardRecord = CardRecord::new_with_
 );
 
 // AVR 84 — Appetite for Brains
-// Audit: metadata-only — Needs a hidden-hand card choice constrained by mana value, followed by exile of the chosen card.
 pub(in crate::card::sets) static APPETITE_FOR_BRAINS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("062ee892-cce7-42bd-97c7-032cec61faca"),
     "Appetite for Brains",
     crate::card::CardArt::new("062ee892-cce7-42bd-97c7-032cec61faca", "Michael C. Hayes"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target opponent reveals their hand. You choose a card from it with mana value 4 or greater and exile that card.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+            PlayerRelation::Opponent,
+        ))],
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(3)),
+                &[ZoneKind::Hand],
+                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+            )),
+            exclude: None,
+            minimum: 0,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &EffectDef::MoveObjects(MoveObjectsDef {
+                input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                from: Some(ZoneKind::Hand),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+                moved: None,
+                then: &EffectDef::None,
+            }),
+        }),
+    )),
 );
 
 // AVR 85 — Barter in Blood (reprint)
@@ -1820,13 +2324,46 @@ pub(in crate::card::sets) static BUTCHER_GHOUL: CardRecord = CardRecord::new_wit
 );
 
 // AVR 90 — Corpse Traders
-// Audit: metadata-only — Needs a hidden-hand card choice and an activation timing restriction of sorcery speed.
 pub(in crate::card::sets) static CORPSE_TRADERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df3eed10-7a8f-4c89-8be8-389f979e10b7"),
     "Corpse Traders",
     crate::card::CardArt::new("df3eed10-7a8f-4c89-8be8-389f979e10b7", "Kev Walker"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Rogue"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{B}, Sacrifice a creature: Target opponent reveals their hand. You choose a card from it. That player discards that card. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Opponent,
+            ))],
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+                exclude: None,
+                minimum: 0,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::DiscardCards {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::PRIMARY,
+                    )),
+                },
+            }),
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // AVR 91 — Crypt Creeper
@@ -1857,13 +2394,48 @@ pub(in crate::card::sets) static CRYPT_CREEPER: CardRecord = CardRecord::new_wit
 );
 
 // AVR 92 — Dark Impostor
-// Audit: metadata-only — Needs the source to acquire every activated ability of the creature cards it exiled.
 pub(in crate::card::sets) static DARK_IMPOSTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f5e8815-cda8-407d-847c-968b72c061e8"),
     "Dark Impostor",
     crate::card::CardArt::new("8f5e8815-cda8-407d-847c-968b72c061e8", "Johannes Voss"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Assassin"], 2, 2).with_abilities(
+        &[
+            AbilityDef::activated_with_targets(
+                "{4}{B}{B}: Exile target creature and put a +1/+1 counter on this creature.",
+                &[AbilityCostDef::Mana(mana_cost!("{4}{B}{B}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        until_source_leaves: false,
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        face_down: false,
+                        then: None,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            AbilityDef::static_ability(
+                "This creature has all activated abilities of all creature cards exiled with it.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Characteristic(
+                        crate::card::CharacteristicOperationDef::Abilities(
+                            crate::card::AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ),
+                        ),
+                    ),
+                },
+            ),
+        ],
+    ),
 );
 
 // AVR 93 — Death Wind
@@ -1948,13 +2520,34 @@ pub(in crate::card::sets) static DEMONIC_TASKMASTER: CardRecord = CardRecord::ne
 );
 
 // AVR 96 — Demonlord of Ashmouth
-// Audit: metadata-only — Needs an enters-the-battlefield sacrifice choice whose no-sacrifice branch exiles the source.
 pub(in crate::card::sets) static DEMONLORD_OF_ASHMOUTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("785da9a3-09af-45aa-bc04-4ab69cfb2ba4"),
     "Demonlord of Ashmouth",
     crate::card::CardArt::new("785da9a3-09af-45aa-bc04-4ab69cfb2ba4", "Lucas Graciano"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Demon"], 5, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, exile it unless you sacrifice another creature.",
+            EffectDef::PayOr(PayOrDef::unless(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: crate::card::EffectPaymentCostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                    ),
+                },
+                &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            )),
+        ),
+        abilities::undying(),
+    ]),
 );
 
 // AVR 97 — Descent into Madness
@@ -2094,13 +2687,34 @@ pub(in crate::card::sets) static EXQUISITE_BLOOD: CardRecord = CardRecord::new(
 );
 
 // AVR 103 — Ghoulflesh
-// Audit: metadata-only — The power/toughness modifier is available, but adding black and Zombie to the enchanted creature's characteristics is not.
 pub(in crate::card::sets) static GHOULFLESH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2eed3d1b-3142-437c-99e9-85ba76e23e6d"),
     "Ghoulflesh",
     crate::card::CardArt::new("2eed3d1b-3142-437c-99e9-85ba76e23e6d", "Igor Kieryluk"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -1/-1 and is a black Zombie in addition to its other colors and types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-1),
+                            ValueDef::Constant(-1),
+                        ),
+                        AppliedEffectDef::add_colors(ColorSet::from_colors(&[
+                            ManaColor::Black,
+                        ])),
+                        AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&[
+                            "Zombie",
+                        ])),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // AVR 104 — Gloom Surgeon
@@ -2114,13 +2728,43 @@ pub(in crate::card::sets) static GLOOM_SURGEON: CardRecord = CardRecord::new(
 );
 
 // AVR 105 — Grave Exchange
-// Audit: metadata-only — Its sacrifice choice would be nested after another zone move, and the current resolving-decision continuation cannot resume that sequence.
 pub(in crate::card::sets) static GRAVE_EXCHANGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14f420c4-801b-48e7-a10b-de44a2417265"),
     "Grave Exchange",
     crate::card::CardArt::new("14f420c4-801b-48e7-a10b-de44a2417265", "Sam Wolfe Connelly"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{B}{B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Return target creature card from your graveyard to your hand. Target player sacrifices a creature of their choice.",
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                    PlayerRelation::Any,
+                )),
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Target(TargetIndex(1)),
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ]),
+        ),
+    ),
 );
 
 // AVR 106 — Griselbrand
@@ -2178,13 +2822,42 @@ pub(in crate::card::sets) static HARVESTER_OF_SOULS: CardRecord = CardRecord::ne
 );
 
 // AVR 108 — Homicidal Seclusion
-// Audit: metadata-only — Needs an exactly-one-creature condition that controls both the affected recipient and a lifelink grant in the static ability layer.
 pub(in crate::card::sets) static HOMICIDAL_SECLUSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("022960a1-8223-4b83-aea2-85359c39f3b8"),
     "Homicidal Seclusion",
-    crate::card::CardArt::new("022960a1-8223-4b83-aea2-85359c39f3b8", "Cliff Childs"),
-    crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("022960a1-8223-4b83-aea2-85359c39f3b8", "Cliff Childs"),
+    CardSet::AvacynRestored,
+    CardRules::new_enchantment(mana_cost!("{4}{B}")).with_ability(AbilityDef::static_ability(
+        "As long as you control exactly one creature, that creature gets +3/+1 and has \
+         lifelink.",
+        EffectDef::IfCondition {
+            condition: &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 1,
+            },
+            then: &EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::lifelink()),
+                ]),
+            },
+        },
+    )),
 );
 
 // AVR 109 — Human Frailty
@@ -2267,13 +2940,30 @@ pub(in crate::card::sets) static MARROW_BATS: CardRecord = CardRecord::new_with_
 );
 
 // AVR 114 — Mental Agony
-// Audit: metadata-only — Needs a continuation that waits for the targeted player's discard choice before applying the printed life loss.
 pub(in crate::card::sets) static MENTAL_AGONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f8a1d51-aa7f-41fd-b97d-56bc48221615"),
     "Mental Agony",
     crate::card::CardArt::new("4f8a1d51-aa7f-41fd-b97d-56bc48221615", "Greg Staples"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards two cards and loses 2 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(2),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: Some(DiscardFollowUpDef {
+                counted: ObjectPredicateDef::Any,
+                bound: None,
+                effect: &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            }),
+        },
+    )),
 );
 
 // AVR 115 — Necrobite
@@ -2322,13 +3012,48 @@ pub(in crate::card::sets) static POLLUTED_DEAD: CardRecord = CardRecord::new_wit
 );
 
 // AVR 117 — Predator's Gambit
-// Audit: metadata-only — Needs a no-other-creatures condition that controls a static intimidate grant to the enchanted creature.
 pub(in crate::card::sets) static PREDATOR_S_GAMBIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("88810a96-d5f8-4030-93f1-e2ad0d480317"),
     "Predator's Gambit",
-    crate::card::CardArt::new("88810a96-d5f8-4030-93f1-e2ad0d480317", "Zoltan Boros"),
-    crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("88810a96-d5f8-4030-93f1-e2ad0d480317", "Zoltan Boros"),
+    CardSet::AvacynRestored,
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature has intimidate as long as no other creatures are on the \
+                 battlefield.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::AttachedToSource),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        comparison: ComparisonDef::Equal,
+                        amount: 0,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::add_ability(&abilities::intimidate()),
+                    },
+                },
+            ),
+        ]),
 );
 
 // AVR 118 — Renegade Demon
@@ -2378,13 +3103,30 @@ pub(in crate::card::sets) static SOULCAGE_FIEND: CardRecord = CardRecord::new_wi
 );
 
 // AVR 121 — Treacherous Pit-Dweller
-// Audit: metadata-only — Needs a graveyard-to-battlefield trigger and a permanent control change to a targeted opponent.
 pub(in crate::card::sets) static TREACHEROUS_PIT_DWELLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eec7dfd7-d7b2-44fa-b351-022a19fe81b8"),
     "Treacherous Pit-Dweller",
     crate::card::CardArt::new("eec7dfd7-d7b2-44fa-b351-022a19fe81b8", "Svetlin Velinov"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Demon"], 4, 3).with_abilities(&[
+        AbilityDef::triggered_with_targets(
+            "When this creature enters from a graveyard, target opponent gains control of it.",
+            TriggerEventDef::ZoneChanged(ZoneChangeEventMatcherDef::new(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Graveyard),
+                Some(ZoneKind::Battlefield),
+            )),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::GainControl {
+                object: EffectRecipientDef::Source,
+                controller: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                duration: ControlDurationDef::Indefinitely,
+            },
+        ),
+        abilities::undying(),
+    ]),
 );
 
 // AVR 122 — Triumph of Cruelty
@@ -2443,23 +3185,64 @@ pub(in crate::card::sets) static UNDEAD_EXECUTIONER: CardRecord = CardRecord::ne
 );
 
 // AVR 124 — Unhallowed Pact
-// Audit: metadata-only — Needs a zone-change trigger whose subject is the permanent currently attached to this Aura.
 pub(in crate::card::sets) static UNHALLOWED_PACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b26d73e6-9138-43b2-8031-6e3b25fa33f9"),
     "Unhallowed Pact",
     crate::card::CardArt::new("b26d73e6-9138-43b2-8031-6e3b25fa33f9", "Volkan Baǵa"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+                "When enchanted creature dies, return that card to the battlefield under your control.",
+                TriggerEventDef::ZoneChanged(ZoneChangeEventMatcherDef::new(
+                    ObjectPredicateDef::AttachedToSource,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                )),
+                EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        controller: Some(PlayerRelation::You),
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
+                },
+            ),
+        ]),
 );
 
 // AVR 125 — Aggravate
-// Audit: metadata-only — Needs to grant the attack requirement only to creatures actually dealt damage after prevention and replacement effects.
 pub(in crate::card::sets) static AGGRAVATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("999f40a7-b723-42e1-83c1-f45a72a26dd4"),
     "Aggravate",
     crate::card::CardArt::new("999f40a7-b723-42e1-83c1-f45a72a26dd4", "Matt Stewart"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "This spell deals 1 damage to each creature target player controls. Each creature dealt damage this way attacks this turn if able.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::DealDamageAndApply {
+                recipient: EffectRecipientDef::objects_controlled_by_target(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    TargetIndex::PRIMARY,
+                ),
+                amount: ValueDef::Constant(1),
+                applied: AppliedEffectDef::add_ability(
+                    &abilities::attacks_each_combat_if_able(
+                        "This creature attacks this turn if able.",
+                    ),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // AVR 126 — Archwing Dragon
@@ -2566,13 +3349,26 @@ pub(in crate::card::sets) static BURN_AT_THE_STAKE: CardRecord = CardRecord::new
 );
 
 // AVR 131 — Dangerous Wager
-// Audit: metadata-only — Needs a dynamic whole-hand discard amount before the draw.
 pub(in crate::card::sets) static DANGEROUS_WAGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("636c4042-703f-4548-9a0f-cb550c468bf9"),
     "Dangerous Wager",
     crate::card::CardArt::new("636c4042-703f-4548-9a0f-cb550c468bf9", "Drew Baker"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Discard your hand, then draw two cards.",
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(i32::MAX),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // AVR 132 — Demolish
@@ -2592,13 +3388,47 @@ pub(in crate::card::sets) static DEMOLISH: CardRecord = CardRecord::new_with_leg
 );
 
 // AVR 133 — Dual Casting
-// Audit: metadata-only — Needs a stack-spell copy effect with optional new targets.
 pub(in crate::card::sets) static DUAL_CASTING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7aa45bfd-7075-470d-8aaa-16e34109eb5a"),
     "Dual Casting",
     crate::card::CardArt::new("7aa45bfd-7075-470d-8aaa-16e34109eb5a", "Johannes Voss"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"{R}, {T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{R}, {T}: Copy target instant or sorcery spell you control. You may choose new targets for the copy.",
+                        &[
+                            AbilityCostDef::Mana(mana_cost!("{R}")),
+                            AbilityCostDef::TapSource,
+                        ],
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::AnyOf(&[
+                                    ObjectPredicateDef::HasType(CardType::Instant),
+                                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                                ]),
+                                zones: &[ZoneKind::Stack],
+                                controller: Some(PlayerRelation::You),
+                                owner: None,
+                            },
+                        )],
+                        EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            controller: PlayerRefDef::EffectController,
+                            count: ValueDef::Constant(1),
+                            retarget: true,
+                            colors: None,
+                        }),
+                    )),
+                },
+            ),
+        ]),
 );
 
 // AVR 134 — Falkenrath Exterminator
@@ -3000,13 +3830,29 @@ pub(in crate::card::sets) static RAGING_POLTERGEIST: CardRecord = CardRecord::ne
 );
 
 // AVR 151 — Reforge the Soul
-// Audit: metadata-only — Needs a dynamic whole-hand discard for every player before the seven-card draw.
 pub(in crate::card::sets) static REFORGE_THE_SOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36506caa-2630-46ec-9aa0-e1885749ad90"),
     "Reforge the Soul",
     crate::card::CardArt::new("36506caa-2630-46ec-9aa0-e1885749ad90", "Jaime Jones"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
+        AbilityDef::spell(
+            "Each player discards their hand, then draws seven cards.",
+            EffectDef::Sequence(&[
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(i32::MAX),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(7),
+                },
+            ]),
+        ),
+        abilities::miracle(mana_cost!("{1}{R}")),
+    ]),
 );
 
 // AVR 152 — Riot Ringleader
@@ -3143,13 +3989,34 @@ pub(in crate::card::sets) static STONEWRIGHT: CardRecord = CardRecord::new_with_
 );
 
 // AVR 158 — Thatcher Revolt
-// Audit: metadata-only — Needs identity links from the three created tokens to the delayed sacrifice so it does not sacrifice unrelated Human tokens.
 pub(in crate::card::sets) static THATCHER_REVOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ea28bd68-47a8-47c6-be16-75ae622daf0a"),
     "Thatcher Revolt",
     crate::card::CardArt::new("ea28bd68-47a8-47c6-be16-75ae622daf0a", "Ryan Pancoast"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Create three 1/1 red Human creature tokens with haste. Sacrifice those tokens at the beginning of the next end step.",
+        EffectDef::create_creature_token(&["Human"], &[ManaColor::Red], 1, 1)
+            .with_abilities(&[abilities::haste()])
+            .with_amount(3)
+            .with_created_tokens(CreatedTokensDef {
+                binding: ObjectSetBindingIndex::PRIMARY,
+                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                    &AbilityDef::triggered(
+                        "At the beginning of the next end step, sacrifice those tokens.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ObjectSetBindingIndex::PRIMARY,
+                            )),
+                        },
+                    ),
+                )),
+            }),
+    )),
 );
 
 // AVR 159 — Thunderbolt
@@ -3739,13 +4606,48 @@ pub(in crate::card::sets) static JOINT_ASSAULT: CardRecord = CardRecord::new(
 );
 
 // AVR 184 — Lair Delve
-// Audit: metadata-only — Needs a mandatory characteristic-filtered top-two split and player-chosen ordering for the cards put on the bottom.
 pub(in crate::card::sets) static LAIR_DELVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("604948d8-6224-45ca-9ebb-d716644bbfd0"),
     "Lair Delve",
     crate::card::CardArt::new("604948d8-6224-45ca-9ebb-d716644bbfd0", "Jason A. Engle"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Reveal the top two cards of your library. Put all creature and land cards revealed this way into your hand and the rest on the bottom of your library in any order.",
+        EffectDef::RevealAndClassifyCards(crate::card::RevealAndClassifyCardsDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(2),
+            },
+            object: ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+            matching: ObjectSetBindingIndex::PRIMARY,
+            remainder: ObjectSetBindingIndex::new(1),
+            then: &EffectDef::MoveObjects(MoveObjectsDef {
+                input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                from: Some(ZoneKind::Library),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                moved: None,
+                then: &EffectDef::ChooseObjectOrder(crate::card::ChooseObjectOrderDef {
+                    actor: PlayerRefDef::EffectController,
+                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(1)),
+                    ordered: ObjectSetBindingIndex::new(2),
+                    placement: ZonePlacement::Bottom,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(2)),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                }),
+            }),
+        }),
+    )),
 );
 
 // AVR 185 — Natural End
@@ -3894,7 +4796,6 @@ pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_wi
 );
 
 // AVR 191 — Revenge of the Hunted
-// Audit: metadata-only — Needs a turn-scoped requirement that every creature able to block the target does so.
 pub(in crate::card::sets) static REVENGE_OF_THE_HUNTED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36f7d663-115c-4ad0-a072-633df054cce4"),
     "Revenge of the Hunted",
@@ -3903,7 +4804,29 @@ pub(in crate::card::sets) static REVENGE_OF_THE_HUNTED: CardRecord = CardRecord:
         "Christopher Moeller",
     ),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{G}{G}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +6/+6 and gains trample until end of turn. All creatures able to block it this turn do so.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(6),
+                        ValueDef::Constant(6),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                    AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::miracle(mana_cost!("{G}")),
+    ]),
 );
 
 // AVR 192 — Sheltering Word
@@ -4106,7 +5029,6 @@ pub(in crate::card::sets) static TRUSTED_FORCEMAGE: CardRecord = CardRecord::new
 );
 
 // AVR 200 — Ulvenwald Tracker
-// Audit: metadata-only — Needs the simultaneous fight damage procedure and its two-creature target relation.
 pub(in crate::card::sets) static ULVENWALD_TRACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46199391-a4f5-4532-b89c-b7691b229bd0"),
     "Ulvenwald Tracker",
@@ -4115,7 +5037,32 @@ pub(in crate::card::sets) static ULVENWALD_TRACKER: CardRecord = CardRecord::new
         "Christopher Moeller",
     ),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Shaman"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{G}, {T}: Target creature you control fights another target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{G}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                ))
+                .another(),
+            ],
+            EffectDef::Fight {
+                first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                second: ObjectRefDef::Target(TargetIndex(1)),
+                excess: None,
+            },
+        ),
+    ),
 );
 
 // AVR 201 — Vorstclaw
@@ -4157,13 +5104,26 @@ pub(in crate::card::sets) static WILD_DEFIANCE: CardRecord = CardRecord::new(
 );
 
 // AVR 204 — Wildwood Geist
-// Audit: metadata-only — Needs an active-player condition usable by a continuous power/toughness effect.
 pub(in crate::card::sets) static WILDWOOD_GEIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4658b4b2-7043-4ca2-96fd-4f663c20c80f"),
     "Wildwood Geist",
-    crate::card::CardArt::new("4658b4b2-7043-4ca2-96fd-4f663c20c80f", "Lars Grant-West"),
-    crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4658b4b2-7043-4ca2-96fd-4f663c20c80f", "Lars Grant-West"),
+    CardSet::AvacynRestored,
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Avatar", "Spirit"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "This creature gets +2/+2 as long as it's your turn.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ),
 );
 
 // AVR 205 — Wolfir Avenger
@@ -4273,13 +5233,41 @@ pub(in crate::card::sets) static SIGARDA_HOST_OF_HERONS: CardRecord = CardRecord
 );
 
 // AVR 211 — Angel's Tomb
-// Audit: metadata-only — Needs its optional creature-entry trigger authored as one end-of-turn composite characteristic effect.
 pub(in crate::card::sets) static ANGEL_S_TOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28226303-7e67-4b88-adae-2386aff033ec"),
     "Angel's Tomb",
     crate::card::CardArt::new("28226303-7e67-4b88-adae-2386aff033ec", "Dan Murayama Scott"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature you control enters, you may have this artifact become a 3/3 white Angel artifact creature with flying until end of turn.",
+        TriggerEventDef::ZoneChanged(ZoneChangeEventMatcherDef::new(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ]),
+            None,
+            Some(ZoneKind::Battlefield),
+        )),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(crate::card::CardTypeSet::single(
+                        CardType::Creature,
+                    )),
+                    AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::White])),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Angel"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        },
+    )),
 );
 
 // AVR 212 — Angelic Armaments
@@ -4388,7 +5376,7 @@ pub(in crate::card::sets) static CONJURERS_CLOSET: CardRecord = CardRecord::new_
 );
 
 // AVR 215 — Gallows at Willow Hill
-// Audit: metadata-only — Needs an activation cost that taps three separately chosen untapped Humans you control.
+// Audit: metadata-only — Needs a joint mana-and-multi-permanent tap-cost planner so the three chosen Humans cannot be spent for mana while paying the same activation.
 pub(in crate::card::sets) static GALLOWS_AT_WILLOW_HILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a840ee7-5728-4b1b-92ac-54612e5397b3"),
     "Gallows at Willow Hill",
@@ -4523,13 +5511,45 @@ pub(in crate::card::sets) static SCROLL_OF_AVACYN: CardRecord = CardRecord::new_
 );
 
 // AVR 221 — Scroll of Griselbrand
-// Audit: metadata-only — Needs a continuation that waits for the opponent's discard choice before checking for a Demon and applying the printed life loss.
 pub(in crate::card::sets) static SCROLL_OF_GRISELBRAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2263ceaf-49d2-40fe-86b8-146271b11e46"),
     "Scroll of Griselbrand",
     crate::card::CardArt::new("2263ceaf-49d2-40fe-86b8-146271b11e46", "Cliff Childs"),
     crate::card::CardSet::AvacynRestored,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
+        "{1}, Sacrifice this artifact: Target opponent discards a card. If you control a Demon, that player loses 3 life.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::SacrificeSource,
+        ],
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+            PlayerRelation::Opponent,
+        ))],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(1),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: Some(DiscardFollowUpDef {
+                counted: ObjectPredicateDef::Any,
+                bound: None,
+                effect: &EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype("Demon"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
+                    then: &EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(3),
+                    },
+                },
+            }),
+        },
+    )),
 );
 
 // AVR 222 — Tormentor's Trident
@@ -4622,14 +5642,10 @@ pub(in crate::card::sets) static VESSEL_OF_ENDLESS_REST: CardRecord = CardRecord
 );
 
 // AVR 225 — Alchemist's Refuge
-// Audit: partial — Needs a turn-scoped permission allowing every spell you cast to be cast as though it had flash.
 pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new_with_legacy_id(
     1694,
     "Alchemist's Refuge",
-    CardArt::new(
-        "c767a897-52e3-4401-8104-930157bb2b02",
-        "Dan Murayama Scott",
-    ),
+    CardArt::new("c767a897-52e3-4401-8104-930157bb2b02", "Dan Murayama Scott"),
     CardSet::AvacynRestored,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
@@ -4639,11 +5655,14 @@ pub(in crate::card::sets) static ALCHEMISTS_REFUGE: CardRecord = CardRecord::new
                 AbilityCostDef::Mana(mana_cost!("{G}{U}")),
                 AbilityCostDef::TapSource,
             ],
-            EffectDef::Special("Grant flash to every spell cast this turn"),
-        )
-        .with_coverage(AbilityCoverageDef::metadata_only(
-            "The available flash grant applies only to the next sorcery spell, not every spell cast this turn.",
-        )),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                    crate::card::CastTimingPermissionDef::new(ObjectPredicateDef::Any),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
     ]),
 );
 

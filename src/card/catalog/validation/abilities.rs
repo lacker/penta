@@ -10,14 +10,16 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef,
     AppliedEffectDef, BattlefieldEntryModificationDef, CardDefinition, CharacteristicOperationDef,
     CopyAbilityDef, DeclarativeAbilityDef, EffectDef, EffectExecutionDef, EffectRecipientDef,
-    EmblemCharacteristics, ImplementationStatus, ReplacementEffectDef, ReplacementEventDef,
-    SpellForm, TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    EmblemCharacteristics, ImplementationStatus, ObjectSetDef, ReplacementEffectDef,
+    ReplacementEventDef, SpellForm, TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind,
+    ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId, TargetIndex,
 };
 
 include!("abilities/target_choosers.rs");
+include!("abilities/entry_values.rs");
 
 pub(super) fn validate_alternative_cast_abilities(
     definition: &CardDefinition,
@@ -786,21 +788,6 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
         | ReplacementEffectDef::Perform(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_) => Err(replacement_operation_name(effect)),
-    }
-}
-
-fn entry_value_supported(value: ValueDef) -> bool {
-    match value {
-        ValueDef::Constant(_) | ValueDef::SourceCastX | ValueDef::AdditionalCostPayments(_) => true,
-        ValueDef::Negate(value) => entry_value_supported(*value),
-        ValueDef::Scaled(scaled) => entry_value_supported(scaled.value),
-        ValueDef::Sum(sum) => entry_value_supported(sum.left) && entry_value_supported(sum.right),
-        ValueDef::IfAdditionalCostPaid(conditional) => {
-            entry_value_supported(conditional.if_paid)
-                && entry_value_supported(conditional.otherwise)
-        }
-        ValueDef::Halved(halved) => entry_value_supported(halved.value),
-        _ => false,
     }
 }
 

@@ -16,10 +16,8 @@ impl Game {
         object: &StackObject,
     ) -> Vec<Target> {
         let source = object.source.unwrap_or(object.id);
-        self.linked_exiles
-            .iter()
-            .filter(|(exiled_by, _)| *exiled_by == source)
-            .map(|(_, card)| *card)
+        self.linked_exile_ids(source)
+            .into_iter()
             .filter(|card| {
                 self.card_in_nonbattlefield_zone(*card)
                     .is_some_and(|(zone, instance)| {

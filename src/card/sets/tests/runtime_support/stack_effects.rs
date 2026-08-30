@@ -750,7 +750,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     | ZoneKind::Library
             ) && shared_effect_recipient(object)
         }
-        EffectDef::None | EffectDef::StaticApply { .. }
+        EffectDef::None | EffectDef::ConditionalStatic(_) | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
             | EffectDef::CannotBeForcedToDiscard
         | EffectDef::ReduceGenericCostBy(_)

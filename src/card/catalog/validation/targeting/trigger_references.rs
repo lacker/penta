@@ -16,8 +16,6 @@ fn trigger_stat_value_is_supported(value: ValueDef) -> bool {
                     | ValueDef::SourcePower
                     | ValueDef::AffectedManaValue
                     | ValueDef::AffectedColorCount
-                    | ValueDef::TotalPowerOfLinkedExiles
-                    | ValueDef::TotalToughnessOfLinkedExiles
                     | ValueDef::LifeTotal(_)
                     | ValueDef::SourceToughness
                     | ValueDef::CountersOnSource(_)

@@ -341,14 +341,10 @@ impl Game {
         spell.applied_effects.clear();
         // Text-changing effects are not copiable values.
         spell.text_changes.clear();
-        // A copy was not cast and no mana paid for it. Choices made for the
-        // original spell remain in its copied signature, but these cast facts
-        // do not.
-        spell.cast_via_flashback = false;
-        spell.cast_at_instant_speed = false;
-        spell.cast_from_zone = None;
-        spell.colors_of_mana_spent = ColorSet::empty();
-        spell.phyrexian_symbols_paid_with_life = 0;
+        // A copy was not cast and paid no costs. Keep copied casting choices
+        // and payment-object references while clearing provenance and facts
+        // about mana or life actually spent.
+        spell.cast = spell.cast.as_ref().map(CastContext::for_spell_copy);
         spell.is_copy = true;
         // Published where the copy actually lands, so a clause reading "or
         // copy" sees the same object anything else on the stack would.

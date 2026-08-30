@@ -12,12 +12,12 @@ use super::rare_states::{
     staged_game, staged_modern_game,
 };
 use crate::card::cards;
-use crate::game::DecisionContinuation;
 use crate::game::tests::{
     activated_ability_for, card, cast_action, choose_decision_by_label, creature, mana_ability_for,
     pass_priority_pair, ready_game,
 };
-use crate::{Action, CounterKind, ManaColor, Target};
+use crate::game::{CastSourceZone, DecisionContinuation};
+use crate::{Action, AlternativeCastKindDef, CounterKind, ManaColor, Target};
 
 #[test]
 fn a_mandatory_suspend_cast_offer_reconstructs() {
@@ -273,10 +273,56 @@ fn a_spell_cast_from_a_graveyard_reconstructs_while_it_is_on_the_stack() {
     assert!(
         game.stack
             .last()
-            .is_some_and(|object| object.cast_via_flashback),
+            .is_some_and(|object| object.cast.as_ref().is_some_and(|cast| cast.via_flashback)),
         "the spell must be marked as cast via flashback"
     );
     assert_reconstructs(&game, "a flashback spell on the stack");
+}
+
+#[test]
+fn an_escape_context_reconstructs_on_the_stack_and_after_entry() {
+    let mut game = staged_modern_game();
+    let uro = card(20_010, cards::URO_TITAN_OF_NATURE_S_WRATH, PlayerId::One);
+    let uro_id = uro.id;
+    game.players[0].graveyard.push(uro);
+    for id in 20_011..20_016 {
+        game.players[0]
+            .graveyard
+            .push(card(id, cards::MOUNTAIN, PlayerId::One));
+    }
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Green, 2);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 2);
+
+    let action = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell { card, choices, .. }
+                    if *card == uro_id && choices.costs().alternative().is_some()
+            )
+        })
+        .expect("Uro can escape");
+    game.apply(PlayerId::One, action)
+        .expect("the escape is legal");
+    assert!(game.stack.last().is_some_and(|spell| {
+        spell.cast.as_ref().is_some_and(|cast| {
+            cast.source_zone == Some(CastSourceZone::Graveyard)
+                && cast.alternative == Some(AlternativeCastKindDef::Escape)
+        })
+    }));
+    assert_reconstructs(&game, "an escaped spell on the stack");
+
+    resolve_top_of_stack(&mut game);
+    assert!(game.battlefield.iter().any(|permanent| {
+        permanent.card.definition == cards::URO_TITAN_OF_NATURE_S_WRATH
+            && permanent.cast.as_ref().is_some_and(|cast| {
+                cast.source_zone == Some(CastSourceZone::Graveyard)
+                    && cast.alternative == Some(AlternativeCastKindDef::Escape)
+            })
+    }));
+    assert_reconstructs(&game, "an escaped permanent awaiting its enters triggers");
 }
 
 #[test]
@@ -339,14 +385,24 @@ fn a_phyrexian_life_payment_reconstructs_and_is_not_copied() {
     game.apply(PlayerId::One, action)
         .expect("the Phyrexian-life cast is legal");
     let original = game.stack.last().expect("Tamiyo is on the stack").clone();
-    assert_eq!(original.phyrexian_symbols_paid_with_life, 1);
+    assert_eq!(
+        original
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
+        1,
+    );
     assert_reconstructs(&game, "a Phyrexian-life spell on the stack");
 
     game.push_copy_with_colors(original, PlayerId::One, Vec::new(), None);
     assert!(
-        game.stack
-            .last()
-            .is_some_and(|copy| copy.is_copy && copy.phyrexian_symbols_paid_with_life == 0),
+        game.stack.last().is_some_and(|copy| {
+            copy.is_copy
+                && copy
+                    .cast
+                    .as_ref()
+                    .is_some_and(|cast| cast.phyrexian_symbols_paid_with_life == 0)
+        }),
         "a spell copy inherits copiable choices but not its original payment",
     );
 }

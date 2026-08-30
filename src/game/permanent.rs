@@ -29,37 +29,10 @@ struct Permanent {
     /// exactly what "as long as this entered this turn" does not.
     entered_turn: u32,
     damage: u16,
-    /// The X chosen for the spell that put this permanent here, zero when
-    /// nothing chose one. Its own enters trigger is a separate object and so
-    /// cannot read the spell's X any other way.
-    cast_x: u16,
-    /// How many times a repeatable optional additional cost was paid for the
-    /// spell that put this permanent here, zero when none was. Read the same
-    /// way and for the same reason as the X above: "for each time it was
-    /// kicked" is asked after the spell is gone.
-    pub(super) cast_kicks: u16,
-    /// Payment counts for each optional additional-cost clause, in the
-    /// card's declarative additional-cost order. Unlike `cast_kicks`, this
-    /// preserves which of several kickers or repeatable costs was paid.
-    pub(super) cast_additional_costs: Vec<u16>,
-    /// How many colours of mana paid for that spell, which is what sunburst
-    /// counts. Read here rather than off the spell for the same reason as
-    /// the two above: the counters go on as the permanent enters, and by the
-    /// time anything else asks, the spell is gone.
-    pub(super) cast_colors: u16,
-    /// How this permanent's spell was cast, when it was cast at all. Evoke's
-    /// sacrifice and every other clause that asks "if it was cast this way"
-    /// reads it here, because the spell object is gone by the time the
-    /// permanent's own triggers resolve.
-    cast_alternative: Option<AlternativeCastKindDef>,
-    /// Whether the spell this permanent came from was cast at a time a
-    /// sorcery could not have been. Necromancy's own drawback asks, and the
-    /// spell object is gone by the time the permanent's triggers resolve.
-    cast_at_instant_speed: bool,
-    /// Whether the spell this permanent came from was cast from its
-    /// controller's hand. Amped Raptor's second clause asks, and a permanent
-    /// that was never a spell at all answers no.
-    cast_from_zone: Option<CastSourceZone>,
+    /// Casting choices, payment facts, and provenance inherited from the
+    /// resolving spell. A permanent put directly onto the battlefield has no
+    /// cast context; a resolving spell copy carries the copied subset.
+    cast: Option<CastContext>,
     /// Whether this permanent has become an Aura. Necromancy is not one as
     /// it enters -- its own trigger makes it one, in the same resolution
     /// that attaches it -- so the window between entering and reanimating
@@ -293,13 +266,7 @@ impl Permanent {
             entered_controller_turn,
             entered_turn,
             damage: 0,
-            cast_x: 0,
-            cast_kicks: 0,
-            cast_additional_costs: Vec::new(),
-            cast_colors: 0,
-            cast_alternative: None,
-            cast_from_zone: None,
-            cast_at_instant_speed: false,
+            cast: None,
             became_aura: false,
             attacking: false,
             attack_defender: None,

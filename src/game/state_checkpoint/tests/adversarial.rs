@@ -209,13 +209,8 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
         colors: None,
-        cast_via_flashback: false,
-        cast_via_suspend: false,
-        cast_at_instant_speed: false,
-        cast_from_zone: None,
+        cast: None,
         face_down: None,
-        colors_of_mana_spent: crate::card::ColorSet::empty(),
-        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
@@ -316,13 +311,8 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
         colors: None,
-        cast_via_flashback: false,
-        cast_via_suspend: false,
-        cast_at_instant_speed: false,
-        cast_from_zone: None,
+        cast: None,
         face_down: None,
-        colors_of_mana_spent: crate::card::ColorSet::empty(),
-        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
@@ -502,13 +492,8 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
         applied_effects: Vec::new(),
         text_changes: Vec::new(),
         colors: None,
-        cast_via_flashback: false,
-        cast_via_suspend: false,
-        cast_at_instant_speed: false,
-        cast_from_zone: None,
+        cast: None,
         face_down: None,
-        colors_of_mana_spent: crate::card::ColorSet::empty(),
-        phyrexian_symbols_paid_with_life: 0,
         is_copy: false,
     });
 

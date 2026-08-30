@@ -47,6 +47,20 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    /// Retired cast-tag wire field. Kept readable until the next checkpoint
+    /// cleanup; newly written snapshots leave it empty.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_tags: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_alternative: Option<String>,
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) cast_x: u16,
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) cast_repeatable_additional_costs: u16,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_additional_costs: Vec<u16>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_exiled_payment_cards: Vec<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) face_down: Option<FaceDownCharacteristicsSnapshot>,
     pub(in crate::game::state_checkpoint) is_copy: bool,
@@ -126,6 +140,18 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     /// nothing, which is what a permanent nobody cast carries anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) cast_from_zone: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_tags: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(in crate::game::state_checkpoint) cast_alternative: Option<String>,
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) cast_x: u16,
+    #[serde(default, skip_serializing_if = "super::is_zero_u16")]
+    pub(in crate::game::state_checkpoint) cast_repeatable_additional_costs: u16,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_additional_costs: Vec<u16>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(in crate::game::state_checkpoint) cast_exiled_payment_cards: Vec<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(in crate::game::state_checkpoint) face_down: Option<FaceDownCharacteristicsSnapshot>,
     pub(in crate::game::state_checkpoint) is_copy: bool,
@@ -212,6 +238,6 @@ pub(in crate::game::state_checkpoint) struct ScopedEffectSnapshot {
 // serde hands this a reference, and clippy would rather it were a value;
 // the wrapper is the cheapest way to satisfy both.
 #[allow(clippy::trivially_copy_pass_by_ref)]
-fn no_colors_spent(colors: &[bool; 5]) -> bool {
+pub(super) fn no_colors_spent(colors: &[bool; 5]) -> bool {
     colors.iter().all(|spent| !*spent)
 }

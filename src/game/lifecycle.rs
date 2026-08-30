@@ -618,10 +618,10 @@ impl Game {
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == source)
-                .map(|permanent| i32::from(permanent.cast_x))
+                .map(|permanent| i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x)))
                 .or_else(|| match self.retired_objects.get(&source) {
                     Some(RetiredObject::Permanent { permanent, .. }) => {
-                        Some(i32::from(permanent.cast_x))
+                        Some(i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x)))
                     }
                     Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
                 }),

@@ -94,6 +94,15 @@ fn a_nonland_card_escapes_for_its_mana_cost_and_three_others() {
         })
         .expect("it can point at a player");
     game.apply(PlayerId::One, action).expect("it escapes");
+    assert!(
+        game.stack.last().is_some_and(|spell| {
+            spell.cast.as_ref().is_some_and(|cast| {
+                cast.source_zone == Some(CastSourceZone::Graveyard)
+                    && cast.alternative == Some(AlternativeCastKindDef::Escape)
+            })
+        }),
+        "the granted Escape ability records the cast alternative",
+    );
     settle(&mut game);
 
     assert_eq!(game.players[1].life, 17, "the Bolt resolved");

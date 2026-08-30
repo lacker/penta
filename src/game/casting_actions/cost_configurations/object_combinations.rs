@@ -1,46 +1,26 @@
 // Minimal object combinations used by semantic spell costs.
 impl Game {
-    /// Every way to reach `total` mana value that wastes nothing: a set
-    /// counts only if dropping any one of its cards would leave it short.
-    /// The rules permit exiling more than that, but every superset is a
-    /// strictly worse payment of the same cost, and enumerating them all
-    /// would grow the action list exponentially in the size of a graveyard.
-    fn mana_value_combinations(
+    /// Every minimal way to make a composed value over the chosen objects
+    /// reach its threshold. Supersets are legal but strictly worse payments,
+    /// so omitting them keeps graveyard-sized action lists bounded.
+    fn object_set_value_combinations(
         &self,
         candidates: &[GameObjectId],
-        total: u16,
+        requirement: crate::card::ObjectSetValueAtLeastDef,
     ) -> Vec<Vec<GameObjectId>> {
-        let values = candidates
-            .iter()
-            .map(|id| {
-                self.card_in_nonbattlefield_zone(*id)
-                    .and_then(|(_, card)| self.catalog.get(card.definition))
-                    .map_or(0, |definition| {
-                        definition.rules.printed_mana_cost().mana_value()
-                    })
-            })
-            .collect::<Vec<_>>();
         let mut payments = Vec::new();
         for size in 1..=candidates.len() {
             for combination in Self::object_combinations(candidates, size) {
-                let sum = combination
-                    .iter()
-                    .map(|id| {
-                        candidates
-                            .iter()
-                            .position(|candidate| candidate == id)
-                            .map_or(0, |index| values[index])
-                    })
-                    .fold(0_u16, u16::saturating_add);
-                if sum < total {
+                if self.object_set_value(&combination, requirement.value) < requirement.minimum {
                     continue;
                 }
-                let minimal = combination.iter().all(|id| {
-                    let value = candidates
+                let minimal = combination.iter().all(|dropped| {
+                    let without = combination
                         .iter()
-                        .position(|candidate| candidate == id)
-                        .map_or(0, |index| values[index]);
-                    sum.saturating_sub(value) < total
+                        .copied()
+                        .filter(|id| id != dropped)
+                        .collect::<Vec<_>>();
+                    self.object_set_value(&without, requirement.value) < requirement.minimum
                 });
                 if minimal {
                     payments.push(combination);
@@ -50,52 +30,44 @@ impl Game {
         payments
     }
 
-    /// Every way to reach `types` distinct card types between the chosen
-    /// cards, minimal in the same sense the mana-value search is: a set
-    /// counts only if dropping any one of its cards would leave it short.
-    fn card_type_combinations(
+    fn object_set_value(
         &self,
-        candidates: &[GameObjectId],
-        types: u16,
-    ) -> Vec<Vec<GameObjectId>> {
-        let sets = candidates
-            .iter()
-            .map(|id| {
-                self.card_in_nonbattlefield_zone(*id)
-                    .and_then(|(_, card)| self.catalog.get(card.definition))
-                    .map_or_else(crate::card::CardTypeSet::empty, |definition| {
-                        definition.rules.types()
-                    })
-            })
-            .collect::<Vec<_>>();
-        let union = |combination: &[GameObjectId]| {
-            combination
+        objects: &[GameObjectId],
+        value: crate::card::ObjectSetValueDef,
+    ) -> u16 {
+        match value {
+            crate::card::ObjectSetValueDef::CardTypeCount => objects
                 .iter()
-                .filter_map(|id| candidates.iter().position(|candidate| candidate == id))
-                .fold(crate::card::CardTypeSet::empty(), |seen, index| {
-                    seen.union(sets[index])
+                .filter_map(|id| self.card_in_nonbattlefield_zone(*id))
+                .filter_map(|(_, card)| self.catalog.get(card.definition))
+                .fold(crate::card::CardTypeSet::empty(), |seen, definition| {
+                    seen.union(definition.rules.types())
                 })
-        };
-        let mut payments = Vec::new();
-        for size in 1..=candidates.len() {
-            for combination in Self::object_combinations(candidates, size) {
-                if union(&combination).count() < types {
-                    continue;
-                }
-                let minimal = combination.iter().all(|dropped| {
-                    let without = combination
-                        .iter()
-                        .copied()
-                        .filter(|id| id != dropped)
-                        .collect::<Vec<_>>();
-                    union(&without).count() < types
+                .count(),
+            crate::card::ObjectSetValueDef::Aggregate { select, operation } => {
+                let values = objects.iter().map(|id| match select {
+                    crate::card::ObjectValueDef::ManaValue => {
+                        self.current_or_last_known_mana_value(*id).unwrap_or(0)
+                    }
+                    crate::card::ObjectValueDef::Power => self
+                        .current_or_last_known_power(*id)
+                        .unwrap_or(0)
+                        .max(0)
+                        .cast_unsigned(),
+                    crate::card::ObjectValueDef::Toughness => self
+                        .current_or_last_known_toughness(*id)
+                        .unwrap_or(0)
+                        .max(0)
+                        .cast_unsigned(),
                 });
-                if minimal {
-                    payments.push(combination);
+                match operation {
+                    crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
+                    crate::card::AggregateOperationDef::Sum => {
+                        values.fold(0_u16, u16::saturating_add)
+                    }
                 }
             }
         }
-        payments
     }
 
     /// Every `size`-element combination of `candidates`, in candidate order.

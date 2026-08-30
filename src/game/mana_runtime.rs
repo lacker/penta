@@ -11,6 +11,7 @@ use super::{
 use crate::ManaPaymentChoice;
 use crate::card::{AbilityCostList, ManaSplit};
 
+mod color_spending;
 mod eligibility;
 mod pricing;
 include!("mana_runtime/nonpermanent.rs");
@@ -736,18 +737,6 @@ impl Game {
             }
         }
         spent
-    }
-
-    /// Whether the spell being paid for reads how many colours paid for it.
-    /// Only converge asks, and only converge changes how the generic portion
-    /// is spread.
-    fn payment_counts_colors_spent(&self, purpose: &ManaPaymentPurpose) -> bool {
-        let ManaPaymentPurpose::Spell { definition, .. } = purpose else {
-            return false;
-        };
-        self.catalog
-            .get(*definition)
-            .is_some_and(|card| card.rules.counts_colors_of_mana_spent())
     }
 
     pub(super) fn pay_player_cost(

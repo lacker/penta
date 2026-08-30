@@ -166,42 +166,6 @@ impl Game {
         .unwrap_or(false)
     }
 
-    fn effect_contains_land_type_operation(effect: EffectDef) -> bool {
-        match effect {
-            EffectDef::Sequence(effects) => effects
-                .iter()
-                .copied()
-                .any(Self::effect_contains_land_type_operation),
-            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
-                let conditional = effect
-                    .conditional()
-                    .expect("conditional variants expose their shared shape");
-                Self::effect_contains_land_type_operation(*conditional.then)
-                    || conditional.otherwise.is_some_and(|otherwise| {
-                        Self::effect_contains_land_type_operation(*otherwise)
-                    })
-            }
-            EffectDef::StaticApply { effect, .. } => {
-                Self::applied_effect_contains_land_type_operation(effect)
-            }
-            _ => false,
-        }
-    }
-
-    fn applied_effect_contains_land_type_operation(effect: AppliedEffectDef) -> bool {
-        match effect {
-            AppliedEffectDef::Composite(effects) => effects
-                .iter()
-                .copied()
-                .any(Self::applied_effect_contains_land_type_operation),
-            AppliedEffectDef::Characteristic(
-                CharacteristicOperationDef::BasicLandTypes(_)
-                | CharacteristicOperationDef::ChosenBasicLandType,
-            ) => true,
-            AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
-        }
-    }
-
     /// Whether any candidate setter targets `affected`, before suppressing a
     /// candidate whose own rules text another setter removes.
     ///
@@ -364,6 +328,24 @@ impl Game {
                     );
                 }
             }
+            EffectDef::ConditionalStatic(conditional)
+                if self.source_object_set_count_condition_holds(
+                    conditional.condition,
+                    source.card.id,
+                ) && self.land_type_recipient_matches(
+                    conditional.then.recipient,
+                    source,
+                    affected,
+                ) =>
+            {
+                Self::collect_applied_land_type_operations(
+                    conditional.then.effect,
+                    source_timestamp,
+                    source.chosen_basic_land_type,
+                    component_order,
+                    operations,
+                );
+            }
             EffectDef::StaticApply { recipient, effect }
                 if self.land_type_recipient_matches(recipient, source, affected) =>
             {
@@ -473,7 +455,7 @@ impl Game {
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
-                | ObjectSetDef::LinkedExiles(_)
+                | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
@@ -983,3 +965,5 @@ impl Game {
         types
     }
 }
+
+include!("land_type_layers/effect_inspection.rs");

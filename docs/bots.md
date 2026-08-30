@@ -236,6 +236,14 @@ it. Partition and group-choice stages retain their pile semantics. The format
 also stores Quicken-style cast-timing permissions in the same resolved
 permission collection as every other duration-bound timing grant, including
 the composed end-of-turn-or-next-matching-cast expiration.
+Stack objects and permanents preserve additive cast-context fields: the source
+zone and selected alternative-cost kind, announced X and additional-cost
+counts, colors and Phyrexian symbols actually paid, and the exile-zone object
+IDs used to pay costs such as delve. A spell copy keeps copied casting choices
+and references to payment objects, but clears its source zone and facts about
+mana or life actually spent because the copy was not cast. The retired
+`castTags` field remains readable for format-10 compatibility; new checkpoints
+leave it empty and represent Escape as the `escape` alternative cast kind.
 Supply a hypothesis for the zones the observation intentionally redacts, then
 construct a live local game:
 

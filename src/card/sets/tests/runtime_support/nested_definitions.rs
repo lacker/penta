@@ -453,6 +453,9 @@ pub(in super::super) fn assert_nested_definition_abilities(card_name: &str, effe
         EffectDef::InstallTrigger(trigger) => {
             assert_nested_installed_ability(card_name, trigger.ability);
         }
+        EffectDef::ConditionalStatic(conditional) => {
+            assert_nested_definition_applied_effect(card_name, conditional.then.effect);
+        }
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
         | EffectDef::DealDamageAndApply {

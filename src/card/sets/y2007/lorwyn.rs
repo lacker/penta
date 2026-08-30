@@ -220,7 +220,7 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
             // ability resolves and no longer, so a player who declines has
             // to pay the {U} and the tap again to be asked twice.
             EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                objects: ObjectSetDef::LinkedExiles(ObjectPredicateDef::Any),
+                objects: ObjectSetDef::LinkedExiles,
                 duration: FreePlayDurationDef::WhileResolving,
                 mandatory: false,
                 grants_haste: false,

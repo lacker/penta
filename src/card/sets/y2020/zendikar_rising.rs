@@ -69,7 +69,7 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
                 ),
                 abilities::bind_objects_then(
                     crate::card::ObjectCollectionSourceDef::ObjectSet(
-                        ObjectSetDef::LinkedExiles(ObjectPredicateDef::Any),
+                        ObjectSetDef::LinkedExiles,
                     ),
                     ObjectSetBindingIndex::PRIMARY,
                     // One token per exiled card, which is one token: the exile clause is "up to

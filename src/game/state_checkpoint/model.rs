@@ -446,11 +446,28 @@ pub(super) struct PermanentSnapshot {
     /// nobody cast.
     #[serde(default, skip_serializing_if = "emptiness::is_zero_u16")]
     pub(super) cast_colors: u16,
+    /// Exact colors spent, replacing the legacy count above. The count stays
+    /// on the wire so older readers can still restore sunburst correctly.
+    #[serde(default, skip_serializing_if = "stack::no_colors_spent")]
+    pub(super) cast_colors_of_mana_spent: [bool; 5],
+    #[serde(default, skip_serializing_if = "emptiness::is_zero_u16")]
+    pub(super) cast_phyrexian_symbols_paid_with_life: u16,
     /// The alternative this permanent's spell was cast with, by its stable
     /// name. Stored as a string so the wire form does not depend on the
     /// order of a catalog enum.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) cast_alternative: Option<String>,
+    /// Semantic cast facts by stable name. Additive: an absent collection is
+    /// an ordinary untagged cast.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) cast_tags: Vec<String>,
+    /// Exile-zone identities of cards used to pay this spell's costs.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) cast_exiled_payment_cards: Vec<u32>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) cast_via_flashback: bool,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub(super) cast_via_suspend: bool,
     /// Which zone this spell was cast from, by its stable label. Additive:
     /// a checkpoint written before the zone was recorded restores as
     /// nothing, which is what a permanent nobody cast carries anyway.

@@ -131,6 +131,7 @@ EffectDef::Unattach { .. } | EffectDef::PhaseOut { .. } |
 EffectDef::CreateToken { .. } | EffectDef::CreateAttachedToken { .. } |
 EffectDef::Endure { .. } |
 EffectDef::CreateMyriadTokens |
+EffectDef::ConditionalStatic(_) |
 EffectDef::StaticApply { .. } | EffectDef::Apply { .. } |
 EffectDef::Special(_) => {
                 // Choice-bearing and non-mana primitives need a dedicated

@@ -153,6 +153,46 @@ pub(in crate::card::sets) static CRUCIBLE_OF_WORLDS: CardRecord = CardRecord::ne
     )),
 );
 
+// 5DN 118 — Engineered Explosives
+pub(in crate::card::sets) static ENGINEERED_EXPLOSIVES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8492a272-e595-4f94-a6eb-08d29f211fd6"),
+    "Engineered Explosives",
+    CardArt::new("8492a272-e595-4f94-a6eb-08d29f211fd6", "Ron Spears"),
+    CardSet::FifthDawn,
+    CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
+            AbilityDef::as_enters(
+                "Sunburst (This artifact enters with a charge counter on it for each color of mana spent to cast it.)",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCountersValue {
+                        kind: CounterKind::named("charge"),
+                        amount: ValueDef::ColorsOfManaSpent,
+                    },
+                ),
+            ),
+            AbilityDef::activated(
+                "{2}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}")),
+                    AbilityCostDef::SacrificeSource,
+                ],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                                CounterKind::named("charge"),
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+        ]),
+);
+
 // 5DN 143 — Pentad Prism
 pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("672b9b16-daef-44e6-9a3a-cfd9f3c78bc7"),
@@ -162,15 +202,14 @@ pub(in crate::card::sets) static PENTAD_PRISM: CardRecord = CardRecord::new(
     // Two mana of two colours for two mana of any colours, later: a ritual
     // that waits, which is why it wants a deck already casting things in
     // more than one colour on turn two.
-    CardRules::new_artifact(mana_cost!("{2}"))
-        .with_converge()
-        .with_abilities(&[
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
             AbilityDef::as_enters(
                 "Sunburst (This artifact enters with a charge counter on it for each color of mana spent \
                  to cast it.)",
                 ReplacementEffectDef::ModifyBattlefieldEntry(
-                    BattlefieldEntryModificationDef::AddColorsSpentCounters {
+                    BattlefieldEntryModificationDef::AddCountersValue {
                         kind: CounterKind::named("charge"),
+                        amount: ValueDef::ColorsOfManaSpent,
                     },
                 ),
             ),
@@ -193,6 +232,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ETERNAL_WITNESS,
     &CLOCK_OF_OMENS,
     &CRUCIBLE_OF_WORLDS,
+    &ENGINEERED_EXPLOSIVES,
     &PENTAD_PRISM,
 ];
 

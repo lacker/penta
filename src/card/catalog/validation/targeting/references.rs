@@ -449,6 +449,12 @@ fn validate_trigger_condition(
         TriggerConditionDef::ObjectCount { query, .. } => {
             validate_query(query, target_count, scope)
         }
+        TriggerConditionDef::ObjectSetCount(condition) => {
+            validate_object_set_target_references(*condition.objects, target_count, scope)?;
+            condition.filter.map_or(Ok(()), |filter| {
+                validate_object_predicate_references(filter.predicate(), target_count, scope)
+            })
+        }
         TriggerConditionDef::TargetMatches { slot, .. } => {
             validate_target_index(slot, target_count)
         }
@@ -476,7 +482,6 @@ fn validate_trigger_condition(
         | TriggerConditionDef::SpellsCastLastTurn { .. }
         | TriggerConditionDef::ControlsGreatestPowerCreature
         | TriggerConditionDef::SourceMatches { .. }
-        | TriggerConditionDef::LinkedExilesMatch { .. }
         | TriggerConditionDef::AttachedPermanentMatches { .. }
         | TriggerConditionDef::SourceCounters { .. }
         | TriggerConditionDef::SourceCastWith(_)
@@ -544,7 +549,7 @@ fn validate_object_set_target_references(
         }
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
-            validate_object_predicate_references(*object, target_count, scope)
+            validate_object_predicate_references(object.predicate(), target_count, scope)
         }
         ObjectSetDef::LegalTargets(target) => {
             validate_target_index(target, target_count)
@@ -555,7 +560,7 @@ fn validate_object_set_target_references(
         }
         // The pile is named by which permanent exiled the cards, so there is
         // no player or target reference in it to validate.
-        ObjectSetDef::LinkedExiles(_) => Ok(()),
+        ObjectSetDef::LinkedExiles => Ok(()),
         ObjectSetDef::BottomOfGraveyard(player)
             | ObjectSetDef::CardsDrawnThisTurnInHand(player)
             | ObjectSetDef::PermanentsControlledBy(player)
@@ -631,7 +636,7 @@ fn validate_value_target_references(
         ValueDef::CountMatchingPlayerAttachments(query) => {
             validate_object_predicate_references(query.object, target_count, scope)
         }
-        ValueDef::CountObjects(objects) => {
+        ValueDef::CountObjects(objects) | ValueDef::CardTypesAmongObjects(objects) => {
             validate_object_set_target_references(*objects, target_count, scope)
         }
         ValueDef::TargetPower(target)
@@ -656,9 +661,6 @@ fn validate_value_target_references(
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue
         | ValueDef::AffectedColorCount
-        | ValueDef::CardTypesAmongLinkedExiles
-        | ValueDef::TotalPowerOfLinkedExiles
-        | ValueDef::TotalToughnessOfLinkedExiles
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
         | ValueDef::LifeTotal(_)

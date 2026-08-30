@@ -1,6 +1,7 @@
 use super::{
-    AppliedEffectDef, ConditionDef, CounterKind, ManaColor, ManaCost, ObjectPredicateDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ValueDef, ZoneKind,
+    AggregateOperationDef, AppliedEffectDef, ConditionDef, CounterKind, ManaColor, ManaCost,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
+    ValueDef, ZoneKind,
 };
 use crate::ids::ObjectBindingIndex;
 
@@ -20,10 +21,24 @@ pub enum CostQuantityDef {
     /// The left quantity minus the right, floored at zero because a cost
     /// cannot ask for a negative quantity.
     Subtract(&'static Self, &'static Self),
-    /// Choose a minimal set whose total mana value reaches this amount.
-    TotalManaValueAtLeast(u8),
-    /// Choose a minimal set containing at least this many card types.
-    CardTypesAtLeast(u8),
+    /// Choose a minimal set whose composed value reaches a threshold.
+    ObjectSetValueAtLeast(&'static ObjectSetValueAtLeastDef),
+}
+
+/// A scalar derived from the objects chosen to pay one cost.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ObjectSetValueDef {
+    Aggregate {
+        select: ObjectValueDef,
+        operation: AggregateOperationDef,
+    },
+    CardTypeCount,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ObjectSetValueAtLeastDef {
+    pub value: ObjectSetValueDef,
+    pub minimum: u16,
 }
 
 /// A chosen-object cost whose payment is a zone change.
@@ -93,10 +108,7 @@ impl CostQuantityDef {
                 };
                 Some(left.saturating_sub(right))
             }
-            Self::ChosenX
-            | Self::ModeCount
-            | Self::TotalManaValueAtLeast(_)
-            | Self::CardTypesAtLeast(_) => None,
+            Self::ChosenX | Self::ModeCount | Self::ObjectSetValueAtLeast(_) => None,
         }
     }
 }

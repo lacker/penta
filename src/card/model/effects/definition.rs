@@ -953,6 +953,10 @@ pub enum EffectDef {
     /// not yet represent. The surrounding costs, targets, and timing can still
     /// remain declarative; clause coverage records whether and how it executes.
     Special(&'static str),
+    /// A static application gated by a separately composed condition over an
+    /// object set. This owns its nonrecursive parts so mechanic helpers can
+    /// assemble them without card-local staging tables.
+    ConditionalStatic(ConditionalStaticEffectDef),
     /// A continuous or rules-modifying effect derived live from a static
     /// ability. Its lifetime is the ability's own applicability rather than a
     /// stored duration.

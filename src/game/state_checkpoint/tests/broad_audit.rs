@@ -254,7 +254,9 @@ fn categories(game: &Game, wire: &Value) -> Vec<&'static str> {
         "stack-copies",
     );
     note(
-        game.stack.iter().any(|object| object.cast_via_flashback),
+        game.stack
+            .iter()
+            .any(|object| object.cast.as_ref().is_some_and(|cast| cast.via_flashback)),
         "flashback",
     );
     note(

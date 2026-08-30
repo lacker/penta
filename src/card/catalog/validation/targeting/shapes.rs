@@ -293,7 +293,7 @@ fn validate_object_set_shape(
         ObjectSetDef::Query(query) => validate_query_shape(query, targets),
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
-            validate_object_predicate_shape(*object, targets)
+            validate_object_predicate_shape(object.predicate(), targets)
         }
         ObjectSetDef::CardsDrawnThisTurnInHand(player)
         | ObjectSetDef::PermanentsControlledBy(player) => {
@@ -309,8 +309,8 @@ fn validate_object_set_shape(
         | ObjectSetDef::NamedBinding(_)
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
-        | ObjectSetDef::LinkedExiles(_)
-            | ObjectSetDef::BottomOfGraveyard(_)
+        | ObjectSetDef::LinkedExiles
+        | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::SharingNameWithBinding { .. }
         | ObjectSetDef::TopOfGraveyardMatching { .. } => Ok(()),
     }
@@ -370,6 +370,7 @@ fn validate_recipient_shape(
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn validate_value_shape(
     value: ValueDef,
     targets: &[AbilityTargetDef],
@@ -444,9 +445,6 @@ fn validate_value_shape(
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue
         | ValueDef::AffectedColorCount
-        | ValueDef::CardTypesAmongLinkedExiles
-        | ValueDef::TotalPowerOfLinkedExiles
-        | ValueDef::TotalToughnessOfLinkedExiles
         | ValueDef::SourceToughness
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
@@ -473,6 +471,9 @@ fn validate_value_shape(
         | ValueDef::AdditionalCostPayments(_)
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
+        ValueDef::CardTypesAmongObjects(objects) => {
+            validate_object_set_shape(*objects, targets)
+        }
     }
 }
 
@@ -566,8 +567,13 @@ fn validate_trigger_condition_shape(
             validate_trigger_condition_shape(*condition, targets)
         }
         TriggerConditionDef::ObjectCount { query, .. } => validate_query_shape(query, targets),
+        TriggerConditionDef::ObjectSetCount(condition) => {
+            validate_object_set_shape(*condition.objects, targets)?;
+            condition.filter.map_or(Ok(()), |filter| {
+                validate_object_predicate_shape(filter.predicate(), targets)
+            })
+        }
         TriggerConditionDef::SourceMatches { object }
-        | TriggerConditionDef::LinkedExilesMatch { object }
         | TriggerConditionDef::BoundObjectMatches { object, .. }
         | TriggerConditionDef::AttachedPermanentMatches { object } => {
             validate_object_predicate_shape(object, targets)
@@ -718,7 +724,7 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::Matching { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
-            | ObjectSetDef::LinkedExiles(_)
+            | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
@@ -790,7 +796,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::LinkedExiles(_)
+            | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::SharingNameWithBinding { .. }

@@ -100,6 +100,25 @@ pub enum PlayerSetDef {
     LegalTargets(TargetIndex),
 }
 
+/// One predicate used to filter an already-resolved object set. Most filters
+/// are static definitions; the keyword form lets a mechanic helper compose a
+/// filter from its parameter without widening every object-set definition.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ObjectSetFilterDef {
+    Predicate(&'static ObjectPredicateDef),
+    HasKeyword(KeywordAbility),
+}
+
+impl ObjectSetFilterDef {
+    #[must_use]
+    pub const fn predicate(self) -> ObjectPredicateDef {
+        match self {
+            Self::Predicate(predicate) => *predicate,
+            Self::HasKeyword(keyword) => ObjectPredicateDef::HasKeyword(keyword),
+        }
+    }
+}
+
 /// A set of objects selected without targeting.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ObjectSetDef {
@@ -137,7 +156,7 @@ pub enum ObjectSetDef {
     /// predicate. This is the compositional form used with labeled outputs.
     Matching {
         objects: &'static ObjectSetDef,
-        object: &'static ObjectPredicateDef,
+        object: ObjectSetFilterDef,
     },
     /// The permanents a stack object is targeting. "Gain control of those
     /// permanents" names what the spell that triggered this picked, which
@@ -176,11 +195,10 @@ pub enum ObjectSetDef {
     /// card of target player's graveyard" names. Nothing is chosen: a
     /// graveyard has one bottom card, and an empty one has none.
     BottomOfGraveyard(PlayerRefDef),
-    /// The cards exiled with the ability's own source that match this
-    /// predicate. "A creature card exiled with this creature" names a pile
-    /// no query can find: what puts a card in it is which permanent exiled
-    /// it, not where it is or what it looks like.
-    LinkedExiles(ObjectPredicateDef),
+    /// The cards exiled with the ability's own source. What puts a card in
+    /// this set is the link to that source; filtering by current
+    /// characteristics composes through [`Self::Matching`].
+    LinkedExiles,
 }
 
 /// The typed subject of an effect. A target slot remains its own category
@@ -311,7 +329,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
-                | ObjectSetDef::LinkedExiles(_)
+                | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::Query(_)
@@ -341,7 +359,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
-                | ObjectSetDef::LinkedExiles(_)
+                | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::SharingNameWith(_)

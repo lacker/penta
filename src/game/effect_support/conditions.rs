@@ -7,6 +7,27 @@
 // parent module's.
 
 impl Game {
+    pub(super) fn source_object_set_count_condition_holds(
+        &self,
+        condition: crate::card::ObjectSetCountConditionDef,
+        source: GameObjectId,
+    ) -> bool {
+        let objects = self.source_object_set_targets(*condition.objects, source);
+        let count = condition.filter.map_or(objects.len(), |filter| {
+            objects
+                .into_iter()
+                .filter(|target| {
+                    self.bound_object_matches(*target, filter.predicate(), source)
+                })
+                .count()
+        });
+        compare(
+            &count,
+            condition.comparison,
+            &usize::from(condition.amount),
+        )
+    }
+
     /// Whether one chosen target answers a characteristic predicate.
     ///
     /// What is read depends on what the slot named: a permanent on the
@@ -116,14 +137,12 @@ impl Game {
             | crate::card::ValueDef::BasicLandTypesControlled(_) => {
                 self.player_readable_value(value, controller)
             }
-            // Delirium: "if there are four or more card types among cards in
-            // your graveyard" is a comparison against a number rather than a
-            // count of objects, so it is read here rather than by a query.
-            // The pile the source took, read the same way and from the same
-            // place a resolving effect reads it.
-            crate::card::ValueDef::CardTypesAmongLinkedExiles => {
-                self.card_types_among_linked_exiles(source)
-            }
+            crate::card::ValueDef::CountObjects(objects) => i32::try_from(
+                self.source_object_set_targets(*objects, source).len(),
+            )
+            .unwrap_or(i32::MAX),
+            crate::card::ValueDef::CardTypesAmongObjects(objects) => self
+                .card_types_among_targets(&self.source_object_set_targets(*objects, source)),
             crate::card::ValueDef::CardTypesAmongGraveyards(player) => {
                 self.card_types_among_graveyards(player, controller)
             }
@@ -173,7 +192,9 @@ impl Game {
                 .battlefield
                 .iter()
                 .find(|permanent| permanent.card.id == source)
-                .map_or(0, |permanent| i32::from(permanent.cast_x)),
+                .map_or(0, |permanent| {
+                    i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))
+                }),
             other => i32::from(self.cost_reduction_value(other, controller, source)),
         }
     }
@@ -424,8 +445,8 @@ impl Game {
                 // to read what it last was (CR 603.10); finding nothing and
                 // answering no would be the wrong answer rather than a
                 // deliberate one.
-                TriggerConditionDef::LinkedExilesMatch { object: predicate } => {
-                    !self.linked_exile_targets(*predicate, source).is_empty()
+                TriggerConditionDef::ObjectSetCount(counting) => {
+                    self.source_object_set_count_condition_holds(**counting, source)
                 }
                 TriggerConditionDef::SourceMatches { object: predicate } => {
                     if let Some(permanent) = self
@@ -488,66 +509,26 @@ impl Game {
                 // read it -- the permanent does not exist yet.
                 // Read from the permanent, which remembers it, or from the
                 // spell still on the stack when the question comes earlier.
-                TriggerConditionDef::SourceCastAtInstantSpeed => {
-                    self.battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == source)
-                        .is_some_and(|permanent| permanent.cast_at_instant_speed)
-                        || self
-                            .stack
-                            .iter()
-                            .find(|candidate| candidate.id == source)
-                            .is_some_and(|candidate| candidate.cast_at_instant_speed)
-                }
+                TriggerConditionDef::SourceCastAtInstantSpeed => self
+                    .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                    .is_some_and(|cast| cast.at_instant_speed),
                 TriggerConditionDef::SourceCastFrom(zone) => {
-                    // The spell asking is the one resolving, and a resolving
-                    // spell is off the stack while it resolves -- so the
-                    // object in hand is the only place left to read it.
-                    object.is_some_and(|(resolving, _, _)| {
-                        resolving.id == source
-                            && resolving.cast_from_zone.is_some_and(|from| from.zone() == *zone)
-                    }) || self.battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == source)
-                        .is_some_and(|permanent| permanent.cast_from_zone.is_some_and(|from| from.zone() == *zone))
-                        || self
-                            .stack
-                            .iter()
-                            .find(|candidate| candidate.id == source)
-                            .is_some_and(|candidate| candidate.cast_from_zone.is_some_and(|from| from.zone() == *zone))
+                    self.cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                        .and_then(|cast| cast.source_zone)
+                        .is_some_and(|from| from.zone() == *zone)
                 }
                 // Any recorded cast zone means it was cast; nothing else
                 // sets one.
-                TriggerConditionDef::SourceWasCast => {
-                    object.is_some_and(|(resolving, _, _)| {
-                        resolving.id == source && resolving.cast_from_zone.is_some()
-                    }) || self
-                        .battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == source)
-                        .is_some_and(|permanent| permanent.cast_from_zone.is_some())
-                        || self
-                            .stack
-                            .iter()
-                            .find(|candidate| candidate.id == source)
-                            .is_some_and(|candidate| candidate.cast_from_zone.is_some())
-                }
+                TriggerConditionDef::SourceWasCast => self
+                    .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                    .is_some_and(|cast| cast.was_cast()),
                 // "If it was kicked" is a fact about how the source was cast
                 // rather than about where it is now, so it survives the source:
                 // a Thieving Skydiver killed with his arrival trigger still on
                 // the stack was kicked when it resolves, and still steals.
-                TriggerConditionDef::SourceCastWith(kind) => {
-                    self.battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == source)
-                        .is_some_and(|permanent| permanent.cast_alternative == Some(*kind))
-                        || self.stack_object_cast_with(source) == Some(*kind)
-                        || matches!(
-                            self.retired_objects.get(&source),
-                            Some(RetiredObject::Permanent { permanent, .. })
-                                if permanent.cast_alternative == Some(*kind)
-                        )
-                }
+                TriggerConditionDef::SourceCastWith(kind) => self
+                    .cast_context_for(source, object.map(|(resolving, _, _)| resolving))
+                    .is_some_and(|cast| cast.alternative == Some(*kind)),
                 TriggerConditionDef::SourcePaidAdditionalCost(cost) => {
                     self.source_additional_cost_payments(source, *cost) > 0
                 }

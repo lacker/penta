@@ -41,12 +41,43 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
             })
             .collect(),
         colors: object.colors.map(crate::card::ColorSet::to_flags),
-        colors_of_mana_spent: object.colors_of_mana_spent.to_flags(),
-        phyrexian_symbols_paid_with_life: object.phyrexian_symbols_paid_with_life,
-        cast_via_flashback: object.cast_via_flashback,
-        cast_via_suspend: object.cast_via_suspend,
-        cast_at_instant_speed: object.cast_at_instant_speed,
-        cast_from_zone: object.cast_from_zone.map(|zone| zone.label().to_owned()),
+        colors_of_mana_spent: object
+            .cast
+            .as_ref()
+            .map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
+        phyrexian_symbols_paid_with_life: object
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
+        cast_via_flashback: object.cast.as_ref().is_some_and(|cast| cast.via_flashback),
+        cast_via_suspend: object.cast.as_ref().is_some_and(|cast| cast.via_suspend),
+        cast_at_instant_speed: object
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.at_instant_speed),
+        cast_from_zone: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.source_zone)
+            .map(|zone| zone.label().to_owned()),
+        cast_tags: Vec::new(),
+        cast_alternative: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.alternative)
+            .map(|kind| kind.label().to_owned()),
+        cast_x: object.cast.as_ref().map_or(0, |cast| cast.x),
+        cast_repeatable_additional_costs: object
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.repeatable_additional_costs),
+        cast_additional_costs: object
+            .cast
+            .as_ref()
+            .map_or_else(Vec::new, |cast| cast.additional_costs.clone()),
+        cast_exiled_payment_cards: object.cast.as_ref().map_or_else(Vec::new, |cast| {
+            cast.exiled_payment_cards.iter().map(|id| id.0).collect()
+        }),
         face_down,
         is_copy: object.is_copy,
     }

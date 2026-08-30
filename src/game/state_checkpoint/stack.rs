@@ -11,23 +11,26 @@ use super::semantics::{
 };
 use super::{
     AbilityId, AbilityOrigin, AbilitySourceRef, AdditionalCostId, AlternativeCostId,
-    AppliedStackEffect, BasicLandType, BasicLandTypeChange, CardPartId, CastChoices, CastSignature,
-    CharacteristicSource, CostConfiguration, DeclarativeAbilityDef, EffectResolutionContext, Game,
-    GameObjectId, GameStack, GrantId, ManaSource, ModeId, ObjectBacking, ObjectCharacteristics,
-    ObjectInstance, ObjectKind, PlayOptionId, PlayerId, RetiredObject, SpellForm,
-    StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TriggerContext,
-    Value, ability_locator, ability_origin_from_snapshot, ability_origin_snapshot,
-    ability_target_defs, array, basic_land_type_snapshot, card, card_definition_id_field,
-    cast_source_zone_from_label, catalog_ability, face_down_characteristics_from_snapshot,
-    face_down_characteristics_snapshot, field, object_characteristics_from_snapshot,
-    object_characteristics_snapshot, object_kind_from_snapshot, object_kind_snapshot, optional_id,
-    parse_basic_land_type, parse_cast_signature, parse_ids, parse_zone_kind, seat_value, str_field,
-    u8_field, u32_field, usize_field, zone_kind_snapshot,
+    AppliedStackEffect, BasicLandType, BasicLandTypeChange, CardPartId, CastChoices, CastContext,
+    CastSignature, CharacteristicSource, CostConfiguration, DeclarativeAbilityDef,
+    EffectResolutionContext, Game, GameObjectId, GameStack, GrantId, ManaSource, ModeId,
+    ObjectBacking, ObjectCharacteristics, ObjectInstance, ObjectKind, PlayOptionId, PlayerId,
+    RetiredObject, SpellForm, StackAbilityPayload, StackObject, StackObjectKind, Target,
+    TargetSelection, TriggerContext, Value, ability_locator, ability_origin_from_snapshot,
+    ability_origin_snapshot, ability_target_defs, array, basic_land_type_snapshot, card,
+    card_definition_id_field, cast_source_zone_from_label, catalog_ability,
+    face_down_characteristics_from_snapshot, face_down_characteristics_snapshot, field,
+    object_characteristics_from_snapshot, object_characteristics_snapshot,
+    object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_basic_land_type,
+    parse_cast_signature, parse_ids, parse_zone_kind, seat_value, str_field, u8_field, u32_field,
+    usize_field, zone_kind_snapshot,
 };
-use crate::card::{ColorSet, ManaColor};
+use crate::card::{AlternativeCastKindDef, ColorSet, ManaColor};
 
 mod ability_kind;
 use ability_kind::{StackAbilityCondition, stack_ability_condition, stack_payload_matches};
+mod cast_context;
+use cast_context::{detached_cast_context, stack_cast_context};
 mod current;
 mod hidden_references;
 pub(super) use current::current_stack_snapshot;
@@ -183,12 +186,43 @@ pub(super) fn detached_stack_snapshot_allowing(
             })
             .collect(),
         colors: object.colors.map(ColorSet::to_flags),
-        colors_of_mana_spent: object.colors_of_mana_spent.to_flags(),
-        phyrexian_symbols_paid_with_life: object.phyrexian_symbols_paid_with_life,
-        cast_via_flashback: object.cast_via_flashback,
-        cast_via_suspend: object.cast_via_suspend,
-        cast_at_instant_speed: object.cast_at_instant_speed,
-        cast_from_zone: object.cast_from_zone.map(|zone| zone.label().to_owned()),
+        colors_of_mana_spent: object
+            .cast
+            .as_ref()
+            .map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
+        phyrexian_symbols_paid_with_life: object
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
+        cast_via_flashback: object.cast.as_ref().is_some_and(|cast| cast.via_flashback),
+        cast_via_suspend: object.cast.as_ref().is_some_and(|cast| cast.via_suspend),
+        cast_at_instant_speed: object
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.at_instant_speed),
+        cast_from_zone: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.source_zone)
+            .map(|zone| zone.label().to_owned()),
+        cast_tags: Vec::new(),
+        cast_alternative: object
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.alternative)
+            .map(|kind| kind.label().to_owned()),
+        cast_x: object.cast.as_ref().map_or(0, |cast| cast.x),
+        cast_repeatable_additional_costs: object
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.repeatable_additional_costs),
+        cast_additional_costs: object
+            .cast
+            .as_ref()
+            .map_or_else(Vec::new, |cast| cast.additional_costs.clone()),
+        cast_exiled_payment_cards: object.cast.as_ref().map_or_else(Vec::new, |cast| {
+            cast.exiled_payment_cards.iter().map(|id| id.0).collect()
+        }),
         face_down,
         is_copy: object.is_copy,
     })
@@ -491,6 +525,7 @@ pub(super) fn parse_stack(
                 (source, Some(ability), None, card)
             }
         };
+        let cast = stack_cast_context(state, game, id, &card, signature.as_ref(), kind)?;
         stack.push(StackObject {
             id,
             kind,
@@ -503,15 +538,7 @@ pub(super) fn parse_stack(
             applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
             text_changes: parse_text_changes(&state.text_changes),
             colors: state.colors.map(color_set_from_flags),
-            colors_of_mana_spent: color_set_from_flags(state.colors_of_mana_spent),
-            phyrexian_symbols_paid_with_life: state.phyrexian_symbols_paid_with_life,
-            cast_via_flashback: state.cast_via_flashback,
-            cast_via_suspend: state.cast_via_suspend,
-            cast_at_instant_speed: state.cast_at_instant_speed,
-            cast_from_zone: state
-                .cast_from_zone
-                .as_deref()
-                .and_then(cast_source_zone_from_label),
+            cast,
             face_down: state.face_down.map(face_down_characteristics_from_snapshot),
             is_copy: state.is_copy,
         });
@@ -583,6 +610,7 @@ pub(super) fn parse_detached_stack(
             return Err("an emblem cannot be a detached stack object".into());
         }
     };
+    let cast = detached_cast_context(state, game, id, &stack_card, signature.as_ref())?;
     Ok(StackObject {
         id,
         kind,
@@ -600,15 +628,7 @@ pub(super) fn parse_detached_stack(
         applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
         text_changes: parse_text_changes(&state.text_changes),
         colors: state.colors.map(color_set_from_flags),
-        colors_of_mana_spent: color_set_from_flags(state.colors_of_mana_spent),
-        phyrexian_symbols_paid_with_life: state.phyrexian_symbols_paid_with_life,
-        cast_via_flashback: state.cast_via_flashback,
-        cast_via_suspend: state.cast_via_suspend,
-        cast_at_instant_speed: state.cast_at_instant_speed,
-        cast_from_zone: state
-            .cast_from_zone
-            .as_deref()
-            .and_then(cast_source_zone_from_label),
+        cast,
         face_down: state.face_down.map(face_down_characteristics_from_snapshot),
         is_copy: state.is_copy,
     })

@@ -1,18 +1,18 @@
 //! Modern Horizons 3 Commander cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, EffectBindingLabelDef, EffectDef,
-    EffectOutputBindingDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    SpellAdditionalCostDef, SumValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, EffectBindingLabelDef, EffectDef, EffectOutputBindingDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef,
+    ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, SumValueDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
+
+use super::super::y2020::theros_beyond_death::escape;
 
 // M3C 4 — Ulalek, Fused Atrocity
 // Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
@@ -95,7 +95,9 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
                             objects: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
                                 "milled_cards",
                             )),
-                            object: &ObjectPredicateDef::HasType(CardType::Creature),
+                            object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
                         },
                         exclude: None,
                         minimum: 0,
@@ -167,28 +169,16 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
     CardSet::ModernHorizons3Commander,
     // Five mana for a hasty 4/3 and a free spell, and the graveyard keeps
     // handing it back for five more.
-    CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Elf", "Berserker"], 4, 3)
-        .with_abilities(&[
-        abilities::cascade(),
-        abilities::haste(),
-        AbilityDef::alternative_cast(
-            mana_cost!("{3}{R}{G}"),
-            AlternativeCastKindDef::Escape,
-            Some(
-                "Escape—{3}{R}{G}, Exile three other cards from your graveyard. (You may cast this \
-                     card from your graveyard for its escape cost.)",
+    CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Elf", "Berserker"], 4, 3).with_abilities(
+        &[
+            abilities::cascade(),
+            abilities::haste(),
+            escape(
+                crate::card::AlternativeCastManaCostDef::Fixed(mana_cost!("{3}{R}{G}")),
+                3,
             ),
-            EffectDef::None,
-        )
-        // Three cards out of your own graveyard, exiled to pay. The card being cast
-        // is on the stack by the time costs are paid, so "other" takes care of
-        // itself: it is not there to be chosen.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-            ObjectPredicateDef::Any,
-            ZoneKind::Graveyard,
-            CostQuantityDef::Fixed(3),
-        )),
-    ]),
+        ],
+    ),
 );
 
 // M3C 134 — Talon Gates of Madara

@@ -44,6 +44,19 @@ pub(super) fn u32_field(value: &Value, name: &str) -> Result<u32, String> {
         .and_then(|v| u32::try_from(v).map_err(|_| format!("field {name} is too large")))
 }
 
+fn color_set_from_count(count: u16) -> crate::card::ColorSet {
+    [
+        ManaColor::White,
+        ManaColor::Blue,
+        ManaColor::Black,
+        ManaColor::Red,
+        ManaColor::Green,
+    ]
+    .into_iter()
+    .take(usize::from(count.min(5)))
+    .fold(crate::card::ColorSet::empty(), crate::card::ColorSet::with)
+}
+
 pub(super) fn card_definition_id(value: &Value) -> Result<CardDefinitionId, String> {
     value
         .as_u64()
@@ -705,20 +718,62 @@ fn parse_permanent(
         .reconfigured_timestamp
         .map(super::super::ContinuousEffectTimestamp);
     permanent.chosen_player = state.chosen_player.map(player_from_index).transpose()?;
-    permanent.cast_x = state.cast_x;
-    permanent.cast_kicks = state.cast_kicks;
-    permanent
-        .cast_additional_costs
-        .clone_from(&state.cast_additional_costs);
-    permanent.cast_colors = state.cast_colors;
-    permanent.cast_from_zone = state
+    if state.cast_tags.iter().any(|tag| tag != "escaped") {
+        return Err("checkpoint contains an unknown retired cast tag".into());
+    }
+    let source_zone = state
         .cast_from_zone
         .as_deref()
         .and_then(cast_source_zone_from_label);
-    permanent.cast_alternative = state
+    let alternative = state
         .cast_alternative
         .as_deref()
-        .and_then(crate::card::AlternativeCastKindDef::from_label);
+        .map(|label| {
+            crate::card::AlternativeCastKindDef::from_label(label)
+                .ok_or_else(|| format!("unknown alternative cast kind {label}"))
+        })
+        .transpose()?
+        .or_else(|| {
+            state
+                .cast_tags
+                .iter()
+                .any(|tag| tag == "escaped")
+                .then_some(crate::card::AlternativeCastKindDef::Escape)
+        });
+    let colors_of_mana_spent = if state.cast_colors_of_mana_spent.iter().any(|spent| *spent) {
+        stack::color_set_from_flags(state.cast_colors_of_mana_spent)
+    } else {
+        color_set_from_count(state.cast_colors)
+    };
+    let has_cast_context = source_zone.is_some()
+        || alternative.is_some()
+        || state.cast_x > 0
+        || state.cast_kicks > 0
+        || !state.cast_additional_costs.is_empty()
+        || state.cast_colors > 0
+        || state.cast_phyrexian_symbols_paid_with_life > 0
+        || !state.cast_exiled_payment_cards.is_empty()
+        || state.cast_via_flashback
+        || state.cast_via_suspend
+        || state.cast_at_instant_speed;
+    permanent.cast = has_cast_context.then(|| CastContext {
+        source_zone,
+        alternative,
+        at_instant_speed: state.cast_at_instant_speed,
+        x: state.cast_x,
+        repeatable_additional_costs: state.cast_kicks,
+        additional_costs: state.cast_additional_costs.clone(),
+        colors_of_mana_spent,
+        phyrexian_symbols_paid_with_life: state.cast_phyrexian_symbols_paid_with_life,
+        exiled_payment_cards: state
+            .cast_exiled_payment_cards
+            .iter()
+            .copied()
+            .map(GameObjectId)
+            .collect(),
+        via_flashback: state.cast_via_flashback,
+        via_suspend: state.cast_via_suspend,
+    });
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
     permanent.chosen_color = shown.chosen_color;
@@ -772,7 +827,6 @@ fn parse_permanent(
             )
         })
         .collect();
-    permanent.cast_at_instant_speed = state.cast_at_instant_speed;
     permanent.became_aura = state.became_aura;
     permanent.copy_effect = copy_effect;
     permanent.copy_expiration = state

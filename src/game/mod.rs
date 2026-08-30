@@ -59,6 +59,7 @@ mod attachments;
 mod banding;
 mod battlefield;
 mod card_runtime;
+mod cast_context;
 mod casting;
 mod casting_actions;
 mod casting_state;
@@ -780,6 +781,8 @@ pub struct Game {
 }
 
 use enumerated_actions::EnumeratedActions;
+
+use cast_context::CastContext;
 
 include!("stack_object.rs");
 include!("permanent.rs");

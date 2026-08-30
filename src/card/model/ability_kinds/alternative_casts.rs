@@ -7,7 +7,7 @@
 
 use crate::ids::{AbilityId, AlternativeCostId};
 
-use super::super::{AlternativeCostDef, ManaCost};
+use super::super::{AlternativeCostDef, CostQuantityDef, ManaCost, ObjectPredicateDef, ZoneKind};
 use super::{AbilityTargetDef, SpellAdditionalCostDef, TriggerConditionDef};
 
 /// The rules procedure and mana cost supplied by a printed
@@ -252,6 +252,45 @@ impl AlternativeCastKindDef {
 }
 
 impl AlternativeCastAbilityDef {
+    fn count_word(count: u8) -> String {
+        match count {
+            0 => "zero".into(),
+            1 => "one".into(),
+            2 => "two".into(),
+            3 => "three".into(),
+            4 => "four".into(),
+            5 => "five".into(),
+            6 => "six".into(),
+            7 => "seven".into(),
+            8 => "eight".into(),
+            9 => "nine".into(),
+            10 => "ten".into(),
+            _ => count.to_string(),
+        }
+    }
+
+    /// The common printed Escape shape. Exceptional Escape costs retain
+    /// their authored text, while the ordinary mana-plus-cards form can be
+    /// rendered entirely from its semantic cost.
+    fn common_escape_rules_text(self) -> Option<String> {
+        let AlternativeCastManaCostDef::Fixed(mana_cost) = self.mana_cost else {
+            return None;
+        };
+        let Some(SpellAdditionalCostDef::Exile {
+            object: ObjectPredicateDef::Any,
+            from: ZoneKind::Graveyard,
+            quantity: CostQuantityDef::Fixed(cards),
+        }) = self.additional_cost
+        else {
+            return None;
+        };
+        Some(format!(
+            "Escape—{mana_cost}, Exile {} other card{} from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
+            Self::count_word(cards),
+            if cards == 1 { "" } else { "s" },
+        ))
+    }
+
     /// Plot's reminder, which repeats the cost twice and so is long enough
     /// to sit apart from the walk over every other kind.
     fn plot_rules_text(mana_cost: AlternativeCastManaCostDef) -> String {
@@ -275,6 +314,12 @@ impl AlternativeCastAbilityDef {
     /// rebuilt from a cost, each of which a card may override with its own
     /// printed text.
     fn fixed_rules_text(self) -> Option<String> {
+        if self.kind == AlternativeCastKindDef::Escape
+            && self.stack_text.is_none()
+            && let Some(text) = self.common_escape_rules_text()
+        {
+            return Some(text);
+        }
         let default = match self.kind {
             // Every printed bestow cost is a cost the card writes out, and
             // Detective's Phoenix writes a nonmana one, so the reminder is

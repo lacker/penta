@@ -499,7 +499,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::Matching { .. }
             | crate::card::ObjectSetDef::PermanentsTargetedBy(_)
             | crate::card::ObjectSetDef::LegalAttachmentHosts(_)
-            | crate::card::ObjectSetDef::LinkedExiles(_)
+            | crate::card::ObjectSetDef::LinkedExiles
             | crate::card::ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | crate::card::ObjectSetDef::PermanentsControlledBy(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)

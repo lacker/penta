@@ -1,14 +1,14 @@
 use super::{
     AbilitySourceRef, ApplicableReplacement, BasicLandType, BattlefieldEntryModificationDef,
-    ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef, ControlFlow,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext, EntryCompletion,
-    Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef, PendingBattlefieldEntry,
-    PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
-    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ValueDef, ZoneKind,
-    public_cards,
+    CastContext, ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef,
+    ControlFlow, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext,
+    EntryCompletion, Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef,
+    PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent, PlayerId,
+    PlayerRelation, ReplaceableEvent, ReplacementChoiceDef, ReplacementConditionDef,
+    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    ResolvedEffectPayment, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Target,
+    TriggerContext, ValueDef, ZoneKind, public_cards,
 };
 use crate::CharacteristicContext;
 
@@ -225,7 +225,7 @@ impl Game {
                 Some(pending)
             }
             ReplacementEffectDef::ModifyBattlefieldEntry(modification) => {
-                Self::modify_pending_battlefield_entry(&mut pending, modification);
+                self.modify_pending_battlefield_entry(&mut pending, modification);
                 Some(pending)
             }
             ReplacementEffectDef::Conditional {
@@ -371,13 +371,8 @@ impl Game {
             applied_effects: Vec::new(),
             text_changes: Vec::new(),
             colors: None,
-            cast_via_flashback: false,
-            cast_via_suspend: false,
-            cast_at_instant_speed: false,
-            cast_from_zone: None,
+            cast: None,
             face_down: None,
-            colors_of_mana_spent: crate::card::ColorSet::empty(),
-            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         })
     }
@@ -498,21 +493,29 @@ impl Game {
             // The entering permanent already knows how its spell was paid
             // for: the resolution recorded it before enqueueing the entry.
             ReplacementConditionDef::SourceCastWith(kind) => {
-                entry.permanent.card.id == source && entry.permanent.cast_alternative == Some(kind)
+                entry.permanent.card.id == source
+                    && entry
+                        .permanent
+                        .cast
+                        .as_ref()
+                        .is_some_and(|cast| cast.alternative == Some(kind))
             }
             ReplacementConditionDef::SourcePaidAdditionalCost(cost) => {
                 entry.permanent.card.id == source
                     && entry
                         .permanent
-                        .cast_additional_costs
-                        .get(cost.index())
+                        .cast
+                        .as_ref()
+                        .and_then(|cast| cast.additional_costs.get(cost.index()))
                         .is_some_and(|payments| *payments > 0)
             }
             ReplacementConditionDef::SourceNotCastFrom(zone) => {
                 entry.permanent.card.id == source
                     && entry
                         .permanent
-                        .cast_from_zone
+                        .cast
+                        .as_ref()
+                        .and_then(|cast| cast.source_zone)
                         .is_none_or(|from| from.zone() != zone)
             }
             ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
@@ -524,14 +527,16 @@ impl Game {
     }
 
     pub(super) fn modify_pending_battlefield_entry(
+        &self,
         pending: &mut PendingEvent,
         modification: BattlefieldEntryModificationDef,
     ) {
         let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
-        Self::modify_battlefield_entry_permanent(&mut entry.permanent, modification);
+        self.modify_battlefield_entry_permanent(&mut entry.permanent, modification);
     }
 
     pub(super) fn modify_battlefield_entry_permanent(
+        &self,
         permanent: &mut Permanent,
         modification: BattlefieldEntryModificationDef,
     ) {
@@ -541,18 +546,14 @@ impl Game {
                 permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddCastXCounters { kind } => {
-                let amount = permanent.cast_x;
+                let amount = permanent.cast.as_ref().map_or(0, |cast| cast.x);
                 permanent.add_counters(kind, amount);
             }
             BattlefieldEntryModificationDef::AddCountersValue { kind, amount } => {
-                let amount = entry_value(permanent, amount)
+                let amount = entry_value(self, permanent, amount)
                     .expect("catalog validation rejects unsupported entry values")
                     .clamp(0, i32::from(u16::MAX));
                 permanent.add_counters(kind, u16::try_from(amount).unwrap_or_default());
-            }
-            BattlefieldEntryModificationDef::AddColorsSpentCounters { kind } => {
-                let amount = permanent.cast_colors;
-                permanent.add_counters(kind, amount);
             }
         }
     }
@@ -898,24 +899,39 @@ impl Game {
     }
 }
 
-fn entry_value(permanent: &Permanent, value: ValueDef) -> Option<i32> {
+fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -> Option<i32> {
     match value {
         ValueDef::Constant(value) => Some(value),
-        ValueDef::SourceCastX => Some(i32::from(permanent.cast_x)),
+        ValueDef::SourceCastX => Some(i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))),
+        ValueDef::ColorsOfManaSpent => Some(i32::from(
+            permanent
+                .cast
+                .as_ref()
+                .map_or(0, CastContext::colors_spent_count),
+        )),
         ValueDef::AdditionalCostPayments(index) => Some(i32::from(
             permanent
-                .cast_additional_costs
-                .get(index.index())
+                .cast
+                .as_ref()
+                .and_then(|cast| cast.additional_costs.get(index.index()))
                 .copied()
                 .unwrap_or_default(),
         )),
+        ValueDef::CountObjects(objects) => {
+            Some(i32::try_from(entry_objects(game, permanent, *objects)?.len()).unwrap_or(i32::MAX))
+        }
+        ValueDef::CardTypesAmongObjects(objects) => {
+            Some(game.card_types_among_targets(&entry_objects(game, permanent, *objects)?))
+        }
         ValueDef::IfAdditionalCostPaid(conditional) => {
             let paid = permanent
-                .cast_additional_costs
-                .get(conditional.cost.index())
+                .cast
+                .as_ref()
+                .and_then(|cast| cast.additional_costs.get(conditional.cost.index()))
                 .copied()
                 .unwrap_or_default();
             entry_value(
+                game,
                 permanent,
                 if paid > 0 {
                     conditional.if_paid
@@ -924,14 +940,41 @@ fn entry_value(permanent: &Permanent, value: ValueDef) -> Option<i32> {
                 },
             )
         }
-        ValueDef::Negate(value) => entry_value(permanent, *value)?.checked_neg(),
+        ValueDef::Negate(value) => entry_value(game, permanent, *value)?.checked_neg(),
         ValueDef::Scaled(scaled) => {
-            entry_value(permanent, scaled.value)?.checked_mul(scaled.factor)
+            entry_value(game, permanent, scaled.value)?.checked_mul(scaled.factor)
         }
-        ValueDef::Sum(sum) => {
-            entry_value(permanent, sum.left)?.checked_add(entry_value(permanent, sum.right)?)
-        }
-        ValueDef::Halved(halved) => Some(halved.apply(entry_value(permanent, halved.value)?)),
+        ValueDef::Sum(sum) => entry_value(game, permanent, sum.left)?
+            .checked_add(entry_value(game, permanent, sum.right)?),
+        ValueDef::Halved(halved) => Some(halved.apply(entry_value(game, permanent, halved.value)?)),
+        _ => None,
+    }
+}
+
+fn entry_objects(
+    game: &Game,
+    permanent: &Permanent,
+    objects: crate::card::ObjectSetDef,
+) -> Option<Vec<Target>> {
+    match objects {
+        crate::card::ObjectSetDef::LinkedExiles => Some(
+            game.linked_exile_ids_with_cast(permanent.card.id, permanent.cast.as_ref())
+                .into_iter()
+                .filter(|id| game.card_in_nonbattlefield_zone(*id).is_some())
+                .map(Target::Card)
+                .collect(),
+        ),
+        crate::card::ObjectSetDef::Matching {
+            objects,
+            object: predicate,
+        } => Some(
+            entry_objects(game, permanent, *objects)?
+                .into_iter()
+                .filter(|target| {
+                    game.bound_object_matches(*target, predicate.predicate(), permanent.card.id)
+                })
+                .collect(),
+        ),
         _ => None,
     }
 }

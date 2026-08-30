@@ -51,6 +51,19 @@ distinguishes snapshots of the covered source and build inputs.
   presented face still measures that face, and every other layout still
   answers with the face it is defined by.
 
+- **Casting choices and payment facts now survive resolution as one context.**
+  Stack objects and the permanents they become preserve their exact source
+  zone, selected alternative-cost kind, X and additional costs, colors and
+  Phyrexian life actually paid, and the new exile identities of cards used for
+  delve-like payments. Spell copies keep copied casting choices and payment
+  object references while correctly clearing facts that require an actual
+  cast. Escape checks now read the retained `escape` alternative rather than a
+  parallel tag, including Escape granted by Underworld Breach; kicker remains
+  independent. Ethereal Forager, Murktide Regent, Soulflayer, and Engineered
+  Explosives use the shared context, and The One Ring's trigger now shares the
+  same cast-provenance query. Checkpoint format 10 remains additive and reads
+  the retired Escape tag for compatibility while no longer writing tags.
+
 - **A transforming back face keeps the colour its indicator prints.** A back
   face has no mana cost, and colour was derived from the mana cost alone, so
   three of them turned over colourless: Tamiyo, Seasoned Scholar was not blue,

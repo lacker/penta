@@ -333,7 +333,7 @@ impl Game {
         &self,
         effect: EffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
-        conditions: &mut Vec<(&'static TriggerConditionDef, bool)>,
+        conditions: &mut Vec<(TriggerConditionDef, bool)>,
         kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
@@ -353,7 +353,7 @@ impl Game {
                 let conditional = effect
                     .conditional()
                     .expect("conditional variants expose their shared shape");
-                conditions.push((conditional.condition, true));
+                conditions.push((*conditional.condition, true));
                 let result = self.visit_static_effect_tree(
                     *conditional.then,
                     traversal,
@@ -365,7 +365,7 @@ impl Game {
                 if result.is_break() || conditional.otherwise.is_none() {
                     return result;
                 }
-                conditions.push((conditional.condition, false));
+                conditions.push((*conditional.condition, false));
                 let otherwise_result = self.visit_static_effect_tree(
                     *conditional.otherwise.expect("checked above"),
                     traversal,
@@ -375,6 +375,23 @@ impl Game {
                 );
                 conditions.pop();
                 otherwise_result
+            }
+            EffectDef::ConditionalStatic(conditional)
+                if self.source_object_set_count_condition_holds(
+                    conditional.condition,
+                    traversal.source.card.id,
+                ) =>
+            {
+                self.visit_static_effect_tree(
+                    EffectDef::StaticApply {
+                        recipient: conditional.then.recipient,
+                        effect: conditional.then.effect,
+                    },
+                    traversal,
+                    conditions,
+                    kind,
+                    visitor,
+                )
             }
             EffectDef::StaticApply { recipient, effect } => {
                 // CR 613.6 keeps one recipient set for every component of a
@@ -417,37 +434,12 @@ impl Game {
         }
     }
 
-    /// Whether this one applied effect begins choosing its recipients in
-    /// layer 4. Later components keep that selection under CR 613.6.
-    fn applied_effect_starts_in_type_layer(effect: AppliedEffectDef) -> bool {
-        match effect {
-            AppliedEffectDef::Composite(effects) => effects
-                .iter()
-                .copied()
-                .any(Self::applied_effect_starts_in_type_layer),
-            AppliedEffectDef::Characteristic(
-                CharacteristicOperationDef::ChosenBasicLandType
-                | CharacteristicOperationDef::BasicLandTypes(_)
-                | CharacteristicOperationDef::CardTypes(_)
-                | CharacteristicOperationDef::CreatureTypes(_)
-                | CharacteristicOperationDef::Subtypes(_),
-            ) => true,
-            AppliedEffectDef::Characteristic(
-                CharacteristicOperationDef::Abilities(_)
-                | CharacteristicOperationDef::Color(_)
-                | CharacteristicOperationDef::Colors(_)
-                | CharacteristicOperationDef::PowerToughness(_),
-            )
-            | AppliedEffectDef::Rule(_) => false,
-        }
-    }
-
     pub(super) fn visit_static_applied_effect_components(
         &self,
         effect: AppliedEffectDef,
         traversal: &mut StaticEffectTraversal<'_>,
         recipient_matches: bool,
-        conditions: &[(&'static TriggerConditionDef, bool)],
+        conditions: &[(TriggerConditionDef, bool)],
         kind: StaticEffectKind,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
@@ -532,8 +524,9 @@ impl Game {
     /// than a clause the card writes, the same way impending is: it follows
     /// from how the spell was paid for, and the permanent records that.
     pub(super) fn is_bestowed_aura(permanent: &Permanent) -> bool {
-        permanent.cast_alternative == Some(crate::card::AlternativeCastKindDef::Bestow)
-            && permanent.attached_to.is_some()
+        permanent.cast.as_ref().is_some_and(|cast| {
+            cast.alternative == Some(crate::card::AlternativeCastKindDef::Bestow)
+        }) && permanent.attached_to.is_some()
     }
 
     pub(super) fn is_aura_permanent(&self, permanent: &Permanent) -> bool {
@@ -702,6 +695,7 @@ impl Game {
                 | EffectDef::PhaseOut { .. }
                 | EffectDef::CreateToken { .. }
                 | EffectDef::CreateAttachedToken { .. }
+                | EffectDef::ConditionalStatic(_)
                 | EffectDef::StaticApply { .. }
                 | EffectDef::Apply { .. }
                 | EffectDef::Proliferate
@@ -833,7 +827,15 @@ impl Game {
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect,
-            } => Self::applied_effect_contains(effect, expected),
+            }
+            | EffectDef::ConditionalStatic(crate::card::ConditionalStaticEffectDef {
+                then:
+                    crate::card::StaticApplyDef {
+                        recipient: EffectRecipientDef::Source,
+                        effect,
+                    },
+                ..
+            }) => Self::applied_effect_contains(effect, expected),
             _ => false,
         }
     }
@@ -956,7 +958,7 @@ impl Game {
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
-                | ObjectSetDef::LinkedExiles(_)
+                | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
@@ -974,6 +976,7 @@ impl Game {
 
 include!("continuous_effects/aura_hosts.rs");
 include!("continuous_effects/characteristics.rs");
+include!("continuous_effects/effect_layers.rs");
 include!("continuous_effects/graveyard_sources.rs");
 include!("continuous_effects/static_predicates.rs");
 include!("continuous_effects/player_auras.rs");

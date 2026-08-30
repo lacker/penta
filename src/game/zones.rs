@@ -7,6 +7,8 @@ use super::{
     ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement, applicable_part_ids,
 };
 
+mod exile_events;
+
 /// Where a card headed for one zone actually goes when something on the
 /// battlefield replaces the move, and what that replacement puts on it.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -665,7 +667,7 @@ impl Game {
         // would, so nothing observes the permanent arriving untapped first.
         permanent.tapped = arrival.tapped;
         for modification in arrival.modifications {
-            Self::modify_battlefield_entry_permanent(&mut permanent, *modification);
+            self.modify_battlefield_entry_permanent(&mut permanent, *modification);
         }
         // A card put onto the battlefield face down was never face up there,
         // so these are part of the arrival rather than a later turn-over.
@@ -830,51 +832,6 @@ impl Game {
     /// from.
     pub(super) fn note_card_left_graveyard(&mut self, owner: PlayerId) {
         self.card_left_graveyard_this_turn[owner.index()] = true;
-    }
-
-    /// "Whenever one or more cards are put into exile from ...": one event
-    /// for the whole move, published once however many cards it took.
-    ///
-    /// Raised only where the cards came out of a hidden or public zone that
-    /// a clause can name -- a permanent exiled from the battlefield is a
-    /// zone change of its own and is published there.
-    pub(super) fn capture_cards_exiled(&mut self, cards: &[CardInstance], from: ZoneKind) {
-        let Some(owner) = cards.first().map(|card| card.owner) else {
-            return;
-        };
-        let objects = cards
-            .iter()
-            .filter_map(|card| {
-                self.printed_trigger_event_object(
-                    card.id,
-                    card.definition,
-                    card.owner,
-                    &CharacteristicContext::Exile,
-                )
-            })
-            .collect::<Vec<_>>();
-        if objects.is_empty() {
-            return;
-        }
-        self.capture_battlefield_triggers(&CommittedTriggerEvent::CardsExiled {
-            cards: objects,
-            from,
-            owner,
-        });
-    }
-
-    /// Raises the exile event for cards already sitting in exile, for the
-    /// tests that need one without an effect to make it.
-    #[cfg(test)]
-    pub(super) fn capture_exile_for_test(&mut self, cards: &[GameObjectId], from: ZoneKind) {
-        let moved = cards
-            .iter()
-            .filter_map(|id| {
-                self.card_in_nonbattlefield_zone(*id)
-                    .map(|(_, card)| card.clone())
-            })
-            .collect::<Vec<_>>();
-        self.capture_cards_exiled(&moved, from);
     }
 
     pub(super) fn discard_cards_with_cause(

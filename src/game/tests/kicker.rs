@@ -2,6 +2,7 @@
 //! resolution: ordinary kicker, multikicker, and two repeatable surcharges.
 
 use super::*;
+use crate::card::{CostQuantityDef, SpellAdditionalCostDef};
 
 fn settle(game: &mut Game) {
     for _ in 0..32 {
@@ -65,6 +66,119 @@ fn cast_with_costs(game: &mut Game, card: GameObjectId, wanted: &[AdditionalCost
         .expect("the selected optional costs are payable");
     game.apply(PlayerId::One, cast).expect("the spell is cast");
     settle(game);
+}
+
+#[test]
+#[allow(clippy::too_many_lines)]
+fn escape_context_and_kicker_payment_coexist_through_entry() {
+    static ABILITIES: [AbilityDef; 3] = [
+        AbilityDef::triggered_if(
+            "When this creature enters, if it escaped, you gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::All(&[
+                TriggerConditionDef::SourceWasCast,
+                TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+            ]),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        abilities::kicker(mana_cost!("{1}")),
+        AbilityDef::alternative_cast_with_additional_cost(
+            AlternativeCastManaCostDef::Fixed(mana_cost!("{B}")),
+            AlternativeCastKindDef::Escape,
+            None,
+            SpellAdditionalCostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::None,
+        ),
+    ];
+    let definition_id = CardDefinitionId::new(20_102);
+    let mut definition = CardDefinition::new(
+        definition_id,
+        "Escaped and Kicked",
+        CardSet::TherosBeyondDeath,
+        false,
+        CardBehavior::Unsupported,
+    );
+    definition.rules =
+        CardRules::new_creature(mana_cost!("{2}{B}"), &["Giant"], 3, 3).with_abilities(&ABILITIES);
+    synchronize_single_part_definition(&mut definition);
+    let mut game = ready_game();
+    game.catalog = CardCatalog::new([definition]).expect("the fixture is valid");
+    game.battlefield.clear();
+    for player in &mut game.players {
+        player.hand.clear();
+        player.graveyard.clear();
+        player.library.clear();
+        player.exile.clear();
+    }
+    let escaped = card(20_102, definition_id, PlayerId::One);
+    let escaped_id = escaped.id;
+    let fodder = card(20_103, definition_id, PlayerId::One);
+    let fodder_id = fodder.id;
+    game.players[0].graveyard.extend([escaped, fodder]);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| match action {
+            Action::CastSpell {
+                card,
+                choices,
+                sacrifices,
+            } => {
+                *card == escaped_id
+                    && choices.costs().alternative().is_some()
+                    && choices.costs().additional() == [AdditionalCostId(1)]
+                    && sacrifices == &[fodder_id]
+            }
+            _ => false,
+        })
+        .expect("escape and kicker are selectable together");
+    game.apply(PlayerId::One, cast).expect("the cast is legal");
+    let spell = game.stack.last().expect("the spell is on the stack");
+    let cast = spell.cast.as_ref().expect("the cast context is retained");
+    assert_eq!(cast.source_zone, Some(CastSourceZone::Graveyard));
+    assert_eq!(cast.alternative, Some(AlternativeCastKindDef::Escape));
+    assert_eq!(cast.additional_costs, [1]);
+    assert_eq!(cast.exiled_payment_cards.len(), 1);
+    let additional = spell
+        .signature
+        .as_ref()
+        .expect("a spell has a signature")
+        .costs()
+        .additional();
+    assert_eq!(
+        additional,
+        [AdditionalCostId(1)],
+        "the independent kicker selection remains in the cast context",
+    );
+    let life = game.players[0].life;
+    settle(&mut game);
+    let permanent = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == definition_id)
+        .expect("the escaped creature entered");
+    let cast = permanent
+        .cast
+        .as_ref()
+        .expect("entry kept the cast context");
+    assert_eq!(cast.source_zone, Some(CastSourceZone::Graveyard));
+    assert_eq!(cast.alternative, Some(AlternativeCastKindDef::Escape));
+    assert_eq!(cast.additional_costs, [1]);
+    assert_eq!(game.players[0].life, life + 1, "the escape condition fired");
 }
 
 fn staged_anavolver() -> (Game, GameObjectId) {

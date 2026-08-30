@@ -37,8 +37,7 @@ impl CastScale {
             crate::card::CostQuantityDef::Subtract(left, right) => {
                 Some(self.quantity(*left)?.saturating_sub(self.quantity(*right)?))
             }
-            crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
-            | crate::card::CostQuantityDef::CardTypesAtLeast(_) => None,
+            crate::card::CostQuantityDef::ObjectSetValueAtLeast(_) => None,
         }
     }
 }
@@ -365,20 +364,9 @@ impl Game {
         // object enumerates combinations rather than candidates. Order does
         // not matter -- exiling A then B is the same payment as B then A --
         // so each combination appears once, in candidate order.
-        if let crate::card::CostQuantityDef::TotalManaValueAtLeast(total) = quantity {
+        if let crate::card::CostQuantityDef::ObjectSetValueAtLeast(requirement) = quantity {
             return self
-                .mana_value_combinations(&candidates, u16::from(total))
-                .into_iter()
-                .map(|objects| SpellAdditionalCostPayment {
-                    objects: objects.into_iter().map(|object| (object, cost)).collect(),
-                    mana: ManaCost::default(),
-                    life: 0,
-                })
-                .collect();
-        }
-        if let crate::card::CostQuantityDef::CardTypesAtLeast(types) = quantity {
-            return self
-                .card_type_combinations(&candidates, u16::from(types))
+                .object_set_value_combinations(&candidates, *requirement)
                 .into_iter()
                 .map(|objects| SpellAdditionalCostPayment {
                     objects: objects.into_iter().map(|object| (object, cost)).collect(),

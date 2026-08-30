@@ -3,23 +3,27 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
-    EffectBindingLabelDef, EffectDef, EffectOutputBindingDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
-    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
-    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
-    SetOperationDef, SimultaneousChooseDef, SpellAdditionalCostDef, SumValueDef,
-    TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
+    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef,
+    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
+    CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
+    ClassifyObjectsDef, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostQuantityDef,
+    CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectBindingLabelDef, EffectDef,
+    EffectOutputBindingDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    EmblemCharacteristics, ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef,
+    InstalledTriggerLifetimeDef, ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef,
+    PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SetOperationDef,
+    SimultaneousChooseDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
+    TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
+
+use super::super::y2020::theros_beyond_death::escape;
 
 const DEVOURER_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 const DEVOURER_TOP: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
@@ -263,9 +267,16 @@ pub(in crate::card::sets) static PHELIA_EXUBERANT_SHEPHERD: CardRecord = CardRec
                                 // owner, so who owned it is the whole of the question. Asked before the
                                 // return rather than after, because by then there is no exile left to ask
                                 // about.
-                                condition: &TriggerConditionDef::LinkedExilesMatch {
-                                    object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-                                },
+                                condition: &TriggerConditionDef::ObjectSetCount(
+                                    &crate::card::ObjectSetCountConditionDef {
+                                        objects: &ObjectSetDef::LinkedExiles,
+                                        filter: Some(ObjectSetFilterDef::Predicate(
+                                            &ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                                        )),
+                                        comparison: ComparisonDef::GreaterOrEqual,
+                                        amount: 1,
+                                    },
+                                ),
                                 then: &EffectDef::AddCounters {
                                     object: EffectRecipientDef::Source,
                                     kind: CounterKind::PlusOnePlusOne,
@@ -491,7 +502,12 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                     chooser: PlayerRefDef::EffectController,
                     // "A creature card exiled with this creature": a pile no query can find,
                     // because what puts a card in it is which permanent exiled it.
-                    candidates: ObjectSetDef::LinkedExiles(ObjectPredicateDef::HasType(CardType::Creature)),
+                    candidates: ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::LinkedExiles,
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    },
                     exclude: None,
                     minimum: 1,
                     maximum: 1,
@@ -562,24 +578,27 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{2}{B}"),
+            AbilityDef::alternative_cast_with_additional_cost(
+                AlternativeCastManaCostDef::Fixed(mana_cost!("{2}{B}")),
                 AlternativeCastKindDef::Escape,
                 Some(
                     "Escape—{2}{B}, Exile any number of other cards from your graveyard with four or \
                      more card types among them. (You may cast this card from your graveyard for its \
                      escape cost.)",
                 ),
+                // The escape cost counts card types rather than cards: one Artifact
+                // Creature Land pays three quarters of it by itself, which is why the deck
+                // playing this is the one with a graveyard full of odd things.
+                SpellAdditionalCostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
+                        value: ObjectSetValueDef::CardTypeCount,
+                        minimum: 4,
+                    }),
+                ),
                 EffectDef::None,
-            )
-            // The escape cost counts card types rather than cards: one Artifact
-            // Creature Land pays three quarters of it by itself, which is why the deck
-            // playing this is the one with a graveyard full of odd things.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-                ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                CostQuantityDef::CardTypesAtLeast(4),
-            )),
+            ),
         ]),
 );
 
@@ -687,7 +706,13 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
-                CostQuantityDef::TotalManaValueAtLeast(6),
+                CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
+                    value: ObjectSetValueDef::Aggregate {
+                        select: ObjectValueDef::ManaValue,
+                        operation: AggregateOperationDef::Sum,
+                    },
+                    minimum: 6,
+                }),
             ))
             .with_alternative_from_graveyard(),
             abilities::flying(),
@@ -979,7 +1004,9 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                             objects: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
                                 "milled_cards",
                             )),
-                            object: &ObjectPredicateDef::HasType(CardType::Land),
+                            object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                                CardType::Land,
+                            )),
                         },
                         exclude: None,
                         minimum: 0,
@@ -1230,7 +1257,13 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                     // remembers: a Phlage cast for its printed cost sacrifices itself and leaves
                     // the Lightning Helix behind.
                     &TriggerConditionDef::Not(
-                        &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+                        &TriggerConditionDef::All(&[
+                            TriggerConditionDef::SourceWasCast,
+                            TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                            TriggerConditionDef::SourceCastWith(
+                                AlternativeCastKindDef::Escape,
+                            ),
+                        ]),
                     ),
                     EffectDef::Sacrifice {
                         object: EffectRecipientDef::Source,
@@ -1263,23 +1296,10 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                         },
                     ]),
                 ),
-                AbilityDef::alternative_cast(
-                    mana_cost!("{R}{R}{W}{W}"),
-                    AlternativeCastKindDef::Escape,
-                    Some(
-                        "Escape—{R}{R}{W}{W}, Exile five other cards from your graveyard. (You may cast this \
-                         card from your graveyard for its escape cost.)",
-                    ),
-                    EffectDef::None,
-                )
-                // Five cards out of your own graveyard, exiled to pay. The card being cast
-                // is on the stack by the time costs are paid, so "other" takes care of
-                // itself: it is not there to be chosen.
-                .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-                    ObjectPredicateDef::Any,
-                    ZoneKind::Graveyard,
-                    CostQuantityDef::Fixed(5),
-                )),
+                escape(
+                    AlternativeCastManaCostDef::Fixed(mana_cost!("{R}{R}{W}{W}")),
+                    5,
+                ),
             ]),
     );
 

@@ -1,7 +1,10 @@
 //! What an effect asks about before it does anything: where a card may be
 //! chosen from, and the reusable conditions a clause is gated on.
 
-use super::{ComparisonDef, ObjectQueryDef, ZoneKind};
+use super::{
+    AppliedEffectDef, ComparisonDef, EffectRecipientDef, ObjectQueryDef, ObjectSetDef,
+    ObjectSetFilterDef, ZoneKind,
+};
 
 /// One place an effect may choose an owned card from.
 ///
@@ -44,4 +47,29 @@ pub struct ObjectCountConditionDef {
     pub query: ObjectQueryDef,
     pub comparison: ComparisonDef,
     pub amount: u8,
+}
+
+/// How many members of an already-resolved object set must exist. Unlike an
+/// [`ObjectCountConditionDef`], this composes with provenance-based sets such
+/// as cards linked in exile rather than querying zones.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ObjectSetCountConditionDef {
+    pub objects: &'static ObjectSetDef,
+    pub filter: Option<ObjectSetFilterDef>,
+    pub comparison: ComparisonDef,
+    pub amount: u8,
+}
+
+/// The unconditional operation performed by one static effect.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct StaticApplyDef {
+    pub recipient: EffectRecipientDef,
+    pub effect: AppliedEffectDef,
+}
+
+/// A static operation gated by a separately composed object-set condition.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ConditionalStaticEffectDef {
+    pub condition: ObjectSetCountConditionDef,
+    pub then: StaticApplyDef,
 }

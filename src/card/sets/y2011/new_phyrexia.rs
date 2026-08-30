@@ -6,12 +6,13 @@ use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ControlDurationDef,
-    CopyExceptionsDef, CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ControlDurationDef, CopyExceptionsDef, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     SpellAdditionalCostDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -1007,8 +1008,16 @@ pub(in crate::card::sets) static PHYREXIAN_INGESTER: CardRecord = CardRecord::ne
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::TotalPowerOfLinkedExiles,
-                        ValueDef::TotalToughnessOfLinkedExiles,
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::LinkedExiles,
+                            select: ObjectValueDef::Power,
+                            operation: AggregateOperationDef::Sum,
+                        }),
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::LinkedExiles,
+                            select: ObjectValueDef::Toughness,
+                            operation: AggregateOperationDef::Sum,
+                        }),
                     ),
                 },
             ),

@@ -40,6 +40,35 @@ impl AbilityDef {
         )
     }
 
+    /// Builds an alternative cast whose nonmana payment is part of that same
+    /// casting procedure. Taking the value directly lets set-level mechanic
+    /// helpers compose costs from their parameters in a `const fn`.
+    #[must_use]
+    pub const fn alternative_cast_with_additional_cost(
+        mana_cost: AlternativeCastManaCostDef,
+        kind: AlternativeCastKindDef,
+        stack_text: Option<&'static str>,
+        additional_cost: SpellAdditionalCostDef,
+        effect: EffectDef,
+    ) -> Self {
+        Self::defined(
+            kind.label(),
+            DeclarativeAbilityDef::AlternativeCast(AlternativeCastAbilityDef {
+                mana_cost,
+                kind,
+                stack_text,
+                targets: &[],
+                additional_cost: Some(additional_cost),
+                condition: None,
+                life: 0,
+                opponent_life_gain: 0,
+                minimum_x: 0,
+                from_graveyard: false,
+            }),
+            effect,
+        )
+    }
+
     /// Builds an alternative-casting ability whose cost is the mana cost of
     /// the card carrying the ability. This is resolved only after a concrete
     /// spell form has been selected.

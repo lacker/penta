@@ -174,6 +174,21 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::CannotAttackIf(_)
         | EffectDef::GainControl { .. }
         | EffectDef::Sequence(_) => shared_static_non_apply_effect(source_zones, effect),
+        EffectDef::ConditionalStatic(conditional) => {
+            battlefield_only(source_zones)
+                && shared_source_object_set(*conditional.condition.objects)
+                && conditional
+                    .condition
+                    .filter
+                    .is_none_or(|filter| shared_object_predicate(filter.predicate()))
+                && shared_static_effect(
+                    source_zones,
+                    EffectDef::StaticApply {
+                        recipient: conditional.then.recipient,
+                        effect: conditional.then.effect,
+                    },
+                )
+        }
         EffectDef::StaticApply { recipient, effect } => {
             let battlefield_recipient_is_supported = match recipient.0 {
                 EffectRecipientSetDef::Objects(ObjectSetDef::One(
@@ -217,7 +232,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::Matching { .. }
-                    | ObjectSetDef::LinkedExiles(_)
+                    | ObjectSetDef::LinkedExiles
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::PermanentsControlledBy(_)
                     | ObjectSetDef::BottomOfGraveyard(_)
@@ -645,10 +660,6 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         // source, which the static power-and-toughness layer has in hand.
         | crate::card::ValueDef::AffectedManaValue
         | crate::card::ValueDef::AffectedColorCount
-        // Read from the pile the source exiled as it entered, which the
-        // static power-and-toughness layer can reach from that source.
-        | crate::card::ValueDef::TotalPowerOfLinkedExiles
-        | crate::card::ValueDef::TotalToughnessOfLinkedExiles
         // Read live from every graveyard, which the layer walk can reach
         // without a resolving spell in hand.
         | crate::card::ValueDef::CardTypesAmongGraveyards(_)
@@ -660,6 +671,13 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         // Domain, read live off the lands on the battlefield the same way a
         // battlefield count is.
         | crate::card::ValueDef::BasicLandTypesControlled(_) => true,
+        crate::card::ValueDef::CountObjects(objects)
+        | crate::card::ValueDef::CardTypesAmongObjects(objects) => {
+            shared_source_object_set(*objects)
+        }
+        crate::card::ValueDef::AggregateObjectValues(aggregate) => {
+            shared_source_object_set(aggregate.objects)
+        }
         crate::card::ValueDef::Scaled(scaled) => static_stat_value(scaled.value),
         crate::card::ValueDef::Halved(halved) => static_stat_value(halved.value),
         crate::card::ValueDef::IfSourceMatches(branches) => {

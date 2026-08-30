@@ -70,6 +70,9 @@ impl Game {
                         (source || found.0, external || found.1)
                     })
             }
+            EffectDef::ConditionalStatic(conditional) => {
+                Self::applied_grant_entry_replacement_possibilities(conditional.then.effect)
+            }
             EffectDef::StaticApply { effect, .. } => {
                 Self::applied_grant_entry_replacement_possibilities(effect)
             }

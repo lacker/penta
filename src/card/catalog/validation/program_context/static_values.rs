@@ -16,13 +16,10 @@ fn static_source_value_supported(value: ValueDef) -> bool {
 }
 
 fn static_object_value_aggregate_supported(aggregate: ObjectValueAggregateDef) -> bool {
-    let ObjectSetDef::Query(query) = aggregate.objects else {
-        return false;
-    };
     matches!(
         aggregate.select,
-        ObjectValueDef::ManaValue | ObjectValueDef::Power
-    ) && static_query_supported(query)
+        ObjectValueDef::ManaValue | ObjectValueDef::Power | ObjectValueDef::Toughness
+    ) && static_object_set_supported(aggregate.objects)
 }
 
 fn static_power_toughness_value_supported(value: ValueDef) -> bool {
@@ -35,9 +32,6 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::AffectedManaValue
         | ValueDef::AffectedColorCount
-        | ValueDef::CardTypesAmongLinkedExiles
-        | ValueDef::TotalPowerOfLinkedExiles
-        | ValueDef::TotalToughnessOfLinkedExiles
         // Read live from every graveyard, which the static layer can see the
         // same way it sees a battlefield count.
         | ValueDef::CardTypesAmongGraveyards(_)
@@ -58,6 +52,9 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         }
         ValueDef::AggregateObjectValues(aggregate) => {
             static_object_value_aggregate_supported(*aggregate)
+        }
+        ValueDef::CountObjects(objects) | ValueDef::CardTypesAmongObjects(objects) => {
+            static_object_set_supported(*objects)
         }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
@@ -98,7 +95,6 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::MatchedCount
         | ValueDef::MatchedCardTypes
         | ValueDef::MatchedManaValue
-        | ValueDef::CountObjects(_)
         | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
@@ -142,9 +138,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::SourcePower
         | ValueDef::AffectedManaValue
         | ValueDef::AffectedColorCount
-        | ValueDef::CardTypesAmongLinkedExiles
-        | ValueDef::TotalPowerOfLinkedExiles
-        | ValueDef::TotalToughnessOfLinkedExiles
+        | ValueDef::CardTypesAmongObjects(_)
         | ValueDef::SourceToughness
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness

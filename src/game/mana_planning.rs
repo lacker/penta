@@ -801,7 +801,7 @@ impl Game {
             })
             .map(|payment| payment.source)
             .collect::<Vec<_>>();
-        self.exile_graveyard_cards(player, &exiled);
+        let _ = self.exile_graveyard_cards(player, &exiled);
         residual
     }
 

@@ -115,6 +115,7 @@ impl ObjectCounterValueDef {
 pub enum ObjectValueDef {
     ManaValue,
     Power,
+    Toughness,
 }
 
 /// How a projected collection of object values becomes one effect value.
@@ -122,6 +123,7 @@ pub enum ObjectValueDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AggregateOperationDef {
     Maximum,
+    Sum,
 }
 
 /// A composable object-set value: resolve `objects`, project `select` from
@@ -305,17 +307,6 @@ pub enum ValueDef {
     /// than the Equipment applying the bonus, and the value follows later
     /// color-changing effects.
     AffectedColorCount,
-    /// The printed power, or toughness, of every card exiled with the
-    /// ability's own source, added up. Sutured Ghoul is the body its own
-    /// entry assembled, so the number is read off that pile rather than off
-    /// the board.
-    /// How many card types are among the cards exiled with the source,
-    /// which is the pile the two totals below measure. The mirror of
-    /// [`Self::CardTypesAmongGraveyards`] over that pile rather than over a
-    /// zone: a card that is both an artifact and a creature counts twice.
-    CardTypesAmongLinkedExiles,
-    TotalPowerOfLinkedExiles,
-    TotalToughnessOfLinkedExiles,
     SourcePower,
     SourceToughness,
     TriggerEventAmount,
@@ -340,6 +331,10 @@ pub enum ValueDef {
     /// How many objects are in a resolved set. Unlike a query, this can count
     /// the output of an earlier effect after those objects have moved.
     CountObjects(&'static ObjectSetDef),
+    /// How many distinct card types occur among a resolved object set. One
+    /// artifact creature contributes both types; repetitions contribute
+    /// neither type twice.
+    CardTypesAmongObjects(&'static ObjectSetDef),
     /// How many matching permanents are attached to the named player.
     CountMatchingPlayerAttachments(&'static PlayerAttachmentQueryDef),
     /// How many spells matching the query have been cast this turn.

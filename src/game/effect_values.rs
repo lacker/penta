@@ -90,11 +90,13 @@ impl Game {
         self.battlefield
             .iter()
             .find(|permanent| permanent.card.id == source)
-            .and_then(|permanent| permanent.cast_additional_costs.get(cost.index()).copied())
+            .and_then(|permanent| permanent.cast.as_ref())
+            .and_then(|cast| cast.additional_costs.get(cost.index()).copied())
             .or_else(|| match self.retired_objects.get(&source) {
-                Some(RetiredObject::Permanent { permanent, .. }) => {
-                    permanent.cast_additional_costs.get(cost.index()).copied()
-                }
+                Some(RetiredObject::Permanent { permanent, .. }) => permanent
+                    .cast
+                    .as_ref()
+                    .and_then(|cast| cast.additional_costs.get(cost.index()).copied()),
                 Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
             })
             .unwrap_or_else(|| self.additional_cost_payment_count(source, cost))
@@ -103,28 +105,12 @@ impl Game {
     /// How many times a spell paid a repeatable optional additional cost.
     /// The cast's record lists one entry per payment, so this is how many of
     /// those entries name a cost the card lets you pay more than once.
-    pub(super) fn repeatable_additional_cost_payments(&self, spell: GameObjectId) -> u16 {
-        let object = self
-            .stack
-            .iter()
-            .find(|candidate| candidate.id == spell)
-            .or_else(|| match self.retired_objects.get(&spell) {
-                Some(RetiredObject::Stack(object)) => Some(object),
-                Some(RetiredObject::Card(_) | RetiredObject::Permanent { .. }) | None => None,
-            });
-        let Some(signature) = object.and_then(|object| object.signature.as_ref()) else {
-            return 0;
-        };
-        let Some(option) = object
-            .and_then(|object| object.card.definition.card_definition())
-            .and_then(|definition| self.catalog.get(definition))
-            .and_then(|definition| definition.play_option(signature.play_option()))
-        else {
-            return 0;
-        };
+    pub(super) fn repeatable_additional_cost_payments_for(
+        option: &PlayOptionDef,
+        costs: &CostConfiguration,
+    ) -> u16 {
         u16::try_from(
-            signature
-                .costs()
+            costs
                 .additional()
                 .iter()
                 .filter(|paid| {
@@ -326,19 +312,14 @@ impl Game {
             ValueDef::DistinctTargets
             | ValueDef::DividedAmongTargets
             | ValueDef::AffectedManaValue
-            | ValueDef::AffectedColorCount
-            | ValueDef::TotalPowerOfLinkedExiles
-            | ValueDef::TotalToughnessOfLinkedExiles => 0,
-            // Read off the pile the source took rather than off the board,
-            // which is where a resolving effect finds it too.
-            ValueDef::CardTypesAmongLinkedExiles => {
-                self.card_types_among_linked_exiles(object.source.unwrap_or(object.id))
-            }
+            | ValueDef::AffectedColorCount => 0,
             ValueDef::SourceCastX => self
                 .battlefield
                 .iter()
                 .find(|permanent| Some(permanent.card.id) == object.source)
-                .map_or(0, |permanent| i32::from(permanent.cast_x)),
+                .map_or(0, |permanent| {
+                    i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))
+                }),
             ValueDef::TriggeringObjectPower => context
                 .trigger
                 .object
@@ -484,6 +465,8 @@ impl Game {
                 .len(),
             )
             .unwrap_or(i32::MAX),
+            ValueDef::CardTypesAmongObjects(objects) => self
+                .card_types_among_targets(&self.effect_objects(*objects, object, context, scoped)),
             // Everybody's spells, minus the one carrying the ability: it was
             // counted as it was cast, and storm copies what came before it.
             ValueDef::SpellsCastBeforeThisTurn => i32::from(
@@ -504,7 +487,10 @@ impl Game {
                         .iter()
                         .find(|permanent| permanent.card.id == source)
                         .and_then(|permanent| {
-                            permanent.cast_additional_costs.get(cost.index()).copied()
+                            permanent
+                                .cast
+                                .as_ref()
+                                .and_then(|cast| cast.additional_costs.get(cost.index()).copied())
                         })
                         .unwrap_or(0),
                 )
@@ -621,10 +607,16 @@ impl Game {
                             crate::card::ObjectValueDef::Power => {
                                 self.current_or_last_known_power(id).map(i32::from)
                             }
+                            crate::card::ObjectValueDef::Toughness => {
+                                self.current_or_last_known_toughness(id).map(i32::from)
+                            }
                         }
                     });
                 match aggregate.operation {
                     crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
+                    crate::card::AggregateOperationDef::Sum => {
+                        values.fold(0_i32, i32::saturating_add)
+                    }
                 }
             }
             ValueDef::AnyMatchingObject(query) => i32::from(self.any_battlefield_object_matches(
@@ -809,21 +801,17 @@ impl Game {
         i32::try_from(names.len()).unwrap_or(i32::MAX)
     }
 
-    /// How many card types are among the cards exiled with `source`. The
-    /// pile is read from where the cards actually are, so one that has left
-    /// exile since is no longer part of it.
-    pub(super) fn card_types_among_linked_exiles(&self, source: GameObjectId) -> i32 {
+    /// How many distinct printed card types occur among a resolved set.
+    pub(super) fn card_types_among_targets(&self, objects: &[Target]) -> i32 {
         let mut seen = CardTypeSet::empty();
-        for (_, exiled) in self
-            .linked_exiles
-            .iter()
-            .filter(|(linked_source, _)| *linked_source == source)
-        {
-            // Still in exile: a card that has left is no longer one of the
-            // cards exiled with the source, whatever the pile remembers.
-            if let Some((crate::card::ZoneKind::Exile, card)) =
-                self.card_in_nonbattlefield_zone(*exiled)
-                && let Some(definition) = self.catalog.get(card.definition)
+        for object in objects {
+            let id = match object {
+                Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => *id,
+                Target::Player(_) => continue,
+            };
+            if let Some(definition) = self
+                .object_definition(id)
+                .and_then(|definition| self.catalog.get(definition))
             {
                 seen = seen.union(definition.rules.types());
             }

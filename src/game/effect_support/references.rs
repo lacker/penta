@@ -604,26 +604,30 @@ impl Game {
             .unwrap_or_default()
     }
 
-    /// The cards exiled with `source` that match. Which permanent exiled
-    /// them, not where they are: the pile is read off the link the exile
-    /// recorded rather than found by looking.
-    pub(in crate::game) fn linked_exile_targets(
+    pub(in crate::game) fn source_object_set_targets(
         &self,
-        predicate: ObjectPredicateDef,
+        objects: ObjectSetDef,
         source: GameObjectId,
     ) -> Vec<Target> {
-        self.linked_exiles
-            .iter()
-            .filter(|(exiled_by, _)| *exiled_by == source)
-            .map(|(_, exiled)| *exiled)
-            .filter(|exiled| {
-                self.card_in_nonbattlefield_zone(*exiled)
-                    .is_some_and(|(zone, card)| {
-                        self.card_object_matches(predicate, card, zone, source)
-                    })
-            })
-            .map(Target::Card)
-            .collect()
+        match objects {
+            ObjectSetDef::LinkedExiles => self
+                .linked_exile_ids(source)
+                .into_iter()
+                .filter(|id| self.card_in_nonbattlefield_zone(*id).is_some())
+                .map(Target::Card)
+                .collect(),
+            ObjectSetDef::Matching {
+                objects,
+                object: predicate,
+            } => self
+                .source_object_set_targets(*objects, source)
+                .into_iter()
+                .filter(|target| {
+                    self.bound_object_matches(*target, predicate.predicate(), source)
+                })
+                .collect(),
+            _ => Vec::new(),
+        }
     }
 
     fn legal_attachment_hosts(
@@ -721,7 +725,9 @@ impl Game {
             } => self
                 .effect_objects(*objects, object, context, scoped)
                 .into_iter()
-                .filter(|bound| self.bound_object_matches(*bound, *predicate, object.id))
+                .filter(|bound| {
+                    self.bound_object_matches(*bound, predicate.predicate(), object.id)
+                })
                 .collect(),
             ObjectSetDef::PermanentsTargetedBy(reference) => self
                 .object_reference_target(reference, object, context, scoped)
@@ -788,9 +794,12 @@ impl Game {
                     .into_iter()
                     .collect()
             }
-            ObjectSetDef::LinkedExiles(predicate) => {
-                self.linked_exile_targets(predicate, object.source.unwrap_or(object.id))
-            }
+            ObjectSetDef::LinkedExiles => self
+                .linked_exile_ids(object.source.unwrap_or(object.id))
+                .into_iter()
+                .filter(|id| self.card_in_nonbattlefield_zone(*id).is_some())
+                .map(Target::Card)
+                .collect(),
             // The front of the vector is the oldest card, which is the one at
             // the bottom of the pile.
             ObjectSetDef::BottomOfGraveyard(player) => self

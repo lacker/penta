@@ -84,13 +84,19 @@ impl Game {
                 }
             }
 
-            self.pay_nonbattlefield_spell_object_cost(
+            let exiled_payment_cards = self.pay_nonbattlefield_spell_object_cost(
                 stack_object.controller,
                 spent,
                 cost,
                 &mut remaining_sacrifices,
                 &mut stack_object.chosen_permanents,
             );
+            stack_object
+                .cast
+                .as_mut()
+                .expect("a cast spell retains its context through payment")
+                .exiled_payment_cards
+                .extend(exiled_payment_cards);
         }
 
         Some((stack_object, targets))
@@ -103,12 +109,12 @@ impl Game {
         cost: SpellAdditionalCostDef,
         remaining_payments: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
         paid_objects: &mut Vec<GameObjectId>,
-    ) {
+    ) -> Vec<GameObjectId> {
         let Some((from, card)) = self
             .card_in_nonbattlefield_zone(spent)
             .map(|(zone, card)| (zone, card.clone()))
         else {
-            return;
+            return Vec::new();
         };
         let destination = match cost {
             SpellAdditionalCostDef::Discard { .. } => ZoneKind::Graveyard,
@@ -126,13 +132,12 @@ impl Game {
                 ..
             }
         ) {
-            self.exile_graveyard_payment_batch(
+            return self.exile_graveyard_payment_batch(
                 owner,
                 spent,
                 remaining_payments,
                 paid_objects,
             );
-            return;
         }
         let discarded = if matches!(cost, SpellAdditionalCostDef::Discard { .. }) {
             self.printed_trigger_event_object(
@@ -151,7 +156,7 @@ impl Game {
             ZoneMoveCause::Effect { controller },
             None,
         );
-        if let (Some(discarded), Some((card, _actual_destination))) = (discarded, moved) {
+        if let (Some(discarded), Some((card, _actual_destination))) = (discarded, moved.as_ref()) {
             self.events.push(GameEvent::CardsDiscarded {
                 player: owner,
                 cards: vec![(card.id, card.definition)],
@@ -164,6 +169,9 @@ impl Game {
                 player: owner,
             });
         }
+        moved
+            .filter(|(_, actual_destination)| *actual_destination == ZoneKind::Exile)
+            .map_or_else(Vec::new, |(card, _)| vec![card.id])
     }
 
     fn exile_graveyard_payment_batch(
@@ -172,7 +180,7 @@ impl Game {
         spent: GameObjectId,
         remaining_sacrifices: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
         paid_objects: &mut Vec<GameObjectId>,
-    ) {
+    ) -> Vec<GameObjectId> {
         let mut exiled = Vec::new();
         let mut next = Some(spent);
         while let Some(id) = next.take() {
@@ -210,5 +218,6 @@ impl Game {
             self.capture_cards_exiled(&exiled, ZoneKind::Graveyard);
             self.note_card_left_graveyard(owner);
         }
+        exiled.into_iter().map(|card| card.id).collect()
     }
 }

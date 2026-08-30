@@ -39,6 +39,9 @@ fn collect_ability_grants(
                 emblems,
             );
         }
+        EffectDef::ConditionalStatic(conditional) => {
+            collect_applied_ability_grants(conditional.then.effect, grants);
+        }
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
         | EffectDef::DealDamageAndApply {
@@ -161,6 +164,9 @@ fn ability_grant_sites(effect: EffectDef) -> usize {
         EffectDef::IfFormat {
             then, otherwise, ..
         } => return ability_grant_sites(*then).max(ability_grant_sites(*otherwise)),
+        EffectDef::ConditionalStatic(conditional) => {
+            applied_ability_grant_sites(conditional.then.effect)
+        }
         EffectDef::StaticApply { effect, .. }
         | EffectDef::Apply { effect, .. }
         | EffectDef::DealDamageAndApply {

@@ -878,6 +878,7 @@ impl Game {
             | EffectDef::LandwalkCanBeBlocked(_)
             | EffectDef::CannotAttackUnless(_)
             | EffectDef::CannotAttackIf(_)
+            | EffectDef::ConditionalStatic(_)
             | EffectDef::StaticApply { .. }
             | EffectDef::Special(_) => {
                 // Myriad performs no mutation in a two-player game because

@@ -73,7 +73,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
                 binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::LinkedExiles(ObjectPredicateDef::Any),
+                candidates: ObjectSetDef::LinkedExiles,
                 exclude: None,
                 minimum: 1,
                 maximum: 1,

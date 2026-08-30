@@ -182,6 +182,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ShuffleLibrary { .. }
         | EffectDef::SkipNextUntapSteps { .. }
         | EffectDef::Special(_)
+        | EffectDef::ConditionalStatic(_)
         | EffectDef::StaticApply { .. }
         | EffectDef::TakeExtraTurn { .. }
         | EffectDef::Tap { .. }

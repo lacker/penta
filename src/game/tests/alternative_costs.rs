@@ -67,7 +67,14 @@ fn think_twice_can_be_flashed_back_and_is_exiled_after_resolving() {
     let action = alternative_cast_action(&game, PlayerId::One, graveyard_id, AlternativeCostId(1));
     game.apply(PlayerId::One, action).unwrap();
     assert!(game.players[0].graveyard.is_empty());
-    assert!(game.stack.last().unwrap().cast_via_flashback);
+    assert!(
+        game.stack
+            .last()
+            .unwrap()
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.via_flashback)
+    );
     pass_priority_pair(&mut game);
 
     assert_eq!(game.players[0].library.len(), library_before - 1);
@@ -309,7 +316,14 @@ fn snapcaster_granted_flashback_uses_the_card_mana_cost_and_exiles_on_resolution
     game.apply(PlayerId::One, actions.into_iter().next().unwrap())
         .unwrap();
     assert_eq!(game.players[0].mana_pool, ManaPool::default());
-    assert!(game.stack.last().unwrap().cast_via_flashback);
+    assert!(
+        game.stack
+            .last()
+            .unwrap()
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.via_flashback)
+    );
     pass_priority_pair(&mut game);
 
     assert_eq!(

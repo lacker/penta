@@ -1,7 +1,7 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior,
-    CardDefinition, CardInstance, CardType, CastChoices, CastOfferCost, CastSignature,
+    CardDefinition, CardInstance, CardType, CastChoices, CastContext, CastOfferCost, CastSignature,
     CastSourceZone, CharacteristicContext, CommittedTriggerEvent, CostConfiguration,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
@@ -17,8 +17,18 @@ include!("casting/object_costs.rs");
 include!("casting/scalar_choices.rs");
 
 use crate::card::{
-    BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellAdditionalCostDef,
+    BattlefieldEntryScalarChoiceDef, CardSet, FaceDownCharacteristics, ScalarChoiceListDef,
+    SpellAdditionalCostDef,
 };
+
+struct SpellCastProposal {
+    card: CardInstance,
+    signature: CastSignature,
+    source_zone: CastSourceZone,
+    alternative: Option<AlternativeCastKindDef>,
+    cast_via_flashback: bool,
+    face_down: Option<FaceDownCharacteristics>,
+}
 
 impl Game {
     pub(super) fn play_land(
@@ -244,33 +254,6 @@ impl Game {
         player == self.active_player && self.step.is_main() && self.stack.is_empty()
     }
 
-    /// Which alternative a spell was cast with, read off the spell object.
-    ///
-    /// A "when you cast this spell, if it was kicked" trigger asks while the
-    /// spell is still on the stack. The spell's own resolution asks after it
-    /// has left, so the retired record answers there -- the signature is the
-    /// same either way.
-    pub(super) fn stack_object_cast_with(
-        &self,
-        object: GameObjectId,
-    ) -> Option<AlternativeCastKindDef> {
-        let stack_object = self
-            .stack
-            .iter()
-            .find(|candidate| candidate.id == object)
-            .or_else(|| match self.retired_objects.get(&object) {
-                Some(super::RetiredObject::Stack(retired)) => Some(retired.as_ref()),
-                Some(super::RetiredObject::Card(_) | super::RetiredObject::Permanent { .. })
-                | None => None,
-            })?;
-        let signature = stack_object.signature.as_ref()?;
-        let definition = self
-            .catalog
-            .get(stack_object.card.definition.card_definition()?)?;
-        let option = definition.play_option(signature.play_option())?;
-        self.selected_alternative_kind(definition, option, object, signature.costs())
-    }
-
     fn cast_alternative_kind(
         &self,
         player: PlayerId,
@@ -367,9 +350,8 @@ impl Game {
         self.reveal_spliced_cards(player, choices.spliced());
         let phyrexian_life = Self::mana_payment_life(choices.mana_payment())
             .expect("validated casting choices carry a valid flexible-mana payment");
-        let phyrexian_symbols_paid_with_life =
-            Self::phyrexian_symbols_paid_with_life(choices.mana_payment())
-                .expect("validated casting choices carry a valid flexible-mana payment");
+        let phyrexian_life_symbols = Self::phyrexian_symbols_paid_with_life(choices.mana_payment())
+            .expect("validated casting choices carry a valid flexible-mana payment");
         // Keep the standing offer through validation; consume it before costs or movement.
         let targets = signature.iter_targets().copied().collect::<Vec<_>>();
         let x = signature.x();
@@ -395,31 +377,32 @@ impl Game {
         );
         let face_down = alternative_kind.and_then(AlternativeCastKindDef::face_down);
         let energy = self.exile_energy_cost(card_id, player).unwrap_or(0);
-        // Read while the card is still on the library, which is the only
-        // place the permission reaching it can be found.
+        // Read on the library, the only place its permission can be found.
         let library_top_life = if source_zone == CastSourceZone::LibraryTop {
             self.library_top_life_for_cast(player, card_id, choices)
         } else {
             0
         };
-        // Read before the signature is handed to the stack object, and paid
-        // below beside every other cost this cast owes.
+        // Read before the signature reaches the stack object, then pay below.
         let opponent_life_gain = self.cast_opponent_life_gain(card_id, &signature);
         let card = self.remove_card_for_cast(player, card_id, source_zone);
         let mut stack_object = self.propose_spell_on_stack(
             player,
-            card,
-            signature,
-            source_zone,
-            cast_via_flashback,
-            face_down,
+            SpellCastProposal {
+                card,
+                signature,
+                source_zone,
+                alternative: alternative_kind,
+                cast_via_flashback,
+                face_down,
+            },
         );
-        stack_object.cast_via_suspend = cast_via_suspend;
-        stack_object.phyrexian_symbols_paid_with_life = phyrexian_symbols_paid_with_life;
-        // "If you do, it gains ...": the permission that allowed this cast
-        // hands the spell what the permanent it becomes will carry, which
-        // rides beside the keyword riders a mana payment can leave.
-        Self::attach_permission_grant(&mut stack_object, granted_by_permission);
+        Self::record_cast_context(
+            &mut stack_object,
+            cast_via_suspend,
+            phyrexian_life_symbols,
+            granted_by_permission,
+        );
         let stack_id = stack_object.id;
         let definition = stack_object
             .card
@@ -498,12 +481,16 @@ impl Game {
     fn propose_spell_on_stack(
         &mut self,
         player: PlayerId,
-        card: CardInstance,
-        signature: CastSignature,
-        source_zone: CastSourceZone,
-        cast_via_flashback: bool,
-        face_down: Option<crate::card::FaceDownCharacteristics>,
+        proposal: SpellCastProposal,
     ) -> StackObject {
+        let SpellCastProposal {
+            card,
+            signature,
+            source_zone,
+            alternative,
+            cast_via_flashback,
+            face_down,
+        } = proposal;
         let timing_option = self
             .catalog
             .get(card.definition)
@@ -523,6 +510,18 @@ impl Game {
         // Read now, because nothing afterwards can tell: by resolution the
         // step has usually moved on, and the stack is empty again.
         let cast_at_instant_speed = !self.sorcery_speed_available(player);
+        let option = timing_option
+            .as_ref()
+            .expect("a validated cast signature names a play option");
+        let cast = CastContext::for_cast(
+            source_zone,
+            alternative,
+            cast_at_instant_speed,
+            signature.x(),
+            Self::repeatable_additional_cost_payments_for(option, signature.costs()),
+            Self::additional_cost_payment_counts_for(option, signature.costs()),
+            cast_via_flashback,
+        );
         StackObject {
             id,
             kind: StackObjectKind::Spell,
@@ -535,13 +534,8 @@ impl Game {
             applied_effects: Vec::new(),
             text_changes: Vec::new(),
             colors: None,
-            cast_via_flashback,
-            cast_via_suspend: false,
-            cast_at_instant_speed,
-            cast_from_zone: Some(source_zone),
+            cast: Some(cast),
             face_down,
-            colors_of_mana_spent: crate::card::ColorSet::empty(),
-            phyrexian_symbols_paid_with_life: 0,
             is_copy: false,
         }
     }
@@ -639,7 +633,13 @@ impl Game {
             })
             .map(|payment| payment.source)
             .collect::<Vec<_>>();
-        self.exile_graveyard_cards(stack_object.controller, &exiled);
+        let exiled = self.exile_graveyard_cards(stack_object.controller, &exiled);
+        stack_object
+            .cast
+            .as_mut()
+            .expect("a cast spell retains its context through payment")
+            .exiled_payment_cards
+            .extend(exiled);
         let (mana_cost, mana_x) =
             self.residual_cost_after_contributions(cost, x, &purpose, &plan, true);
         // The spell's nonmana life bill was paid before this continuation
@@ -667,10 +667,14 @@ impl Game {
         // Recorded whether or not this spell counts them: what paid for a
         // spell is a fact about the cast, and a clause that asks later has
         // nothing else to read it from.
+        let cast_context = stack_object
+            .cast
+            .as_mut()
+            .expect("a cast spell retains its context through payment");
         for mana in &spent_mana {
             if mana.color != ManaColor::Colorless {
-                stack_object.colors_of_mana_spent =
-                    stack_object.colors_of_mana_spent.with(mana.color);
+                cast_context.colors_of_mana_spent =
+                    cast_context.colors_of_mana_spent.with(mana.color);
             }
         }
         self.continue_spell_cast(stack_object, targets, object_payments);
@@ -709,6 +713,23 @@ impl Game {
             granting: Some(granting),
             effect: *effect,
         });
+    }
+
+    fn record_cast_context(
+        stack_object: &mut StackObject,
+        via_suspend: bool,
+        phyrexian_life_symbols: u16,
+        granted: Option<(AbilitySourceRef, &'static AppliedEffectDef)>,
+    ) {
+        let cast = stack_object
+            .cast
+            .as_mut()
+            .expect("a proposed cast spell has cast context");
+        cast.via_suspend = via_suspend;
+        cast.phyrexian_symbols_paid_with_life = phyrexian_life_symbols;
+        // "If you do, it gains ...": carry the permission's grant through
+        // the spell into the permanent it becomes.
+        Self::attach_permission_grant(stack_object, granted);
     }
 
     /// A cast from a graveyard that is not one of the card's own printed ways
@@ -761,7 +782,9 @@ impl Game {
         let player = stack_object.controller;
         let stack_id = stack_object.id;
         let cast_from = stack_object
-            .cast_from_zone
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.source_zone)
             .expect("a cast spell remembers where it was cast from");
         let definition = stack_object
             .card

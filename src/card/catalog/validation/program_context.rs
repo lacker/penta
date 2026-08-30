@@ -137,6 +137,20 @@ fn validate_static_effect(
                 )
             })
         }
+        EffectDef::ConditionalStatic(conditional)
+            if matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard])
+                && static_object_set_supported(*conditional.condition.objects)
+                && conditional
+                    .condition
+                    .filter
+                    .is_none_or(|filter| static_object_predicate_supported(filter.predicate())) =>
+        {
+            validate_static_apply(
+                source_zones,
+                conditional.then.recipient,
+                conditional.then.effect,
+            )
+        }
         EffectDef::StaticApply { recipient, effect } => {
             validate_static_apply(source_zones, recipient, effect)
         }
@@ -666,7 +680,8 @@ fn validate_resolving_effect(
         {
             Err("Apply grants an ability to a nonbattlefield source")
         }
-        EffectDef::StaticApply { .. }
+        EffectDef::ConditionalStatic(_)
+        | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::ReduceGenericCostBy(_)
@@ -730,7 +745,8 @@ fn static_player_relation_supported(relation: PlayerRelation) -> bool {
 
 fn static_object_set_supported(objects: ObjectSetDef) -> bool {
     match objects {
-        ObjectSetDef::One(ObjectRefDef::Source | ObjectRefDef::AttachedToSource) => true,
+        ObjectSetDef::One(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
+        | ObjectSetDef::LinkedExiles => true,
         ObjectSetDef::Query(query) => {
             query.zones == [ZoneKind::Battlefield] && static_query_supported(query)
         }
@@ -752,17 +768,19 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::NamedBinding(_)
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
-        | ObjectSetDef::Matching { .. }
         | ObjectSetDef::PermanentsTargetedBy(_)
         | ObjectSetDef::PlayerAttachments(_)
         | ObjectSetDef::LegalAttachmentHosts(_)
-        | ObjectSetDef::LinkedExiles(_)
         | ObjectSetDef::CardsDrawnThisTurnInHand(_)
         | ObjectSetDef::PermanentsControlledBy(_)
         | ObjectSetDef::BottomOfGraveyard(_)
         | ObjectSetDef::SharingNameWith(_)
         | ObjectSetDef::SharingNameWithBinding { .. }
         | ObjectSetDef::TopOfGraveyardMatching { .. } => false,
+        ObjectSetDef::Matching { objects, object } => {
+            static_object_set_supported(*objects)
+                && static_object_predicate_supported(object.predicate())
+        }
     }
 }
 

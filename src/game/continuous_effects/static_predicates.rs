@@ -122,21 +122,14 @@ impl Game {
             ObjectPredicateDef::Supertype(supertype) => self
                 .effective_rules(affected)
                 .map(|rules| rules.has_supertype(supertype)),
-            ObjectPredicateDef::All(predicates) => self.static_composite_predicate_matches_lazily(
-                predicates,
-                source,
-                affected,
-                prospective,
-                false,
-            ),
-            ObjectPredicateDef::AnyOf(predicates) => self
-                .static_composite_predicate_matches_lazily(
-                    predicates,
+            predicate @ (ObjectPredicateDef::All(_) | ObjectPredicateDef::AnyOf(_)) => {
+                self.static_composite_predicate_match_lazily(
+                    predicate,
                     source,
                     affected,
                     prospective,
-                    true,
-                ),
+                )
+            }
             ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
             ObjectPredicateDef::ManaValueAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -189,6 +182,34 @@ impl Game {
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::Special(_) => None,
+        }
+    }
+
+    fn static_composite_predicate_match_lazily(
+        &self,
+        predicate: ObjectPredicateDef,
+        source: &Permanent,
+        affected: &Permanent,
+        prospective: Option<&Permanent>,
+    ) -> Option<bool> {
+        match predicate {
+            ObjectPredicateDef::All(predicates) => self
+                .static_composite_predicate_matches_lazily(
+                    predicates,
+                    source,
+                    affected,
+                    prospective,
+                    false,
+                ),
+            ObjectPredicateDef::AnyOf(predicates) => self
+                .static_composite_predicate_matches_lazily(
+                    predicates,
+                    source,
+                    affected,
+                    prospective,
+                    true,
+                ),
+            _ => unreachable!("caller only forwards composite predicates"),
         }
     }
 

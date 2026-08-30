@@ -87,10 +87,14 @@ impl Game {
     /// resolving ability read the card's power: by then it is in exile under
     /// a new one.
     pub(super) fn exile_graveyard_source(&mut self, player: PlayerId, source: GameObjectId) {
-        self.exile_graveyard_cards(player, &[source]);
+        let _ = self.exile_graveyard_cards(player, &[source]);
     }
 
-    pub(super) fn exile_graveyard_cards(&mut self, player: PlayerId, sources: &[GameObjectId]) {
+    pub(super) fn exile_graveyard_cards(
+        &mut self,
+        player: PlayerId,
+        sources: &[GameObjectId],
+    ) -> Vec<GameObjectId> {
         let mut exiled = Vec::new();
         for source in sources {
             let card = remove_card(&mut self.players[player.index()].graveyard, *source)
@@ -103,6 +107,7 @@ impl Game {
             self.capture_cards_exiled(&exiled, crate::card::ZoneKind::Graveyard);
             self.note_card_left_graveyard(player);
         }
+        exiled.into_iter().map(|card| card.id).collect()
     }
 
     fn activate_graveyard_ability(

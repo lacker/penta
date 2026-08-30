@@ -34,33 +34,14 @@ struct StackObject {
     /// characteristic effect, such as "except that the copy is red" or a
     /// Lace. The override lasts for this stack incarnation.
     colors: Option<ColorSet>,
-    /// Flashback replaces every destination this physical card would use when
-    /// leaving the stack. This is frozen at cast time because the permission
-    /// lived on the previous graveyard object.
-    cast_via_flashback: bool,
-    /// The free-cast permission came from suspend's last-counter trigger.
-    cast_via_suspend: bool,
-    /// Whether this spell was cast at a time a sorcery could not have been.
-    /// Recorded as the cast happens, because nothing afterwards can tell.
-    cast_at_instant_speed: bool,
-    /// Whether this spell was cast from its controller's hand. "If you cast
-    /// it from your hand" distinguishes the ordinary cast from one made off
-    /// the top of a library or out of a graveyard, and by the time the
-    /// permanent's own trigger resolves nothing else remembers.
-    cast_from_zone: Option<CastSourceZone>,
+    /// Casting choices, payment facts, and provenance carried through
+    /// resolution. Ability objects and objects put directly on the stack have
+    /// none; spell copies retain only the parts CR 707.10 copies.
+    cast: Option<CastContext>,
     /// The copiable characteristics supplied by the rule that allowed this
     /// spell to be cast face down. The permanent it becomes keeps the same
     /// values, while only its controller may inspect the physical card.
     face_down: Option<FaceDownCharacteristics>,
-    /// Which colours of mana actually paid for this spell, for the clauses
-    /// that count them (CR 702.86a, converge). Payment-derived rather than
-    /// part of the cast signature: a copy is never cast, so no mana was ever
-    /// spent on it and its count is zero however the original was paid for.
-    colors_of_mana_spent: ColorSet,
-    /// How many Phyrexian mana symbols were paid with life. Like mana colors
-    /// spent, this is a fact about the payment rather than a copiable cast
-    /// characteristic; spell copies always clear it.
-    phyrexian_symbols_paid_with_life: u16,
     is_copy: bool,
 }
 
@@ -251,12 +232,8 @@ impl StackObject {
     /// How many colours paid for this object, which is zero for everything
     /// that was never cast.
     fn colors_spent_count(&self) -> u8 {
-        self.colors_of_mana_spent
-            .to_flags()
-            .iter()
-            .filter(|spent| **spent)
-            .count()
-            .try_into()
-            .unwrap_or(u8::MAX)
+        self.cast
+            .as_ref()
+            .map_or(0, CastContext::colors_spent_count)
     }
 }

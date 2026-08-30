@@ -131,7 +131,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::LinkedExiles(_)
+            | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::BottomOfGraveyard(_)
@@ -790,6 +790,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::MoveToZone { .. }
                     | EffectDef::WithBattlefieldArrival { .. }
                     | EffectDef::WithZoneMoveResult { .. }
+                    | EffectDef::ConditionalStatic(_)
                     | EffectDef::StaticApply { .. }
                     | EffectDef::Apply { .. }
                     | EffectDef::Special(_) => false,

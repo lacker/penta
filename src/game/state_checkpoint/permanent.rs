@@ -84,14 +84,46 @@ pub(super) fn permanent_snapshot(
         control_requires_source_tapped: permanent.control_requires_source_tapped,
         control_requires_source_attached: permanent.control_requires_source_attached,
         chosen_player: permanent.chosen_player.map(PlayerId::index),
-        cast_x: permanent.cast_x,
-        cast_kicks: permanent.cast_kicks,
-        cast_additional_costs: permanent.cast_additional_costs.clone(),
-        cast_colors: permanent.cast_colors,
-        cast_from_zone: permanent.cast_from_zone.map(|zone| zone.label().to_owned()),
+        cast_x: permanent.cast.as_ref().map_or(0, |cast| cast.x),
+        cast_kicks: permanent
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.repeatable_additional_costs),
+        cast_additional_costs: permanent
+            .cast
+            .as_ref()
+            .map_or_else(Vec::new, |cast| cast.additional_costs.clone()),
+        cast_colors: permanent
+            .cast
+            .as_ref()
+            .map_or(0, |cast| u16::from(cast.colors_spent_count())),
+        cast_colors_of_mana_spent: permanent
+            .cast
+            .as_ref()
+            .map_or([false; 5], |cast| cast.colors_of_mana_spent.to_flags()),
+        cast_phyrexian_symbols_paid_with_life: permanent
+            .cast
+            .as_ref()
+            .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life),
+        cast_from_zone: permanent
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.source_zone)
+            .map(|zone| zone.label().to_owned()),
         cast_alternative: permanent
-            .cast_alternative
+            .cast
+            .as_ref()
+            .and_then(|cast| cast.alternative)
             .map(|kind| kind.label().to_owned()),
+        cast_tags: Vec::new(),
+        cast_exiled_payment_cards: permanent.cast.as_ref().map_or_else(Vec::new, |cast| {
+            cast.exiled_payment_cards.iter().map(|id| id.0).collect()
+        }),
+        cast_via_flashback: permanent
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.via_flashback),
+        cast_via_suspend: permanent.cast.as_ref().is_some_and(|cast| cast.via_suspend),
         destroy_at_end: permanent.destroy_at_end,
         counters: permanent
             .counters
@@ -176,7 +208,10 @@ pub(super) fn permanent_snapshot(
                 count: *count,
             })
             .collect(),
-        cast_at_instant_speed: permanent.cast_at_instant_speed,
+        cast_at_instant_speed: permanent
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.at_instant_speed),
         became_aura: permanent.became_aura,
         copy_effect: copy_effect.map(|(snapshot, _)| snapshot),
         copy_expiration: permanent.copy_expiration.map(expiration_snapshot),

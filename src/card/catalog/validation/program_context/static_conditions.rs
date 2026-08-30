@@ -6,6 +6,12 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
             .all(static_trigger_condition_supported),
         TriggerConditionDef::Not(condition) => static_trigger_condition_supported(*condition),
         TriggerConditionDef::ObjectCount { query, .. } => static_query_supported(query),
+        TriggerConditionDef::ObjectSetCount(condition) => {
+            static_object_set_supported(*condition.objects)
+                && condition
+                    .filter
+                    .is_none_or(|filter| static_object_predicate_supported(filter.predicate()))
+        }
         TriggerConditionDef::ActivePlayer(relation)
         // Life totals are plain state, so reading them cannot re-enter the
         // static walk the way a power comparison would.
@@ -25,7 +31,6 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::BoundObjectMatches { .. }
         | TriggerConditionDef::ControlsGreatestPowerCreature => false,
         TriggerConditionDef::SourceMatches { object }
-        | TriggerConditionDef::LinkedExilesMatch { object }
         | TriggerConditionDef::AttachedPermanentMatches { object } => {
             static_object_predicate_supported(object)
         }

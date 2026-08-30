@@ -147,6 +147,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
             "WithBattlefieldArrival"
         }
         EffectDef::WithZoneMoveResult { .. } => "WithZoneMoveResult",
+        EffectDef::ConditionalStatic(_) => "ConditionalStatic",
         EffectDef::StaticApply { .. } => "StaticApply",
         EffectDef::Apply { .. } => "Apply",
         EffectDef::Special(_) => "Special",

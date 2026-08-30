@@ -6,7 +6,7 @@ use super::{
     ContinuousEffectTimestamp, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
     GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, Permanent,
     PlayerId, PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
-    ResolvedPowerToughnessOperation, RetiredObject, TriggerContext, ValueDef,
+    ResolvedPowerToughnessOperation, RetiredObject, Target, TriggerContext, ValueDef,
 };
 
 type BaseStatSetter = (ContinuousEffectTimestamp, u16, Option<i16>, Option<i16>);
@@ -294,6 +294,49 @@ impl Game {
         })
     }
 
+    fn static_object_set_value(&self, value: ValueDef, source: GameObjectId) -> Option<i32> {
+        let aggregate =
+            match value {
+                ValueDef::CountObjects(objects) => {
+                    return Some(
+                        i32::try_from(self.source_object_set_targets(*objects, source).len())
+                            .unwrap_or(i32::MAX),
+                    );
+                }
+                ValueDef::CardTypesAmongObjects(objects) => {
+                    return Some(self.card_types_among_targets(
+                        &self.source_object_set_targets(*objects, source),
+                    ));
+                }
+                ValueDef::AggregateObjectValues(aggregate) => aggregate,
+                _ => return None,
+            };
+        let values = self
+            .source_object_set_targets(aggregate.objects, source)
+            .into_iter()
+            .filter_map(|target| {
+                let id = match target {
+                    Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => id,
+                    Target::Player(_) => return None,
+                };
+                match aggregate.select {
+                    crate::card::ObjectValueDef::ManaValue => {
+                        self.current_or_last_known_mana_value(id).map(i32::from)
+                    }
+                    crate::card::ObjectValueDef::Power => {
+                        self.current_or_last_known_power(id).map(i32::from)
+                    }
+                    crate::card::ObjectValueDef::Toughness => {
+                        self.current_or_last_known_toughness(id).map(i32::from)
+                    }
+                }
+            });
+        Some(match aggregate.operation {
+            crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
+            crate::card::AggregateOperationDef::Sum => values.fold(0_i32, i32::saturating_add),
+        })
+    }
+
     /// One value inside a static power/toughness bonus. A scale multiplies
     /// another such value, which is how "+2/+2 for each Aura attached to it"
     /// is expressed; everything outside this vocabulary stays a seam, and the
@@ -304,6 +347,9 @@ impl Game {
         source: GameObjectId,
         controller: PlayerId,
     ) -> i32 {
+        if let Some(value) = self.static_object_set_value(value, source) {
+            return value;
+        }
         match value {
             ValueDef::Constant(amount) => amount,
             ValueDef::AnyMatchingObject(query) => {
@@ -504,15 +550,6 @@ impl Game {
                 .filter(|present| *present)
                 .count();
             return i16::try_from(color_count).unwrap_or(i16::MAX);
-        }
-        // These two are measured from the pile the source took as it
-        // entered, which is not on the board at all.
-        if matches!(
-            value,
-            ValueDef::TotalPowerOfLinkedExiles | ValueDef::TotalToughnessOfLinkedExiles
-        ) {
-            return self
-                .total_linked_exile_stat(source, value == ValueDef::TotalToughnessOfLinkedExiles);
         }
         // Every other static amount is measured from its own source's
         // controller, not from whoever it is being applied to.
@@ -801,11 +838,10 @@ impl Game {
     /// exiled card is.
     pub(super) fn linked_exile_colors(&self, source: GameObjectId) -> Vec<crate::card::ManaColor> {
         let mut colors = self
-            .linked_exiles
-            .iter()
-            .filter(|(linked_source, _)| *linked_source == source)
-            .filter_map(|(_, exiled)| {
-                self.card_in_nonbattlefield_zone(*exiled)
+            .linked_exile_ids(source)
+            .into_iter()
+            .filter_map(|exiled| {
+                self.card_in_nonbattlefield_zone(exiled)
                     .map(|(_, card)| card.definition)
             })
             .filter_map(|definition| self.catalog.get(definition))
@@ -819,27 +855,5 @@ impl Game {
         colors.sort_unstable();
         colors.dedup();
         colors
-    }
-
-    /// The printed power, or toughness, of every card exiled with `source`,
-    /// added up. Exiled cards are read from the catalog: nothing continuous
-    /// applies outside the battlefield, so printed is what they are.
-    fn total_linked_exile_stat(&self, source: GameObjectId, toughness: bool) -> i16 {
-        self.linked_exiles
-            .iter()
-            .filter(|(linked_source, _)| *linked_source == source)
-            .filter_map(|(_, exiled)| {
-                self.card_in_nonbattlefield_zone(*exiled)
-                    .map(|(_, card)| card.definition)
-            })
-            .filter_map(|definition| self.catalog.get(definition))
-            .filter_map(|card| card.rules.creature_stats())
-            .fold(0_i16, |total, stats| {
-                total.saturating_add(if toughness {
-                    stats.toughness
-                } else {
-                    stats.power
-                })
-            })
     }
 }

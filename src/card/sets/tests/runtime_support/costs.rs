@@ -296,8 +296,7 @@ fn shared_object_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
         crate::card::CostQuantityDef::Fixed(count) => count >= 1,
         crate::card::CostQuantityDef::ChosenX
         | crate::card::CostQuantityDef::ModeCount
-        | crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
-        | crate::card::CostQuantityDef::CardTypesAtLeast(_) => true,
+        | crate::card::CostQuantityDef::ObjectSetValueAtLeast(_) => true,
         crate::card::CostQuantityDef::Subtract(left, right) => {
             shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
         }
@@ -312,7 +311,6 @@ fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
         crate::card::CostQuantityDef::Subtract(left, right) => {
             shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
         }
-        crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
-        | crate::card::CostQuantityDef::CardTypesAtLeast(_) => false,
+        crate::card::CostQuantityDef::ObjectSetValueAtLeast(_) => false,
     }
 }

@@ -74,7 +74,9 @@ impl Game {
         // because it is a consequence of how the spell was paid for -- and
         // because it has to be true the instant the permanent arrives, with
         // no window in which anything could see a creature.
-        if permanent.cast_alternative == Some(crate::card::AlternativeCastKindDef::Impending)
+        if permanent.cast.as_ref().is_some_and(|cast| {
+            cast.alternative == Some(crate::card::AlternativeCastKindDef::Impending)
+        })
             && permanent.counters(crate::card::CounterKind::named("time")) > 0
         {
             operations.push((

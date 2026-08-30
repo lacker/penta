@@ -230,6 +230,36 @@ fn a_ring_that_was_not_cast_protects_nobody() {
     );
 }
 
+#[test]
+fn a_copy_of_the_ring_spell_was_not_cast() {
+    let (mut game, ring) = staged();
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == ring))
+        .expect("the Ring is castable");
+    game.apply(PlayerId::One, cast).expect("the Ring is cast");
+    let original = game.stack.last().expect("the Ring spell exists").clone();
+    game.push_copy_with_colors(original, PlayerId::One, Vec::new(), None);
+
+    pass_priority_pair(&mut game);
+
+    let copy = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition.is_token())
+        .expect("the spell copy resolved as a token copy");
+    assert!(
+        copy.cast.as_ref().is_some_and(|cast| !cast.was_cast()),
+        "copied casting choices do not turn a spell copy into a cast spell",
+    );
+    assert_eq!(game.stack.len(), 1, "only the original Ring spell remains");
+    assert!(
+        game.pending_triggers.is_empty(),
+        "the copy created no protection trigger"
+    );
+}
+
 /// The counter goes on before the draw is counted, so the first activation
 /// draws one and the second draws two.
 #[test]

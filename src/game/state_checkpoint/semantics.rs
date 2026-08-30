@@ -483,6 +483,9 @@ fn collect_applied_effects_from_effect(effect: EffectDef, found: &mut Vec<Applie
         // A static clause is not itself resolved, but what it hands out can
         // be: a permission that grants an ability to what it allowed leaves
         // that grant on a permanent, which has to be locatable afterwards.
+        EffectDef::ConditionalStatic(conditional) => {
+            collect_applied_effect(conditional.then.effect, found);
+        }
         EffectDef::Apply {
             effect: applied, ..
         }
@@ -846,6 +849,9 @@ pub(super) const fn ability_target_defs(ability: &AbilityDef) -> &'static [Abili
 
 fn collect_effect_abilities(effect: EffectDef, abilities: &mut Vec<&'static AbilityDef>) {
     match effect {
+        EffectDef::ConditionalStatic(conditional) => {
+            collect_applied_abilities(conditional.then.effect, abilities);
+        }
         EffectDef::Apply { effect, .. } | EffectDef::StaticApply { effect, .. } => {
             collect_applied_abilities(effect, abilities);
         }

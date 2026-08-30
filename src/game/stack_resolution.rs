@@ -98,14 +98,7 @@ impl Game {
                 })
                 .unwrap_or(CardPartId::PRIMARY);
             if object.is_copy {
-                let cast_x = object.x();
-                let cast_kicks = self.repeatable_additional_cost_payments(object.id);
-                let cast_additional_costs = self.additional_cost_payment_counts(object.id);
-                let cast_alternative = object.signature.as_ref().and_then(|signature| {
-                    let card = self.catalog.get(definition)?;
-                    let option = card.play_option(signature.play_option())?;
-                    self.selected_alternative_kind(card, option, object.id, signature.costs())
-                });
+                let cast = object.cast.clone();
                 let copied_face = |part| CopiableCharacteristics {
                     base: crate::ObjectCharacteristics::card(definition, part),
                     added_types: crate::card::CardTypeSet::empty(),
@@ -159,22 +152,13 @@ impl Game {
                     },
                     |permanent| {
                         permanent.chosen_player = chosen_player;
-                        permanent.cast_x = cast_x;
-                        permanent.cast_kicks = cast_kicks;
-                        permanent.cast_additional_costs = cast_additional_costs;
-                        permanent.cast_colors = 0;
-                        permanent.cast_alternative = cast_alternative;
-                        permanent.cast_at_instant_speed = false;
-                        permanent.cast_from_zone = None;
+                        permanent.cast = cast;
                         permanent.attached_to = aura_host;
                         permanent.attached_player = aura_player;
                     },
                 );
                 return;
             }
-            // Read before the card moves into the permanent below, which
-            // takes the spell apart.
-            let colors_spent = u16::from(object.colors_spent_count());
             let mut permanent = Permanent::entering(
                 object.card,
                 presented,
@@ -184,34 +168,22 @@ impl Game {
             );
             permanent.face_down = object.face_down;
             self.initialize_battlefield_entry(&mut permanent);
-            if object.phyrexian_symbols_paid_with_life > 0
+            let phyrexian_symbols_paid_with_life = object
+                .cast
+                .as_ref()
+                .map_or(0, |cast| cast.phyrexian_symbols_paid_with_life);
+            if phyrexian_symbols_paid_with_life > 0
                 && self.effective_rules(&permanent).is_some_and(|rules| {
                     rules.has_executable_keyword(crate::card::KeywordAbility::Compleated)
                 })
             {
                 let loyalty = permanent
                     .counters(CounterKind::Loyalty)
-                    .saturating_sub(object.phyrexian_symbols_paid_with_life.saturating_mul(2));
+                    .saturating_sub(phyrexian_symbols_paid_with_life.saturating_mul(2));
                 permanent.set_counters(CounterKind::Loyalty, loyalty);
             }
             permanent.chosen_player = chosen_player;
-            permanent.cast_x = object
-                .signature
-                .as_ref()
-                .map_or(0, crate::casting::CastSignature::x);
-            // "For each time it was kicked": read while the resolving spell
-            // is still findable, because the permanent's own entry
-            // replacement asks after it is gone.
-            permanent.cast_kicks = self.repeatable_additional_cost_payments(object.id);
-            permanent.cast_additional_costs = self.additional_cost_payment_counts(object.id);
-            // Sunburst counts what paid for the spell, which only the spell
-            // knows.
-            permanent.cast_colors = colors_spent;
-            permanent.cast_alternative = object.signature.as_ref().and_then(|signature| {
-                let card = self.catalog.get(definition)?;
-                let option = card.play_option(signature.play_option())?;
-                self.selected_alternative_kind(card, option, object.id, signature.costs())
-            });
+            permanent.cast.clone_from(&object.cast);
             // "It gains haste until end of turn": an ability granted by the
             // mana that paid for a permanent spell keeps applying to the
             // permanent it becomes (CR 611.2c). Only keyword grants are
@@ -238,9 +210,7 @@ impl Game {
                     granted,
                 );
             }
-            permanent.cast_at_instant_speed = object.cast_at_instant_speed;
-            permanent.cast_from_zone = object.cast_from_zone;
-            if object.cast_via_suspend {
+            if object.cast.as_ref().is_some_and(|cast| cast.via_suspend) {
                 permanent.suspend_haste = true;
             }
             permanent.text_changes = object.text_changes;
@@ -466,7 +436,8 @@ impl Game {
         // of the resolution. In particular, White Sun's Zenith still shuffles
         // its owner's library, and a spell that already exiles itself still
         // gets its destination counters.
-        let flashback_replaces_move = object.cast_via_flashback || behavior == CardBehavior::Recall;
+        let flashback_replaces_move = object.cast.as_ref().is_some_and(|cast| cast.via_flashback)
+            || behavior == CardBehavior::Recall;
         let (mut card, _zone_change) = self.zone_change_card(
             object
                 .card
@@ -525,10 +496,10 @@ impl Game {
         // caster cast from hand. It installs the delayed offer here, beside
         // the destination it replaces, so the keyword's two halves cannot
         // drift apart in card declarations.
-        if !object
-            .cast_from_zone
-            .is_some_and(|from| from.zone() == ZoneKind::Hand)
-            || object.is_copy
+        if !object.cast.as_ref().is_some_and(|cast| {
+            cast.source_zone
+                .is_some_and(|from| from.zone() == ZoneKind::Hand)
+        }) || object.is_copy
         {
             return SpellResolutionDestinationDef::Graveyard;
         }

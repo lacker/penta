@@ -208,7 +208,7 @@ impl Game {
         let Some(signature) = cast.signature.as_ref() else {
             return;
         };
-        let Some(cast_from) = cast.cast_from_zone else {
+        let Some(cast_from) = cast.cast.as_ref().and_then(|context| context.source_zone) else {
             return;
         };
         let context = CharacteristicContext::Stack {

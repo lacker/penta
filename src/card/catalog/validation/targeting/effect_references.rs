@@ -720,6 +720,26 @@ fn validate_effect_references(
                 None => Ok(()),
             }
         }
+        EffectDef::ConditionalStatic(conditional) => {
+            validate_object_set_target_references(
+                *conditional.condition.objects,
+                target_count,
+                scope,
+            )?;
+            if let Some(filter) = conditional.condition.filter {
+                validate_object_predicate_references(filter.predicate(), target_count, scope)?;
+            }
+            validate_recipient_target_references(
+                conditional.then.recipient,
+                target_count,
+                scope,
+            )?;
+            validate_applied_effect_target_references(
+                conditional.then.effect,
+                target_count,
+                scope,
+            )
+        }
         EffectDef::StaticApply { recipient, effect } => {
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_applied_effect_target_references(effect, target_count, scope)

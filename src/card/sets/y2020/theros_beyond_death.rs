@@ -4,15 +4,35 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef,
-    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, RandomizeObjectOrderDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AlternativeCastManaCostDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    RandomizeObjectOrderDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
+
+/// The ordinary Escape shape: a resolved mana cost, this many other graveyard
+/// cards exiled as an additional cost. The selected alternative cast kind
+/// itself is the lasting Escape fact; exceptional costs remain card-local.
+pub(in crate::card::sets) const fn escape(
+    mana_cost: AlternativeCastManaCostDef,
+    cards: u8,
+) -> AbilityDef {
+    AbilityDef::alternative_cast_with_additional_cost(
+        mana_cost,
+        AlternativeCastKindDef::Escape,
+        None,
+        SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Any,
+            ZoneKind::Graveyard,
+            CostQuantityDef::Fixed(cards),
+        ),
+        EffectDef::None,
+    )
+}
 
 // THB 20 — Heliod's Pilgrim
 // Audit: metadata-only — Card rules have not been implemented.
@@ -160,22 +180,9 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
                 recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::GrantsAlternativeCastFromGraveyard {
                     object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                    // The escape the Breach hands out. Its mana cost is the card's own, which
-                    // is what "equal to the card's mana cost" means, and the three cards are
-                    // what the grant adds on top.
-                    ability: &AbilityDef::alternative_cast_for_card_mana_cost(
-                        AlternativeCastKindDef::Escape,
-                        Some("Escape\u{2014}the card's mana cost, Exile three other cards from your graveyard."),
-                        EffectDef::None,
-                    )
-                    // Three cards out of your own graveyard, exiled to pay. The card being cast
-                    // is on the stack by the time costs are paid, so "other" takes care of
-                    // itself: it is not there to be chosen.
-                    .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-                        ObjectPredicateDef::Any,
-                        ZoneKind::Graveyard,
-                        CostQuantityDef::Fixed(3),
-                    )),
+                    // The card being cast is on the stack by the time the three other cards
+                    // are chosen, so it is already absent from its graveyard candidates.
+                    ability: &escape(AlternativeCastManaCostDef::ThisCardManaCost, 3),
                 }),
             },
         ),
@@ -226,7 +233,11 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                 // remembers: an Uro cast for its printed cost sacrifices itself and leaves
                 // the growth spell behind.
                 &TriggerConditionDef::Not(
-                    &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+                    &TriggerConditionDef::All(&[
+                        TriggerConditionDef::SourceWasCast,
+                        TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                        TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+                    ]),
                 ),
                 EffectDef::Sacrifice {
                     object: EffectRecipientDef::Source,
@@ -269,23 +280,10 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
                     },
                 ]),
             ),
-            AbilityDef::alternative_cast(
-                mana_cost!("{G}{G}{U}{U}"),
-                AlternativeCastKindDef::Escape,
-                Some(
-                    "Escape—{G}{G}{U}{U}, Exile five other cards from your graveyard. (You may cast this \
-                     card from your graveyard for its escape cost.)",
-                ),
-                EffectDef::None,
-            )
-            // Five cards out of your own graveyard, exiled to pay. The card being cast
-            // is on the stack by the time costs are paid, so "other" takes care of
-            // itself: it is not there to be chosen.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-                ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                CostQuantityDef::Fixed(5),
-            )),
+            escape(
+                AlternativeCastManaCostDef::Fixed(mana_cost!("{G}{G}{U}{U}")),
+                5,
+            ),
         ]),
 );
 

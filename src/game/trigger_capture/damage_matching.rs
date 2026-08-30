@@ -150,7 +150,7 @@ impl Game {
                     | ObjectSetDef::PermanentsTargetedBy(_)
                     | ObjectSetDef::PlayerAttachments(_)
                     | ObjectSetDef::LegalAttachmentHosts(_)
-                    | ObjectSetDef::LinkedExiles(_)
+                    | ObjectSetDef::LinkedExiles
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::PermanentsControlledBy(_)
                     | ObjectSetDef::BottomOfGraveyard(_)

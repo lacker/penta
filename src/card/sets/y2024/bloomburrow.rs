@@ -5,9 +5,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -309,7 +309,7 @@ pub(in crate::card::sets) static KEEN_EYED_CURATOR: CardRecord = CardRecord::new
                     // than over any zone: he keeps them, so a card that leaves exile stops
                     // counting and the rest still do.
                     condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                            left: ValueDef::CardTypesAmongLinkedExiles,
+                            left: ValueDef::CardTypesAmongObjects(&ObjectSetDef::LinkedExiles),
                             comparison: ComparisonDef::GreaterOrEqual,
                             right: ValueDef::Constant(4),
                         }),

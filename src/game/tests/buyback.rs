@@ -269,7 +269,14 @@ fn granted_card_cost_flashback_combines_with_buyback_and_exiles_mists() {
         .expect("the spell is on the stack with its cast signature");
     assert!(signature.costs().alternative().is_some());
     assert!(!signature.costs().additional().is_empty());
-    assert!(game.stack.last().unwrap().cast_via_flashback);
+    assert!(
+        game.stack
+            .last()
+            .unwrap()
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.via_flashback)
+    );
     assert!(
         game.battlefield
             .iter()
@@ -356,7 +363,14 @@ fn granted_card_cost_flashback_adds_sprout_swarm_mana_buyback_and_exiles() {
         0,
         "the combined cast spends all five mana",
     );
-    assert!(game.stack.last().unwrap().cast_via_flashback);
+    assert!(
+        game.stack
+            .last()
+            .unwrap()
+            .cast
+            .as_ref()
+            .is_some_and(|cast| cast.via_flashback)
+    );
 
     pass_priority_pair(&mut game);
 

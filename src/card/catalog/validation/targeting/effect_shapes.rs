@@ -550,6 +550,18 @@ fn validate_effect_target_shapes(
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {
             validate_query_shape(*query, targets)
         }
+        EffectDef::ConditionalStatic(conditional) => {
+            validate_object_set_shape(*conditional.condition.objects, targets)?;
+            if let Some(filter) = conditional.condition.filter {
+                validate_object_predicate_shape(filter.predicate(), targets)?;
+            }
+            validate_applied_effect_shapes(
+                conditional.then.recipient,
+                conditional.then.effect,
+                targets,
+                true,
+            )
+        }
         EffectDef::StaticApply { recipient, effect } => {
             validate_applied_effect_shapes(recipient, effect, targets, true)
         }

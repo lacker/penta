@@ -249,6 +249,7 @@ impl Game {
             | EffectDef::CreateAttachedToken { .. }
             | EffectDef::Endure { .. }
             | EffectDef::CreateMyriadTokens
+            | EffectDef::ConditionalStatic(_)
             | EffectDef::StaticApply { .. }
             | EffectDef::Apply { .. }
             | EffectDef::Special(_) => false,
@@ -380,7 +381,7 @@ impl Game {
                     .into_card()
                     .expect("a nontoken spell is backed by a card"),
             );
-            match if object.cast_via_flashback {
+            match if object.cast.as_ref().is_some_and(|cast| cast.via_flashback) {
                 CounteredSpellZone::Exile
             } else {
                 zone

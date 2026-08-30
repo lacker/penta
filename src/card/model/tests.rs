@@ -1,12 +1,12 @@
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AlternativeCostDef, CardBehavior, CardComposition,
-    CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet,
-    CardType, CardTypeSet, CreatureStats, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    FlexibleManaSymbol, ImplementationStatus, LikelihoodDef, ManaColor, ManaCost,
-    ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaTypeSetDef,
-    ObjectPredicateDef, PlayOptionDef, PlayerRelation, PrintedManaCost, SpellForm, TargetPredicate,
-    TriggerEventDef, ZoneKind,
+    AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef,
+    CardBehavior, CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
+    CardPrintingId, CardRules, CardSet, CardType, CardTypeSet, CostQuantityDef, CreatureStats,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
+    LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
+    ManaSelectionDef, ManaTypeSetDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation,
+    PrintedManaCost, SpellAdditionalCostDef, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -429,8 +429,8 @@ fn flexible_symbols_derive_every_colored_component_but_never_colorless() {
 }
 
 #[test]
-fn alternative_cast_clauses_render_and_project_their_owned_costs() {
-    static ABILITIES: [AbilityDef; 3] = [
+fn alternative_cast_clauses_render_and_project_escape_costs() {
+    static ABILITIES: [AbilityDef; 4] = [
         AbilityDef::spell("Draw a card.", EffectDef::None),
         AbilityDef::alternative_cast(
             mana_cost!("{2}{U}"),
@@ -442,6 +442,17 @@ fn alternative_cast_clauses_render_and_project_their_owned_costs() {
             mana_cost!("{3}{R}"),
             AlternativeCastKindDef::Overload,
             Some("Draw a card for each opponent."),
+            EffectDef::None,
+        ),
+        AbilityDef::alternative_cast_with_additional_cost(
+            AlternativeCastManaCostDef::Fixed(mana_cost!("{G}{G}{U}{U}")),
+            AlternativeCastKindDef::Escape,
+            None,
+            SpellAdditionalCostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(5),
+            ),
             EffectDef::None,
         ),
     ];
@@ -457,11 +468,16 @@ fn alternative_cast_clauses_render_and_project_their_owned_costs() {
         "Overload {3}{R} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
     );
     assert_eq!(
+        ABILITIES[3].rules_text(),
+        "Escape—{U}{U}{G}{G}, Exile five other cards from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
+    );
+    assert_eq!(
         rules.rules_text(),
         concat!(
             "Draw a card.\n",
             "Flashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)\n",
-            "Overload {3}{R} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
+            "Overload {3}{R} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")\n",
+            "Escape—{U}{U}{G}{G}, Exile five other cards from your graveyard. (You may cast this card from your graveyard for its escape cost.)",
         ),
     );
 
@@ -478,6 +494,11 @@ fn alternative_cast_clauses_render_and_project_their_owned_costs() {
                 id: AlternativeCostId(2),
                 label: "Overload".into(),
                 mana_cost: mana_cost!("{3}{R}"),
+            },
+            AlternativeCostDef {
+                id: AlternativeCostId(3),
+                label: "Escape".into(),
+                mana_cost: mana_cost!("{G}{G}{U}{U}"),
             },
         ],
     );
@@ -496,7 +517,7 @@ fn alternative_cast_clauses_render_and_project_their_owned_costs() {
     });
     let projected = generic.with_alternative_cast_costs(&rules);
     assert_eq!(projected.alternative_costs[0].label, "Generic");
-    assert_eq!(projected.alternative_costs.len(), 3);
+    assert_eq!(projected.alternative_costs.len(), 4);
 }
 
 #[test]

@@ -502,7 +502,9 @@ impl HandcraftedPolicy {
             | EffectDef::PreventDamage { .. } => {
                 profile.mark(DeclarativeSpellProfile::TAPS);
             }
-            EffectDef::StaticApply { .. } | EffectDef::Apply { .. } => {
+            EffectDef::ConditionalStatic(_)
+            | EffectDef::StaticApply { .. }
+            | EffectDef::Apply { .. } => {
                 profile.mark(DeclarativeSpellProfile::APPLIES);
             }
             EffectDef::TakeExtraTurn {
@@ -614,9 +616,8 @@ impl HandcraftedPolicy {
             | ValueDef::SourcePower
             | ValueDef::AffectedManaValue
             | ValueDef::AffectedColorCount
-            | ValueDef::CardTypesAmongLinkedExiles
-            | ValueDef::TotalPowerOfLinkedExiles
-            | ValueDef::TotalToughnessOfLinkedExiles
+            | ValueDef::CardTypesAmongObjects(_)
+            | ValueDef::CountObjects(_)
             | ValueDef::ObjectPower(_)
             | ValueDef::ObjectManaValue(_)
             | ValueDef::TriggeringObjectPower
@@ -630,7 +631,6 @@ impl HandcraftedPolicy {
             | ValueDef::CountMatchingPlayerAttachments(_)
             | ValueDef::CountSpellsCastThisTurn(_)
             | ValueDef::AggregateObjectValues(_)
-            | ValueDef::CountObjects(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)

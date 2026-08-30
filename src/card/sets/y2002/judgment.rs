@@ -6,12 +6,13 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
-    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, CostQuantityDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, CostQuantityDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -812,8 +813,16 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new_wit
                 // */* says.
                 effect: AppliedEffectDef::Characteristic(
                     CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
-                        power: ValueDef::TotalPowerOfLinkedExiles,
-                        toughness: ValueDef::TotalToughnessOfLinkedExiles,
+                        power: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::LinkedExiles,
+                            select: ObjectValueDef::Power,
+                            operation: AggregateOperationDef::Sum,
+                        }),
+                        toughness: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::LinkedExiles,
+                            select: ObjectValueDef::Toughness,
+                            operation: AggregateOperationDef::Sum,
+                        }),
                     }),
                 ),
             },

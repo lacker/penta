@@ -53,6 +53,9 @@ pub enum TriggerConditionDef {
         comparison: ComparisonDef,
         amount: u8,
     },
+    /// How many objects are in a composable resolved set. This is the
+    /// provenance-aware counterpart to [`Self::ObjectCount`]'s zone query.
+    ObjectSetCount(&'static ObjectSetCountConditionDef),
     /// Whose turn it is, relative to the ability's controller.
     ActivePlayer(PlayerRelation),
     /// How many spells a matching player cast during the turn before this
@@ -189,12 +192,6 @@ pub enum TriggerConditionDef {
         kind: CounterKind,
         comparison: ComparisonDef,
         amount: u8,
-    },
-    /// Whether a card exiled with this ability's source matches. Phelia
-    /// asks whether what she took was yours: what she gives back goes to its
-    /// owner, so who owned it is what decides whether she grows.
-    LinkedExilesMatch {
-        object: ObjectPredicateDef,
     },
     /// Whether an object saved by an earlier choice in this resolution
     /// matches. "If it's a land card" asks about the card the clause just

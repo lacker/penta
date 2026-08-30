@@ -4,17 +4,18 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor,
-    MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SetOperationDef, SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AlternativeCastKindDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
+    GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef,
+    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{AdditionalCostIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -26,9 +27,7 @@ pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_
     CardSet::ModernHorizons2,
     // X buys nothing by itself: it is a sink for the extra colours, and how
     // many different ones went in is the only thing the spell reads.
-    CardRules::new_sorcery(mana_cost!("{X}{W}"))
-        .with_converge()
-        .with_ability(AbilityDef::spell_with_targets(
+    CardRules::new_sorcery(mana_cost!("{X}{W}")).with_ability(AbilityDef::spell_with_targets(
             "Converge — Exile target nonland permanent if its mana value is less than or equal to the number of colors of mana spent to cast this spell.",
             // A nonland permanent of any size may be targeted; whether it is actually
             // exiled is settled on resolution, against what paid for the spell.
@@ -158,6 +157,52 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
                 retarget: true,
                 colors: None,
             }),
+        ),
+    ]),
+);
+
+// MH2 52 — Murktide Regent
+pub(in crate::card::sets) static MURKTIDE_REGENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("20c4aae1-7665-4df7-bd51-a1d95bf8a17d"),
+    "Murktide Regent",
+    CardArt::new("20c4aae1-7665-4df7-bd51-a1d95bf8a17d", "Lucas Graciano"),
+    CardSet::ModernHorizons2,
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Dragon"], 3, 3).with_abilities(&[
+        abilities::delve(),
+        abilities::flying(),
+        AbilityDef::as_enters(
+            "This creature enters with a +1/+1 counter on it for each instant and sorcery card exiled with it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCountersValue {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::CountObjects(&ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::LinkedExiles,
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ])),
+                    }),
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "Whenever an instant or sorcery card leaves your graveyard, put a +1/+1 counter on this creature.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                ]),
+                Some(ZoneKind::Graveyard),
+                None,
+            ),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
         ),
     ]),
 );
@@ -1253,6 +1298,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &UNBOUNDED_POTENTIAL,
     &HARD_EVIDENCE,
     &LOSE_FOCUS,
+    &MURKTIDE_REGENT,
     &SUBTLETY,
     &ARCHON_OF_CRUELTY,
     &BONE_SHARDS,

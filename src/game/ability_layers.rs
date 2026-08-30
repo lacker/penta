@@ -341,12 +341,8 @@ impl Game {
             return;
         };
         let mut position = 0_usize;
-        for (_, exiled) in self
-            .linked_exiles
-            .iter()
-            .filter(|(source, _)| *source == applied.source)
-        {
-            let Some((zone, card)) = self.card_in_nonbattlefield_zone(*exiled) else {
+        for exiled in self.linked_exile_ids(applied.source) {
+            let Some((zone, card)) = self.card_in_nonbattlefield_zone(exiled) else {
                 continue;
             };
             if !self.card_object_matches(predicate, card, zone, applied.source) {

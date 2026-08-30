@@ -38,10 +38,12 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // by the layer being assembled, so asking cannot re-enter the walk.
         // The pile a linked exile keeps is read live off that pile, which
         // nothing in the layer walk sizes -- so asking cannot re-enter it.
-        ValueDef::Constant(_)
-        | ValueDef::LifeTotal(_)
-        | ValueDef::CardTypesAmongGraveyards(_)
-        | ValueDef::CardTypesAmongLinkedExiles => true,
+        ValueDef::Constant(_) | ValueDef::LifeTotal(_) | ValueDef::CardTypesAmongGraveyards(_) => {
+            true
+        }
+        ValueDef::CardTypesAmongObjects(objects) | ValueDef::CountObjects(objects) => {
+            shared_source_object_set(*objects)
+        }
         ValueDef::CountSpellsCastThisTurn(query) => shared_object_predicate(query.spell),
         ValueDef::CountMatchingObjects(query) | ValueDef::DistinctNamesAmong(query) => {
             (!static_context || query.relative_position.is_none()) && shared_query(*query)
@@ -74,10 +76,15 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         }
         TriggerConditionDef::Not(condition) => shared_trigger_condition(*condition),
         TriggerConditionDef::ObjectCount { query, .. } => shared_query(query),
+        TriggerConditionDef::ObjectSetCount(condition) => {
+            shared_source_object_set(*condition.objects)
+                && condition
+                    .filter
+                    .is_none_or(|filter| shared_object_predicate(filter.predicate()))
+        }
         TriggerConditionDef::TargetMatches { object, .. }
         | TriggerConditionDef::BoundObjectMatches { object, .. }
         | TriggerConditionDef::SourceMatches { object }
-        | TriggerConditionDef::LinkedExilesMatch { object }
         | TriggerConditionDef::AttachedPermanentMatches { object } => {
             shared_object_predicate(object)
         }
@@ -142,6 +149,12 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
     if let TriggerConditionDef::SourceMatches { object } = condition {
         return shared_object_predicate(object);
     }
+    if let TriggerConditionDef::ObjectSetCount(condition) = condition {
+        return shared_source_object_set(*condition.objects)
+            && condition
+                .filter
+                .is_none_or(|filter| shared_object_predicate(filter.predicate()));
+    }
     // A battlefield count is re-read on every walk, so it tracks the board the
     // way "as long as" asks. The predicate still has to be one that does not
     // read back into the layer being computed.
@@ -181,4 +194,15 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
             | TriggerConditionDef::SourceCastWith(_)
             | TriggerConditionDef::SourcePaidAdditionalCost(_)
     )
+}
+
+pub(super) fn shared_source_object_set(objects: ObjectSetDef) -> bool {
+    match objects {
+        ObjectSetDef::LinkedExiles => true,
+        ObjectSetDef::Matching { objects, object } => {
+            shared_source_object_set(*objects) && shared_object_predicate(object.predicate())
+        }
+        ObjectSetDef::Query(query) => shared_query(query),
+        _ => false,
+    }
 }

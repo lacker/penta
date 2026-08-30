@@ -3,9 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -803,13 +804,49 @@ pub(in crate::card::sets) static NOXIOUS_GHOUL: CardRecord = CardRecord::new(
 );
 
 // LGN 78 — Phage the Untouchable
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHAGE_THE_UNTOUCHABLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a410b933-99d0-4383-b54b-4839a76eb6fe"),
     "Phage the Untouchable",
-    crate::card::CardArt::new("a410b933-99d0-4383-b54b-4839a76eb6fe", "Ron Spears"),
-    crate::card::CardSet::Legions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a410b933-99d0-4383-b54b-4839a76eb6fe", "Ron Spears"),
+    CardSet::Legions,
+    CardRules::new_creature(mana_cost!("{3}{B}{B}{B}{B}"), &["Avatar", "Minion"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered_if(
+                "When this creature enters, if you didn't cast it from your hand, you lose the game.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                &TriggerConditionDef::Not(&TriggerConditionDef::SourceCastFrom(ZoneKind::Hand)),
+                EffectDef::LoseTheGame {
+                    player: EffectRecipientDef::Controller,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a creature, destroy that creature. It can't be regenerated.",
+                TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                    kind: DamageKindDef::Combat,
+                    source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                    recipient: DamageRecipientMatcherDef::MatchingObject(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ),
+                }),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::DamagedObject,
+                    can_regenerate: false,
+                    then: None,
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, that player loses the game.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::LoseTheGame {
+                    player: EffectRecipientDef::EventPlayer,
+                },
+            ),
+        ]),
 );
 
 // LGN 79 — Scion of Darkness

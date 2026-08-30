@@ -928,7 +928,7 @@ pub(in crate::card::sets) static QUIRION_DRYAD: CardRecord = CardRecord::new_wit
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 1, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast a spell that's white, blue, black, or red, put a +1/+1 counter on this creature.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Color(ManaColor::White),
                     ObjectPredicateDef::Color(ManaColor::Blue),

@@ -206,7 +206,7 @@ static ZENITH_ABILITIES: [AbilityDef; 1] = [AbilityDef::defined(
     "Whenever you cast your second spell each turn, choose one —\n• Create two 1/1 white Human \
      Soldier creature tokens.\n• Put a +1/+1 counter on each creature you control.",
     DeclarativeAbilityDef::Triggered(
-        TriggeredAbilityDef::new(TriggerEventDef::SpellCast(
+        TriggeredAbilityDef::new(TriggerEventDef::spell_cast(
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ))
         .with_condition(&YOUR_SECOND_SPELL)
@@ -602,7 +602,7 @@ static PLAY_A_LAND_OR_CAST_A_SPELL: [TriggerEventDef; 2] = [
         land: ObjectPredicateDef::Any,
         player: PlayerRelation::You,
     },
-    TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
 ];
 
 /// Half of what the game began on rather than half of what is left: it sets

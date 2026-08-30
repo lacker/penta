@@ -504,7 +504,7 @@ pub(in crate::card::sets) static WARMTH: CardRecord = CardRecord::new_with_legac
     CardSet::Tempest,
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(AbilityDef::triggered(
         "Whenever an opponent casts a red spell, you gain 2 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
             ObjectPredicateDef::Color(ManaColor::Red),
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
         ])),

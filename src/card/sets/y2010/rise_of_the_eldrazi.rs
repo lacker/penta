@@ -37,7 +37,7 @@ static EMRAKUL_ABILITIES: [AbilityDef; 6] = [
     abilities::cannot_be_countered(),
     AbilityDef::triggered(
         "When you cast this spell, take an extra turn after this one.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         EffectDef::TakeExtraTurn {
             player: EffectRecipientDef::Controller,
         },

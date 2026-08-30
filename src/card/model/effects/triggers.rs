@@ -94,7 +94,13 @@ pub enum TriggerEventDef {
     BecomesBlockedBy {
         blocker: ObjectPredicateDef,
     },
-    SpellCast(ObjectPredicateDef),
+    /// A matching spell was cast. Every committed cast event carries its
+    /// actual source zone; `from` optionally constrains it for clauses that
+    /// care, while ordinary cast triggers leave it unconstrained.
+    SpellCast {
+        object: ObjectPredicateDef,
+        from: Option<ZoneKind>,
+    },
     /// A copy of a matching spell was created on the stack. Distinct from
     /// [`Self::SpellCast`] because a copy is not cast (CR 707.12): magecraft
     /// prints both halves in one clause, and every other clause that watches
@@ -271,6 +277,19 @@ impl TriggerEventDef {
         to: Option<ZoneKind>,
     ) -> Self {
         Self::ZoneChanged(ZoneChangeEventMatcherDef::new(object, from, to))
+    }
+
+    #[must_use]
+    pub const fn spell_cast(object: ObjectPredicateDef) -> Self {
+        Self::SpellCast { object, from: None }
+    }
+
+    #[must_use]
+    pub const fn spell_cast_from(object: ObjectPredicateDef, from: ZoneKind) -> Self {
+        Self::SpellCast {
+            object,
+            from: Some(from),
+        }
     }
 
     #[must_use]

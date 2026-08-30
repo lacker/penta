@@ -1409,7 +1409,7 @@ pub(in crate::card::sets) static LUNAR_MYSTIC: CardRecord = CardRecord::new_with
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an instant spell, you may pay {1}. If you do, draw a card.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Instant),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),

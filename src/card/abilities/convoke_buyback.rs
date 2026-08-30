@@ -98,7 +98,7 @@ static STORM_COPY: CopyStackObjectDef = CopyStackObjectDef {
 pub const fn storm() -> AbilityDef {
     AbilityDef::triggered(
         "Storm (When you cast this spell, copy it for each spell cast before it this turn. You may choose new targets for the copies.)",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         EffectDef::CopyStackObject(&STORM_COPY),
     )
 }

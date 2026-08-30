@@ -109,7 +109,7 @@ static JACE_EMBLEM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_on
 
 static JACE_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered_with_targets(
     "Whenever you cast a spell, target opponent mills five cards.",
-    TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
     &JACE_EMBLEM_TARGET,
     EffectDef::Mill {
         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),

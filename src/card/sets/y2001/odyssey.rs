@@ -1115,7 +1115,7 @@ pub(in crate::card::sets) static STANDSTILL: CardRecord = CardRecord::new_with_l
     // first hands over three cards.
     CardRules::new_enchantment(mana_cost!("{1}{U}")).with_ability(AbilityDef::triggered(
         "When a player casts a spell, sacrifice this enchantment. If you do, each of that player's opponents draws three cards.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Any),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
         STANDSTILL_REFILL,
     )),
 );

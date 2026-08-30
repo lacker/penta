@@ -537,7 +537,7 @@ pub(in crate::card::sets) static MIRRAN_SPY: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::triggered_with_targets(
             "Whenever you cast an artifact spell, you may untap target creature.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::Spell,
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),

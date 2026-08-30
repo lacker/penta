@@ -1440,7 +1440,7 @@ pub(in crate::card::sets) static FLUXCHARGER: CardRecord = CardRecord::new_with_
         abilities::flying(),
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, you may switch this creature's power and toughness until end of turn.",
-            TriggerEventDef::SpellCast(INSTANT_OR_SORCERY_YOU_CAST),
+            TriggerEventDef::spell_cast(INSTANT_OR_SORCERY_YOU_CAST),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Apply {
@@ -1733,7 +1733,7 @@ pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new_wit
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, this creature gets +3/+0 until end of \
              turn and can attack this turn as though it didn't have defender.",
-            TriggerEventDef::SpellCast(INSTANT_OR_SORCERY_YOU_CAST),
+            TriggerEventDef::spell_cast(INSTANT_OR_SORCERY_YOU_CAST),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&NIVIX_CYCLOPS_CHARGE),
@@ -2017,7 +2017,7 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
         abilities::attacks_each_combat_if_able("Ruric Thar attacks each combat if able."),
         AbilityDef::triggered(
             "Whenever a player casts a noncreature spell, Ruric Thar deals 6 damage to that player.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::NoncreatureSpell),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::NoncreatureSpell),
             EffectDef::DealDamage {
                 // Whoever cast it, which is what the event names; this hits
                 // its own controller too.
@@ -2357,7 +2357,7 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
     .with_abilities(&[
         AbilityDef::triggered_if(
             "Whenever an opponent casts a spell during your turn, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\"",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
             &VOICE_OF_RESURGENCE_DURING_YOUR_TURN,
             VOICE_OF_RESURGENCE_TOKEN,
         ),

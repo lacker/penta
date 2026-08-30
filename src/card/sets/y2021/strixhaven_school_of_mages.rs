@@ -216,7 +216,7 @@ static YOUR_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::All(&[
 /// ability: a copy is not cast, and every other clause that watches casting
 /// means casting only.
 static MAGECRAFT: TriggerEventDef = TriggerEventDef::AnyOf(&[
-    TriggerEventDef::SpellCast(YOUR_INSTANT_OR_SORCERY),
+    TriggerEventDef::spell_cast(YOUR_INSTANT_OR_SORCERY),
     TriggerEventDef::SpellCopied(YOUR_INSTANT_OR_SORCERY),
 ]);
 

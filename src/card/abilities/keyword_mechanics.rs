@@ -72,7 +72,7 @@ pub const fn extort() -> AbilityDef {
     AbilityDef::triggered(
         "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 \
          life and you gain that much life.)",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),
@@ -336,7 +336,7 @@ pub const fn cascade() -> AbilityDef {
         "Cascade (When you cast this spell, exile cards from the top of your library until you \
          exile a nonland card that costs less. You may cast it without paying its mana cost. Put \
          the exiled cards on the bottom of your library in a random order.)",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         EffectDef::Cascade,
     )
 }

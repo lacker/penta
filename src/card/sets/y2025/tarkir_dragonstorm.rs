@@ -95,14 +95,14 @@ static UGIN_SEARCH: EffectDef = EffectDef::SearchZone {
 static UGIN_ABILITIES: [AbilityDef; 5] = [
     AbilityDef::triggered_with_targets(
         "When you cast this spell, exile up to one target permanent that's one or more colors.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         &UP_TO_ONE_COLORED_PERMANENT,
         UGIN_EXILES_IT,
     ),
     AbilityDef::triggered_with_targets(
         "Whenever you cast a colorless spell, exile up to one target permanent that's one or \
          more colors.",
-        TriggerEventDef::SpellCast(A_COLORLESS_SPELL_YOU_CAST),
+        TriggerEventDef::spell_cast(A_COLORLESS_SPELL_YOU_CAST),
         &UP_TO_ONE_COLORED_PERMANENT,
         UGIN_EXILES_IT,
     ),
@@ -452,7 +452,7 @@ static CORI_STEEL_CUTTER_ABILITIES: [AbilityDef; 3] = [
     AbilityDef::triggered_if(
         "Flurry — Whenever you cast your second spell each turn, create a 1/1 white Monk \
          creature token with prowess. You may attach this Equipment to it.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
         &CUTTER_SECOND_SPELL,
         EffectDef::create_creature_token(&["Monk"], &[ManaColor::White], 1, 1)
             .with_abilities(&CUTTER_PROWESS)

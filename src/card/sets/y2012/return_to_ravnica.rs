@@ -2243,7 +2243,7 @@ pub(in crate::card::sets) static GUTTERSNIPE: CardRecord = CardRecord::new_with_
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Shaman"], 2, 2).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, this creature deals 2 damage to each opponent.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Instant),
                     ObjectPredicateDef::HasType(CardType::Sorcery),
@@ -2276,7 +2276,7 @@ pub(in crate::card::sets) static LOBBER_CREW: CardRecord = CardRecord::new_with_
         ),
         AbilityDef::triggered(
             "Whenever you cast a multicolored spell, untap this creature.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 MULTICOLORED_SPELL,
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -2384,7 +2384,7 @@ pub(in crate::card::sets) static PYROCONVERGENCE: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{4}{R}"))
         .with_ability(AbilityDef::triggered_with_targets(
         "Whenever you cast a multicolored spell, this enchantment deals 2 damage to any target.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
             MULTICOLORED_SPELL,
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ])),
@@ -4883,7 +4883,7 @@ pub(in crate::card::sets) static BLISTERCOIL_WEIRD: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{U/R}"), &["Weird"], 1, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, this creature gets +1/+1 until end of turn. Untap it.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Instant),
                     ObjectPredicateDef::HasType(CardType::Sorcery),

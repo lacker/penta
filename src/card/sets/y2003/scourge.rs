@@ -479,7 +479,7 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{6}{U}{U}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever an opponent casts a spell, counter that spell and put a depletion counter on this enchantment. If there are three or more depletion counters on this enchantment, sacrifice it.",
-            TriggerEventDef::SpellCast(AN_OPPONENTS_SPELL),
+            TriggerEventDef::spell_cast(AN_OPPONENTS_SPELL),
             DECREE_OF_SILENCE_ANSWER,
         ),
         abilities::cycling(

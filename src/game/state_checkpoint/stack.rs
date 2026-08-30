@@ -21,8 +21,8 @@ use super::{
     cast_source_zone_from_label, catalog_ability, face_down_characteristics_from_snapshot,
     face_down_characteristics_snapshot, field, object_characteristics_from_snapshot,
     object_characteristics_snapshot, object_kind_from_snapshot, object_kind_snapshot, optional_id,
-    parse_basic_land_type, parse_cast_signature, parse_ids, seat_value, str_field, u8_field,
-    u32_field, usize_field,
+    parse_basic_land_type, parse_cast_signature, parse_ids, parse_zone_kind, seat_value, str_field,
+    u8_field, u32_field, usize_field, zone_kind_snapshot,
 };
 use crate::card::{ColorSet, ManaColor};
 
@@ -310,6 +310,7 @@ pub(super) fn trigger_context_snapshot(context: TriggerContext) -> TriggerContex
         event_player: context.event_player.map(PlayerId::index),
         amount: context.amount,
         damaged_object: context.damaged_object.map(|id| id.0),
+        cast_from_zone: context.cast_from_zone.map(zone_kind_snapshot),
     }
 }
 
@@ -755,6 +756,7 @@ pub(super) fn parse_trigger_context(
         event_player: value.event_player.map(seat_index_value).transpose()?,
         amount: value.amount,
         damaged_object: value.damaged_object.map(GameObjectId),
+        cast_from_zone: value.cast_from_zone.map(parse_zone_kind),
     })
 }
 
@@ -878,6 +880,7 @@ mod tests {
             event_player: Some(PlayerId::Two),
             amount: Some(3),
             damaged_object: None,
+            cast_from_zone: Some(crate::card::ZoneKind::Graveyard),
         };
         let mut context = EffectResolutionContext::new(trigger);
         context.bind_single_object(

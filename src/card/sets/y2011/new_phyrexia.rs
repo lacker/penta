@@ -80,7 +80,7 @@ pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::ne
 // NPH 6 — Chancellor of the Annex
 static CHANCELLOR_ANNEX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
     "When each opponent casts their first spell of the game, counter that spell unless that player pays {1}.",
-    TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
     EffectDef::PayOr(PayOrDef::unless(
         EffectPaymentDef::mana(
             PlayerSetDef::One(PlayerRefDef::EventPlayer),
@@ -108,7 +108,7 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_ANNEX: CardRecord = CardRecor
             abilities::flying(),
             AbilityDef::triggered(
                 "Whenever an opponent casts a spell, counter it unless that player pays {1}.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(
+                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
                     PlayerRelation::Opponent,
                 )),
                 EffectDef::PayOr(PayOrDef::unless(
@@ -3444,7 +3444,7 @@ pub(in crate::card::sets) static ISOLATION_CELL: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::triggered(
         "Whenever an opponent casts a creature spell, that player loses 2 life unless they pay {2}.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
         ])),
@@ -3637,7 +3637,7 @@ pub(in crate::card::sets) static SHRINE_OF_BOUNDLESS_GROWTH: CardRecord = CardRe
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Color(ManaColor::Green),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -3676,7 +3676,7 @@ pub(in crate::card::sets) static SHRINE_OF_BURNING_RAGE: CardRecord = CardRecord
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Color(ManaColor::Red),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -3718,7 +3718,7 @@ pub(in crate::card::sets) static SHRINE_OF_LIMITLESS_POWER: CardRecord = CardRec
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Color(ManaColor::Black),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -3763,7 +3763,7 @@ pub(in crate::card::sets) static SHRINE_OF_LOYAL_LEGIONS: CardRecord = CardRecor
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Color(ManaColor::White),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
@@ -3833,7 +3833,7 @@ pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRec
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::Color(ManaColor::Blue),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),

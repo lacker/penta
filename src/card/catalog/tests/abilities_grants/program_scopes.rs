@@ -688,7 +688,7 @@ fn trigger_catalog_rejects_static_only_affected_object_anchors() {
             recipient: DamageRecipientMatcherDef::AffectedObject,
             ..DamageEventMatcherDef::ANY
         }),
-        TriggerEventDef::SpellCast(ObjectPredicateDef::HasNonManaActivatedAbility),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::HasNonManaActivatedAbility),
         TriggerEventDef::DamageDealt(DamageEventMatcherDef {
             source: DamageSourceMatcherDef::Matching(
                 ObjectPredicateDef::HasNonManaActivatedAbility,

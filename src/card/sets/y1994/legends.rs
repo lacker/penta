@@ -687,7 +687,7 @@ pub(in crate::card::sets) static PRESENCE_OF_THE_MASTER: CardRecord =
         CardSet::Legends,
         CardRules::new_enchantment(mana_cost!("{3}{W}")).with_ability(AbilityDef::triggered(
             "Whenever a player casts an enchantment spell, counter it.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::HasType(CardType::Enchantment)),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::HasType(CardType::Enchantment)),
             EffectDef::Counter {
                 object: EffectRecipientDef::TriggeringObject,
                 zone: ZoneKind::Graveyard,
@@ -2290,7 +2290,7 @@ pub(in crate::card::sets) static NETHER_VOID: CardRecord = CardRecord::new_with_
         .with_supertype(CardSupertype::World)
         .with_ability(AbilityDef::triggered(
             "Whenever a player casts a spell, counter it unless that player pays {3}.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::Any),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
             abilities::counter_triggering_spell_unless_paid(ValueDef::Constant(3)),
         )),
 );
@@ -5253,7 +5253,7 @@ pub(in crate::card::sets) static SOLKANAR_THE_SWAMP_KING: CardRecord =
                     "Whenever a player casts a black spell, you gain 1 life.",
                     // Any player's: the predicate names a color and nothing about
                     // who cast it.
-                    TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Black)),
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
                     EffectDef::GainLife {
                         recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(1),

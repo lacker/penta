@@ -645,6 +645,7 @@ fn resolving_ability_masks_an_illegal_target_in_each_frozen_slot() {
                 event_player: None,
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             }
             .into(),
             resolver: StackAbilityResolver::Declarative(ScopedEffect::primary(

@@ -32,7 +32,7 @@ mod tests {
         };
         assert_eq!(
             trigger.event,
-            TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         );
         let Some(EffectDef::CopyStackObject(copy)) = ability.declarative_effect() else {
             panic!("storm should copy its source spell")

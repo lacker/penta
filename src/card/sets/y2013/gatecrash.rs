@@ -809,7 +809,7 @@ pub(in crate::card::sets) static INCURSION_SPECIALIST: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Wizard"], 1, 3).with_ability(
         AbilityDef::triggered_if(
             "Whenever you cast your second spell each turn, this creature gets +2/+0 until end of turn and can't be blocked this turn.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
             &INCURSION_SPECIALIST_SECOND_SPELL,
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,

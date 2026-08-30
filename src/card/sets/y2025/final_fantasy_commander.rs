@@ -1,12 +1,64 @@
-//! Final Fantasy Commander cards cataloged for the Vintage Cube pool.
+//! Final Fantasy Commander card records.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef,
+    AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, abilities,
 };
 use crate::mana_cost;
+
+// FIC 52 — Transpose
+pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("66392b0e-8691-42a4-bc84-03b017174a73"),
+    "Transpose",
+    CardArt::new("66392b0e-8691-42a4-bc84-03b017174a73", "Toni Infante"),
+    CardSet::FinalFantasyCommander,
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(
+        AbilityDef::spell(
+            "Draw a card, then discard a card. You lose 1 life. If this spell was cast from your hand, create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"\n\nRebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Hand),
+                    then: &EffectDef::create_creature_token(
+                        &["Wizard"],
+                        &[ManaColor::Black],
+                        0,
+                        1,
+                    )
+                    .with_abilities(&[AbilityDef::triggered(
+                        "Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.",
+                        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::NoncreatureSpell,
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ])),
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Opponent,
+                            amount: ValueDef::Constant(1),
+                        },
+                    )]),
+                },
+                abilities::rebound_offer(),
+            ]),
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
+    ),
+);
 
 // FIC 55 — Gau, Feral Youth
 /// An intervening-if, so it is checked twice: once when the end step begins
@@ -56,6 +108,10 @@ pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_w
         .with_abilities(&GAU_ABILITIES),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&GAU_FERAL_YOUTH];
+// FIC 119 — Transpose (alternate printing)
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&TRANSPOSE, &GAU_FERAL_YOUTH];
+
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    PrintingRecord::alternate(&TRANSPOSE, 1), // FIC 119
+];

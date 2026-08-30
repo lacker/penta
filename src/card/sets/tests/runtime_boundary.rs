@@ -66,9 +66,9 @@ fn shared_zone_change_events_cover_every_committed_transition() {
 #[test]
 fn shared_trigger_event_audit_rejects_live_only_stack_predicates() {
     let live_only = ObjectPredicateDef::HasNonManaActivatedAbility;
-    assert!(!shared_trigger_event(
-        TriggerEventDef::SpellCast(live_only,)
-    ));
+    assert!(!shared_trigger_event(TriggerEventDef::spell_cast(
+        live_only,
+    )));
     assert!(!shared_trigger_event(TriggerEventDef::DamageDealt(
         DamageEventMatcherDef {
             source: DamageSourceMatcherDef::Matching(live_only),

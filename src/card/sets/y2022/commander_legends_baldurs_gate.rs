@@ -366,7 +366,7 @@ pub(in crate::card::sets) static DISPLACER_KITTEN: CardRecord = CardRecord::new(
             "Avoidance — Whenever you cast a noncreature spell, exile up to one target nonland \
              permanent you control, then return that card to the battlefield under its owner's \
              control.",
-            TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
+            TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
             &UP_TO_ONE_NONLAND_PERMANENT_YOU_CONTROL,
             EffectDef::Sequence(&KITTEN_BLINKS),
         ),

@@ -402,8 +402,9 @@ fn validate_trigger_event_references(
             }
             validate_trigger_object_predicate(matcher.attacker, event, target_count, scope)
         }
-        TriggerEventDef::SpellCast(predicate) | TriggerEventDef::SpellCopied(predicate)
-            if trigger_predicate_requires_live_battlefield(predicate) =>
+        TriggerEventDef::SpellCast { object, .. }
+        | TriggerEventDef::SpellCopied(object)
+            if trigger_predicate_requires_live_battlefield(object) =>
         {
             Err(unsupported_trigger_event(event))
         }
@@ -433,7 +434,9 @@ fn validate_trigger_event_references(
         | TriggerEventDef::BecomesBlocked(predicate)
         | TriggerEventDef::Blocks { blocked: predicate }
         | TriggerEventDef::BecomesBlockedBy { blocker: predicate }
-        | TriggerEventDef::SpellCast(predicate)
+        | TriggerEventDef::SpellCast {
+            object: predicate, ..
+        }
         | TriggerEventDef::SpellCopied(predicate)
         | TriggerEventDef::BecomesTargetOfSpell(predicate)
         | TriggerEventDef::BecomesTargetOfSpellOrAbility(predicate)

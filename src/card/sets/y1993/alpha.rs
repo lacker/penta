@@ -4838,7 +4838,7 @@ pub(in crate::card::sets) static VERDURAN_ENCHANTRESS: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Human", "Druid"], 0, 2).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you cast an enchantment spell, you may draw a card.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Enchantment),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -5192,7 +5192,7 @@ pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new_with_
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a blue spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Blue)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Blue)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),
@@ -5425,7 +5425,7 @@ pub(in crate::card::sets) static IRON_STAR: CardRecord = CardRecord::new_with_le
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a red spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Red)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Red)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),
@@ -5447,7 +5447,7 @@ pub(in crate::card::sets) static IVORY_CUP: CardRecord = CardRecord::new_with_le
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a white spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::White)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::White)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),
@@ -5867,7 +5867,7 @@ pub(in crate::card::sets) static THRONE_OF_BONE: CardRecord = CardRecord::new_wi
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a black spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Black)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Black)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),
@@ -5959,7 +5959,7 @@ pub(in crate::card::sets) static WOODEN_SPHERE: CardRecord = CardRecord::new_wit
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts a green spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Color(ManaColor::Green)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Green)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),

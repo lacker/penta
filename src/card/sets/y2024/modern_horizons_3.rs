@@ -1175,7 +1175,7 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
     ),
     AbilityDef::triggered(
         "When you cast this spell, search your library for a land card, put it onto the battlefield, then shuffle.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
@@ -1194,7 +1194,7 @@ static MYCOSPAWN_ABILITIES: [AbilityDef; 4] = [
     ),
     AbilityDef::triggered_if_with_targets(
         "When you cast this spell, if it was kicked, exile target land.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
         &MYCOSPAWN_KICKED,
         &MYCOSPAWN_EXILE_TARGET,
         EffectDef::MoveToZone {

@@ -703,7 +703,7 @@ pub(in crate::card::sets) static CITANUL_DRUID: CardRecord = CardRecord::new_wit
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Druid"], 1, 1).with_abilities(&[
         AbilityDef::triggered(
             "Whenever an opponent casts an artifact spell, put a +1/+1 counter on this creature.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
             ])),
@@ -1767,7 +1767,7 @@ pub(in crate::card::sets) static URZAS_CHALICE: CardRecord = CardRecord::new_wit
     CardSet::Antiquities,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[AbilityDef::triggered(
         "Whenever a player casts an artifact spell, you may pay {1}. If you do, you gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::HasType(CardType::Artifact)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::HasType(CardType::Artifact)),
         EffectDef::PayOr(PayOrDef::optional(
             EffectPaymentDef::mana(
                 PlayerSetDef::Related(PlayerRelation::You),

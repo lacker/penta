@@ -3808,13 +3808,30 @@ pub(in crate::card::sets) static BRIMSTONE_VOLLEY: CardRecord = CardRecord::new_
 );
 
 // ISD 133 — Burning Vengeance
-// Audit: metadata-only — Needs spell-cast events to retain the zone from which the spell was cast.
 pub(in crate::card::sets) static BURNING_VENGEANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd403810-840b-46ac-ae6e-5df23ce16fec"),
     "Burning Vengeance",
-    crate::card::CardArt::new("fd403810-840b-46ac-ae6e-5df23ce16fec", "Raymond Swanland"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fd403810-840b-46ac-ae6e-5df23ce16fec", "Raymond Swanland"),
+    CardSet::Innistrad,
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever you cast a spell from your graveyard, this enchantment deals 2 damage to any target.",
+            TriggerEventDef::spell_cast_from(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                ]),
+                ZoneKind::Graveyard,
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // ISD 134 — Charmbreaker Devils
@@ -3844,7 +3861,7 @@ pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::n
         ),
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, this creature gets +4/+0 until end of turn.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 CHARMBREAKER_INSTANT_OR_SORCERY,
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),

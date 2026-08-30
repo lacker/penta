@@ -683,6 +683,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     assert_eq!(trigger_object.subtypes.as_ref(), &["Arcane", "Lesson"]);
     let event = CommittedTriggerEvent::SpellCast {
         object: trigger_object,
+        from: CastSourceZone::Hand,
     };
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Instant),
@@ -691,7 +692,7 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
         ObjectPredicateDef::Subtype("Lesson"),
     ] {
         assert!(game.trigger_event_matches_for_controller(
-            TriggerEventDef::SpellCast(predicate),
+            TriggerEventDef::spell_cast(predicate),
             &event,
             GameObjectId(99_999),
             None,

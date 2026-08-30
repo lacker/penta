@@ -13,4 +13,8 @@ pub(super) struct TriggerContextSnapshot {
     /// not about damage does anyway.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) damaged_object: Option<u32>,
+    /// Additive cast-event provenance. Older checkpoints restore no origin,
+    /// which is accurate for every non-cast trigger context.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) cast_from_zone: Option<super::ZoneKindSnapshot>,
 }

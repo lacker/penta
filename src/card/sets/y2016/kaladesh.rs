@@ -113,7 +113,7 @@ static CHANDRA_EMBLEM_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactl
 static CHANDRA_TORCH_OF_DEFIANCE_EMBLEM_ABILITIES: [AbilityDef; 1] =
     [AbilityDef::triggered_with_targets(
         "Whenever you cast a spell, this emblem deals 5 damage to any target.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
         &CHANDRA_EMBLEM_TARGETS,
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

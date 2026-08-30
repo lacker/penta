@@ -52,7 +52,7 @@ static LEDGER_SHREDDER_ABILITIES: [AbilityDef; 2] = [
         "Whenever a player casts their second spell each turn, this creature connives. (Draw a \
          card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on this \
          creature.)",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::Any),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
         &THEIR_SECOND_SPELL,
         abilities::connive(),
     ),

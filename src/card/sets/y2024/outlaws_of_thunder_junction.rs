@@ -378,7 +378,7 @@ static SLICKSHOT_ABILITIES: [AbilityDef; 4] = [
     abilities::haste(),
     AbilityDef::triggered(
         "Whenever you cast a noncreature spell, this creature gets +2/+0 until end of turn.",
-        TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST_SLICKSHOT),
+        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST_SLICKSHOT),
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::modify_power_toughness(

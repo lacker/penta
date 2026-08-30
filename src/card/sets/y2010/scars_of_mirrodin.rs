@@ -408,7 +408,7 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, create a 1/1 colorless Myr artifact creature token.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -812,7 +812,7 @@ pub(in crate::card::sets) static INEXORABLE_TIDE: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_enchantment(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::triggered(
         "Whenever you cast a spell, proliferate.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
         EffectDef::Proliferate,
     )),
 );
@@ -907,7 +907,7 @@ pub(in crate::card::sets) static RIDDLESMITH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may draw a card. If you do, discard a card.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -1522,7 +1522,7 @@ pub(in crate::card::sets) static HAND_OF_THE_PRAETORS: CardRecord = CardRecord::
         ),
         AbilityDef::triggered_with_targets(
             "Whenever you cast a creature spell with infect, target opponent gets a poison counter.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
@@ -1653,7 +1653,7 @@ pub(in crate::card::sets) static PAINSMITH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast an artifact spell, you may have target creature get +2/+0 and gain deathtouch until end of turn.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -1992,7 +1992,7 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, this creature deals 1 damage to any target.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -2816,7 +2816,7 @@ pub(in crate::card::sets) static LIFESMITH: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, you gain 3 life.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -3049,7 +3049,7 @@ pub(in crate::card::sets) static WITHSTAND_DEATH: CardRecord = CardRecord::new(
 // SOM 135 — Venser, the Sojourner
 static VENSER_EMBLEM_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
     "Whenever you cast a spell, exile target permanent.",
-    TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
     &[AbilityTargetDef::exactly_one_permanent(
         ObjectPredicateDef::Any,
     )],
@@ -3774,7 +3774,7 @@ pub(in crate::card::sets) static GOLEM_FOUNDRY: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may put a charge counter on this artifact.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -3806,7 +3806,7 @@ pub(in crate::card::sets) static GOLEM_S_HEART: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered(
         "Whenever a player casts an artifact spell, you may gain 1 life.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::HasType(CardType::Artifact)),
+        TriggerEventDef::spell_cast(ObjectPredicateDef::HasType(CardType::Artifact)),
         EffectDef::May {
             player: EffectRecipientDef::Controller,
             effect: &EffectDef::GainLife {

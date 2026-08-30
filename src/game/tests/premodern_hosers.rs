@@ -269,7 +269,10 @@ fn standstill_refills_the_other_player() {
     let cast = game
         .stack_trigger_event_object(&bolt)
         .expect("a cast spell");
-    game.capture_battlefield_triggers(&CommittedTriggerEvent::SpellCast { object: cast });
+    game.capture_battlefield_triggers(&CommittedTriggerEvent::SpellCast {
+        object: cast,
+        from: CastSourceZone::Hand,
+    });
     settle(&mut game);
 
     assert_eq!(

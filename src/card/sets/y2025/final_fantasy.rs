@@ -260,7 +260,7 @@ static VIVI_ABILITIES: [AbilityDef; 2] = [
     .activations_each_turn(1),
     AbilityDef::triggered(
         "Whenever you cast a noncreature spell, put a +1/+1 counter on this creature and it deals 1 damage to each opponent.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
             ObjectPredicateDef::NoncreatureSpell,
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ])),
@@ -404,7 +404,7 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
 /// counts toward the third, which is why the card wants a turn with two
 /// cantrips in it rather than a big draw spell.
 static PLANISPHERE_TRIGGERS: [TriggerEventDef; 2] = [
-    TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
         ObjectPredicateDef::NoncreatureSpell,
         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
     ])),

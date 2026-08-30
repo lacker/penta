@@ -191,7 +191,7 @@ static STORMCHASERS_TALENT_ABILITIES: [AbilityDef; 5] = [
     AbilityDef::triggered_if(
         "Whenever you cast an instant or sorcery spell, create a 1/1 blue and red Otter creature \
          token with prowess.",
-        TriggerEventDef::SpellCast(AN_INSTANT_OR_SORCERY_YOU_CAST),
+        TriggerEventDef::spell_cast(AN_INSTANT_OR_SORCERY_YOU_CAST),
         &AT_LEVEL_THREE,
         MAKE_AN_OTTER,
     ),

@@ -186,6 +186,9 @@ impl Game {
         let Some(signature) = cast.signature.as_ref() else {
             return;
         };
+        let Some(cast_from) = cast.cast_from_zone else {
+            return;
+        };
         let context = CharacteristicContext::Stack {
             form: signature.form().clone(),
         };
@@ -195,8 +198,15 @@ impl Game {
             let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
                 return;
             };
+            let watches_this_cast = match definition.event {
+                TriggerEventDef::SpellCast {
+                    object: ObjectPredicateDef::Source,
+                    from,
+                } => from.is_none_or(|zone| cast_from.zone() == zone),
+                _ => false,
+            };
             if !ability.is_executable()
-                || definition.event != TriggerEventDef::SpellCast(ObjectPredicateDef::Source)
+                || !watches_this_cast
                 || definition.procedure != AbilityProcedureDef::Shared
             {
                 return;
@@ -234,7 +244,10 @@ impl Game {
         }
         self.capture_battlefield_triggers_from_snapshot(
             &listeners,
-            &CommittedTriggerEvent::SpellCast { object },
+            &CommittedTriggerEvent::SpellCast {
+                object,
+                from: cast_from,
+            },
         );
     }
 

@@ -476,14 +476,22 @@ impl Game {
                 )
             }
             (
-                TriggerEventDef::SpellCast(predicate),
-                CommittedTriggerEvent::SpellCast { object },
-            )
-            | (
                 TriggerEventDef::SpellCopied(predicate),
                 CommittedTriggerEvent::SpellCopied { object },
             ) => self
                 .trigger_object_matches_for_controller(predicate, object, source, true, controller),
+            (
+                TriggerEventDef::SpellCast {
+                    object: predicate,
+                    from: expected_from,
+                },
+                CommittedTriggerEvent::SpellCast { object, from },
+            ) => {
+                expected_from.is_none_or(|zone| from.zone() == zone)
+                    && self.trigger_object_matches_for_controller(
+                        predicate, object, source, true, controller,
+                    )
+            }
             (
                 TriggerEventDef::StepBegins { step, player },
                 CommittedTriggerEvent::StepBegins {

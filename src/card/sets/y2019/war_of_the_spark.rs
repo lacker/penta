@@ -632,7 +632,7 @@ static SAHEELI_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::triggered(
         "Whenever you cast a noncreature spell, create a 1/1 colorless Servo artifact creature \
          token.",
-        TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
+        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
         EffectDef::create_artifact_creature_token(&["Servo"], &[], 1, 1).with_art(CardArt::new(
             "761507d5-d36a-4123-a074-95d7f6ffb4c5",
             "Victor Adame Minguez",

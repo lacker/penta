@@ -181,7 +181,7 @@ pub(in crate::card::sets) static THIRD_PATH_ICONOCLAST: CardRecord = CardRecord:
         AbilityDef::triggered(
             "Whenever you cast a noncreature spell, create a 1/1 colorless Soldier artifact \
              creature token.",
-            TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
+            TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
             EffectDef::create_artifact_creature_token(&["Soldier"], &[], 1, 1),
         ),
     ),

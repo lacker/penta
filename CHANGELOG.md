@@ -1520,6 +1520,15 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Cast triggers know where the spell came from.** A committed spell-cast
+  event now carries the cast source zone into its trigger context, and a
+  single spell-cast matcher can optionally listen only to casts from a named
+  zone. Burning Vengeance uses the graveyard form; Phage the Untouchable and
+  Transpose read the same cast provenance after the spell resolves, while
+  Phlage's existing escape marker continues through the same
+  stack-to-battlefield path. The trigger-context member is additive;
+  checkpoint format 9, replay version 2, and protocol 29 are unchanged.
+
 - **"Whenever you discard one or more cards", and a permission that outlasts
   the turn.** A discard now raises one batched event beside its per-card
   ones, so both printed wordings are answerable. And a permission to play an

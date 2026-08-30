@@ -185,7 +185,7 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
         AbilityDef::triggered(
             "Replicate {U} (When you cast this spell, copy it for each time you paid its \
              replicate cost. You may choose new targets for the copies.)",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::Source),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
             LOSE_FOCUS_REPLICATES,
         ),
     ]),
@@ -539,7 +539,7 @@ static CHANNELER_ABILITIES: [AbilityDef; 2] = [
     AbilityDef::triggered(
         "Whenever you cast a noncreature spell, surveil 1. (Look at the top card of your library. \
          You may put that card into your graveyard.)",
-        TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
+        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
         EffectDef::LookAtTopAndSelect {
             player: EffectRecipientDef::Controller,
             looker: EffectRecipientDef::Controller,

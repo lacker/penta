@@ -765,6 +765,9 @@ impl Game {
     fn complete_spell_cast(&mut self, stack_object: StackObject, targets: Vec<Target>) {
         let player = stack_object.controller;
         let stack_id = stack_object.id;
+        let cast_from = stack_object
+            .cast_from_zone
+            .expect("a cast spell remembers where it was cast from");
         let definition = stack_object
             .card
             .definition
@@ -802,6 +805,7 @@ impl Game {
         });
         self.capture_battlefield_triggers(&CommittedTriggerEvent::SpellCast {
             object: cast_event.clone(),
+            from: cast_from,
         });
         self.capture_crime_triggers(player, &crime_targets);
         // "Whenever this becomes the target of a spell" fires here, where the

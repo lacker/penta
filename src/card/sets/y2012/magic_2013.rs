@@ -1400,7 +1400,7 @@ pub(in crate::card::sets) static TALRAND_SKY_SUMMONER: CardRecord = CardRecord::
     .with_supertype(CardSupertype::Legendary)
     .with_ability(AbilityDef::triggered(
         "Whenever you cast an instant or sorcery spell, create a 2/2 blue Drake creature token with flying.",
-        TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
             ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Instant),
@@ -2633,7 +2633,7 @@ pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast a red spell, target creature can't block this turn.",
-            TriggerEventDef::SpellCast(GOBLIN_BATTLE_JESTER_RED_SPELL),
+            TriggerEventDef::spell_cast(GOBLIN_BATTLE_JESTER_RED_SPELL),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],

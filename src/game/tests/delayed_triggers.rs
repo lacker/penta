@@ -339,6 +339,7 @@ fn installed_trigger_retains_lexical_bindings_targets_and_target_scope() {
         event_player: Some(PlayerId::One),
         amount: Some(99),
         damaged_object: None,
+        cast_from_zone: None,
     });
     context.bind_single_object(
         ObjectBindingIndex::PRIMARY,

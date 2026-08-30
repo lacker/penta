@@ -59,7 +59,7 @@ static DACK_EMBLEM_PERMANENT: ObjectPredicateDef = ObjectPredicateDef::Any;
 static DACK_FAYDEN_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
     "Whenever you cast a spell that targets one or more permanents, gain control of those \
          permanents.",
-    TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
         ObjectPredicateDef::ControlledBy(PlayerRelation::You),
         ObjectPredicateDef::TargetsObjectMatching(&DACK_EMBLEM_PERMANENT),
     ])),

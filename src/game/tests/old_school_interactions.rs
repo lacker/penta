@@ -582,6 +582,7 @@ fn mana_drain_pays_out_at_its_controllers_next_main_phase() {
             event_player: Some(PlayerId::Two),
             amount: None,
             damaged_object: None,
+            cast_from_zone: None,
         },
         "the installed trigger still receives the fresh main-phase event context",
     );

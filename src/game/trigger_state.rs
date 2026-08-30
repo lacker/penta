@@ -8,7 +8,7 @@ use crate::card::{
 use crate::casting::TargetSelection;
 use crate::ids::{GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
 
-use super::{ObjectCharacteristics, StackAbilityResolver};
+use super::{CastSourceZone, ObjectCharacteristics, StackAbilityResolver};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct TriggerContext {
@@ -25,6 +25,10 @@ pub(super) struct TriggerContext {
     /// dealt it: "whenever this creature deals combat damage to a creature,
     /// exile that creature" names both, and they are never the same one.
     pub(super) damaged_object: Option<GameObjectId>,
+    /// Where the triggering spell was cast from. `None` for every event that
+    /// is not a spell cast, and retained by the trigger after the spell has
+    /// left the stack.
+    pub(super) cast_from_zone: Option<ZoneKind>,
 }
 
 impl TriggerContext {
@@ -36,6 +40,7 @@ impl TriggerContext {
             event_player: None,
             amount: None,
             damaged_object: None,
+            cast_from_zone: None,
         }
     }
 }
@@ -318,6 +323,7 @@ pub(super) enum CommittedTriggerEvent {
     },
     SpellCast {
         object: TriggerEventObject,
+        from: CastSourceZone,
     },
     /// A copy of a spell was put on the stack. Not a cast: nothing was
     /// announced, nothing was paid, and only the clauses that say "or copy"
@@ -441,6 +447,7 @@ impl CommittedTriggerEvent {
                     event_player: None,
                     amount: None,
                     damaged_object: None,
+                    cast_from_zone: None,
                 }
             }
             Self::Transformed { object }
@@ -453,6 +460,7 @@ impl CommittedTriggerEvent {
                 event_player: None,
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // Who did it is the half that "whenever you sacrifice" and "when
             // you play another land" read, and what it was done to is the
@@ -465,6 +473,7 @@ impl CommittedTriggerEvent {
                     event_player: Some(*player),
                     amount: None,
                     damaged_object: None,
+                    cast_from_zone: None,
                 }
             }
             // The event is the instruction rather than any token in it, so
@@ -476,6 +485,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*controller),
                 amount: Some(i32::try_from(tokens.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // The event is the move rather than any card in it, so nothing
             // here names one; how many there were is the amount.
@@ -486,6 +496,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*owner),
                 amount: Some(i32::try_from(cards.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // The event is the declaration rather than any creature in it,
             // so nothing here names one.
@@ -501,6 +512,7 @@ impl CommittedTriggerEvent {
                 event_player: objects.first().map(|object| object.controller),
                 amount: Some(i32::try_from(objects.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // The event is the batch rather than any creature in it. Who it
             // was aimed at is the defending player, and who aimed it is the
@@ -516,6 +528,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*defending_player),
                 amount: Some(i32::try_from(attackers.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // The event is the whole step rather than any creature in it, and
             // the amount is how many players took damage.
@@ -526,6 +539,7 @@ impl CommittedTriggerEvent {
                 event_player: players.first().copied(),
                 amount: Some(i32::try_from(players.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::AttackersDeclared { attackers } => TriggerContext {
                 object: None,
@@ -534,6 +548,7 @@ impl CommittedTriggerEvent {
                 event_player: attackers.first().map(|attacker| attacker.controller),
                 amount: Some(i32::try_from(attackers.len()).unwrap_or(i32::MAX)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::Attacks {
                 object,
@@ -546,6 +561,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*defending_player),
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::Tapped { object, for_mana } => TriggerContext {
                 object: Some(object.id),
@@ -554,6 +570,7 @@ impl CommittedTriggerEvent {
                 event_player: for_mana.then_some(object.controller),
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::DamageDealt {
                 source,
@@ -571,6 +588,7 @@ impl CommittedTriggerEvent {
                 },
                 amount: Some(i32::from(*amount)),
                 damaged_object: recipient_object.as_ref().map(|object| object.id),
+                cast_from_zone: None,
             },
             Self::BlocksOrBecomesBlocked { other, .. } => TriggerContext {
                 object: Some(other.id),
@@ -579,6 +597,7 @@ impl CommittedTriggerEvent {
                 event_player: None,
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::BecomesBlocked {
                 object,
@@ -590,6 +609,7 @@ impl CommittedTriggerEvent {
                 event_player: None,
                 amount: Some(i32::from(*blockers_beyond_first)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::LifeGained { player, amount } => TriggerContext {
                 object: None,
@@ -598,6 +618,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*player),
                 amount: Some(i32::from(*amount)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::CountersPlaced { object, amount, .. }
             | Self::CountersRemoved { object, amount, .. } => TriggerContext {
@@ -607,18 +628,28 @@ impl CommittedTriggerEvent {
                 event_player: None,
                 amount: Some(i32::from(*amount)),
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::BecameTargetOfSpell { object, .. }
             | Self::BecameTargetOfAbility { object, .. }
             | Self::PlayerBecameTarget { object, .. }
-            | Self::SpellCopied { object }
-            | Self::SpellCast { object } => TriggerContext {
+            | Self::SpellCopied { object } => TriggerContext {
                 object: Some(object.id),
                 zone_change_result: None,
                 object_controller: Some(object.controller),
                 event_player: Some(object.controller),
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
+            },
+            Self::SpellCast { object, from } => TriggerContext {
+                object: Some(object.id),
+                zone_change_result: None,
+                object_controller: Some(object.controller),
+                event_player: Some(object.controller),
+                amount: None,
+                damaged_object: None,
+                cast_from_zone: Some(from.zone()),
             },
             Self::BecameLevel { object, .. } => TriggerContext {
                 object: Some(*object),
@@ -627,6 +658,7 @@ impl CommittedTriggerEvent {
                 event_player: None,
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             Self::Discarded { player, card } => TriggerContext {
                 object: card.as_ref().map(|card| card.id),
@@ -635,6 +667,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*player),
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
             // A drawn card snapshot belongs to trigger matching only. The
             // draw does not reveal it, so these player-only events carry no
@@ -650,6 +683,7 @@ impl CommittedTriggerEvent {
                 event_player: Some(*player),
                 amount: None,
                 damaged_object: None,
+                cast_from_zone: None,
             },
         }
     }

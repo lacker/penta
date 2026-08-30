@@ -296,7 +296,7 @@ pub const fn prowess() -> AbilityDef {
     AbilityDef::triggered(
         "Prowess (Whenever you cast a noncreature spell, this creature gets +1/+1 until end of \
          turn.)",
-        TriggerEventDef::SpellCast(A_NONCREATURE_SPELL_YOU_CAST),
+        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::modify_power_toughness(

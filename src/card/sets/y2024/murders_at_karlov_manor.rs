@@ -66,7 +66,7 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
         .with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-                TriggerEventDef::SpellCast(AN_ARTIFACT_SPELL_YOU_CAST),
+                TriggerEventDef::spell_cast(AN_ARTIFACT_SPELL_YOU_CAST),
                 EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
                     "ef607895-d6d2-44ab-a6b4-84af55fce593",
                     "Daneen Wilkerson",

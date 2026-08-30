@@ -126,7 +126,7 @@ pub(in crate::card::sets) static DEEP_SEA_KRAKEN: CardRecord = CardRecord::new(
         abilities::suspend("Suspend 9—{2}{U}", 9, &mana_cost!("{2}{U}")),
         AbilityDef::triggered_if(
             "Whenever an opponent casts a spell, if this card is suspended, remove a time counter from it.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
             &abilities::SUSPEND_SOURCE_IS_SUSPENDED,
             EffectDef::RemoveCounters {
                 object: EffectRecipientDef::Source,

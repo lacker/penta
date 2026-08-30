@@ -1197,7 +1197,7 @@ pub(in crate::card::sets) static BLIGHTCASTER: CardRecord = CardRecord::new_with
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Wizard"], 2, 3).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast an enchantment spell, you may have target creature get -2/-2 until end of turn.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Enchantment),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
@@ -2232,7 +2232,7 @@ pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new_with_
         abilities::first_strike(),
         AbilityDef::triggered(
             "Whenever an opponent casts a white or blue instant or sorcery spell, this creature deals 2 damage to that player.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Color(ManaColor::White),
@@ -2479,7 +2479,7 @@ pub(in crate::card::sets) static YOUNG_PYROMANCER: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Shaman"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell, create a 1/1 red Elemental creature token.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Instant),
@@ -2897,13 +2897,13 @@ pub(in crate::card::sets) static PRIMEVAL_BOUNTY: CardRecord = CardRecord::new_w
     CardRules::new_enchantment(mana_cost!("{5}{G}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you cast a creature spell, create a 3/3 green Beast creature token.",
-            TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3).with_art(CardArt::new("a8fc2dc9-40df-46d8-98c0-ca4919bd5524", "John Donahue")),
         ),
-        AbilityDef::triggered_with_targets("Whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.", TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+        AbilityDef::triggered_with_targets("Whenever you cast a noncreature spell, put three +1/+1 counters on target creature you control.", TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::NoncreatureSpell,
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])), &[AbilityTargetDef::exactly_one_permanent(
@@ -3424,7 +3424,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_DEATH_MAGUS: CardRecord =
         CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast a black spell, you gain 1 life.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ObjectPredicateDef::Color(ManaColor::Black),
                 ])),
@@ -3462,7 +3462,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_FLAME_MAGUS: CardRecord =
         CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast a red spell, you gain 1 life.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ObjectPredicateDef::Color(ManaColor::Red),
                 ])),
@@ -3500,7 +3500,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_MIND_MAGUS: CardRecord =
         CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast a blue spell, you gain 1 life.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ObjectPredicateDef::Color(ManaColor::Blue),
                 ])),
@@ -3538,7 +3538,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_SUN_MAGUS: CardRecord =
         CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast a white spell, you gain 1 life.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ObjectPredicateDef::Color(ManaColor::White),
                 ])),
@@ -3576,7 +3576,7 @@ pub(in crate::card::sets) static STAFF_OF_THE_WILD_MAGUS: CardRecord =
         CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast a green spell, you gain 1 life.",
-                TriggerEventDef::SpellCast(ObjectPredicateDef::All(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                     ObjectPredicateDef::Color(ManaColor::Green),
                 ])),

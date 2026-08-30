@@ -322,6 +322,7 @@ fn targeted_trigger_chooses_public_targets_while_being_put_on_stack() {
             event_player: None,
             amount: None,
             damaged_object: None,
+            cast_from_zone: None,
         }
         .into(),
         condition: None,
@@ -453,6 +454,7 @@ fn su_chi_mana_and_source_power_use_ordinary_stack_and_lki() {
             event_player: Some(PlayerId::One),
             amount: None,
             damaged_object: None,
+            cast_from_zone: None,
         }
         .into(),
         condition: None,

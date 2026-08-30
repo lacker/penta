@@ -126,6 +126,35 @@ fn granted_suspend_and_its_generated_trigger_reconstruct() {
 }
 
 #[test]
+fn rebound_and_its_generated_trigger_reconstruct() {
+    let mut game = ready_game();
+    let ephemerate = card(10_915, cards::EPHEMERATE, PlayerId::One);
+    let ephemerate_id = ephemerate.id;
+    let target = creature(10_916, cards::SAVANNAH_LIONS, PlayerId::One);
+    let target_id = target.card.id;
+    game.players[0].hand.push(ephemerate);
+    game.battlefield.push(target);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 1);
+
+    game.apply(
+        PlayerId::One,
+        cast_action(
+            ephemerate_id,
+            vec![Target::Permanent(target_id)],
+            Vec::new(),
+            0,
+        ),
+    )
+    .expect("Ephemerate casts");
+    pass_priority_pair(&mut game);
+
+    assert_eq!(game.installed_triggers.len(), 1);
+    let (_, rebuilt) =
+        super::super::tests::rebuild_current_checkpoint(&game, PlayerId::One, 10_917);
+    assert_eq!(rebuilt.installed_triggers.len(), 1);
+}
+
+#[test]
 fn chosen_counter_kind_reconstructs_before_the_operation_choice() {
     let mut game = ready_game();
     let clock = card(

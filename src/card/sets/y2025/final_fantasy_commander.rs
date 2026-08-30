@@ -4,8 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, abilities,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -15,9 +14,9 @@ pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
     "Transpose",
     CardArt::new("66392b0e-8691-42a4-bc84-03b017174a73", "Toni Infante"),
     CardSet::FinalFantasyCommander,
-    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
         AbilityDef::spell(
-            "Draw a card, then discard a card. You lose 1 life. If this spell was cast from your hand, create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"\n\nRebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
+            "Draw a card, then discard a card. You lose 1 life. If this spell was cast from your hand, create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"",
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -53,11 +52,10 @@ pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
                         },
                     )]),
                 },
-                abilities::rebound_offer(),
             ]),
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
-    ),
+        ),
+        abilities::rebound(),
+    ]),
 );
 
 // FIC 55 — Gau, Feral Youth

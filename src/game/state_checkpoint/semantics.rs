@@ -807,6 +807,12 @@ pub(super) fn child_abilities(ability: &AbilityDef) -> Vec<&AbilityDef> {
             &crate::card::abilities::SUSPEND_LAST_COUNTER_ABILITY,
         ]);
     }
+    if matches!(
+        ability.definition,
+        DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Rebound)
+    ) {
+        children.push(&crate::card::abilities::REBOUND_OFFER);
+    }
     match ability.effect.definition {
         AbilityProgramDef::Effects(effect) => collect_effect_abilities(effect, &mut children),
         AbilityProgramDef::Replacement(effect) => {

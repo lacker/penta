@@ -449,23 +449,7 @@ impl Game {
         } else {
             SpellResolutionDestinationDef::Graveyard
         };
-        // Rebound only exiles a spell its caster cast from hand. Settled here
-        // rather than in the walk below because it is a question about the
-        // cast rather than about the move: from anywhere else this is an
-        // ordinary spell going to an ordinary graveyard.
-        let destination = match destination {
-            SpellResolutionDestinationDef::ExileIfCastFromHand => {
-                if object
-                    .cast_from_zone
-                    .is_some_and(|from| from.zone() == ZoneKind::Hand)
-                {
-                    SpellResolutionDestinationDef::Exile
-                } else {
-                    SpellResolutionDestinationDef::Graveyard
-                }
-            }
-            other => other,
-        };
+        let destination = self.rebound_destination(object, destination);
         if object.is_copy {
             // A copy has no card to move, but "shuffle it into its owner's
             // library" still instructs its controller to shuffle.
@@ -514,8 +498,7 @@ impl Game {
                 }
                 self.players[owner.index()].exile.push(card);
             }
-            // Resolved into one of the two above before the walk began.
-            SpellResolutionDestinationDef::ExileIfCastFromHand => {}
+            SpellResolutionDestinationDef::Rebound => {}
             SpellResolutionDestinationDef::LibraryShuffled => {
                 if flashback_replaces_move {
                     self.players[owner.index()].exile.push(card);
@@ -525,6 +508,59 @@ impl Game {
                 self.rng.shuffle(&mut self.players[owner.index()].library);
             }
         }
+    }
+
+    fn rebound_destination(
+        &mut self,
+        object: &StackObject,
+        destination: SpellResolutionDestinationDef,
+    ) -> SpellResolutionDestinationDef {
+        if destination != SpellResolutionDestinationDef::Rebound {
+            return destination;
+        }
+        // Rebound only applies to a successfully resolving physical spell its
+        // caster cast from hand. It installs the delayed offer here, beside
+        // the destination it replaces, so the keyword's two halves cannot
+        // drift apart in card declarations.
+        if !object
+            .cast_from_zone
+            .is_some_and(|from| from.zone() == ZoneKind::Hand)
+            || object.is_copy
+        {
+            return SpellResolutionDestinationDef::Graveyard;
+        }
+        let definition_id = object
+            .card
+            .definition
+            .card_definition()
+            .expect("a rebound spell is backed by a card definition");
+        let definition = self
+            .catalog
+            .get(definition_id)
+            .expect("a rebound spell's definition is cataloged");
+        let signature = object
+            .signature
+            .as_ref()
+            .expect("a rebound spell retains its cast signature");
+        let option = definition
+            .play_option(signature.play_option())
+            .expect("a rebound spell retains its selected play option");
+        let source_ability = Self::rebound_ability_origin(definition, option)
+            .expect("a rebound destination comes from an executable rebound ability");
+        let context = object
+            .ability
+            .as_ref()
+            .expect("a rebound spell retains its frozen ability")
+            .context
+            .clone();
+        self.install_trigger_from(
+            crate::card::abilities::REBOUND_DELAYED_TRIGGER,
+            super::ScopedEffect::primary(crate::card::EffectDef::None),
+            object,
+            context,
+            source_ability,
+        );
+        SpellResolutionDestinationDef::Exile
     }
 
     fn defer_stack_resolution(

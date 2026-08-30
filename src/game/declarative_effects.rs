@@ -1,16 +1,16 @@
 use super::{
-    AbilityProcedureDef, AbilitySourceRef, ArrivalAttachment, BattlefieldArrival,
-    BattlefieldExitCompletion, CardPartId, CopiableAbility, CounteredSpellZone, DamageAssignment,
-    DeclarativeAbilityDef, EffectDef, EffectResolutionContext, Game, InstalledTrigger,
-    InstalledTriggerLifetime, Permanent, ResolvedOngoingEffect, SacrificeDeclined,
-    SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, TriggerCapture,
-    ZoneKind, ZoneMoveCause, ZonePlacement,
+    AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, BattlefieldExitCompletion, CardPartId,
+    CopiableAbility, CounteredSpellZone, DamageAssignment, DeclarativeAbilityDef, EffectDef,
+    EffectResolutionContext, Game, Permanent, ResolvedOngoingEffect, SacrificeDeclined,
+    SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, ZoneKind,
+    ZoneMoveCause, ZonePlacement,
 };
-use crate::card::{ArrivalAttachmentDef, InstalledTriggerLifetimeDef};
+use crate::card::ArrivalAttachmentDef;
 mod attachment;
 mod damage;
 mod exile_to_play;
 mod hand_and_library;
+mod installed_triggers;
 mod linked_exiles;
 mod mana;
 mod move_to_zone;
@@ -613,73 +613,11 @@ impl Game {
                 }
             }
             EffectDef::InstallTrigger(installed) => {
-                let DeclarativeAbilityDef::Triggered(definition) = installed.ability.definition
+                let Some(source_ability) = object.ability.as_ref().map(|frozen| frozen.origin)
                 else {
                     return;
                 };
-                // Installed triggers use the ordinary pending-trigger and
-                // stack paths. Declaring fresh targets would require a second
-                // target namespace; until that exists they may only retain
-                // the installing object's already-chosen target slots.
-                if definition.procedure != AbilityProcedureDef::Shared
-                    || !definition.targets.is_empty()
-                {
-                    return;
-                }
-                let Some(effect) = installed.ability.declarative_effect() else {
-                    return;
-                };
-                let Some(frozen) = object.ability.as_ref() else {
-                    return;
-                };
-                let lifetime = match installed.lifetime {
-                    InstalledTriggerLifetimeDef::Once => InstalledTriggerLifetime::Once,
-                    InstalledTriggerLifetimeDef::ThisTurn => {
-                        InstalledTriggerLifetime::ThisTurn { turn: self.turn }
-                    }
-                    InstalledTriggerLifetimeDef::UntilNextTurn(player) => {
-                        let Some(player) =
-                            self.effect_player_reference(player, object, &context, scoped)
-                        else {
-                            return;
-                        };
-                        InstalledTriggerLifetime::UntilTurn {
-                            player,
-                            turn: self.turns_started[player.index()].saturating_add(1),
-                        }
-                    }
-                };
-                let id = self.next_installed_trigger_id;
-                self.next_installed_trigger_id = self.next_installed_trigger_id.saturating_add(1);
-                self.installed_triggers.push(InstalledTrigger {
-                    id,
-                    event: definition.event,
-                    capture: TriggerCapture {
-                        source: AbilitySourceRef {
-                            object: object.source.unwrap_or(object.id),
-                            ability: frozen.origin,
-                        },
-                        presentation: frozen.presentation,
-                        owner: object.card.owner,
-                        controller: object.controller,
-                        text: installed.ability.text,
-                        // The selections belong to the installing ability's
-                        // lexical target namespace. They remain readable by
-                        // the nested effect, but the installed ability does
-                        // not target them again when it triggers.
-                        target_defs: Vec::new(),
-                        targets: frozen.targets.clone(),
-                        effect,
-                        resolver: StackAbilityResolver::Declarative(scoped.with_effect(effect)),
-                        context,
-                        condition: definition.condition,
-                        // An installed trigger carries the effect it was
-                        // installed with; nothing about it is modal.
-                        modes: None,
-                        x: frozen.x,
-                    },
-                    lifetime,
-                });
+                self.install_trigger_from(installed, scoped, object, context, source_ability);
             }
             EffectDef::BindMatching {
                 objects,

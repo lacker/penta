@@ -6,6 +6,36 @@
 // one -- and what that clause puts on the stack.
 
 impl Game {
+    /// The rebound clause carried by the spell form being cast. A combined
+    /// split spell has the keyword if either of its component parts does.
+    pub(super) fn rebound_ability_origin(
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+    ) -> Option<AbilityOrigin> {
+        let parts: &[CardPartId] = match &option.form {
+            crate::card::SpellForm::Part(part) => std::slice::from_ref(part),
+            crate::card::SpellForm::Combined(parts) => parts,
+        };
+        parts.iter().find_map(|part_id| {
+            definition
+                .part(*part_id)?
+                .rules
+                .indexed_abilities()
+                .find_map(|attached| {
+                    (attached.definition.is_executable()
+                        && matches!(
+                            attached.definition.definition,
+                            DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Rebound)
+                        ))
+                    .then_some(AbilityOrigin::Printed {
+                        definition: definition.id,
+                        part: *part_id,
+                        ability: attached.id,
+                    })
+                })
+        })
+    }
+
     pub(super) fn alternative_cast_clause(
         definition: &CardDefinition,
         option: &PlayOptionDef,
@@ -323,6 +353,11 @@ impl Game {
                 _ => crate::card::SpellResolutionDestinationDef::Graveyard,
             },
         );
+        if resolution_destination == crate::card::SpellResolutionDestinationDef::Graveyard
+            && Self::rebound_ability_origin(definition, option).is_some()
+        {
+            resolution_destination = crate::card::SpellResolutionDestinationDef::Rebound;
+        }
         for selected in signature.costs().additional() {
             if let Some((_, selected_ability, _)) =
                 Self::optional_additional_cost_clause(definition, option, *selected)

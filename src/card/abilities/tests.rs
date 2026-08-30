@@ -8,7 +8,7 @@ mod tests {
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, overload, pain_land,
-        reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
+        rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
         reveal_hand_and_exile_chosen_card, shock_land_enters, storm, tap_for, EQUIP_TARGET, equip,
     };
     use crate::card::{
@@ -23,6 +23,21 @@ mod tests {
     use crate::ids::ObjectBindingIndex;
     use crate::TargetIndex;
     use crate::mana_cost;
+
+    #[test]
+    fn rebound_is_one_complete_keyword_clause() {
+        let ability = rebound();
+
+        assert_eq!(
+            ability.definition,
+            DeclarativeAbilityDef::Keyword(KeywordAbility::Rebound),
+        );
+        assert_eq!(
+            ability.text,
+            "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
+        );
+        assert!(ability.is_executable());
+    }
 
     #[test]
     fn storm_builds_the_shared_source_cast_copy_trigger() {

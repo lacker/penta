@@ -194,6 +194,11 @@ pub enum KeywordAbility {
     /// CR 702.62. A special action from hand plus two triggered abilities in
     /// exile. The parameter owns both the time-counter count and its cost.
     Suspend(SuspendAbilityDef),
+    /// CR 702.87. A resolving instant or sorcery cast from hand exiles itself
+    /// and installs the next-upkeep offer that casts it from exile for free.
+    /// Like split second, this is read from the spell rather than from a
+    /// permanent and is never part of a mutable runtime keyword set.
+    Rebound,
 }
 
 impl KeywordAbility {
@@ -248,6 +253,7 @@ impl KeywordAbility {
             // a set: split second is read off the one spell that has it.
             | Self::SplitSecond
             | Self::Suspend(_)
+            | Self::Rebound
             | Self::BandsWithOther(_) => return None,
         })
     }

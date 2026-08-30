@@ -47,11 +47,10 @@ pub enum SpellResolutionDestinationDef {
     /// Its owner's hand, which is what buyback buys (CR 702.27a).
     Hand,
     Exile,
-    /// Exile the card only when this spell was cast from its owner's hand,
-    /// and bury it otherwise. Rebound (CR 702.87a) is the only clause that
-    /// says this, and it has to: the cast rebound offers comes from exile,
-    /// and that one goes to the graveyard like any other spell.
-    ExileIfCastFromHand,
+    /// Rebound (CR 702.87a): exile the card only when this spell was cast from
+    /// hand and install its next-upkeep free-cast offer. A rebounded cast
+    /// comes from exile, so it goes to the graveyard like any other spell.
+    Rebound,
     /// Exile the card "on an adventure" (CR 715.3d): its owner may cast it
     /// later from exile, as the creature it is on the other half. Only the
     /// alternate half of an Adventure card resolves this way.

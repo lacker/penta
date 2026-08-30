@@ -55,9 +55,9 @@ pub(in crate::game::state_checkpoint) fn keyword_snapshot(
         KeywordAbility::Landwalk(BasicLandType::Mountain) => KeywordSnapshot::Mountainwalk,
         KeywordAbility::Landwalk(BasicLandType::Forest) => KeywordSnapshot::Forestwalk,
         KeywordAbility::ProtectionFrom(predicate) => protection_snapshot(predicate),
-        KeywordAbility::Suspend(_) => {
-            unreachable!("suspend is a card ability, never mutable runtime keyword state")
-        }
+        KeywordAbility::Suspend(_) | KeywordAbility::Rebound => unreachable!(
+            "spell-only keywords are card abilities, never mutable runtime keyword state"
+        ),
     }
 }
 

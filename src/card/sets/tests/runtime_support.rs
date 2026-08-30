@@ -203,6 +203,7 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             | KeywordAbility::Devoid
             | KeywordAbility::Compleated
             | KeywordAbility::Suspend(_)
+            | KeywordAbility::Rebound
             | KeywordAbility::SplitSecond
     )
 }

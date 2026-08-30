@@ -8,8 +8,8 @@ use crate::card::{
     DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
     ExilePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, SpendModeDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    SpellAdditionalCostDef, SpendModeDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -21,9 +21,9 @@ static NOT_YOUR_TURN: TriggerConditionDef =
     TriggerConditionDef::ActivePlayer(PlayerRelation::Opponent);
 
 // MH1 7 — Ephemerate
-/// The blink, and then rebound's own clause. Exiling links the creature to
-/// the spell, which is what lets the return name the card it just made.
-static EPHEMERATE_BLINKS: [EffectDef; 3] = [
+/// Exiling links the creature to the spell, which is what lets the return name
+/// the card it just made.
+static EPHEMERATE_BLINKS: [EffectDef; 2] = [
     EffectDef::ExileLinkedToSource {
         until_source_leaves: false,
         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -38,7 +38,6 @@ static EPHEMERATE_BLINKS: [EffectDef; 3] = [
         controller: None,
         transformed: false,
     },
-    abilities::rebound_offer(),
 ];
 
 static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -57,15 +56,15 @@ pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
     // One white mana for two enter triggers, a turn apart. What it costs is
     // that the creature has to survive until the second one.
-    CardRules::new_instant(mana_cost!("{W}")).with_ability(
+    CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Exile target creature you control, then return it to the battlefield under its \
              owner's control.",
             &A_CREATURE_YOU_CONTROL,
             EffectDef::Sequence(&EPHEMERATE_BLINKS),
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
-    ),
+        ),
+        abilities::rebound(),
+    ]),
 );
 
 // MH1 13 — Giver of Runes

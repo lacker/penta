@@ -5,39 +5,33 @@ use crate::TargetIndex;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
     CardSet, CardType, DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, ResolvedEffectDurationDef, SpellResolutionDestinationDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
 // DTK 4 — Artful Maneuver
-static ARTFUL_MANEUVER_STEPS: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(2),
-            ValueDef::Constant(2),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    abilities::rebound_offer(),
-];
-
 pub(in crate::card::sets) static ARTFUL_MANEUVER: CardRecord = CardRecord::new_with_legacy_id(
     1710,
     "Artful Maneuver",
     CardArt::new("7fcaf67e-ba97-4af9-8c47-dbca703cba35", "Lars Grant-West"),
     CardSet::DragonsOfTarkir,
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
         AbilityDef::spell_with_targets(
-            "Target creature gets +2/+2 until end of turn.\n\nRebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
+            "Target creature gets +2/+2 until end of turn.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::Sequence(&ARTFUL_MANEUVER_STEPS),
-        )
-        .with_resolution_destination(SpellResolutionDestinationDef::ExileIfCastFromHand),
-    ),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::rebound(),
+    ]),
 );
 
 // DTK 224 — Kolaghan's Command

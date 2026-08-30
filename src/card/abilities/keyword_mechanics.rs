@@ -386,8 +386,6 @@ pub const fn plot(mana_cost: ManaCost) -> AbilityDef {
     )
 }
 
-/// The reminder every rebound card prints, written once because every one of
-/// them prints it identically.
 const REBOUND_TEXT: &str = "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)";
 
 /// What the card is lent while rebound's offer stands. The cast is free and
@@ -403,7 +401,7 @@ static REBOUND_FREE_CAST: AbilityDef = AbilityDef::alternative_cast(
 /// The delayed half: at the caster's next upkeep, the card sitting in exile
 /// is offered back. `Source` is the spell that installed this, and following
 /// it lands on the card that spell became when it was exiled.
-static REBOUND_OFFER: AbilityDef = AbilityDef::triggered(
+pub(crate) static REBOUND_OFFER: AbilityDef = AbilityDef::triggered(
     "At the beginning of your next upkeep, you may cast this card from exile without paying its \
      mana cost.",
     TriggerEventDef::StepBegins {
@@ -416,35 +414,18 @@ static REBOUND_OFFER: AbilityDef = AbilityDef::triggered(
     },
 );
 
-static REBOUND_INSTALL: EffectDef = EffectDef::InstallTrigger(InstalledTriggerDef {
+pub(crate) static REBOUND_DELAYED_TRIGGER: InstalledTriggerDef = InstalledTriggerDef {
     ability: &REBOUND_OFFER,
     lifetime: InstalledTriggerLifetimeDef::Once,
-});
+};
 
-/// "If you cast this spell from your hand": a rebounded cast comes from
-/// exile, and rebound has nothing to say about it a second time.
-static REBOUND_WAS_CAST_FROM_HAND: TriggerConditionDef =
-    TriggerConditionDef::SourceCastFrom(ZoneKind::Hand);
-
-/// Rebound (CR 702.87a), as the clause a spell adds to its own resolution.
-///
-/// Two halves that only make sense together: the card is exiled rather than
-/// buried, and a delayed trigger offers it back on the caster's next upkeep.
-/// Both are gated on the same question -- whether this cast came from hand --
-/// so the exile half rides the spell's resolution destination and this half
-/// rides its effect.
+/// Rebound (CR 702.87a). The keyword is one structural clause: resolving a
+/// spell cast from hand exiles it and installs the next-upkeep offer that may
+/// cast the exiled card for free. The stack-resolution path owns both halves,
+/// so a card declaration cannot accidentally request only one of them.
 #[must_use]
-pub const fn rebound_offer() -> EffectDef {
-    EffectDef::IfCondition {
-        condition: &REBOUND_WAS_CAST_FROM_HAND,
-        then: &REBOUND_INSTALL,
-    }
-}
-
-/// The reminder text a rebound card prints, for the clause it rides on.
-#[must_use]
-pub const fn rebound_text() -> &'static str {
-    REBOUND_TEXT
+pub const fn rebound() -> AbilityDef {
+    keyword(REBOUND_TEXT, KeywordAbility::Rebound)
 }
 
 /// "Eternalize {cost}" (CR 702.129a).

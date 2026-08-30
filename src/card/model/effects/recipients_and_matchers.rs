@@ -3,6 +3,12 @@
 pub enum ObjectRefDef {
     /// The game object from which the resolving spell or ability originated.
     Source,
+    /// The exact permanent whose spell or ability created this token.
+    ///
+    /// This is meaningful in rules carried by a token. It names that one
+    /// battlefield incarnation and deliberately does not follow it through a
+    /// zone change.
+    CreatingSource,
     /// The object created by the named reference's next zone change,
     /// provided that exact successor still exists.
     ///
@@ -319,6 +325,7 @@ impl EffectRecipientDef {
             Some(ObjectRefDef::Binding(binding)) => Some(binding),
             Some(
                 ObjectRefDef::Source
+                | ObjectRefDef::CreatingSource
                 | ObjectRefDef::ZoneChangeSuccessor(_)
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::AbilityGrantSource

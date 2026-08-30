@@ -94,6 +94,7 @@ impl Game {
             }
             ObjectRefDef::TriggeringObject => event.context().object,
             ObjectRefDef::DamagedObject => event.context().damaged_object,
+            ObjectRefDef::CreatingSource => self.creating_source_of(ability_source),
             ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::ZoneChangeSuccessor(_)
             | ObjectRefDef::ZoneChangeResultOfTriggeringObject

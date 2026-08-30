@@ -4,8 +4,8 @@ use super::continuous_effects::StaticEffectKind;
 use super::{
     AppliedEffectDef, BasicLandType, CardSupertype, CardType, CharacteristicOperationDef,
     ContinuousEffectTimestamp, ControlFlow, CounterKind, DeclarativeAbilityDef, EffectDef, Game,
-    GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, Permanent, PlayerId,
-    PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
+    GameObjectId, KeywordAbility, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, Permanent,
+    PlayerId, PlayerRelation, PowerToughnessOperationDef, ResolvedContinuousEffectKind,
     ResolvedPowerToughnessOperation, RetiredObject, TriggerContext, ValueDef,
 };
 
@@ -376,22 +376,26 @@ impl Game {
             ValueDef::CountersOnSource(kind) => {
                 i32::from(self.current_or_last_known_counters(source, kind))
             }
-            // A created token may explicitly remember the permanent whose
-            // ability made it. The link names that exact object rather than
-            // another permanent with the same definition, and deliberately
-            // has no last-known fallback: an orphaned token reads zero.
-            ValueDef::CountersOnCreator(kind) => i32::from(
-                self.battlefield
-                    .iter()
-                    .find(|permanent| permanent.card.id == source)
-                    .and_then(|permanent| permanent.created_by)
-                    .and_then(|creator| {
-                        self.battlefield
-                            .iter()
-                            .find(|permanent| permanent.card.id == creator)
-                    })
-                    .map_or(0, |creator| creator.counters(kind)),
-            ),
+            // The static ability names the object whose counters matter.
+            // CreatingSource follows the affected token's captured
+            // provenance to that exact battlefield incarnation. There is no
+            // last-known fallback: an orphaned token reads zero.
+            ValueDef::CountersOnObject(counted) => {
+                let object = match counted.object {
+                    ObjectRefDef::Source => Some(source),
+                    ObjectRefDef::CreatingSource => self.creating_source_of(source),
+                    _ => None,
+                };
+                i32::from(
+                    object
+                        .and_then(|object| {
+                            self.battlefield
+                                .iter()
+                                .find(|permanent| permanent.card.id == object)
+                        })
+                        .map_or(0, |permanent| permanent.counters(counted.kind)),
+                )
+            }
             // Domain, read live off the board: the Kavu resizes as lands
             // with new basic types arrive and leave.
             ValueDef::BasicLandTypesControlled(_) => self.player_readable_value(value, controller),

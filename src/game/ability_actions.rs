@@ -41,6 +41,7 @@ impl Game {
                 | AbilityOrigin::IntrinsicCounter(_) => None,
             },
             ObjectRefDef::ResolvingObject
+            | ObjectRefDef::CreatingSource
             | ObjectRefDef::ZoneChangeSuccessor(_)
             | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::Binding(_)

@@ -156,6 +156,7 @@ pub(in super::super) fn shared_activated_costs(
             | AbilityCostDef::ReturnUnblockedAttackerToHand => hand,
             AbilityCostDef::SacrificeObject(
                 ObjectRefDef::ResolvingObject
+                | ObjectRefDef::CreatingSource
                 | ObjectRefDef::ZoneChangeSuccessor(_)
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::Binding(_)
@@ -169,6 +170,7 @@ pub(in super::super) fn shared_activated_costs(
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::ManaCostOf(
                 ObjectRefDef::Source
+                | ObjectRefDef::CreatingSource
                 | ObjectRefDef::ZoneChangeSuccessor(_)
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::AbilityGrantSource

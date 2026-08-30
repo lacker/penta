@@ -21,9 +21,8 @@ struct TokenCopyRequest {
     /// clause that copies a permanent; squad buys as many as it was paid
     /// for.
     count: crate::card::ValueDef,
-    /// The source this token must remember, when the creating effect says
-    /// its authored rules refer back to that exact object.
-    creator: Option<crate::GameObjectId>,
+    /// The exact source of the instruction creating the token.
+    creator: crate::GameObjectId,
     created: Option<crate::card::CreatedTokensDef>,
 }
 
@@ -38,6 +37,7 @@ impl Game {
         object: &StackObject,
         context: &EffectResolutionContext,
     ) {
+        let creator = object.source.unwrap_or(object.id);
         let Some(Target::Permanent(host)) = self
             .effect_recipients(recipient, object, context, scoped)
             .into_iter()
@@ -51,9 +51,9 @@ impl Game {
         let mut minted = Vec::new();
         for extra in 1..self.tokens_created(object.controller, 1) {
             let _ = extra;
-            minted.push(self.create_token_from(object.controller, token, None));
+            minted.push(self.create_token_from(object.controller, token, Some(creator)));
         }
-        minted.push(self.create_token_attached_to(object.controller, token, host));
+        minted.push(self.create_token_attached_to(object.controller, token, host, creator));
         self.capture_tokens_created(object.controller, &minted);
     }
 
@@ -185,6 +185,35 @@ impl Game {
         self.capture_tokens_created(controller, &ids);
     }
 
+    /// The two directions of one attached-token instruction: a named host
+    /// means the token goes onto it, and no host means the resolving
+    /// permanent goes onto the token.
+    fn resolve_attached_token_effect(
+        &mut self,
+        token: TokenCharacteristics,
+        host: Option<crate::card::EffectRecipientDef>,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+    ) {
+        if let Some(recipient) = host {
+            self.resolve_token_attached_to(token, recipient, scoped, object, context);
+            return;
+        }
+        let Some(source) = object.source else {
+            return;
+        };
+        let creator = object.source.unwrap_or(object.id);
+        let mut minted = Vec::new();
+        // A doubled living weapon makes the second Germ with nothing on it,
+        // which is what it would be anyway.
+        for _ in 1..self.tokens_created(object.controller, 1) {
+            minted.push(self.create_token_from(object.controller, token, Some(creator)));
+        }
+        minted.push(self.create_attached_token(object.controller, token, source, creator));
+        self.capture_tokens_created(object.controller, &minted);
+    }
+
     pub(super) fn resolve_token_effect(
         &mut self,
         scoped: ScopedEffect,
@@ -200,9 +229,9 @@ impl Game {
                 tapped,
                 attacking,
                 counters,
-                linked_to_source,
                 created,
             } => {
+                let creator = object.source.unwrap_or(object.id);
                 if let Some(copy) = copy {
                     debug_assert!(!tapped && !attacking && counters.is_none());
                     self.resolve_token_copies(
@@ -211,7 +240,7 @@ impl Game {
                             exceptions: copy.exceptions,
                             controller,
                             count,
-                            creator: linked_to_source.then_some(object.source.unwrap_or(object.id)),
+                            creator,
                             created,
                         },
                         scoped,
@@ -255,11 +284,15 @@ impl Game {
                 // "Create four 1/1 Myr": they arrive at the same time, so a
                 // clause watching arrivals sees all four rather than each
                 // against a board the others have not joined yet.
-                let creator = linked_to_source.then_some(object.source.unwrap_or(object.id));
                 self.entering_together(|game| {
                     for _ in 0..game.tokens_created(controller, count) {
                         minted.push(Target::Permanent(game.create_token_arriving(
-                            controller, token, creator, tapped, defender, counters,
+                            controller,
+                            token,
+                            Some(creator),
+                            tapped,
+                            defender,
+                            counters,
                         )));
                     }
                 });
@@ -290,27 +323,9 @@ impl Game {
                     self.resolve_effect_def(scoped.with_effect(*created.then), object, context);
                 }
             }
-            // The two directions of one instruction: a named host means the
-            // token goes onto it, and no host means the resolving permanent
-            // goes onto the token.
-            EffectDef::CreateAttachedToken { token, host } => match host {
-                Some(recipient) => {
-                    self.resolve_token_attached_to(token, recipient, scoped, object, context);
-                }
-                None => {
-                    if let Some(source) = object.source {
-                        let mut minted = Vec::new();
-                        // A doubled living weapon makes the second Germ with
-                        // nothing on it, which is what it would be anyway.
-                        for extra in 1..self.tokens_created(object.controller, 1) {
-                            let _ = extra;
-                            minted.push(self.create_token_from(object.controller, token, None));
-                        }
-                        minted.push(self.create_attached_token(object.controller, token, source));
-                        self.capture_tokens_created(object.controller, &minted);
-                    }
-                }
-            },
+            EffectDef::CreateAttachedToken { token, host } => {
+                self.resolve_attached_token_effect(token, host, scoped, object, context);
+            }
             _ => unreachable!("the caller admits only token-making clauses"),
         }
     }

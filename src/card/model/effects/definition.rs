@@ -246,8 +246,6 @@ pub enum EffectDef {
         /// comes out of every Incubate. `None` for the ordinary token, which
         /// arrives with nothing on it.
         counters: Option<TokenCountersDef>,
-        /// Whether each token remembers the exact source that created it.
-        linked_to_source: bool,
         /// What to do with the tokens this made, when a following clause has
         /// to name exactly them. Mobilize sacrifices the tokens it created
         /// and no others, and by the time the delayed clause fires nothing

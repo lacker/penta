@@ -237,10 +237,10 @@ struct Permanent {
     /// with deathtouch. The source may leave before state-based actions are
     /// checked, so this is damage-event state rather than a live lookup.
     deathtouch_damage: bool,
-    /// The permanent whose ability created this token, for the cards that
-    /// later refer to "tokens created with this creature". A token that
-    /// outlives its creator keeps pointing at an object ID nothing matches,
-    /// which is what makes those tokens permanently orphaned.
+    /// The exact source of the instruction that created this token. Rules on
+    /// the token can name it through `ObjectRefDef::CreatingSource`; cards
+    /// that later refer to "tokens created with this creature" use the same
+    /// provenance. A token that outlives its creator keeps the old object ID.
     created_by: Option<GameObjectId>,
 }
 

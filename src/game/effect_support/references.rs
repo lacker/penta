@@ -30,6 +30,10 @@ impl Game {
             ObjectRefDef::Source => object
                 .source
                 .and_then(|source| self.object_target_with_lki(source)),
+            ObjectRefDef::CreatingSource => object
+                .source
+                .and_then(|source| self.creating_source_of(source))
+                .and_then(|creator| self.live_object_target(creator)),
             ObjectRefDef::ZoneChangeSuccessor(reference) => self
                 .object_reference_id(reference.exact(), object, context, scoped)
                 .and_then(|referenced| self.zone_change_successor_target(referenced)),
@@ -177,6 +181,9 @@ impl Game {
     ) -> Option<GameObjectId> {
         match reference {
             ObjectRefDef::Source => object.source,
+            ObjectRefDef::CreatingSource => object
+                .source
+                .and_then(|source| self.creating_source_of(source)),
             ObjectRefDef::ZoneChangeSuccessor(reference) => self
                 .object_reference_id(reference.exact(), object, context, scoped)
                 .and_then(|referenced| self.zone_change_successor_target(referenced))

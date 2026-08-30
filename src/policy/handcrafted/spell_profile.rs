@@ -584,7 +584,7 @@ impl HandcraftedPolicy {
             | ValueDef::GreatestPowerAmong(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)
-            | ValueDef::CountersOnCreator(_)
+            | ValueDef::CountersOnObject(_)
             | ValueDef::CardsDrawnThisTurn(_)
             | ValueDef::LandsPlayedThisTurn(_)
             | ValueDef::LifeGainedThisTurn(_)

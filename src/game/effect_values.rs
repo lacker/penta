@@ -255,8 +255,7 @@ impl Game {
             | ValueDef::AffectedManaValue
             | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles
-            | ValueDef::TotalToughnessOfLinkedExiles
-            | ValueDef::CountersOnCreator(_) => 0,
+            | ValueDef::TotalToughnessOfLinkedExiles => 0,
             // Read off the pile the source took rather than off the board,
             // which is where a resolving effect finds it too.
             ValueDef::CardTypesAmongLinkedExiles => {
@@ -435,6 +434,16 @@ impl Game {
             ValueDef::CountersOnSource(kind) => object.source.map_or(0, |source| {
                 i32::from(self.current_or_last_known_counters(source, kind))
             }),
+            ValueDef::CountersOnObject(counted) => self
+                .object_reference_target(counted.object, object, context, scoped)
+                .and_then(|target| match target {
+                    Target::Permanent(id) => self
+                        .battlefield
+                        .iter()
+                        .find(|permanent| permanent.card.id == id),
+                    Target::Card(_) | Target::Player(_) | Target::Spell(_) => None,
+                })
+                .map_or(0, |permanent| i32::from(permanent.counters(counted.kind))),
             ValueDef::DamageTakenThisTurn { player, source } => {
                 let player = [PlayerId::One, PlayerId::Two]
                     .into_iter()

@@ -30,6 +30,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         }
         ObjectPredicateDef::HasName(
             ObjectRefDef::AbilityGrantSource
+            | ObjectRefDef::CreatingSource
             | ObjectRefDef::ZoneChangeSuccessor(_)
             | ObjectRefDef::ZoneChangeResultOfTriggeringObject
             | ObjectRefDef::ResolvingObject

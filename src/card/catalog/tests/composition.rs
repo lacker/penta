@@ -76,7 +76,6 @@ fn creator_owned_token_rules_receive_catalog_composition_validation() {
             tapped: false,
             attacking: false,
             counters: None,
-            linked_to_source: false,
             created: None,
         },
     )];

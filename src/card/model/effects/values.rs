@@ -94,6 +94,20 @@ pub struct SourceMatchValueDef {
     pub otherwise: ValueDef,
 }
 
+/// A live counter count read from one explicitly named object.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ObjectCounterValueDef {
+    pub object: ObjectRefDef,
+    pub kind: CounterKind,
+}
+
+impl ObjectCounterValueDef {
+    #[must_use]
+    pub const fn new(object: ObjectRefDef, kind: CounterKind) -> Self {
+        Self { object, kind }
+    }
+}
+
 impl SourceMatchValueDef {
     #[must_use]
     pub const fn new(object: ObjectPredicateDef, then: ValueDef, otherwise: ValueDef) -> Self {
@@ -325,11 +339,9 @@ pub enum ValueDef {
     Halved(&'static HalvedValueDef),
     /// How many counters of one kind sit on the ability's own source.
     CountersOnSource(CounterKind),
-    /// How many counters of one kind sit on the permanent whose spell or
-    /// ability created this token. Unlike [`Self::CountersOnSource`], this
-    /// follows the token's explicit creation link and reads only the live
-    /// linked permanent: once that source leaves, the value is zero.
-    CountersOnCreator(CounterKind),
+    /// How many counters of one kind sit on an explicitly named object.
+    /// Held by reference so `ValueDef` remains one word wide.
+    CountersOnObject(&'static ObjectCounterValueDef),
     /// How many counters of one kind a player has. The player-held pile
     /// rather than a permanent's: experience, poison, and energy are all
     /// counted here.

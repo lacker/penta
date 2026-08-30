@@ -398,6 +398,9 @@ fn validate_value_shape(
         ValueDef::ObjectPower(reference) | ValueDef::ObjectManaValue(reference) => {
             validate_object_reference_shape(reference, targets)
         }
+        ValueDef::CountersOnObject(counted) => {
+            validate_object_reference_shape(counted.object, targets)
+        }
         ValueDef::CountSpellsCastThisTurn(_)
         | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
@@ -421,7 +424,6 @@ fn validate_value_shape(
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)
-        | ValueDef::CountersOnCreator(_)
         | ValueDef::CardsDrawnThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)
@@ -704,6 +706,7 @@ fn recipient_may_name_nonbattlefield_object(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
                 ObjectRefDef::Source
+                | ObjectRefDef::CreatingSource
                 | ObjectRefDef::AbilityGrantSource
                 | ObjectRefDef::ResolvingObject
                 | ObjectRefDef::AttachedToSource
@@ -764,6 +767,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
                 ObjectRefDef::Source
+                | ObjectRefDef::CreatingSource
                 | ObjectRefDef::ZoneChangeSuccessor(_)
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                 | ObjectRefDef::AbilityGrantSource

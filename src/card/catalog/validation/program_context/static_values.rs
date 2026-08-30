@@ -40,12 +40,12 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // Counters on the effect's own source: plain state on a permanent the
         // layer already has, so reading it cannot re-enter the walk.
         | ValueDef::CountersOnSource(_)
-        // The same live state reached through an explicitly linked creator.
-        // A missing creator is simply zero, so this cannot re-enter either.
-        | ValueDef::CountersOnCreator(_)
         | ValueDef::DevotionTo(_)
         | ValueDef::BasicLandTypesControlled(_)
         | ValueDef::LibrarySize(_) => true,
+        ValueDef::CountersOnObject(counted) => {
+            matches!(counted.object, ObjectRefDef::Source | ObjectRefDef::CreatingSource)
+        }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
         | ValueDef::DistinctNamesAmong(query)
@@ -146,7 +146,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::IfTargetMatches(_)
         | ValueDef::IfMatchingObjectCount(_)
         | ValueDef::CountersOnSource(_)
-        | ValueDef::CountersOnCreator(_)
+        | ValueDef::CountersOnObject(_)
         | ValueDef::CardsDrawnThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)

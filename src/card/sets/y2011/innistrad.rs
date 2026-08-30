@@ -13,13 +13,13 @@ use crate::card::{
     CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
     DiscardSelectionDef, EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef,
     GraveyardPlayPermissionDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
-    MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    QuantifierDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RoundingDef, SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TargetConditionDef,
-    TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    MillUntilDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
+    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
+    TargetConditionDef, TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::game::{
     CardAbilityResolver, CardRuntime, PileChoice, PileChosen, PileSplit, PilesSeparated,
@@ -5283,21 +5283,23 @@ pub(in crate::card::sets) static GRIZZLED_OUTCASTS: CardRecord = CardRecord::new
 );
 
 // ISD 186 — Gutter Grime
+static GUTTER_GRIME_SLIME_COUNTERS: ObjectCounterValueDef =
+    ObjectCounterValueDef::new(ObjectRefDef::CreatingSource, CounterKind::named("slime"));
+
 static GUTTER_GRIME_OOZE_ABILITY: AbilityDef = AbilityDef::static_ability(
     "This token's power and toughness are each equal to the number of slime counters on Gutter Grime.",
     EffectDef::StaticApply {
         recipient: EffectRecipientDef::Source,
         effect: AppliedEffectDef::define_power_toughness(
-            ValueDef::CountersOnCreator(CounterKind::named("slime")),
-            ValueDef::CountersOnCreator(CounterKind::named("slime")),
+            ValueDef::CountersOnObject(&GUTTER_GRIME_SLIME_COUNTERS),
+            ValueDef::CountersOnObject(&GUTTER_GRIME_SLIME_COUNTERS),
         ),
     },
 );
 
 static GUTTER_GRIME_OOZE: EffectDef =
     EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
-        .with_abilities(&[GUTTER_GRIME_OOZE_ABILITY])
-        .linked_to_source();
+        .with_abilities(&[GUTTER_GRIME_OOZE_ABILITY]);
 
 static GUTTER_GRIME_TRIGGER_STEPS: [EffectDef; 2] = [
     EffectDef::AddCounters {

@@ -9,10 +9,23 @@ use super::{
     AppliedRuleDef, CardPartId, CharacteristicSource, CopiableCharacteristics, CounterKind,
     DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameObjectId, ObjectBacking,
     ObjectCharacteristics, ObjectInstance, ObjectKind, PendingBattlefieldEntry, Permanent,
-    PlayerId, TokenCharacteristics, ZoneKind,
+    PlayerId, RetiredObject, TokenCharacteristics, ZoneKind,
 };
 
 impl Game {
+    /// The exact source captured when a token was created, including from its
+    /// last known permanent state after the token itself has left.
+    pub(super) fn creating_source_of(&self, token: GameObjectId) -> Option<GameObjectId> {
+        self.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == token)
+            .and_then(|permanent| permanent.created_by)
+            .or_else(|| match self.retired_objects.get(&token) {
+                Some(RetiredObject::Permanent { permanent, .. }) => permanent.created_by,
+                Some(RetiredObject::Card(_) | RetiredObject::Stack(_)) | None => None,
+            })
+    }
+
     /// Mints the object shell shared by an authored token and a token copy.
     fn unbacked_token(
         &mut self,
@@ -98,15 +111,17 @@ impl Game {
         controller: PlayerId,
         token: TokenCharacteristics,
         source: GameObjectId,
+        creator: GameObjectId,
     ) -> GameObjectId {
         let card = self.unbacked_token(controller, CharacteristicSource::Token(token));
-        let permanent = Permanent::entering_token(
+        let mut permanent = Permanent::entering_token(
             card,
             token,
             controller,
             self.turns_started[controller.index()],
             self.turn,
         );
+        permanent.created_by = Some(creator);
         let prospective = permanent.card.id;
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
@@ -128,15 +143,17 @@ impl Game {
         controller: PlayerId,
         token: TokenCharacteristics,
         host: GameObjectId,
+        creator: GameObjectId,
     ) -> GameObjectId {
         let card = self.unbacked_token(controller, CharacteristicSource::Token(token));
-        let permanent = Permanent::entering_token(
+        let mut permanent = Permanent::entering_token(
             card,
             token,
             controller,
             self.turns_started[controller.index()],
             self.turn,
         );
+        permanent.created_by = Some(creator);
         let prospective = permanent.card.id;
         self.enqueue_battlefield_entry(PendingBattlefieldEntry {
             permanent,
@@ -221,16 +238,15 @@ impl Game {
         )
     }
 
-    /// Creates a token copy that may remember the source whose effect made
-    /// it. Ordinary copy tokens pass no creator; source-linked authored rules
-    /// use the same permanent link as non-copy tokens.
+    /// Creates a token copy while remembering the exact source of the
+    /// instruction that made it.
     pub(super) fn create_token_copy_from(
         &mut self,
         controller: PlayerId,
         copy: CopiableCharacteristics,
         double_faced: Option<DoubleFacedCopiableCharacteristics>,
         presented: CardPartId,
-        creator: Option<GameObjectId>,
+        creator: GameObjectId,
     ) -> GameObjectId {
         self.create_token_copy_with_completion(
             controller,
@@ -238,7 +254,7 @@ impl Game {
             double_faced,
             presented,
             EntryCompletion::None,
-            |permanent| permanent.created_by = creator,
+            |permanent| permanent.created_by = Some(creator),
         )
     }
 

@@ -63,7 +63,6 @@ static ELSPETH_ABILITIES: [AbilityDef; 3] = [
             tapped: false,
             attacking: false,
             counters: None,
-            linked_to_source: false,
             created: None,
         },
     ),

@@ -201,6 +201,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 | EffectRecipientSetDef::Objects(
                     ObjectSetDef::One(
                         ObjectRefDef::ResolvingObject
+                        | ObjectRefDef::CreatingSource
                         | ObjectRefDef::ZoneChangeSuccessor(_)
                         | ObjectRefDef::ZoneChangeResultOfTriggeringObject
                         | ObjectRefDef::Binding(_)

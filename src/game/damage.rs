@@ -448,6 +448,7 @@ impl Game {
             ObjectRefDef::AttachedToSource => {
                 self.current_or_last_known_attached_host(effect_source)
             }
+            ObjectRefDef::CreatingSource => self.creating_source_of(effect_source),
             ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::ZoneChangeSuccessor(_)
             | ObjectRefDef::ZoneChangeResultOfTriggeringObject

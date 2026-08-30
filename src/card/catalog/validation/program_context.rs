@@ -139,7 +139,7 @@ fn validate_static_effect(
         }
         EffectDef::ConditionalStatic(conditional)
             if matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard])
-                && static_object_set_supported(*conditional.condition.objects)
+                && static_condition_object_set_supported(*conditional.condition.objects)
                 && conditional
                     .condition
                     .filter
@@ -781,6 +781,21 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
             static_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
+    }
+}
+
+/// A condition may inspect objects outside the battlefield even though a
+/// static apply can only modify battlefield objects. This preserves the
+/// query vocabulary supported by the older `ObjectCount` condition while the
+/// count and the applied operation stay separately composed.
+fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
+    match objects {
+        ObjectSetDef::Query(query) => static_query_supported(query),
+        ObjectSetDef::Matching { objects, object } => {
+            static_condition_object_set_supported(*objects)
+                && static_object_predicate_supported(object.predicate())
+        }
+        _ => static_object_set_supported(objects),
     }
 }
 

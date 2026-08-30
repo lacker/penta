@@ -313,24 +313,128 @@ impl Game {
                 ) {
                     continue;
                 }
-                let Some(EffectDef::StaticApply { recipient, effect }) =
-                    attached.definition.declarative_effect()
-                else {
+                let Some(effect) = attached.definition.declarative_effect() else {
                     continue;
                 };
-                let AppliedEffectDef::Rule(AppliedRuleDef::LimitDamage { matcher, limit }) = effect
-                else {
-                    continue;
-                };
-                if !self.static_player_recipient_matches(recipient, source, affected_player) {
-                    continue;
-                }
-                if visitor(source.card.id, matcher, limit).is_break() {
+                if self
+                    .visit_static_damage_limits(effect, source, affected_player, true, &mut visitor)
+                    .is_break()
+                {
                     return ControlFlow::Break(());
                 }
             }
         }
         ControlFlow::Continue(())
+    }
+
+    fn visit_static_damage_limits(
+        &self,
+        effect: EffectDef,
+        source: &Permanent,
+        affected_player: PlayerId,
+        enabled: bool,
+        visitor: &mut impl FnMut(GameObjectId, DamageEventMatcherDef, DamageLimitDef) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        match effect {
+            EffectDef::Sequence(effects) => {
+                for effect in effects {
+                    if self
+                        .visit_static_damage_limits(
+                            *effect,
+                            source,
+                            affected_player,
+                            enabled,
+                            visitor,
+                        )
+                        .is_break()
+                    {
+                        return ControlFlow::Break(());
+                    }
+                }
+                ControlFlow::Continue(())
+            }
+            effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
+                let conditional = effect
+                    .conditional()
+                    .expect("conditional variants expose their shared shape");
+                let condition_holds = enabled
+                    && self.trigger_condition_holds(
+                        conditional.condition,
+                        source.card.id,
+                        source.controller,
+                        TriggerContext::empty(),
+                        None,
+                        None,
+                    );
+                let then_result = self.visit_static_damage_limits(
+                    *conditional.then,
+                    source,
+                    affected_player,
+                    condition_holds,
+                    visitor,
+                );
+                if then_result.is_break() {
+                    return then_result;
+                }
+                conditional
+                    .otherwise
+                    .map_or(ControlFlow::Continue(()), |otherwise| {
+                        self.visit_static_damage_limits(
+                            *otherwise,
+                            source,
+                            affected_player,
+                            enabled && !condition_holds,
+                            visitor,
+                        )
+                    })
+            }
+            EffectDef::ConditionalStatic(conditional) => self.visit_static_damage_limits(
+                EffectDef::StaticApply {
+                    recipient: conditional.then.recipient,
+                    effect: conditional.then.effect,
+                },
+                source,
+                affected_player,
+                enabled
+                    && self.source_object_set_count_condition_holds(
+                        conditional.condition,
+                        source.card.id,
+                    ),
+                visitor,
+            ),
+            EffectDef::StaticApply { recipient, effect } => {
+                if !enabled
+                    || !self.static_player_recipient_matches(recipient, source, affected_player)
+                {
+                    return ControlFlow::Continue(());
+                }
+                Self::visit_damage_limit_components(effect, source.card.id, visitor)
+            }
+            _ => ControlFlow::Continue(()),
+        }
+    }
+
+    fn visit_damage_limit_components(
+        effect: AppliedEffectDef,
+        source: GameObjectId,
+        visitor: &mut impl FnMut(GameObjectId, DamageEventMatcherDef, DamageLimitDef) -> ControlFlow<()>,
+    ) -> ControlFlow<()> {
+        match effect {
+            AppliedEffectDef::Composite(effects) => {
+                for effect in effects {
+                    if Self::visit_damage_limit_components(*effect, source, visitor).is_break() {
+                        return ControlFlow::Break(());
+                    }
+                }
+                ControlFlow::Continue(())
+            }
+            AppliedEffectDef::Rule(AppliedRuleDef::LimitDamage { matcher, limit }) => {
+                visitor(source, matcher, limit)
+            }
+            AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
+                ControlFlow::Continue(())
+            }
+        }
     }
 
     /// Whether any live static ability tells `affected_player` they have no

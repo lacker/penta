@@ -18,19 +18,31 @@ use crate::card::sets::{
 };
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, ComparisonDef, ControlDurationDef,
-    CostModificationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef, ChooseDef, ChooseGroupDef, ColorSet,
+    ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostModificationDef,
+    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    DiscardSelectionDef, DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, FreePlayDef,
+    FreePlayDurationDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
     PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    SpellAdditionalCostDef, StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
+
+/// The live number of Swamps controlled by the resolving effect's controller.
+/// Liliana reads it twice in either branch of her −3; Mutilate reads it twice
+/// again for the whole-board shrink.
+static SWAMPS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+));
 
 // M13 1 — Ajani, Caller of the Pride
 pub(in crate::card::sets) static AJANI_CALLER_OF_THE_PRIDE: CardRecord =
@@ -494,7 +506,7 @@ then: None,
 );
 
 // M13 23 — Odric, Master Tactician
-// Audit: metadata-only — Needs an attacking-group threshold and a combat procedure that lets its controller assign every blocker.
+// Audit: metadata-only — AttackDeclared can match the four-creature threshold, but combat has no procedure that lets the attacking player choose every block assignment.
 pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb1552a8-27b4-4a95-9022-6fdd59aca28f"),
     "Odric, Master Tactician",
@@ -716,7 +728,6 @@ pub(in crate::card::sets) static SUBLIME_ARCHANGEL: CardRecord = CardRecord::new
 );
 
 // M13 37 — Touch of the Eternal
-// Audit: metadata-only — No effect can set a player's life total from a battlefield permanent count.
 pub(in crate::card::sets) static TOUCH_OF_THE_ETERNAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55c5f0c2-99e6-42b7-aa16-61d5815d060d"),
     "Touch of the Eternal",
@@ -725,17 +736,43 @@ pub(in crate::card::sets) static TOUCH_OF_THE_ETERNAL: CardRecord = CardRecord::
         "Christopher Moeller",
     ),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{W}{W}")).with_ability(AbilityDef::triggered(
+        "At the beginning of your upkeep, count the number of permanents you control. Your life total becomes that number.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::You,
+        },
+        EffectDef::SetLifeTotal {
+            recipient: EffectRecipientDef::Controller,
+            total: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        },
+    )),
 );
 
 // M13 38 — War Falcon
-// Audit: metadata-only — Combat restrictions cannot condition this source's attack permission on controlling a Knight or Soldier.
 pub(in crate::card::sets) static WAR_FALCON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e092a0d-c031-4a76-86c1-7f83878a06e8"),
     "War Falcon",
     crate::card::CardArt::new("7e092a0d-c031-4a76-86c1-7f83878a06e8", "Volkan Baǵa"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can't attack unless you control a Knight or a Soldier.",
+            EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype("Knight"),
+                    ObjectPredicateDef::Subtype("Soldier"),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        ),
+    ]),
 );
 
 // M13 39 — War Priest of Thune
@@ -899,13 +936,39 @@ pub(in crate::card::sets) static BATTLE_OF_WITS: CardRecord = CardRecord::new_wi
 // M13 45 — Clone (reprint)
 
 // M13 46 — Courtly Provocateur
-// Audit: metadata-only — No turn-long effects require a target creature to attack or block if able.
 pub(in crate::card::sets) static COURTLY_PROVOCATEUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ba912207-a8bf-4ffb-9967-34029cb09f7f"),
     "Courtly Provocateur",
     crate::card::CardArt::new("ba912207-a8bf-4ffb-9967-34029cb09f7f", "James Ryman"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_abilities(&[
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature attacks this turn if able.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
+                    "This creature attacks this turn if able.",
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature blocks this turn if able.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBlockEachAttackerIfAble),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // M13 47 — Divination (reprint)
@@ -1032,13 +1095,33 @@ pub(in crate::card::sets) static FOG_BANK: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 53 — Harbor Serpent
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HARBOR_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa10b43f-eb63-4999-92a0-56826031b686"),
     "Harbor Serpent",
     crate::card::CardArt::new("af0f7357-08b0-403e-8913-8965662a905e", "Daarken"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Serpent"], 5, 5).with_abilities(&[
+        abilities::landwalk(BasicLandType::Island),
+        AbilityDef::static_ability(
+            "This creature can't attack unless there are five or more Islands on the battlefield.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                    filter: None,
+                    comparison: ComparisonDef::Less,
+                    amount: 5,
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                },
+            }),
+        ),
+    ]),
 );
 
 // M13 54 — Hydrosurge
@@ -1122,13 +1205,36 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
 );
 
 // M13 57 — Jace's Phantasm
-// Audit: metadata-only — Conditional static bonuses cannot test whether an opponent's graveyard contains at least ten cards.
 pub(in crate::card::sets) static JACE_S_PHANTASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16829504-385c-4154-8e6d-f3fbaf273890"),
     "Jace's Phantasm",
     crate::card::CardArt::new("16829504-385c-4154-8e6d-f3fbaf273890", "Johann Bodin"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Illusion"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature gets +4/+4 as long as an opponent has ten or more cards in their graveyard.",
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::Opponent,
+                    )),
+                    filter: None,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 10,
+                },
+                then: StaticApplyDef {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                },
+            }),
+        ),
+    ]),
 );
 
 // M13 58 — Kraken Hatchling
@@ -1315,7 +1421,7 @@ pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 68 — Spelltwine
-// Audit: metadata-only — Needs linked graveyard choices, spell copies, and permission to cast both copies without paying their costs.
+// Audit: metadata-only — Needs a card-copy effect for the two exiled instant or sorcery cards and mandatory free casting of both copies; CopyStackObject only copies spells already on the stack.
 pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e4d2f5ab-c6be-4661-843c-51b4977a9bea"),
     "Spelltwine",
@@ -1385,13 +1491,27 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
 // M13 70 — Stormtide Leviathan (reprint)
 
 // M13 71 — Switcheroo
-// Audit: metadata-only — Indefinite control exchange between two targets is unavailable.
 pub(in crate::card::sets) static SWITCHEROO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7d62aaf3-0fd4-44ba-8eeb-18ac759dfe84"),
     "Switcheroo",
     crate::card::CardArt::new("7d62aaf3-0fd4-44ba-8eeb-18ac759dfe84", "Kev Walker"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Exchange control of two target creatures.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+        ],
+        EffectDef::ExchangeControl {
+            first: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            second: EffectRecipientDef::Target(TargetIndex(1)),
+            otherwise: None,
+        },
+    )),
 );
 
 // M13 72 — Talrand, Sky Summoner
@@ -1501,7 +1621,7 @@ pub(in crate::card::sets) static VEDALKEN_ENTRANCER: CardRecord = CardRecord::ne
 );
 
 // M13 77 — Void Stalker
-// Audit: metadata-only — Needs simultaneous source-and-target library moves followed by shuffling both affected owners' libraries.
+// Audit: metadata-only — CombineObjects and MoveObjects can move source and target together, but ShuffleLibrary cannot project and deduplicate the moved cards' owners.
 pub(in crate::card::sets) static VOID_STALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7fc30e31-4796-4e98-992c-a56cd51ad3c9"),
     "Void Stalker",
@@ -1942,7 +2062,10 @@ pub(in crate::card::sets) static KNIGHT_OF_INFAMY: CardRecord = CardRecord::new_
 );
 
 // M13 97 — Liliana of the Dark Realms
-// Audit: metadata-only — Needs a choice between dynamic Swamp-count pump or shrink and an emblem that multiplies mana from Swamps.
+/// The negative branch of Liliana's −3 reads the same Swamp count for both
+/// power and toughness.
+static NEGATIVE_SWAMPS_YOU_CONTROL: ValueDef = ValueDef::Negate(&SWAMPS_YOU_CONTROL);
+
 pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2cd2d81e-1388-4f34-9917-2289971cf8da"),
     "Liliana of the Dark Realms",
@@ -1951,7 +2074,87 @@ pub(in crate::card::sets) static LILIANA_OF_THE_DARK_REALMS: CardRecord = CardRe
         "D. Alexander Gregory",
     ),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_planeswalker(mana_cost!("{2}{B}{B}"), &["Liliana"], 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "+1: Search your library for a Swamp card, reveal it, put it into your hand, then shuffle.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Target creature gets +X/+X or -X/-X until end of turn, where X is the number of Swamps you control.",
+                &[AbilityCostDef::Loyalty(-3)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Give +X/+X",
+                            effect: EffectDef::Apply {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    SWAMPS_YOU_CONTROL,
+                                    SWAMPS_YOU_CONTROL,
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Give -X/-X",
+                            effect: EffectDef::Apply {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    NEGATIVE_SWAMPS_YOU_CONTROL,
+                                    NEGATIVE_SWAMPS_YOU_CONTROL,
+                                ),
+                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                            },
+                        },
+                    ],
+                },
+            ),
+            AbilityDef::activated(
+                "−6: You get an emblem with \"Swamps you control have '{T}: Add {B}{B}{B}{B}.'\"",
+                &[AbilityCostDef::Loyalty(-6)],
+                EffectDef::create_emblem(
+                    "Liliana of the Dark Realms emblem",
+                    &[AbilityDef::static_ability(
+                        "Swamps you control have '{T}: Add {B}{B}{B}{B}.'",
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::matching_objects(
+                                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                                "{T}: Add {B}{B}{B}{B}.",
+                                &[AbilityCostDef::TapSource],
+                                EffectDef::AddMana(
+                                    AddManaEffectDef::one(ManaColor::Black).with_amount(4),
+                                ),
+                            )),
+                        },
+                    )],
+                ),
+            ),
+        ]),
 );
 
 // M13 98 — Liliana's Shade
@@ -2062,13 +2265,6 @@ pub(in crate::card::sets) static MURDER: CardRecord = CardRecord::new_with_legac
 );
 
 // M13 102 — Mutilate
-/// Mutilate scales with your Swamps, and reads the same count twice.
-static SWAMPS_YOU_CONTROL: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Swamp"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-));
-
 pub(in crate::card::sets) static MUTILATE: CardRecord = CardRecord::new_with_legacy_id(
     190,
     "Mutilate",
@@ -2092,13 +2288,30 @@ pub(in crate::card::sets) static MUTILATE: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 103 — Nefarox, Overlord of Grixis
-// Audit: metadata-only — Needs exalted's attacks-alone subject and the captured defending player for the sacrifice choice.
 pub(in crate::card::sets) static NEFAROX_OVERLORD_OF_GRIXIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abc382f3-fdb9-4987-acf4-bf1ac4fd2ef7"),
     "Nefarox, Overlord of Grixis",
     crate::card::CardArt::new("abc382f3-fdb9-4987-acf4-bf1ac4fd2ef7", "Aleksi Briclot"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 5, 5)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::exalted(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks alone, defending player sacrifices a creature of their choice.",
+                TriggerEventDef::attacks_in_declaration(ObjectPredicateDef::Source, 1, Some(1)),
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Opponent,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+            ),
+        ]),
 );
 
 // M13 104 — Phylactery Lich (reprint)
@@ -2255,7 +2468,7 @@ pub(in crate::card::sets) static VAMPIRE_NIGHTHAWK: CardRecord = CardRecord::new
 );
 
 // M13 113 — Vampire Nocturnus
-// Audit: metadata-only — Needs persistent top-library revelation and a top-card-color-conditioned Vampire mass bonus and flying grant.
+// Audit: metadata-only — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot inspect the top card's color for the Vampire mass bonus and flying grant.
 pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3194ae81-90fb-49e9-90de-9d161e296770"),
     "Vampire Nocturnus",
@@ -2265,13 +2478,40 @@ pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new
 );
 
 // M13 114 — Veilborn Ghoul
-// Audit: metadata-only — Needs a land-entry trigger functioning from this card's graveyard and a self return from that zone.
 pub(in crate::card::sets) static VEILBORN_GHOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3f49232-2853-427f-8c20-322e09a3ccde"),
     "Veilborn Ghoul",
     crate::card::CardArt::new("d3f49232-2853-427f-8c20-322e09a3ccde", "Dan Murayama Scott"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Zombie"], 4, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a Swamp you control enters, you may return this card from your graveyard to your hand.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // M13 115 — Vile Rebirth
@@ -2326,13 +2566,41 @@ pub(in crate::card::sets) static WITS_END: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 118 — Xathrid Gorgon
-// Audit: metadata-only — Needs a resolving counter choice plus type, color, ability-removal, and defender changes keyed to that counter.
 pub(in crate::card::sets) static XATHRID_GORGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abfeac83-84ef-41ab-b6ee-cc2bab6aa06d"),
     "Xathrid Gorgon",
     crate::card::CardArt::new("e07524e0-303d-465d-b112-ca605b9b27fc", "Chase Stone"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{B}"), &["Gorgon"], 3, 6).with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::activated_with_targets(
+            "{2}{B}, {T}: Put a petrification counter on target creature. It gains defender and becomes a colorless artifact in addition to its other types. Its activated abilities can't be activated.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::named("petrification"),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::defender()),
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
+                        AppliedEffectDef::set_colors(ColorSet::empty()),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                    ]),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // M13 119 — Zombie Goliath
@@ -2391,7 +2659,7 @@ pub(in crate::card::sets) static CANYON_MINOTAUR: CardRecord = CardRecord::new_w
 );
 
 // M13 123 — Chandra, the Firebrand
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — InstalledTriggerDef cannot combine “once” with expiration at end of turn for the next-spell copy permission.
 pub(in crate::card::sets) static CHANDRA_THE_FIREBRAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efb37556-186f-4660-8b75-c52ef16a6d8f"),
     "Chandra, the Firebrand",
@@ -2537,13 +2805,24 @@ pub(in crate::card::sets) static FERVOR: CardRecord = CardRecord::new_with_legac
 // M13 130 — Fire Elemental (reprint)
 
 // M13 131 — Firewing Phoenix
-// Audit: metadata-only — Effect recipients cannot identify an activated ability's own source card while it is in a graveyard.
 pub(in crate::card::sets) static FIREWING_PHOENIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8824674-ced2-448e-9bf0-03c1c43a5315"),
     "Firewing Phoenix",
     crate::card::CardArt::new("b8824674-ced2-448e-9bf0-03c1c43a5315", "James Paick"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Phoenix"], 4, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{1}{R}{R}{R}: Return this card from your graveyard to your hand.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{R}{R}{R}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // M13 132 — Flames of the Firebrand
@@ -2816,13 +3095,32 @@ pub(in crate::card::sets) static MARK_OF_MUTINY: CardRecord = CardRecord::new_wi
 );
 
 // M13 142 — Mindclaw Shaman
-// Audit: metadata-only — Needs an opponent-hand reveal and choice followed by permission to cast the chosen card without paying its cost.
 pub(in crate::card::sets) static MINDCLAW_SHAMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f342fe9-aa73-4222-b908-d4035b5746be"),
     "Mindclaw Shaman",
     crate::card::CardArt::new("0f342fe9-aa73-4222-b908-d4035b5746be", "Slawomir Maniak"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Lizard", "Shaman"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent reveals their hand. You may cast an instant or sorcery spell from among those cards without paying its mana cost.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Opponent,
+            ))],
+            EffectDef::Sequence(&abilities::reveal_hand_and_choose_card(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                &EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                    objects: ObjectSetDef::One(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                    duration: FreePlayDurationDef::WhileResolving,
+                    mandatory: false,
+                    grants_haste: false,
+                }),
+            )),
+        ),
+    ),
 );
 
 // M13 143 — Mogg Flunkies (reprint)
@@ -2840,13 +3138,35 @@ pub(in crate::card::sets) static RECKLESS_BRUTE: CardRecord = CardRecord::new_wi
 );
 
 // M13 145 — Reverberate
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REVERBERATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd435013-0ab9-42f4-985c-66ea2b3760e9"),
     "Reverberate",
     crate::card::CardArt::new("5996feb4-02ac-45e8-a7f2-966cf74391dc", "jD"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Copy target instant or sorcery spell. You may choose new targets for the copy.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            controller: PlayerRefDef::EffectController,
+            count: ValueDef::Constant(1),
+            retarget: true,
+            colors: None,
+        }),
+    )),
 );
 
 // M13 146 — Rummaging Goblin
@@ -2889,13 +3209,43 @@ pub(in crate::card::sets) static SEARING_SPEAR: CardRecord = CardRecord::new_wit
 );
 
 // M13 148 — Slumbering Dragon
-// Audit: metadata-only — Needs attack and block permission based on counter count plus an attack-at-you event that adds counters.
 pub(in crate::card::sets) static SLUMBERING_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("277cbd0d-c8da-4a37-965c-6a60771df2f7"),
     "Slumbering Dragon",
     crate::card::CardArt::new("277cbd0d-c8da-4a37-965c-6a60771df2f7", "Chris Rahn"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Dragon"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can't attack or block unless it has five or more +1/+1 counters on it.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    comparison: ComparisonDef::Less,
+                    amount: 5,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
+                },
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature attacks you or a planeswalker you control, put a +1/+1 counter on this creature.",
+            TriggerEventDef::Attacks(AttackEventMatcherDef::attacking(
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                PlayerRelation::You,
+            )),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // M13 149 — Smelt
@@ -2971,7 +3321,7 @@ pub(in crate::card::sets) static TRUMPET_BLAST: CardRecord = CardRecord::new_wit
 );
 
 // M13 153 — Turn to Slag
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Attachment queries cannot select Equipment attached to an arbitrary target object.
 pub(in crate::card::sets) static TURN_TO_SLAG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66fd5b49-b4f2-40da-94d5-6d6fc69506f6"),
     "Turn to Slag",
@@ -3249,13 +3599,46 @@ pub(in crate::card::sets) static DUSKDALE_WURM: CardRecord = CardRecord::new_wit
 );
 
 // M13 167 — Elderscale Wurm
-// Audit: metadata-only — Needs conditional life-total setting on entry and a damage replacement that enforces a life floor.
 pub(in crate::card::sets) static ELDERSCALE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20f3f63d-0f04-4945-9895-940c916a2547"),
     "Elderscale Wurm",
     crate::card::CardArt::new("20f3f63d-0f04-4945-9895-940c916a2547", "Richard Wright"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}{G}"), &["Wurm"], 7, 7).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered_if(
+            "When this creature enters, if your life total is less than 7, your life total becomes 7.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::ControllerLifeAtMost(6),
+            EffectDef::SetLifeTotal {
+                recipient: EffectRecipientDef::Controller,
+                total: ValueDef::Constant(7),
+            },
+        ),
+        AbilityDef::static_ability(
+            "As long as you have 7 or more life, damage that would reduce your life total to less than 7 reduces it to 7 instead.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::Not(
+                    &TriggerConditionDef::ControllerLifeAtMost(6),
+                ),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::LimitDamage {
+                        matcher: DamageEventMatcherDef {
+                            kind: DamageKindDef::Any,
+                            source: DamageSourceMatcherDef::Any,
+                            recipient: DamageRecipientMatcherDef::Any,
+                        },
+                        limit: DamageLimitDef::LeaveAtLeastLife(7),
+                    }),
+                },
+            },
+        ),
+    ]),
 );
 
 // M13 168 — Elvish Archdruid
@@ -3557,13 +3940,46 @@ pub(in crate::card::sets) static PRIMAL_HUNTBEAST: CardRecord = CardRecord::new_
 );
 
 // M13 183 — Primordial Hydra
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMORDIAL_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3dcc5521-df8f-4992-b93e-e430d8cc7715"),
     "Primordial Hydra",
     crate::card::CardArt::new("937deb52-8888-4298-9ae5-0361c6fdbba2", "Aleksi Briclot"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{X}{G}{G}"), &["Hydra"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, double the number of +1/+1 counters on this creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::DoubleCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+            },
+        ),
+        AbilityDef::static_ability(
+            "This creature has trample as long as it has ten or more +1/+1 counters on it.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 10,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                },
+            },
+        ),
+    ]),
 );
 
 // M13 184 — Quirion Dryad (reprint)
@@ -3621,13 +4037,41 @@ pub(in crate::card::sets) static REVIVE: CardRecord = CardRecord::new_with_legac
 );
 
 // M13 188 — Roaring Primadox
-// Audit: metadata-only — No resolving choice selects a nontarget creature the controller owns for a mandatory return.
 pub(in crate::card::sets) static ROARING_PRIMADOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19529b2f-03f0-469d-92d4-e2a2a933d5dc"),
     "Roaring Primadox",
     crate::card::CardArt::new("19529b2f-03f0-469d-92d4-e2a2a933d5dc", "James Ryman"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Beast"], 4, 4).with_ability(
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, return a creature you control to its owner's hand.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                        ObjectBindingIndex::PRIMARY,
+                    )),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            }),
+        ),
+    ),
 );
 
 // M13 189 — Sentinel Spider
@@ -3785,13 +4229,28 @@ pub(in crate::card::sets) static VASTWOOD_GORGER: CardRecord = CardRecord::new_w
 );
 
 // M13 197 — Yeva, Nature's Herald
-// Audit: metadata-only — No static permission grants flash-like casting timing to green creature cards.
 pub(in crate::card::sets) static YEVA_NATURE_S_HERALD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("80acb6dc-a9bd-4f12-9025-623416bdfc32"),
     "Yeva, Nature's Herald",
     crate::card::CardArt::new("80acb6dc-a9bd-4f12-9025-623416bdfc32", "Eric Deschamps"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elf", "Shaman"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::static_ability(
+                "You may cast green creature spells as though they had flash.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayCastAsThoughItHadFlash(
+                        CastTimingPermissionDef::new(ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Color(ManaColor::Green),
+                        ])),
+                    )),
+                },
+            ),
+        ]),
 );
 
 // M13 198 — Yeva's Forcemage
@@ -3962,7 +4421,6 @@ pub(in crate::card::sets) static DOOR_TO_NOTHINGNESS: CardRecord = CardRecord::n
 );
 
 // M13 204 — Elixir of Immortality
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ELIXIR_OF_IMMORTALITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("99bd4740-9b1f-40a6-a14d-2c0d642b848b"),
     "Elixir of Immortality",
@@ -3971,17 +4429,95 @@ pub(in crate::card::sets) static ELIXIR_OF_IMMORTALITY: CardRecord = CardRecord:
         "Zoltan Boros & Gabor Szikszai",
     ),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated(
+        "{2}, {T}: You gain 5 life. Shuffle this artifact and your graveyard into their owner's library.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}")),
+            AbilityCostDef::TapSource,
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(5),
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::Controller,
+            },
+        ]),
+    )),
 );
 
 // M13 205 — Gem of Becoming
-// Audit: metadata-only — Needs three separate library searches for cards with three different names.
 pub(in crate::card::sets) static GEM_OF_BECOMING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e07bc36-2207-48f4-a151-4ccb0c6d851d"),
     "Gem of Becoming",
     crate::card::CardArt::new("0e07bc36-2207-48f4-a151-4ccb0c6d851d", "Jack Wang"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated(
+        "{3}, {T}, Sacrifice this artifact: Search your library for an Island card, a Swamp card, and a Mountain card. Reveal those cards, put them into your hand, then shuffle.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{3}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::SacrificeSource,
+        ],
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: false,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: Some(&EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: Some(&EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                }),
+            }),
+        },
+    )),
 );
 
 // M13 206 — Gilded Lotus
@@ -4284,13 +4820,71 @@ pub(in crate::card::sets) static STAFF_OF_NIN: CardRecord = CardRecord::new_with
 // M13 219 — Tormod's Crypt (reprint)
 
 // M13 220 — Trading Post
-// Audit: metadata-only — Needs four modes whose costs include unsupported discard or separately chosen sacrifice costs and their linked continuations.
 pub(in crate::card::sets) static TRADING_POST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20604b28-d096-40f8-a30c-3bc89e708676"),
     "Trading Post",
     crate::card::CardArt::new("20604b28-d096-40f8-a30c-3bc89e708676", "Adam Paquette"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::activated(
+            "{1}, {T}, Discard a card: You gain 4 life.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(4),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}, {T}, Pay 1 life: Create a 0/1 white Goat creature token.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::PayLife(1),
+            ],
+            EffectDef::create_creature_token(&["Goat"], &[ManaColor::White], 0, 1),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}, Sacrifice a creature: Return target artifact card from your graveyard to your hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        AbilityDef::activated(
+            "{1}, {T}, Sacrifice an artifact: Draw a card.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // M13 221 — Cathedral of War
@@ -4379,13 +4973,44 @@ pub(in crate::card::sets) static GLACIAL_FORTRESS: CardRecord = CardRecord::new_
 );
 
 // M13 226 — Hellion Crucible
-// Audit: metadata-only — The counter vocabulary has no pressure counter, so the add and remove costs cannot use the printed counter kind.
 pub(in crate::card::sets) static HELLION_CRUCIBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ad8274ef-a46a-4f5f-8ad1-6ce828f24210"),
     "Hellion Crucible",
     crate::card::CardArt::new("ad8274ef-a46a-4f5f-8ad1-6ce828f24210", "Trevor Claxton"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{1}{R}, {T}: Put a pressure counter on this land.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("pressure"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}{R}, {T}, Remove two pressure counters from this land and sacrifice it: Create a 4/4 red Hellion creature token with haste.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("pressure"),
+                    amount: 2,
+                },
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::create_creature_token(&["Hellion"], &[ManaColor::Red], 4, 4)
+                .with_abilities(&[abilities::haste()]),
+        ),
+    ]),
 );
 
 // M13 227 — Reliquary Tower

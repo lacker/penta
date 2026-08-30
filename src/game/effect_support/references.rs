@@ -610,6 +610,18 @@ impl Game {
         source: GameObjectId,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::Query(query) => self
+                .current_or_last_known_controller(source)
+                .or_else(|| self.current_or_last_known_owner(source))
+                .map(|controller| {
+                    self.objects_matching_query(
+                        query,
+                        controller,
+                        source,
+                        TriggerContext::empty(),
+                    )
+                })
+                .unwrap_or_default(),
             ObjectSetDef::LinkedExiles => self
                 .linked_exile_ids(source)
                 .into_iter()

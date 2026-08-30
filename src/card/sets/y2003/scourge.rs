@@ -72,11 +72,6 @@ pub(in crate::card::sets) static DARU_SPIRITUALIST: CardRecord = CardRecord::new
 );
 
 // SCG 6 — Daru Warchief
-static SOLDIER_CREATURES: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Subtype("Soldier"),
-]);
-
 pub(in crate::card::sets) static DARU_WARCHIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2630d3b5-8f3a-4aad-a45e-22a7979429f3"),
     "Daru Warchief",
@@ -94,7 +89,10 @@ pub(in crate::card::sets) static DARU_WARCHIEF: CardRecord = CardRecord::new(
                 "Soldier creatures you control get +1/+2.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        SOLDIER_CREATURES,
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Soldier"),
+                        ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
@@ -119,24 +117,6 @@ pub(in crate::card::sets) static DAWN_ELEMENTAL: CardRecord = CardRecord::new(
 );
 
 // SCG 8 — Decree of Justice
-/// The cycling half: X is settled by the payment rather than by a cast, so
-/// the branch that makes the tokens reads back what was actually paid.
-static DECREE_SOLDIERS: EffectDef =
-    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-        .with_count(ValueDef::PaidAmount)
-        .with_art(CardArt::new(
-            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
-            "Bachzim",
-        ));
-
-static DECREE_CYCLING_TRIGGER: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-    EffectPaymentDef {
-        payer: PlayerSetDef::Related(PlayerRelation::You),
-        cost: EffectPaymentCostDef::ChosenGenericMana,
-    },
-    &DECREE_SOLDIERS,
-));
-
 pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new_with_legacy_id(
     2056,
     "Decree of Justice",
@@ -163,7 +143,20 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
         AbilityDef::triggered(
             "When you cycle this card, you may pay {X}. If you do, create X 1/1 white Soldier creature tokens.",
             TriggerEventDef::Cycled,
-            DECREE_CYCLING_TRIGGER,
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: EffectPaymentCostDef::ChosenGenericMana,
+                },
+                // The cycling half: X is settled by the payment rather than by a cast, so
+                // the branch that makes the tokens reads back what was actually paid.
+                &EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                        .with_count(ValueDef::PaidAmount)
+                        .with_art(CardArt::new(
+                            "70205fb6-7722-4974-a8c6-8909dbb1c96d",
+                            "Bachzim",
+                        )),
+            )),
         ),
     ]),
 );
@@ -436,35 +429,6 @@ pub(in crate::card::sets) static DAY_OF_THE_DRAGONS: CardRecord = CardRecord::ne
 );
 
 // SCG 32 — Decree of Silence
-/// Counter the spell, mark the enchantment, and go when the third mark
-/// lands. The sacrifice is checked in the same resolution rather than as a
-/// state trigger, which is what the printed clause says.
-static DECREE_OF_SILENCE_ANSWER: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Counter {
-        object: EffectRecipientDef::TriggeringObject,
-        zone: ZoneKind::Graveyard,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::named("depletion"),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::SourceCounters {
-            kind: CounterKind::named("depletion"),
-            comparison: ComparisonDef::GreaterOrEqual,
-            amount: 3,
-        },
-        then: &EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    },
-]);
-
-static AN_OPPONENTS_SPELL: ObjectPredicateDef =
-    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent);
-
 pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new_with_legacy_id(
     2082,
     "Decree of Silence",
@@ -475,8 +439,40 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{6}{U}{U}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever an opponent casts a spell, counter that spell and put a depletion counter on this enchantment. If there are three or more depletion counters on this enchantment, sacrifice it.",
-            TriggerEventDef::spell_cast(AN_OPPONENTS_SPELL),
-            DECREE_OF_SILENCE_ANSWER,
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                PlayerRelation::Opponent,
+            )),
+            // Counter the spell, mark the enchantment, and go when the third mark
+            // lands. The sacrifice is checked in the same resolution rather than as a
+            // state trigger, which is what the printed clause says.
+            EffectDef::Sequence(&const {
+                [
+                    EffectDef::Counter {
+                        object: EffectRecipientDef::TriggeringObject,
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("depletion"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::IfCondition {
+                        condition: &const {
+                            TriggerConditionDef::SourceCounters {
+                                kind: CounterKind::named("depletion"),
+                                comparison: ComparisonDef::GreaterOrEqual,
+                                amount: 3,
+                            }
+                        },
+                        then: &const {
+                            EffectDef::Sacrifice {
+                                object: EffectRecipientDef::Source,
+                            }
+                        },
+                    },
+                ]
+            }),
         ),
         abilities::cycling(
             "Cycling {4}{U}{U} ({4}{U}{U}, Discard this card: Draw a card.)",
@@ -692,14 +688,6 @@ pub(in crate::card::sets) static SHORELINE_RANGER: CardRecord = CardRecord::new(
 );
 
 // SCG 52 — Stifle
-static STIFLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::StackObject {
-        object: ObjectPredicateDef::Any,
-        controller: None,
-        kind: StackTargetKindDef::AbilityOnly,
-    },
-)];
-
 pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legacy_id(
     2071,
     "Stifle",
@@ -709,7 +697,13 @@ pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legac
     // whatever the opponent built their turn around.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target activated or triggered ability.",
-        &STIFLE_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::StackObject {
+                object: ObjectPredicateDef::Any,
+                controller: None,
+                kind: StackTargetKindDef::AbilityOnly,
+            },
+        )],
         EffectDef::Counter {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             zone: ZoneKind::Graveyard,
@@ -929,20 +923,6 @@ pub(in crate::card::sets) static SOUL_COLLECTOR: CardRecord = CardRecord::new(
 );
 
 // SCG 75 — Tendrils of Agony
-/// Life loss rather than damage: nothing prevents it, nothing watching for
-/// damage sees it, and the two life you gain is a flat two however little
-/// they had left to lose.
-static TENDRILS_DRAINS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-]);
-
 pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new_with_legacy_id(
     2223,
     "Tendrils of Agony",
@@ -954,7 +934,19 @@ pub(in crate::card::sets) static TENDRILS_OF_AGONY: CardRecord = CardRecord::new
         AbilityDef::spell_with_targets(
             "Target player loses 2 life and you gain 2 life.",
             &A_PLAYER,
-            TENDRILS_DRAINS,
+            // Life loss rather than damage: nothing prevents it, nothing watching for
+            // damage sees it, and the two life you gain is a flat two however little
+            // they had left to lose.
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
         ),
         abilities::storm(),
     ]),
@@ -1067,18 +1059,6 @@ pub(in crate::card::sets) static DECREE_OF_ANNIHILATION: CardRecord = CardRecord
 );
 
 // SCG 86 — Dragon Breath
-static DRAGON_BREATH_HASTE: AbilityDef = abilities::haste();
-
-/// Six or more, which the deck reaches by assembling a creature rather than
-/// by paying for one: the Ghoul arrives enormous and the Breath comes back
-/// attached to give it haste.
-static A_BIG_CREATURE_ENTERING: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMostValue(
-        ValueDef::Constant(5),
-    )),
-]);
-
 pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_with_legacy_id(
     2088,
     "Dragon Breath",
@@ -1094,7 +1074,7 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
                 "Enchanted creature has haste.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&DRAGON_BREATH_HASTE),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
                 },
             ),
             AbilityDef::activated(
@@ -1112,7 +1092,15 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
             AbilityDef::triggered(
                 "When a creature with mana value 6 or greater enters, you may return this card from your graveyard to the battlefield attached to that creature.",
                 TriggerEventDef::zone_changed(
-                    A_BIG_CREATURE_ENTERING,
+                    // Six or more, which the deck reaches by assembling a creature rather than
+                    // by paying for one: the Ghoul arrives enormous and the Breath comes back
+                    // attached to give it haste.
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMostValue(
+                            ValueDef::Constant(5),
+                        )),
+                    ]),
                     None,
                     Some(ZoneKind::Battlefield),
                 ),
@@ -1270,8 +1258,6 @@ pub(in crate::card::sets) static GOBLIN_PSYCHOPATH: CardRecord = CardRecord::new
 // SCG 96 — Goblin War Strike (reprint)
 
 // SCG 97 — Goblin Warchief
-static GOBLIN_SPELLS: ObjectPredicateDef = ObjectPredicateDef::Subtype("Goblin");
-
 pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new_with_legacy_id(
     2020,
     "Goblin Warchief",
@@ -1287,7 +1273,7 @@ pub(in crate::card::sets) static GOBLIN_WARCHIEF: CardRecord = CardRecord::new_w
             AbilityDef::static_ability(
                 "Goblin spells you cast cost {1} less to cast.",
                 EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                    GOBLIN_SPELLS,
+                    ObjectPredicateDef::Subtype("Goblin"),
                     PlayerRelation::You,
                     ValueDef::Constant(1),
                 )),

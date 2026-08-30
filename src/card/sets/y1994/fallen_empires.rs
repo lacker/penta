@@ -13,13 +13,6 @@ use crate::card::{
 use crate::ids::TargetIndex;
 use crate::mana_cost;
 
-static REMOVE_THREE_SPORES: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::named("spore"),
-    amount: 3,
-}];
-
-static SHROUD: AbilityDef = abilities::shroud();
-
 // FEM 1a — Combat Medic
 pub(in crate::card::sets) static COMBAT_MEDIC: CardRecord = CardRecord::new_with_legacy_id(
     1444,
@@ -639,7 +632,7 @@ pub(in crate::card::sets) static HOMARID_WARRIOR: CardRecord = CardRecord::new_w
             EffectDef::Sequence(&[
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::add_ability(&SHROUD),
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
                 EffectDef::SkipNextUntapSteps {
@@ -722,7 +715,7 @@ pub(in crate::card::sets) static SVYELUNITE_PRIEST: CardRecord = CardRecord::new
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&SHROUD),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
@@ -1684,7 +1677,10 @@ pub(in crate::card::sets) static ELVISH_FARMER: CardRecord = CardRecord::new_wit
             ),
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &REMOVE_THREE_SPORES,
+                &[AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("spore"),
+                    amount: 3,
+                }],
                 EffectDef::create_creature_token(
                     &["Saproling"],
                     &[ManaColor::Green],
@@ -1812,7 +1808,10 @@ pub(in crate::card::sets) static FERAL_THALLID: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated(
             "Remove three spore counters from this creature: Regenerate this creature.",
-            &REMOVE_THREE_SPORES,
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
             EffectDef::Regenerate {
                 object: EffectRecipientDef::Source,
             },
@@ -1922,7 +1921,10 @@ pub(in crate::card::sets) static SPORE_FLOWER: CardRecord = CardRecord::new_with
             ),
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Prevent all combat damage that would be dealt this turn.",
-                &REMOVE_THREE_SPORES,
+                &[AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("spore"),
+                    amount: 3,
+                }],
                 EffectDef::PreventDamage {
                     prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -1953,7 +1955,10 @@ pub(in crate::card::sets) static THALLID: CardRecord = CardRecord::new_with_lega
             ),
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &REMOVE_THREE_SPORES,
+                &[AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("spore"),
+                    amount: 3,
+                }],
                 EffectDef::create_creature_token(
                     &["Saproling"],
                     &[ManaColor::Green],
@@ -1995,7 +2000,10 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_
             ),
             AbilityDef::activated(
                 "Remove three spore counters from this creature: Create a 1/1 green Saproling creature token.",
-                &REMOVE_THREE_SPORES,
+                &[AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("spore"),
+                    amount: 3,
+                }],
                 EffectDef::create_creature_token(
                     &["Saproling"],
                     &[ManaColor::Green],
@@ -2109,7 +2117,10 @@ pub(in crate::card::sets) static THORN_THALLID: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated_with_targets(
             "Remove three spore counters from this creature: It deals 1 damage to any target.",
-            &REMOVE_THREE_SPORES,
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("spore"),
+                amount: 3,
+            }],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],

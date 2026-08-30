@@ -326,16 +326,18 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                     comparison: ComparisonDef::GreaterOrEqual,
                     amount: 7,
                 },
-                EffectDef::SelectAtRandomFromZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Graveyard,
-                    object: ObjectPredicateDef::Any,
-                    amount: ValueDef::Constant(1),
-                    binding: ObjectSetBindingIndex::PRIMARY,
-                    then: &EffectDef::ExileGrantingControllerPlayThisTurn {
+                EffectDef::Sequence(&[
+                    EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: ObjectPredicateDef::Any,
+                        amount: ValueDef::Constant(1),
+                        binding: ObjectSetBindingIndex::PRIMARY,
+                    },
+                    EffectDef::ExileGrantingControllerPlayThisTurn {
                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
                     },
-                },
+                ]),
             ),
         ]),
 );

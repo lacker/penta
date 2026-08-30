@@ -282,18 +282,18 @@ fn random_returns_compose_selection_with_a_zone_move() {
         let effect = card.rules.ability_clauses()[0]
             .declarative_effect()
             .expect("the random return is declarative");
+        let EffectDef::Sequence([selection, movement]) = effect else {
+            panic!("{} should compose selection and movement", card.name);
+        };
         let EffectDef::SelectAtRandomFromZone {
-            source,
-            binding,
-            then,
-            ..
-        } = effect
+            source, binding, ..
+        } = *selection
         else {
             panic!("{} should select randomly before moving", card.name);
         };
         assert_eq!(source, ZoneKind::Graveyard);
         assert_eq!(binding, ObjectSetBindingIndex::PRIMARY);
-        let EffectDef::MoveToZone { object, zone, .. } = *then else {
+        let EffectDef::MoveToZone { object, zone, .. } = *movement else {
             panic!("{} should use an ordinary zone move", card.name);
         };
         assert_eq!(zone, ZoneKind::Hand);

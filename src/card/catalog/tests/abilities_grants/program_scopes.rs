@@ -145,6 +145,71 @@ fn non_targeting_choice_references_are_lexically_scoped() {
 }
 
 #[test]
+fn later_sequence_steps_may_read_synchronous_producer_bindings() {
+    let binding = ObjectSetBindingIndex::PRIMARY;
+    let count_bound = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::BoundObjectCount(binding),
+    };
+    let mill_until = Box::leak(Box::new(crate::card::MillUntilDef {
+        player: EffectRecipientDef::Controller,
+        object: ObjectPredicateDef::HasType(CardType::Land),
+        matched_zone: ZoneKind::Graveyard,
+        binding: Some(binding),
+    }));
+    let producers = [
+        EffectDef::Mill {
+            player: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(3),
+            binding: Some(binding),
+        },
+        EffectDef::MillUntil(mill_until),
+        EffectDef::SelectAtRandomFromZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Graveyard,
+            object: ObjectPredicateDef::Any,
+            amount: ValueDef::Constant(1),
+            binding,
+        },
+    ];
+
+    for producer in producers {
+        let valid = Box::leak(Box::new([producer, count_bound]));
+        super::validate_ability_targets(&[], EffectDef::Sequence(valid))
+            .expect("a later sequence step may read the producer's output binding");
+
+        let reversed = Box::leak(Box::new([count_bound, producer]));
+        assert_eq!(
+            super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
+            Err(
+                GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding }
+            ),
+            "the binding is unavailable before its producer publishes it",
+        );
+    }
+
+    let object_binding = ObjectBindingIndex::PRIMARY;
+    let consume_object = EffectDef::Tap {
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(object_binding)),
+    };
+    let reveal = EffectDef::RevealAtRandomFromHand {
+        player: EffectRecipientDef::Controller,
+        binding: object_binding,
+    };
+    let valid = Box::leak(Box::new([reveal, consume_object]));
+    super::validate_ability_targets(&[], EffectDef::Sequence(valid))
+        .expect("a later sequence step may read the revealed-card binding");
+
+    let reversed = Box::leak(Box::new([consume_object, reveal]));
+    assert_eq!(
+        super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
+        Err(GrantedAbilityValidationError::ObjectBindingReferenceOutOfScope {
+            binding: object_binding,
+        }),
+    );
+}
+
+#[test]
 fn generic_object_choices_validate_their_cardinality() {
     let cases = [
         (
@@ -740,7 +805,6 @@ fn merged_effect_vocabulary_preserves_local_target_bounds() {
             player: recipient,
             amount: ValueDef::DividedAmongTargets,
             binding: None,
-            then: None,
         },
         EffectDef::Apply {
             recipient,

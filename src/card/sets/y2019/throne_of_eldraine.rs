@@ -633,7 +633,6 @@ pub(in crate::card::sets) static EMRY_LURKER_OF_THE_LOCH: CardRecord = CardRecor
                     player: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(4),
                     binding: None,
-                    then: None,
                 },
             ),
             // The cost is still owed and the timing rules still apply: what the

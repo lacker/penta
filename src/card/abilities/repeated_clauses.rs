@@ -5,6 +5,25 @@
 // card to say it does not re-derive it. Included textually into
 // `abilities.rs`, so the imports here are the parent module's.
 
+static GREATEST_POWER_YOU_CONTROL: ObjectValueAggregateDef = ObjectValueAggregateDef {
+    objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+        ObjectPredicateDef::HasType(CardType::Creature),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    )),
+    select: ObjectValueDef::Power,
+    operation: AggregateOperationDef::Maximum,
+};
+
+/// The greatest power among creatures you control, or zero if there are none.
+///
+/// This remains ordinary object-set projection and aggregation; the shared
+/// constructor only names a rules phrase repeated by several cards.
+#[must_use]
+pub const fn greatest_power_you_control() -> ValueDef {
+    ValueDef::AggregateObjectValues(&GREATEST_POWER_YOU_CONTROL)
+}
+
 static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::DiscardCards {
     object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
 };

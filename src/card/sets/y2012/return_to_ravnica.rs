@@ -787,7 +787,6 @@ pub(in crate::card::sets) static CROSSTOWN_COURIER: CardRecord = CardRecord::new
                 player: EffectRecipientDef::EventPlayer,
                 amount: ValueDef::TriggerEventAmount,
                 binding: None,
-                then: None,
             },
         ),
     ),
@@ -872,7 +871,6 @@ pub(in crate::card::sets) static DOORKEEPER: CardRecord = CardRecord::new_with_l
                     PlayerRelation::You,
                 )),
                 binding: None,
-                then: None,
             },
         ),
     ]),
@@ -5164,7 +5162,6 @@ pub(in crate::card::sets) static CODEX_SHREDDER: CardRecord = CardRecord::new_wi
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),
                 binding: None,
-                then: None,
             },
         ),
         AbilityDef::activated_with_targets(

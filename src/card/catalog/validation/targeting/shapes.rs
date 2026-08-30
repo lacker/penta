@@ -404,10 +404,10 @@ fn validate_value_shape(
             validate_value_shape(value.then, targets)?;
             validate_value_shape(value.otherwise, targets)
         }
+        ValueDef::AggregateObjectValues(a) => validate_aggregate_shape(a.objects, targets),
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
-        | ValueDef::DistinctNamesAmong(query)
-        | ValueDef::GreatestPowerAmong(query) => validate_query_shape(*query, targets),
+        | ValueDef::DistinctNamesAmong(query) => validate_query_shape(*query, targets),
         ValueDef::CountMatchingPlayerAttachments(query) => {
             validate_object_predicate_shape(query.object, targets)
         }
@@ -468,6 +468,13 @@ fn validate_value_shape(
         | ValueDef::DistinctTargets
         | ValueDef::DividedAmongTargets => Ok(()),
     }
+}
+
+fn validate_aggregate_shape(
+    objects: ObjectSetDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_object_set_shape(objects, targets)
 }
 
 fn validate_object_predicate_shape(

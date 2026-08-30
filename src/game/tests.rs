@@ -177,6 +177,7 @@ mod into_the_wilds;
 mod isd_bloodline_keeper;
 mod isd_delver_of_secrets;
 mod isd_grimoire_of_the_dead;
+mod isd_heretics_punishment;
 mod isd_m14_deck_cards;
 mod isd_manor_gargoyle;
 mod isd_memorys_journey;

@@ -5,9 +5,9 @@ use crate::card::{
     CostAmountDef, CostModificationDef, DamageEventMatcherDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
     EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
-    ReplacementEventDef, SetOperationDef, SpellCostConditionDef, TriggerConditionDef, ValueDef,
-    ZoneKind,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef, SetOperationDef,
+    SpellCostConditionDef, TriggerConditionDef, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

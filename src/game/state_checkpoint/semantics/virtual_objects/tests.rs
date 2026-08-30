@@ -8,12 +8,14 @@ use crate::{CardDefinitionId, CardPartId, ObjectBindingIndex, ObjectSetBindingIn
 static NESTED_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Nested Locator Test");
 static CREATE_TOKEN: EffectDef = EffectDef::create_token(NESTED_TOKEN);
-static MILL_THEN: EffectDef = EffectDef::Mill {
-    player: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-    binding: None,
-    then: Some(&CREATE_TOKEN),
-};
+static MILL_THEN: EffectDef = EffectDef::Sequence(&[
+    EffectDef::Mill {
+        player: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+        binding: None,
+    },
+    CREATE_TOKEN,
+]);
 static EXILE_OTHERWISE: EffectDef = EffectDef::ExileTopAndMayCast {
     player: EffectRecipientDef::Controller,
     otherwise: Some(&CREATE_TOKEN),
@@ -37,7 +39,7 @@ static RETURN_THEN: EffectDef = EffectDef::PutOntoBattlefieldThen {
 #[test]
 fn virtual_object_effect_paths_cover_every_continuation_branch() {
     let cases = [
-        (MILL_THEN, vec![0]),
+        (MILL_THEN, vec![1]),
         (EXILE_OTHERWISE, vec![0]),
         (SACRIFICE_OTHERWISE, vec![1]),
         (RETURN_THEN, vec![0]),

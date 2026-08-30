@@ -2928,10 +2928,12 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
             minimum: 1,
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
-            then: &EffectDef::RevealAtRandomFromHand {
-                player: EffectRecipientDef::Controller,
-                binding: REVEALED_CARD,
-                then: &EffectDef::IfCondition {
+            then: &EffectDef::Sequence(&[
+                EffectDef::RevealAtRandomFromHand {
+                    player: EffectRecipientDef::Controller,
+                    binding: REVEALED_CARD,
+                },
+                EffectDef::IfCondition {
                     condition: &TriggerConditionDef::BoundObjectsShareName {
                         first: NAMED_CARD,
                         second: REVEALED_CARD,
@@ -2941,7 +2943,7 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
                         amount: ValueDef::Constant(2),
                     },
                 },
-            },
+            ]),
         }),
     )),
 );

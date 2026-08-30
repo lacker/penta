@@ -1019,7 +1019,6 @@ pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new_with_
                 PlayerRelation::You,
             )),
             binding: None,
-            then: None,
         },
     )),
 );
@@ -1512,7 +1511,6 @@ pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new_wi
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(5),
                 binding: None,
-                then: None,
             },
         ),
     ),
@@ -1589,7 +1587,6 @@ pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with
                             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             amount: ValueDef::Constant(2),
                             binding: None,
-                            then: None,
                         },
                     )),
                 },
@@ -2034,14 +2031,6 @@ pub(in crate::card::sets) static DRIVER_OF_THE_DEAD: CardRecord = CardRecord::ne
 );
 
 // AVR 100 — Essence Harvest
-/// The largest power among your creatures, which is one creature's size
-/// rather than a count of them.
-static GREATEST_POWER_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
     1978,
     "Essence Harvest",
@@ -2056,11 +2045,11 @@ pub(in crate::card::sets) static ESSENCE_HARVEST: CardRecord = CardRecord::new_w
         EffectDef::Sequence(&[
             EffectDef::LoseLife {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::GreatestPowerAmong(&GREATEST_POWER_YOU_CONTROL),
+                amount: abilities::greatest_power_you_control(),
             },
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::GreatestPowerAmong(&GREATEST_POWER_YOU_CONTROL),
+                amount: abilities::greatest_power_you_control(),
             },
         ]),
     )),

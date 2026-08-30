@@ -399,8 +399,7 @@ impl HandcraftedPolicy {
             | EffectDef::PermitLookAtExiled { then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
-            }
-            | EffectDef::SelectAtRandomFromZone { then, .. } => {
+            } => {
                 Self::collect_spell_effect_profile(*then, x, targets, profile);
             }
             EffectDef::PayOr(payment) => {
@@ -529,6 +528,7 @@ impl HandcraftedPolicy {
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MayCastTargetWithoutPaying { .. }
             | EffectDef::Mill { .. }
+            | EffectDef::SelectAtRandomFromZone { .. }
             | EffectDef::SearchZonesAndExileRest { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
@@ -625,7 +625,7 @@ impl HandcraftedPolicy {
             | ValueDef::DistinctNamesAmong(_)
             | ValueDef::CountMatchingPlayerAttachments(_)
             | ValueDef::CountSpellsCastThisTurn(_)
-            | ValueDef::GreatestPowerAmong(_)
+            | ValueDef::AggregateObjectValues(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)

@@ -36,12 +36,14 @@ static CREATE_TOKEN: EffectDef = EffectDef::CreateToken {
     counters: None,
     created: None,
 };
-static MILL_THEN: EffectDef = EffectDef::Mill {
-    player: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(1),
-    binding: None,
-    then: Some(&CREATE_TOKEN),
-};
+static MILL_THEN: EffectDef = EffectDef::Sequence(&[
+    EffectDef::Mill {
+        player: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+        binding: None,
+    },
+    CREATE_TOKEN,
+]);
 static EXILE_OTHERWISE: EffectDef = EffectDef::ExileTopAndMayCast {
     player: EffectRecipientDef::Controller,
     otherwise: Some(&CREATE_TOKEN),
@@ -73,7 +75,7 @@ fn checkpoint_semantic_walkers_descend_replacement_programs() {
 #[test]
 fn recursive_effect_children_round_trip_all_continuation_branches() {
     let cases = [
-        (&MILL_THEN, vec![0]),
+        (&MILL_THEN, vec![1]),
         (&EXILE_OTHERWISE, vec![0]),
         (&SACRIFICE_THEN_AND_OTHERWISE, vec![1]),
         (&RETURN_THEN, vec![0]),

@@ -163,6 +163,17 @@ impl BindingScope {
             })
         }
     }
+
+    fn validate_object_set_reference(
+        self,
+        binding: ObjectSetBindingIndex,
+    ) -> Result<(), GrantedAbilityValidationError> {
+        if self.object_sets & (1 << binding.index()) != 0 {
+            Ok(())
+        } else {
+            Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
+        }
+    }
 }
 
 fn validate_target_index(
@@ -437,11 +448,7 @@ fn validate_object_set_target_references(
         ObjectSetDef::Binding(binding)
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding)
         | ObjectSetDef::MatchingBinding { binding, .. } => {
-            if scope.object_sets & (1 << binding.index()) != 0 {
-                Ok(())
-            } else {
-                Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
-            }
+            scope.validate_object_set_reference(binding)
         }
         ObjectSetDef::LegalTargets(target) => {
             validate_target_index(target, target_count)
@@ -473,9 +480,7 @@ fn validate_value_target_references(
     scope: BindingScope,
 ) -> Result<(), GrantedAbilityValidationError> {
     match value {
-        ValueDef::Negate(value) => {
-            validate_value_target_references(*value, target_count, scope)
-        }
+        ValueDef::Negate(value) => validate_value_target_references(*value, target_count, scope),
         ValueDef::Scaled(scaled) => {
             validate_value_target_references(scaled.value, target_count, scope)
         }
@@ -519,10 +524,12 @@ fn validate_value_target_references(
             validate_value_target_references(condition.then, target_count, scope)?;
             validate_value_target_references(condition.otherwise, target_count, scope)
         }
+        ValueDef::AggregateObjectValues(aggregate) => {
+            validate_object_set_target_references(aggregate.objects, target_count, scope)
+        }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
-        | ValueDef::DistinctNamesAmong(query)
-        | ValueDef::GreatestPowerAmong(query) => {
+        | ValueDef::DistinctNamesAmong(query) => {
             validate_query(*query, target_count, scope)
         }
         ValueDef::CountMatchingPlayerAttachments(query) => {
@@ -540,6 +547,7 @@ fn validate_value_target_references(
         ValueDef::CountersOnObject(counted) => {
             validate_object_reference(counted.object, target_count, scope)
         }
+        ValueDef::BoundObjectCount(binding) => scope.validate_object_set_reference(binding),
         ValueDef::CountSpellsCastThisTurn(_)
         | ValueDef::Constant(_)
         | ValueDef::ChosenX
@@ -573,7 +581,6 @@ fn validate_value_target_references(
         | ValueDef::MatchedCount
         | ValueDef::MatchedCardTypes
         | ValueDef::MatchedManaValue
-        | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::AdditionalCostPayments(_)
         | ValueDef::CreaturesDiedThisTurn

@@ -263,11 +263,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     .all(shared_object_predicate)
                 && shared_stack_effect_at_position(*choice.then, true)
         }
-        // The reveal itself asks nothing, so it opens no decision window;
-        // what follows it is still bound by whatever this position allows.
-        EffectDef::RevealAtRandomFromHand { then, .. } => {
-            shared_stack_effect_at_position(*then, deferred_decision_allowed)
-        }
+        EffectDef::RevealAtRandomFromHand { player, .. }
+        | EffectDef::Mill { player, .. } => shared_effect_recipient(player),
         EffectDef::Destroy { object, then, .. } => {
             shared_effect_recipient(object)
                 && match then {
@@ -305,12 +302,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::SelectAtRandomFromZone {
             player,
             object,
-            then,
             ..
         } => {
-            shared_effect_recipient(player)
-                && shared_object_predicate(object)
-                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
+            shared_effect_recipient(player) && shared_object_predicate(object)
         }
         // A resolving ability names each mana as it is added, one question
         // per mana, so both a choice of colour and a combination are
@@ -402,16 +396,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     }
                 }
         }
-        EffectDef::Mill {
-            player,
-            then,
-            ..
-        } => {
-            shared_effect_recipient(player)
-                && then.is_none_or(|effect| {
-                    shared_stack_effect_at_position(*effect, deferred_decision_allowed)
-                })
-        }
         EffectDef::ExileOneFromEachZone(pile) => shared_effect_recipient(pile.player),
         EffectDef::MillWhileMatching(mill) => {
             shared_effect_recipient(mill.player)
@@ -422,9 +406,6 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::MillUntil(mill) => {
             shared_effect_recipient(mill.player)
                 && shared_object_predicate(mill.object)
-                && mill.then.is_none_or(|effect| {
-                    shared_stack_effect_at_position(*effect, deferred_decision_allowed)
-                })
         }
         // The move binds the permanent it created, so what is left to check
         // is that the card it takes and the composed follow-up are supported.

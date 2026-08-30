@@ -1,6 +1,6 @@
 // Recursive continuations share the same catalog obligations as their roots.
 
-fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 5] {
+fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
     [
         EffectDef::Destroy {
             object: EffectRecipientDef::Source,
@@ -20,18 +20,12 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 5] {
                 effect: child,
             }),
         },
-        EffectDef::Mill {
-            player: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-            binding: None,
-            then: Some(child),
-        },
         EffectDef::SacrificeOfChoice {
             count: ValueDef::Constant(1),
             player: EffectRecipientDef::Controller,
             object: ObjectPredicateDef::Any,
-            then: None,
             amount: crate::card::SacrificedAmountDef::Power,
+            then: None,
             otherwise: Some(child),
             optional: true,
         },

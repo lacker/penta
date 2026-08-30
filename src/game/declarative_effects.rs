@@ -74,6 +74,18 @@ impl Game {
             EffectDef::ChooseObjectOrder(definition) => {
                 self.queue_choose_object_order(definition, object, context, scoped);
             }
+            EffectDef::Mill { .. } => {
+                self.resolve_mill_effect(scoped, object, context);
+            }
+            EffectDef::MillUntil(_) => {
+                self.resolve_mill_until_effect(scoped, object, context);
+            }
+            EffectDef::SelectAtRandomFromZone { .. } => {
+                self.resolve_random_zone_selection_effect(scoped, object, context);
+            }
+            EffectDef::RevealAtRandomFromHand { .. } => {
+                self.resolve_random_hand_reveal_effect(scoped, object, context);
+            }
             EffectDef::LookAtObjects(definition) => {
                 self.queue_look_at_objects(definition, object, context, scoped);
             }
@@ -241,18 +253,14 @@ impl Game {
             | EffectDef::BuryGraveyard { .. }
             | EffectDef::Discard { .. }
             | EffectDef::DiscardCards { .. }
-            | EffectDef::Mill { .. }
             | EffectDef::ExileTopOfLibraryToPlay { .. }
             | EffectDef::ExileOneFromEachZone(_)
             | EffectDef::MillWhileMatching(_)
-            | EffectDef::SelectAtRandomFromZone { .. }
             | EffectDef::ExileTopAndMayCast { .. }
-            | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }
             | EffectDef::Cascade
             | EffectDef::LookAtHand { .. }
             | EffectDef::LookAtRandomCardInHand { .. }
-            | EffectDef::RevealAtRandomFromHand { .. }
             | EffectDef::RevealHand { .. }
             | EffectDef::SearchZone { .. }
             | EffectDef::ChooseCards { .. }

@@ -74,13 +74,15 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &EffectDef::Mill {
-                    player: EffectRecipientDef::Controller,
-                    amount: ValueDef::TriggerEventAmount,
-                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::TriggerEventAmount,
+                        binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    },
                     // A minimum of zero is the second "you may": milling and taking nothing is
                     // a legal answer, and a pile with no creature in it never asks.
-                    then: Some(&EffectDef::Choose(ChooseDef {
+                    EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
@@ -99,8 +101,8 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,
                         },
-                    })),
-                },
+                    }),
+                ]),
             },
         ),
     ]),

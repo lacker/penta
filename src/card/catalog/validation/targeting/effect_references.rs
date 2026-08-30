@@ -20,6 +20,25 @@ fn validate_object_collection_references(
     }
 }
 
+fn scope_after_immediate_effect(
+    effect: EffectDef,
+    scope: BindingScope,
+) -> Result<BindingScope, GrantedAbilityValidationError> {
+    match effect {
+        EffectDef::Mill {
+            binding: Some(binding),
+            ..
+        }
+        | EffectDef::SelectAtRandomFromZone { binding, .. } => scope.with_object_set(binding),
+        EffectDef::MillUntil(definition) => match definition.binding {
+            Some(binding) => scope.with_object_set(binding),
+            None => Ok(scope),
+        },
+        EffectDef::RevealAtRandomFromHand { binding, .. } => scope.with_object(binding),
+        _ => Ok(scope),
+    }
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_effect_references(
     effect: EffectDef,
@@ -48,8 +67,10 @@ fn validate_effect_references(
             validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
         }
         EffectDef::Sequence(effects) => {
+            let mut scope = scope;
             for effect in effects {
                 validate_effect_references(*effect, target_count, scope)?;
+                scope = scope_after_immediate_effect(*effect, scope)?;
             }
             Ok(())
         }
@@ -69,22 +90,15 @@ fn validate_effect_references(
             validate_effect_references(*mill.body, target_count, scope)?;
             validate_effect_references(*mill.on_match, target_count, scope)
         }
-        EffectDef::RevealAtRandomFromHand { player, then, .. } => {
-            validate_recipient_target_references(player, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope)
-        }
         EffectDef::SelectAtRandomFromZone {
             player,
             object,
             amount,
-            binding,
-            then,
             ..
         } => {
             validate_recipient_target_references(player, target_count, scope)?;
             validate_object_predicate_references(object, target_count, scope)?;
-            validate_value_target_references(amount, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
+            validate_value_target_references(amount, target_count, scope)
         }
         EffectDef::Destroy {
             object,
@@ -598,6 +612,7 @@ fn validate_effect_references(
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }
+        | EffectDef::RevealAtRandomFromHand { player, .. }
         | EffectDef::RevealHand { player } => {
             validate_recipient_target_references(player, target_count, scope)
         }
@@ -606,36 +621,12 @@ fn validate_effect_references(
             validate_recipient_target_references(player, target_count, scope)?;
             validate_effect_references(*effect, target_count, scope)
         }
-        EffectDef::Mill {
-            player,
-            amount,
-            binding,
-            then,
-        } => {
+        EffectDef::Mill { player, amount, .. } => {
             validate_recipient_target_references(player, target_count, scope)?;
-            validate_value_target_references(amount, target_count, scope)?;
-            let Some(then) = then else {
-                return Ok(());
-            };
-            // The cards a mill put there are in scope for its own follow-up,
-            // the same way a search's found cards are.
-            let nested = match binding {
-                Some(binding) => scope.with_object_set(binding)?,
-                None => scope,
-            };
-            validate_effect_references(*then, target_count, nested)
+            validate_value_target_references(amount, target_count, scope)
         }
         EffectDef::MillUntil(mill) => {
-            let (player, binding, then) = (mill.player, mill.binding, mill.then);
-            validate_recipient_target_references(player, target_count, scope)?;
-            let Some(then) = then else {
-                return Ok(());
-            };
-            let nested = match binding {
-                Some(binding) => scope.with_object_set(binding)?,
-                None => scope,
-            };
-            validate_effect_references(*then, target_count, nested)
+            validate_recipient_target_references(mill.player, target_count, scope)
         }
         EffectDef::AddCounters { object, amount, .. }
         | EffectDef::RemoveCounters { object, amount, .. } => {

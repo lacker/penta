@@ -44,9 +44,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
         | EffectDef::IfCondition { then: effect, .. }
-        | EffectDef::SelectAtRandomFromZone { then: effect, .. }
         | EffectDef::ChooseCardName { then: effect, .. }
-        | EffectDef::RevealAtRandomFromHand { then: effect, .. }
         | EffectDef::PutOntoBattlefieldThen { then: effect, .. }
         | EffectDef::WithBattlefieldArrival { effect, .. }
         | EffectDef::PermitLookAtExiled { then: effect, .. }
@@ -71,11 +69,9 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             created.into_iter().map(|created| *created.then).collect()
         }
         EffectDef::SearchZone { then, .. }
-        | EffectDef::Mill { then, .. }
         | EffectDef::ExileTopAndMayCast {
             otherwise: then, ..
         } => then.into_iter().copied().collect(),
-        EffectDef::MillUntil(mill) => mill.then.into_iter().copied().collect(),
         EffectDef::Discard { then, .. } => then
             .into_iter()
             .map(|follow_up| *follow_up.effect)
@@ -91,6 +87,10 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         EffectDef::AddCounters { .. }
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
+        | EffectDef::SelectAtRandomFromZone { .. }
+        | EffectDef::RevealAtRandomFromHand { .. }
+        | EffectDef::Mill { .. }
+        | EffectDef::MillUntil(_)
         | EffectDef::GainClassLevel { .. }
         | EffectDef::AddPlayerCounters { .. }
         | EffectDef::Apply { .. }
@@ -285,23 +285,13 @@ mod tests {
     }
 
     #[test]
-    fn mill_until_continuation_is_a_child() {
-        static MILL_WITH_CHILD: MillUntilDef = MillUntilDef {
+    fn mill_until_is_a_leaf() {
+        static MILL: MillUntilDef = MillUntilDef {
             player: EffectRecipientDef::Controller,
             object: ObjectPredicateDef::Any,
             matched_zone: ZoneKind::Graveyard,
             binding: None,
-            then: Some(&CHILD),
         };
-        static MILL_ALONE: MillUntilDef = MillUntilDef {
-            then: None,
-            ..MILL_WITH_CHILD
-        };
-
-        assert_eq!(
-            child_effects(EffectDef::MillUntil(&MILL_WITH_CHILD)),
-            vec![CHILD]
-        );
-        assert!(child_effects(EffectDef::MillUntil(&MILL_ALONE)).is_empty());
+        assert!(child_effects(EffectDef::MillUntil(&MILL)).is_empty());
     }
 }

@@ -271,16 +271,13 @@ pub struct MillUntilDef {
     pub object: ObjectPredicateDef,
     pub matched_zone: ZoneKind,
     /// Saves the identities of cards this effect put into a graveyard for a
-    /// same-resolution follow-up. They are bound under their new zone
+    /// later step in the same sequence. They are bound under their new zone
     /// identities rather than reconstructed from the graveyard. When the
     /// matching card has another destination, use [`ValueDef::MatchedCount`]
     /// to count every revealed card; the binding contains only the cards
-    /// that were milled.
+    /// that were milled. Both outputs are available to later steps in the
+    /// same sequence.
     pub binding: Option<ObjectSetBindingIndex>,
-    /// Runs immediately after the named reveal-and-move procedures.
-    /// [`ValueDef::MatchedCount`] describes every card revealed, including a
-    /// match sent somewhere other than a graveyard.
-    pub then: Option<&'static EffectDef>,
 }
 
 /// How cards are selected for a discard effect.

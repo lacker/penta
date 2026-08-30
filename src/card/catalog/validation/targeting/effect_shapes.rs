@@ -72,10 +72,6 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        EffectDef::RevealAtRandomFromHand { player, then, .. } => {
-            validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
-        }
         EffectDef::ChooseCardName { chooser, then, .. } => {
             validate_player_reference_shape(chooser, targets)?;
             validate_effect_target_shapes(*then, targets, None)
@@ -301,7 +297,6 @@ fn validate_effect_target_shapes(
             source,
             object,
             amount,
-            then,
             ..
         } => {
             if !matches!(
@@ -317,8 +312,7 @@ fn validate_effect_target_shapes(
             }
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(object, targets)?;
-            validate_value_shape(amount, targets)?;
-            validate_effect_target_shapes(*then, targets, triggering_object_zone)
+            validate_value_shape(amount, targets)
         }
         EffectDef::ChooseEffect { player, .. }
         | EffectDef::SearchZonesAndExileRest { player, .. }
@@ -333,6 +327,7 @@ fn validate_effect_target_shapes(
         | EffectDef::TakeExtraTurn { player }
         | EffectDef::LookAtHand { player }
         | EffectDef::LookAtRandomCardInHand { player }
+        | EffectDef::RevealAtRandomFromHand { player, .. }
         | EffectDef::RevealHand { player } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)
         }
@@ -366,29 +361,12 @@ fn validate_effect_target_shapes(
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
-        EffectDef::Mill {
-            player,
-            amount,
-            then,
-            ..
-        } => {
+        EffectDef::Mill { player, amount, .. } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)?;
-            validate_value_shape(amount, targets)?;
-            match then {
-                Some(then) => {
-                    validate_effect_target_shapes(*then, targets, triggering_object_zone)
-                }
-                None => Ok(()),
-            }
+            validate_value_shape(amount, targets)
         }
         EffectDef::MillUntil(mill) => {
-            validate_recipient_shape(mill.player, targets, RecipientExpectation::Player)?;
-            match mill.then {
-                Some(then) => {
-                    validate_effect_target_shapes(*then, targets, triggering_object_zone)
-                }
-                None => Ok(()),
-            }
+            validate_recipient_shape(mill.player, targets, RecipientExpectation::Player)
         }
         EffectDef::ExileLinkedToSource { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;

@@ -15,6 +15,16 @@ fn static_source_value_supported(value: ValueDef) -> bool {
     )
 }
 
+fn static_object_value_aggregate_supported(aggregate: ObjectValueAggregateDef) -> bool {
+    let ObjectSetDef::Query(query) = aggregate.objects else {
+        return false;
+    };
+    matches!(
+        aggregate.select,
+        ObjectValueDef::ManaValue | ObjectValueDef::Power
+    ) && static_query_supported(query)
+}
+
 fn static_power_toughness_value_supported(value: ValueDef) -> bool {
     match value {
         // The first two are read live from the static effect's own
@@ -46,10 +56,12 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         ValueDef::CountersOnObject(counted) => {
             matches!(counted.object, ObjectRefDef::Source | ObjectRefDef::CreatingSource)
         }
+        ValueDef::AggregateObjectValues(aggregate) => {
+            static_object_value_aggregate_supported(*aggregate)
+        }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
-        | ValueDef::DistinctNamesAmong(query)
-        | ValueDef::GreatestPowerAmong(query) => static_query_supported(*query),
+        | ValueDef::DistinctNamesAmong(query) => static_query_supported(*query),
         ValueDef::Scaled(scaled) => static_power_toughness_value_supported(scaled.value),
         ValueDef::Halved(halved) => static_power_toughness_value_supported(halved.value),
         ValueDef::IfSourceMatches(branches) => {
@@ -123,7 +135,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::IfCardTypesAmongGraveyards(_)
         | ValueDef::IfAdditionalCostPaid(_)
-        | ValueDef::GreatestPowerAmong(_)
+        | ValueDef::AggregateObjectValues(_)
         | ValueDef::ChosenX
         | ValueDef::SourceCastX
         | ValueDef::SourcePower

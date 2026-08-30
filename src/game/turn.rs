@@ -1,9 +1,9 @@
 use super::{
     Action, AppliedRuleDef, CardBehavior, CombatDamageStage, CommittedTriggerEvent, CounterKind,
-    DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectResolutionContext, Game, GameEvent,
-    GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure, PlayerId,
-    ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef, TurnPhaseResume,
-    TurnStepDef, one_or_none,
+    DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectDef, EffectResolutionContext, Game,
+    GameEvent, GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure,
+    PlayerId, ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef,
+    TurnPhaseResume, TurnStepDef, one_or_none,
 };
 
 mod begin_turn;
@@ -849,11 +849,24 @@ impl Game {
         context: impl Into<EffectResolutionContext>,
         custom_followup: Option<CardBehavior>,
     ) {
-        let context = context.into();
+        let mut context = context.into();
         let mut later_procedures = std::mem::take(&mut self.pending_procedures);
         while !effects.is_empty() {
             let effect = effects.remove(0);
-            self.resolve_effect_def(effect, object, context.clone());
+            context = match effect.effect {
+                EffectDef::Mill { .. } => self.resolve_mill_effect(effect, object, context),
+                EffectDef::MillUntil(_) => self.resolve_mill_until_effect(effect, object, context),
+                EffectDef::SelectAtRandomFromZone { .. } => {
+                    self.resolve_random_zone_selection_effect(effect, object, context)
+                }
+                EffectDef::RevealAtRandomFromHand { .. } => {
+                    self.resolve_random_hand_reveal_effect(effect, object, context)
+                }
+                _ => {
+                    self.resolve_effect_def(effect, object, context.clone());
+                    context
+                }
+            };
             if !self.pending_decisions.is_empty()
                 || !self.pending_events.is_empty()
                 || !self.pending_procedures.is_empty()

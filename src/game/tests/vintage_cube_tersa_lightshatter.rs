@@ -131,19 +131,19 @@ fn random_selection_is_composed_with_the_exile_operation() {
     let effect = tersa.rules.ability_clauses()[2]
         .declarative_effect()
         .expect("the attack trigger is declarative");
+    let EffectDef::Sequence([selection, exile]) = effect else {
+        panic!("Tersa should compose selection and exile");
+    };
     let EffectDef::SelectAtRandomFromZone {
-        source,
-        binding,
-        then,
-        ..
-    } = effect
+        source, binding, ..
+    } = *selection
     else {
         panic!("Tersa should select randomly before exiling");
     };
     assert_eq!(source, ZoneKind::Graveyard);
     assert_eq!(binding, ObjectSetBindingIndex::PRIMARY);
     assert_eq!(
-        *then,
+        *exile,
         EffectDef::ExileGrantingControllerPlayThisTurn {
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(binding)),
         }

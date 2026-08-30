@@ -456,38 +456,6 @@ impl Game {
                     self.discard_cards_with_cause(player, &cards, cause);
                 }
             }
-            EffectDef::MillUntil(mill) => {
-                let (recipient, predicate, matched_zone, binding, then) = (
-                    mill.player,
-                    mill.object,
-                    mill.matched_zone,
-                    mill.binding,
-                    mill.then,
-                );
-                let source = object.source.unwrap_or(object.id);
-                let mut revealed = Vec::new();
-                let mut revealed_count = 0_u16;
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        let (mut moved, count) =
-                            self.mill_until_matching(player, predicate, matched_zone, source);
-                        revealed.append(&mut moved);
-                        revealed_count = revealed_count.saturating_add(count);
-                    }
-                }
-                let Some(then) = then else {
-                    return;
-                };
-                // Revealing and moving are synchronous, so the follow-up runs
-                // inline with both the exact moved identities and the frozen
-                // number revealed available to it.
-                let mut context = context.clone();
-                context.matched_count = Some(revealed_count);
-                if let Some(binding) = binding {
-                    context.bind_object_group(binding, revealed);
-                }
-                self.resolve_effect_def(scoped.with_effect(*then), object, context);
-            }
             EffectDef::Cascade => self.cascade(object),
             EffectDef::ExileFromTopUntil {
                 player: recipient,
@@ -508,89 +476,6 @@ impl Game {
                         self.mill_while_matching(player, mill, object, context, scoped);
                     }
                 }
-            }
-            EffectDef::Mill {
-                player: recipient,
-                amount,
-                binding,
-                then,
-            } => {
-                let count = self.effect_value(amount, object, context, scoped).max(0);
-                let Ok(count) = usize::try_from(count) else {
-                    return;
-                };
-                let mut buried = Vec::new();
-                let mut matched_count = 0_u16;
-                let mut matched_mana_value = 0_u16;
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    if let Target::Player(player) = target {
-                        let milled = self.take_top_of_library(player, count);
-                        let totals = self.card_totals(&milled);
-                        matched_count = matched_count.saturating_add(totals.0);
-                        matched_mana_value = matched_mana_value.saturating_add(totals.1);
-                        // Bound by the identity the cards have in the
-                        // graveyard: burying them mints new objects, and
-                        // "from among them" means the ones lying there now.
-                        for card in milled {
-                            let (card, _zone_change) = self.zone_change_card(card);
-                            buried.push(Target::Card(card.id));
-                            self.put_card_into_graveyard(player, card);
-                        }
-                    }
-                }
-                let Some(then) = then else {
-                    return;
-                };
-                // A mill never stops to ask, so the follow-up runs here
-                // rather than out of a continuation.
-                let mut context = context.clone();
-                if let Some(binding) = binding {
-                    context.bind_object_group(binding, buried);
-                }
-                context.matched_count = Some(matched_count);
-                context.matched_mana_value = Some(matched_mana_value);
-                self.resolve_effect_def(scoped.with_effect(*then), object, context);
-            }
-            EffectDef::SelectAtRandomFromZone {
-                player: recipient,
-                source,
-                object: predicate,
-                amount,
-                binding,
-                then,
-            } => {
-                let effect_source = object.source.unwrap_or(object.id);
-                let count = self.effect_value(amount, object, context, scoped).max(0);
-                let Ok(count) = usize::try_from(count) else {
-                    return;
-                };
-                let mut selected = Vec::new();
-                for target in self.effect_recipients(recipient, object, context, scoped) {
-                    let Target::Player(player) = target else {
-                        continue;
-                    };
-                    let cards = match source {
-                        ZoneKind::Hand => &self.players[player.index()].hand,
-                        ZoneKind::Library => &self.players[player.index()].library,
-                        ZoneKind::Graveyard => &self.players[player.index()].graveyard,
-                        ZoneKind::Exile => &self.players[player.index()].exile,
-                        ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => continue,
-                    };
-                    let mut matching = cards
-                        .iter()
-                        .filter(|card| {
-                            self.card_object_matches(predicate, card, source, effect_source)
-                        })
-                        .map(|card| card.id)
-                        .collect::<Vec<_>>();
-                    for _ in 0..count.min(matching.len()) {
-                        let index = self.rng.index_below(matching.len());
-                        selected.push(Target::Card(matching.swap_remove(index)));
-                    }
-                }
-                let mut context = context.clone();
-                context.bind_object_group(binding, selected);
-                self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::ExileTopOfLibraryToPlay {
                 player: recipient,
@@ -681,35 +566,6 @@ impl Game {
                         }
                     }
                 }
-            }
-            EffectDef::RevealAtRandomFromHand {
-                player: recipient,
-                binding,
-                then,
-            } => {
-                let mut context = context.clone();
-                for target in self.effect_recipients(recipient, object, &context, scoped) {
-                    if let Target::Player(revealer) = target {
-                        // Drawn through the game's seeded RNG so a replay
-                        // reveals the same card, and read before anything
-                        // moves so the reveal is of the hand as it stands.
-                        let hand = &self.players[revealer.index()].hand;
-                        let revealed = (!hand.is_empty()).then(|| {
-                            let index = self.rng.index_below(hand.len());
-                            let card = &self.players[revealer.index()].hand[index];
-                            (card.id, card.definition)
-                        });
-                        if let Some((card, definition)) = revealed {
-                            self.events.push(GameEvent::CardRevealed {
-                                player: revealer,
-                                card,
-                                definition,
-                            });
-                            context.bind_single_object(binding, Some(Target::Card(card)));
-                        }
-                    }
-                }
-                self.resolve_effect_def(scoped.with_effect(*then), object, context);
             }
             EffectDef::SearchZone {
                 player: recipient,
@@ -835,6 +691,162 @@ impl Game {
             }
             _ => unreachable!("resolve_hand_and_library_effect called for another effect"),
         }
+    }
+
+    pub(in crate::game) fn resolve_mill_until_effect(
+        &mut self,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+    ) -> EffectResolutionContext {
+        let EffectDef::MillUntil(mill) = scoped.effect else {
+            unreachable!("resolve_mill_until_effect called for another effect")
+        };
+        let source = object.source.unwrap_or(object.id);
+        let mut revealed = Vec::new();
+        let mut revealed_count = 0_u16;
+        for target in self.effect_recipients(mill.player, object, &context, scoped) {
+            if let Target::Player(player) = target {
+                let (mut moved, count) =
+                    self.mill_until_matching(player, mill.object, mill.matched_zone, source);
+                revealed.append(&mut moved);
+                revealed_count = revealed_count.saturating_add(count);
+            }
+        }
+        context.matched_count = Some(revealed_count);
+        if let Some(binding) = mill.binding {
+            context.bind_object_group(binding, revealed);
+        }
+        context
+    }
+
+    pub(in crate::game) fn resolve_random_zone_selection_effect(
+        &mut self,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+    ) -> EffectResolutionContext {
+        let EffectDef::SelectAtRandomFromZone {
+            player: recipient,
+            source,
+            object: predicate,
+            amount,
+            binding,
+        } = scoped.effect
+        else {
+            unreachable!("resolve_random_zone_selection_effect called for another effect")
+        };
+        let effect_source = object.source.unwrap_or(object.id);
+        let count = self.effect_value(amount, object, &context, scoped).max(0);
+        let Ok(count) = usize::try_from(count) else {
+            return context;
+        };
+        let mut selected = Vec::new();
+        for target in self.effect_recipients(recipient, object, &context, scoped) {
+            let Target::Player(player) = target else {
+                continue;
+            };
+            let cards = match source {
+                ZoneKind::Hand => &self.players[player.index()].hand,
+                ZoneKind::Library => &self.players[player.index()].library,
+                ZoneKind::Graveyard => &self.players[player.index()].graveyard,
+                ZoneKind::Exile => &self.players[player.index()].exile,
+                ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => continue,
+            };
+            let mut matching = cards
+                .iter()
+                .filter(|card| self.card_object_matches(predicate, card, source, effect_source))
+                .map(|card| card.id)
+                .collect::<Vec<_>>();
+            for _ in 0..count.min(matching.len()) {
+                let index = self.rng.index_below(matching.len());
+                selected.push(Target::Card(matching.swap_remove(index)));
+            }
+        }
+        context.bind_object_group(binding, selected);
+        context
+    }
+
+    pub(in crate::game) fn resolve_random_hand_reveal_effect(
+        &mut self,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+    ) -> EffectResolutionContext {
+        let EffectDef::RevealAtRandomFromHand {
+            player: recipient,
+            binding,
+        } = scoped.effect
+        else {
+            unreachable!("resolve_random_hand_reveal_effect called for another effect")
+        };
+        for target in self.effect_recipients(recipient, object, &context, scoped) {
+            if let Target::Player(revealer) = target {
+                let hand = &self.players[revealer.index()].hand;
+                let revealed = (!hand.is_empty()).then(|| {
+                    let index = self.rng.index_below(hand.len());
+                    let card = &self.players[revealer.index()].hand[index];
+                    (card.id, card.definition)
+                });
+                if let Some((card, definition)) = revealed {
+                    self.events.push(GameEvent::CardRevealed {
+                        player: revealer,
+                        card,
+                        definition,
+                    });
+                    context.bind_single_object(binding, Some(Target::Card(card)));
+                }
+            }
+        }
+        context
+    }
+
+    /// Resolves one synchronous mill and returns the context containing its
+    /// outputs. An enclosing sequence passes that context to its later steps,
+    /// which keeps the mill action independent from consumers of its result.
+    pub(in crate::game) fn resolve_mill_effect(
+        &mut self,
+        scoped: ScopedEffect,
+        object: &StackObject,
+        mut context: EffectResolutionContext,
+    ) -> EffectResolutionContext {
+        let EffectDef::Mill {
+            player: recipient,
+            amount,
+            binding,
+        } = scoped.effect
+        else {
+            unreachable!("resolve_mill_effect called for another effect")
+        };
+        let count = self.effect_value(amount, object, &context, scoped).max(0);
+        let Ok(count) = usize::try_from(count) else {
+            return context;
+        };
+        let mut buried = Vec::new();
+        let mut matched_count = 0_u16;
+        let mut matched_mana_value = 0_u16;
+        for target in self.effect_recipients(recipient, object, &context, scoped) {
+            if let Target::Player(player) = target {
+                let milled = self.take_top_of_library(player, count);
+                let totals = self.card_totals(&milled);
+                matched_count = matched_count.saturating_add(totals.0);
+                matched_mana_value = matched_mana_value.saturating_add(totals.1);
+                // Bound by the identity the cards have in the graveyard:
+                // burying them mints new objects, and "from among them"
+                // means the ones lying there now.
+                for card in milled {
+                    let (card, _zone_change) = self.zone_change_card(card);
+                    buried.push(Target::Card(card.id));
+                    self.put_card_into_graveyard(player, card);
+                }
+            }
+        }
+        if let Some(binding) = binding {
+            context.bind_object_group(binding, buried);
+        }
+        context.matched_count = Some(matched_count);
+        context.matched_mana_value = Some(matched_mana_value);
+        context
     }
 }
 

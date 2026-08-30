@@ -1125,7 +1125,6 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with
                 ]),
                 matched_zone: ZoneKind::Hand,
                 binding: None,
-                then: None,
             }),
         ),
     ),

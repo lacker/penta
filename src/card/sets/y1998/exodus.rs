@@ -1220,7 +1220,6 @@ pub(in crate::card::sets) static OATH_OF_DRUIDS: CardRecord = CardRecord::new(
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     matched_zone: ZoneKind::Battlefield,
                     binding: None,
-                    then: None,
                 }),
             },
         ),

@@ -78,7 +78,6 @@ impl Game {
             | EffectDef::SearchZone {
                 then: Some(then), ..
             }
-            | EffectDef::SelectAtRandomFromZone { then, .. }
             | EffectDef::PermitLookAtExiled { then, .. } => {
                 Self::effect_applies_to_source(*then, expected)
             }
@@ -183,6 +182,7 @@ impl Game {
             | EffectDef::ExileTopAndMayCast { .. }
             | EffectDef::MayCastTargetWithoutPaying { .. }
             | EffectDef::Mill { .. }
+            | EffectDef::SelectAtRandomFromZone { .. }
             | EffectDef::SearchZonesAndExileRest { .. }
             | EffectDef::MillUntil { .. }
             | EffectDef::ExileFromTopUntil { .. }

@@ -56,47 +56,6 @@ pub(in crate::card::sets) static ANCESTRAL_VISION: CardRecord = CardRecord::new(
 );
 
 // TSP 53 — Clockspinning
-static CLOCKSPINNING_TARGET_ALTERNATIVES: [AbilityTargetPredicate; 2] = [
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasAnyCounter,
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    AbilityTargetPredicate::Object {
-        object: abilities::SUSPENDED_CARD,
-        zones: &[ZoneKind::Exile],
-        controller: None,
-        owner: None,
-    },
-];
-static CLOCKSPINNING_TARGET: AbilityTargetDef = AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyOf(&CLOCKSPINNING_TARGET_ALTERNATIVES),
-);
-static CLOCKSPINNING_COUNTER_CHOICES: [EffectChoiceDef; 2] = [
-    EffectChoiceDef {
-        label: "Remove the chosen counter",
-        effect: EffectDef::ModifyCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKindDef::Chosen,
-            operation: CounterOperationDef::Remove,
-            amount: ValueDef::Constant(1),
-        },
-    },
-    EffectChoiceDef {
-        label: "Put another of the chosen counter",
-        effect: EffectDef::ModifyCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKindDef::Chosen,
-            operation: CounterOperationDef::Add,
-            amount: ValueDef::Constant(1),
-        },
-    },
-];
-static CLOCKSPINNING_ADJUST_COUNTER: EffectDef = EffectDef::ChooseEffect {
-    player: EffectRecipientDef::Controller,
-    choices: &CLOCKSPINNING_COUNTER_CHOICES,
-};
 pub(in crate::card::sets) static CLOCKSPINNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1323d548-e2fe-47c5-8df3-f181aed537c5"),
     "Clockspinning",
@@ -106,10 +65,47 @@ pub(in crate::card::sets) static CLOCKSPINNING: CardRecord = CardRecord::new(
         abilities::buyback(mana_cost!("{3}")),
         AbilityDef::spell_with_targets(
             "Choose a counter on target permanent or suspended card. Remove that counter from that permanent or card or put another of those counters on it.",
-            &[CLOCKSPINNING_TARGET],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyOf(&[
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasAnyCounter,
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    AbilityTargetPredicate::Object {
+                        object: abilities::SUSPENDED_CARD,
+                        zones: &[ZoneKind::Exile],
+                        controller: None,
+                        owner: None,
+                    },
+                ]),
+            )],
             EffectDef::ChooseCounterKind {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                then: &CLOCKSPINNING_ADJUST_COUNTER,
+                then: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Remove the chosen counter",
+                            effect: EffectDef::ModifyCounters {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                kind: CounterKindDef::Chosen,
+                                operation: CounterOperationDef::Remove,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Put another of the chosen counter",
+                            effect: EffectDef::ModifyCounters {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                kind: CounterKindDef::Chosen,
+                                operation: CounterOperationDef::Add,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                    ],
+                },
             },
         ),
     ]),
@@ -159,11 +155,6 @@ pub(in crate::card::sets) static DREAD_RETURN: CardRecord = CardRecord::new(
 );
 
 // TSP 161 — Greater Gargadon
-static GARGADON_SACRIFICE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::HasType(CardType::Land),
-]);
 pub(in crate::card::sets) static GREATER_GARGADON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("653ddfa0-2088-4503-a3ab-b0f1d55d8351"),
     "Greater Gargadon",
@@ -174,7 +165,11 @@ pub(in crate::card::sets) static GREATER_GARGADON: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Sacrifice an artifact, creature, or land: Remove a time counter from this card. Activate only if this card is suspended.",
             &[AbilityCostDef::SacrificePermanent {
-                object: GARGADON_SACRIFICE,
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
                 controller: PlayerRelation::You,
             }],
             EffectDef::RemoveCounters {
@@ -230,36 +225,6 @@ pub(in crate::card::sets) static DURKWOOD_BALOTH: CardRecord = CardRecord::new(
 );
 
 // TSP 251 — Chromatic Star
-static STAR_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
-];
-
-/// The draw is a separate trigger rather than part of the mana ability,
-/// which is the whole difference from Chromatic Sphere: the mana arrives at
-/// once and the card waits on the stack, so anything that answers the Star
-/// after it has been sacrificed is already too late.
-static STAR_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::activated_mana(
-        "{1}, {T}, Sacrifice this artifact: Add one mana of any color.",
-        &STAR_COST,
-        EffectDef::AddMana(AddManaEffectDef::any_color()),
-    ),
-    AbilityDef::triggered(
-        "When this artifact is put into a graveyard from the battlefield, draw a card.",
-        TriggerEventDef::zone_changed(
-            ObjectPredicateDef::Source,
-            Some(ZoneKind::Battlefield),
-            Some(ZoneKind::Graveyard),
-        ),
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static CHROMATIC_STAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d7a1357-debd-49b0-9fd5-560d5b3f589e"),
     "Chromatic Star",
@@ -270,62 +235,36 @@ pub(in crate::card::sets) static CHROMATIC_STAR: CardRecord = CardRecord::new(
     CardSet::TimeSpiral,
     // A card that fixes one mana and replaces itself, and does the second
     // half however it dies rather than only when it is spent.
-    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&STAR_ABILITIES),
+    // The draw is a separate trigger rather than part of the mana ability,
+    // which is the whole difference from Chromatic Sphere: the mana arrives at
+    // once and the card waits on the stack, so anything that answers the Star
+    // after it has been sacrificed is already too late.
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated_mana(
+            "{1}, {T}, Sacrifice this artifact: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+        AbilityDef::triggered(
+            "When this artifact is put into a graveyard from the battlefield, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // TSP 257 — Jhoira's Timebug
-static TIMEBUG_TARGET_ALTERNATIVES: [AbilityTargetPredicate; 2] = [
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-    AbilityTargetPredicate::Object {
-        object: abilities::SUSPENDED_CARD,
-        zones: &[ZoneKind::Exile],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-];
-static TIMEBUG_TARGET: AbilityTargetDef =
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&TIMEBUG_TARGET_ALTERNATIVES));
-static TIMEBUG_TIME_COUNTER: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::HasCounter(CounterKind::named("time")),
-};
-static TIMEBUG_COUNTER_CHOICES: [EffectChoiceDef; 3] = [
-    EffectChoiceDef {
-        label: "Do nothing",
-        effect: EffectDef::None,
-    },
-    EffectChoiceDef {
-        label: "Remove a time counter",
-        effect: EffectDef::ModifyCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKindDef::Fixed(CounterKind::named("time")),
-            operation: CounterOperationDef::Remove,
-            amount: ValueDef::Constant(1),
-        },
-    },
-    EffectChoiceDef {
-        label: "Put another time counter",
-        effect: EffectDef::ModifyCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKindDef::Fixed(CounterKind::named("time")),
-            operation: CounterOperationDef::Add,
-            amount: ValueDef::Constant(1),
-        },
-    },
-];
-static TIMEBUG_CHOOSE_ADJUSTMENT: EffectDef = EffectDef::ChooseEffect {
-    player: EffectRecipientDef::Controller,
-    choices: &TIMEBUG_COUNTER_CHOICES,
-};
-static TIMEBUG_ADJUST_TIME: EffectDef = EffectDef::IfCondition {
-    condition: &TIMEBUG_TIME_COUNTER,
-    then: &TIMEBUG_CHOOSE_ADJUSTMENT,
-};
 pub(in crate::card::sets) static JHOIRAS_TIMEBUG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ce2c6d7-505b-490b-9c6f-b5166c9ff71d"),
     "Jhoira's Timebug",
@@ -335,8 +274,53 @@ pub(in crate::card::sets) static JHOIRAS_TIMEBUG: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}: Choose target permanent you control or suspended card you own. If it has a time counter on it, you may remove a time counter from it or put another time counter on it.",
             &[AbilityCostDef::TapSource],
-            &[TIMEBUG_TARGET],
-            TIMEBUG_ADJUST_TIME,
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&[
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                    AbilityTargetPredicate::Object {
+                        object: abilities::SUSPENDED_CARD,
+                        zones: &[ZoneKind::Exile],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                ]))],
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::HasCounter(CounterKind::named("time")),
+                },
+                then: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Do nothing",
+                            effect: EffectDef::None,
+                        },
+                        EffectChoiceDef {
+                            label: "Remove a time counter",
+                            effect: EffectDef::ModifyCounters {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                kind: CounterKindDef::Fixed(CounterKind::named("time")),
+                                operation: CounterOperationDef::Remove,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Put another time counter",
+                            effect: EffectDef::ModifyCounters {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                kind: CounterKindDef::Fixed(CounterKind::named("time")),
+                                operation: CounterOperationDef::Add,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                    ],
+                },
+            },
         ),
     ),
 );
@@ -351,9 +335,6 @@ pub(in crate::card::sets) static STUFFY_DOLL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static GEMSTONE_CAVERNS_OPENING_COST: [AbilityCostDef; 1] =
-    [AbilityCostDef::ExileCardFromHand(ObjectPredicateDef::Any)];
-
 // TSP 274 — Gemstone Caverns
 // Audit: partial — The opening-hand action is declarative; its conditional mana replacement needs a mana ability that branches on a luck counter.
 pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
@@ -367,12 +348,14 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
             AbilityDef::opening_hand_with(
                 "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.",
                 PregameConditionDef::NotStartingPlayer,
-                &GEMSTONE_CAVERNS_OPENING_COST,
+                &[AbilityCostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
                 EffectDef::WithBattlefieldArrival {
-                    effect: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::Source,
-                        zone: ZoneKind::Battlefield,
-                        placement: ZonePlacement::Top,
+                    effect: &const {
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        }
                     },
                     arrival: crate::card::BattlefieldArrivalDef {
                         counters: Some(TokenCountersDef {

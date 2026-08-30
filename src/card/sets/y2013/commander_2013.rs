@@ -10,10 +10,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // C13 25 — Unexpectedly Absent
-static ABSENT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-)];
-
 pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::new_with_legacy_id(
     2182,
     "Unexpectedly Absent",
@@ -24,7 +20,9 @@ pub(in crate::card::sets) static UNEXPECTEDLY_ABSENT: CardRecord = CardRecord::n
     // costs its controller their draw step.
     CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Put target nonland permanent into its owner's library just beneath the top X cards of that library.",
-        &ABSENT_TARGET,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )],
         EffectDef::PutIntoLibraryBeneathTop {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             depth: ValueDef::ChosenX,

@@ -37,18 +37,6 @@ pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
 );
 
 // MKM 57 — Forensic Gadgeteer
-/// An artifact spell you cast, which is the whole of the trigger: what it
-/// does is not part of the condition.
-static AN_ARTIFACT_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static ARTIFACTS_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
 pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::new_with_legacy_id(
     2206,
     "Forensic Gadgeteer",
@@ -60,7 +48,12 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
         .with_abilities(&[
             AbilityDef::triggered(
                 "Whenever you cast an artifact spell, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
-                TriggerEventDef::spell_cast(AN_ARTIFACT_SPELL_YOU_CAST),
+                // An artifact spell you cast, which is the whole of the trigger: what it
+                // does is not part of the condition.
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
                 EffectDef::create_token(tokens::clue()).with_art(CardArt::new(
                     "ef607895-d6d2-44ab-a6b4-84af55fce593",
                     "Daneen Wilkerson",
@@ -69,7 +62,10 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
             AbilityDef::static_ability(
                 "Activated abilities of artifacts you control cost {1} less to activate. This effect can't reduce the mana in that cost to less than one mana.",
                 EffectDef::ModifyCost(CostModificationDef::AbilityReduction {
-                    permanent: ARTIFACTS_YOU_CONTROL,
+                    permanent: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
                     amount: ValueDef::Constant(1),
                     minimum: 1,
                 }),
@@ -121,9 +117,6 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardReco
 );
 
 // MKM 221 — No More Lies
-static A_SPELL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1e0c695d-62f9-4805-9e2f-7032e8464136"),
     "No More Lies",
@@ -134,7 +127,7 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{W}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {3}. If that spell is countered this \
          way, exile it instead of putting it into its owner's graveyard.",
-        &A_SPELL,
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
         abilities::counter_target_to_exile_unless_paid(ValueDef::Constant(3)),
     )),
 );
@@ -258,68 +251,6 @@ pub(in crate::card::sets) static UNDERGROUND_MORTUARY: CardRecord = CardRecord::
 );
 
 // MKM 396 — Proft's Eidetic Memory
-/// The card it draws on the way in is the first of the turn, so anything at
-/// all afterwards -- a cantrip, a fetchland cracked on their turn is not it,
-/// but a second draw on yours -- turns the trigger on.
-static PROFT_HAS_DRAWN_TWICE: ValueComparisonDef = ValueComparisonDef {
-    left: ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
-    comparison: ComparisonDef::Greater,
-    right: ValueDef::Constant(1),
-};
-
-static PROFT_DREW_MORE_THAN_ONE: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&PROFT_HAS_DRAWN_TWICE);
-
-/// "Minus one", which is why the card it draws itself is free rather than
-/// the first counter: the draw that turns the ability on is the one it does
-/// not pay for.
-static PROFT_COUNTERS: SumValueDef = SumValueDef::new(
-    ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
-    ValueDef::Constant(-1),
-);
-
-static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
-static PROFT_ABILITIES: [AbilityDef; 3] = [
-    abilities::enters_trigger(
-        "When this enchantment enters, draw a card.",
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    AbilityDef::static_ability(
-        "You have no maximum hand size.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
-        },
-    ),
-    AbilityDef::triggered_if_with_targets(
-        "At the beginning of combat on your turn, if you've drawn more than one card this turn, \
-         put X +1/+1 counters on target creature you control, where X is the number of cards \
-         you've drawn this turn minus one.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::BeginningOfCombat,
-            player: PlayerRelation::You,
-        },
-        &PROFT_DREW_MORE_THAN_ONE,
-        &A_CREATURE_YOU_CONTROL,
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Sum(&PROFT_COUNTERS),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3472756-0305-4567-b425-f7dbf9b3cc7f"),
     "Proft's Eidetic Memory",
@@ -329,7 +260,58 @@ pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord
     // permanent power, as long as there is a creature to put it on.
     CardRules::new_enchantment(mana_cost!("{1}{U}"))
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&PROFT_ABILITIES),
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this enchantment enters, draw a card.",
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+            AbilityDef::static_ability(
+                "You have no maximum hand size.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+                },
+            ),
+            AbilityDef::triggered_if_with_targets(
+                "At the beginning of combat on your turn, if you've drawn more than one card this turn, \
+                 put X +1/+1 counters on target creature you control, where X is the number of cards \
+                 you've drawn this turn minus one.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                &// The card it draws on the way in is the first of the turn, so anything at
+                    // all afterwards -- a cantrip, a fetchland cracked on their turn is not it,
+                    // but a second draw on yours -- turns the trigger on.
+                    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
+                        comparison: ComparisonDef::Greater,
+                        right: ValueDef::Constant(1),
+                    }),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    // "Minus one", which is why the card it draws itself is free rather than
+                    // the first counter: the draw that turns the ability on is the one it does
+                    // not pay for.
+                    amount: ValueDef::Sum(&SumValueDef::new(
+                        ValueDef::CardsDrawnThisTurn(PlayerRelation::You),
+                        ValueDef::Constant(-1),
+                    )),
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

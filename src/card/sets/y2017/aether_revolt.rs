@@ -23,49 +23,13 @@ pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
 );
 
 // AER 57 — Fatal Push
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-/// The mana value is read as the spell resolves rather than as it is cast,
-/// so anything targetable is a legal target and a creature grown too
-/// expensive in between simply survives.
-static A_SMALL_CREATURE: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(2),
-};
-
-static A_BIGGER_CREATURE: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMost(4),
-};
-
 static REVOLT: TriggerConditionDef = TriggerConditionDef::ControllerHadPermanentLeaveThisTurn;
-
-static WITHOUT_REVOLT: [TriggerConditionDef; 2] =
-    [TriggerConditionDef::Not(&REVOLT), A_SMALL_CREATURE];
-
-static WITH_REVOLT: [TriggerConditionDef; 2] = [REVOLT, A_BIGGER_CREATURE];
 
 static PUSH_IT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     can_regenerate: true,
     then: None,
 };
-
-/// The revolt clause replaces the threshold rather than adding to it, so the
-/// two branches are written as the exclusive pair the card prints and only
-/// one of them can ever destroy anything.
-static FATAL_PUSH_EFFECT: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::All(&WITHOUT_REVOLT),
-        then: &PUSH_IT,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::All(&WITH_REVOLT),
-        then: &PUSH_IT,
-    },
-];
 
 pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
     2233,
@@ -78,8 +42,36 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
         "Destroy target creature if it has mana value 2 or less.\nRevolt — Destroy that creature \
          if it has mana value 4 or less instead if a permanent left the battlefield under your \
          control this turn.",
-        &A_CREATURE,
-        EffectDef::Sequence(&FATAL_PUSH_EFFECT),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        // The revolt clause replaces the threshold rather than adding to it, so the
+        // two branches are written as the exclusive pair the card prints and only
+        // one of them can ever destroy anything.
+        EffectDef::Sequence(&[
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::All(
+                    &// The mana value is read as the spell resolves rather than as it is cast,
+                    // so anything targetable is a legal target and a creature grown too
+                    // expensive in between simply survives.
+                    [TriggerConditionDef::Not(&REVOLT), TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::ManaValueAtMost(2),
+                    }],
+                ),
+                then: &PUSH_IT,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::All(&[
+                    REVOLT,
+                    TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::ManaValueAtMost(4),
+                    },
+                ]),
+                then: &PUSH_IT,
+            },
+        ]),
     )),
 );
 
@@ -94,56 +86,6 @@ pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
 );
 
 // AER 87 — Kari Zev, Skyship Raider
-/// Ragavan is bound as he is made rather than found afterwards: a second
-/// attack the same turn would make another one, and the clause exiles the
-/// Monkey this attack brought.
-static RAGAVAN_IS_EXILED_AT_END_OF_COMBAT: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "Exile that token at end of combat.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::EndOfCombat,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                ObjectSetBindingIndex::PRIMARY,
-            )),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
-    )));
-
-/// A named, legendary token: Ragavan is one of the few tokens that is a
-/// particular creature rather than a kind of one, which matters because two
-/// Kari Zevs cannot keep two of him.
-static RAGAVAN: TokenCharacteristics =
-    TokenCharacteristics::creature(&["Monkey"], &[ManaColor::Red], 2, 1)
-        .with_name("Ragavan")
-        .with_supertype(CardSupertype::Legendary)
-        .with_art(CardArt::new(
-            "1ebc91a9-23e0-4ca1-bc6d-e710ad2efb31",
-            "Daniel Ljunggren",
-        ));
-
-static RAGAVAN_TOKEN: EffectDef = EffectDef::create_token(RAGAVAN)
-    .entering_tapped()
-    .entering_attacking()
-    .with_created_tokens(CreatedTokensDef {
-        binding: ObjectSetBindingIndex::PRIMARY,
-        then: &RAGAVAN_IS_EXILED_AT_END_OF_COMBAT,
-    });
-
-static KARI_ZEV_ABILITIES: [AbilityDef; 3] = [
-    abilities::first_strike(),
-    abilities::menace(),
-    AbilityDef::triggered(
-        "Whenever Kari Zev attacks, create Ragavan, a legendary 2/1 red Monkey creature token. \
-         Ragavan enters tapped and attacking. Exile that token at end of combat.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        RAGAVAN_TOKEN,
-    ),
-];
-
 pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72495879-39ce-449d-ad2f-ef32ea46f3aa"),
     "Kari Zev, Skyship Raider",
@@ -154,7 +96,47 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
     // phase.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Pirate"], 1, 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&KARI_ZEV_ABILITIES),
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::menace(),
+            AbilityDef::triggered(
+                "Whenever Kari Zev attacks, create Ragavan, a legendary 2/1 red Monkey creature token. \
+                 Ragavan enters tapped and attacking. Exile that token at end of combat.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                // A named, legendary token: Ragavan is one of the few tokens that is a
+                // particular creature rather than a kind of one, which matters because two
+                // Kari Zevs cannot keep two of him.
+                EffectDef::create_token(TokenCharacteristics::creature(&["Monkey"], &[ManaColor::Red], 2, 1)
+                        .with_name("Ragavan")
+                        .with_supertype(CardSupertype::Legendary)
+                        .with_art(CardArt::new(
+                            "1ebc91a9-23e0-4ca1-bc6d-e710ad2efb31",
+                            "Daniel Ljunggren",
+                        )))
+                    .entering_tapped()
+                    .entering_attacking()
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: ObjectSetBindingIndex::PRIMARY,
+                        // Ragavan is bound as he is made rather than found afterwards: a second
+                        // attack the same turn would make another one, and the clause exiles the
+                        // Monkey this attack brought.
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                                "Exile that token at end of combat.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::EndOfCombat,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ObjectSetBindingIndex::PRIMARY,
+                                    )),
+                                    zone: ZoneKind::Exile,
+                                    placement: ZonePlacement::Top,
+                                },
+                            ))),
+                    }),
+            ),
+        ]),
 );
 
 // AER 101 — Wrangle
@@ -178,46 +160,6 @@ pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new
 );
 
 // AER 181 — Walking Ballista
-static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
-static BALLISTA_SHOOTS_COST: [AbilityCostDef; 1] = [AbilityCostDef::RemoveCountersFromSource {
-    kind: CounterKind::PlusOnePlusOne,
-    amount: 1,
-}];
-
-static WALKING_BALLISTA_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::as_enters(
-        "This creature enters with X +1/+1 counters on it.",
-        ReplacementEffectDef::ModifyBattlefieldEntry(
-            BattlefieldEntryModificationDef::AddCastXCounters {
-                kind: CounterKind::PlusOnePlusOne,
-            },
-        ),
-    ),
-    AbilityDef::activated(
-        "{4}: Put a +1/+1 counter on this creature.",
-        &[AbilityCostDef::Mana(mana_cost!("{4}"))],
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Source,
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    // The counter comes off as the cost, so the last one shoots and then the
-    // Ballista is a 0/0 that state-based actions clear away.
-    AbilityDef::activated_with_targets(
-        "Remove a +1/+1 counter from this creature: It deals 1 damage to any target.",
-        &BALLISTA_SHOOTS_COST,
-        &ANY_TARGET,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_with_legacy_id(
     2237,
     "Walking Ballista",
@@ -225,8 +167,41 @@ pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_
     CardSet::AetherRevolt,
     // Two mana per point, which is a bad rate and never a dead card: it is
     // removal, a mana sink, and a creature, and it needs no colours at all.
-    CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0)
-        .with_abilities(&WALKING_BALLISTA_ABILITIES),
+    CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{4}: Put a +1/+1 counter on this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        // The counter comes off as the cost, so the last one shoots and then the
+        // Ballista is a 0/0 that state-based actions clear away.
+        AbilityDef::activated_with_targets(
+            "Remove a +1/+1 counter from this creature: It deals 1 damage to any target.",
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::PlusOnePlusOne,
+                amount: 1,
+            }],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

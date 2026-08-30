@@ -26,51 +26,6 @@ pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
 );
 
 // NEO 26 — Lion Sash
-/// A card in anybody's graveyard, which is what "from a graveyard" means:
-/// yours as readily as theirs.
-static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
-/// A permanent card is one of the types that can stay on the battlefield.
-/// Asked of the target while it is still in the graveyard, which is what
-/// "if it was" means once it has been exiled.
-static A_PERMANENT_CARD: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-        ObjectPredicateDef::HasType(CardType::Land),
-        ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ]),
-};
-
-static SASH_GROWS: EffectDef = EffectDef::AddCounters {
-    object: EffectRecipientDef::Source,
-    kind: CounterKind::PlusOnePlusOne,
-    amount: ValueDef::Constant(1),
-};
-
-/// The counter is decided before the card moves: a card in exile is no
-/// longer where the target slot is looking.
-static LION_SASH_EXILE: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &A_PERMANENT_CARD,
-        then: &SASH_GROWS,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-];
-
 pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_legacy_id(
     2243,
     "Lion Sash",
@@ -84,8 +39,45 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
                 "{W}: Exile target card from a graveyard. If it was a permanent card, put a \
                  +1/+1 counter on this permanent.",
                 &[AbilityCostDef::Mana(mana_cost!("{W}"))],
-                &A_CARD_IN_A_GRAVEYARD,
-                EffectDef::Sequence(&LION_SASH_EXILE),
+                // A card in anybody's graveyard, which is what "from a graveyard" means:
+                // yours as readily as theirs.
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
+                // The counter is decided before the card moves: a card in exile is no
+                // longer where the target slot is looking.
+                EffectDef::Sequence(&[
+                    EffectDef::IfCondition {
+                        // A permanent card is one of the types that can stay on the battlefield.
+                        // Asked of the target while it is still in the graveyard, which is what
+                        // "if it was" means once it has been exiled.
+                        condition: &TriggerConditionDef::TargetMatches {
+                            slot: TargetIndex::PRIMARY,
+                            object: ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
+                        },
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Source,
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                ]),
             ),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+1 for each +1/+1 counter on this Equipment.",
@@ -106,60 +98,10 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
 );
 
 // NEO 40 — Touch the Spirit Realm
-/// "Until this enchantment leaves the battlefield" is one printed clause, so
-/// the return rides on a delayed trigger rather than appearing as a second
-/// ability the card does not print.
-static TOUCH_RETURNS_IT: AbilityDef = AbilityDef::triggered(
-    "When this enchantment leaves the battlefield, return the exiled card to the battlefield \
-     under its owner's control.",
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        Some(ZoneKind::Battlefield),
-        None,
-    ),
-    EffectDef::ReturnLinkedExiles {
-        object: ObjectPredicateDef::Any,
-        counters: None,
-        zone: ZoneKind::Battlefield,
-        grant: None,
-        controller: None,
-        transformed: false,
-    },
-);
-
 static AN_ARTIFACT_OR_CREATURE: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Artifact),
     ObjectPredicateDef::HasType(CardType::Creature),
 ]);
-
-static UP_TO_ONE_ARTIFACT_OR_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: AN_ARTIFACT_OR_CREATURE,
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static ONE_ARTIFACT_OR_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    AN_ARTIFACT_OR_CREATURE,
-)];
-
-static TOUCH_EXILES_IT: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        until_source_leaves: false,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        face_down: false,
-        then: None,
-    },
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&TOUCH_RETURNS_IT)),
-];
-
-static TOUCH_CHANNEL_COST: AbilityCostList = AbilityCostList::two(
-    AbilityCostDef::Mana(mana_cost!("{1}{W}")),
-    AbilityCostDef::DiscardSource,
-);
 
 pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e16ab44e-4257-4c0c-b705-8ac1e9c1d835"),
@@ -173,14 +115,54 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
         abilities::enters_trigger_with_targets(
             "When this enchantment enters, exile up to one target artifact or creature until this \
              enchantment leaves the battlefield.",
-            &UP_TO_ONE_ARTIFACT_OR_CREATURE,
-            EffectDef::Sequence(&TOUCH_EXILES_IT),
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: AN_ARTIFACT_OR_CREATURE,
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    then: None,
+                },
+                // "Until this enchantment leaves the battlefield" is one printed clause, so
+                // the return rides on a delayed trigger rather than appearing as a second
+                // ability the card does not print.
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "When this enchantment leaves the battlefield, return the exiled card to the battlefield \
+                     under its owner's control.",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        Some(ZoneKind::Battlefield),
+                        None,
+                    ),
+                    EffectDef::ReturnLinkedExiles {
+                        object: ObjectPredicateDef::Any,
+                        counters: None,
+                        zone: ZoneKind::Battlefield,
+                        grant: None,
+                        controller: None,
+                        transformed: false,
+                    },
+                ))),
+            ]),
         ),
         AbilityDef::activated_with_cost_list_and_targets(
             "Channel — {1}{W}, Discard this card: Exile target artifact or creature. Return it to \
              the battlefield under its owner's control at the beginning of the next end step.",
-            TOUCH_CHANNEL_COST,
-            &ONE_ARTIFACT_OR_CREATURE,
+            AbilityCostList::two(
+                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
+                AbilityCostDef::DiscardSource,
+            ),
+            &[AbilityTargetDef::exactly_one_permanent(
+                AN_ARTIFACT_OR_CREATURE,
+            )],
             abilities::exile_until_next_end_step(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
         )
         .with_source_zones(&[ZoneKind::Hand]),
@@ -188,101 +170,6 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
 );
 
 // NEO 42 — The Wandering Emperor
-/// "As long as The Wandering Emperor entered this turn": the permission is
-/// hers for the turn she lands and no longer, which is what makes flashing
-/// her in at the end of a turn a plan rather than a waste.
-static EMPEROR_ENTERED_THIS_TURN: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::EnteredThisTurn,
-};
-
-static EMPEROR_INSTANT_SPEED_LOYALTY: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayActivateLoyaltyAnyTime),
-};
-
-/// "Up to one target creature", which is what keeps the plus activatable on
-/// an empty board.
-static UP_TO_ONE_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-/// A tapped creature: the minus answers an attacker that has already
-/// committed, which is the half of removal flash was made for.
-static A_TAPPED_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Tapped,
-    ]),
-)];
-
-static EMPEROR_COUNTER_AND_FIRST_STRIKE: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::add_ability(&FIRST_STRIKE),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
-static FIRST_STRIKE: AbilityDef = abilities::first_strike();
-
-static EMPEROR_EXILE_AND_GAIN: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-];
-
-static WANDERING_EMPEROR_ABILITIES: [AbilityDef; 5] = [
-    abilities::flash(),
-    AbilityDef::static_ability(
-        "As long as The Wandering Emperor entered this turn, you may activate her loyalty \
-         abilities any time you could cast an instant.",
-        EffectDef::IfCondition {
-            condition: &EMPEROR_ENTERED_THIS_TURN,
-            then: &EMPEROR_INSTANT_SPEED_LOYALTY,
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "+1: Put a +1/+1 counter on up to one target creature. It gains first strike until end of \
-         turn.",
-        &[AbilityCostDef::Loyalty(1)],
-        &UP_TO_ONE_CREATURE,
-        EffectDef::Sequence(&EMPEROR_COUNTER_AND_FIRST_STRIKE),
-    ),
-    AbilityDef::activated(
-        "−1: Create a 2/2 white Samurai creature token with vigilance.",
-        &[AbilityCostDef::Loyalty(-1)],
-        EffectDef::create_creature_token(&["Samurai"], &[ManaColor::White], 2, 2)
-            .with_abilities(&[abilities::vigilance()])
-            .with_art(CardArt::new(
-                "f68e5337-6e44-4f8f-a102-2f97b433beea",
-                "Gaboleps",
-            )),
-    ),
-    AbilityDef::activated_with_targets(
-        "−2: Exile target tapped creature. You gain 2 life.",
-        &[AbilityCostDef::Loyalty(-2)],
-        &A_TAPPED_CREATURE,
-        EffectDef::Sequence(&EMPEROR_EXILE_AND_GAIN),
-    ),
-];
-
 pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fab2d8a9-ab4c-4225-a570-22636293c17d"),
     "The Wandering Emperor",
@@ -293,7 +180,86 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
     // killing her.
     CardRules::new_planeswalker(mana_cost!("{2}{W}{W}"), &["The Wandering Emperor"], 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&WANDERING_EMPEROR_ABILITIES),
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::static_ability(
+                "As long as The Wandering Emperor entered this turn, you may activate her loyalty \
+                 abilities any time you could cast an instant.",
+                EffectDef::IfCondition {
+                    // "As long as The Wandering Emperor entered this turn": the permission is
+                    // hers for the turn she lands and no longer, which is what makes flashing
+                    // her in at the end of a turn a plan rather than a waste.
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::EnteredThisTurn,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MayActivateLoyaltyAnyTime),
+                    },
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "+1: Put a +1/+1 counter on up to one target creature. It gains first strike until end of \
+                 turn.",
+                &[AbilityCostDef::Loyalty(1)],
+                // "Up to one target creature", which is what keeps the plus activatable on
+                // an empty board.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "−1: Create a 2/2 white Samurai creature token with vigilance.",
+                &[AbilityCostDef::Loyalty(-1)],
+                EffectDef::create_creature_token(&["Samurai"], &[ManaColor::White], 2, 2)
+                    .with_abilities(&[abilities::vigilance()])
+                    .with_art(CardArt::new(
+                        "f68e5337-6e44-4f8f-a102-2f97b433beea",
+                        "Gaboleps",
+                    )),
+            ),
+            AbilityDef::activated_with_targets(
+                "−2: Exile target tapped creature. You gain 2 life.",
+                &[AbilityCostDef::Loyalty(-2)],
+                // A tapped creature: the minus answers an attacker that has already
+                // committed, which is the half of removal flash was made for.
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Tapped,
+                    ]),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // NEO 63 — Mirrorshell Crab
@@ -402,25 +368,6 @@ pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::
 );
 
 // NEO 222 — Hinata, Dawn-Crowned
-static HINATA_ABILITIES: [AbilityDef; 4] = [
-    abilities::flying(),
-    abilities::trample(),
-    abilities::spell_cost_adjustment(
-        "Spells you cast cost {1} less to cast for each target.",
-        ObjectPredicateDef::Any,
-        PlayerRelation::You,
-        SpellCostConditionDef::Always,
-        CostAdjustmentDef::Subtract(CostAmountDef::Generic(ValueDef::DistinctTargets)),
-    ),
-    abilities::spell_cost_adjustment(
-        "Spells your opponents cast cost {1} more to cast for each target.",
-        ObjectPredicateDef::Any,
-        PlayerRelation::Opponent,
-        SpellCostConditionDef::Always,
-        CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::DistinctTargets)),
-    ),
-];
-
 pub(in crate::card::sets) static HINATA_DAWN_CROWNED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f25aff90-56fd-4f70-bb3b-cabf2900c391"),
     "Hinata, Dawn-Crowned",
@@ -428,82 +375,28 @@ pub(in crate::card::sets) static HINATA_DAWN_CROWNED: CardRecord = CardRecord::n
     CardSet::KamigawaNeonDynasty,
     CardRules::new_creature(mana_cost!("{1}{U}{R}{W}"), &["Kirin", "Spirit"], 4, 4)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&HINATA_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::trample(),
+            abilities::spell_cost_adjustment(
+                "Spells you cast cost {1} less to cast for each target.",
+                ObjectPredicateDef::Any,
+                PlayerRelation::You,
+                SpellCostConditionDef::Always,
+                CostAdjustmentDef::Subtract(CostAmountDef::Generic(ValueDef::DistinctTargets)),
+            ),
+            abilities::spell_cost_adjustment(
+                "Spells your opponents cast cost {1} more to cast for each target.",
+                ObjectPredicateDef::Any,
+                PlayerRelation::Opponent,
+                SpellCostConditionDef::Always,
+                CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::DistinctTargets)),
+            ),
+        ]),
 );
 
 // NEO 238 — Tamiyo, Compleated Sage
 // Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
-static TAMIYO_PLUS_ONE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static TAMIYO_PLUS_ONE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::SkipNextUntapSteps {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        count: 1,
-    },
-];
-
-static TAMIYOS_NOTEBOOK_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::static_ability(
-        "Spells you cast cost {2} less to cast.",
-        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-            ObjectPredicateDef::Any,
-            PlayerRelation::You,
-            ValueDef::Constant(2),
-        )),
-    )
-    .with_coverage(AbilityCoverageDef::partial(
-        "The generic reduction applies to printed generic mana but does not yet reduce a spell's announced X payment.",
-    )),
-    AbilityDef::activated(
-        "{T}: Draw a card.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
-static TAMIYOS_NOTEBOOK: TokenCharacteristics = TokenCharacteristics::artifact(&["Book"], &[])
-    .with_name("Tamiyo's Notebook")
-    .with_supertype(CardSupertype::Legendary)
-    .with_abilities(&TAMIYOS_NOTEBOOK_ABILITIES);
-
-static TAMIYO_ABILITIES: [AbilityDef; 4] = [
-    abilities::compleated(
-        "Compleated ({G/U/P} can be paid with {G}, {U}, or 2 life. If life was paid, this planeswalker enters with two fewer loyalty counters.)",
-    ),
-    AbilityDef::activated_with_targets(
-        "+1: Tap up to one target artifact or creature. It doesn't untap during its controller's next untap step.",
-        &[AbilityCostDef::Loyalty(1)],
-        &TAMIYO_PLUS_ONE_TARGET,
-        EffectDef::Sequence(&TAMIYO_PLUS_ONE_EFFECTS),
-    ),
-    AbilityDef::not_implemented(
-        "−X: Exile target nonland permanent card with mana value X from your graveyard. Create a token that's a copy of that card.",
-        "The engine supports only fixed loyalty costs and cannot create a token from the last-known characteristics of an arbitrary targeted graveyard card.",
-    ),
-    AbilityDef::activated(
-        "−7: Create Tamiyo's Notebook, a legendary colorless Book artifact token with \"Spells you cast cost {2} less to cast\" and \"{T}: Draw a card.\"",
-        &[AbilityCostDef::Loyalty(-7)],
-        EffectDef::create_token(TAMIYOS_NOTEBOOK),
-    ),
-];
-
 pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("222a736e-d819-452d-aeda-eb848c4b2302"),
     "Tamiyo, Compleated Sage",
@@ -511,7 +404,68 @@ pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord
     CardSet::KamigawaNeonDynasty,
     CardRules::new_planeswalker(mana_cost!("{2}{G}{G/U/P}{U}"), &["Tamiyo"], 5)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&TAMIYO_ABILITIES),
+        .with_abilities(&[
+            abilities::compleated(
+                "Compleated ({G/U/P} can be paid with {G}, {U}, or 2 life. If life was paid, this planeswalker enters with two fewer loyalty counters.)",
+            ),
+            AbilityDef::activated_with_targets(
+                "+1: Tap up to one target artifact or creature. It doesn't untap during its controller's next untap step.",
+                &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::SkipNextUntapSteps {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        count: 1,
+                    },
+                ]),
+            ),
+            AbilityDef::not_implemented(
+                "−X: Exile target nonland permanent card with mana value X from your graveyard. Create a token that's a copy of that card.",
+                "The engine supports only fixed loyalty costs and cannot create a token from the last-known characteristics of an arbitrary targeted graveyard card.",
+            ),
+            AbilityDef::activated(
+                "−7: Create Tamiyo's Notebook, a legendary colorless Book artifact token with \"Spells you cast cost {2} less to cast\" and \"{T}: Draw a card.\"",
+                &[AbilityCostDef::Loyalty(-7)],
+                EffectDef::create_token(TokenCharacteristics::artifact(&["Book"], &[])
+                    .with_name("Tamiyo's Notebook")
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_abilities(&[
+                        AbilityDef::static_ability(
+                            "Spells you cast cost {2} less to cast.",
+                            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                                ObjectPredicateDef::Any,
+                                PlayerRelation::You,
+                                ValueDef::Constant(2),
+                            )),
+                        )
+                        .with_coverage(AbilityCoverageDef::partial(
+                            "The generic reduction applies to printed generic mana but does not yet reduce a spell's announced X payment.",
+                        )),
+                        AbilityDef::activated(
+                            "{T}: Draw a card.",
+                            &[AbilityCostDef::TapSource],
+                            EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(1),
+                            },
+                        ),
+                    ])),
+            ),
+        ]),
 );
 
 // NEO 248 — Iron Apprentice
@@ -525,20 +479,6 @@ pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
 );
 
 // NEO 271 — Otawara, Soaring City
-/// Everything a bounce spell would want and nothing else: a land answers a
-/// creature, but not another land.
-static AN_ARTIFACT_CREATURE_ENCHANTMENT_OR_PLANESWALKER: ObjectPredicateDef =
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-        ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ]);
-
-static ONE_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    AN_ARTIFACT_CREATURE_ENCHANTMENT_OR_PLANESWALKER,
-)];
-
 /// The discount, which is what makes the land a spell: a legendary board
 /// takes the channel cost down toward the {U} that cannot be reduced away.
 static LEGENDARY_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -548,11 +488,6 @@ static LEGENDARY_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matchin
     ]),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
-);
-
-static OTAWARA_CHANNEL_COST: AbilityCostList = AbilityCostList::two(
-    AbilityCostDef::Mana(mana_cost!("{3}{U}")),
-    AbilityCostDef::DiscardSource,
 );
 
 pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::new(
@@ -567,15 +502,27 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{T}: Add {U}.",
-                &OTAWARA_MANA_COST,
+                &[AbilityCostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
             ),
             AbilityDef::activated_with_cost_list_and_targets(
                 "Channel — {3}{U}, Discard this card: Return target artifact, creature, \
                  enchantment, or planeswalker to its owner\'s hand. This ability costs {1} less \
                  to activate for each legendary creature you control.",
-                OTAWARA_CHANNEL_COST,
-                &ONE_NONLAND_PERMANENT,
+                AbilityCostList::two(
+                    AbilityCostDef::Mana(mana_cost!("{3}{U}")),
+                    AbilityCostDef::DiscardSource,
+                ),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    // Everything a bounce spell would want and nothing else: a land answers a
+                    // creature, but not another land.
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                )],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
@@ -590,136 +537,8 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
         ]),
 );
 
-static OTAWARA_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
 // NEO 357 — Fable of the Mirror-Breaker // Reflection of Kiki-Jiki
-/// The Goblin's own clause, printed on the token rather than on the Saga.
-static GOBLIN_MAKES_TREASURE: [AbilityDef; 1] = [AbilityDef::triggered(
-    "Whenever this token attacks, create a Treasure token.",
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    EffectDef::create_token(tokens::treasure()),
-)];
-
-/// "Discard up to two cards. If you do, draw that many." The size is the
-/// player's to choose, so the discard is a choice with a floor of none and
-/// what is drawn is however many that turned out to be.
-static FABLE_REFILLS: [EffectDef; 2] = [
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-    },
-];
-
-static FABLE_LOOTS: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Hand],
-        PlayerSetDef::One(PlayerRefDef::EffectController),
-    )),
-    exclude: None,
-    minimum: 0,
-    maximum: 2,
-    visibility: ChoiceVisibilityDef::Private,
-    then: &EffectDef::Sequence(&FABLE_REFILLS),
-});
-
-static FABLE_CHAPTERS: [AbilityDef; 3] = [
-    abilities::saga_chapter(
-        1,
-        "I — Create a 2/2 red Goblin Shaman creature token with \"Whenever this token attacks, \
-         create a Treasure token.\"",
-        EffectDef::create_creature_token(&["Goblin", "Shaman"], &[ManaColor::Red], 2, 2)
-            .with_abilities(&GOBLIN_MAKES_TREASURE),
-    ),
-    abilities::saga_chapter(
-        2,
-        "II — You may discard up to two cards. If you do, draw that many cards.",
-        FABLE_LOOTS,
-    ),
-    abilities::saga_chapter(
-        3,
-        "III — Exile this Saga, then return it to the battlefield transformed under your control.",
-        abilities::exile_and_return_transformed(EffectRecipientDef::Source),
-    ),
-];
-
-const fn fable_front_rules() -> CardRules {
-    CardRules::new_enchantment(mana_cost!("{2}{R}"))
-        .with_subtypes(&["Saga"])
-        .with_abilities(&FABLE_CHAPTERS)
-}
-
-/// "Another target nonlegendary creature you control": the Reflection may
-/// not copy itself, and a legendary copy would be put into a graveyard by
-/// the legend rule the moment it arrived.
-static ANOTHER_NONLEGENDARY_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    })
-    .excluding_source(),
-];
-
-static KIKI_GRANTS_HASTE: AbilityDef = abilities::haste();
-
-static KIKI_SACRIFICES_IT: AbilityDef = AbilityDef::triggered(
-    "Sacrifice it at the beginning of the next end step.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::End,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(KIKI_COPY)),
-    },
-);
-
 const KIKI_COPY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
-static KIKI_COPIES: EffectDef = EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
-    object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    exceptions: CopyExceptionsDef::NONE
-        .with_abilities(&[CopyAbilityDef::Ability(&KIKI_GRANTS_HASTE)]),
-})
-.with_created_tokens(CreatedTokensDef {
-    binding: KIKI_COPY,
-    then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&KIKI_SACRIFICES_IT)),
-});
-
-static KIKI_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-];
-
-static KIKI_ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_with_targets(
-    "{1}, {T}: Create a token that's a copy of another target nonlegendary creature you control, \
-     except it has haste. Sacrifice it at the beginning of the next end step.",
-    &KIKI_COST,
-    &ANOTHER_NONLEGENDARY_CREATURE_YOU_CONTROL,
-    KIKI_COPIES,
-)];
-
-const fn fable_back_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Goblin", "Shaman"], 2, 2)
-        .with_type(CardType::Enchantment)
-        .printed_colors(&[ManaColor::Red])
-        .with_abilities(&KIKI_ABILITIES)
-}
-
-static FABLE_FACES: [(&str, CardRules); 2] = [
-    ("Fable of the Mirror-Breaker", fable_front_rules()),
-    ("Reflection of Kiki-Jiki", fable_back_rules()),
-];
 
 pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("0b696cd1-0d72-4df5-bacc-dc77e62f9a13"),
@@ -728,77 +547,122 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
     CardSet::KamigawaNeonDynasty,
     // Three mana that pays for itself twice over: a body, a loot, and then
     // the half nobody reads the Saga for.
-    &FABLE_FACES,
+    &[
+        (
+            "Fable of the Mirror-Breaker",
+            const {
+                CardRules::new_enchantment(mana_cost!("{2}{R}"))
+                .with_subtypes(&const { ["Saga"] })
+                .with_abilities(&const { [
+                    abilities::saga_chapter(
+                        1,
+                        "I — Create a 2/2 red Goblin Shaman creature token with \"Whenever this token attacks, \
+                         create a Treasure token.\"",
+                        EffectDef::create_creature_token(&const { ["Goblin", "Shaman"] }, &const { [ManaColor::Red] }, 2, 2)
+                            // The Goblin's own clause, printed on the token rather than on the Saga.
+                            .with_abilities(&const { [AbilityDef::triggered(
+                                "Whenever this token attacks, create a Treasure token.",
+                                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                                EffectDef::create_token(tokens::treasure()),
+                            )] }),
+                    ),
+                    abilities::saga_chapter(
+                        2,
+                        "II — You may discard up to two cards. If you do, draw that many cards.",
+                        EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                            unchosen: None,
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                                ObjectPredicateDef::Any,
+                                &const { [ZoneKind::Hand] },
+                                PlayerSetDef::One(PlayerRefDef::EffectController),
+                            )),
+                            exclude: None,
+                            minimum: 0,
+                            maximum: 2,
+                            visibility: ChoiceVisibilityDef::Private,
+                            // "Discard up to two cards. If you do, draw that many." The size is the
+                            // player's to choose, so the discard is a choice with a floor of none and
+                            // what is drawn is however many that turned out to be.
+                            then: &EffectDef::Sequence(&const { [
+                                EffectDef::DiscardCards {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                                },
+                                EffectDef::DrawCards {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                                },
+                            ] }),
+                        }),
+                    ),
+                    abilities::saga_chapter(
+                        3,
+                        "III — Exile this Saga, then return it to the battlefield transformed under your control.",
+                        abilities::exile_and_return_transformed(EffectRecipientDef::Source),
+                    ),
+                ] })
+            },
+        ),
+        (
+            "Reflection of Kiki-Jiki",
+            const {
+                CardRules::new_creature_without_mana_cost(&const { ["Goblin", "Shaman"] }, 2, 2)
+                .with_type(CardType::Enchantment)
+                .printed_colors(&const { [ManaColor::Red] })
+                .with_abilities(&const { [AbilityDef::activated_with_targets(
+                    "{1}, {T}: Create a token that's a copy of another target nonlegendary creature you control, \
+                     except it has haste. Sacrifice it at the beginning of the next end step.",
+                    &const { [
+                        AbilityCostDef::Mana(mana_cost!("{1}")),
+                        AbilityCostDef::TapSource,
+                    ] },
+                    // "Another target nonlegendary creature you control": the Reflection may
+                    // not copy itself, and a legendary copy would be put into a graveyard by
+                    // the legend rule the moment it arrived.
+                    &const { [
+                        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&const { [
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Legendary)),
+                            ] }),
+                            zones: &const { [ZoneKind::Battlefield] },
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        })
+                        .excluding_source(),
+                    ] },
+                    EffectDef::create_token_from_copy(&const { crate::card::TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE
+                            .with_abilities(&const { [CopyAbilityDef::Ability(&abilities::haste())] }),
+                    } })
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: KIKI_COPY,
+                        then: &const {
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                                AbilityDef::triggered(
+                                    "Sacrifice it at the beginning of the next end step.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::End,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::Sacrifice {
+                                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                            KIKI_COPY,
+                                        )),
+                                    },
+                                )
+                            }))
+                        },
+                    }),
+                )] })
+            },
+        ),
+    ],
 );
 
 // NEO 412 — Boseiju, Who Endures
-/// "Nonbasic" is the whole reason the land half is in the target list: every
-/// land worth answering is one, and a basic is never worth the card.
-static AN_ARTIFACT_ENCHANTMENT_OR_NONBASIC_LAND: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Land),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
-    ]),
-]);
-
-static ONE_OF_THEIRS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: AN_ARTIFACT_ENCHANTMENT_OR_NONBASIC_LAND,
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-/// "A land card with a basic land type", which is what makes the
-/// compensation a fixing land rather than a card: a dual with a basic type
-/// counts and a Wasteland does not.
-static A_LAND_WITH_A_BASIC_TYPE: ObjectPredicateDef =
-    ObjectPredicateDef::HasAnyBasicLandType(&BasicLandType::ALL);
-
-/// Their search, not yours: the player whose permanent was destroyed is the
-/// one who may go looking, and the land arrives untapped.
-static THEY_MAY_REPLACE_IT: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-        TargetIndex::PRIMARY,
-    ))),
-    effect: &EffectDef::SearchZone {
-        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-            TargetIndex::PRIMARY,
-        ))),
-        source: ZoneKind::Library,
-        object: A_LAND_WITH_A_BASIC_TYPE,
-        minimum: 0,
-        maximum: ValueDef::Constant(1),
-        reveal: false,
-        destination: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-        shuffle: true,
-        enters_tapped: false,
-        attachment: None,
-        binding: None,
-        then: None,
-    },
-};
-
-static BOSEIJU_CHANNEL: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    THEY_MAY_REPLACE_IT,
-];
-
-static BOSEIJU_CHANNEL_COST: AbilityCostList = AbilityCostList::two(
-    AbilityCostDef::Mana(mana_cost!("{1}{G}")),
-    AbilityCostDef::DiscardSource,
-);
-
-static BOSEIJU_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
 pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0055ea30-20fb-4324-a632-8fed87628f05"),
     "Boseiju, Who Endures",
@@ -811,7 +675,7 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{T}: Add {G}.",
-                &BOSEIJU_MANA_COST,
+                &[AbilityCostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
             ),
             AbilityDef::activated_with_cost_list_and_targets(
@@ -819,9 +683,63 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
                  nonbasic land an opponent controls. That player may search their library for a \
                  land card with a basic land type, put it onto the battlefield, then shuffle. \
                  This ability costs {1} less to activate for each legendary creature you control.",
-                BOSEIJU_CHANNEL_COST,
-                &ONE_OF_THEIRS,
-                EffectDef::Sequence(&BOSEIJU_CHANNEL),
+                AbilityCostList::two(
+                    AbilityCostDef::Mana(mana_cost!("{1}{G}")),
+                    AbilityCostDef::DiscardSource,
+                ),
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        // "Nonbasic" is the whole reason the land half is in the target list: every
+                        // land worth answering is one, and a basic is never worth the card.
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                                    CardSupertype::Basic,
+                                )),
+                            ]),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                    // Their search, not yours: the player whose permanent was destroyed is the
+                    // one who may go looking, and the land arrives untapped.
+                    EffectDef::May {
+                        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                        effect: &EffectDef::SearchZone {
+                            player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                            source: ZoneKind::Library,
+                            // "A land card with a basic land type", which is what makes the
+                            // compensation a fixing land rather than a card: a dual with a basic type
+                            // counts and a Wasteland does not.
+                            object: ObjectPredicateDef::HasAnyBasicLandType(&BasicLandType::ALL),
+                            minimum: 0,
+                            maximum: ValueDef::Constant(1),
+                            reveal: false,
+                            destination: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                            shuffle: true,
+                            enters_tapped: false,
+                            attachment: None,
+                            binding: None,
+                            then: None,
+                        },
+                    },
+                ]),
             )
             .with_source_zones(&[ZoneKind::Hand])
             .with_activation_cost_reduction(

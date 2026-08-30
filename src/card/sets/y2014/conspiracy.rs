@@ -10,12 +10,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // CNS 16 — Council's Judgment
-/// "A nonland permanent you don't control" is read against the spell's
-/// controller for every voter, so both players choose from the same ballot.
-/// The vote machinery supplies the "you don't control" half.
-static JUDGMENT_BALLOT: ObjectPredicateDef =
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
-
 pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new_with_legacy_id(
     2175,
     "Council's Judgment",
@@ -27,7 +21,10 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::spell(
         "Will of the council — Starting with you, each player votes for a nonland permanent you don't control. Exile each permanent with the most votes or tied for most votes.",
         EffectDef::VoteForPermanentToExile {
-            object: JUDGMENT_BALLOT,
+            // "A nonland permanent you don't control" is read against the spell's
+            // controller for every voter, so both players choose from the same ballot.
+            // The vote machinery supplies the "you don't control" half.
+            object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
         },
     )),
 );
@@ -46,74 +43,6 @@ pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
 );
 
 // CNS 42 — Dack Fayden
-static DACK_PLAYER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static DACK_ARTIFACT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-static DACK_EMBLEM_PERMANENT: ObjectPredicateDef = ObjectPredicateDef::Any;
-
-static DACK_FAYDEN_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::triggered(
-    "Whenever you cast a spell that targets one or more permanents, gain control of those \
-         permanents.",
-    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
-        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-        ObjectPredicateDef::TargetsObjectMatching(&DACK_EMBLEM_PERMANENT),
-    ])),
-    EffectDef::GainControl {
-        object: EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
-            ObjectRefDef::TriggeringObject,
-        )),
-        controller: PlayerRefDef::EffectController,
-        duration: ControlDurationDef::Indefinitely,
-    },
-)];
-
-/// Two for two is a wash against most decks and a windmill against a graveyard
-/// one, which is the whole reason to point it at yourself.
-static DACK_ROOTS_THROUGH: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-]);
-
-static DACK_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::activated_with_targets(
-        "+1: Target player draws two then discards two cards.",
-        &[AbilityCostDef::Loyalty(1)],
-        &DACK_PLAYER_TARGET,
-        DACK_ROOTS_THROUGH,
-    ),
-    // Nothing is holding the theft and no cleanup ends it: a control change
-    // with no stated duration lasts indefinitely (CR 611.2b).
-    AbilityDef::activated_with_targets(
-        "−2: Gain control of target artifact.",
-        &[AbilityCostDef::Loyalty(-2)],
-        &DACK_ARTIFACT_TARGET,
-        EffectDef::GainControl {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            controller: PlayerRefDef::EffectController,
-            duration: ControlDurationDef::Indefinitely,
-        },
-    ),
-    AbilityDef::activated(
-        "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
-         permanents, gain control of those permanents.\"",
-        &[AbilityCostDef::Loyalty(-6)],
-        EffectDef::create_emblem("Dack Fayden emblem", &DACK_FAYDEN_EMBLEM_ABILITIES),
-    ),
-];
-
 pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_legacy_id(
     2219,
     "Dack Fayden",
@@ -123,7 +52,63 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
     // minus is what he is actually here for.
     CardRules::new_planeswalker(mana_cost!("{1}{U}{R}"), &["Dack"], 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&DACK_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated_with_targets(
+                "+1: Target player draws two then discards two cards.",
+                &[AbilityCostDef::Loyalty(1)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                // Two for two is a wash against most decks and a windmill against a graveyard
+                // one, which is the whole reason to point it at yourself.
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            ),
+            // Nothing is holding the theft and no cleanup ends it: a control change
+            // with no stated duration lasts indefinitely (CR 611.2b).
+            AbilityDef::activated_with_targets(
+                "−2: Gain control of target artifact.",
+                &[AbilityCostDef::Loyalty(-2)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::Indefinitely,
+                },
+            ),
+            AbilityDef::activated(
+                "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
+                 permanents, gain control of those permanents.\"",
+                &[AbilityCostDef::Loyalty(-6)],
+                EffectDef::create_emblem("Dack Fayden emblem", &[AbilityDef::triggered(
+                    "Whenever you cast a spell that targets one or more permanents, gain control of those \
+                         permanents.",
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Any),
+                    ])),
+                    EffectDef::GainControl {
+                        object: EffectRecipientDef::objects(ObjectSetDef::PermanentsTargetedBy(
+                            ObjectRefDef::TriggeringObject,
+                        )),
+                        controller: PlayerRefDef::EffectController,
+                        duration: ControlDurationDef::Indefinitely,
+                    },
+                )]),
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

@@ -18,37 +18,6 @@ pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::n
 );
 
 // HOU 83 — Abrade
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static AN_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-/// One of two, chosen as it is cast: each half carries its own slot, so a
-/// board with neither a creature nor an artifact leaves nothing to cast it
-/// at.
-static ABRADE_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Abrade deals 3 damage to target creature.",
-        &A_CREATURE,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(3),
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Destroy target artifact.",
-        &AN_ARTIFACT,
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
-            then: None,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84319dfb-eaf7-4b98-8c4f-30f5e779591b"),
     "Abrade",
@@ -59,7 +28,32 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::choose_one_spell(
         "Choose one \u{2014}\n\u{2022} Abrade deals 3 damage to target creature.\n\u{2022} \
          Destroy target artifact.",
-        &ABRADE_MODES,
+        // One of two, chosen as it is cast: each half carries its own slot, so a
+        // board with neither a creature nor an artifact leaves nothing to cast it
+        // at.
+        &[
+            AbilityDef::spell_with_targets(
+                "Abrade deals 3 damage to target creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target artifact.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+        ],
     )),
 );
 

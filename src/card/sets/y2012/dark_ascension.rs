@@ -55,40 +55,6 @@ static FETCH_A_BASIC_TAPPED: EffectDef = EffectDef::SearchZone {
 };
 
 // DKA 1 — Archangel's Light
-static ARCHANGELS_LIGHT_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Graveyard],
-    PlayerRelation::You,
-);
-
-/// One life-gain event of twice the count, not two events of the count: a
-/// card watching for life gain should see this happen once.
-static ARCHANGELS_LIGHT_AMOUNT: ScaledValueDef = ScaledValueDef::new(
-    ValueDef::CountMatchingObjects(&ARCHANGELS_LIGHT_GRAVEYARD),
-    2,
-);
-
-/// The gain is counted before the shuffle empties the graveyard, which is
-/// the only order that gains anything at all.
-static ARCHANGELS_LIGHT_EFFECTS: [EffectDef; 3] = [
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Scaled(&ARCHANGELS_LIGHT_AMOUNT),
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::Any,
-            &[ZoneKind::Graveyard],
-            PlayerRelation::You,
-        ),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Controller,
-    },
-];
-
 pub(in crate::card::sets) static ARCHANGELS_LIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1878,
     "Archangel's Light",
@@ -97,7 +63,35 @@ pub(in crate::card::sets) static ARCHANGELS_LIGHT: CardRecord = CardRecord::new_
     CardRules::new_sorcery(mana_cost!("{7}{W}")).with_ability(AbilityDef::spell(
         "You gain 2 life for each card in your graveyard, then shuffle your graveyard into \
          your library.",
-        EffectDef::Sequence(&ARCHANGELS_LIGHT_EFFECTS),
+        // The gain is counted before the shuffle empties the graveyard, which is
+        // the only order that gains anything at all.
+        EffectDef::Sequence(&[
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                // One life-gain event of twice the count, not two events of the count: a
+                // card watching for life gain should see this happen once.
+                amount: ValueDef::Scaled(&ScaledValueDef::new(
+                    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                    2,
+                )),
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                ),
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::ShuffleLibrary {
+                player: EffectRecipientDef::Controller,
+            },
+        ]),
     )),
 );
 
@@ -125,36 +119,11 @@ pub(in crate::card::sets) static BAR_THE_DOOR: CardRecord = CardRecord::new_with
 );
 
 // DKA 3 — Break of Day
-static BREAK_OF_DAY_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
 static BREAK_OF_DAY_CREATURES: EffectRecipientDef = EffectRecipientDef::matching_objects(
     ObjectPredicateDef::HasType(CardType::Creature),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
-
-static BREAK_OF_DAY_GRANT: EffectDef = EffectDef::Apply {
-    recipient: BREAK_OF_DAY_CREATURES,
-    effect: AppliedEffectDef::add_ability(&BREAK_OF_DAY_INDESTRUCTIBLE),
-    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-};
-
-/// The pump happens either way; the fateful-hour clause only adds to it, and
-/// the life total is read once as the spell resolves.
-static BREAK_OF_DAY_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: BREAK_OF_DAY_CREATURES,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(1),
-            ValueDef::Constant(1),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::IfCondition {
-        condition: &FATEFUL_HOUR,
-        then: &BREAK_OF_DAY_GRANT,
-    },
-];
 
 pub(in crate::card::sets) static BREAK_OF_DAY: CardRecord = CardRecord::new_with_legacy_id(
     1880,
@@ -164,19 +133,30 @@ pub(in crate::card::sets) static BREAK_OF_DAY: CardRecord = CardRecord::new_with
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "Creatures you control get +1/+1 until end of turn. Fateful hour — If you have 5 or \
          less life, those creatures gain indestructible until end of turn.",
-        EffectDef::Sequence(&BREAK_OF_DAY_EFFECTS),
+        // The pump happens either way; the fateful-hour clause only adds to it, and
+        // the life total is read once as the spell resolves.
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: BREAK_OF_DAY_CREATURES,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::IfCondition {
+                condition: &FATEFUL_HOUR,
+                then: &EffectDef::Apply {
+                    recipient: BREAK_OF_DAY_CREATURES,
+                    effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            },
+        ]),
     )),
 );
 
 // DKA 4 — Burden of Guilt
-static BURDEN_OF_GUILT_TAP: AbilityDef = AbilityDef::activated(
-    "{1}: Tap enchanted creature.",
-    &[AbilityCostDef::Mana(mana_cost!("{1}"))],
-    EffectDef::Tap {
-        object: EffectRecipientDef::AttachedPermanent,
-    },
-);
-
 pub(in crate::card::sets) static BURDEN_OF_GUILT: CardRecord = CardRecord::new_with_legacy_id(
     681,
     "Burden of Guilt",
@@ -194,7 +174,13 @@ pub(in crate::card::sets) static BURDEN_OF_GUILT: CardRecord = CardRecord::new_w
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             ),
-            BURDEN_OF_GUILT_TAP,
+            AbilityDef::activated(
+                "{1}: Tap enchanted creature.",
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                EffectDef::Tap {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
         ]),
 );
 
@@ -255,11 +241,6 @@ pub(in crate::card::sets) static FAITH_S_SHIELD: CardRecord = CardRecord::new(
 );
 
 // DKA 8 — Gather the Townsfolk
-/// "Instead", so this is one token-creation of a chosen size rather than two
-/// creations one of which is skipped.
-static GATHER_THE_TOWNSFOLK_COUNT: LifeConditionDef =
-    LifeConditionDef::new(5, ValueDef::Constant(5), ValueDef::Constant(2));
-
 pub(in crate::card::sets) static GATHER_THE_TOWNSFOLK: CardRecord = CardRecord::new_with_legacy_id(
     1882,
     "Gather the Townsfolk",
@@ -274,24 +255,14 @@ pub(in crate::card::sets) static GATHER_THE_TOWNSFOLK: CardRecord = CardRecord::
                 "Michael C. Hayes",
             ))
             .with_count(ValueDef::IfControllerLifeAtMost(
-                &GATHER_THE_TOWNSFOLK_COUNT,
+                // "Instead", so this is one token-creation of a chosen size rather than two
+                // creations one of which is skipped.
+                &LifeConditionDef::new(5, ValueDef::Constant(5), ValueDef::Constant(2)),
             )),
     )),
 );
 
 // DKA 9 — Gavony Ironwright
-static GAVONY_IRONWRIGHT_ANTHEM: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(4)),
-};
-
 pub(in crate::card::sets) static GAVONY_IRONWRIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1881,
     "Gavony Ironwright",
@@ -305,7 +276,20 @@ pub(in crate::card::sets) static GAVONY_IRONWRIGHT: CardRecord = CardRecord::new
              +1/+4.",
             EffectDef::IfCondition {
                 condition: &FATEFUL_HOUR,
-                then: &GAVONY_IRONWRIGHT_ANTHEM,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(4),
+                    ),
+                },
             },
         ),
     ),
@@ -577,18 +561,6 @@ pub(in crate::card::sets) static THALIA_GUARDIAN_OF_THRABEN: CardRecord =
     );
 
 // DKA 25 — Thraben Doomsayer
-static THRABEN_DOOMSAYER_ANTHEM: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-};
-
 pub(in crate::card::sets) static THRABEN_DOOMSAYER: CardRecord = CardRecord::new_with_legacy_id(
     1883,
     "Thraben Doomsayer",
@@ -609,7 +581,20 @@ pub(in crate::card::sets) static THRABEN_DOOMSAYER: CardRecord = CardRecord::new
              +2/+2.",
             EffectDef::IfCondition {
                 condition: &FATEFUL_HOUR,
-                then: &THRABEN_DOOMSAYER_ANTHEM,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
             },
         ),
     ]),
@@ -1093,14 +1078,6 @@ pub(in crate::card::sets) static SOUL_SEIZER: CardRecord = CardRecord::new(
 );
 
 // DKA 51 — Stormbound Geist
-/// "This creature can block only creatures with flying."
-static BLOCKS_ONLY_FLYERS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
-        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-    )),
-};
-
 pub(in crate::card::sets) static STORMBOUND_GEIST: CardRecord = CardRecord::new_with_legacy_id(
     1598,
     "Stormbound Geist",
@@ -1110,7 +1087,13 @@ pub(in crate::card::sets) static STORMBOUND_GEIST: CardRecord = CardRecord::new_
         abilities::flying(),
         AbilityDef::static_ability(
             "This creature can block only creatures with flying.",
-            BLOCKS_ONLY_FLYERS,
+            // "This creature can block only creatures with flying."
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                )),
+            },
         ),
         abilities::undying(),
     ]),
@@ -1213,10 +1196,6 @@ pub(in crate::card::sets) static CURSE_OF_MISFORTUNES: CardRecord = CardRecord::
 );
 
 // DKA 57 — Curse of Thirst
-static CURSE_OF_THIRST_ATTACHED_CURSES: PlayerAttachmentQueryDef = PlayerAttachmentQueryDef::new(
-    PlayerRelation::EnchantedPlayer,
-    ObjectPredicateDef::Subtype("Curse"),
-);
 pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2fa2b4ac-a62f-45c6-88fb-6ad44c6af28c"),
     "Curse of Thirst",
@@ -1234,7 +1213,10 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::EnchantedPlayer,
                     amount: ValueDef::CountMatchingPlayerAttachments(
-                        &CURSE_OF_THIRST_ATTACHED_CURSES,
+                        &PlayerAttachmentQueryDef::new(
+                            PlayerRelation::EnchantedPlayer,
+                            ObjectPredicateDef::Subtype("Curse"),
+                        ),
                     ),
                 },
             ),
@@ -1242,15 +1224,6 @@ pub(in crate::card::sets) static CURSE_OF_THIRST: CardRecord = CardRecord::new(
 );
 
 // DKA 58 — Deadly Allure
-/// Deathtouch and the requirement are the point of each other: anything
-/// forced to block it dies for having done so.
-static DEADLY_ALLURE_LURE: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_ability(&abilities::deathtouch()),
-    AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
-        ObjectPredicateDef::HasType(CardType::Creature),
-    )),
-];
-
 pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_with_legacy_id(
     1739,
     "Deadly Allure",
@@ -1265,7 +1238,14 @@ pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_wit
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Composite(&DEADLY_ALLURE_LURE),
+                // Deathtouch and the requirement are the point of each other: anything
+                // forced to block it dies for having done so.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_ability(&abilities::deathtouch()),
+                    AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1274,28 +1254,6 @@ pub(in crate::card::sets) static DEADLY_ALLURE: CardRecord = CardRecord::new_wit
 );
 
 // DKA 59 — Death's Caress
-/// "If that creature was a Human" is read after the destruction, so both the
-/// subtype and the toughness are last-known -- which is exactly what the
-/// target slot still remembers.
-static DEATHS_CARESS_LIFE: TargetConditionDef = TargetConditionDef {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::Subtype("Human"),
-    then: ValueDef::TargetToughness(TargetIndex::PRIMARY),
-    otherwise: ValueDef::Constant(0),
-};
-
-static DEATHS_CARESS_PROGRAM: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::IfTargetMatches(&DEATHS_CARESS_LIFE),
-    },
-];
-
 pub(in crate::card::sets) static DEATHS_CARESS: CardRecord = CardRecord::new_with_legacy_id(
     1975,
     "Death's Caress",
@@ -1306,7 +1264,25 @@ pub(in crate::card::sets) static DEATHS_CARESS: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        EffectDef::Sequence(&DEATHS_CARESS_PROGRAM),
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                // "If that creature was a Human" is read after the destruction, so both the
+                // subtype and the toughness are last-known -- which is exactly what the
+                // target slot still remembers.
+                amount: ValueDef::IfTargetMatches(&TargetConditionDef {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::Subtype("Human"),
+                    then: ValueDef::TargetToughness(TargetIndex::PRIMARY),
+                    otherwise: ValueDef::Constant(0),
+                }),
+            },
+        ]),
     )),
 );
 
@@ -1444,67 +1420,57 @@ pub(in crate::card::sets) static HIGHBORN_GHOUL: CardRecord = CardRecord::new_wi
 static INCREASING_AMBITION_FROM_GRAVEYARD: TriggerConditionDef =
     TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard);
 
-static INCREASING_AMBITION_SEARCH_ONE: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::Any,
-    minimum: 1,
-    maximum: ValueDef::Constant(1),
-    reveal: false,
-    destination: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: false,
-    attachment: None,
-    binding: None,
-    then: None,
-};
-
-static INCREASING_AMBITION_SEARCH_TWO: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::Any,
-    minimum: 2,
-    maximum: ValueDef::Constant(2),
-    reveal: false,
-    destination: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: false,
-    attachment: None,
-    binding: None,
-    then: None,
-};
-
-static INCREASING_AMBITION_EFFECT: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &INCREASING_AMBITION_FROM_GRAVEYARD,
-        then: &INCREASING_AMBITION_SEARCH_TWO,
-    },
-    EffectDef::IfCondition {
-        condition: &TriggerConditionDef::Not(&INCREASING_AMBITION_FROM_GRAVEYARD),
-        then: &INCREASING_AMBITION_SEARCH_ONE,
-    },
-];
-
-static INCREASING_AMBITION_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::spell(
-        "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
-        EffectDef::Sequence(&INCREASING_AMBITION_EFFECT),
-    ),
-    abilities::flashback(mana_cost!("{7}{B}")),
-];
-
-const fn increasing_ambition_rules() -> CardRules {
-    CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&INCREASING_AMBITION_ABILITIES)
-}
-
 pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::new_with_legacy_id(
     1692,
     "Increasing Ambition",
     CardArt::new("c8f508dc-7c7d-47e8-a4ef-0e8fd99cbd74", "Volkan Baǵa"),
     CardSet::DarkAscension,
-    increasing_ambition_rules(),
+    const {
+        CardRules::new_sorcery(mana_cost!("{4}{B}")).with_abilities(&const { [
+            AbilityDef::spell(
+                "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
+                EffectDef::Sequence(&const { [
+                    EffectDef::IfCondition {
+                        condition: &INCREASING_AMBITION_FROM_GRAVEYARD,
+                        then: &EffectDef::SearchZone {
+                            player: EffectRecipientDef::Controller,
+                            source: ZoneKind::Library,
+                            object: ObjectPredicateDef::Any,
+                            minimum: 2,
+                            maximum: ValueDef::Constant(2),
+                            reveal: false,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            shuffle: true,
+                            enters_tapped: false,
+                            attachment: None,
+                            binding: None,
+                            then: None,
+                        },
+                    },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::Not(&INCREASING_AMBITION_FROM_GRAVEYARD),
+                        then: &EffectDef::SearchZone {
+                            player: EffectRecipientDef::Controller,
+                            source: ZoneKind::Library,
+                            object: ObjectPredicateDef::Any,
+                            minimum: 1,
+                            maximum: ValueDef::Constant(1),
+                            reveal: false,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                            shuffle: true,
+                            enters_tapped: false,
+                            attachment: None,
+                            binding: None,
+                            then: None,
+                        },
+                    },
+                ] }),
+            ),
+            abilities::flashback(mana_cost!("{7}{B}")),
+        ] })
+    },
 );
 
 // DKA 70 — Mikaeus, the Unhallowed
@@ -2014,16 +1980,6 @@ pub(in crate::card::sets) static MARKOV_BLADEMASTER: CardRecord = CardRecord::ne
 );
 
 // DKA 97 — Markov Warlord
-static UP_TO_TWO_CREATURES: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    2,
-)];
-
 pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_with_legacy_id(
     1516,
     "Markov Warlord",
@@ -2033,7 +1989,15 @@ pub(in crate::card::sets) static MARKOV_WARLORD: CardRecord = CardRecord::new_wi
         abilities::haste(),
         abilities::enters_trigger_with_targets(
             "When this creature enters, up to two target creatures can't block this turn.",
-            &UP_TO_TWO_CREATURES,
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                2,
+            )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
@@ -2155,19 +2119,6 @@ pub(in crate::card::sets) static SHATTERED_PERCEPTION: CardRecord = CardRecord::
 );
 
 // DKA 105 — Talons of Falkenrath
-static TALONS_OF_FALKENRATH_PUMP: AbilityDef = AbilityDef::activated(
-    "{1}{R}: This creature gets +2/+0 until end of turn.",
-    &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(2),
-            ValueDef::Constant(0),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-);
-
 pub(in crate::card::sets) static TALONS_OF_FALKENRATH: CardRecord = CardRecord::new_with_legacy_id(
     729,
     "Talons of Falkenrath",
@@ -2190,7 +2141,18 @@ pub(in crate::card::sets) static TALONS_OF_FALKENRATH: CardRecord = CardRecord::
                 "Enchanted creature has \"{1}{R}: This creature gets +2/+0 until end of turn.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&TALONS_OF_FALKENRATH_PUMP),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{1}{R}: This creature gets +2/+0 until end of turn.",
+                        &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(0),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    )),
                 },
             ),
         ]),
@@ -2263,32 +2225,6 @@ static CLINGING_MISTS_ATTACKERS: EffectRecipientDef = EffectRecipientDef::matchi
     PlayerRelation::Any,
 );
 
-/// The tap and the skip land on the same set, and the skip is counted per
-/// permanent so each creature misses its own controller's step.
-static CLINGING_MISTS_HOLD: [EffectDef; 2] = [
-    EffectDef::Tap {
-        object: CLINGING_MISTS_ATTACKERS,
-    },
-    EffectDef::SkipNextUntapSteps {
-        object: CLINGING_MISTS_ATTACKERS,
-        count: 1,
-    },
-];
-
-static CLINGING_MISTS_HOLD_SEQUENCE: EffectDef = EffectDef::Sequence(&CLINGING_MISTS_HOLD);
-
-/// The Fog happens either way; only the tap is behind the threshold.
-static CLINGING_MISTS_EFFECTS: [EffectDef; 2] = [
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::IfCondition {
-        condition: &FATEFUL_HOUR,
-        then: &CLINGING_MISTS_HOLD_SEQUENCE,
-    },
-];
-
 pub(in crate::card::sets) static CLINGING_MISTS: CardRecord = CardRecord::new_with_legacy_id(
     1884,
     "Clinging Mists",
@@ -2298,39 +2234,31 @@ pub(in crate::card::sets) static CLINGING_MISTS: CardRecord = CardRecord::new_wi
         "Prevent all combat damage that would be dealt this turn. Fateful hour — If you have 5 \
          or less life, tap all attacking creatures. Those creatures don't untap during their \
          controller's next untap step.",
-        EffectDef::Sequence(&CLINGING_MISTS_EFFECTS),
+        // The Fog happens either way; only the tap is behind the threshold.
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::COMBAT),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::IfCondition {
+                condition: &FATEFUL_HOUR,
+                // The tap and the skip land on the same set, and the skip is counted per
+                // permanent so each creature misses its own controller's step.
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Tap {
+                        object: CLINGING_MISTS_ATTACKERS,
+                    },
+                    EffectDef::SkipNextUntapSteps {
+                        object: CLINGING_MISTS_ATTACKERS,
+                        count: 1,
+                    },
+                ]),
+            },
+        ]),
     )),
 );
 
 // DKA 110 — Crushing Vines
-static CRUSHING_VINES_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell_with_targets(
-        "Destroy target creature with flying",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
-            ]),
-        )],
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
-            then: None,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Destroy target artifact",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Artifact),
-        )],
-        EffectDef::Destroy {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
-            then: None,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_with_legacy_id(
     732,
     "Crushing Vines",
@@ -2338,7 +2266,33 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
     CardSet::DarkAscension,
     CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::choose_one_spell(
         "Choose one —\n• Destroy target creature with flying.\n• Destroy target artifact.",
-        &CRUSHING_VINES_MODES,
+        &[
+            AbilityDef::spell_with_targets(
+                "Destroy target creature with flying",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                    ]),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target artifact",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+        ],
     )),
 );
 
@@ -2403,16 +2357,6 @@ pub(in crate::card::sets) static FAVOR_OF_THE_WOODS: CardRecord = CardRecord::ne
 );
 
 // DKA 114 — Feed the Pack
-/// One Wolf per point of toughness, which is why the food of choice is a
-/// Wall: the pack it makes is worth far more than what fed it.
-static FEED_THE_PACK_PAYOFF: EffectDef =
-    EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
-        .with_art(CardArt::new(
-            "a53f8031-aaa8-424c-929a-5478538a8cc6",
-            "David Palumbo",
-        ))
-        .with_count(ValueDef::TriggerEventAmount);
-
 pub(in crate::card::sets) static FEED_THE_PACK: CardRecord = CardRecord::new_with_legacy_id(
     1971,
     "Feed the Pack",
@@ -2433,7 +2377,14 @@ pub(in crate::card::sets) static FEED_THE_PACK: CardRecord = CardRecord::new_wit
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
             ]),
-            then: Some(&FEED_THE_PACK_PAYOFF),
+            // One Wolf per point of toughness, which is why the food of choice is a
+            // Wall: the pack it makes is worth far more than what fed it.
+            then: Some(&EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2)
+                    .with_art(CardArt::new(
+                        "a53f8031-aaa8-424c-929a-5478538a8cc6",
+                        "David Palumbo",
+                    ))
+                    .with_count(ValueDef::TriggerEventAmount)),
             amount: SacrificedAmountDef::Toughness,
             otherwise: None,
             optional: true,
@@ -2506,12 +2457,6 @@ pub(in crate::card::sets) static HOLLOWHENGE_BEAST: CardRecord = CardRecord::new
 );
 
 // DKA 119 — Hunger of the Howlpack
-const HUNGER_OF_THE_HOWLPACK_AMOUNT: ValueDef =
-    ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
-        then: ValueDef::Constant(3),
-        otherwise: ValueDef::Constant(1),
-    });
-
 pub(in crate::card::sets) static HUNGER_OF_THE_HOWLPACK: CardRecord = CardRecord::new_with_legacy_id(
     737,
     "Hunger of the Howlpack",
@@ -2526,7 +2471,10 @@ pub(in crate::card::sets) static HUNGER_OF_THE_HOWLPACK: CardRecord = CardRecord
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
-                amount: HUNGER_OF_THE_HOWLPACK_AMOUNT,
+                amount: ValueDef::IfCreatureDiedThisTurn(&ConditionalValueDef {
+                        then: ValueDef::Constant(3),
+                        otherwise: ValueDef::Constant(1),
+                    }),
             },
         ),
         AbilityDef::static_ability(
@@ -2679,20 +2627,6 @@ pub(in crate::card::sets) static ULVENWALD_BEAR: CardRecord = CardRecord::new_wi
 );
 
 // DKA 130 — Village Survivors
-static VILLAGE_SURVIVORS_VIGILANCE: AbilityDef = abilities::vigilance();
-
-static VILLAGE_SURVIVORS_GRANT: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::add_ability(&VILLAGE_SURVIVORS_VIGILANCE),
-};
-
 pub(in crate::card::sets) static VILLAGE_SURVIVORS: CardRecord = CardRecord::new_with_legacy_id(
     1885,
     "Village Survivors",
@@ -2707,7 +2641,17 @@ pub(in crate::card::sets) static VILLAGE_SURVIVORS: CardRecord = CardRecord::new
              have vigilance.",
             EffectDef::IfCondition {
                 condition: &FATEFUL_HOUR,
-                then: &VILLAGE_SURVIVORS_GRANT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                },
             },
         ),
     ]),
@@ -2903,36 +2847,6 @@ pub(in crate::card::sets) static HAVENGUL_LICH: CardRecord = CardRecord::new(
 );
 
 // DKA 140 — Huntmaster of the Fells // Ravager of the Fells
-const fn huntmaster_front_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Human", "Werewolf"], 2, 2)
-        .with_abilities(&HUNTMASTER_FRONT_ABILITIES)
-}
-
-/// Entering and transforming into this face do the same thing, so the printed
-/// sentence is two triggers watching two different events.
-static HUNTMASTER_FRONT_ABILITIES: [AbilityDef; 3] = [
-    abilities::enters_trigger(
-        "Whenever this creature enters, create a 2/2 green Wolf creature token and you gain 2 life.",
-        HUNTMASTER_WOLF_AND_LIFE,
-    ),
-    AbilityDef::triggered(
-        "Whenever this creature transforms into Huntmaster of the Fells, create a 2/2 green Wolf creature token and you gain 2 life.",
-        TriggerEventDef::transforms(ObjectPredicateDef::Source),
-        HUNTMASTER_WOLF_AND_LIFE,
-    ),
-    AbilityDef::triggered_if(
-        "At the beginning of each upkeep, if no spells were cast last turn, transform this creature.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Any,
-        },
-        &NO_SPELLS_LAST_TURN,
-        EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        },
-    ),
-];
-
 static HUNTMASTER_WOLF_AND_LIFE: EffectDef = EffectDef::Sequence(&[
     EffectDef::create_creature_token(&["Wolf"], &[ManaColor::Green], 2, 2).with_art(CardArt::new(
         "a53f8031-aaa8-424c-929a-5478538a8cc6",
@@ -2944,74 +2858,6 @@ static HUNTMASTER_WOLF_AND_LIFE: EffectDef = EffectDef::Sequence(&[
     },
 ]);
 
-/// Nobody cast anything, so every player has to be at zero.
-static NO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
-    quantifier: QuantifierDef::Every,
-    player: PlayerRelation::Any,
-    comparison: ComparisonDef::LessOrEqual,
-    amount: 0,
-};
-
-/// One player is enough, which is why this side turns back sooner than the
-/// other side turns over.
-static TWO_SPELLS_LAST_TURN: TriggerConditionDef = TriggerConditionDef::SpellsCastLastTurn {
-    quantifier: QuantifierDef::Any,
-    player: PlayerRelation::Any,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 2,
-};
-
-static HUNTMASTER_BACK_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    AbilityDef::triggered_with_targets(
-        "Whenever this creature transforms into Ravager of the Fells, it deals 2 damage to target opponent or planeswalker and 2 damage to up to one target creature that player or that planeswalker's controller controls.",
-        TriggerEventDef::transforms(ObjectPredicateDef::Source),
-        &RAVAGER_TARGETS,
-        EffectDef::Sequence(&[
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(2),
-            },
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex(1)),
-                amount: ValueDef::Constant(2),
-            },
-        ]),
-    ),
-    AbilityDef::triggered_if(
-        "At the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Any,
-        },
-        &TWO_SPELLS_LAST_TURN,
-        EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        },
-    ),
-];
-
-/// The second slot reads the first: the creature has to belong to whoever the
-/// damage was aimed at.
-static RAVAGER_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
-        PlayerRelation::Opponent,
-    )),
-    AbilityTargetDef::up_to(
-        AbilityTargetPredicate::ControlledByTargetOf {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            slot: TargetIndex::PRIMARY,
-        },
-        1,
-    ),
-];
-
-const fn huntmaster_back_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Werewolf"], 4, 4)
-        .printed_colors(&[ManaColor::Red, ManaColor::Green])
-        .with_abilities(&HUNTMASTER_BACK_ABILITIES)
-}
-
 pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
     CardRecord::new_dfc_with_legacy_id(
         176,
@@ -3019,8 +2865,98 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
         CardArt::new("aae6fb12-b252-453b-bca7-1ea2a0d6c8dc", "Chris Rahn"),
         CardSet::DarkAscension,
         &[
-            ("Huntmaster of the Fells", huntmaster_front_rules()),
-            ("Ravager of the Fells", huntmaster_back_rules()),
+            (
+                "Huntmaster of the Fells",
+                const {
+                    CardRules::new_creature(mana_cost!("{2}{R}{G}"), &const { ["Human", "Werewolf"] }, 2, 2)
+                    // Entering and transforming into this face do the same thing, so the printed
+                    // sentence is two triggers watching two different events.
+                    .with_abilities(&const { [
+                        abilities::enters_trigger(
+                            "Whenever this creature enters, create a 2/2 green Wolf creature token and you gain 2 life.",
+                            HUNTMASTER_WOLF_AND_LIFE,
+                        ),
+                        AbilityDef::triggered(
+                            "Whenever this creature transforms into Huntmaster of the Fells, create a 2/2 green Wolf creature token and you gain 2 life.",
+                            TriggerEventDef::transforms(ObjectPredicateDef::Source),
+                            HUNTMASTER_WOLF_AND_LIFE,
+                        ),
+                        AbilityDef::triggered_if(
+                            "At the beginning of each upkeep, if no spells were cast last turn, transform this creature.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::Upkeep,
+                                player: PlayerRelation::Any,
+                            },
+                            // Nobody cast anything, so every player has to be at zero.
+                            &TriggerConditionDef::SpellsCastLastTurn {
+                                quantifier: QuantifierDef::Every,
+                                player: PlayerRelation::Any,
+                                comparison: ComparisonDef::LessOrEqual,
+                                amount: 0,
+                            },
+                            EffectDef::Transform {
+                                object: EffectRecipientDef::Source,
+                            },
+                        ),
+                    ] })
+                },
+            ),
+            (
+                "Ravager of the Fells",
+                const {
+                    CardRules::new_creature_without_mana_cost(&const { ["Werewolf"] }, 4, 4)
+                    .printed_colors(&const { [ManaColor::Red, ManaColor::Green] })
+                    .with_abilities(&const { [
+                        abilities::trample(),
+                        AbilityDef::triggered_with_targets(
+                            "Whenever this creature transforms into Ravager of the Fells, it deals 2 damage to target opponent or planeswalker and 2 damage to up to one target creature that player or that planeswalker's controller controls.",
+                            TriggerEventDef::transforms(ObjectPredicateDef::Source),
+                            // The second slot reads the first: the creature has to belong to whoever the
+                            // damage was aimed at.
+                            &const { [
+                                AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
+                                    PlayerRelation::Opponent,
+                                )),
+                                AbilityTargetDef::up_to(
+                                    AbilityTargetPredicate::ControlledByTargetOf {
+                                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                                        slot: TargetIndex::PRIMARY,
+                                    },
+                                    1,
+                                ),
+                            ] },
+                            EffectDef::Sequence(&const { [
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                    amount: ValueDef::Constant(2),
+                                },
+                                EffectDef::DealDamage {
+                                    recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                                    amount: ValueDef::Constant(2),
+                                },
+                            ] }),
+                        ),
+                        AbilityDef::triggered_if(
+                            "At the beginning of each upkeep, if a player cast two or more spells last turn, transform this creature.",
+                            TriggerEventDef::StepBegins {
+                                step: TurnStepDef::Upkeep,
+                                player: PlayerRelation::Any,
+                            },
+                            // One player is enough, which is why this side turns back sooner than the
+                            // other side turns over.
+                            &TriggerConditionDef::SpellsCastLastTurn {
+                                quantifier: QuantifierDef::Any,
+                                player: PlayerRelation::Any,
+                                comparison: ComparisonDef::GreaterOrEqual,
+                                amount: 2,
+                            },
+                            EffectDef::Transform {
+                                object: EffectRecipientDef::Source,
+                            },
+                        ),
+                    ] })
+                },
+            ),
         ],
     );
 
@@ -3103,13 +3039,6 @@ pub(in crate::card::sets) static ALTAR_OF_THE_LOST: CardRecord = CardRecord::new
 );
 
 // DKA 145 — Avacyn's Collar
-static AVACYNS_COLLAR_VIGILANCE: AbilityDef = abilities::vigilance();
-
-static AVACYNS_COLLAR_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&AVACYNS_COLLAR_VIGILANCE),
-];
-
 pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new_with_legacy_id(
     2307,
     "Avacyn's Collar",
@@ -3122,7 +3051,10 @@ pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new_wi
                 "Equipped creature gets +1/+0 and has vigilance.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&AVACYNS_COLLAR_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
                 },
             ),
             AbilityDef::triggered(
@@ -3156,58 +3088,6 @@ pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
 
 // DKA 147 — Elbrus, the Binding Blade // Withengar Unbound
 // Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
-static ELBRUS_UNATTACH_AND_TRANSFORM: [EffectDef; 2] = [
-    EffectDef::Unattach {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::Transform {
-        object: EffectRecipientDef::Source,
-    },
-];
-
-static ELBRUS_FRONT_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "Equipped creature gets +1/+0.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::AttachedPermanent,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(0),
-            ),
-        },
-    ),
-    AbilityDef::triggered(
-        "When equipped creature deals combat damage to a player, unattach Elbrus, then transform it.",
-        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
-        EffectDef::Sequence(&ELBRUS_UNATTACH_AND_TRANSFORM),
-    ),
-    abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
-];
-
-static WITHENGAR_ABILITIES: [AbilityDef; 4] = [
-    abilities::flying(),
-    abilities::intimidate(),
-    abilities::trample(),
-    AbilityDef::not_implemented(
-        "Whenever a player loses the game, put thirteen +1/+1 counters on Withengar Unbound.",
-        "Penta's supported two-player game ends as soon as a player loses, so no continuing game exists in which this trigger can be put on the stack or resolve.",
-    ),
-];
-
-const fn elbrus_front_rules() -> CardRules {
-    CardRules::new_artifact(mana_cost!("{7}"))
-        .with_supertype(CardSupertype::Legendary)
-        .with_subtypes(&["Equipment"])
-        .with_abilities(&ELBRUS_FRONT_ABILITIES)
-}
-
-const fn withengar_back_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Demon"], 13, 13)
-        .with_supertype(CardSupertype::Legendary)
-        .printed_colors(&[ManaColor::Black])
-        .with_abilities(&WITHENGAR_ABILITIES)
-}
-
 pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
     CardRecord::new_dfc_with_legacy_id(
         2313,
@@ -3215,14 +3095,60 @@ pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
         CardArt::new("683af377-c491-4f62-900c-6b83d75c33c9", "Eric Deschamps"),
         CardSet::DarkAscension,
         &[
-            ("Elbrus, the Binding Blade", elbrus_front_rules()),
-            ("Withengar Unbound", withengar_back_rules()),
+            (
+                "Elbrus, the Binding Blade",
+                const {
+                    CardRules::new_artifact(mana_cost!("{7}"))
+                    .with_supertype(CardSupertype::Legendary)
+                    .with_subtypes(&const { ["Equipment"] })
+                    .with_abilities(&const { [
+                        AbilityDef::static_ability(
+                            "Equipped creature gets +1/+0.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::AttachedPermanent,
+                                effect: AppliedEffectDef::modify_power_toughness(
+                                    ValueDef::Constant(1),
+                                    ValueDef::Constant(0),
+                                ),
+                            },
+                        ),
+                        AbilityDef::triggered(
+                            "When equipped creature deals combat damage to a player, unattach Elbrus, then transform it.",
+                            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
+                            EffectDef::Sequence(&const { [
+                                EffectDef::Unattach {
+                                    object: EffectRecipientDef::Source,
+                                },
+                                EffectDef::Transform {
+                                    object: EffectRecipientDef::Source,
+                                },
+                            ] }),
+                        ),
+                        abilities::equip(&const { [AbilityCostDef::Mana(mana_cost!("{1}"))] }, "Equip {1}"),
+                    ] })
+                },
+            ),
+            (
+                "Withengar Unbound",
+                const {
+                    CardRules::new_creature_without_mana_cost(&const { ["Demon"] }, 13, 13)
+                    .with_supertype(CardSupertype::Legendary)
+                    .printed_colors(&const { [ManaColor::Black] })
+                    .with_abilities(&const { [
+                        abilities::flying(),
+                        abilities::intimidate(),
+                        abilities::trample(),
+                        AbilityDef::not_implemented(
+                            "Whenever a player loses the game, put thirteen +1/+1 counters on Withengar Unbound.",
+                            "Penta's supported two-player game ends as soon as a player loses, so no continuing game exists in which this trigger can be put on the stack or resolve.",
+                        ),
+                    ] })
+                },
+            ),
         ],
     );
 
 // DKA 148 — Executioner's Hood
-static EXECUTIONERS_HOOD_INTIMIDATE: AbilityDef = abilities::intimidate();
-
 pub(in crate::card::sets) static EXECUTIONERS_HOOD: CardRecord = CardRecord::new_with_legacy_id(
     1924,
     "Executioner's Hood",
@@ -3235,7 +3161,7 @@ pub(in crate::card::sets) static EXECUTIONERS_HOOD: CardRecord = CardRecord::new
                 "Equipped creature has intimidate.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&EXECUTIONERS_HOOD_INTIMIDATE),
+                    effect: AppliedEffectDef::add_ability(&abilities::intimidate()),
                 },
             ),
             abilities::equip(
@@ -3257,18 +3183,6 @@ pub(in crate::card::sets) static GRAFDIGGER_S_CAGE: CardRecord = CardRecord::new
 );
 
 // DKA 150 — Heavy Mattock
-static EQUIPPED_CREATURE_IS_HUMAN: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::Subtype("Human"),
-    };
-
-/// "An additional +1/+1", so this is a second modifier on top of the printed
-/// one rather than a replacement for it.
-static HEAVY_MATTOCK_HUMAN_BONUS: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::AttachedPermanent,
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-};
-
 pub(in crate::card::sets) static HEAVY_MATTOCK: CardRecord = CardRecord::new_with_legacy_id(
     1925,
     "Heavy Mattock",
@@ -3290,8 +3204,18 @@ pub(in crate::card::sets) static HEAVY_MATTOCK: CardRecord = CardRecord::new_wit
             AbilityDef::static_ability(
                 "As long as equipped creature is a Human, it gets an additional +1/+1.",
                 EffectDef::IfCondition {
-                    condition: &EQUIPPED_CREATURE_IS_HUMAN,
-                    then: &HEAVY_MATTOCK_HUMAN_BONUS,
+                    condition: &TriggerConditionDef::AttachedPermanentMatches {
+                        object: ObjectPredicateDef::Subtype("Human"),
+                    },
+                    // "An additional +1/+1", so this is a second modifier on top of the printed
+                    // one rather than a replacement for it.
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                    },
                 },
             ),
             abilities::equip(
@@ -3381,43 +3305,6 @@ pub(in crate::card::sets) static WARDEN_OF_THE_WALL: CardRecord = CardRecord::ne
 );
 
 // DKA 154 — Wolfhunter's Quiver
-static WOLFHUNTERS_QUIVER_SHOT: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}: This creature deals 1 damage to any target.",
-    &[AbilityCostDef::TapSource],
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-);
-
-static WOLFHUNTERS_QUIVER_WEREWOLF_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Subtype("Werewolf"),
-        ]),
-    )];
-
-static WOLFHUNTERS_QUIVER_VOLLEY: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}: This creature deals 3 damage to target Werewolf creature.",
-    &[AbilityCostDef::TapSource],
-    &WOLFHUNTERS_QUIVER_WEREWOLF_TARGET,
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(3),
-    },
-);
-
-/// Two abilities, not one with a choice: each costs the creature's own tap,
-/// so only one of them can be used per untap.
-static WOLFHUNTERS_QUIVER_GRANT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::add_ability(&WOLFHUNTERS_QUIVER_SHOT),
-    AppliedEffectDef::add_ability(&WOLFHUNTERS_QUIVER_VOLLEY),
-];
-
 pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::new_with_legacy_id(
     1930,
     "Wolfhunter's Quiver",
@@ -3431,7 +3318,35 @@ pub(in crate::card::sets) static WOLFHUNTERS_QUIVER: CardRecord = CardRecord::ne
                  \"{T}: This creature deals 3 damage to target Werewolf creature.\"",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&WOLFHUNTERS_QUIVER_GRANT),
+                    // Two abilities, not one with a choice: each costs the creature's own tap,
+                    // so only one of them can be used per untap.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                            "{T}: This creature deals 1 damage to any target.",
+                            &[AbilityCostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::AnyTarget,
+                            )],
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(1),
+                            },
+                        )),
+                        AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                            "{T}: This creature deals 3 damage to target Werewolf creature.",
+                            &[AbilityCostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one_permanent(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::Subtype("Werewolf"),
+                                ]),
+                            )],
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(3),
+                            },
+                        )),
+                    ]),
                 },
             ),
             abilities::equip(

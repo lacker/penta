@@ -76,6 +76,16 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
         spell_cost(cards::TOXIC_DELUGE),
         SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
     );
+    assert!(matches!(
+        spell_cost(cards::COLLECTIVE_BRUTALITY),
+        SpellAdditionalCostDef::Discard {
+            quantity: CostQuantityDef::Subtract(
+                &CostQuantityDef::ModeCount,
+                &CostQuantityDef::Fixed(1),
+            ),
+            ..
+        }
+    ));
 }
 
 #[test]

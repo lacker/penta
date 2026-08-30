@@ -131,7 +131,10 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
         // and all three cost two cards.
         .with_spell_additional_cost(&SpellAdditionalCostDef::discard(
             ObjectPredicateDef::Any,
-            CostQuantityDef::ModesBeyondFirst(1),
+            CostQuantityDef::Subtract(
+                &CostQuantityDef::ModeCount,
+                &CostQuantityDef::Fixed(1),
+            ),
         )),
     ),
 );

@@ -6,9 +6,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef,
-    SumValueDef, TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SumValueDef,
+    TargetChooserDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 

@@ -26,6 +26,23 @@ pub(in crate::game) struct CastScale {
     pub(in crate::game) offer: Option<CastOfferCost>,
 }
 
+impl CastScale {
+    fn quantity(self, quantity: crate::card::CostQuantityDef) -> Option<u16> {
+        match quantity {
+            crate::card::CostQuantityDef::Fixed(amount) => Some(u16::from(amount)),
+            crate::card::CostQuantityDef::ChosenX => Some(self.x),
+            crate::card::CostQuantityDef::ModeCount => {
+                Some(u16::try_from(self.modes).unwrap_or(u16::MAX))
+            }
+            crate::card::CostQuantityDef::Subtract(left, right) => {
+                Some(self.quantity(*left)?.saturating_sub(self.quantity(*right)?))
+            }
+            crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
+            | crate::card::CostQuantityDef::CardTypesAtLeast(_) => None,
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
     pub(in crate::game) definition: &'a CardDefinition,
@@ -270,18 +287,9 @@ impl Game {
                 life: 0,
             }],
             SpellAdditionalCostDef::PayLife(quantity) => {
-                let amount = match quantity {
-                    crate::card::CostQuantityDef::Fixed(amount) => u16::from(amount),
-                    crate::card::CostQuantityDef::ChosenX => scale.x,
-                    crate::card::CostQuantityDef::ModesBeyondFirst(amount) => u16::from(amount)
-                        .saturating_mul(
-                            u16::try_from(scale.modes.saturating_sub(1)).unwrap_or(u16::MAX),
-                        ),
-                    crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
-                    | crate::card::CostQuantityDef::CardTypesAtLeast(_) => {
-                        unreachable!("object thresholds cannot quantify a life payment")
-                    }
-                };
+                let amount = scale
+                    .quantity(quantity)
+                    .expect("object thresholds cannot quantify a life payment");
                 (i64::from(amount) <= i64::from(self.players[player.index()].life))
                     .then_some(SpellAdditionalCostPayment {
                         objects: Vec::new(),
@@ -379,17 +387,11 @@ impl Game {
                 })
                 .collect();
         }
-        let required = match quantity {
-            crate::card::CostQuantityDef::Fixed(count) => usize::from(count),
-            crate::card::CostQuantityDef::ChosenX => usize::from(scale.x),
-            // Escalate: a spell with one mode pays nothing extra, and every
-            // mode past the first costs another one of these.
-            crate::card::CostQuantityDef::ModesBeyondFirst(count) => {
-                usize::from(count).saturating_mul(scale.modes.saturating_sub(1))
-            }
-            crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
-            | crate::card::CostQuantityDef::CardTypesAtLeast(_) => 0,
-        };
+        let required = usize::from(
+            scale
+                .quantity(quantity)
+                .expect("object thresholds are handled before scalar quantities"),
+        );
         Self::object_combinations(&candidates, required)
             .into_iter()
             .map(|objects| SpellAdditionalCostPayment {

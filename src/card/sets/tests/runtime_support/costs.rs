@@ -278,7 +278,8 @@ fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
         | SpellAdditionalCostDef::ReturnToHand { quantity, .. } => matches!(
             quantity,
             crate::card::CostQuantityDef::ChosenX
-                | crate::card::CostQuantityDef::ModesBeyondFirst(_)
+                | crate::card::CostQuantityDef::ModeCount
+                | crate::card::CostQuantityDef::Subtract(_, _)
         ),
         SpellAdditionalCostDef::Forage => false,
         SpellAdditionalCostDef::All(costs) => {
@@ -294,17 +295,24 @@ fn shared_object_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
     match quantity {
         crate::card::CostQuantityDef::Fixed(count) => count >= 1,
         crate::card::CostQuantityDef::ChosenX
-        | crate::card::CostQuantityDef::ModesBeyondFirst(_)
+        | crate::card::CostQuantityDef::ModeCount
         | crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
         | crate::card::CostQuantityDef::CardTypesAtLeast(_) => true,
+        crate::card::CostQuantityDef::Subtract(left, right) => {
+            shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
+        }
     }
 }
 
 fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
-    matches!(
-        quantity,
+    match quantity {
         crate::card::CostQuantityDef::Fixed(_)
-            | crate::card::CostQuantityDef::ChosenX
-            | crate::card::CostQuantityDef::ModesBeyondFirst(_)
-    )
+        | crate::card::CostQuantityDef::ChosenX
+        | crate::card::CostQuantityDef::ModeCount => true,
+        crate::card::CostQuantityDef::Subtract(left, right) => {
+            shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
+        }
+        crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
+        | crate::card::CostQuantityDef::CardTypesAtLeast(_) => false,
+    }
 }

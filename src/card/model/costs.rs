@@ -6,16 +6,20 @@ use crate::ids::ObjectBindingIndex;
 
 /// The quantity a semantic cost asks its payer to provide.
 ///
-/// Fixed and chosen-X quantities apply to scalar costs such as paying life as
-/// well as object costs. The threshold variants describe sets of objects and
-/// are only meaningful for costs that choose cards or permanents.
+/// Fixed, chosen-X, mode-count, and arithmetic quantities apply to scalar
+/// costs such as paying life as well as object costs. The threshold variants
+/// describe sets of objects and are only meaningful for costs that choose
+/// cards or permanents.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostQuantityDef {
     Fixed(u8),
     /// The X announced for the spell or ability.
     ChosenX,
-    /// This many payments for each mode chosen beyond the first.
-    ModesBeyondFirst(u8),
+    /// How many modes were selected for the spell being cast.
+    ModeCount,
+    /// The left quantity minus the right, floored at zero because a cost
+    /// cannot ask for a negative quantity.
+    Subtract(&'static Self, &'static Self),
     /// Choose a minimal set whose total mana value reaches this amount.
     TotalManaValueAtLeast(u8),
     /// Choose a minimal set containing at least this many card types.
@@ -67,19 +71,33 @@ impl MoveToZoneCostDef {
 
     #[must_use]
     pub const fn fixed_count(self) -> Option<u8> {
-        match self.quantity {
-            CostQuantityDef::Fixed(count) => Some(count),
-            CostQuantityDef::ChosenX
-            | CostQuantityDef::ModesBeyondFirst(_)
-            | CostQuantityDef::TotalManaValueAtLeast(_)
-            | CostQuantityDef::CardTypesAtLeast(_) => None,
-        }
+        self.quantity.fixed_value()
     }
 
     #[must_use]
     pub const fn binding(mut self, binding: ObjectBindingIndex) -> Self {
         self.binding = Some(binding);
         self
+    }
+}
+
+impl CostQuantityDef {
+    /// Resolves an expression made entirely from fixed quantities.
+    #[must_use]
+    pub const fn fixed_value(self) -> Option<u8> {
+        match self {
+            Self::Fixed(value) => Some(value),
+            Self::Subtract(left, right) => {
+                let (Some(left), Some(right)) = (left.fixed_value(), right.fixed_value()) else {
+                    return None;
+                };
+                Some(left.saturating_sub(right))
+            }
+            Self::ChosenX
+            | Self::ModeCount
+            | Self::TotalManaValueAtLeast(_)
+            | Self::CardTypesAtLeast(_) => None,
+        }
     }
 }
 

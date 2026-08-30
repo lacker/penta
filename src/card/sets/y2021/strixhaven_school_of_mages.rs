@@ -12,54 +12,6 @@ use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
 
 // STX 17 — Elite Spellbinder
-/// Not linked to the Spellbinder: killing it does not give the card back,
-/// and the tax outlives it. What the owner keeps is the card itself, one
-/// turn later and two mana worse.
-static SPELLBINDER_EXILE: EffectDef = EffectDef::ExileGrantingOwnerPlay {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    surcharge: mana_cost!("{2}"),
-};
-
-/// "You may exile" -- a minimum of none, so a hand of nothing worth taking
-/// is looked at and left alone.
-static SPELLBINDER_TAKES_A_CARD: [EffectDef; 2] = [
-    EffectDef::LookAtHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-        unchosen: None,
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        )),
-        exclude: None,
-        minimum: 0,
-        maximum: 1,
-        // The card lands in exile face up, so which one was taken stops
-        // being private the moment it is taken.
-        visibility: ChoiceVisibilityDef::Public,
-        then: &SPELLBINDER_EXILE,
-    }),
-];
-
-static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
-static ELITE_SPELLBINDER_ABILITIES: [AbilityDef; 2] = [
-    abilities::flying(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, look at target opponent's hand. You may exile a nonland card \
-         from it. For as long as that card remains exiled, its owner may play it. A spell cast \
-         this way costs {2} more to cast.",
-        &AN_OPPONENT,
-        EffectDef::Sequence(&SPELLBINDER_TAKES_A_CARD),
-    ),
-];
-
 pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new_with_legacy_id(
     2274,
     "Elite Spellbinder",
@@ -68,7 +20,47 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
     // A three-mana 3/1 flier that also buys a turn: the card comes back, but
     // a turn later and two mana worse, which is often the whole game.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 1)
-        .with_abilities(&ELITE_SPELLBINDER_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, look at target opponent's hand. You may exile a nonland card \
+                 from it. For as long as that card remains exiled, its owner may play it. A spell cast \
+                 this way costs {2} more to cast.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                // "You may exile" -- a minimum of none, so a hand of nothing worth taking
+                // is looked at and left alone.
+                EffectDef::Sequence(&[
+                    EffectDef::LookAtHand {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        )),
+                        exclude: None,
+                        minimum: 0,
+                        maximum: 1,
+                        // The card lands in exile face up, so which one was taken stops
+                        // being private the moment it is taken.
+                        visibility: ChoiceVisibilityDef::Public,
+                        // Not linked to the Spellbinder: killing it does not give the card back,
+                        // and the tax outlives it. What the owner keeps is the card itself, one
+                        // turn later and two mana worse.
+                        then: &EffectDef::ExileGrantingOwnerPlay {
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                            surcharge: mana_cost!("{2}"),
+                        },
+                    }),
+                ]),
+            ),
+        ]),
 );
 
 // STX 43 — Frost Trickster
@@ -82,45 +74,6 @@ pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
 );
 
 // STX 64 — Baleful Mastery
-static MASTERY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
-/// The discount is the whole cost of the card: two mana instead of four,
-/// and the opponent gets the card back. Which cast was used is read off the
-/// spell itself, so the rider is part of one resolution rather than a
-/// second clause.
-static MASTERY_WAS_DISCOUNTED: TriggerConditionDef =
-    TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::AlternativeCost);
-
-static MASTERY_OPPONENT_DRAWS: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Opponent,
-    amount: ValueDef::Constant(1),
-};
-
-static MASTERY_EXILE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
-
-/// Printed order: the draw is named before the exile, and it happens first.
-static MASTERY_RESOLUTION: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &MASTERY_WAS_DISCOUNTED,
-        then: &MASTERY_OPPONENT_DRAWS,
-    },
-    MASTERY_EXILE,
-];
-
 pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
     2201,
     "Baleful Mastery",
@@ -131,8 +84,36 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_w
     CardRules::new_instant(mana_cost!("{3}{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "If the {1}{B} cost was paid, an opponent draws a card.\nExile target creature or planeswalker.",
-            &MASTERY_TARGET,
-            EffectDef::Sequence(&MASTERY_RESOLUTION),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            // Printed order: the draw is named before the exile, and it happens first.
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    // The discount is the whole cost of the card: two mana instead of four,
+                    // and the opponent gets the card back. Which cast was used is read off the
+                    // spell itself, so the rider is part of one resolution rather than a
+                    // second clause.
+                    condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::AlternativeCost),
+                    then: &EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            ]),
         ),
         AbilityDef::alternative_cast(
             mana_cost!("{1}{B}"),
@@ -164,55 +145,6 @@ const ITERATION_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 const ITERATION_AFTER_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const ITERATION_BOTTOM: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
 const ITERATION_EXILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
-
-static ITERATION_EXILE_AND_PLAY: EffectDef = EffectDef::ExileGrantingControllerPlayThisTurn {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ITERATION_EXILE)),
-};
-static ITERATION_PUT_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(ITERATION_BOTTOM),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Library,
-    placement: ZonePlacement::Bottom,
-    moved: None,
-    then: &ITERATION_EXILE_AND_PLAY,
-});
-static ITERATION_PUT_HAND: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(ITERATION_HAND),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &ITERATION_PUT_BOTTOM,
-});
-static ITERATION_CHOOSE_BOTTOM: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
-    unchosen: Some(ITERATION_EXILE),
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Private,
-    then: &ITERATION_PUT_HAND,
-});
-static ITERATION_CHOOSE_HAND: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
-    unchosen: Some(ITERATION_AFTER_HAND),
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Binding(ITERATION_INSPECTED),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Private,
-    then: &ITERATION_CHOOSE_BOTTOM,
-});
-static ITERATION_EFFECT: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(3),
-    ITERATION_INSPECTED,
-    &ITERATION_CHOOSE_HAND,
-);
-
 pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31b770cc-09e7-4c0b-b2a4-462ab4f7200d"),
     "Expressive Iteration",
@@ -227,7 +159,58 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
         "Look at the top three cards of your library. Put one of them into your hand, put one of \
          them on the bottom of your library, and exile one of them. You may play the exiled card \
          this turn.",
-        ITERATION_EFFECT,
+        abilities::bind_top_cards_then(
+            PlayerRefDef::EffectController,
+            ValueDef::Constant(3),
+            ITERATION_INSPECTED,
+            &const {
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
+                    unchosen: Some(ITERATION_AFTER_HAND),
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Binding(ITERATION_INSPECTED),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &const {
+                        EffectDef::Choose(ChooseDef {
+                            binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
+                            unchosen: Some(ITERATION_EXILE),
+                            chooser: PlayerRefDef::EffectController,
+                            candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
+                            exclude: None,
+                            minimum: 1,
+                            maximum: 1,
+                            visibility: ChoiceVisibilityDef::Private,
+                            then: &const {
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(ITERATION_HAND),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &const {
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(ITERATION_BOTTOM),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Library,
+                                            placement: ZonePlacement::Bottom,
+                                            moved: None,
+                                            then: &EffectDef::ExileGrantingControllerPlayThisTurn {
+                                                object: EffectRecipientDef::objects(
+                                                    ObjectSetDef::Binding(ITERATION_EXILE),
+                                                ),
+                                            },
+                                        })
+                                    },
+                                })
+                            },
+                        })
+                    },
+                })
+            },
+        ),
     )),
 );
 
@@ -259,17 +242,6 @@ static MAGECRAFT: TriggerEventDef = TriggerEventDef::AnyOf(&[
     TriggerEventDef::SpellCopied(YOUR_INSTANT_OR_SORCERY),
 ]);
 
-static APPRENTICE_DRAIN: [EffectDef; 2] = [
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Opponent,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 // STX 247 — Witherbloom Apprentice
 pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f80a11b-188b-464c-b00d-c9d1cfb8ddee"),
@@ -283,7 +255,16 @@ pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord
             "Magecraft — Whenever you cast or copy an instant or sorcery spell, each opponent \
              loses 1 life and you gain 1 life.",
             MAGECRAFT,
-            EffectDef::Sequence(&APPRENTICE_DRAIN),
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
         ),
     ),
 );
@@ -309,26 +290,6 @@ pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::ne
 );
 
 // STX 306 — Sedgemoor Witch
-static SEDGEMOOR_WITCH_ABILITIES: [AbilityDef; 3] = [
-    abilities::menace(),
-    // Ward's cost is whatever the card prints, and hers is life -- which a
-    // deck that already pays life for its lands is well placed to charge.
-    abilities::ward_life(
-        3,
-        "Ward—Pay 3 life. (Whenever this creature becomes the target of a spell or ability an \
-         opponent controls, counter it unless that player pays 3 life.)",
-    ),
-    AbilityDef::triggered(
-        "Magecraft — Whenever you cast or copy an instant or sorcery spell, create a 1/1 black \
-         and green Pest creature token with \"When this token dies, you gain 1 life.\"",
-        MAGECRAFT,
-        EffectDef::create_token(tokens::pest()).with_art(CardArt::new(
-            "d0ddbe3e-4a66-494d-9304-7471232549bf",
-            "Ilse Gort",
-        )),
-    ),
-];
-
 pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("075bfaa8-3d54-4934-aaf6-72be43a87324"),
     "Sedgemoor Witch",
@@ -336,8 +297,25 @@ pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
     crate::card::CardSet::StrixhavenSchoolOfMages,
     // Three mana for a body that is hard to block and harder to answer, and
     // that turns every cantrip into another creature.
-    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Warlock"], 3, 2)
-        .with_abilities(&SEDGEMOOR_WITCH_ABILITIES),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Warlock"], 3, 2).with_abilities(&[
+        abilities::menace(),
+        // Ward's cost is whatever the card prints, and hers is life -- which a
+        // deck that already pays life for its lands is well placed to charge.
+        abilities::ward_life(
+            3,
+            "Ward—Pay 3 life. (Whenever this creature becomes the target of a spell or ability an \
+                 opponent controls, counter it unless that player pays 3 life.)",
+        ),
+        AbilityDef::triggered(
+            "Magecraft — Whenever you cast or copy an instant or sorcery spell, create a 1/1 black \
+                 and green Pest creature token with \"When this token dies, you gain 1 life.\"",
+            MAGECRAFT,
+            EffectDef::create_token(tokens::pest()).with_art(CardArt::new(
+                "d0ddbe3e-4a66-494d-9304-7471232549bf",
+                "Ilse Gort",
+            )),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

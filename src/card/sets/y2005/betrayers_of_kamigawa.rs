@@ -20,43 +20,6 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
 );
 
 // BOK 163 — Umezawa's Jitte
-/// The three modes of the Jitte's counter-spending ability. Each is a clause
-/// of its own with its own targets, chosen as the ability is activated.
-static JITTE_MODES: &[AbilityDef] = &[
-    AbilityDef::spell(
-        "Equipped creature gets +2/+2 until end of turn",
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::AttachedPermanent,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(2),
-                ValueDef::Constant(2),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target creature gets -1/-1 until end of turn",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::HasType(CardType::Creature),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(-1),
-                ValueDef::Constant(-1),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell(
-        "You gain 2 life",
-        EffectDef::GainLife {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(2),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
     2188,
     "Umezawa's Jitte",
@@ -83,7 +46,42 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
                     kind: CounterKind::named("charge"),
                     amount: 1,
                 }],
-                JITTE_MODES,
+                // The three modes of the Jitte's counter-spending ability. Each is a clause
+                // of its own with its own targets, chosen as the ability is activated.
+                &[
+                    AbilityDef::spell(
+                        "Equipped creature gets +2/+2 until end of turn",
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::AttachedPermanent,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ),
+                    AbilityDef::spell_with_targets(
+                        "Target creature gets -1/-1 until end of turn",
+                        &[AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )],
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(-1),
+                                ValueDef::Constant(-1),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ),
+                    AbilityDef::spell(
+                        "You gain 2 life",
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(2),
+                        },
+                    ),
+                ],
                 1,
                 1,
                 false,

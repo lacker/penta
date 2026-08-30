@@ -10,14 +10,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // C14 5 — Containment Priest
-/// A nontoken creature that was not cast. Tokens are exempt because the card
-/// says so; everything else that arrives without going through the stack --
-/// reanimation, Show and Tell, a fetched Natural Order target -- is not.
-static AN_UNCAST_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-]);
-
 pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
     2156,
     "Containment Priest",
@@ -30,7 +22,13 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
         AbilityDef::replacement_for(
             "If a nontoken creature would enter and it wasn't cast, exile it instead.",
             ReplacementEventDef::ObjectEntersBattlefield {
-                object: AN_UNCAST_CREATURE,
+                // A nontoken creature that was not cast. Tokens are exempt because the card
+                // says so; everything else that arrives without going through the stack --
+                // reanimation, Show and Tell, a fetched Natural Order target -- is not.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ]),
                 controller: PlayerRelation::Any,
                 cast: Some(false),
             },
@@ -40,47 +38,6 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
 );
 
 // C14 50 — Titania, Protector of Argoth
-static A_LAND_CARD_IN_YOUR_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Land),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
-/// "A land you control", read as it leaves: the trigger is captured from
-/// the battlefield as it was a moment before, which is the only place a
-/// land that is now in a graveyard was ever controlled by anyone.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static TITANIA_ABILITIES: [AbilityDef; 2] = [
-    abilities::enters_trigger_with_targets(
-        "When Titania enters, return target land card from your graveyard to the battlefield.",
-        &A_LAND_CARD_IN_YOUR_GRAVEYARD,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
-    ),
-    AbilityDef::triggered(
-        "Whenever a land you control is put into a graveyard from the battlefield, create a 5/3 \
-         green Elemental creature token.",
-        TriggerEventDef::zone_changed(
-            A_LAND_YOU_CONTROL,
-            Some(ZoneKind::Battlefield),
-            Some(ZoneKind::Graveyard),
-        ),
-        EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 5, 3).with_art(
-            CardArt::new("27440269-3b09-4010-8401-f159dc49a4cd", "Nils Hamm"),
-        ),
-    ),
-];
-
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
     CardRecord::new_with_legacy_id(
         2296,
@@ -91,7 +48,42 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
         // fetchland the deck was already playing into five power.
         CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elemental"], 5, 3)
             .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&TITANIA_ABILITIES),
+            .with_abilities(&[
+                abilities::enters_trigger_with_targets(
+                    "When Titania enters, return target land card from your graveyard to the battlefield.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Land),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+                AbilityDef::triggered(
+                    "Whenever a land you control is put into a graveyard from the battlefield, create a 5/3 \
+                     green Elemental creature token.",
+                    TriggerEventDef::zone_changed(
+                        // "A land you control", read as it leaves: the trigger is captured from
+                        // the battlefield as it was a moment before, which is the only place a
+                        // land that is now in a graveyard was ever controlled by anyone.
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ]),
+                        Some(ZoneKind::Battlefield),
+                        Some(ZoneKind::Graveyard),
+                    ),
+                    EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 5, 3).with_art(
+                        CardArt::new("27440269-3b09-4010-8401-f159dc49a4cd", "Nils Hamm"),
+                    ),
+                ),
+            ]),
     );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

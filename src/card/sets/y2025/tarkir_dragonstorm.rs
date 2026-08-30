@@ -35,94 +35,6 @@ static UGIN_EXILES_IT: EffectDef = EffectDef::MoveToZone {
     placement: ZonePlacement::Top,
 };
 
-/// A colorless spell you cast, which is every spell the deck around him is
-/// made of. His own cast is not one of these: he is still on the stack, and
-/// this clause is read off the battlefield.
-static A_COLORLESS_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::ColorCount(0),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static UGIN_GAINS_AND_DRAWS: [EffectDef; 2] = [
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-];
-
-/// "Until end of turn, you may cast those cards without paying their mana
-/// costs": the cards the search just exiled, named by what it bound rather
-/// than by anything about exile, since a card that was already there is not
-/// one of them.
-static UGIN_MAY_CAST_THEM: EffectDef = EffectDef::MayPlayWithoutPaying(FreePlayDef {
-    objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-    // "Until end of turn" is printed, so this one outlives its resolution.
-    duration: FreePlayDurationDef::UntilEndOfTurn,
-    mandatory: false,
-    grants_haste: false,
-});
-
-/// "Any number": the bound is the library, so the search offers everything
-/// that matches and takes as many as its controller wants.
-static UGIN_SEARCH: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::ColorCount(0),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-    ]),
-    minimum: 0,
-    maximum: ValueDef::Constant(i32::MAX),
-    reveal: false,
-    destination: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: false,
-    attachment: None,
-    binding: Some(ObjectSetBindingIndex::PRIMARY),
-    then: Some(&UGIN_MAY_CAST_THEM),
-};
-
-static UGIN_ABILITIES: [AbilityDef; 5] = [
-    AbilityDef::triggered_with_targets(
-        "When you cast this spell, exile up to one target permanent that's one or more colors.",
-        TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
-        &UP_TO_ONE_COLORED_PERMANENT,
-        UGIN_EXILES_IT,
-    ),
-    AbilityDef::triggered_with_targets(
-        "Whenever you cast a colorless spell, exile up to one target permanent that's one or \
-         more colors.",
-        TriggerEventDef::spell_cast(A_COLORLESS_SPELL_YOU_CAST),
-        &UP_TO_ONE_COLORED_PERMANENT,
-        UGIN_EXILES_IT,
-    ),
-    AbilityDef::activated(
-        "+2: You gain 3 life and draw a card.",
-        &[AbilityCostDef::Loyalty(2)],
-        EffectDef::Sequence(&UGIN_GAINS_AND_DRAWS),
-    ),
-    // A loyalty ability that makes mana is still a mana ability: it never
-    // uses the stack, and it is still the one loyalty ability he may use
-    // this turn.
-    AbilityDef::activated_mana(
-        "0: Add {C}{C}{C}.",
-        &[AbilityCostDef::Loyalty(0)],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
-    ),
-    AbilityDef::activated(
-        "\u{2212}11: Search your library for any number of colorless nonland cards, exile them, \
-         then shuffle. Until end of turn, you may cast those cards without paying their mana \
-         costs.",
-        &[AbilityCostDef::Loyalty(-11)],
-        UGIN_SEARCH,
-    ),
-];
-
 pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64a5d494-efa1-446b-bebe-2ad36e154376"),
     "Ugin, Eye of the Storms",
@@ -133,17 +45,88 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
     // eventually empties the library onto the table for free.
     CardRules::new_planeswalker(mana_cost!("{7}"), &["Ugin"], 7)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&UGIN_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::triggered_with_targets(
+                "When you cast this spell, exile up to one target permanent that's one or more colors.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+                &UP_TO_ONE_COLORED_PERMANENT,
+                UGIN_EXILES_IT,
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever you cast a colorless spell, exile up to one target permanent that's one or \
+                 more colors.",
+                // A colorless spell you cast, which is every spell the deck around him is
+                // made of. His own cast is not one of these: he is still on the stack, and
+                // this clause is read off the battlefield.
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::ColorCount(0),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                &UP_TO_ONE_COLORED_PERMANENT,
+                UGIN_EXILES_IT,
+            ),
+            AbilityDef::activated(
+                "+2: You gain 3 life and draw a card.",
+                &[AbilityCostDef::Loyalty(2)],
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+            // A loyalty ability that makes mana is still a mana ability: it never
+            // uses the stack, and it is still the one loyalty ability he may use
+            // this turn.
+            AbilityDef::activated_mana(
+                "0: Add {C}{C}{C}.",
+                &[AbilityCostDef::Loyalty(0)],
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
+            ),
+            AbilityDef::activated(
+                "\u{2212}11: Search your library for any number of colorless nonland cards, exile them, \
+                 then shuffle. Until end of turn, you may cast those cards without paying their mana \
+                 costs.",
+                &[AbilityCostDef::Loyalty(-11)],
+                // "Any number": the bound is the library, so the search offers everything
+                // that matches and takes as many as its controller wants.
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::ColorCount(0),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(i32::MAX),
+                    reveal: false,
+                    destination: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    // "Until end of turn, you may cast those cards without paying their mana
+                    // costs": the cards the search just exiled, named by what it bound rather
+                    // than by anything about exile, since a card that was already there is not
+                    // one of them.
+                    then: Some(&EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                        // "Until end of turn" is printed, so this one outlives its resolution.
+                        duration: FreePlayDurationDef::UntilEndOfTurn,
+                        mandatory: false,
+                        grants_haste: false,
+                    })),
+                },
+            ),
+        ]),
 );
 
 // TDM 8 — Descendant of Storms
-/// "It endures 1": the counter or the Spirit, and the attacking body is
-/// what either one is about.
-static DESCENDANT_ENDURES: EffectDef = EffectDef::Endure {
-    object: EffectRecipientDef::Source,
-    amount: ValueDef::Constant(1),
-};
-
 pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f632be90-9e7f-41f8-a52e-a2952354d730"),
     "Descendant of Storms",
@@ -161,7 +144,12 @@ pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{1}{W}"),
                 ),
-                &DESCENDANT_ENDURES,
+                // "It endures 1": the counter or the Spirit, and the attacking body is
+                // what either one is about.
+                &EffectDef::Endure {
+                    object: EffectRecipientDef::Source,
+                    amount: ValueDef::Constant(1),
+                },
             )),
         ),
     ),
@@ -198,67 +186,6 @@ pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::n
 );
 
 // TDM 33 — Voice of Victory
-/// The tokens go away at the next end step, and it has to be exactly the
-/// ones this attack made: by then nothing about the board could tell them
-/// apart from the pair the last attack made, or from a Warrior that arrived
-/// some other way. So they are bound as they are created and the delayed
-/// clause names the binding.
-static MOBILIZE_SACRIFICE: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next end step, sacrifice those tokens.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::End,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                ObjectSetBindingIndex::PRIMARY,
-            )),
-        },
-    )));
-
-/// Mobilize 2 (CR 702.180a). Written out rather than abbreviated: the
-/// keyword is a shorthand for a triggered ability, and this is that ability.
-static MOBILIZE_TWO: AbilityDef = AbilityDef::triggered(
-    "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
-     creature tokens. Sacrifice them at the beginning of the next end step.)",
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
-        .with_art(CardArt::new(
-            "7edc0515-a130-45a7-aa09-0e23bba41587",
-            "Forrest Imel",
-        ))
-        .with_amount(2)
-        .entering_tapped()
-        .entering_attacking()
-        .with_created_tokens(CreatedTokensDef {
-            binding: ObjectSetBindingIndex::PRIMARY,
-            then: &MOBILIZE_SACRIFICE,
-        }),
-);
-
-static NO_SPELLS: PlayRestrictionDef =
-    PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any);
-
-/// "During your turn" is the whole of the clause's timing, and it gates the
-/// restriction rather than narrowing who it names: on their own turn the
-/// same opponents may cast whatever they like.
-static SILENCE_ON_YOUR_TURN: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
-    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(NO_SPELLS)),
-};
-
-static VOICE_OF_VICTORY_ABILITIES: [AbilityDef; 2] = [
-    MOBILIZE_TWO,
-    AbilityDef::static_ability(
-        "Your opponents can't cast spells during your turn.",
-        EffectDef::IfCondition {
-            condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
-            then: &SILENCE_ON_YOUR_TURN,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_with_legacy_id(
     2282,
     "Voice of Victory",
@@ -267,7 +194,56 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
     // Two mana that adds two power to every attack and turns off every
     // instant your opponent was holding for the turn you attack.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Bard"], 1, 3)
-        .with_abilities(&VOICE_OF_VICTORY_ABILITIES),
+        .with_abilities(&[
+            // Mobilize 2 (CR 702.180a). Written out rather than abbreviated: the
+            // keyword is a shorthand for a triggered ability, and this is that ability.
+            AbilityDef::triggered(
+                "Mobilize 2 (Whenever this creature attacks, create two tapped and attacking 1/1 red Warrior \
+                 creature tokens. Sacrifice them at the beginning of the next end step.)",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::create_creature_token(&["Warrior"], &[ManaColor::Red], 1, 1)
+                    .with_art(CardArt::new(
+                        "7edc0515-a130-45a7-aa09-0e23bba41587",
+                        "Forrest Imel",
+                    ))
+                    .with_amount(2)
+                    .entering_tapped()
+                    .entering_attacking()
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: ObjectSetBindingIndex::PRIMARY,
+                        // The tokens go away at the next end step, and it has to be exactly the
+                        // ones this attack made: by then nothing about the board could tell them
+                        // apart from the pair the last attack made, or from a Warrior that arrived
+                        // some other way. So they are bound as they are created and the delayed
+                        // clause names the binding.
+                        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                                "At the beginning of the next end step, sacrifice those tokens.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::End,
+                                    player: PlayerRelation::Any,
+                                },
+                                EffectDef::Sacrifice {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        ObjectSetBindingIndex::PRIMARY,
+                                    )),
+                                },
+                            ))),
+                    }),
+            ),
+            AbilityDef::static_ability(
+                "Your opponents can't cast spells during your turn.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                    // "During your turn" is the whole of the clause's timing, and it gates the
+                    // restriction rather than narrowing who it names: on their own turn the
+                    // same opponents may cast whatever they like.
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(PlayActionMatcherDef::CastSpell, ObjectPredicateDef::Any))),
+                    },
+                },
+            ),
+        ]),
 );
 
 // TDM 119 — Seize Opportunity
@@ -294,73 +270,6 @@ pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
 );
 
 // TDM 127 — Tersa Lightshatter
-/// "Discard up to two cards, then draw that many." The size is the player's
-/// to choose, so the discard is a choice with a floor of none rather than a
-/// fixed number, and what is drawn is however many that turned out to be.
-static TERSA_REFILL: [EffectDef; 2] = [
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-    },
-];
-
-static TERSA_LOOT: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Hand],
-        PlayerSetDef::One(PlayerRefDef::EffectController),
-    )),
-    exclude: None,
-    minimum: 0,
-    maximum: 2,
-    visibility: ChoiceVisibilityDef::Private,
-    then: &EffectDef::Sequence(&TERSA_REFILL),
-});
-
-/// Seven cards is a real threshold rather than a formality: the attack that
-/// turns it on is the one that has already spent a hand.
-static SEVEN_IN_YOUR_GRAVEYARD: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Graveyard],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 7,
-};
-
-static TERSA_EXILE_AND_PLAY: EffectDef = EffectDef::ExileGrantingControllerPlayThisTurn {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-};
-
-static TERSA_ABILITIES: [AbilityDef; 3] = [
-    abilities::haste(),
-    abilities::enters_trigger(
-        "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards.",
-        TERSA_LOOT,
-    ),
-    AbilityDef::triggered_if(
-        "Whenever Tersa Lightshatter attacks, if there are seven or more cards in your graveyard, \
-         exile a card at random from your graveyard. You may play that card this turn.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        &SEVEN_IN_YOUR_GRAVEYARD,
-        EffectDef::SelectAtRandomFromZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Graveyard,
-            object: ObjectPredicateDef::Any,
-            amount: ValueDef::Constant(1),
-            binding: ObjectSetBindingIndex::PRIMARY,
-            then: &TERSA_EXILE_AND_PLAY,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39f07b5b-d764-4c88-920b-36b0ba1c62b0"),
     "Tersa Lightshatter",
@@ -371,7 +280,64 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
     // filling anyway.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Orc", "Wizard"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&TERSA_ABILITIES),
+        .with_abilities(&[
+            abilities::haste(),
+            abilities::enters_trigger(
+                "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards.",
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::One(PlayerRefDef::EffectController),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 2,
+                    visibility: ChoiceVisibilityDef::Private,
+                    // "Discard up to two cards, then draw that many." The size is the player's
+                    // to choose, so the discard is a choice with a floor of none rather than a
+                    // fixed number, and what is drawn is however many that turned out to be.
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::DiscardCards {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        },
+                    ]),
+                }),
+            ),
+            AbilityDef::triggered_if(
+                "Whenever Tersa Lightshatter attacks, if there are seven or more cards in your graveyard, \
+                 exile a card at random from your graveyard. You may play that card this turn.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                // Seven cards is a real threshold rather than a formality: the attack that
+                // turns it on is the one that has already spent a hand.
+                &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 7,
+                },
+                EffectDef::SelectAtRandomFromZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Graveyard,
+                    object: ObjectPredicateDef::Any,
+                    amount: ValueDef::Constant(1),
+                    binding: ObjectSetBindingIndex::PRIMARY,
+                    then: &EffectDef::ExileGrantingControllerPlayThisTurn {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                    },
+                },
+            ),
+        ]),
 );
 
 // TDM 134 — Ainok Wayfarer
@@ -405,65 +371,6 @@ pub(in crate::card::sets) static SAGU_WILDLING: CardRecord = CardRecord::new(
 );
 
 // TDM 343 — Cori-Steel Cutter
-/// Exactly the second, not the second or later: the spell that caused the
-/// trigger has already been counted by the time this is read.
-static CUTTER_SECOND_SPELL: TriggerConditionDef = TriggerConditionDef::SpellsCastThisTurn {
-    quantifier: QuantifierDef::Any,
-    player: PlayerRelation::You,
-    comparison: ComparisonDef::Equal,
-    amount: 2,
-};
-
-/// "You may attach this Equipment to it": the Monk is named rather than
-/// targeted, so the token the trigger just made is the one it moves onto --
-/// and declining leaves the Equipment where it was.
-static CUTTER_ATTACHES_TO_THE_MONK: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::Controller,
-    effect: &EffectDef::Attach {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-};
-
-static CUTTER_PROWESS: [AbilityDef; 1] = [abilities::prowess()];
-
-static CUTTER_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{1}{R}"))];
-
-static CUTTER_GRANT: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::add_ability(&CUTTER_TRAMPLE),
-    AppliedEffectDef::add_ability(&CUTTER_HASTE),
-];
-
-static CUTTER_TRAMPLE: AbilityDef = abilities::trample();
-static CUTTER_HASTE: AbilityDef = abilities::haste();
-
-static CORI_STEEL_CUTTER_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "Equipped creature gets +1/+1 and has trample and haste.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::AttachedPermanent,
-            effect: AppliedEffectDef::Composite(&CUTTER_GRANT),
-        },
-    ),
-    AbilityDef::triggered_if(
-        "Flurry — Whenever you cast your second spell each turn, create a 1/1 white Monk \
-         creature token with prowess. You may attach this Equipment to it.",
-        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-        &CUTTER_SECOND_SPELL,
-        EffectDef::create_creature_token(&["Monk"], &[ManaColor::White], 1, 1)
-            .with_abilities(&CUTTER_PROWESS)
-            .with_art(CardArt::new(
-                "633d2d10-def7-426f-8496-ed6b45684299",
-                "Elizabeth Peiró",
-            ))
-            .with_created_tokens(CreatedTokensDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
-                then: &CUTTER_ATTACHES_TO_THE_MONK,
-            }),
-    ),
-    abilities::equip(&CUTTER_EQUIP_COST, "Equip {1}{R}"),
-];
-
 pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("470dd3c8-07c9-42ef-aa9e-3c73b23607ff"),
     "Cori-Steel Cutter",
@@ -473,7 +380,59 @@ pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new
     // moves itself onto the new one for free every time.
     CardRules::new_artifact(mana_cost!("{1}{R}"))
         .with_subtypes(&["Equipment"])
-        .with_abilities(&CORI_STEEL_CUTTER_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has trample and haste.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered_if(
+                "Flurry — Whenever you cast your second spell each turn, create a 1/1 white Monk \
+                 creature token with prowess. You may attach this Equipment to it.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                // Exactly the second, not the second or later: the spell that caused the
+                // trigger has already been counted by the time this is read.
+                &TriggerConditionDef::SpellsCastThisTurn {
+                    quantifier: QuantifierDef::Any,
+                    player: PlayerRelation::You,
+                    comparison: ComparisonDef::Equal,
+                    amount: 2,
+                },
+                EffectDef::create_creature_token(&["Monk"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::prowess()])
+                    .with_art(CardArt::new(
+                        "633d2d10-def7-426f-8496-ed6b45684299",
+                        "Elizabeth Peiró",
+                    ))
+                    .with_created_tokens(CreatedTokensDef {
+                        binding: ObjectSetBindingIndex::PRIMARY,
+                        // "You may attach this Equipment to it": the Monk is named rather than
+                        // targeted, so the token the trigger just made is the one it moves onto --
+                        // and declining leaves the Equipment where it was.
+                        then: &EffectDef::May {
+                            player: EffectRecipientDef::Controller,
+                            effect: &EffectDef::Attach {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    ObjectSetBindingIndex::PRIMARY,
+                                )),
+                            },
+                        },
+                    }),
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+                "Equip {1}{R}",
+            ),
+        ]),
 );
 
 static ELSPETH_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
@@ -481,77 +440,6 @@ static ELSPETH_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
-
-static ELSPETH_FLYING: AbilityDef = abilities::flying();
-
-/// "Those creatures" is the set the counters went on. Nothing can join or
-/// leave the battlefield between the two halves of one resolution, so
-/// naming the same query twice names the same creatures -- and unlike a
-/// binding it says outright that they are on the battlefield.
-static ELSPETH_ANTHEM_STEPS: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::objects(ObjectSetDef::Query(ELSPETH_CREATURES)),
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ELSPETH_CREATURES)),
-        effect: AppliedEffectDef::add_ability(&ELSPETH_FLYING),
-        duration: ResolvedEffectDurationDef::UntilYourNextTurn,
-    },
-];
-
-static ELSPETH_ANTHEM: EffectDef = EffectDef::Sequence(&ELSPETH_ANTHEM_STEPS);
-
-/// "Mana value 3 or greater", which for a whole number is everything that is
-/// not two or less.
-static A_BIG_CREATURE_AN_OPPONENT_CONTROLS: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
-            ]),
-            zones: &[ZoneKind::Battlefield],
-            controller: Some(PlayerRelation::Opponent),
-            owner: None,
-        },
-    )];
-
-static ELSPETH_PLUS_ONE_COST: [AbilityCostDef; 1] = [AbilityCostDef::Loyalty(1)];
-static ELSPETH_ZERO_COST: [AbilityCostDef; 1] = [AbilityCostDef::Loyalty(0)];
-static ELSPETH_MINUS_THREE_COST: [AbilityCostDef; 1] = [AbilityCostDef::Loyalty(-3)];
-
-static ELSPETH_ABILITIES: [AbilityDef; 4] = [
-    // The doubling is what every other line on the card is written against:
-    // her plus makes two Soldiers, and so does anything else you were
-    // already doing.
-    AbilityDef::static_ability(
-        "If one or more tokens would be created under your control, twice that many of those \
-         tokens are created instead.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Controller,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::DoublesTokensCreated),
-        },
-    ),
-    AbilityDef::activated(
-        "+1: Create a 1/1 white Soldier creature token.",
-        &ELSPETH_PLUS_ONE_COST,
-        EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
-    ),
-    AbilityDef::activated(
-        "0: Put a +1/+1 counter on each creature you control. Those creatures gain flying until \
-         your next turn.",
-        &ELSPETH_ZERO_COST,
-        ELSPETH_ANTHEM,
-    ),
-    AbilityDef::activated_with_targets(
-        "−3: Destroy target creature an opponent controls with mana value 3 or greater.",
-        &ELSPETH_MINUS_THREE_COST,
-        &A_BIG_CREATURE_AN_OPPONENT_CONTROLS,
-        EffectDef::destroy_target(TargetIndex::PRIMARY, true),
-    ),
-];
 
 // TDM 398 — Elspeth, Storm Slayer
 pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::new(
@@ -564,7 +452,63 @@ pub(in crate::card::sets) static ELSPETH_STORM_SLAYER: CardRecord = CardRecord::
     // twice.
     CardRules::new_planeswalker(mana_cost!("{3}{W}{W}"), &["Elspeth"], 5)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ELSPETH_ABILITIES),
+        .with_abilities(&[
+            // The doubling is what every other line on the card is written against:
+            // her plus makes two Soldiers, and so does anything else you were
+            // already doing.
+            AbilityDef::static_ability(
+                "If one or more tokens would be created under your control, twice that many of those \
+                 tokens are created instead.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoublesTokensCreated),
+                },
+            ),
+            AbilityDef::activated(
+                "+1: Create a 1/1 white Soldier creature token.",
+                &[AbilityCostDef::Loyalty(1)],
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+            ),
+            AbilityDef::activated(
+                "0: Put a +1/+1 counter on each creature you control. Those creatures gain flying until \
+                 your next turn.",
+                &[AbilityCostDef::Loyalty(0)],
+                // "Those creatures" is the set the counters went on. Nothing can join or
+                // leave the battlefield between the two halves of one resolution, so
+                // naming the same query twice names the same creatures -- and unlike a
+                // binding it says outright that they are on the battlefield.
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Query(ELSPETH_CREATURES)),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ELSPETH_CREATURES)),
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                        duration: ResolvedEffectDurationDef::UntilYourNextTurn,
+                    },
+                ]),
+            ),
+            AbilityDef::activated_with_targets(
+                "−3: Destroy target creature an opponent controls with mana value 3 or greater.",
+                &[AbilityCostDef::Loyalty(-3)],
+                // "Mana value 3 or greater", which for a whole number is everything that is
+                // not two or less.
+                &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::ManaValueAtMost(2)),
+                            ]),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::Opponent),
+                            owner: None,
+                        },
+                    )],
+                EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            ),
+        ]),
 );
 
 // TDM 409 — Ugin, Eye of the Storms (alternate printing)

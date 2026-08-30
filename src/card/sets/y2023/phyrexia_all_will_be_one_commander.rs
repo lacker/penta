@@ -46,65 +46,6 @@ pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
 );
 
 // ONC 39 — Otharri, Suns\' Glory
-/// The counter goes on the player, not on him: it stays through his death
-/// and counts for whatever he comes back to.
-static OTHARRI_EXPERIENCE: ValueDef = ValueDef::PlayerCounters {
-    player: PlayerRelation::You,
-    kind: CounterKind::named("experience"),
-};
-
-/// "Then" is the order that matters: the counter is his first, so the
-/// attack he arrives on already makes one Rebel.
-static OTHARRI_ATTACK: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Controller,
-        kind: CounterKind::named("experience"),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::create_creature_token(&["Rebel"], &[ManaColor::Red], 2, 2)
-        .entering_tapped()
-        .entering_attacking()
-        .with_count(OTHARRI_EXPERIENCE),
-];
-
-static OTHARRI_RETURN_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
-    AbilityCostDef::TapPermanents {
-        object: ObjectPredicateDef::Subtype("Rebel"),
-        controller: PlayerRelation::You,
-        count: 1,
-    },
-];
-
-static OTHARRI_ABILITIES: [AbilityDef; 5] = [
-    abilities::flying(),
-    abilities::lifelink(),
-    abilities::haste(),
-    AbilityDef::triggered(
-        "Whenever this creature attacks, you get an experience counter. Then create a 2/2 red \
-         Rebel creature token that\'s tapped and attacking for each experience counter you have.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::Sequence(&OTHARRI_ATTACK),
-    ),
-    AbilityDef::activated(
-        "{2}{R}{W}, Tap an untapped Rebel you control: Return this card from your graveyard to \
-         the battlefield tapped.",
-        &OTHARRI_RETURN_COST,
-        EffectDef::WithBattlefieldArrival {
-            effect: &EffectDef::MoveToZone {
-                object: EffectRecipientDef::Source,
-                zone: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-            },
-            arrival: crate::card::BattlefieldArrivalDef {
-                modifications: &[BattlefieldEntryModificationDef::Tapped],
-                ..crate::card::BattlefieldArrivalDef::DEFAULT
-            },
-        },
-    )
-    .with_source_zones(&[ZoneKind::Graveyard]),
-];
-
 pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("348e0927-1d8f-4723-879d-f7e95ac60c27"),
     "Otharri, Suns\' Glory",
@@ -115,59 +56,61 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
     // left behind.
     CardRules::new_creature(mana_cost!("{3}{R}{W}"), &["Phoenix"], 3, 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&OTHARRI_ABILITIES),
+        .with_abilities(&[
+            abilities::flying(),
+            abilities::lifelink(),
+            abilities::haste(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, you get an experience counter. Then create a 2/2 red \
+                 Rebel creature token that\'s tapped and attacking for each experience counter you have.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                // "Then" is the order that matters: the counter is his first, so the
+                // attack he arrives on already makes one Rebel.
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Controller,
+                        kind: CounterKind::named("experience"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::create_creature_token(&["Rebel"], &[ManaColor::Red], 2, 2)
+                        .entering_tapped()
+                        .entering_attacking()
+                        // The counter goes on the player, not on him: it stays through his death
+                        // and counts for whatever he comes back to.
+                        .with_count(ValueDef::PlayerCounters {
+                            player: PlayerRelation::You,
+                            kind: CounterKind::named("experience"),
+                        }),
+                ]),
+            ),
+            AbilityDef::activated(
+                "{2}{R}{W}, Tap an untapped Rebel you control: Return this card from your graveyard to \
+                 the battlefield tapped.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
+                    AbilityCostDef::TapPermanents {
+                        object: ObjectPredicateDef::Subtype("Rebel"),
+                        controller: PlayerRelation::You,
+                        count: 1,
+                    },
+                ],
+                EffectDef::WithBattlefieldArrival {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    arrival: crate::card::BattlefieldArrivalDef {
+                        modifications: &[BattlefieldEntryModificationDef::Tapped],
+                        ..crate::card::BattlefieldArrivalDef::DEFAULT
+                    },
+                },
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ]),
 );
 
 // ONC 48 — Staff of the Storyteller
-static STAFF_SPIRIT: [AbilityDef; 1] = [abilities::flying()];
-
-/// The Staff pays for itself the moment it lands: the Spirit it makes is a
-/// creature token you created, so its own trigger sees it.
-static STAFF_MAKES_A_SPIRIT: EffectDef =
-    EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
-        .with_abilities(&STAFF_SPIRIT);
-
-/// One instruction, one counter, however many tokens it made -- which is
-/// what "one or more" says and what makes a wide token maker no better here
-/// than a narrow one.
-static STAFF_COUNTS_THE_STORY: TriggerEventDef = TriggerEventDef::TokensCreated {
-    player: PlayerRelation::You,
-    token: ObjectPredicateDef::HasType(CardType::Creature),
-};
-
-static STAFF_DRAW_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(mana_cost!("{W}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::named("story"),
-        amount: 1,
-    },
-];
-
-static STAFF_ABILITIES: [AbilityDef; 3] = [
-    abilities::enters_trigger(
-        "When this artifact enters, create a 1/1 white Spirit creature token with flying.",
-        STAFF_MAKES_A_SPIRIT,
-    ),
-    AbilityDef::triggered(
-        "Whenever you create one or more creature tokens, put a story counter on this artifact.",
-        STAFF_COUNTS_THE_STORY,
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Source,
-            kind: CounterKind::named("story"),
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    AbilityDef::activated(
-        "{W}, {T}, Remove a story counter from this artifact: Draw a card.",
-        &STAFF_DRAW_COST,
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a"),
     "Staff of the Storyteller",
@@ -175,7 +118,45 @@ pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardReco
     CardSet::PhyrexiaAllWillBeOneCommander,
     // Two mana for a flier, and a card for every turn the deck keeps making
     // tokens afterwards.
-    CardRules::new_artifact(mana_cost!("{1}{W}")).with_abilities(&STAFF_ABILITIES),
+    CardRules::new_artifact(mana_cost!("{1}{W}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, create a 1/1 white Spirit creature token with flying.",
+            // The Staff pays for itself the moment it lands: the Spirit it makes is a
+            // creature token you created, so its own trigger sees it.
+            EffectDef::create_creature_token(&["Spirit"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::flying()]),
+        ),
+        AbilityDef::triggered(
+            "Whenever you create one or more creature tokens, put a story counter on this artifact.",
+            // One instruction, one counter, however many tokens it made -- which is
+            // what "one or more" says and what makes a wide token maker no better here
+            // than a narrow one.
+            TriggerEventDef::TokensCreated {
+                player: PlayerRelation::You,
+                token: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("story"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{W}, {T}, Remove a story counter from this artifact: Draw a card.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("story"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

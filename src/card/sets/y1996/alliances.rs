@@ -254,53 +254,6 @@ static DENIED_CONTROLLER: EffectRecipientDef = EffectRecipientDef::player(
     PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
 );
 
-static DENIAL_SECOND_DRAW: EffectDef = EffectDef::May {
-    player: DENIED_CONTROLLER,
-    effect: &EffectDef::DrawCards {
-        recipient: DENIED_CONTROLLER,
-        amount: ValueDef::Constant(1),
-    },
-};
-
-static DENIAL_FIRST_DRAW: EffectDef = EffectDef::May {
-    player: DENIED_CONTROLLER,
-    effect: &EffectDef::Sequence(&[
-        EffectDef::DrawCards {
-            recipient: DENIED_CONTROLLER,
-            amount: ValueDef::Constant(1),
-        },
-        DENIAL_SECOND_DRAW,
-    ]),
-};
-
-/// Both draws are delayed to the next upkeep, which is what makes the card a
-/// real counterspell rather than a gift: the two cards arrive a turn later,
-/// and by then the spell it answered is long gone.
-static DENIAL_DRAWS: EffectDef = EffectDef::Sequence(&[
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next turn's upkeep, that spell's controller may draw up to two cards.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Any,
-        },
-        DENIAL_FIRST_DRAW,
-    ))),
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next turn's upkeep, draw a card.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Upkeep,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ))),
-]);
-
-static DENIAL_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 pub(in crate::card::sets) static ARCANE_DENIAL: CardRecord = CardRecord::new_with_legacy_id(
     2061,
     "Arcane Denial",
@@ -310,14 +263,52 @@ pub(in crate::card::sets) static ARCANE_DENIAL: CardRecord = CardRecord::new_wit
     // too late to matter in a deck that is about to lock the game up.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. Its controller may draw up to two cards at the beginning of the next turn's upkeep.\nYou draw a card at the beginning of the next turn's upkeep.",
-        &DENIAL_TARGET,
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
         EffectDef::Sequence(&[
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Graveyard,
                 placement: ZonePlacement::Top,
             },
-            DENIAL_DRAWS,
+            // Both draws are delayed to the next upkeep, which is what makes the card a
+            // real counterspell rather than a gift: the two cards arrive a turn later,
+            // and by then the spell it answered is long gone.
+            EffectDef::Sequence(&[
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next turn's upkeep, that spell's controller may draw up to two cards.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::May {
+                        player: DENIED_CONTROLLER,
+                        effect: &EffectDef::Sequence(&[
+                            EffectDef::DrawCards {
+                                recipient: DENIED_CONTROLLER,
+                                amount: ValueDef::Constant(1),
+                            },
+                            EffectDef::May {
+                                player: DENIED_CONTROLLER,
+                                effect: &EffectDef::DrawCards {
+                                    recipient: DENIED_CONTROLLER,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            },
+                        ]),
+                    },
+                ))),
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next turn's upkeep, draw a card.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ))),
+            ]),
         ]),
     )),
 );
@@ -381,16 +372,6 @@ pub(in crate::card::sets) static FALSE_DEMISE: CardRecord = CardRecord::new(
 // ALL 27b — False Demise (alternate printing)
 
 // ALL 28 — Force of Will
-static EXILE_A_BLUE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Blue),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
-
-static FORCE_OF_WILL_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_with_legacy_id(
     2174,
     "Force of Will",
@@ -409,11 +390,18 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
             ),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&EXILE_A_BLUE_CARD)
+        .with_alternative_additional_cost(
+            &SpellAdditionalCostDef::new(
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ZoneKind::Hand,
+                1,
+            )
+            .spent(SpendModeDef::Exile),
+        )
         .with_alternative_life(1),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
-            &FORCE_OF_WILL_TARGET,
+            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
             EffectDef::counter_target(TargetIndex::PRIMARY),
         ),
     ]),
@@ -968,31 +956,6 @@ pub(in crate::card::sets) static PRIMITIVE_JUSTICE: CardRecord = CardRecord::new
 );
 
 // ALL 78 — Pyrokinesis
-/// Four damage split however the caster likes. There is no printed ceiling on
-/// the number of creatures, but the division supplies one anyway: every target
-/// must be assigned at least one damage, so four is the most it can ever
-/// reach.
-static PYROKINESIS_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[crate::card::ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    minimum: 1,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: Some(DividedTotal::Fixed(4)),
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
-/// Exiled from hand rather than discarded: the card is spent without ever
-/// becoming a graveyard card, which is what "exile a red card" means.
-static EXILE_A_RED_CARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
-        .spent(SpendModeDef::Exile);
-
 pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_legacy_id(
     2031,
     "Pyrokinesis",
@@ -1007,10 +970,30 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
             Some("You may exile a red card from your hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&EXILE_A_RED_CARD),
+        // Exiled from hand rather than discarded: the card is spent without ever
+        // becoming a graveyard card, which is what "exile a red card" means.
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
+                .spent(SpendModeDef::Exile)),
         AbilityDef::spell_with_targets(
             "Pyrokinesis deals 4 damage divided as you choose among any number of target creatures.",
-            &PYROKINESIS_TARGETS,
+            // Four damage split however the caster likes. There is no printed ceiling on
+            // the number of creatures, but the division supplies one anyway: every target
+            // must be assigned at least one damage, so four is the most it can ever
+            // reach.
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[crate::card::ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                minimum: 1,
+                maximum: AbilityTargetDef::UNLIMITED,
+                divided_total: Some(DividedTotal::Fixed(4)),
+                another: false,
+                excludes_source: false,
+                chooser: TargetChooserDef::Controller,
+            }],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::DividedAmongTargets,
@@ -1715,45 +1698,6 @@ pub(in crate::card::sets) static SOLDEVI_EXCAVATIONS: CardRecord = CardRecord::n
 );
 
 // ALL 144 — Thawing Glaciers
-/// The land fetches, and then leaves: the return is a delayed trigger so
-/// that the land is available to tap again next turn rather than staying to
-/// be tapped twice in one.
-static GLACIERS_RETURN: EffectDef =
-    EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
-        "At the beginning of the next cleanup step, return this land to its owner's hand.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::Cleanup,
-            player: PlayerRelation::Any,
-        },
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Source,
-            zone: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-        },
-    )));
-
-static GLACIERS_FETCH: EffectDef = EffectDef::Sequence(&[
-    EffectDef::SearchZone {
-        player: EffectRecipientDef::Controller,
-        source: ZoneKind::Library,
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Land),
-            ObjectPredicateDef::Supertype(CardSupertype::Basic),
-        ]),
-        minimum: 0,
-        maximum: ValueDef::Constant(1),
-        reveal: false,
-        destination: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-        shuffle: true,
-        enters_tapped: true,
-        attachment: None,
-        binding: None,
-        then: None,
-    },
-    GLACIERS_RETURN,
-]);
-
 pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new_with_legacy_id(
     2057,
     "Thawing Glaciers",
@@ -1769,7 +1713,47 @@ pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new_
                 AbilityCostDef::Mana(mana_cost!("{1}")),
                 AbilityCostDef::TapSource,
             ],
-            GLACIERS_FETCH,
+            EffectDef::Sequence(&const {
+                [
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&const {
+                            [
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                            ]
+                        }),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: false,
+                        destination: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: true,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                    // The land fetches, and then leaves: the return is a delayed trigger so
+                    // that the land is available to tap again next turn rather than staying to
+                    // be tapped twice in one.
+                    EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                        AbilityDef::triggered(
+                        "At the beginning of the next cleanup step, return this land to its owner's hand.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::Cleanup,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    )
+                    })),
+                ]
+            }),
         ),
     ]),
 );

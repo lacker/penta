@@ -1003,19 +1003,6 @@ pub(in crate::card::sets) static FRENETIC_RAPTOR: CardRecord = CardRecord::new(
 );
 
 // LGN 94 — Gempalm Incinerator
-/// Every Goblin on the battlefield, whoever controls it -- the count is of
-/// the board, not of your side of it.
-static GOBLINS_ON_THE_BATTLEFIELD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Goblin"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static INCINERATE_FOR_EACH_GOBLIN: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
-};
-
 pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::new_with_legacy_id(
     2026,
     "Gempalm Incinerator",
@@ -1037,7 +1024,16 @@ pub(in crate::card::sets) static GEMPALM_INCINERATOR: CardRecord = CardRecord::n
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &INCINERATE_FOR_EACH_GOBLIN,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    // Every Goblin on the battlefield, whoever controls it -- the count is of
+                    // the board, not of your side of it.
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Goblin"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    )),
+                },
             },
         ),
     ]),

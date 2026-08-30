@@ -691,7 +691,6 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
                     EffectDef::Mill {
                         player: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
                         amount: ValueDef::Constant(7),
-                        binding: None,
                     },
                 ))),
             ),

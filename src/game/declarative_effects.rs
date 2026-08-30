@@ -7,6 +7,7 @@ use super::{
 };
 use crate::card::ArrivalAttachmentDef;
 mod attachment;
+mod bound_outputs;
 mod damage;
 mod exile_to_play;
 mod hand_and_library;
@@ -42,6 +43,9 @@ impl Game {
                     None,
                 );
             }
+            EffectDef::BindOutput { .. } => {
+                self.resolve_bound_output_effect(scoped, object, context);
+            }
             EffectDef::Randomized {
                 likelihood,
                 on_success,
@@ -75,16 +79,16 @@ impl Game {
                 self.queue_choose_object_order(definition, object, context, scoped);
             }
             EffectDef::Mill { .. } => {
-                self.resolve_mill_effect(scoped, object, context);
+                let _ = self.resolve_mill_effect(scoped, object, context);
             }
             EffectDef::MillUntil(_) => {
-                self.resolve_mill_until_effect(scoped, object, context);
+                let _ = self.resolve_mill_until_effect(scoped, object, context);
             }
             EffectDef::SelectAtRandomFromZone { .. } => {
-                self.resolve_random_zone_selection_effect(scoped, object, context);
+                let _ = self.resolve_random_zone_selection_effect(scoped, object, context);
             }
             EffectDef::RevealAtRandomFromHand { .. } => {
-                self.resolve_random_hand_reveal_effect(scoped, object, context);
+                let _ = self.resolve_random_hand_reveal_effect(scoped, object, context);
             }
             EffectDef::LookAtObjects(definition) => {
                 self.queue_look_at_objects(definition, object, context, scoped);

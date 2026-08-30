@@ -330,6 +330,16 @@ pub(super) fn effect_resolution_context_snapshot(
                 .map(target_snapshot)
                 .collect()
         }),
+        named_object_groups: context
+            .named_object_groups()
+            .iter()
+            .map(|(label, objects)| {
+                (
+                    label.clone(),
+                    objects.iter().copied().map(target_snapshot).collect(),
+                )
+            })
+            .collect(),
     }
 }
 
@@ -770,6 +780,13 @@ pub(super) fn parse_effect_resolution_context(
             .object_groups
             .map(|objects| objects.into_iter().map(parse_target).collect()),
     );
+    context.restore_named_bindings(
+        value
+            .named_object_groups
+            .into_iter()
+            .map(|(label, objects)| (label, objects.into_iter().map(parse_target).collect()))
+            .collect(),
+    );
     context.chosen_counter = value.chosen_counter.map(|kind| kind.0);
     Ok(context)
 }
@@ -895,6 +912,16 @@ mod tests {
                 Target::Player(PlayerId::Two),
             ],
         );
+        context.declare_named_object_group("optional_card");
+        context.bind_named_object_group("revealed_card", vec![Target::Card(GameObjectId(14))]);
+        context.declare_named_object_group("empty_cards");
+        context.bind_named_object_group(
+            "milled_cards",
+            vec![
+                Target::Card(GameObjectId(15)),
+                Target::Card(GameObjectId(16)),
+            ],
+        );
 
         let snapshot = effect_resolution_context_snapshot(&context);
         let rebuilt = parse_effect_resolution_context(snapshot).expect("context should parse");
@@ -912,13 +939,33 @@ mod tests {
                 Target::Player(PlayerId::Two),
             ]
         );
+        assert!(rebuilt.named_object_groups().contains_key("optional_card"));
+        assert!(rebuilt.named_object_group("optional_card").is_empty());
         assert_eq!(
-            resolution_context_referenced_object_ids(&rebuilt),
+            rebuilt.named_object_group("revealed_card"),
+            [Target::Card(GameObjectId(14))]
+        );
+        assert!(rebuilt.named_object_groups().contains_key("empty_cards"));
+        assert!(rebuilt.named_object_group("empty_cards").is_empty());
+        assert_eq!(
+            rebuilt.named_object_group("milled_cards"),
+            [
+                Target::Card(GameObjectId(15)),
+                Target::Card(GameObjectId(16))
+            ]
+        );
+        let mut referenced = resolution_context_referenced_object_ids(&rebuilt);
+        referenced.sort_unstable();
+        assert_eq!(
+            referenced,
             [
                 GameObjectId(10),
                 GameObjectId(11),
                 GameObjectId(12),
                 GameObjectId(13),
+                GameObjectId(14),
+                GameObjectId(15),
+                GameObjectId(16),
             ]
         );
     }

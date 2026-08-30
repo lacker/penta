@@ -736,8 +736,10 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
             | ObjectRefDef::DamagedObject,
         )
         | ObjectSetDef::Binding(_)
+        | ObjectSetDef::NamedBinding(_)
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
+        | ObjectSetDef::Matching { .. }
         | ObjectSetDef::PermanentsTargetedBy(_)
         | ObjectSetDef::PlayerAttachments(_)
         | ObjectSetDef::LegalAttachmentHosts(_)

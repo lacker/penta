@@ -187,6 +187,7 @@ pub(in crate::game::state_checkpoint) fn resolution_context_referenced_object_id
             .iter()
             .flatten()
             .chain(context.object_groups().iter().flatten())
+            .chain(context.named_object_groups().values().flatten())
             .copied()
             .filter_map(|target| match target {
                 Target::Player(_) => None,

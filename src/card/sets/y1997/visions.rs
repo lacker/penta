@@ -514,7 +514,6 @@ pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with
                 EffectDef::Mill {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(4),
-                    binding: None,
                 },
             ),
             AbilityDef::spell(

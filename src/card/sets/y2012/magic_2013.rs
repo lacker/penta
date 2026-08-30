@@ -1083,7 +1083,6 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
                     EffectDef::Mill {
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(1),
-                        binding: None,
                     },
                 ]),
             ),
@@ -1096,7 +1095,6 @@ pub(in crate::card::sets) static JACE_MEMORY_ADEPT: CardRecord = CardRecord::new
                 EffectDef::Mill {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(10),
-                    binding: None,
                 },
             ),
             AbilityDef::activated_with_targets(
@@ -1184,7 +1182,6 @@ pub(in crate::card::sets) static MIND_SCULPT: CardRecord = CardRecord::new_with_
         EffectDef::Mill {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::Constant(7),
-            binding: None,
         },
     )),
 );
@@ -1467,7 +1464,6 @@ pub(in crate::card::sets) static VEDALKEN_ENTRANCER: CardRecord = CardRecord::ne
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ),
@@ -4216,7 +4212,6 @@ pub(in crate::card::sets) static SANDS_OF_DELIRIUM: CardRecord = CardRecord::new
         EffectDef::Mill {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::ChosenX,
-            binding: None,
         },
     )),
 );

@@ -122,6 +122,12 @@ pub enum GrantedAbilityValidationError {
     ObjectSetBindingAlreadyInScope {
         binding: ObjectSetBindingIndex,
     },
+    NamedBindingAlreadyInScope {
+        label: &'static str,
+    },
+    NamedObjectSetBindingReferenceOutOfScope {
+        label: &'static str,
+    },
     /// Runtime static-effect discovery currently starts from attached printed
     /// or copied clauses. Reject an executable static ability granted by
     /// another ability until continuous effects have guarded fixed-point
@@ -248,6 +254,14 @@ impl fmt::Display for GrantedAbilityValidationError {
             Self::ObjectSetBindingAlreadyInScope { binding } => write!(
                 formatter,
                 "binds object-set slot {binding:?}, but that slot is already bound in this scope"
+            ),
+            Self::NamedBindingAlreadyInScope { label } => write!(
+                formatter,
+                "binds named effect output {label:?}, but that label is already bound in this scope"
+            ),
+            Self::NamedObjectSetBindingReferenceOutOfScope { label } => write!(
+                formatter,
+                "references named object-set binding {label:?} outside its scope"
             ),
             Self::ExecutableStaticAbility => formatter.write_str(
                 "is an executable static ability, but granted static abilities are not evaluated yet",
@@ -544,6 +558,18 @@ pub enum CatalogError {
         part: CardPartId,
         ability: AbilityId,
         binding: ObjectSetBindingIndex,
+    },
+    AbilityNamedBindingAlreadyInScope {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        label: &'static str,
+    },
+    AbilityNamedObjectSetBindingReferenceOutOfScope {
+        definition: CardDefinitionId,
+        part: CardPartId,
+        ability: AbilityId,
+        label: &'static str,
     },
     DuplicateStructurePart {
         definition: CardDefinitionId,

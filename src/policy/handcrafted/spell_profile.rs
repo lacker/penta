@@ -302,7 +302,9 @@ impl HandcraftedPolicy {
                         .iter()
                         .all(|effect| Self::is_empty_without_x(*effect))
             }
-            EffectDef::May { effect, .. } => Self::is_empty_without_x(*effect),
+            EffectDef::BindOutput { effect, .. } | EffectDef::May { effect, .. } => {
+                Self::is_empty_without_x(*effect)
+            }
             EffectDef::DealDamage { amount, .. }
             | EffectDef::DealDamageFrom { amount, .. }
             | EffectDef::DealDamageAndApply { amount, .. }
@@ -410,7 +412,8 @@ impl HandcraftedPolicy {
             // An optional effect is worth what it would do if taken. Iteration
             // has the same child profile; multiplicity is intentionally not a
             // separate policy weight here.
-            EffectDef::May { effect, .. }
+            EffectDef::BindOutput { effect, .. }
+            | EffectDef::May { effect, .. }
             | EffectDef::ForEachInBinding { effect, .. }
             | EffectDef::WithBattlefieldArrival { effect, .. } => {
                 Self::collect_spell_effect_profile(*effect, x, targets, profile);
@@ -626,6 +629,7 @@ impl HandcraftedPolicy {
             | ValueDef::CountMatchingPlayerAttachments(_)
             | ValueDef::CountSpellsCastThisTurn(_)
             | ValueDef::AggregateObjectValues(_)
+            | ValueDef::CountObjects(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)

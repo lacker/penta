@@ -10,8 +10,8 @@ use crate::card::{
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
     ChooseDef, ChooseGroupDef, ClassifyObjectsDef, ColorSet, ComparisonDef, ConditionalValueDef,
     ControlDurationDef, CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind,
-    CreatedTokensDef,
-    CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
+    CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectBindingLabelDef, EffectDef, EffectOutputBindingDef,
     EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef,
     IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
     ObjectChoiceBindingDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
@@ -19,9 +19,9 @@ use crate::card::{
     PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
-    SimultaneousChooseDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TargetChooserDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    SimultaneousChooseDef, SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{
     AdditionalCostObjectIndex, ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex,
@@ -59,7 +59,9 @@ static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matchi
 /// controller's graveyard. The selection binds the old graveyard object; the
 /// move creates and follows its hand-zone successor.
 static RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+    object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
+        "random_graveyard_cards",
+    ))),
     zone: ZoneKind::Hand,
     placement: ZonePlacement::Top,
 };
@@ -1237,7 +1239,6 @@ pub(in crate::card::sets) static ARMORED_SKAAB: CardRecord = CardRecord::new_wit
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(4),
-                binding: None,
             },
         ),
     ),
@@ -1430,7 +1431,6 @@ pub(in crate::card::sets) static CURSE_OF_THE_BLOODY_TOME: CardRecord = CardReco
                 EffectDef::Mill {
                     player: EffectRecipientDef::EnchantedPlayer,
                     amount: ValueDef::Constant(2),
-                    binding: None,
                 },
             ),
         ]),
@@ -1572,7 +1572,6 @@ pub(in crate::card::sets) static DREAM_TWIST: CardRecord = CardRecord::new_with_
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(3),
-                binding: None,
             },
         ),
         abilities::flashback(mana_cost!("{1}{U}")),
@@ -1873,16 +1872,30 @@ pub(in crate::card::sets) static MINDSHRIEKER: CardRecord = CardRecord::new(
                 PlayerRelation::Any,
             ))],
             EffectDef::Sequence(&[
-                EffectDef::Mill {
-                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                    binding: None,
+                EffectDef::BindOutput {
+                    effect: &EffectDef::Mill {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: EffectOutputBindingDef::Objects("milled_card"),
                 },
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
-                        ValueDef::MatchedManaValue,
-                        ValueDef::MatchedManaValue,
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
+                                "milled_card",
+                            )),
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
+                        ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                            objects: ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
+                                "milled_card",
+                            )),
+                            select: ObjectValueDef::ManaValue,
+                            operation: AggregateOperationDef::Maximum,
+                        }),
                     ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
@@ -1924,7 +1937,6 @@ pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::n
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
                         object: ObjectPredicateDef::Named("Mirror-Mad Phantasm"),
                         matched_zone: ZoneKind::Battlefield,
-                        binding: None,
                     }),
                 ]),
             },
@@ -2048,7 +2060,6 @@ pub(in crate::card::sets) static SELHOFF_OCCULTIST: CardRecord = CardRecord::new
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(1),
-                binding: None,
             },
         ),
     ),
@@ -2884,12 +2895,14 @@ pub(in crate::card::sets) static GHOULRAISER: CardRecord = CardRecord::new(
         abilities::enters_trigger(
             "When this creature enters, return a Zombie card at random from your graveyard to your hand.",
             EffectDef::Sequence(&[
-                EffectDef::SelectAtRandomFromZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Graveyard,
-                    object: ObjectPredicateDef::Subtype("Zombie"),
-                    amount: ValueDef::Constant(1),
-                    binding: ObjectSetBindingIndex::PRIMARY,
+                EffectDef::BindOutput {
+                    effect: &EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: ObjectPredicateDef::Subtype("Zombie"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: EffectOutputBindingDef::Objects("random_graveyard_cards"),
                 },
                 RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
             ]),
@@ -3662,12 +3675,14 @@ pub(in crate::card::sets) static CHARMBREAKER_DEVILS: CardRecord = CardRecord::n
                 player: PlayerRelation::You,
             },
             EffectDef::Sequence(&[
-                EffectDef::SelectAtRandomFromZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Graveyard,
-                    object: CHARMBREAKER_INSTANT_OR_SORCERY,
-                    amount: ValueDef::Constant(1),
-                    binding: ObjectSetBindingIndex::PRIMARY,
+                EffectDef::BindOutput {
+                    effect: &EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: CHARMBREAKER_INSTANT_OR_SORCERY,
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: EffectOutputBindingDef::Objects("random_graveyard_cards"),
                 },
                 RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
             ]),
@@ -4030,15 +4045,17 @@ pub(in crate::card::sets) static HERETIC_S_PUNISHMENT: CardRecord = CardRecord::
                 AbilityTargetPredicate::AnyTarget,
             )],
             EffectDef::Sequence(&[
-                EffectDef::Mill {
-                    player: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(3),
-                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                EffectDef::BindOutput {
+                    effect: &EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    binding: EffectOutputBindingDef::Objects("milled_cards"),
                 },
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                        objects: ObjectSetDef::NamedBinding(&EffectBindingLabelDef("milled_cards")),
                         select: ObjectValueDef::ManaValue,
                         operation: AggregateOperationDef::Maximum,
                     }),
@@ -5342,12 +5359,14 @@ pub(in crate::card::sets) static MAKE_A_WISH: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
         "Return two cards at random from your graveyard to your hand.",
         EffectDef::Sequence(&[
-            EffectDef::SelectAtRandomFromZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Graveyard,
-                object: ObjectPredicateDef::Any,
-                amount: ValueDef::Constant(2),
-                binding: ObjectSetBindingIndex::PRIMARY,
+            EffectDef::BindOutput {
+                effect: &EffectDef::SelectAtRandomFromZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Graveyard,
+                    object: ObjectPredicateDef::Any,
+                    amount: ValueDef::Constant(2),
+                },
+                binding: EffectOutputBindingDef::Objects("random_graveyard_cards"),
             },
             RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
         ]),
@@ -5666,7 +5685,6 @@ pub(in crate::card::sets) static SPLINTERFRIGHT: CardRecord = CardRecord::new_wi
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ]),
@@ -5797,12 +5815,14 @@ pub(in crate::card::sets) static WOODLAND_SLEUTH: CardRecord = CardRecord::new(
             ),
             &ISD_MORBID_A_CREATURE_DIED,
             EffectDef::Sequence(&[
-                EffectDef::SelectAtRandomFromZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Graveyard,
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    amount: ValueDef::Constant(1),
-                    binding: ObjectSetBindingIndex::PRIMARY,
+                EffectDef::BindOutput {
+                    effect: &EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: EffectOutputBindingDef::Objects("random_graveyard_cards"),
                 },
                 RETURN_RANDOM_GRAVEYARD_CARD_TO_HAND,
             ]),
@@ -6160,7 +6180,6 @@ pub(in crate::card::sets) static GHOULCALLERS_BELL: CardRecord = CardRecord::new
         EffectDef::Mill {
             player: EffectRecipientDef::EachPlayer,
             amount: ValueDef::Constant(1),
-            binding: None,
         },
     )),
 );
@@ -6508,16 +6527,20 @@ pub(in crate::card::sets) static TREPANATION_BLADE: CardRecord = CardRecord::new
                 "Whenever equipped creature attacks, defending player reveals cards from the top of their library until they reveal a land card. The creature gets +1/+0 until end of turn for each card revealed this way. That player puts the revealed cards into their graveyard.",
                 TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
                 EffectDef::Sequence(&[
-                    EffectDef::MillUntil(&MillUntilDef {
-                        player: EffectRecipientDef::EventPlayer,
-                        object: ObjectPredicateDef::HasType(CardType::Land),
-                        matched_zone: ZoneKind::Graveyard,
-                        binding: Some(ObjectSetBindingIndex::PRIMARY),
-                    }),
+                    EffectDef::BindOutput {
+                        effect: &EffectDef::MillUntil(&MillUntilDef {
+                            player: EffectRecipientDef::EventPlayer,
+                            object: ObjectPredicateDef::HasType(CardType::Land),
+                            matched_zone: ZoneKind::Graveyard,
+                        }),
+                        binding: EffectOutputBindingDef::Objects("revealed_cards"),
+                    },
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::TriggeringObject,
                         effect: AppliedEffectDef::modify_power_toughness(
-                            ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                            ValueDef::CountObjects(&ObjectSetDef::NamedBinding(
+                                &EffectBindingLabelDef("revealed_cards"),
+                            )),
                             ValueDef::Constant(0),
                         ),
                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -6820,7 +6843,6 @@ pub(in crate::card::sets) static NEPHALIA_DROWNYARD: CardRecord = CardRecord::ne
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(3),
-                binding: None,
             },
         ),
     ]),

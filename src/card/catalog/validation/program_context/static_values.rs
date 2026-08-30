@@ -98,6 +98,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::MatchedCount
         | ValueDef::MatchedCardTypes
         | ValueDef::MatchedManaValue
+        | ValueDef::CountObjects(_)
         | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }
@@ -171,6 +172,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::MatchedCount
         | ValueDef::MatchedCardTypes
         | ValueDef::MatchedManaValue
+        | ValueDef::CountObjects(_)
         | ValueDef::BoundObjectCount(_)
         | ValueDef::SpellsCastBeforeThisTurn
         | ValueDef::PlayerCounters { .. }

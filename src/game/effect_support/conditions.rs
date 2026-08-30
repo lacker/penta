@@ -274,10 +274,12 @@ impl Game {
                 // Names, not identities: a second copy of the named card is
                 // still the named card, so the definitions are compared.
                 TriggerConditionDef::BoundObjectsShareName { first, second } => {
-                    let named = |binding| {
+                    let named = |objects: &&'static ObjectSetDef| {
                         object
-                            .and_then(|(_, _, context): (_, _, &EffectResolutionContext)| {
-                                context.single_object(binding)
+                            .and_then(|(object, scoped, context)| {
+                                self.effect_objects(**objects, object, context, scoped)
+                                    .into_iter()
+                                    .next()
                             })
                             .and_then(|target| match target {
                                 Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
@@ -286,7 +288,7 @@ impl Game {
                                 Target::Player(_) => None,
                             })
                     };
-                    match (named(*first), named(*second)) {
+                    match (named(first), named(second)) {
                         (Some(first), Some(second)) => first == second,
                         _ => false,
                     }

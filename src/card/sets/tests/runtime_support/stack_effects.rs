@@ -654,7 +654,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // Scheduling creates a fresh resolution boundary. A decision may
         // therefore be the delayed effect's root even when scheduling it
         // is itself one component of a sequence.
-        EffectDef::IfCondition { then: effect, .. }
+        EffectDef::BindOutput { effect, .. }
+        | EffectDef::IfCondition { then: effect, .. }
         | EffectDef::ForEachInBinding { effect, .. } => {
             shared_stack_effect_at_position(*effect, deferred_decision_allowed)
         }

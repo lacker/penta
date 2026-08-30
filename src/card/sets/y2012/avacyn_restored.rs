@@ -1018,7 +1018,6 @@ pub(in crate::card::sets) static DREADWATERS: CardRecord = CardRecord::new_with_
                 &[ZoneKind::Battlefield],
                 PlayerRelation::You,
             )),
-            binding: None,
         },
     )),
 );
@@ -1510,7 +1509,6 @@ pub(in crate::card::sets) static ROTCROWN_GHOUL: CardRecord = CardRecord::new_wi
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(5),
-                binding: None,
             },
         ),
     ),
@@ -1586,7 +1584,6 @@ pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with
                         EffectDef::Mill {
                             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             amount: ValueDef::Constant(2),
-                            binding: None,
                         },
                     )),
                 },

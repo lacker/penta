@@ -12,7 +12,6 @@ static MILL_THEN: EffectDef = EffectDef::Sequence(&[
     EffectDef::Mill {
         player: EffectRecipientDef::Controller,
         amount: ValueDef::Constant(1),
-        binding: None,
     },
     CREATE_TOKEN,
 ]);

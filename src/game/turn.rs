@@ -853,19 +853,11 @@ impl Game {
         let mut later_procedures = std::mem::take(&mut self.pending_procedures);
         while !effects.is_empty() {
             let effect = effects.remove(0);
-            context = match effect.effect {
-                EffectDef::Mill { .. } => self.resolve_mill_effect(effect, object, context),
-                EffectDef::MillUntil(_) => self.resolve_mill_until_effect(effect, object, context),
-                EffectDef::SelectAtRandomFromZone { .. } => {
-                    self.resolve_random_zone_selection_effect(effect, object, context)
-                }
-                EffectDef::RevealAtRandomFromHand { .. } => {
-                    self.resolve_random_hand_reveal_effect(effect, object, context)
-                }
-                _ => {
-                    self.resolve_effect_def(effect, object, context.clone());
-                    context
-                }
+            context = if let EffectDef::BindOutput { .. } = effect.effect {
+                self.resolve_bound_output_effect(effect, object, context)
+            } else {
+                self.resolve_effect_def(effect, object, context.clone());
+                context
             };
             if !self.pending_decisions.is_empty()
                 || !self.pending_events.is_empty()

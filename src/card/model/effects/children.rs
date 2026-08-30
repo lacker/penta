@@ -39,7 +39,8 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             .chain(payment.otherwise)
             .copied()
             .collect(),
-        EffectDef::ForEachInBinding { effect, .. }
+        EffectDef::BindOutput { effect, .. }
+        | EffectDef::ForEachInBinding { effect, .. }
         | EffectDef::May { effect, .. }
         | EffectDef::ChooseCounterKind { then: effect, .. }
         | EffectDef::ReplaceNextDrawThisTurn { effect, .. }
@@ -290,7 +291,6 @@ mod tests {
             player: EffectRecipientDef::Controller,
             object: ObjectPredicateDef::Any,
             matched_zone: ZoneKind::Graveyard,
-            binding: None,
         };
         assert!(child_effects(EffectDef::MillUntil(&MILL)).is_empty());
     }

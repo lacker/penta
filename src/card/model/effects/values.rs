@@ -337,6 +337,9 @@ pub enum ValueDef {
     /// How many objects match, for the "for each" clauses. Held by reference
     /// so that `ValueDef` stays small enough to embed freely.
     CountMatchingObjects(&'static ObjectQueryDef),
+    /// How many objects are in a resolved set. Unlike a query, this can count
+    /// the output of an earlier effect after those objects have moved.
+    CountObjects(&'static ObjectSetDef),
     /// How many matching permanents are attached to the named player.
     CountMatchingPlayerAttachments(&'static PlayerAttachmentQueryDef),
     /// How many spells matching the query have been cast this turn.
@@ -409,9 +412,9 @@ pub enum ValueDef {
     MatchedCardTypes,
     /// What those same matched objects add up to in mana value. "You lose
     /// life equal to that card's mana value" reads the card the step before
-    /// it revealed, and a mill follow-up reads the cards the mill just moved.
-    /// Those cards are gone from their old zone by the time this is asked,
-    /// so the number travels rather than the card.
+    /// it revealed and moved through a nested collection workflow. Those
+    /// cards are gone from their old zone by the time this is asked, so the
+    /// number travels rather than the card.
     MatchedManaValue,
     /// How many objects an earlier step in this resolution bound. "For each
     /// creature exiled this way" counts what the exile actually took, which

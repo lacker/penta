@@ -291,6 +291,10 @@ fn validate_object_set_shape(
             validate_object_reference_shape(reference, targets)
         }
         ObjectSetDef::Query(query) => validate_query_shape(query, targets),
+        ObjectSetDef::Matching { objects, object } => {
+            validate_object_set_shape(*objects, targets)?;
+            validate_object_predicate_shape(*object, targets)
+        }
         ObjectSetDef::CardsDrawnThisTurnInHand(player)
         | ObjectSetDef::PermanentsControlledBy(player) => {
             validate_player_reference_shape(player, targets)
@@ -302,6 +306,7 @@ fn validate_object_set_shape(
             validate_target_projection(target, targets, RecipientExpectation::Object)
         }
         ObjectSetDef::Binding(_)
+        | ObjectSetDef::NamedBinding(_)
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles(_)
@@ -411,6 +416,7 @@ fn validate_value_shape(
         ValueDef::CountMatchingPlayerAttachments(query) => {
             validate_object_predicate_shape(query.object, targets)
         }
+        ValueDef::CountObjects(objects) => validate_object_set_shape(*objects, targets),
         ValueDef::TargetLibrarySize(target) => {
             validate_target_shape(target, targets, RecipientExpectation::Player, true)
         }
@@ -706,8 +712,10 @@ fn recipient_may_name_nonbattlefield_object(
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject,
             )
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::NamedBinding(_)
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
+            | ObjectSetDef::Matching { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
             | ObjectSetDef::LinkedExiles(_)
@@ -774,11 +782,14 @@ fn recipient_nonbattlefield_zones_support_flashback(
         }
         EffectRecipientSetDef::Objects(
             ObjectSetDef::One(
-                ObjectRefDef::Binding(_) | ObjectRefDef::AdditionalCostObject(_),
+                ObjectRefDef::Binding(_)
+                | ObjectRefDef::AdditionalCostObject(_),
             )
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::NamedBinding(_)
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
+            | ObjectSetDef::Matching { .. }
             | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)

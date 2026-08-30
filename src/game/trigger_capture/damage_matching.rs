@@ -141,8 +141,10 @@ impl Game {
                 | EffectRecipientSetDef::LegalTargets(_)
                 | EffectRecipientSetDef::Objects(
                     ObjectSetDef::Binding(_)
+                    | ObjectSetDef::NamedBinding(_)
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
+                    | ObjectSetDef::Matching { .. }
                     | ObjectSetDef::LegalTargets(_)
                     | ObjectSetDef::Query(_)
                     | ObjectSetDef::PermanentsTargetedBy(_)

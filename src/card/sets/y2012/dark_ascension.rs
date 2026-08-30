@@ -735,7 +735,6 @@ pub(in crate::card::sets) static CHILL_OF_FOREBODING: CardRecord = CardRecord::n
             EffectDef::Mill {
                 player: EffectRecipientDef::EachPlayer,
                 amount: ValueDef::Constant(5),
-                binding: None,
             },
         ),
         abilities::flashback(mana_cost!("{7}{U}")),
@@ -824,7 +823,6 @@ pub(in crate::card::sets) static GERALFS_MINDCRUSHER: CardRecord = CardRecord::n
                 EffectDef::Mill {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(5),
-                    binding: None,
                 },
             ),
             abilities::undying(),
@@ -1023,7 +1021,6 @@ pub(in crate::card::sets) static SCREECHING_SKAAB: CardRecord = CardRecord::new_
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ),
@@ -1053,7 +1050,6 @@ pub(in crate::card::sets) static SHRIEKGEIST: CardRecord = CardRecord::new_with_
             EffectDef::Mill {
                 player: EffectRecipientDef::EventPlayer,
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ]),
@@ -1106,7 +1102,6 @@ pub(in crate::card::sets) static THOUGHT_SCOUR: CardRecord = CardRecord::new_wit
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

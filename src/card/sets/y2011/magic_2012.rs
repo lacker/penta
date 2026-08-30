@@ -746,7 +746,6 @@ pub(in crate::card::sets) static MERFOLK_MESMERIST: CardRecord = CardRecord::new
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ),

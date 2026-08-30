@@ -52,7 +52,8 @@ impl Game {
     #[allow(clippy::too_many_lines)]
     pub(super) fn effect_applies_to_source(effect: EffectDef, expected: AppliedEffectDef) -> bool {
         match effect {
-            EffectDef::WithBattlefieldArrival { effect, .. } => {
+            EffectDef::BindOutput { effect, .. }
+            | EffectDef::WithBattlefieldArrival { effect, .. } => {
                 Self::effect_applies_to_source(*effect, expected)
             }
             EffectDef::WithZoneMoveResult { effect, then, .. } => {

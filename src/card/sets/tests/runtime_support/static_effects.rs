@@ -213,8 +213,10 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                         | ObjectRefDef::DamagedObject,
                     )
                     | ObjectSetDef::Binding(_)
+                    | ObjectSetDef::NamedBinding(_)
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
+                    | ObjectSetDef::Matching { .. }
                     | ObjectSetDef::LinkedExiles(_)
                     | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                     | ObjectSetDef::PermanentsControlledBy(_)
@@ -270,7 +272,8 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 && shared_static_effect(source_zones, *then)
         }
         // None of these is a static ability; all execute from the stack.
-        EffectDef::DamageCannotBePreventedThisTurn
+        EffectDef::BindOutput { .. }
+        | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::BecomeMonarch { .. }
         | EffectDef::VoteForPermanentToExile { .. }

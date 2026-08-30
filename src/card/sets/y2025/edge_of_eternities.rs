@@ -540,7 +540,6 @@ pub(in crate::card::sets) static ICETILL_EXPLORER: CardRecord = CardRecord::new(
             EffectDef::Mill {
                 player: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
-                binding: None,
             },
         ),
     ]),

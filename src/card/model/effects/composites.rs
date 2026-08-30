@@ -94,6 +94,31 @@ pub struct InstalledTriggerDef {
     pub lifetime: InstalledTriggerLifetimeDef,
 }
 
+/// A lexical object-set name for the value produced by one wrapped effect.
+///
+/// Labels are authored vocabulary rather than runtime storage positions. The
+/// binding exists as an empty set before the wrapped effect resolves; a
+/// produced value replaces that default.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum EffectOutputBindingDef {
+    Objects(&'static str),
+}
+
+/// A thin reference to an authored effect-output label.
+///
+/// Keeping the string behind a sized static object lets high-fanout reference
+/// enums carry one pointer while card declarations still spell out the label
+/// inline instead of assigning storage indices or declaring separate constants.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct EffectBindingLabelDef(pub &'static str);
+
+impl EffectBindingLabelDef {
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        self.0
+    }
+}
+
 /// A resolving effect that remains outside every zone and offers one
 /// activated ability for a fixed duration.
 ///
@@ -204,10 +229,9 @@ impl BattlefieldArrivalDef {
 
 /// What happens next to the tokens a clause just created.
 ///
-/// A sequence hands each component its own copy of the resolution context,
-/// so a binding made in one component is gone by the next. A clause that has
-/// to name exactly the tokens it made therefore nests its continuation the
-/// way every other binding clause does.
+/// This legacy positional binding is scoped to its continuation. New
+/// synchronous producer-to-sibling data flow uses a labeled
+/// [`EffectDef::BindOutput`] step instead.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CreatedTokensDef {
     pub binding: ObjectSetBindingIndex,
@@ -270,14 +294,6 @@ pub struct MillUntilDef {
     pub player: EffectRecipientDef,
     pub object: ObjectPredicateDef,
     pub matched_zone: ZoneKind,
-    /// Saves the identities of cards this effect put into a graveyard for a
-    /// later step in the same sequence. They are bound under their new zone
-    /// identities rather than reconstructed from the graveyard. When the
-    /// matching card has another destination, use [`ValueDef::MatchedCount`]
-    /// to count every revealed card; the binding contains only the cards
-    /// that were milled. Both outputs are available to later steps in the
-    /// same sequence.
-    pub binding: Option<ObjectSetBindingIndex>,
 }
 
 /// How cards are selected for a discard effect.

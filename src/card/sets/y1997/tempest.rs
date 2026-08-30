@@ -15,11 +15,12 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
-    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CostModificationDef, DrawEventMatcherDef, EffectBindingLabelDef, EffectDef,
+    EffectOutputBindingDef, EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -2894,8 +2895,6 @@ pub(in crate::card::sets) static COLD_STORAGE: CardRecord = CardRecord::new(
 /// nothing achievable is lost.
 static NAMED_CARD: ObjectBindingIndex = ObjectBindingIndex::PRIMARY;
 
-static REVEALED_CARD: ObjectBindingIndex = ObjectBindingIndex::new(1);
-
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2929,14 +2928,18 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
             then: &EffectDef::Sequence(&[
-                EffectDef::RevealAtRandomFromHand {
-                    player: EffectRecipientDef::Controller,
-                    binding: REVEALED_CARD,
+                EffectDef::BindOutput {
+                    effect: &EffectDef::RevealAtRandomFromHand {
+                        player: EffectRecipientDef::Controller,
+                    },
+                    binding: EffectOutputBindingDef::Objects("revealed_card"),
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::BoundObjectsShareName {
-                        first: NAMED_CARD,
-                        second: REVEALED_CARD,
+                        first: &ObjectSetDef::One(ObjectRefDef::Binding(NAMED_CARD)),
+                        second: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
+                            "revealed_card",
+                        )),
                     },
                     then: &EffectDef::DealDamage {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

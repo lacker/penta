@@ -1083,6 +1083,14 @@ counters. Quicken-style permissions are now ordinary resolved play
 permissions, including their authored predicate, composed expiration
 conditions, and next-matching-cast behavior.
 
+Format 10 effect-resolution contexts may also contain an additive sparse
+`namedObjectGroups` member. It preserves labeled outputs across a deferred
+sequence without changing the surrounding continuation tags. A missing member
+means that no labeled outputs have been declared; a present label with an
+empty array is a declared output that produced nothing. Even effects that can
+produce at most one object use a zero-or-one object group. Protocol 29 and
+replay format 2 are unchanged.
+
 A format-9 continuation in the middle of one of those workflows does not carry
 the named bindings or remaining operation chain needed by the declarative
 model, and the old grant count cannot reconstruct the richer timing rule.

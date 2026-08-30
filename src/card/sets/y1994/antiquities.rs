@@ -1288,7 +1288,6 @@ pub(in crate::card::sets) static MILLSTONE: CardRecord = CardRecord::new_with_le
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ]),

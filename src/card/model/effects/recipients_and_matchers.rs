@@ -110,6 +110,8 @@ pub enum ObjectSetDef {
     /// A set of objects saved by an earlier choice or partition in this
     /// resolution.
     Binding(ObjectSetBindingIndex),
+    /// A set produced by an earlier labeled output binding in this sequence.
+    NamedBinding(&'static EffectBindingLabelDef),
     /// The live object created by one zone change of each bound object.
     /// Missing or subsequently moved successors are omitted.
     ZoneChangeSuccessorsOfBinding(ObjectSetBindingIndex),
@@ -130,6 +132,12 @@ pub enum ObjectSetDef {
     MatchingBinding {
         binding: ObjectSetBindingIndex,
         object: ObjectPredicateDef,
+    },
+    /// The members of any resolved object set that satisfy one more
+    /// predicate. This is the compositional form used with labeled outputs.
+    Matching {
+        objects: &'static ObjectSetDef,
+        object: &'static ObjectPredicateDef,
     },
     /// The permanents a stack object is targeting. "Gain control of those
     /// permanents" names what the spell that triggered this picked, which
@@ -294,10 +302,12 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::Binding(_)
+                | ObjectSetDef::NamedBinding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
+                | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)
@@ -322,10 +332,12 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(_)
                 | ObjectSetDef::Binding(_)
+                | ObjectSetDef::NamedBinding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
+                | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)
                 | ObjectSetDef::LegalAttachmentHosts(_)

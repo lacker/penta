@@ -215,7 +215,6 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
                         EffectDef::Mill {
                             player: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(4),
-                            binding: None,
                         },
                         // The whole graveyard, not only what the mill just put there: the clause
                         // says "from your graveyard" and means it.

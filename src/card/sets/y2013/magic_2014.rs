@@ -959,7 +959,6 @@ pub(in crate::card::sets) static TOME_SCOUR: CardRecord = CardRecord::new_with_l
         EffectDef::Mill {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             amount: ValueDef::Constant(5),
-            binding: None,
         },
     )),
 );
@@ -1009,7 +1008,6 @@ pub(in crate::card::sets) static TRAUMATIZE: CardRecord = CardRecord::new_with_l
                 ValueDef::TargetLibrarySize(TargetIndex::PRIMARY),
                 RoundingDef::Down,
             )),
-            binding: None,
         },
     )),
 );

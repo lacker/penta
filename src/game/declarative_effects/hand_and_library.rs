@@ -697,41 +697,34 @@ impl Game {
         &mut self,
         scoped: ScopedEffect,
         object: &StackObject,
-        mut context: EffectResolutionContext,
-    ) -> EffectResolutionContext {
+        context: EffectResolutionContext,
+    ) -> (EffectResolutionContext, Vec<Target>) {
         let EffectDef::MillUntil(mill) = scoped.effect else {
             unreachable!("resolve_mill_until_effect called for another effect")
         };
         let source = object.source.unwrap_or(object.id);
         let mut revealed = Vec::new();
-        let mut revealed_count = 0_u16;
         for target in self.effect_recipients(mill.player, object, &context, scoped) {
             if let Target::Player(player) = target {
-                let (mut moved, count) =
+                let (mut moved, _) =
                     self.mill_until_matching(player, mill.object, mill.matched_zone, source);
                 revealed.append(&mut moved);
-                revealed_count = revealed_count.saturating_add(count);
             }
         }
-        context.matched_count = Some(revealed_count);
-        if let Some(binding) = mill.binding {
-            context.bind_object_group(binding, revealed);
-        }
-        context
+        (context, revealed)
     }
 
     pub(in crate::game) fn resolve_random_zone_selection_effect(
         &mut self,
         scoped: ScopedEffect,
         object: &StackObject,
-        mut context: EffectResolutionContext,
-    ) -> EffectResolutionContext {
+        context: EffectResolutionContext,
+    ) -> (EffectResolutionContext, Vec<Target>) {
         let EffectDef::SelectAtRandomFromZone {
             player: recipient,
             source,
             object: predicate,
             amount,
-            binding,
         } = scoped.effect
         else {
             unreachable!("resolve_random_zone_selection_effect called for another effect")
@@ -739,7 +732,7 @@ impl Game {
         let effect_source = object.source.unwrap_or(object.id);
         let count = self.effect_value(amount, object, &context, scoped).max(0);
         let Ok(count) = usize::try_from(count) else {
-            return context;
+            return (context, Vec::new());
         };
         let mut selected = Vec::new();
         for target in self.effect_recipients(recipient, object, &context, scoped) {
@@ -763,23 +756,19 @@ impl Game {
                 selected.push(Target::Card(matching.swap_remove(index)));
             }
         }
-        context.bind_object_group(binding, selected);
-        context
+        (context, selected)
     }
 
     pub(in crate::game) fn resolve_random_hand_reveal_effect(
         &mut self,
         scoped: ScopedEffect,
         object: &StackObject,
-        mut context: EffectResolutionContext,
-    ) -> EffectResolutionContext {
-        let EffectDef::RevealAtRandomFromHand {
-            player: recipient,
-            binding,
-        } = scoped.effect
-        else {
+        context: EffectResolutionContext,
+    ) -> (EffectResolutionContext, Option<Target>) {
+        let EffectDef::RevealAtRandomFromHand { player: recipient } = scoped.effect else {
             unreachable!("resolve_random_hand_reveal_effect called for another effect")
         };
+        let mut revealed_object = None;
         for target in self.effect_recipients(recipient, object, &context, scoped) {
             if let Target::Player(revealer) = target {
                 let hand = &self.players[revealer.index()].hand;
@@ -794,43 +783,36 @@ impl Game {
                         card,
                         definition,
                     });
-                    context.bind_single_object(binding, Some(Target::Card(card)));
+                    revealed_object = Some(Target::Card(card));
                 }
             }
         }
-        context
+        (context, revealed_object)
     }
 
-    /// Resolves one synchronous mill and returns the context containing its
-    /// outputs. An enclosing sequence passes that context to its later steps,
-    /// which keeps the mill action independent from consumers of its result.
+    /// Resolves one synchronous mill and returns the graveyard identities it
+    /// produced. A `BindOutput` wrapper decides whether to retain that result.
     pub(in crate::game) fn resolve_mill_effect(
         &mut self,
         scoped: ScopedEffect,
         object: &StackObject,
-        mut context: EffectResolutionContext,
-    ) -> EffectResolutionContext {
+        context: EffectResolutionContext,
+    ) -> (EffectResolutionContext, Vec<Target>) {
         let EffectDef::Mill {
             player: recipient,
             amount,
-            binding,
         } = scoped.effect
         else {
             unreachable!("resolve_mill_effect called for another effect")
         };
         let count = self.effect_value(amount, object, &context, scoped).max(0);
         let Ok(count) = usize::try_from(count) else {
-            return context;
+            return (context, Vec::new());
         };
         let mut buried = Vec::new();
-        let mut matched_count = 0_u16;
-        let mut matched_mana_value = 0_u16;
         for target in self.effect_recipients(recipient, object, &context, scoped) {
             if let Target::Player(player) = target {
                 let milled = self.take_top_of_library(player, count);
-                let totals = self.card_totals(&milled);
-                matched_count = matched_count.saturating_add(totals.0);
-                matched_mana_value = matched_mana_value.saturating_add(totals.1);
                 // Bound by the identity the cards have in the graveyard:
                 // burying them mints new objects, and "from among them"
                 // means the ones lying there now.
@@ -841,20 +823,14 @@ impl Game {
                 }
             }
         }
-        if let Some(binding) = binding {
-            context.bind_object_group(binding, buried);
-        }
-        context.matched_count = Some(matched_count);
-        context.matched_mana_value = Some(matched_mana_value);
-        context
+        (context, buried)
     }
 }
 
 impl Game {
     /// "…and repeat this process." The mill belongs to the loop rather than
     /// to the body: what was milled decides whether there is another pass,
-    /// and a binding cannot carry that answer back out of the step that
-    /// wrote it.
+    /// so the output controls the loop itself rather than a later sibling.
     fn mill_while_matching(
         &mut self,
         player: PlayerId,

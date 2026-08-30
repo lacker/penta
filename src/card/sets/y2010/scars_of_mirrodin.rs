@@ -937,7 +937,6 @@ pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new
             EffectDef::Mill {
                 player: EffectRecipientDef::EventPlayer,
                 amount: ValueDef::Constant(4),
-                binding: None,
             },
         ),
     ]),
@@ -1447,7 +1446,6 @@ pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord
                             ObjectRefDef::Target(TargetIndex::PRIMARY),
                         )),
                         amount: ValueDef::ChosenX,
-                        binding: None,
                     },
                 ]),
             ),
@@ -3805,7 +3803,6 @@ pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::CountersOnSource(CounterKind::named("charge")),
-                binding: None,
             },
         ),
     ]),
@@ -4892,7 +4889,6 @@ pub(in crate::card::sets) static SWORD_OF_BODY_AND_MIND: CardRecord = CardRecord
                     EffectDef::Mill {
                         player: EffectRecipientDef::EventPlayer,
                         amount: ValueDef::Constant(10),
-                        binding: None,
                     },
                 ]),
             ),

@@ -144,7 +144,6 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
                             EffectDef::Mill {
                                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                 amount: ValueDef::Constant(5),
-                                binding: None,
                             },
                         )] }),
                     ),

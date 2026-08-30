@@ -34,8 +34,8 @@ pub enum TriggerConditionDef {
     /// revealing one is a comparison of names rather than of identity: a
     /// second copy of the named card is still the named card.
     BoundObjectsShareName {
-        first: ObjectBindingIndex,
-        second: ObjectBindingIndex,
+        first: &'static ObjectSetDef,
+        second: &'static ObjectSetDef,
     },
     /// Whether the source came under its controller's control since the
     /// beginning of that player's previous upkeep -- the condition echo is

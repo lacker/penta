@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::collections::BTreeMap;
 
 use crate::action::{AbilityOrigin, Target};
 use crate::card::{
@@ -72,6 +73,12 @@ pub(super) struct EffectResolutionContext {
     pub(super) chosen_counter: Option<CounterKind>,
     single_objects: [Option<Target>; ObjectBindingIndex::COUNT],
     object_groups: [Vec<Target>; ObjectSetBindingIndex::COUNT],
+    named_bindings: Box<NamedEffectBindings>,
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+struct NamedEffectBindings {
+    object_groups: BTreeMap<String, Vec<Target>>,
 }
 
 impl EffectResolutionContext {
@@ -86,6 +93,7 @@ impl EffectResolutionContext {
             chosen_counter: None,
             single_objects: [None; ObjectBindingIndex::COUNT],
             object_groups: std::array::from_fn(|_| Vec::new()),
+            named_bindings: Box::default(),
         }
     }
 
@@ -118,6 +126,26 @@ impl EffectResolutionContext {
         self.object_groups[binding.index()] = objects;
     }
 
+    pub(super) fn declare_named_object_group(&mut self, label: &str) {
+        self.named_bindings
+            .object_groups
+            .entry(label.to_owned())
+            .or_default();
+    }
+
+    pub(super) fn bind_named_object_group(&mut self, label: &str, objects: Vec<Target>) {
+        self.named_bindings
+            .object_groups
+            .insert(label.to_owned(), objects);
+    }
+
+    pub(super) fn named_object_group(&self, label: &str) -> &[Target] {
+        self.named_bindings
+            .object_groups
+            .get(label)
+            .map_or(&[], Vec::as_slice)
+    }
+
     /// Remove object incarnations consumed by a group action from every
     /// earlier binding. A later stage that needs the zone-change successors
     /// receives them through the action's explicit output binding; retaining
@@ -132,6 +160,9 @@ impl EffectResolutionContext {
         for group in &mut self.object_groups {
             group.retain(|object| !objects.contains(object));
         }
+        for group in self.named_bindings.object_groups.values_mut() {
+            group.retain(|object| !objects.contains(object));
+        }
     }
 
     pub(super) fn single_objects(&self) -> &[Option<Target>; ObjectBindingIndex::COUNT] {
@@ -140,6 +171,14 @@ impl EffectResolutionContext {
 
     pub(super) fn object_groups(&self) -> &[Vec<Target>; ObjectSetBindingIndex::COUNT] {
         &self.object_groups
+    }
+
+    pub(super) fn named_object_groups(&self) -> &BTreeMap<String, Vec<Target>> {
+        &self.named_bindings.object_groups
+    }
+
+    pub(super) fn restore_named_bindings(&mut self, object_groups: BTreeMap<String, Vec<Target>>) {
+        *self.named_bindings = NamedEffectBindings { object_groups };
     }
 
     pub(super) fn from_bindings(
@@ -157,6 +196,7 @@ impl EffectResolutionContext {
             chosen_counter: None,
             single_objects,
             object_groups,
+            named_bindings: Box::default(),
         }
     }
 }

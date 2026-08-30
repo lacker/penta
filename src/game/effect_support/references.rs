@@ -684,6 +684,9 @@ impl Game {
                 self.effect_legal_target_objects(target, object, scoped)
             }
             ObjectSetDef::Binding(binding) => context.object_group(binding).to_vec(),
+            ObjectSetDef::NamedBinding(label) => {
+                context.named_object_group(label.label()).to_vec()
+            }
             ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding) => {
                 self.zone_change_successors_of_binding(binding, context)
             }
@@ -711,6 +714,14 @@ impl Game {
                 .iter()
                 .copied()
                 .filter(|bound| self.bound_object_matches(*bound, predicate, object.id))
+                .collect(),
+            ObjectSetDef::Matching {
+                objects,
+                object: predicate,
+            } => self
+                .effect_objects(*objects, object, context, scoped)
+                .into_iter()
+                .filter(|bound| self.bound_object_matches(*bound, *predicate, object.id))
                 .collect(),
             ObjectSetDef::PermanentsTargetedBy(reference) => self
                 .object_reference_target(reference, object, context, scoped)

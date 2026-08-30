@@ -1,7 +1,7 @@
 use super::{
-    CardType, CardTypeSet, CostConfiguration, EffectResolutionContext, Game, GameObjectId,
-    ObjectPredicateDef, PlayOptionDef, PlayerId, PlayerRelation, RetiredObject, ScopedEffect,
-    StackObject, Target, TriggerContext, ValueDef,
+    CardType, CardTypeSet, CostConfiguration, EffectRecipientDef, EffectResolutionContext, Game,
+    GameObjectId, ObjectPredicateDef, PlayOptionDef, PlayerId, PlayerRelation, RetiredObject,
+    ScopedEffect, StackObject, Target, TriggerContext, ValueDef,
 };
 use crate::card::SpellCastQueryDef;
 
@@ -474,6 +474,16 @@ impl Game {
             ValueDef::BoundObjectCount(binding) => {
                 i32::try_from(context.object_group(binding).len()).unwrap_or(i32::MAX)
             }
+            ValueDef::CountObjects(objects) => i32::try_from(
+                self.effect_recipients(
+                    EffectRecipientDef::objects(*objects),
+                    object,
+                    context,
+                    scoped,
+                )
+                .len(),
+            )
+            .unwrap_or(i32::MAX),
             // Everybody's spells, minus the one carrying the ability: it was
             // counted as it was cast, and storm copies what came before it.
             ValueDef::SpellsCastBeforeThisTurn => i32::from(

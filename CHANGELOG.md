@@ -48,6 +48,21 @@ distinguishes snapshots of the covered source and build inputs.
   answer a removal spell or be held until after combat. It is now offered
   whenever its controller has priority during their own turn.
 
+- **Effect sequences now expose data flow explicitly.** Synchronous producers
+  such as mill, mill-until, random zone selection, and random hand reveal no
+  longer publish positional bindings implicitly. A `BindOutput` step declares
+  a string-labeled object-set slot for later sequence siblings, and consumers
+  compose ordinary set filtering, counting, and aggregation over that label.
+  Even a producer that can return at most one object exposes a zero-or-one set.
+  Catalog validation rejects reads before a declaration and duplicate labels
+  in one lexical scope. A binder creates its slot before resolving a
+  conditional producer, so a skipped or empty producer reads back as an empty
+  set rather than as a malformed declaration. Heretic's Punishment,
+  Mindshrieker, Trepanation Blade, Six,
+  Barrowgoyf, Cursed Scroll, random graveyard returns, and Tersa Lightshatter
+  use the shared composition. Checkpoint format 10 stores the additive sparse
+  labeled object-set map; protocol 29 and replay version 2 are unchanged.
+
 - **Mana Drain pays out at your next main phase, whichever one that is.** The
   delayed ability waited for a precombat main phase, so a Drain cast in your
   own main phase or during your combat held its mana until the following turn.

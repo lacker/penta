@@ -453,8 +453,10 @@ impl Game {
                     | ObjectRefDef::DamagedObject,
                 )
                 | ObjectSetDef::Binding(_)
+                | ObjectSetDef::NamedBinding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::MatchingBinding { .. }
+                | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)

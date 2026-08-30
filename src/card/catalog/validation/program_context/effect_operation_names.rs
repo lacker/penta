@@ -11,6 +11,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
     match effect {
         EffectDef::None => "None",
         EffectDef::Sequence(_) => "Sequence",
+        EffectDef::BindOutput { .. } => "BindOutput",
         EffectDef::Randomized { .. } => "Randomized",
         EffectDef::Choose(_)
         | EffectDef::ChooseCardsFromCollection(_)

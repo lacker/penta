@@ -3,9 +3,9 @@ use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardBehavior,
     CardSupertype, CardType, ConditionDef, CostQuantityDef, CounterKind, EffectDef,
-    ImplementationStatus, ManaCost, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef,
-    ZoneKind,
+    ImplementationStatus, ManaCost, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRelation, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    TriggerEventDef, ValueDef, ZoneKind,
 };
 
 mod alternative_casts;

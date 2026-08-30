@@ -19,7 +19,12 @@ pub(in crate::card::catalog) fn validate_ability_targets(
             });
         }
     }
-    validate_effect_references(effect, targets.len(), BindingScope::EMPTY)?;
+    let named_bindings = std::cell::RefCell::new(Vec::new());
+    validate_effect_references(
+        effect,
+        targets.len(),
+        BindingScope::empty(&named_bindings),
+    )?;
     validate_effect_target_shapes(effect, targets, None)
 }
 
@@ -29,7 +34,12 @@ pub(in crate::card::catalog) fn validate_replacement_ability_targets(
     effect: ReplacementEffectDef,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
-    validate_replacement_effect_target_references(effect, targets.len(), BindingScope::EMPTY)?;
+    let named_bindings = std::cell::RefCell::new(Vec::new());
+    validate_replacement_effect_target_references(
+        effect,
+        targets.len(),
+        BindingScope::empty(&named_bindings),
+    )?;
     validate_replacement_effect_target_shapes(effect, targets)
 }
 
@@ -40,10 +50,11 @@ pub(super) fn validate_ability_program_targets(
     binds_chosen_cost_card: bool,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
+    let named_bindings = std::cell::RefCell::new(Vec::new());
     let scope = if binds_chosen_cost_card {
-        BindingScope::EMPTY.with_object(ObjectBindingIndex::PRIMARY)?
+        BindingScope::empty(&named_bindings).with_object(ObjectBindingIndex::PRIMARY)?
     } else {
-        BindingScope::EMPTY
+        BindingScope::empty(&named_bindings)
     };
     validate_program_references(program, targets.len(), scope)?;
     validate_program_target_shapes(program, targets, trigger_event)
@@ -53,13 +64,18 @@ pub(super) fn validate_ability_trigger_event(
     event: TriggerEventDef,
     target_count: usize,
 ) -> Result<(), GrantedAbilityValidationError> {
-    validate_trigger_event_references(event, target_count, BindingScope::EMPTY)
+    let named_bindings = std::cell::RefCell::new(Vec::new());
+    validate_trigger_event_references(
+        event,
+        target_count,
+        BindingScope::empty(&named_bindings),
+    )
 }
 
 fn validate_program_references(
     program: AbilityProgramDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match program {
         AbilityProgramDef::Effects(effect) => {
@@ -122,17 +138,25 @@ fn cast_target_count_value_supported(value: ValueDef) -> bool {
     }
 }
 
+type NamedBindingRegistry = std::cell::RefCell<Vec<&'static str>>;
+
 #[derive(Clone, Copy)]
-struct BindingScope {
+struct BindingScope<'registry> {
     objects: u8,
     object_sets: u8,
+    named_object_sets: u64,
+    named_bindings: &'registry NamedBindingRegistry,
 }
 
-impl BindingScope {
-    const EMPTY: Self = Self {
-        objects: 0,
-        object_sets: 0,
-    };
+impl<'registry> BindingScope<'registry> {
+    fn empty(named_bindings: &'registry NamedBindingRegistry) -> Self {
+        Self {
+            objects: 0,
+            object_sets: 0,
+            named_object_sets: 0,
+            named_bindings,
+        }
+    }
 
     fn with_object(
         self,
@@ -174,6 +198,68 @@ impl BindingScope {
             Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
         }
     }
+
+    fn named_binding_bit(
+        self,
+        label: &'static str,
+        create: bool,
+    ) -> Result<Option<u64>, GrantedAbilityValidationError> {
+        if let Some(index) = self
+            .named_bindings
+            .borrow()
+            .iter()
+            .position(|bound| *bound == label)
+        {
+            return Ok(Some(1_u64 << index));
+        }
+        if !create {
+            return Ok(None);
+        }
+        let mut bindings = self.named_bindings.borrow_mut();
+        if bindings.len() == u64::BITS as usize {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "named binding",
+                operation: "more than 64 distinct output labels in one ability",
+            });
+        }
+        let bit = 1_u64 << bindings.len();
+        bindings.push(label);
+        Ok(Some(bit))
+    }
+
+    fn with_named_object_set(
+        mut self,
+        label: &'static str,
+    ) -> Result<Self, GrantedAbilityValidationError> {
+        if label.is_empty() {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "named binding",
+                operation: "an empty output label",
+            });
+        }
+        let bit = self
+            .named_binding_bit(label, true)?
+            .expect("creating a binding assigns a label bit");
+        if self.named_object_sets & bit != 0 {
+            return Err(GrantedAbilityValidationError::NamedBindingAlreadyInScope { label });
+        }
+        self.named_object_sets |= bit;
+        Ok(self)
+    }
+
+    fn validate_named_object_set_reference(
+        self,
+        label: &'static str,
+    ) -> Result<(), GrantedAbilityValidationError> {
+        if self
+            .named_binding_bit(label, false)?
+            .is_some_and(|bit| self.named_object_sets & bit != 0)
+        {
+            Ok(())
+        } else {
+            Err(GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope { label })
+        }
+    }
 }
 
 fn validate_target_index(
@@ -193,7 +279,7 @@ fn validate_target_index(
 fn validate_object_reference(
     reference: ObjectRefDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match reference {
         ObjectRefDef::Target(target) | ObjectRefDef::SourceOfTargetedStackObject(target) => {
@@ -222,7 +308,7 @@ fn validate_object_reference(
 fn validate_player_reference(
     reference: PlayerRefDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match reference {
         PlayerRefDef::Target(target) => validate_target_index(target, target_count),
@@ -241,7 +327,7 @@ fn validate_player_reference(
 fn validate_payment_references(
     payment: EffectPaymentDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_single_payment_payer(payment.payer)?;
     validate_player_set(payment.payer, target_count, scope)?;
@@ -267,7 +353,7 @@ fn validate_single_payment_payer(
 fn validate_damage_matcher_references(
     matcher: DamageEventMatcherDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match matcher.source {
         DamageSourceMatcherDef::Object(reference) | DamageSourceMatcherDef::Except(reference) => {
@@ -298,7 +384,7 @@ fn validate_damage_matcher_references(
 fn validate_player_set(
     players: PlayerSetDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match players {
         PlayerSetDef::One(reference) => validate_player_reference(reference, target_count, scope),
@@ -310,7 +396,7 @@ fn validate_player_set(
 fn validate_query(
     query: ObjectQueryDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     if let Some(controller) = query.controller {
         validate_player_set(controller, target_count, scope)?;
@@ -334,7 +420,7 @@ fn validate_query(
 fn validate_condition(
     condition: ConditionDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match condition {
         ConditionDef::Exists(query) => validate_query(query, target_count, scope),
@@ -350,7 +436,7 @@ fn validate_condition(
 fn validate_trigger_condition(
     condition: TriggerConditionDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match condition {
         TriggerConditionDef::All(conditions) | TriggerConditionDef::AnyOf(conditions) => conditions
@@ -371,12 +457,15 @@ fn validate_trigger_condition(
         TriggerConditionDef::BoundObjectMatches { binding, .. } => {
             validate_object_reference(ObjectRefDef::Binding(binding), target_count, scope)
         }
+        TriggerConditionDef::BoundObjectsShareName { first, second } => {
+            validate_object_set_target_references(*first, target_count, scope)?;
+            validate_object_set_target_references(*second, target_count, scope)
+        }
         TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
-        | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
         | TriggerConditionDef::SourceInZone(_)
@@ -414,7 +503,7 @@ fn validate_trigger_condition(
 fn validate_recipient_target_references(
     recipient: EffectRecipientDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match recipient.0 {
         EffectRecipientSetDef::LegalTargets(target) => validate_target_index(target, target_count),
@@ -436,7 +525,7 @@ fn validate_recipient_target_references(
 fn validate_object_set_target_references(
     objects: ObjectSetDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match objects {
         ObjectSetDef::One(reference)
@@ -449,6 +538,13 @@ fn validate_object_set_target_references(
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding)
         | ObjectSetDef::MatchingBinding { binding, .. } => {
             scope.validate_object_set_reference(binding)
+        }
+        ObjectSetDef::NamedBinding(label) => {
+            scope.validate_named_object_set_reference(label.label())
+        }
+        ObjectSetDef::Matching { objects, object } => {
+            validate_object_set_target_references(*objects, target_count, scope)?;
+            validate_object_predicate_references(*object, target_count, scope)
         }
         ObjectSetDef::LegalTargets(target) => {
             validate_target_index(target, target_count)
@@ -477,7 +573,7 @@ fn validate_object_set_target_references(
 fn validate_value_target_references(
     value: ValueDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match value {
         ValueDef::Negate(value) => validate_value_target_references(*value, target_count, scope),
@@ -534,6 +630,9 @@ fn validate_value_target_references(
         }
         ValueDef::CountMatchingPlayerAttachments(query) => {
             validate_object_predicate_references(query.object, target_count, scope)
+        }
+        ValueDef::CountObjects(objects) => {
+            validate_object_set_target_references(*objects, target_count, scope)
         }
         ValueDef::TargetPower(target)
         | ValueDef::TargetToughness(target)
@@ -598,7 +697,7 @@ fn validate_value_pair_target_references(
     left: ValueDef,
     right: ValueDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_value_target_references(left, target_count, scope)?;
     validate_value_target_references(right, target_count, scope)
@@ -607,7 +706,7 @@ fn validate_value_pair_target_references(
 fn validate_applied_effect_target_references(
     effect: AppliedEffectDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
         AppliedEffectDef::Composite(effects) => {
@@ -658,7 +757,7 @@ fn validate_applied_effect_target_references(
 fn validate_object_predicate_references(
     predicate: ObjectPredicateDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match predicate {
         ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => {

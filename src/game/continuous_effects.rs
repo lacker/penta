@@ -550,9 +550,8 @@ impl Game {
             // Both of these carry a nested procedure the same way a sequence
             // does, so an Attach inside one is still part of the clause.
             EffectDef::ForEachInBinding { effect, .. }
-            | EffectDef::WithBattlefieldArrival { effect, .. } => {
-                Self::immediate_attachment_target(*effect)
-            }
+            | EffectDef::WithBattlefieldArrival { effect, .. }
+            | EffectDef::BindOutput { effect, .. } => Self::immediate_attachment_target(*effect),
             EffectDef::PutOntoBattlefieldThen { then, .. } => {
                 Self::immediate_attachment_target(*then)
             }
@@ -928,8 +927,10 @@ impl Game {
                     | ObjectRefDef::DamagedObject,
                 )
                 | ObjectSetDef::Binding(_)
+                | ObjectSetDef::NamedBinding(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::MatchingBinding { .. }
+                | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::PermanentsTargetedBy(_)
                 | ObjectSetDef::PlayerAttachments(_)

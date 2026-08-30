@@ -392,6 +392,24 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} binds object-set slot {binding:?} more than once in the same scope"
             ),
+            Self::AbilityNamedBindingAlreadyInScope {
+                definition,
+                part,
+                ability,
+                label,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} binds named effect output {label:?} more than once in the same scope"
+            ),
+            Self::AbilityNamedObjectSetBindingReferenceOutOfScope {
+                definition,
+                part,
+                ability,
+                label,
+            } => write!(
+                formatter,
+                "ability {ability:?} on part {part:?} of card definition {definition:?} references named object-set binding {label:?} outside its scope"
+            ),
             Self::DuplicateStructurePart { definition, part } => write!(
                 formatter,
                 "card definition {definition:?}'s structure references part {part:?} more than once"

@@ -127,8 +127,10 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
             | ObjectSetDef::Binding(_)
+            | ObjectSetDef::NamedBinding(_)
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
+            | ObjectSetDef::Matching { .. }
             | ObjectSetDef::LinkedExiles(_)
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::PermanentsControlledBy(_)
@@ -655,7 +657,8 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     }
                     // A triggered mana ability resolves without an offer to
                     // read an amount off, so this one stays outside.
-                    EffectDef::AddManaEqualTo { .. }
+                    EffectDef::BindOutput { .. }
+                    | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
                     | EffectDef::Choose(_)
                     | EffectDef::ChooseCardsFromCollection(_)

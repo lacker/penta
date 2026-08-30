@@ -1,7 +1,7 @@
 fn validate_object_collection_references(
     collection: crate::card::ObjectCollectionSourceDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match collection {
         crate::card::ObjectCollectionSourceDef::ObjectSet(input) => validate_recipient_target_references(
@@ -20,21 +20,38 @@ fn validate_object_collection_references(
     }
 }
 
+fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidationError> {
+    match effect {
+        EffectDef::Mill { .. }
+        | EffectDef::MillUntil(_)
+        | EffectDef::SelectAtRandomFromZone { .. }
+        | EffectDef::RevealAtRandomFromHand { .. } => Ok(true),
+        EffectDef::IfCondition { then, .. } => has_bindable_output(*then),
+        EffectDef::IfFormat {
+            then, otherwise, ..
+        }
+        | EffectDef::Randomized {
+            on_success: then,
+            on_failure: otherwise,
+            ..
+        } => Ok(has_bindable_output(*then)? || has_bindable_output(*otherwise)?),
+        EffectDef::None => Ok(false),
+        _ => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "bound effect output",
+            operation: "an effect that does not expose an output",
+        }),
+    }
+}
+
 fn scope_after_immediate_effect(
     effect: EffectDef,
-    scope: BindingScope,
-) -> Result<BindingScope, GrantedAbilityValidationError> {
+    scope: BindingScope<'_>,
+) -> Result<BindingScope<'_>, GrantedAbilityValidationError> {
     match effect {
-        EffectDef::Mill {
-            binding: Some(binding),
+        EffectDef::BindOutput {
+            binding: crate::card::EffectOutputBindingDef::Objects(label),
             ..
-        }
-        | EffectDef::SelectAtRandomFromZone { binding, .. } => scope.with_object_set(binding),
-        EffectDef::MillUntil(definition) => match definition.binding {
-            Some(binding) => scope.with_object_set(binding),
-            None => Ok(scope),
-        },
-        EffectDef::RevealAtRandomFromHand { binding, .. } => scope.with_object(binding),
+        } => scope.with_named_object_set(label),
         _ => Ok(scope),
     }
 }
@@ -43,9 +60,15 @@ fn scope_after_immediate_effect(
 fn validate_effect_references(
     effect: EffectDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        EffectDef::BindOutput { effect, binding } => {
+            validate_effect_references(*effect, target_count, scope)?;
+            let crate::card::EffectOutputBindingDef::Objects(_) = binding;
+            let _ = has_bindable_output(*effect)?;
+            Ok(())
+        }
         EffectDef::WithBattlefieldArrival { effect, arrival } => {
             validate_effect_references(*effect, target_count, scope)?;
             match arrival.attachment {
@@ -748,7 +771,7 @@ fn validate_effect_references(
 fn validate_replacement_effect_target_references(
     effect: ReplacementEffectDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
         ReplacementEffectDef::Sequence(effects) => {

@@ -79,6 +79,7 @@ mod board_conditioned_statics;
 mod board_sized_counter;
 mod bonds_of_faith;
 mod borrowed_mana;
+mod bound_effect_outputs;
 mod buyback;
 mod candelabra_of_tawnos;
 mod cannot_attack;

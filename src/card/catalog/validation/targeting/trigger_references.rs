@@ -40,7 +40,7 @@ fn validate_trigger_object_predicate(
     predicate: ObjectPredicateDef,
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match predicate {
         ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => {
@@ -193,7 +193,7 @@ fn validate_trigger_object_reference(
     reference: ObjectRefDef,
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_object_reference(reference, target_count, scope)?;
     if matches!(
@@ -210,7 +210,7 @@ fn validate_trigger_player_reference(
     reference: PlayerRefDef,
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_player_reference(reference, target_count, scope)?;
     match reference {
@@ -231,7 +231,7 @@ fn validate_trigger_player_set(
     players: PlayerSetDef,
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match players {
         PlayerSetDef::All | PlayerSetDef::Related(_) => Ok(()),
@@ -246,7 +246,7 @@ fn validate_trigger_damage_matcher(
     matcher: DamageEventMatcherDef,
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match matcher.source {
         DamageSourceMatcherDef::Any | DamageSourceMatcherDef::Group(_) => {}
@@ -325,7 +325,7 @@ fn validate_zone_change_references(
     event: TriggerEventDef,
     matcher: ZoneChangeEventMatcherDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     if !COMMITTED_ZONE_TRANSITIONS.iter().any(|(from, to)| {
         matcher.from.is_none_or(|expected| expected == *from)
@@ -359,7 +359,7 @@ fn validate_zone_change_references(
 fn validate_trigger_event_references(
     event: TriggerEventDef,
     target_count: usize,
-    scope: BindingScope,
+    scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match event {
         // The ability is one ability, so every way into it has to be

@@ -165,7 +165,8 @@ fn validate_effect_target_shapes(
             }
             validate_effect_target_shapes(*definition.then, targets, triggering_object_zone)
         }
-        EffectDef::ForEachInBinding { effect, .. } => {
+        EffectDef::BindOutput { effect, .. }
+        | EffectDef::ForEachInBinding { effect, .. } => {
             validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
         EffectDef::WithBattlefieldArrival { effect, arrival } => {

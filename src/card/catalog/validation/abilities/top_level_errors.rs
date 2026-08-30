@@ -244,6 +244,22 @@ fn top_level_ability_error(
                 binding: *binding,
             }
         }
+        GrantedAbilityValidationError::NamedBindingAlreadyInScope { label } => {
+            CatalogError::AbilityNamedBindingAlreadyInScope {
+                definition: definition.id,
+                part,
+                ability,
+                label,
+            }
+        }
+        GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope { label } => {
+            CatalogError::AbilityNamedObjectSetBindingReferenceOutOfScope {
+                definition: definition.id,
+                part,
+                ability,
+                label,
+            }
+        }
         GrantedAbilityValidationError::ExecutableStaticAbility => {
             unreachable!("only granted static abilities are rejected")
         }

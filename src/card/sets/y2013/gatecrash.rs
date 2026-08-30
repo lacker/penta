@@ -26,7 +26,6 @@ static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
     object: ObjectPredicateDef::HasType(CardType::Land),
     matched_zone: ZoneKind::Graveyard,
-    binding: None,
 };
 
 /// "When enchanted creature dies ..." -- the attached permanent moving from
@@ -905,7 +904,6 @@ pub(in crate::card::sets) static MINDEYE_DRAKE: CardRecord = CardRecord::new_wit
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(5),
-                binding: None,
             },
         ),
     ]),
@@ -956,7 +954,6 @@ pub(in crate::card::sets) static SAGES_ROW_DENIZEN: CardRecord = CardRecord::new
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ),
     ),
@@ -1409,7 +1406,6 @@ pub(in crate::card::sets) static GRISLY_SPECTACLE: CardRecord = CardRecord::new_
                 EffectDef::Mill {
                     player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-                    binding: None,
                 },
             ]),
         ),
@@ -3983,7 +3979,6 @@ pub(in crate::card::sets) static PSYCHIC_STRIKE: CardRecord = CardRecord::new_wi
             EffectDef::Mill {
                 player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),
-                binding: None,
             },
         ]),
     )),

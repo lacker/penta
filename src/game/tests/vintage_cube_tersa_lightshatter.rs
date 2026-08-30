@@ -2,7 +2,6 @@
 //! fresh one, and turns a full graveyard into a card each attack.
 
 use super::*;
-use crate::ObjectSetBindingIndex;
 
 /// Tersa on the battlefield with `graveyard` behind her, ready to attack.
 fn staged(graveyard: &[CardDefinitionId]) -> (Game, GameObjectId) {
@@ -134,18 +133,23 @@ fn random_selection_is_composed_with_the_exile_operation() {
     let EffectDef::Sequence([selection, exile]) = effect else {
         panic!("Tersa should compose selection and exile");
     };
-    let EffectDef::SelectAtRandomFromZone {
-        source, binding, ..
-    } = *selection
-    else {
+    let EffectDef::BindOutput { effect, binding } = *selection else {
+        panic!("Tersa should bind the random selection");
+    };
+    let EffectDef::SelectAtRandomFromZone { source, .. } = *effect else {
         panic!("Tersa should select randomly before exiling");
     };
     assert_eq!(source, ZoneKind::Graveyard);
-    assert_eq!(binding, ObjectSetBindingIndex::PRIMARY);
+    assert_eq!(
+        binding,
+        crate::card::EffectOutputBindingDef::Objects("random_graveyard_card")
+    );
     assert_eq!(
         *exile,
         EffectDef::ExileGrantingControllerPlayThisTurn {
-            object: EffectRecipientDef::objects(ObjectSetDef::Binding(binding)),
+            object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
+                &crate::card::EffectBindingLabelDef("random_graveyard_card"),
+            )),
         }
     );
 }

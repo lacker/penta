@@ -34,6 +34,11 @@ impl Game {
         choices: &mut impl Iterator<Item = crate::ManaSplit>,
     ) {
         match effect {
+            EffectDef::BindOutput { effect, .. } => {
+                self.resolve_triggered_mana_effect_with_choices(
+                    source, controller, *effect, context, choices,
+                );
+            }
             EffectDef::Sequence(effects) => {
                 for effect in effects {
                     self.resolve_triggered_mana_effect_with_choices(

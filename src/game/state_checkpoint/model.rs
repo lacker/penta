@@ -830,6 +830,8 @@ pub(super) struct EffectResolutionContextSnapshot {
     pub(super) chosen_counter: Option<CounterKindSnapshot>,
     pub(super) single_objects: [Option<TargetSnapshot>; crate::ObjectBindingIndex::COUNT],
     pub(super) object_groups: [Vec<TargetSnapshot>; crate::ObjectSetBindingIndex::COUNT],
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub(super) named_object_groups: std::collections::BTreeMap<String, Vec<TargetSnapshot>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

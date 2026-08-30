@@ -8,15 +8,15 @@ use crate::card::{
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
     ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
     CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
-    ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PileExileDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, RoundingDef, SetOperationDef, SimultaneousChooseDef, SpellAdditionalCostDef,
-    SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities,
-    tokens,
+    EffectBindingLabelDef, EffectDef, EffectOutputBindingDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
+    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
+    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PayOrDef, PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
+    SetOperationDef, SimultaneousChooseDef, SpellAdditionalCostDef, SumValueDef,
+    TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -960,10 +960,12 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                  into your hand.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 EffectDef::Sequence(&[
-                    EffectDef::Mill {
-                        player: EffectRecipientDef::Controller,
-                        amount: ValueDef::Constant(3),
-                        binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    EffectDef::BindOutput {
+                        effect: &EffectDef::Mill {
+                            player: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(3),
+                        },
+                        binding: EffectOutputBindingDef::Objects("milled_cards"),
                     },
                     // A minimum of zero is the "you may": milling three and taking nothing is a
                     // legal answer, and a pile with no land in it never asks.
@@ -973,9 +975,11 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                         chooser: PlayerRefDef::EffectController,
                         // "From among them" is what the mill just put there, not what the graveyard
                         // already held -- and only a land among those.
-                        candidates: ObjectSetDef::MatchingBinding {
-                            binding: ObjectSetBindingIndex::PRIMARY,
-                            object: ObjectPredicateDef::HasType(CardType::Land),
+                        candidates: ObjectSetDef::Matching {
+                            objects: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
+                                "milled_cards",
+                            )),
+                            object: &ObjectPredicateDef::HasType(CardType::Land),
                         },
                         exclude: None,
                         minimum: 0,

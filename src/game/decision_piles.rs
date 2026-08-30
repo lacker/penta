@@ -21,19 +21,6 @@ impl Game {
         }
     }
 
-    /// How many cards a resolving step handled and what they add up to in
-    /// mana value. Read before they move: the follow-up may need the number
-    /// after the cards have left the zone where the step found them.
-    pub(super) fn card_totals(&self, cards: &[CardInstance]) -> (u16, u16) {
-        let count = u16::try_from(cards.len()).unwrap_or(u16::MAX);
-        let mana_value = cards
-            .iter()
-            .filter_map(|card| self.catalog.get(card.definition))
-            .map(super::CardDefinition::card_mana_value)
-            .fold(0_u16, u16::saturating_add);
-        (count, mana_value)
-    }
-
     pub(super) fn card_decision_options(
         &self,
         cards: &[CardInstance],

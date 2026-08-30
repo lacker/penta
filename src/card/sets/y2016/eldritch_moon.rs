@@ -20,18 +20,6 @@ pub(in crate::card::sets) static BORROWED_GRACE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static PROVIDENCE_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the first upkeep, your life total becomes 26.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Upkeep,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::SetLifeTotal {
-        recipient: EffectRecipientDef::Controller,
-        total: ValueDef::Constant(26),
-    },
-);
-
 // EMN 37 — Providence
 pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e5edd8d-8e10-4414-a326-95a672dfcff7"),
@@ -41,7 +29,17 @@ pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{5}{W}{W}")).with_abilities(&[
         AbilityDef::opening_hand_reveal(
             "You may reveal this card from your opening hand. If you do, at the beginning of the first upkeep, your life total becomes 26.",
-            EffectDef::InstallTrigger(InstalledTriggerDef::once(&PROVIDENCE_OPENING_TRIGGER)),
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the first upkeep, your life total becomes 26.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::SetLifeTotal {
+                    recipient: EffectRecipientDef::Controller,
+                    total: ValueDef::Constant(26),
+                },
+            ))),
         ),
         AbilityDef::spell(
             "Your life total becomes 26.",
@@ -64,68 +62,9 @@ pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
 );
 
 // EMN 85 — Collective Brutality
-/// Escalate: one discard for every mode past the first, so one mode is free
-/// and all three cost two cards.
-static ESCALATE_DISCARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1)
-        .counted_per_extra_mode();
-
 static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Player(PlayerRelation::Opponent),
 )];
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-static AN_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Instant),
-    ObjectPredicateDef::HasType(CardType::Sorcery),
-]);
-
-static BRUTALITY_STRIP: [EffectDef; 2] = abilities::reveal_hand_and_discard_chosen_card(
-    PlayerRefDef::Target(TargetIndex::PRIMARY),
-    AN_INSTANT_OR_SORCERY,
-);
-
-static BRUTALITY_DRAIN: [EffectDef; 2] = [
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-];
-
-/// Each mode declares its own target slot, so a Brutality that takes two
-/// modes points at two things.
-static BRUTALITY_MODES: [AbilityDef; 3] = [
-    AbilityDef::spell_with_targets(
-        "Target opponent reveals their hand. You choose an instant or sorcery card from it. That \
-         player discards that card.",
-        &AN_OPPONENT,
-        EffectDef::Sequence(&BRUTALITY_STRIP),
-    ),
-    AbilityDef::spell_with_targets(
-        "Target creature gets -2/-2 until end of turn.",
-        &A_CREATURE,
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(-2),
-                ValueDef::Constant(-2),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target opponent loses 2 life and you gain 2 life.",
-        &AN_OPPONENT,
-        EffectDef::Sequence(&BRUTALITY_DRAIN),
-    ),
-];
 
 pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::new_with_legacy_id(
     2244,
@@ -140,12 +79,58 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
              first.)\nChoose one or more —\n• Target opponent reveals their hand. You choose an \
              instant or sorcery card from it. That player discards that card.\n• Target creature \
              gets -2/-2 until end of turn.\n• Target opponent loses 2 life and you gain 2 life.",
-            &BRUTALITY_MODES,
+            // Each mode declares its own target slot, so a Brutality that takes two
+            // modes points at two things.
+            &[
+                AbilityDef::spell_with_targets(
+                    "Target opponent reveals their hand. You choose an instant or sorcery card from it. That \
+                     player discards that card.",
+                    &AN_OPPONENT,
+                    EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                        PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    )),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target creature gets -2/-2 until end of turn.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-2),
+                            ValueDef::Constant(-2),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target opponent loses 2 life and you gain 2 life.",
+                    &AN_OPPONENT,
+                    EffectDef::Sequence(&[
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                        EffectDef::GainLife {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(2),
+                        },
+                    ]),
+                ),
+            ],
             1,
             3,
             false,
         )
-        .with_spell_additional_cost(&ESCALATE_DISCARD),
+        // Escalate: one discard for every mode past the first, so one mode is free
+        // and all three cost two cards.
+        .with_spell_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1)
+                .counted_per_extra_mode()),
     ),
 );
 

@@ -212,18 +212,6 @@ pub(in crate::card::sets) static MARTYR_S_CRY: CardRecord = CardRecord::new(
 );
 
 // DRK 13 — Miracle Worker
-/// "Attached to a creature you control": the Aura may be either player's, but
-/// the creature under it has to be one of yours.
-static MIRACLE_WORKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Aura"),
-        ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-        ])),
-    ]),
-)];
-
 pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_with_legacy_id(
     1678,
     "Miracle Worker",
@@ -233,7 +221,17 @@ pub(in crate::card::sets) static MIRACLE_WORKER: CardRecord = CardRecord::new_wi
         AbilityDef::activated_with_targets(
             "{T}: Destroy target Aura attached to a creature you control.",
             &[AbilityCostDef::TapSource],
-            &MIRACLE_WORKER_TARGET,
+            // "Attached to a creature you control": the Aura may be either player's, but
+            // the creature under it has to be one of yours.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ])),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
@@ -357,22 +355,6 @@ pub(in crate::card::sets) static WITCH_HUNTER: CardRecord = CardRecord::new_with
 );
 
 // DRK 20 — Amnesia
-static AMNESIA_STRIKE: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    // "All nonland cards" is not a count, so the hand is queried rather than
-    // a number of discards being asked for. The reveal above is what makes
-    // the selection public knowledge.
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-            &[ZoneKind::Hand],
-            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-        ))),
-    },
-];
-
 pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new_with_legacy_id(
     1727,
     "Amnesia",
@@ -382,7 +364,23 @@ pub(in crate::card::sets) static AMNESIA: CardRecord = CardRecord::new_with_lega
         AbilityDef::spell_with_targets(
             "Target player reveals their hand and discards all nonland cards.",
             &TARGET_PLAYER,
-            EffectDef::Sequence(&AMNESIA_STRIKE),
+            EffectDef::Sequence(&[
+                EffectDef::RevealHand {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                // "All nonland cards" is not a count, so the hand is queried rather than
+                // a number of discards being asked for. The reveal above is what makes
+                // the selection public knowledge.
+                EffectDef::DiscardCards {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
+                    )),
+                },
+            ]),
         ),
     ),
 );
@@ -525,29 +523,6 @@ pub(in crate::card::sets) static GHOST_SHIP: CardRecord = CardRecord::new_with_l
 );
 
 // DRK 29 — Giant Shark
-static GIANT_SHARK_DEFENDER_HAS_AN_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
-static GIANT_SHARK_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::Equal,
-    amount: 0,
-};
-
-static GIANT_SHARK_TRAMPLE: AbilityDef = abilities::trample();
-
-static GIANT_SHARK_FRENZY: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&GIANT_SHARK_TRAMPLE),
-];
-
 pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_legacy_id(
     1904,
     "Giant Shark",
@@ -556,7 +531,11 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_
     CardRules::new_creature(mana_cost!("{5}{U}"), &["Shark"], 4, 4).with_abilities(&[
         AbilityDef::static_ability(
             "This creature can't attack unless defending player controls an Island.",
-            EffectDef::CannotAttackUnless(&GIANT_SHARK_DEFENDER_HAS_AN_ISLAND),
+            EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )),
         ),
         AbilityDef::triggered(
             "Whenever this creature blocks or becomes blocked by a creature that has been dealt \
@@ -569,14 +548,28 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_
             },
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&GIANT_SHARK_FRENZY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
         AbilityDef::triggered_if(
             "When you control no Islands, sacrifice this creature.",
             TriggerEventDef::StateCondition,
-            &GIANT_SHARK_NO_ISLANDS,
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
             EffectDef::Sacrifice {
                 object: EffectRecipientDef::Source,
             },
@@ -605,13 +598,6 @@ pub(in crate::card::sets) static MANA_VORTEX: CardRecord = CardRecord::new(
 );
 
 // DRK 32 — Merfolk Assassin
-static ISLANDWALKER_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
-    ]),
-)];
-
 pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_with_legacy_id(
     1436,
     "Merfolk Assassin",
@@ -621,7 +607,12 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_
         &[AbilityDef::activated_with_targets(
             "{T}: Destroy target creature with islandwalk.",
             &[AbilityCostDef::TapSource],
-            &ISLANDWALKER_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Landwalk(BasicLandType::Island)),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
@@ -716,18 +707,6 @@ pub(in crate::card::sets) static SUNKEN_CITY: CardRecord = CardRecord::new_with_
 );
 
 // DRK 37 — Tangle Kelp
-/// The condition sits on the recipient rather than on the Aura, so the Kelp
-/// holds a creature down only on the untap step after it swung. A creature
-/// that stayed home unties itself.
-static TANGLE_KELP_HOST_THAT_ATTACKED: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::AttachedToSource,
-        ObjectPredicateDef::AttackedDuringControllersLastTurn,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
 pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_legacy_id(
     1724,
     "Tangle Kelp",
@@ -747,7 +726,17 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_
                 "Enchanted creature doesn't untap during its controller's untap step if it \
                  attacked during its controller's last turn.",
                 EffectDef::StaticApply {
-                    recipient: TANGLE_KELP_HOST_THAT_ATTACKED,
+                    // The condition sits on the recipient rather than on the Aura, so the Kelp
+                    // holds a creature down only on the untap step after it swung. A creature
+                    // that stayed home unties itself.
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AttachedToSource,
+                            ObjectPredicateDef::AttackedDuringControllersLastTurn,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
                 },
             ),
@@ -755,12 +744,6 @@ pub(in crate::card::sets) static TANGLE_KELP: CardRecord = CardRecord::new_with_
 );
 
 // DRK 38 — Water Wurm
-static WATER_WURM_OPPONENT_ISLAND: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[crate::card::BasicLandType::Island]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
 pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new_with_legacy_id(
     575,
     "Water Wurm",
@@ -773,7 +756,13 @@ pub(in crate::card::sets) static WATER_WURM: CardRecord = CardRecord::new_with_l
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
                     ValueDef::Constant(0),
-                    ValueDef::AnyMatchingObject(&WATER_WURM_OPPONENT_ISLAND),
+                    ValueDef::AnyMatchingObject(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[
+                            crate::card::BasicLandType::Island,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    )),
                 ),
             },
         ),
@@ -861,15 +850,6 @@ pub(in crate::card::sets) static BOG_RATS: CardRecord = CardRecord::new_with_leg
 );
 
 // DRK 43 — Curse Artifact
-/// The declined branch. "That player" is the artifact's controller, so
-/// stealing the artifact moves both the choice and the damage with it.
-static CURSE_ARTIFACT_TOLL: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-        ObjectRefDef::AttachedToSource,
-    )),
-    amount: ValueDef::Constant(2),
-};
-
 pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_with_legacy_id(
     1966,
     "Curse Artifact",
@@ -891,7 +871,14 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_wi
                     )),
                     object: ObjectPredicateDef::AttachedToSource,
                     then: None,
-                    otherwise: Some(&CURSE_ARTIFACT_TOLL),
+                    // The declined branch. "That player" is the artifact's controller, so
+                    // stealing the artifact moves both the choice and the damage with it.
+                    otherwise: Some(&EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::AttachedToSource,
+                        )),
+                        amount: ValueDef::Constant(2),
+                    }),
                     amount: SacrificedAmountDef::Power,
                     optional: true,
                 },
@@ -956,24 +943,6 @@ pub(in crate::card::sets) static GRAVE_ROBBERS: CardRecord = CardRecord::new_wit
 );
 
 // DRK 47 — Inquisition
-/// Counted after the reveal, from the hand itself: the damage is whatever is
-/// there when the spell resolves, not what the caster saw earlier.
-static WHITE_CARDS_IN_TARGETS_HAND: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Color(ManaColor::White),
-    &[ZoneKind::Hand],
-    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-);
-
-static INQUISITION_STRIKE: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::CountMatchingObjects(&WHITE_CARDS_IN_TARGETS_HAND),
-    },
-];
-
 pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new_with_legacy_id(
     1728,
     "Inquisition",
@@ -983,7 +952,21 @@ pub(in crate::card::sets) static INQUISITION: CardRecord = CardRecord::new_with_
         "Target player reveals their hand. Inquisition deals damage to that player equal to the \
          number of white cards in their hand.",
         &TARGET_PLAYER,
-        EffectDef::Sequence(&INQUISITION_STRIKE),
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // Counted after the reveal, from the hand itself: the damage is whatever is
+                // there when the spell resolves, not what the caster saw earlier.
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
+            },
+        ]),
     )),
 );
 
@@ -1045,22 +1028,6 @@ pub(in crate::card::sets) static NAMELESS_RACE: CardRecord = CardRecord::new(
 );
 
 // DRK 51 — Rag Man
-static RAG_MAN_CREATURE_CARD: ObjectPredicateDef = ObjectPredicateDef::HasType(CardType::Creature);
-
-/// The reveal is what makes the discard public: without it the opponent would
-/// learn a card left the hand and nothing about what was there to leave.
-static RAG_MAN_STRIKE: [EffectDef; 2] = [
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RandomMatching(&RAG_MAN_CREATURE_CARD),
-        then: None,
-    },
-];
-
 pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new_with_legacy_id(
     1809,
     "Rag Man",
@@ -1077,7 +1044,21 @@ pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new_with_lega
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
-            EffectDef::Sequence(&RAG_MAN_STRIKE),
+            // The reveal is what makes the discard public: without it the opponent would
+            // learn a card left the hand and nothing about what was there to leave.
+            EffectDef::Sequence(&[
+                EffectDef::RevealHand {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RandomMatching(&ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
+                    then: None,
+                },
+            ]),
         )
         .with_activation_timing(ActivationTimingDef::YourTurn),
     ),
@@ -1123,18 +1104,6 @@ pub(in crate::card::sets) static UNCLE_ISTVAN: CardRecord = CardRecord::new_with
 );
 
 // DRK 55 — Word of Binding
-/// "X target creatures": the count is the X that was paid, so an X larger
-/// than the number of creatures on the battlefield has no legal declaration
-/// rather than tapping fewer than were paid for.
-static WORD_OF_BINDING_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_chosen_x(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new_with_legacy_id(
     1833,
     "Word of Binding",
@@ -1142,7 +1111,17 @@ pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new_w
     CardSet::TheDark,
     CardRules::new_sorcery(mana_cost!("{X}{B}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Tap X target creatures.",
-        &WORD_OF_BINDING_TARGETS,
+        // "X target creatures": the count is the X that was paid, so an X larger
+        // than the number of creatures on the battlefield has no legal declaration
+        // rather than tapping fewer than were paid for.
+        &[AbilityTargetDef::exactly_chosen_x(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Tap {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
@@ -1276,24 +1255,6 @@ static ETERNAL_FLAME_MOUNTAINS: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-/// Rounded up, so an odd Mountain count costs the extra point rather than
-/// saving it -- one Mountain is one damage each way.
-static ETERNAL_FLAME_RECOIL: HalvedValueDef = HalvedValueDef::new(
-    ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
-    RoundingDef::Up,
-);
-
-static ETERNAL_FLAME_EFFECTS: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Halved(&ETERNAL_FLAME_RECOIL),
-    },
-];
-
 pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new_with_legacy_id(
     1921,
     "Eternal Flame",
@@ -1305,7 +1266,21 @@ pub(in crate::card::sets) static ETERNAL_FLAME: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
         )],
-        EffectDef::Sequence(&ETERNAL_FLAME_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Controller,
+                // Rounded up, so an odd Mountain count costs the extra point rather than
+                // saving it -- one Mountain is one damage each way.
+                amount: ValueDef::Halved(&HalvedValueDef::new(
+                    ValueDef::CountMatchingObjects(&ETERNAL_FLAME_MOUNTAINS),
+                    RoundingDef::Up,
+                )),
+            },
+        ]),
     )),
 );
 
@@ -1350,15 +1325,6 @@ pub(in crate::card::sets) static FISSURE: CardRecord = CardRecord::new_with_lega
 );
 
 // DRK 64 — Goblin Caves
-static GOBLIN_CAVES_ANTHEM: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::Subtype("Goblin"),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    ),
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(2)),
-};
-
 pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new_with_legacy_id(
     1916,
     "Goblin Caves",
@@ -1374,7 +1340,17 @@ pub(in crate::card::sets) static GOBLIN_CAVES: CardRecord = CardRecord::new_with
                 "As long as enchanted land is a basic Mountain, Goblin creatures get +0/+2.",
                 EffectDef::IfCondition {
                     condition: &ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN,
-                    then: &GOBLIN_CAVES_ANTHEM,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Subtype("Goblin"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(2),
+                        ),
+                    },
                 },
             ),
         ]),
@@ -1412,21 +1388,6 @@ pub(in crate::card::sets) static GOBLIN_HERO: CardRecord = CardRecord::new_with_
 );
 
 // DRK 67 — Goblin Rock Sled
-static ROCK_SLED_THAT_ATTACKED: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Source,
-        ObjectPredicateDef::AttackedDuringControllersLastTurn,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static DEFENDER_CONTROLS_A_MOUNTAIN: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Opponent,
-);
-
 pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new_with_legacy_id(
     1723,
     "Goblin Rock Sled",
@@ -1438,27 +1399,29 @@ pub(in crate::card::sets) static GOBLIN_ROCK_SLED: CardRecord = CardRecord::new_
             "This creature doesn't untap during your untap step if it attacked during your last \
              turn.",
             EffectDef::StaticApply {
-                recipient: ROCK_SLED_THAT_ATTACKED,
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::AttackedDuringControllersLastTurn,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
             },
         ),
         AbilityDef::static_ability(
             "This creature can't attack unless defending player controls a Mountain.",
-            EffectDef::CannotAttackUnless(&DEFENDER_CONTROLS_A_MOUNTAIN),
+            EffectDef::CannotAttackUnless(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            )),
         ),
     ]),
 );
 
 // DRK 68 — Goblin Shrine
-static GOBLIN_SHRINE_ANTHEM: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::Subtype("Goblin"),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    ),
-    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-};
-
 pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_with_legacy_id(
     1917,
     "Goblin Shrine",
@@ -1474,7 +1437,17 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_wit
                 "As long as enchanted land is a basic Mountain, Goblin creatures get +1/+0.",
                 EffectDef::IfCondition {
                     condition: &ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN,
-                    then: &GOBLIN_SHRINE_ANTHEM,
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::Subtype("Goblin"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                    },
                 },
             ),
             AbilityDef::triggered(
@@ -1497,19 +1470,6 @@ pub(in crate::card::sets) static GOBLIN_SHRINE: CardRecord = CardRecord::new_wit
 );
 
 // DRK 69 — Goblin Wizard
-/// A minimum of zero is the "you may": the choice is offered and may be
-/// answered with nothing.
-static GOBLIN_WIZARD_CHOICE: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &FROM_YOUR_HAND,
-    object: ObjectPredicateDef::Subtype("Goblin"),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_with_legacy_id(
     2005,
     "Goblin Wizard",
@@ -1520,7 +1480,18 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_wit
             AbilityDef::activated(
                 "{T}: You may put a Goblin permanent card from your hand onto the battlefield.",
                 &[AbilityCostDef::TapSource],
-                GOBLIN_WIZARD_CHOICE,
+                // A minimum of zero is the "you may": the choice is offered and may be
+                // answered with nothing.
+                EffectDef::ChooseCards {
+                    player: EffectRecipientDef::Controller,
+                    sources: &FROM_YOUR_HAND,
+                    object: ObjectPredicateDef::Subtype("Goblin"),
+                    minimum: 0,
+                    maximum: 1,
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
             ),
             AbilityDef::activated_with_targets(
                 "{R}: Target Goblin gains protection from white until end of turn.",
@@ -1541,19 +1512,6 @@ pub(in crate::card::sets) static GOBLIN_WIZARD: CardRecord = CardRecord::new_wit
 );
 
 // DRK 70 — Goblins of the Flarg
-/// Any Dwarf you control at all, which is why this is a count of at least one
-/// rather than an exact number.
-static GOBLINS_OF_THE_FLARG_DWARF_CONDITION: TriggerConditionDef =
-    TriggerConditionDef::ObjectCount {
-        query: ObjectQueryDef::matching(
-            ObjectPredicateDef::Subtype("Dwarf"),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        comparison: ComparisonDef::GreaterOrEqual,
-        amount: 1,
-    };
-
 pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::new_with_legacy_id(
     28,
     "Goblins of the Flarg",
@@ -1564,7 +1522,17 @@ pub(in crate::card::sets) static GOBLINS_OF_THE_FLARG: CardRecord = CardRecord::
         AbilityDef::triggered_if(
             "When you control a Dwarf, sacrifice this creature.",
             TriggerEventDef::StateCondition,
-            &GOBLINS_OF_THE_FLARG_DWARF_CONDITION,
+            // Any Dwarf you control at all, which is why this is a count of at least one
+            // rather than an exact number.
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype("Dwarf"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::Sacrifice {
                 object: EffectRecipientDef::Source,
             },
@@ -1691,22 +1659,6 @@ pub(in crate::card::sets) static ELVES_OF_DEEP_SHADOW: CardRecord = CardRecord::
 );
 
 // DRK 77 — Gaea's Touch
-/// A basic Forest specifically, so a nonbasic that happens to make green
-/// mana is not on offer.
-static GAEAS_TOUCH_CHOICE: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &FROM_YOUR_HAND,
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Supertype(CardSupertype::Basic),
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-    ]),
-    minimum: 0,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new_with_legacy_id(
     2006,
     "Gaea's Touch",
@@ -1718,7 +1670,21 @@ pub(in crate::card::sets) static GAEAS_TOUCH: CardRecord = CardRecord::new_with_
         AbilityDef::activated(
             "{0}: You may put a basic Forest card from your hand onto the battlefield. Activate only as a sorcery and only once each turn.",
             &[],
-            GAEAS_TOUCH_CHOICE,
+            // A basic Forest specifically, so a nonbasic that happens to make green
+            // mana is not on offer.
+            EffectDef::ChooseCards {
+                player: EffectRecipientDef::Controller,
+                sources: &FROM_YOUR_HAND,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                ]),
+                minimum: 0,
+                maximum: 1,
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed)
         .once_each_turn(),
@@ -1815,12 +1781,6 @@ pub(in crate::card::sets) static NIALL_SILVAIN: CardRecord = CardRecord::new_wit
 );
 
 // DRK 83 — People of the Woods
-static FORESTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::new_with_legacy_id(
     1470,
     "People of the Woods",
@@ -1833,7 +1793,11 @@ pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::n
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::define_toughness(ValueDef::CountMatchingObjects(
-                    &FORESTS_YOU_CONTROL,
+                    &ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                 )),
             },
         ),
@@ -1841,13 +1805,6 @@ pub(in crate::card::sets) static PEOPLE_OF_THE_WOODS: CardRecord = CardRecord::n
 );
 
 // DRK 84 — Savaen Elves
-static SAVAEN_ELVES_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Aura"),
-        ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(CardType::Land)),
-    ]),
-)];
-
 pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with_legacy_id(
     1679,
     "Savaen Elves",
@@ -1860,7 +1817,12 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with
                 AbilityCostDef::Mana(mana_cost!("{G}{G}")),
                 AbilityCostDef::TapSource,
             ],
-            &SAVAEN_ELVES_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Aura"),
+                    ObjectPredicateDef::AttachedTo(&ObjectPredicateDef::HasType(CardType::Land)),
+                ]),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
@@ -1948,26 +1910,6 @@ pub(in crate::card::sets) static SCAVENGER_FOLK: CardRecord = CardRecord::new_wi
 // DRK 88 — Spitting Slug
 static SPITTING_SLUG_FIRST_STRIKE: AbilityDef = abilities::first_strike();
 
-static SPITTING_SLUG_KEEPS_IT: EffectDef = EffectDef::Apply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::add_ability(&SPITTING_SLUG_FIRST_STRIKE),
-    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-};
-
-/// The other side of the same block, whichever way round it happened.
-static SPITTING_SLUG_OPPONENTS: EffectDef = EffectDef::Apply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::BlockedBySource,
-            ObjectPredicateDef::BlockingSource,
-        ]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    ),
-    effect: AppliedEffectDef::add_ability(&SPITTING_SLUG_FIRST_STRIKE),
-    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-};
-
 pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new_with_legacy_id(
     1900,
     "Spitting Slug",
@@ -1989,8 +1931,24 @@ pub(in crate::card::sets) static SPITTING_SLUG: CardRecord = CardRecord::new_wit
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{1}{G}"),
                 ),
-                &SPITTING_SLUG_KEEPS_IT,
-                &SPITTING_SLUG_OPPONENTS,
+                &EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&SPITTING_SLUG_FIRST_STRIKE),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                // The other side of the same block, whichever way round it happened.
+                &EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::BlockedBySource,
+                            ObjectPredicateDef::BlockingSource,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&SPITTING_SLUG_FIRST_STRIKE),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
             )),
         ),
     ),
@@ -2027,19 +1985,6 @@ pub(in crate::card::sets) static TRACKER: CardRecord = CardRecord::new_with_lega
 );
 
 // DRK 90 — Venom
-/// Handed to the host rather than kept on the Aura, so "this creature" in the
-/// trigger is the enchanted creature and the pair it is part of is the one
-/// being read.
-static VENOMOUS_TOUCH: AbilityDef = AbilityDef::triggered(
-    "Whenever this creature blocks or becomes blocked by a non-Wall creature, destroy the other \
-     creature at end of combat.",
-    TriggerEventDef::BlocksOrBecomesBlockedBy {
-        creature: ObjectPredicateDef::Source,
-        other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
-    },
-    abilities::destroy_triggering_object_at_end_of_combat(),
-);
-
 pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy_id(
     1734,
     "Venom",
@@ -2054,7 +1999,18 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy
                  destroy the other creature at end of combat.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&VENOMOUS_TOUCH),
+                    // Handed to the host rather than kept on the Aura, so "this creature" in the
+                    // trigger is the enchanted creature and the pair it is part of is the one
+                    // being read.
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                        "Whenever this creature blocks or becomes blocked by a non-Wall creature, destroy the other \
+                         creature at end of combat.",
+                        TriggerEventDef::BlocksOrBecomesBlockedBy {
+                            creature: ObjectPredicateDef::Source,
+                            other: ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                        },
+                        abilities::destroy_triggering_object_at_end_of_combat(),
+                    )),
                 },
             ),
         ]),
@@ -2071,20 +2027,13 @@ pub(in crate::card::sets) static WHIPPOORWILL: CardRecord = CardRecord::new(
 );
 
 // DRK 92 — Wormwood Treefolk
-/// The two clauses differ only in the land type they name, so each is the
-/// same pair: grant the walk for the turn, then take the two damage that
-/// paying for it costs beyond the mana.
-static WORMWOOD_FORESTWALK: [EffectDef; 2] = wormwood_clause(BasicLandType::Forest);
-
-static WORMWOOD_SWAMPWALK: [EffectDef; 2] = wormwood_clause(BasicLandType::Swamp);
-
 const fn wormwood_clause(land_type: BasicLandType) -> [EffectDef; 2] {
     [
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::add_ability(match land_type {
-                BasicLandType::Forest => &FORESTWALK,
-                _ => &SWAMPWALK,
+                BasicLandType::Forest => &const { abilities::landwalk(BasicLandType::Forest) },
+                _ => &const { abilities::landwalk(BasicLandType::Swamp) },
             }),
             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
         },
@@ -2095,10 +2044,6 @@ const fn wormwood_clause(land_type: BasicLandType) -> [EffectDef; 2] {
     ]
 }
 
-static FORESTWALK: AbilityDef = abilities::landwalk(BasicLandType::Forest);
-
-static SWAMPWALK: AbilityDef = abilities::landwalk(BasicLandType::Swamp);
-
 pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new_with_legacy_id(
     1437,
     "Wormwood Treefolk",
@@ -2108,12 +2053,15 @@ pub(in crate::card::sets) static WORMWOOD_TREEFOLK: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{G}{G}: This creature gains forestwalk until end of turn and deals 2 damage to you.",
             &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
-            EffectDef::Sequence(&WORMWOOD_FORESTWALK),
+            // The two clauses differ only in the land type they name, so each is the
+            // same pair: grant the walk for the turn, then take the two damage that
+            // paying for it costs beyond the mana.
+            EffectDef::Sequence(&wormwood_clause(BasicLandType::Forest)),
         ),
         AbilityDef::activated(
             "{B}{B}: This creature gains swampwalk until end of turn and deals 2 damage to you.",
             &[AbilityCostDef::Mana(mana_cost!("{B}{B}"))],
-            EffectDef::Sequence(&WORMWOOD_SWAMPWALK),
+            EffectDef::Sequence(&wormwood_clause(BasicLandType::Swamp)),
         ),
     ]),
 );
@@ -2243,18 +2191,6 @@ pub(in crate::card::sets) static COAL_GOLEM: CardRecord = CardRecord::new_with_l
 );
 
 // DRK 100 — Dark Sphere
-static DARK_SPHERE_SHIELD: EffectDef = EffectDef::PreventDamage {
-    prevention: DamagePreventionDef::events(
-        DamageEventMatcherDef {
-            recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Controller),
-            ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY))
-        },
-        1,
-    )
-    .with_coverage(DamageCoverageDef::HalfRoundedDown),
-    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-};
-
 pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_legacy_id(
     1454,
     "Dark Sphere",
@@ -2264,7 +2200,24 @@ pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_
         "{T}, Sacrifice this artifact: The next time a source of your choice would deal damage to \
          you this turn, prevent half that damage, rounded down.",
         &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-        abilities::shield_against_a_chosen_source(ObjectPredicateDef::Any, &DARK_SPHERE_SHIELD),
+        abilities::shield_against_a_chosen_source(
+            ObjectPredicateDef::Any,
+            &EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::events(
+                    DamageEventMatcherDef {
+                        recipient: DamageRecipientMatcherDef::Recipients(
+                            EffectRecipientDef::Controller,
+                        ),
+                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(
+                            ObjectBindingIndex::PRIMARY,
+                        ))
+                    },
+                    1,
+                )
+                .with_coverage(DamageCoverageDef::HalfRoundedDown),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
     )),
 );
 
@@ -2524,40 +2477,6 @@ pub(in crate::card::sets) static CITY_OF_SHADOWS: CardRecord = CardRecord::new(
 );
 
 // DRK 117 — Maze of Ith
-/// The Maze does not remove the creature from combat: it stays an attacker,
-/// keeps whatever is blocking it, and simply exchanges no combat damage.
-static MAZE_OF_ITH_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Attacking,
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static MAZE_OF_ITH_EFFECT: [EffectDef; 2] = [
-    EffectDef::Untap {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::Sequence(&[
-        EffectDef::PreventDamage {
-            prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
-                EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            )),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-        EffectDef::PreventDamage {
-            prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_from(
-                ObjectRefDef::Target(TargetIndex::PRIMARY),
-            )),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ]),
-];
-
 pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new_with_legacy_id(
     81,
     "Maze of Ith",
@@ -2566,8 +2485,38 @@ pub(in crate::card::sets) static MAZE_OF_ITH: CardRecord = CardRecord::new_with_
     CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_with_targets(
         "{T}: Untap target attacking creature. Prevent all combat damage that would be dealt to and dealt by that creature this turn.",
         &[AbilityCostDef::TapSource],
-        &MAZE_OF_ITH_TARGET,
-        EffectDef::Sequence(&MAZE_OF_ITH_EFFECT),
+        // The Maze does not remove the creature from combat: it stays an attacker,
+        // keeps whatever is blocking it, and simply exchanges no combat damage.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::Sequence(&[
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_to(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::combat_from(
+                        ObjectRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ]),
     )]),
 );
 

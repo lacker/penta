@@ -30,54 +30,6 @@ pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
 );
 
 // KHM 139 — Goldspan Dragon
-/// He pays for anything he is answered with: the Treasure lands whether the
-/// spell that named him resolves or not, since the trigger is the targeting
-/// rather than what it does.
-static GOLDSPAN_TRIGGERS: [TriggerEventDef; 2] = [
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-    TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
-];
-
-static TREASURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Treasure"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// The granted ability sits beside the Treasure's own rather than replacing
-/// it, so a Treasure under him may still be cashed for one mana of any
-/// colour -- there is simply no reason to.
-static GOLDSPAN_TREASURE_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
-
-static GOLDSPAN_TREASURE_ABILITY: AbilityDef = AbilityDef::activated_mana(
-    "{T}, Sacrifice this artifact: Add two mana of any one color.",
-    &GOLDSPAN_TREASURE_COST,
-    EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
-);
-
-static GOLDSPAN_DRAGON_ABILITIES: [AbilityDef; 4] = [
-    abilities::flying(),
-    abilities::haste(),
-    AbilityDef::triggered(
-        "Whenever this creature attacks or becomes the target of a spell, create a Treasure \
-         token.",
-        TriggerEventDef::AnyOf(&GOLDSPAN_TRIGGERS),
-        EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
-            "4ae9f454-4f8c-4123-9886-674bc439dfe7",
-            "Olena Richards",
-        )),
-    ),
-    AbilityDef::static_ability(
-        "Treasures you control have \"{T}, Sacrifice this artifact: Add two mana of any one \
-         color.\"",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(TREASURES_YOU_CONTROL)),
-            effect: AppliedEffectDef::add_ability(&GOLDSPAN_TREASURE_ABILITY),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d914868-9000-4df2-a818-0ef8a7f636ae"),
     "Goldspan Dragon",
@@ -86,81 +38,49 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
     // Five mana for a hasty 4/4 flier that attacks for four and pays for
     // itself: every attack and every removal spell aimed at him is two mana
     // back, which is why he so often lands and casts something the same turn.
-    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 4, 4)
-        .with_abilities(&GOLDSPAN_DRAGON_ABILITIES),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks or becomes the target of a spell, create a Treasure \
+                 token.",
+            // He pays for anything he is answered with: the Treasure lands whether the
+            // spell that named him resolves or not, since the trigger is the targeting
+            // rather than what it does.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+            ]),
+            EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
+                "4ae9f454-4f8c-4123-9886-674bc439dfe7",
+                "Olena Richards",
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Treasures you control have \"{T}, Sacrifice this artifact: Add two mana of any one \
+                 color.\"",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    ObjectQueryDef::matching(
+                        ObjectPredicateDef::Subtype("Treasure"),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                )),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                    "{T}, Sacrifice this artifact: Add two mana of any one color.",
+                    // The granted ability sits beside the Treasure's own rather than replacing
+                    // it, so a Treasure under him may still be cashed for one mana of any
+                    // colour -- there is simply no reason to.
+                    &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                    EffectDef::AddMana(AddManaEffectDef::any_color().with_amount(2)),
+                )),
+            },
+        ),
+    ]),
 );
 
 // KHM 142 — Magda, Brazen Outlaw
-/// "Other Dwarves you control": Magda pumps the rest of the Dwarves and not
-/// herself, which is the whole reason she is a 2/1 rather than a 3/1.
-static OTHER_DWARVES_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Subtype("Dwarf"),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
-/// Any Dwarf you control becoming tapped, not just an attack: tapping one
-/// for mana or to pay a cost makes a Treasure just the same.
-static A_DWARF_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Subtype("Dwarf"),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static AN_ARTIFACT_OR_DRAGON_CARD: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::Subtype("Dragon"),
-]);
-
-static FIVE_TREASURES: [AbilityCostDef; 1] = [AbilityCostDef::SacrificePermanents {
-    object: ObjectPredicateDef::Subtype("Treasure"),
-    controller: PlayerRelation::You,
-    count: 5,
-}];
-
-static MAGDA_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "Other Dwarves you control get +1/+0.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::matching_objects(
-                OTHER_DWARVES_YOU_CONTROL,
-                &[ZoneKind::Battlefield],
-                PlayerRelation::You,
-            ),
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::Constant(1),
-                ValueDef::Constant(0),
-            ),
-        },
-    ),
-    AbilityDef::triggered(
-        "Whenever a Dwarf you control becomes tapped, create a Treasure token.",
-        TriggerEventDef::tapped(A_DWARF_YOU_CONTROL),
-        EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
-            "4ae9f454-4f8c-4123-9886-674bc439dfe7",
-            "Olena Richards",
-        )),
-    ),
-    AbilityDef::activated(
-        "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
-         card onto the battlefield, then shuffle.",
-        &FIVE_TREASURES,
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: AN_ARTIFACT_OR_DRAGON_CARD,
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: false,
-            destination: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::new_with_legacy_id(
     2298,
     "Magda, Brazen Outlaw",
@@ -170,7 +90,67 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
     // whatever artifact the deck is built around.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Dwarf", "Berserker"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&MAGDA_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Other Dwarves you control get +1/+0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        // "Other Dwarves you control": Magda pumps the rest of the Dwarves and not
+                        // herself, which is the whole reason she is a 2/1 rather than a 3/1.
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Dwarf"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a Dwarf you control becomes tapped, create a Treasure token.",
+                // Any Dwarf you control becoming tapped, not just an attack: tapping one
+                // for mana or to pay a cost makes a Treasure just the same.
+                TriggerEventDef::tapped(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Subtype("Dwarf"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
+                    "4ae9f454-4f8c-4123-9886-674bc439dfe7",
+                    "Olena Richards",
+                )),
+            ),
+            AbilityDef::activated(
+                "Sacrifice five Treasures: Search your library for an artifact or Dragon card, put that \
+                 card onto the battlefield, then shuffle.",
+                &[AbilityCostDef::SacrificePermanents {
+                    object: ObjectPredicateDef::Subtype("Treasure"),
+                    controller: PlayerRelation::You,
+                    count: 5,
+                }],
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::Subtype("Dragon"),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // KHM 157 — Tuskeri Firewalker
@@ -207,46 +187,6 @@ pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
 );
 
 // KHM 315 — Esika's Chariot
-/// A token you control, which the Chariot itself is not: what it copies is
-/// one of the Cats it brought, or anything else a token-making deck has
-/// lying around.
-static A_TOKEN_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Token,
-        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-    ]),
-)];
-
-static CHARIOT_COPIES_A_TOKEN: EffectDef =
-    EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
-        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        exceptions: CopyExceptionsDef::NONE,
-    });
-
-static ESIKA_S_CHARIOT_ABILITIES: [AbilityDef; 3] = [
-    abilities::enters_trigger(
-        "When Esika's Chariot enters, create two 2/2 green Cat creature tokens.",
-        EffectDef::create_creature_token(&["Cat"], &[ManaColor::Green], 2, 2)
-            .with_count(ValueDef::Constant(2))
-            .with_art(CardArt::new(
-                "2e07758f-0d1c-47d9-ba5a-43bc2a7423cd",
-                "Raoul Vitale",
-            )),
-    ),
-    AbilityDef::triggered_with_targets(
-        "Whenever Esika's Chariot attacks, create a token that's a copy of target token you \
-         control.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        &A_TOKEN_YOU_CONTROL,
-        CHARIOT_COPIES_A_TOKEN,
-    ),
-    abilities::crew(
-        "Crew 4 (Tap any number of creatures you control with total power 4 or more: This \
-         Vehicle becomes an artifact creature until end of turn.)",
-        4,
-    ),
-];
-
 pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57a7d7e5-428d-4f42-8f13-9908fc65dcb4"),
     "Esika's Chariot",
@@ -256,7 +196,40 @@ pub(in crate::card::sets) static ESIKA_S_CHARIOT: CardRecord = CardRecord::new(
     // came with -- and every attack after that is another one of them.
     CardRules::new_vehicle(mana_cost!("{3}{G}"), 4, 4)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ESIKA_S_CHARIOT_ABILITIES),
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When Esika's Chariot enters, create two 2/2 green Cat creature tokens.",
+                EffectDef::create_creature_token(&["Cat"], &[ManaColor::Green], 2, 2)
+                    .with_count(ValueDef::Constant(2))
+                    .with_art(CardArt::new(
+                        "2e07758f-0d1c-47d9-ba5a-43bc2a7423cd",
+                        "Raoul Vitale",
+                    )),
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever Esika's Chariot attacks, create a token that's a copy of target token you \
+                 control.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                // A token you control, which the Chariot itself is not: what it copies is
+                // one of the Cats it brought, or anything else a token-making deck has
+                // lying around.
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Token,
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                )],
+                EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                        object: &EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        exceptions: CopyExceptionsDef::NONE,
+                    }),
+            ),
+            abilities::crew(
+                "Crew 4 (Tap any number of creatures you control with total power 4 or more: This \
+                 Vehicle becomes an artifact creature until end of turn.)",
+                4,
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

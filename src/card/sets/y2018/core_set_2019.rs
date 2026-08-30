@@ -28,20 +28,6 @@ pub(in crate::card::sets) static VAMPIRE_SOVEREIGN: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
-static ALPINE_MOON_MANA: AbilityDef = AbilityDef::activated_mana(
-    "{T}: Add one mana of any color.",
-    &[AbilityCostDef::TapSource],
-    EffectDef::AddMana(AddManaEffectDef::any_color()),
-);
-
-static ALPINE_MOON_CHANGES: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
-        SetOperationDef::Remove(LAND_SUBTYPES),
-    )),
-    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
-    AppliedEffectDef::add_ability(&ALPINE_MOON_MANA),
-];
-
 // M19 128 — Alpine Moon
 pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2435c810-2baf-4e3b-80ce-542b94694901"),
@@ -64,7 +50,17 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Opponent,
                 ),
-                effect: AppliedEffectDef::Composite(&ALPINE_MOON_CHANGES),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
+                        SetOperationDef::Remove(LAND_SUBTYPES),
+                    )),
+                    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                    AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                        "{T}: Add one mana of any color.",
+                        &[AbilityCostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::any_color()),
+                    )),
+                ]),
             },
         ),
     ]),

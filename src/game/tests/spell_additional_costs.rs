@@ -1,7 +1,7 @@
 //! Semantic spell additional costs and their composed alternatives.
 
 use super::*;
-use crate::card::{SpellAdditionalCostDef, SpellLifeCostDef};
+use crate::card::{CostQuantityDef, SpellAdditionalCostDef};
 
 fn spell_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
     let catalog = poc::catalog().expect("catalog builds");
@@ -57,10 +57,7 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
     assert!(matches!(
         spell_cost(cards::FINAL_PAYMENT),
         SpellAdditionalCostDef::Choice([
-            SpellAdditionalCostDef::PayLife(SpellLifeCostDef {
-                amount: 5,
-                amount_is_x: false,
-            }),
+            SpellAdditionalCostDef::PayLife(CostQuantityDef::Fixed(5)),
             SpellAdditionalCostDef::Sacrifice { .. }
         ])
     ));
@@ -73,11 +70,12 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
     ));
     assert!(matches!(
         spell_cost(cards::VICIOUS_RIVALRY),
-        SpellAdditionalCostDef::PayLife(SpellLifeCostDef {
-            amount_is_x: true,
-            ..
-        })
+        SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
     ));
+    assert_eq!(
+        spell_cost(cards::TOXIC_DELUGE),
+        SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
+    );
 }
 
 #[test]

@@ -1,6 +1,7 @@
 //! Modern Horizons 3 Commander cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
@@ -178,7 +179,7 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Any,
             ZoneKind::Graveyard,
-            3,
+            CostQuantityDef::Fixed(3),
         )),
     ]),
 );

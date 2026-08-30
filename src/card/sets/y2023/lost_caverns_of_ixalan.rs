@@ -1,6 +1,7 @@
 //! Lost Caverns of Ixalan cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
@@ -168,8 +169,8 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
             // One cost with two ways to pay it. The life is the way a deck with an
             // empty hand still casts this, which is what keeps it playable late.
             SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, 1),
-                SpellAdditionalCostDef::pay_life(3),
+                SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
+                SpellAdditionalCostDef::pay_life(CostQuantityDef::Fixed(3)),
             ]),
             EffectDef::destroy_target(TargetIndex::PRIMARY, true),
         ),

@@ -4,7 +4,11 @@ use super::{
 };
 use crate::ids::ObjectBindingIndex;
 
-/// How many objects a cost moves.
+/// The quantity a semantic cost asks its payer to provide.
+///
+/// Fixed and chosen-X quantities apply to scalar costs such as paying life as
+/// well as object costs. The threshold variants describe sets of objects and
+/// are only meaningful for costs that choose cards or permanents.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostQuantityDef {
     Fixed(u8),
@@ -12,9 +16,9 @@ pub enum CostQuantityDef {
     ChosenX,
     /// This many payments for each mode chosen beyond the first.
     ModesBeyondFirst(u8),
-    /// Move a minimal set whose total mana value reaches this amount.
+    /// Choose a minimal set whose total mana value reaches this amount.
     TotalManaValueAtLeast(u8),
-    /// Move a minimal set containing at least this many card types.
+    /// Choose a minimal set containing at least this many card types.
     CardTypesAtLeast(u8),
 }
 

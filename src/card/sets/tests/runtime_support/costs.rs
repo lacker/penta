@@ -231,13 +231,12 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<SpellAdditiona
 
 fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
     match cost {
-        SpellAdditionalCostDef::PayMana(_)
-        | SpellAdditionalCostDef::PayLife(_)
-        | SpellAdditionalCostDef::Forage => true,
+        SpellAdditionalCostDef::PayMana(_) | SpellAdditionalCostDef::Forage => true,
+        SpellAdditionalCostDef::PayLife(quantity) => shared_scalar_cost_quantity(quantity),
         SpellAdditionalCostDef::Sacrifice { object, quantity }
         | SpellAdditionalCostDef::Discard { object, quantity }
         | SpellAdditionalCostDef::ReturnToHand { object, quantity } => {
-            shared_cost_quantity(quantity) && shared_object_predicate(object)
+            shared_object_cost_quantity(quantity) && shared_object_predicate(object)
         }
         SpellAdditionalCostDef::Exile {
             object,
@@ -247,7 +246,7 @@ fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
             matches!(
                 from,
                 ZoneKind::Battlefield | ZoneKind::Graveyard | ZoneKind::Hand
-            ) && shared_cost_quantity(quantity)
+            ) && shared_object_cost_quantity(quantity)
                 && shared_object_predicate(object)
         }
         SpellAdditionalCostDef::All(costs) => {
@@ -291,7 +290,7 @@ fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
     }
 }
 
-fn shared_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
+fn shared_object_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
     match quantity {
         crate::card::CostQuantityDef::Fixed(count) => count >= 1,
         crate::card::CostQuantityDef::ChosenX
@@ -299,4 +298,13 @@ fn shared_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
         | crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
         | crate::card::CostQuantityDef::CardTypesAtLeast(_) => true,
     }
+}
+
+fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
+    matches!(
+        quantity,
+        crate::card::CostQuantityDef::Fixed(_)
+            | crate::card::CostQuantityDef::ChosenX
+            | crate::card::CostQuantityDef::ModesBeyondFirst(_)
+    )
 }

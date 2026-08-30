@@ -15,6 +15,7 @@ use super::super::{
     TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
     extra_target_cost,
 };
+use crate::card::CostQuantityDef;
 use crate::card::{ObjectPredicateDef, SpellAdditionalCostDef};
 use crate::game::casting_actions::{
     CastScale, SpellAdditionalCostPayment, SpellAdditionalCostRequest,
@@ -297,7 +298,10 @@ impl Game {
                     .map(|object| {
                         (
                             object,
-                            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::Any, 1),
+                            SpellAdditionalCostDef::sacrifice(
+                                ObjectPredicateDef::Any,
+                                CostQuantityDef::Fixed(1),
+                            ),
                         )
                     })
                     .collect(),

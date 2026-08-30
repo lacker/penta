@@ -3,6 +3,8 @@
 // Included textually into `casting.rs`, so the imports here are the parent
 // module's.
 
+use crate::card::CostQuantityDef;
+
 impl Game {
     /// The largest X a "pay X life" cost can be paid at. A player may pay
     /// life only down to zero (CR 118.4), so their life total is the bound;
@@ -255,7 +257,7 @@ impl Game {
                             object,
                             SpellAdditionalCostDef::sacrifice(
                                 crate::card::ObjectPredicateDef::Any,
-                                1,
+                                CostQuantityDef::Fixed(1),
                             ),
                         )
                     })

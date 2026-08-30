@@ -1,6 +1,7 @@
 //! Dark Ascension card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y2011::innistrad::morbid_entry_counters;
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
@@ -23,7 +24,7 @@ static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAt
 static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::exile(
     ObjectPredicateDef::HasType(CardType::Creature),
     ZoneKind::Graveyard,
-    1,
+    CostQuantityDef::Fixed(1),
 );
 
 static MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;

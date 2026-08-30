@@ -1,6 +1,7 @@
 //! Scars of Mirrodin cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
@@ -2266,7 +2267,7 @@ pub(in crate::card::sets) static KULDOTHA_REBIRTH: CardRecord = CardRecord::new(
             &[],
             SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
-                1,
+                CostQuantityDef::Fixed(1),
             ),
             EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
                 .with_count(ValueDef::Constant(3)),

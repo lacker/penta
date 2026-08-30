@@ -1,6 +1,7 @@
 //! Phyrexia: All Will Be One cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
@@ -42,7 +43,7 @@ pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::ne
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
                 ]),
-                1,
+                CostQuantityDef::Fixed(1),
             ),
         ]),
         EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),

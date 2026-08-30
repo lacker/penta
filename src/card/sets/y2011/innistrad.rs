@@ -37,11 +37,13 @@ static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::exile(
     ObjectPredicateDef::HasType(CardType::Creature),
     ZoneKind::Graveyard,
-    1,
+    CostQuantityDef::Fixed(1),
 );
 
-static SACRIFICE_A_CREATURE: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Creature), 1);
+static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef::sacrifice(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    CostQuantityDef::Fixed(1),
+);
 
 static ISD_MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
 
@@ -2112,7 +2114,7 @@ const fn exile_creature_cards_from_graveyard(count: u8) -> SpellAdditionalCostDe
     SpellAdditionalCostDef::exile(
         ObjectPredicateDef::HasType(CardType::Creature),
         ZoneKind::Graveyard,
-        count,
+        CostQuantityDef::Fixed(count),
     )
 }
 
@@ -3998,7 +4000,7 @@ pub(in crate::card::sets) static HARVEST_PYRE: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            SpellAdditionalCostDef::exile_with_quantity(
+            SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::ChosenX,

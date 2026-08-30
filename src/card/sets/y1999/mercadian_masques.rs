@@ -1,6 +1,7 @@
 //! Mercadian Masques cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1993::arabian_nights as catalog_arn;
 use crate::card::sets::y1994::antiquities as catalog_atq;
@@ -22,15 +23,6 @@ use crate::card::{
     TriggerConditionDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
-
-/// Islands you control, returned rather than sacrificed: what the cycle buys
-/// is tempo, not card advantage, and the lands are back in hand to replay.
-const fn return_islands(count: u8) -> SpellAdditionalCostDef {
-    SpellAdditionalCostDef::return_to_hand(
-        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        count,
-    )
-}
 
 // MMQ 1 — Afterlife (reprint)
 
@@ -846,7 +838,10 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_
             Some("You may return two Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&return_islands(2)),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+            CostQuantityDef::Fixed(2),
+        )),
     ]),
 );
 
@@ -1141,7 +1136,10 @@ pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legac
             Some("You may return three Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&return_islands(3)),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+            CostQuantityDef::Fixed(3),
+        )),
     ]),
 );
 

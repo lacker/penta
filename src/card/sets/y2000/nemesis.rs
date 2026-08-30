@@ -1,6 +1,7 @@
 //! Nemesis cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
@@ -431,7 +432,7 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
         // a real cost on turn six.
         .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            1,
+            CostQuantityDef::Fixed(1),
         )),
     ]),
 );

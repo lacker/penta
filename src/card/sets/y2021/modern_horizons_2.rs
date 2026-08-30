@@ -1,6 +1,7 @@
 //! Modern Horizons 2 cards cataloged as cross-format rules-engine test cases.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
@@ -100,7 +101,7 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::White),
                 ZoneKind::Hand,
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             abilities::evoke_sacrifice(
                 "When this creature enters, if it was evoked, sacrifice it.",
@@ -207,7 +208,7 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Blue),
                 ZoneKind::Hand,
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             abilities::evoke_sacrifice(
                 "When this creature enters, if it was evoked, sacrifice it.",
@@ -311,9 +312,12 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
             SpellAdditionalCostDef::choice(&[
                 SpellAdditionalCostDef::sacrifice(
                     ObjectPredicateDef::HasType(CardType::Creature),
-                    1,
+                    CostQuantityDef::Fixed(1),
                 ),
-                SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, 1),
+                SpellAdditionalCostDef::discard(
+                    ObjectPredicateDef::Any,
+                    CostQuantityDef::Fixed(1),
+                ),
             ]),
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -396,7 +400,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Black),
                 ZoneKind::Hand,
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
         ]),
@@ -537,7 +541,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Red),
                 ZoneKind::Hand,
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             // Evoke's own sacrifice. It is a separate trigger because it happens
             // after the Elemental has arrived, alongside the damage trigger rather
@@ -569,7 +573,7 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
         // Sacred Foundry pays it and a Mountain that has stopped being one does not.
         .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-            1,
+            CostQuantityDef::Fixed(1),
         ))
         // "If it's your turn" gates only the free cast. The printed cost is always
         // available, which is why this is a condition on the alternative rather
@@ -735,7 +739,7 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Color(ManaColor::Green),
                 ZoneKind::Hand,
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             abilities::evoke_sacrifice(
                 "When this creature enters, if it was evoked, sacrifice it.",

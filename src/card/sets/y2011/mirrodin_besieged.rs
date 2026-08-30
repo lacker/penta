@@ -1,6 +1,7 @@
 //! Mirrodin Besieged cards cataloged as cross-format rules-engine test cases.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2010::scars_of_mirrodin::{
     ARTIFACTS_YOU_CONTROL, METALCRAFT, metalcraft_value,
@@ -803,7 +804,10 @@ pub(in crate::card::sets) static VIVISECTION: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature.\nDraw three cards.",
             &[],
-            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Creature), 1),
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(3),

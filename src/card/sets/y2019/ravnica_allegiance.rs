@@ -1,6 +1,7 @@
 //! RNA card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     InstalledTriggerDef, ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef,
@@ -67,13 +68,13 @@ pub(in crate::card::sets) static FINAL_PAYMENT: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::pay_life(5),
+                SpellAdditionalCostDef::pay_life(CostQuantityDef::Fixed(5)),
                 SpellAdditionalCostDef::sacrifice(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::HasType(CardType::Enchantment),
                     ]),
-                    1,
+                    CostQuantityDef::Fixed(1),
                 ),
             ]),
             EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),

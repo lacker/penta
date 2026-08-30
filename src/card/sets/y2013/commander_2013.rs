@@ -1,6 +1,7 @@
 //! Commander 2013 cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef, PlayerRelation,
@@ -81,7 +82,9 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
-        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_x_life()),
+        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_life(
+            CostQuantityDef::ChosenX,
+        )),
     ),
 );
 

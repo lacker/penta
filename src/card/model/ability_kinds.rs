@@ -71,7 +71,7 @@ pub enum SpellResolutionDestinationDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SpellAdditionalCostDef {
     PayMana(ManaCost),
-    PayLife(SpellLifeCostDef),
+    PayLife(CostQuantityDef),
     Sacrifice {
         object: ObjectPredicateDef,
         quantity: CostQuantityDef,
@@ -99,35 +99,6 @@ pub enum SpellAdditionalCostDef {
     Choice(&'static [SpellAdditionalCostDef]),
 }
 
-/// A printed "as an additional cost to cast this spell, pay N life".
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct SpellLifeCostDef {
-    pub amount: u8,
-    /// The amount is X rather than the fixed number above. Toxic Deluge is
-    /// cast for as much life as its caster is willing to spend, and every
-    /// clause that reads X reads that same choice.
-    pub amount_is_x: bool,
-}
-
-impl SpellLifeCostDef {
-    #[must_use]
-    pub const fn new(amount: u8) -> Self {
-        Self {
-            amount,
-            amount_is_x: false,
-        }
-    }
-
-    /// "Pay X life", chosen as the spell is cast.
-    #[must_use]
-    pub const fn variable() -> Self {
-        Self {
-            amount: 0,
-            amount_is_x: true,
-        }
-    }
-}
-
 impl SpellAdditionalCostDef {
     #[must_use]
     pub const fn pay_mana(cost: ManaCost) -> Self {
@@ -135,48 +106,22 @@ impl SpellAdditionalCostDef {
     }
 
     #[must_use]
-    pub const fn pay_life(amount: u8) -> Self {
-        Self::PayLife(SpellLifeCostDef::new(amount))
+    pub const fn pay_life(quantity: CostQuantityDef) -> Self {
+        Self::PayLife(quantity)
     }
 
     #[must_use]
-    pub const fn pay_x_life() -> Self {
-        Self::PayLife(SpellLifeCostDef::variable())
-    }
-
-    #[must_use]
-    pub const fn sacrifice(object: ObjectPredicateDef, count: u8) -> Self {
-        Self::sacrifice_with_quantity(object, CostQuantityDef::Fixed(count))
-    }
-
-    #[must_use]
-    pub const fn sacrifice_with_quantity(
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    ) -> Self {
+    pub const fn sacrifice(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
         Self::Sacrifice { object, quantity }
     }
 
     #[must_use]
-    pub const fn discard(object: ObjectPredicateDef, count: u8) -> Self {
-        Self::discard_with_quantity(object, CostQuantityDef::Fixed(count))
-    }
-
-    #[must_use]
-    pub const fn discard_with_quantity(
-        object: ObjectPredicateDef,
-        quantity: CostQuantityDef,
-    ) -> Self {
+    pub const fn discard(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
         Self::Discard { object, quantity }
     }
 
     #[must_use]
-    pub const fn exile(object: ObjectPredicateDef, from: ZoneKind, count: u8) -> Self {
-        Self::exile_with_quantity(object, from, CostQuantityDef::Fixed(count))
-    }
-
-    #[must_use]
-    pub const fn exile_with_quantity(
+    pub const fn exile(
         object: ObjectPredicateDef,
         from: ZoneKind,
         quantity: CostQuantityDef,
@@ -189,11 +134,8 @@ impl SpellAdditionalCostDef {
     }
 
     #[must_use]
-    pub const fn return_to_hand(object: ObjectPredicateDef, count: u8) -> Self {
-        Self::ReturnToHand {
-            object,
-            quantity: CostQuantityDef::Fixed(count),
-        }
+    pub const fn return_to_hand(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::ReturnToHand { object, quantity }
     }
 
     #[must_use]

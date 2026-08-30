@@ -1751,7 +1751,7 @@ pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_
             &[],
             // X cards from your own graveyard, exiled as the spell is cast. The count is
             // the X it is cast for, so a big Scrying costs the graveyard that fed it.
-            SpellAdditionalCostDef::exile_with_quantity(
+            SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::ChosenX,

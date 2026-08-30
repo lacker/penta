@@ -1,6 +1,7 @@
 //! Ice Age cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y1993::beta as catalog_leb;
 use crate::card::{
@@ -2918,7 +2919,7 @@ pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
                 amount: ValueDef::DividedAmongTargets,
             },
         )
-        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_x_life()),
+        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_life(CostQuantityDef::ChosenX)),
     ),
 );
 

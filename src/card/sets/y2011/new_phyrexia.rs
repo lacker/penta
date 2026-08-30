@@ -1,6 +1,7 @@
 //! New Phyrexia cards used to exercise Phyrexian mana.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::{
@@ -1558,7 +1559,7 @@ pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
             &[],
             SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
-                1,
+                CostQuantityDef::Fixed(1),
             ),
             EffectDef::Apply {
                 recipient: EffectRecipientDef::matching_objects(
@@ -1933,7 +1934,7 @@ pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
                 ]),
-                1,
+                CostQuantityDef::Fixed(1),
             ),
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

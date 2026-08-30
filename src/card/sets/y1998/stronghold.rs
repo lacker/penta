@@ -1,6 +1,7 @@
 //! Stronghold cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2012::dark_ascension as catalog_dka;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
@@ -1053,7 +1054,10 @@ pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         abilities::buyback_with_additional_cost(
             "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Land), 1),
+            &SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Land),
+                CostQuantityDef::Fixed(1),
+            ),
         ),
         AbilityDef::spell(
             "Prevent all combat damage that would be dealt this turn.",

@@ -3,6 +3,7 @@
 //! the card itself is in its owner's graveyard.
 
 use super::*;
+use crate::card::CostQuantityDef;
 use crate::card::{
     CardType, DeclarativeAbilityDef, ObjectPredicateDef, SpellAdditionalCostDef, ZoneKind,
 };
@@ -179,7 +180,7 @@ fn both_skaabs_explicitly_exile_their_graveyard_costs() {
             SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ZoneKind::Graveyard,
-                count,
+                CostQuantityDef::Fixed(count),
             ),
             "{} should explicitly exile exactly {count} creature cards",
             card.name,

@@ -1,6 +1,7 @@
 //! Theros Beyond Death cards cataloged for the Vintage Cube.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
@@ -173,7 +174,7 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
                     .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                         ObjectPredicateDef::Any,
                         ZoneKind::Graveyard,
-                        3,
+                        CostQuantityDef::Fixed(3),
                     )),
                 }),
             },
@@ -283,7 +284,7 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
             .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
-                5,
+                CostQuantityDef::Fixed(5),
             )),
         ]),
 );

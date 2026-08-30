@@ -161,7 +161,7 @@ impl Game {
         player: PlayerId,
     ) -> Option<u16> {
         match cost {
-            SpellAdditionalCostDef::PayLife(life) if life.amount_is_x => {
+            SpellAdditionalCostDef::PayLife(crate::card::CostQuantityDef::ChosenX) => {
                 Some(self.maximum_x_for_life(player))
             }
             SpellAdditionalCostDef::Sacrifice {
@@ -269,11 +269,18 @@ impl Game {
                 mana,
                 life: 0,
             }],
-            SpellAdditionalCostDef::PayLife(life) => {
-                let amount = if life.amount_is_x {
-                    scale.x
-                } else {
-                    u16::from(life.amount)
+            SpellAdditionalCostDef::PayLife(quantity) => {
+                let amount = match quantity {
+                    crate::card::CostQuantityDef::Fixed(amount) => u16::from(amount),
+                    crate::card::CostQuantityDef::ChosenX => scale.x,
+                    crate::card::CostQuantityDef::ModesBeyondFirst(amount) => u16::from(amount)
+                        .saturating_mul(
+                            u16::try_from(scale.modes.saturating_sub(1)).unwrap_or(u16::MAX),
+                        ),
+                    crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
+                    | crate::card::CostQuantityDef::CardTypesAtLeast(_) => {
+                        unreachable!("object thresholds cannot quantify a life payment")
+                    }
                 };
                 (i64::from(amount) <= i64::from(self.players[player.index()].life))
                     .then_some(SpellAdditionalCostPayment {
@@ -289,11 +296,11 @@ impl Game {
                     SpellAdditionalCostDef::exile(
                         crate::card::ObjectPredicateDef::Any,
                         ZoneKind::Graveyard,
-                        3,
+                        crate::card::CostQuantityDef::Fixed(3),
                     ),
                     SpellAdditionalCostDef::sacrifice(
                         crate::card::ObjectPredicateDef::Subtype("Food"),
-                        1,
+                        crate::card::CostQuantityDef::Fixed(1),
                     ),
                 ];
                 forage

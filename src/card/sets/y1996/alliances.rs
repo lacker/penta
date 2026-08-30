@@ -1,6 +1,7 @@
 //! Alliances cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, DividedTotal,
@@ -394,7 +395,7 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
         .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Hand,
-            1,
+            CostQuantityDef::Fixed(1),
         ))
         .with_alternative_life(1),
         AbilityDef::spell_with_targets(
@@ -1014,7 +1015,7 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
         .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Red),
             ZoneKind::Hand,
-            1,
+            CostQuantityDef::Fixed(1),
         )),
         AbilityDef::spell_with_targets(
             "Pyrokinesis deals 4 damage divided as you choose among any number of target creatures.",

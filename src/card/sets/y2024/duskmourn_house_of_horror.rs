@@ -2,6 +2,7 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CardComposition;
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
@@ -124,7 +125,11 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_
             &[],
             // Six cards out of your own graveyard, exiled to pay. Nothing is chosen
             // after the fact: the additional cost travels with the cast.
-            SpellAdditionalCostDef::exile(ObjectPredicateDef::Any, ZoneKind::Graveyard, 6),
+            SpellAdditionalCostDef::exile(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::Fixed(6),
+            ),
             EffectDef::None,
         ),
         abilities::flying(),

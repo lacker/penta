@@ -1,6 +1,7 @@
 //! Magic 2013 card records used by the built-in ISD–M14 Standard deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord, avacyn_restored, dark_ascension};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1994::antiquities as catalog_atq;
 use crate::card::sets::y1998::stronghold as catalog_sth;
 use crate::card::sets::y1998::urzas_saga as catalog_usg;
@@ -3032,7 +3033,7 @@ pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_l
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, discard a card.\nDraw two cards.",
             &[],
-            SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, 1),
+            SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),

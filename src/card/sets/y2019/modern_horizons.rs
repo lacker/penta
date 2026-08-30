@@ -1,6 +1,7 @@
 //! Modern Horizons cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules,
@@ -269,7 +270,7 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
         .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Hand,
-            1,
+            CostQuantityDef::Fixed(1),
         ))
         .with_alternative_condition(&NOT_YOUR_TURN),
         AbilityDef::spell_with_targets(
@@ -539,7 +540,7 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
         .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Green),
             ZoneKind::Hand,
-            1,
+            CostQuantityDef::Fixed(1),
         ))
         .with_alternative_condition(&NOT_YOUR_TURN),
         AbilityDef::spell_with_targets(
@@ -803,7 +804,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                     // said about how the land is spent.
                                     .with_alternative_additional_cost(&SpellAdditionalCostDef::discard(
                                         ObjectPredicateDef::HasType(CardType::Land),
-                                        1,
+                                        CostQuantityDef::Fixed(1),
                                     )),
                                 }),
                             },

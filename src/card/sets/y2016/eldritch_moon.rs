@@ -129,7 +129,7 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
         )
         // Escalate: one discard for every mode past the first, so one mode is free
         // and all three cost two cards.
-        .with_spell_additional_cost(&SpellAdditionalCostDef::discard_with_quantity(
+        .with_spell_additional_cost(&SpellAdditionalCostDef::discard(
             ObjectPredicateDef::Any,
             CostQuantityDef::ModesBeyondFirst(1),
         )),

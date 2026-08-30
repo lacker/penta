@@ -421,7 +421,7 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
         // X blue cards from your own graveyard, exiled to pay. The count is the same
         // X the spell is cast for, which is what makes the flashback expensive
         // exactly when it is worth casting big.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Graveyard,
             CostQuantityDef::ChosenX,
@@ -679,7 +679,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
         )
         .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Creature),
-            1,
+            CostQuantityDef::Fixed(1),
         )),
     ]),
 );

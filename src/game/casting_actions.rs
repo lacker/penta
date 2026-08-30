@@ -1,3 +1,5 @@
+use crate::card::CostQuantityDef;
+
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, Action, AdditionalCostId,
     AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
@@ -444,7 +446,7 @@ impl Game {
                                                     permanent.card.id,
                                                     SpellAdditionalCostDef::sacrifice(
                                                         ObjectPredicateDef::Any,
-                                                        1,
+                                                        CostQuantityDef::Fixed(1),
                                                     ),
                                                 )],
                                                 mana: ManaCost::default(),

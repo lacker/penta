@@ -575,7 +575,7 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
             // The escape cost counts card types rather than cards: one Artifact
             // Creature Land pays three quarters of it by itself, which is why the deck
             // playing this is the one with a graveyard full of odd things.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::CardTypesAtLeast(4),
@@ -684,7 +684,7 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
             )
             // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
             // mana values add up to six, however many that takes.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::TotalManaValueAtLeast(6),
@@ -1018,7 +1018,7 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                             // Retrace's own cost: the card's mana cost, plus a land out of your hand.
                             .with_alternative_additional_cost(&SpellAdditionalCostDef::discard(
                                 ObjectPredicateDef::HasType(CardType::Land),
-                                1,
+                                CostQuantityDef::Fixed(1),
                             )),
                         }),
                     },
@@ -1272,7 +1272,7 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                 .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
                     ObjectPredicateDef::Any,
                     ZoneKind::Graveyard,
-                    5,
+                    CostQuantityDef::Fixed(5),
                 )),
             ]),
     );
@@ -2405,7 +2405,7 @@ pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
             )
             .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
-                1,
+                CostQuantityDef::Fixed(1),
             )),
             // The free cast happens as the trigger resolves; what is not cast then
             // stays in exile.

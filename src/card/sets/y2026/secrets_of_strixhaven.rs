@@ -1,6 +1,7 @@
 //! SOS card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind,
@@ -48,7 +49,7 @@ pub(in crate::card::sets) static VICIOUS_RIVALRY: CardRecord = CardRecord::new(
             "As an additional cost to cast this spell, pay X life.\nDestroy all artifacts and \
              creatures with mana value X or less.",
             &[],
-            SpellAdditionalCostDef::pay_x_life(),
+            SpellAdditionalCostDef::pay_life(CostQuantityDef::ChosenX),
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[

@@ -1,6 +1,7 @@
 //! Urza's Legacy cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::CostQuantityDef;
 use crate::card::sets::y1998::portal_second_age as catalog_p02;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
@@ -526,7 +527,10 @@ pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
             // Any artifact at all, and the one you give up is usually the cheapest
             // thing you own: what the cost measures is a card on the battlefield rather
             // than what it was worth.
-            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Artifact), 1),
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                CostQuantityDef::Fixed(1),
+            ),
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1137,7 +1141,10 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_wit
             // Sacrificing a land is what makes this an instant-speed tutor rather than a
             // ramp spell: the land you give up pays for the one you go and get, so the
             // board count never moves.
-            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Land), 1),
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Land),
+                CostQuantityDef::Fixed(1),
+            ),
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,

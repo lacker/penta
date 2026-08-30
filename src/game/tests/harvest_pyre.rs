@@ -59,7 +59,7 @@ fn cost_is_semantically_exile_x_from_the_graveyard() {
 
     assert_eq!(
         cost,
-        SpellAdditionalCostDef::exile_with_quantity(
+        SpellAdditionalCostDef::exile(
             ObjectPredicateDef::Any,
             ZoneKind::Graveyard,
             CostQuantityDef::ChosenX,

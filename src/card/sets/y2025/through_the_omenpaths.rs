@@ -8,26 +8,6 @@ use crate::card::{
 };
 
 // OM1 181 — Multiversal Passage
-/// Declining is what makes it a tapped land, so the branch that pays does
-/// nothing at all and the branch that does not is the whole cost.
-static PASSAGE_ENTERS_TAPPED: [ReplacementEffectDef; 1] =
-    [ReplacementEffectDef::ModifyBattlefieldEntry(
-        BattlefieldEntryModificationDef::Tapped,
-    )];
-
-static PASSAGE_PAID: [ReplacementEffectDef; 0] = [];
-
-static PASSAGE_ENTRY: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-        BattlefieldEntryScalarChoiceDef::BASIC_LAND_TYPE,
-    )),
-    ReplacementEffectDef::PayOr {
-        payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 2),
-        if_paid: &PASSAGE_PAID,
-        if_declined: &PASSAGE_ENTERS_TAPPED,
-    },
-];
-
 pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21502958-a8e3-494a-9be9-bebbbb1dd9dc"),
     "Multiversal Passage",
@@ -41,7 +21,20 @@ pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::n
         AbilityDef::replacement(
             "As this land enters, choose a basic land type. Then you may pay 2 life. If you \
              don't, it enters tapped.",
-            ReplacementEffectDef::Sequence(&PASSAGE_ENTRY),
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef::BASIC_LAND_TYPE,
+                )),
+                ReplacementEffectDef::PayOr {
+                    payment: EffectPaymentDef::life(PlayerSetDef::Related(PlayerRelation::You), 2),
+                    if_paid: &[],
+                    // Declining is what makes it a tapped land, so the branch that pays does
+                    // nothing at all and the branch that does not is the whole cost.
+                    if_declined: &[ReplacementEffectDef::ModifyBattlefieldEntry(
+                        BattlefieldEntryModificationDef::Tapped,
+                    )],
+                },
+            ]),
         ),
         AbilityDef::static_ability(
             "This land is the chosen type.",

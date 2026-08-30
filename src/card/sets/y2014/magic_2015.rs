@@ -30,70 +30,6 @@ pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // M15 145 — Goblin Rabblemaster
-/// "Other Goblin creatures you control": the Rabblemaster is a Goblin too
-/// and is not made to attack by its own clause.
-static OTHER_GOBLINS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static GOBLINS_MUST_ATTACK: AbilityDef =
-    abilities::attacks_each_combat_if_able("This creature attacks each combat if able.");
-
-/// Every other Goblin in the attack, whoever controls it. The count is read
-/// as the trigger resolves, so a Goblin that was removed in response is not
-/// among them.
-static OTHER_ATTACKING_GOBLINS: ObjectQueryDef = ObjectQueryDef::new(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Attacking,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-    &[ZoneKind::Battlefield],
-);
-
-static GOBLIN_RABBLEMASTER_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "Other Goblin creatures you control attack each combat if able.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(OTHER_GOBLINS_YOU_CONTROL)),
-            effect: AppliedEffectDef::add_ability(&GOBLINS_MUST_ATTACK),
-        },
-    ),
-    AbilityDef::triggered(
-        "At the beginning of combat on your turn, create a 1/1 red Goblin creature token with \
-         haste.",
-        TriggerEventDef::StepBegins {
-            step: TurnStepDef::BeginningOfCombat,
-            player: PlayerRelation::You,
-        },
-        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
-            .with_abilities(&[abilities::haste()])
-            .with_art(CardArt::new(
-                "98993a45-4aff-4f9b-a030-7d72fbb4ec6c",
-                "Karl Kopinski",
-            )),
-    ),
-    AbilityDef::triggered(
-        "Whenever this creature attacks, it gets +1/+0 until end of turn for each other attacking \
-         Goblin.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::modify_power_toughness(
-                ValueDef::CountMatchingObjects(&OTHER_ATTACKING_GOBLINS),
-                ValueDef::Constant(0),
-            ),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::new_with_legacy_id(
     2263,
     "Goblin Rabblemaster",
@@ -102,7 +38,62 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
     // Three mana that makes a Goblin every turn and then sends the whole
     // pile in whether or not that was the plan.
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
-        .with_abilities(&GOBLIN_RABBLEMASTER_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Other Goblin creatures you control attack each combat if able.",
+                EffectDef::StaticApply {
+                    // "Other Goblin creatures you control": the Rabblemaster is a Goblin too
+                    // and is not made to attack by its own clause.
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Goblin"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ))),
+                    effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able("This creature attacks each combat if able.")),
+                },
+            ),
+            AbilityDef::triggered(
+                "At the beginning of combat on your turn, create a 1/1 red Goblin creature token with \
+                 haste.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    .with_abilities(&[abilities::haste()])
+                    .with_art(CardArt::new(
+                        "98993a45-4aff-4f9b-a030-7d72fbb4ec6c",
+                        "Karl Kopinski",
+                    )),
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, it gets +1/+0 until end of turn for each other attacking \
+                 Goblin.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        // Every other Goblin in the attack, whoever controls it. The count is read
+                        // as the trigger resolves, so a Goblin that was removed in response is not
+                        // among them.
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::new(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Subtype("Goblin"),
+                                ObjectPredicateDef::Attacking,
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                        )),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

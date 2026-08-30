@@ -159,36 +159,6 @@ pub(in crate::card::sets) static LEYLINE_OF_VITALITY: CardRecord = CardRecord::n
 );
 
 // M11 192 — Primeval Titan
-/// One printed ability with two ways in, not two abilities: the card says
-/// "enters or attacks", and a Titan that does both in a turn triggers twice
-/// for the same reason it would have anyway.
-static ENTERS_OR_ATTACKS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-];
-
-/// Any land card, not just a basic: the two it finds are usually the two the
-/// deck was built around.
-static FETCH_TWO_LANDS: EffectDef = EffectDef::SearchZone {
-    player: EffectRecipientDef::Controller,
-    source: ZoneKind::Library,
-    object: ObjectPredicateDef::HasType(CardType::Land),
-    minimum: 0,
-    maximum: ValueDef::Constant(2),
-    reveal: false,
-    destination: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-    shuffle: true,
-    enters_tapped: true,
-    attachment: None,
-    binding: None,
-    then: None,
-};
-
 pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_with_legacy_id(
     2128,
     "Primeval Titan",
@@ -198,10 +168,36 @@ pub(in crate::card::sets) static PRIMEVAL_TITAN: CardRecord = CardRecord::new_wi
         abilities::trample(),
         AbilityDef::triggered(
             "Whenever this creature enters or attacks, you may search your library for up to two land cards, put them onto the battlefield tapped, then shuffle.",
-            TriggerEventDef::AnyOf(&ENTERS_OR_ATTACKS),
+            // One printed ability with two ways in, not two abilities: the card says
+            // "enters or attacks", and a Titan that does both in a turn triggers twice
+            // for the same reason it would have anyway.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &FETCH_TWO_LANDS,
+                // Any land card, not just a basic: the two it finds are usually the two the
+                // deck was built around.
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(2),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: true,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
             },
         ),
     ]),

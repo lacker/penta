@@ -112,10 +112,6 @@ pub(in crate::card::sets) static AJANIS_SUNSTRIKER: CardRecord = CardRecord::new
 // M13 3 — Angel's Mercy (reprint)
 
 // M13 4 — Angelic Benediction
-static ANGELIC_BENEDICTION_TAP: EffectDef = EffectDef::Tap {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-};
-
 pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::new_with_legacy_id(
     1501,
     "Angelic Benediction",
@@ -135,7 +131,9 @@ pub(in crate::card::sets) static ANGELIC_BENEDICTION: CardRecord = CardRecord::n
             )],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &ANGELIC_BENEDICTION_TAP,
+                effect: &EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
             },
         ),
     ]),
@@ -514,14 +512,6 @@ pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord
 );
 
 // M13 24 — Pacifism
-/// Two prohibitions rather than one: nothing in the vocabulary bars combat
-/// wholesale, and nothing needs to -- attacking and blocking are separate
-/// declarations, so barring each is barring both.
-static PACIFIED: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-];
-
 pub(in crate::card::sets) static PACIFISM: CardRecord = CardRecord::new_with_legacy_id(
     1750,
     "Pacifism",
@@ -535,7 +525,13 @@ pub(in crate::card::sets) static PACIFISM: CardRecord = CardRecord::new_with_leg
                 "Enchanted creature can't attack or block.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&PACIFIED),
+                    // Two prohibitions rather than one: nothing in the vocabulary bars combat
+                    // wholesale, and nothing needs to -- attacking and blocking are separate
+                    // declarations, so barring each is barring both.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
                 },
             ),
         ]),
@@ -700,22 +696,6 @@ pub(in crate::card::sets) static SILVERCOAT_LION: CardRecord = CardRecord::new_w
 );
 
 // M13 36 — Sublime Archangel
-static SUBLIME_ARCHANGEL_EXALTED: AbilityDef = abilities::exalted();
-
-/// Each granted copy is its own instance, so attacking alone into a board of
-/// three other creatures is four separate triggers.
-static SUBLIME_ARCHANGEL_GRANT: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::add_ability(&SUBLIME_ARCHANGEL_EXALTED),
-};
-
 pub(in crate::card::sets) static SUBLIME_ARCHANGEL: CardRecord = CardRecord::new_with_legacy_id(
     1895,
     "Sublime Archangel",
@@ -726,7 +706,19 @@ pub(in crate::card::sets) static SUBLIME_ARCHANGEL: CardRecord = CardRecord::new
         abilities::exalted(),
         AbilityDef::static_ability(
             "Other creatures you control have exalted.",
-            SUBLIME_ARCHANGEL_GRANT,
+            // Each granted copy is its own instance, so attacking alone into a board of
+            // three other creatures is four separate triggers.
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::exalted()),
+            },
         ),
     ]),
 );
@@ -883,16 +875,6 @@ pub(in crate::card::sets) static AUGUR_OF_BOLAS: CardRecord = CardRecord::new_wi
 );
 
 // M13 44 — Battle of Wits
-static BATTLE_OF_WITS_CONDITION: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Library],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 200,
-};
-
 pub(in crate::card::sets) static BATTLE_OF_WITS: CardRecord = CardRecord::new_with_legacy_id(
     1353,
     "Battle of Wits",
@@ -905,7 +887,15 @@ pub(in crate::card::sets) static BATTLE_OF_WITS: CardRecord = CardRecord::new_wi
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            &BATTLE_OF_WITS_CONDITION,
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Library],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 200,
+            },
             EffectDef::LoseTheGame {
                 player: EffectRecipientDef::Opponent,
             },
@@ -951,21 +941,6 @@ pub(in crate::card::sets) static DOWNPOUR: CardRecord = CardRecord::new_with_leg
 );
 
 // M13 49 — Encrust
-static ENCHANT_ARTIFACT_OR_CREATURE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Creature),
-        ]),
-    )];
-
-/// Both halves for the same duration, so the Aura leaving returns the untap
-/// and the activations together.
-static ENCRUST_PROHIBITIONS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-];
-
 pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_legacy_id(
     1953,
     "Encrust",
@@ -978,14 +953,24 @@ pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_lega
         .with_abilities(&[
             abilities::aura_spell(
                 "Enchant artifact or creature",
-                &ENCHANT_ARTIFACT_OR_CREATURE_TARGET,
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ]),
+                )],
             ),
             AbilityDef::static_ability(
                 "Enchanted permanent doesn't untap during its controller's untap step and its \
                  activated abilities can't be activated.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&ENCRUST_PROHIBITIONS),
+                    // Both halves for the same duration, so the Aura leaving returns the untap
+                    // and the activations together.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                    ]),
                 },
             ),
         ]),
@@ -1014,21 +999,6 @@ pub(in crate::card::sets) static FAERIE_INVADERS: CardRecord = CardRecord::new_w
 );
 
 // M13 52 — Fog Bank
-/// Both directions of the same clause: nothing it deals lands and nothing
-/// dealt to it lands, so it blocks anything and survives, and kills nothing.
-static FOG_BANK_SHIELD: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(DamageEventMatcherDef {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::Any,
-        recipient: DamageRecipientMatcherDef::AffectedObject,
-    })),
-    AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(DamageEventMatcherDef {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::AffectedObject,
-        recipient: DamageRecipientMatcherDef::Any,
-    })),
-];
-
 pub(in crate::card::sets) static FOG_BANK: CardRecord = CardRecord::new_with_legacy_id(
     1912,
     "Fog Bank",
@@ -1041,7 +1011,20 @@ pub(in crate::card::sets) static FOG_BANK: CardRecord = CardRecord::new_with_leg
             "Prevent all combat damage that would be dealt to and dealt by this creature.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&FOG_BANK_SHIELD),
+                // Both directions of the same clause: nothing it deals lands and nothing
+                // dealt to it lands, so it blocks anything and survives, and kills nothing.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(DamageEventMatcherDef {
+                        kind: DamageKindDef::Combat,
+                        source: DamageSourceMatcherDef::Any,
+                        recipient: DamageRecipientMatcherDef::AffectedObject,
+                    })),
+                    AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(DamageEventMatcherDef {
+                        kind: DamageKindDef::Combat,
+                        source: DamageSourceMatcherDef::AffectedObject,
+                        recipient: DamageRecipientMatcherDef::Any,
+                    })),
+                ]),
             },
         ),
     ]),
@@ -1161,22 +1144,6 @@ pub(in crate::card::sets) static KRAKEN_HATCHLING: CardRecord = CardRecord::new_
 );
 
 // M13 59 — Master of the Pearl Trident
-/// "Other Merfolk creatures you control": narrower than Lord of Atlantis,
-/// which reaches every Merfolk on the battlefield including the opponent's.
-static MASTER_OF_THE_PEARL_TRIDENT_OTHERS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Subtype("Merfolk"),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
-static MASTER_OF_THE_PEARL_TRIDENT_GRANT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::add_ability(&MASTER_OF_THE_PEARL_TRIDENT_ISLANDWALK),
-];
-
-static MASTER_OF_THE_PEARL_TRIDENT_ISLANDWALK: AbilityDef =
-    abilities::landwalk(BasicLandType::Island);
-
 pub(in crate::card::sets) static MASTER_OF_THE_PEARL_TRIDENT: CardRecord =
     CardRecord::new_with_legacy_id(
         1859,
@@ -1188,11 +1155,23 @@ pub(in crate::card::sets) static MASTER_OF_THE_PEARL_TRIDENT: CardRecord =
                 "Other Merfolk creatures you control get +1/+1 and have islandwalk.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::matching_objects(
-                        MASTER_OF_THE_PEARL_TRIDENT_OTHERS,
+                        // "Other Merfolk creatures you control": narrower than Lord of Atlantis,
+                        // which reaches every Merfolk on the battlefield including the opponent's.
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Merfolk"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ),
-                    effect: AppliedEffectDef::Composite(&MASTER_OF_THE_PEARL_TRIDENT_GRANT),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::landwalk(BasicLandType::Island)),
+                    ]),
                 },
             ),
         ),
@@ -1294,16 +1273,6 @@ static SLEEP_THEIR_CREATURES: EffectRecipientDef = EffectRecipientDef::objects_c
     TargetIndex::PRIMARY,
 );
 
-static SLEEP_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Tap {
-        object: SLEEP_THEIR_CREATURES,
-    },
-    EffectDef::SkipNextUntapSteps {
-        object: SLEEP_THEIR_CREATURES,
-        count: 1,
-    },
-];
-
 pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy_id(
     1860,
     "Sleep",
@@ -1315,7 +1284,15 @@ pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        EffectDef::Sequence(&SLEEP_EFFECTS),
+        EffectDef::Sequence(&[
+            EffectDef::Tap {
+                object: SLEEP_THEIR_CREATURES,
+            },
+            EffectDef::SkipNextUntapSteps {
+                object: SLEEP_THEIR_CREATURES,
+                count: 1,
+            },
+        ]),
     )),
 );
 
@@ -1336,50 +1313,6 @@ const SPHINX_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
 const SPHINX_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
 const SPHINX_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
 
-static SPHINX_PUT_UNCHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(SPHINX_UNCHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Graveyard,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &EffectDef::None,
-});
-static SPHINX_PUT_CHOSEN: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(SPHINX_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &SPHINX_PUT_UNCHOSEN,
-});
-static SPHINX_CHOOSE: EffectDef = EffectDef::ChooseGroup(ChooseGroupDef {
-    actor: PlayerRefDef::EffectController,
-    first: ObjectSetDef::Binding(SPHINX_FIRST),
-    second: ObjectSetDef::Binding(SPHINX_SECOND),
-    chosen: SPHINX_CHOSEN,
-    unchosen: SPHINX_UNCHOSEN,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &SPHINX_PUT_CHOSEN,
-});
-static SPHINX_PARTITION: EffectDef = EffectDef::PartitionGroup(PartitionGroupDef {
-    actor: PlayerRefDef::Opponent,
-    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
-    first: SPHINX_FIRST,
-    second: SPHINX_SECOND,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &SPHINX_CHOOSE,
-});
-static SPHINX_REVEAL: EffectDef = EffectDef::RevealObjects(RevealObjectsDef {
-    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
-    then: &SPHINX_PARTITION,
-});
-static SPHINX_OF_UTHUUN_EFFECT: EffectDef = abilities::bind_top_cards_then(
-    PlayerRefDef::EffectController,
-    ValueDef::Constant(5),
-    SPHINX_INSPECTED,
-    &SPHINX_REVEAL,
-);
-
 pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_with_legacy_id(
     1354,
     "Sphinx of Uthuun",
@@ -1389,7 +1322,44 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
         abilities::flying(),
         abilities::enters_trigger(
             "When this creature enters, reveal the top five cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other into your graveyard.",
-            SPHINX_OF_UTHUUN_EFFECT,
+            abilities::bind_top_cards_then(
+                PlayerRefDef::EffectController,
+                ValueDef::Constant(5),
+                SPHINX_INSPECTED,
+                &const { EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
+                    then: &const { EffectDef::PartitionGroup(PartitionGroupDef {
+                        actor: PlayerRefDef::Opponent,
+                        input: ObjectSetDef::Binding(SPHINX_INSPECTED),
+                        first: SPHINX_FIRST,
+                        second: SPHINX_SECOND,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &const { EffectDef::ChooseGroup(ChooseGroupDef {
+                            actor: PlayerRefDef::EffectController,
+                            first: ObjectSetDef::Binding(SPHINX_FIRST),
+                            second: ObjectSetDef::Binding(SPHINX_SECOND),
+                            chosen: SPHINX_CHOSEN,
+                            unchosen: SPHINX_UNCHOSEN,
+                            visibility: ChoiceVisibilityDef::Public,
+                            then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(SPHINX_CHOSEN),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(SPHINX_UNCHOSEN),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Graveyard,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }) },
+                            }) },
+                        }) },
+                    }) },
+                }) },
+            ),
         ),
     ]),
 );
@@ -1668,11 +1638,6 @@ pub(in crate::card::sets) static COWER_IN_FEAR: CardRecord = CardRecord::new_wit
 );
 
 // M13 85 — Crippling Blight
-static CRIPPLING_BLIGHT_EFFECT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)),
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-];
-
 pub(in crate::card::sets) static CRIPPLING_BLIGHT: CardRecord = CardRecord::new_with_legacy_id(
     1751,
     "Crippling Blight",
@@ -1686,7 +1651,13 @@ pub(in crate::card::sets) static CRIPPLING_BLIGHT: CardRecord = CardRecord::new_
                 "Enchanted creature gets -1/-1 and can't block.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&CRIPPLING_BLIGHT_EFFECT),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(-1),
+                            ValueDef::Constant(-1),
+                        ),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
                 },
             ),
         ]),
@@ -1759,19 +1730,6 @@ pub(in crate::card::sets) static DIABOLIC_REVELATION: CardRecord = CardRecord::n
 );
 
 // M13 88 — Disciple of Bolas
-/// X is read off the sacrificed creature, so both halves take the power the
-/// sacrifice recorded rather than counting anything on the board.
-static DISCIPLE_OF_BOLAS_PAYOFF: EffectDef = EffectDef::Sequence(&[
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::TriggerEventAmount,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::TriggerEventAmount,
-    },
-]);
-
 pub(in crate::card::sets) static DISCIPLE_OF_BOLAS: CardRecord = CardRecord::new_with_legacy_id(
     154,
     "Disciple of Bolas",
@@ -1791,7 +1749,18 @@ pub(in crate::card::sets) static DISCIPLE_OF_BOLAS: CardRecord = CardRecord::new
                 // "Another" creature, so the Disciple cannot eat itself.
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
             ]),
-            then: Some(&DISCIPLE_OF_BOLAS_PAYOFF),
+            // X is read off the sacrificed creature, so both halves take the power the
+            // sacrifice recorded rather than counting anything on the board.
+            then: Some(&EffectDef::Sequence(&[
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::TriggerEventAmount,
+                },
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ])),
             amount: SacrificedAmountDef::Power,
             otherwise: None,
             optional: false,
@@ -2151,13 +2120,6 @@ pub(in crate::card::sets) static RAVENOUS_RATS: CardRecord = CardRecord::new_wit
 );
 
 // M13 107 — Rise from the Grave
-/// "In addition to its other colors and types", so both leaves add rather
-/// than set.
-static A_BLACK_ZOMBIE_AS_WELL: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::Black])),
-    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Zombie"])),
-]);
-
 pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::new_with_legacy_id(
     2002,
     "Rise from the Grave",
@@ -2191,7 +2153,12 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
                 recipient: EffectRecipientDef::binding_zone_change_successors(
                     crate::ObjectSetBindingIndex::PRIMARY,
                 ),
-                effect: A_BLACK_ZOMBIE_AS_WELL,
+                // "In addition to its other colors and types", so both leaves add rather
+                // than set.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_colors(ColorSet::from_colors(&[ManaColor::Black])),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Zombie"])),
+                ]),
                 duration: ResolvedEffectDurationDef::Permanent,
             },
         },
@@ -2235,13 +2202,6 @@ pub(in crate::card::sets) static SIGN_IN_BLOOD: CardRecord = CardRecord::new_wit
 );
 
 // M13 111 — Tormented Soul
-/// The two halves point opposite ways: one keeps it out of blocks it would
-/// join, the other out of blocks it would be caught by.
-static TORMENTED_SOUL_COMBAT: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
-];
-
 pub(in crate::card::sets) static TORMENTED_SOUL: CardRecord = CardRecord::new_with_legacy_id(
     1752,
     "Tormented Soul",
@@ -2252,7 +2212,12 @@ pub(in crate::card::sets) static TORMENTED_SOUL: CardRecord = CardRecord::new_wi
             "This creature can't block and can't be blocked.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::Composite(&TORMENTED_SOUL_COMBAT),
+                // The two halves point opposite ways: one keeps it out of blocks it would
+                // join, the other out of blocks it would be caught by.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                ]),
             },
         ),
     ),
@@ -2640,11 +2605,6 @@ pub(in crate::card::sets) static GOBLIN_ARSONIST: CardRecord = CardRecord::new_w
 );
 
 // M13 135 — Goblin Battle Jester
-static GOBLIN_BATTLE_JESTER_RED_SPELL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Color(ManaColor::Red),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
 pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::new_with_legacy_id(
     1873,
     "Goblin Battle Jester",
@@ -2655,7 +2615,10 @@ pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin"], 2, 2).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast a red spell, target creature can't block this turn.",
-            TriggerEventDef::spell_cast(GOBLIN_BATTLE_JESTER_RED_SPELL),
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Color(ManaColor::Red),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -2669,12 +2632,6 @@ pub(in crate::card::sets) static GOBLIN_BATTLE_JESTER: CardRecord = CardRecord::
 );
 
 // M13 136 — Hamletback Goliath
-static HAMLETBACK_GOLIATH_COUNTERS: EffectDef = EffectDef::AddCounters {
-    object: EffectRecipientDef::Source,
-    kind: CounterKind::PlusOnePlusOne,
-    amount: ValueDef::TriggeringObjectPower,
-};
-
 pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::new_with_legacy_id(
     1871,
     "Hamletback Goliath",
@@ -2699,7 +2656,11 @@ pub(in crate::card::sets) static HAMLETBACK_GOLIATH: CardRecord = CardRecord::ne
             ),
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
-                effect: &HAMLETBACK_GOLIATH_COUNTERS,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::TriggeringObjectPower,
+                },
             },
         ),
     ),
@@ -2731,15 +2692,6 @@ pub(in crate::card::sets) static KINDLED_FURY: CardRecord = CardRecord::new_with
 );
 
 // M13 138 — Krenko, Mob Boss
-static KRENKO_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Subtype("Goblin"),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static KRENKO_MOB_BOSS: CardRecord = CardRecord::new_with_legacy_id(
     1019,
     "Krenko, Mob Boss",
@@ -2755,7 +2707,14 @@ pub(in crate::card::sets) static KRENKO_MOB_BOSS: CardRecord = CardRecord::new_w
     .with_ability(AbilityDef::activated(
         "{T}: Create X 1/1 red Goblin creature tokens, where X is the number of Goblins you control.",
         &[AbilityCostDef::TapSource],
-        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new("0e67efea-8a80-42ec-8e77-07d387d933d4", "Karl Kopinski")).with_count(ValueDef::CountMatchingObjects(&KRENKO_GOBLINS)),
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_art(CardArt::new("0e67efea-8a80-42ec-8e77-07d387d933d4", "Karl Kopinski")).with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Subtype("Goblin"),
+            ]),
+            &[ZoneKind::Battlefield],
+            PlayerRelation::You,
+        ))),
     )),
 );
 
@@ -3063,16 +3022,6 @@ pub(in crate::card::sets) static VOLCANIC_STRENGTH: CardRecord = CardRecord::new
 // M13 156 — Wall of Fire (reprint)
 
 // M13 157 — Wild Guess
-static DISCARD_A_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::Any,
-    zone: ZoneKind::Hand,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
 pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_legacy_id(
     1608,
     "Wild Guess",
@@ -3082,7 +3031,15 @@ pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_l
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, discard a card.\nDraw two cards.",
             &[],
-            DISCARD_A_CARD,
+            SpellAdditionalCostDef {
+                or_life: None,
+                object: ObjectPredicateDef::Any,
+                zone: ZoneKind::Hand,
+                count: 1,
+                counted: SpellAdditionalCostCountDef::Printed,
+                spend: SpendModeDef::ByZone,
+                or: None,
+            },
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),
@@ -3199,13 +3156,6 @@ pub(in crate::card::sets) static BOND_BEETLE: CardRecord = CardRecord::new_with_
 );
 
 // M13 162 — Boundless Realms
-/// The lands you already control, which is what the search is sized by.
-static BOUNDLESS_REALMS_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static BOUNDLESS_REALMS: CardRecord = CardRecord::new_with_legacy_id(
     1982,
     "Boundless Realms",
@@ -3223,7 +3173,12 @@ pub(in crate::card::sets) static BOUNDLESS_REALMS: CardRecord = CardRecord::new_
                 ObjectPredicateDef::Supertype(CardSupertype::Basic),
             ]),
             minimum: 0,
-            maximum: ValueDef::CountMatchingObjects(&BOUNDLESS_REALMS_LANDS),
+            // The lands you already control, which is what the search is sized by.
+            maximum: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
             reveal: true,
             destination: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
@@ -3237,12 +3192,6 @@ pub(in crate::card::sets) static BOUNDLESS_REALMS: CardRecord = CardRecord::new_
 );
 
 // M13 163 — Bountiful Harvest
-static BOUNTIFUL_HARVEST_LANDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static BOUNTIFUL_HARVEST: CardRecord = CardRecord::new_with_legacy_id(
     1030,
     "Bountiful Harvest",
@@ -3252,7 +3201,11 @@ pub(in crate::card::sets) static BOUNTIFUL_HARVEST: CardRecord = CardRecord::new
         "You gain 1 life for each land you control.",
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::CountMatchingObjects(&BOUNTIFUL_HARVEST_LANDS),
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
         },
     )),
 );
@@ -3297,18 +3250,6 @@ pub(in crate::card::sets) static ELDERSCALE_WURM: CardRecord = CardRecord::new(
 );
 
 // M13 168 — Elvish Archdruid
-static ELVISH_ARCHDRUID_ELVES: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::Subtype("Elf"),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static ELVISH_ARCHDRUID_OTHER_ELVES: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Subtype("Elf"),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-]);
-
 pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new_with_legacy_id(
     1872,
     "Elvish Archdruid",
@@ -3321,7 +3262,11 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new_
             "Other Elf creatures you control get +1/+1.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::matching_objects(
-                    ELVISH_ARCHDRUID_OTHER_ELVES,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Elf"),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
@@ -3336,7 +3281,11 @@ pub(in crate::card::sets) static ELVISH_ARCHDRUID: CardRecord = CardRecord::new_
             &[AbilityCostDef::TapSource],
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Green,
-                amount: ValueDef::CountMatchingObjects(&ELVISH_ARCHDRUID_ELVES),
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::Subtype("Elf"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
             },
         ),
     ]),
@@ -3445,12 +3394,6 @@ pub(in crate::card::sets) static FUNGAL_SPROUTING: CardRecord = CardRecord::new_
 );
 
 // M13 174 — Garruk, Primal Hunter
-static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Land),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::new_with_legacy_id(
     1698,
     "Garruk, Primal Hunter",
@@ -3485,7 +3428,11 @@ pub(in crate::card::sets) static GARRUK_PRIMAL_HUNTER: CardRecord = CardRecord::
                         "a4d87f38-c342-4186-8768-c3f1aceb680a",
                         "Anthony Francisco",
                     ))
-                    .with_count(ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL)),
+                    .with_count(ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ))),
             ),
         ]),
 );
@@ -3552,32 +3499,6 @@ pub(in crate::card::sets) static PLUMMET: CardRecord = CardRecord::new_with_lega
 );
 
 // M13 180 — Predatory Rampage
-/// The two clauses point at opposite boards, which is the whole card: yours
-/// get bigger and theirs are forced in front of them.
-static PREDATORY_RAMPAGE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(3),
-            ValueDef::Constant(3),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Opponent,
-        ),
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBlockEachAttackerIfAble),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
 pub(in crate::card::sets) static PREDATORY_RAMPAGE: CardRecord = CardRecord::new_with_legacy_id(
     1874,
     "Predatory Rampage",
@@ -3586,7 +3507,31 @@ pub(in crate::card::sets) static PREDATORY_RAMPAGE: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{3}{G}{G}")).with_ability(AbilityDef::spell(
         "Creatures you control get +3/+3 until end of turn. Each creature your opponents \
          control blocks this turn if able.",
-        EffectDef::Sequence(&PREDATORY_RAMPAGE_EFFECTS),
+        // The two clauses point at opposite boards, which is the whole card: yours
+        // get bigger and theirs are forced in front of them.
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBlockEachAttackerIfAble),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
     )),
 );
 
@@ -3865,33 +3810,6 @@ pub(in crate::card::sets) static YEVAS_FORCEMAGE: CardRecord = CardRecord::new_w
 );
 
 // M13 199 — Nicol Bolas, Planeswalker
-static NICOL_BOLAS_SACRIFICE_SEVEN: EffectDef = EffectDef::SacrificeOfChoice {
-    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-    object: ObjectPredicateDef::Any,
-    count: ValueDef::Constant(7),
-    then: None,
-    amount: SacrificedAmountDef::Power,
-    otherwise: None,
-    optional: false,
-};
-
-static NICOL_BOLAS_ULTIMATE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(7),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(7),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: Some(DiscardFollowUpDef {
-            counted: ObjectPredicateDef::Any,
-            bound: None,
-            effect: &NICOL_BOLAS_SACRIFICE_SEVEN,
-        }),
-    },
-]);
-
 pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardRecord::new_with_legacy_id(
     1700,
     "Nicol Bolas, Planeswalker",
@@ -3929,7 +3847,30 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 "−9: Nicol Bolas deals 7 damage to target player or planeswalker. That player or that planeswalker's controller discards seven then sacrifices seven permanents of their choice.",
                 &[AbilityCostDef::Loyalty(-9)],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any))],
-                NICOL_BOLAS_ULTIMATE,
+                EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(7),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(7),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: Some(DiscardFollowUpDef {
+                            counted: ObjectPredicateDef::Any,
+                            bound: None,
+                            effect: &EffectDef::SacrificeOfChoice {
+                                player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                                object: ObjectPredicateDef::Any,
+                                count: ValueDef::Constant(7),
+                                then: None,
+                                amount: SacrificedAmountDef::Power,
+                                otherwise: None,
+                                optional: false,
+                            },
+                        }),
+                    },
+                ]),
             ),
         ]),
 );
@@ -4050,13 +3991,6 @@ pub(in crate::card::sets) static GILDED_LOTUS: CardRecord = CardRecord::new_with
 // M13 207 — Jayemdae Tome (reprint)
 
 // M13 208 — Kitesail
-static KITESAIL_FLYING: AbilityDef = abilities::flying();
-
-static KITESAIL_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(0)),
-    AppliedEffectDef::add_ability(&KITESAIL_FLYING),
-];
-
 pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new_with_legacy_id(
     1923,
     "Kitesail",
@@ -4072,7 +4006,13 @@ pub(in crate::card::sets) static KITESAIL: CardRecord = CardRecord::new_with_leg
                 "Equipped creature gets +1/+0 and has flying.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&KITESAIL_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
                 },
             ),
             abilities::equip(
@@ -4095,13 +4035,6 @@ pub(in crate::card::sets) static PHYREXIAN_HULK: CardRecord = CardRecord::new_wi
 // M13 210 — Primal Clay (reprint)
 
 // M13 211 — Ring of Evos Isle
-static EVOS_ISLE_HEXPROOF: AbilityDef = abilities::hexproof();
-
-static RING_OF_EVOS_ISLE_IS_BLUE: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::Color(ManaColor::Blue),
-    };
-
 pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new_with_legacy_id(
     1686,
     "Ring of Evos Isle",
@@ -4115,7 +4048,7 @@ pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new
                 &[AbilityCostDef::Mana(mana_cost!("{2}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&EVOS_ISLE_HEXPROOF),
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -4126,7 +4059,9 @@ pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                &RING_OF_EVOS_ISLE_IS_BLUE,
+                &TriggerConditionDef::AttachedPermanentMatches {
+                    object: ObjectPredicateDef::Color(ManaColor::Blue),
+                },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::AttachedPermanent,
                     kind: CounterKind::PlusOnePlusOne,
@@ -4138,13 +4073,6 @@ pub(in crate::card::sets) static RING_OF_EVOS_ISLE: CardRecord = CardRecord::new
 );
 
 // M13 212 — Ring of Kalonia
-static KALONIA_TRAMPLE: AbilityDef = abilities::trample();
-
-static RING_OF_KALONIA_IS_GREEN: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::Color(ManaColor::Green),
-    };
-
 pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_with_legacy_id(
     1687,
     "Ring of Kalonia",
@@ -4157,7 +4085,7 @@ pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_w
                 "Equipped creature has trample.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&KALONIA_TRAMPLE),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
                 },
             ),
             AbilityDef::triggered_if(
@@ -4167,7 +4095,9 @@ pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_w
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                &RING_OF_KALONIA_IS_GREEN,
+                &TriggerConditionDef::AttachedPermanentMatches {
+                    object: ObjectPredicateDef::Color(ManaColor::Green),
+                },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::AttachedPermanent,
                     kind: CounterKind::PlusOnePlusOne,
@@ -4179,13 +4109,6 @@ pub(in crate::card::sets) static RING_OF_KALONIA: CardRecord = CardRecord::new_w
 );
 
 // M13 213 — Ring of Thune
-static THUNE_VIGILANCE: AbilityDef = abilities::vigilance();
-
-static RING_OF_THUNE_IS_WHITE: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::Color(ManaColor::White),
-    };
-
 pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_with_legacy_id(
     1688,
     "Ring of Thune",
@@ -4198,7 +4121,7 @@ pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_wit
                 "Equipped creature has vigilance.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&THUNE_VIGILANCE),
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
                 },
             ),
             AbilityDef::triggered_if(
@@ -4208,7 +4131,9 @@ pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_wit
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                &RING_OF_THUNE_IS_WHITE,
+                &TriggerConditionDef::AttachedPermanentMatches {
+                    object: ObjectPredicateDef::Color(ManaColor::White),
+                },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::AttachedPermanent,
                     kind: CounterKind::PlusOnePlusOne,
@@ -4220,12 +4145,6 @@ pub(in crate::card::sets) static RING_OF_THUNE: CardRecord = CardRecord::new_wit
 );
 
 // M13 214 — Ring of Valkas
-static VALKAS_HASTE: AbilityDef = abilities::haste();
-
-static RING_OF_VALKAS_IS_RED: TriggerConditionDef = TriggerConditionDef::AttachedPermanentMatches {
-    object: ObjectPredicateDef::Color(ManaColor::Red),
-};
-
 pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_with_legacy_id(
     1689,
     "Ring of Valkas",
@@ -4238,7 +4157,7 @@ pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_wi
                 "Equipped creature has haste.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&VALKAS_HASTE),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
                 },
             ),
             AbilityDef::triggered_if(
@@ -4248,7 +4167,9 @@ pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_wi
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                &RING_OF_VALKAS_IS_RED,
+                &TriggerConditionDef::AttachedPermanentMatches {
+                    object: ObjectPredicateDef::Color(ManaColor::Red),
+                },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::AttachedPermanent,
                     kind: CounterKind::PlusOnePlusOne,
@@ -4260,11 +4181,6 @@ pub(in crate::card::sets) static RING_OF_VALKAS: CardRecord = CardRecord::new_wi
 );
 
 // M13 215 — Ring of Xathrid
-static RING_OF_XATHRID_IS_BLACK: TriggerConditionDef =
-    TriggerConditionDef::AttachedPermanentMatches {
-        object: ObjectPredicateDef::Color(ManaColor::Black),
-    };
-
 pub(in crate::card::sets) static RING_OF_XATHRID: CardRecord = CardRecord::new_with_legacy_id(
     1690,
     "Ring of Xathrid",
@@ -4287,7 +4203,9 @@ pub(in crate::card::sets) static RING_OF_XATHRID: CardRecord = CardRecord::new_w
                     step: TurnStepDef::Upkeep,
                     player: PlayerRelation::You,
                 },
-                &RING_OF_XATHRID_IS_BLACK,
+                &TriggerConditionDef::AttachedPermanentMatches {
+                    object: ObjectPredicateDef::Color(ManaColor::Black),
+                },
                 EffectDef::AddCounters {
                     object: EffectRecipientDef::AttachedPermanent,
                     kind: CounterKind::PlusOnePlusOne,

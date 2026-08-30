@@ -5985,33 +5985,6 @@ pub(in crate::card::sets) static GRIMGRIN_CORPSE_BORN: CardRecord = CardRecord::
 );
 
 // ISD 215 — Olivia Voldaren
-static OLIVIA_ANOTHER_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-)];
-
-static OLIVIA_AS_A_VAMPIRE: AppliedEffectDef =
-    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Vampire"]));
-
-static OLIVIA_BITES: [EffectDef; 3] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: OLIVIA_AS_A_VAMPIRE,
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed750692-ba6a-4a89-ad6d-92fda7edc2cb"),
     "Olivia Voldaren",
@@ -6024,8 +5997,30 @@ pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
             AbilityDef::activated_with_targets(
                 "{1}{R}: Olivia Voldaren deals 1 damage to another target creature. That creature becomes a Vampire in addition to its other types. Put a +1/+1 counter on Olivia Voldaren.",
                 &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
-                &OLIVIA_ANOTHER_CREATURE,
-                EffectDef::Sequence(&OLIVIA_BITES),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                )],
+                EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_creature_types(
+                            CreatureTypeSetDef::named(&["Vampire"]),
+                        ),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
             ),
             AbilityDef::activated_with_targets(
                 "{3}{B}{B}: Gain control of target Vampire for as long as you control Olivia Voldaren.",

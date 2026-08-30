@@ -718,32 +718,6 @@ pub(in crate::card::sets) static PLAGUEBEARER: CardRecord = CardRecord::new(
 );
 
 // EXO 72 — Recurring Nightmare
-static NIGHTMARE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: Some(PlayerRelation::You),
-    },
-)];
-
-/// Both halves leave the battlefield to pay, and the enchantment's half is a
-/// return rather than a sacrifice: it comes back to hand to be cast again,
-/// which is the whole of why the card is banned wherever it is.
-static NIGHTMARE_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::SacrificePermanent {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        controller: PlayerRelation::You,
-    },
-    AbilityCostDef::ReturnSourceToHand,
-];
-
-static NIGHTMARE_REANIMATES: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Battlefield,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8173030-1c33-417c-b8e9-79231b6a85a7"),
     "Recurring Nightmare",
@@ -756,9 +730,29 @@ pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::n
         AbilityDef::activated_with_targets(
             "Sacrifice a creature, Return this enchantment to its owner's hand: Return target \
              creature card from your graveyard to the battlefield. Activate only as a sorcery.",
-            &NIGHTMARE_COST,
-            &NIGHTMARE_TARGET,
-            NIGHTMARE_REANIMATES,
+            // Both halves leave the battlefield to pay, and the enchantment's half is a
+            // return rather than a sacrifice: it comes back to hand to be cast again,
+            // which is the whole of why the card is banned wherever it is.
+            &[
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+                AbilityCostDef::ReturnSourceToHand,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+            },
         )
         .with_activation_timing(ActivationTimingDef::SorcerySpeed),
     ),
@@ -1191,30 +1185,6 @@ pub(in crate::card::sets) static MIRRI_CAT_WARRIOR: CardRecord = CardRecord::new
 );
 
 // EXO 115 — Oath of Druids
-static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
-    player: EffectRecipientDef::EventPlayer,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    matched_zone: ZoneKind::Battlefield,
-    binding: None,
-    then: None,
-};
-
-/// "Target player who controls more creatures than they do and is their
-/// opponent." The comparison is against whoever is choosing -- the player
-/// whose upkeep it is -- rather than against Oath's own controller, which
-/// is what makes this a targeting restriction rather than a condition.
-static AN_OPPONENT_WITH_MORE_CREATURES: [AbilityTargetDef; 1] =
-    [
-        AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerWithMoreObjectsThanChooser {
-            relation: PlayerRelation::Opponent,
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zones: &[ZoneKind::Battlefield],
-        })
-        .chosen_by_event_player(),
-    ];
-
-static OATH_DIGS_FOR_A_CREATURE: EffectDef = EffectDef::MillUntil(&MILL_UNTIL_1);
-
 pub(in crate::card::sets) static OATH_OF_DRUIDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cf14de50-d123-400c-862e-2c95fd2aa23f"),
     "Oath of Druids",
@@ -1231,10 +1201,27 @@ pub(in crate::card::sets) static OATH_OF_DRUIDS: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::Any,
             },
-            &AN_OPPONENT_WITH_MORE_CREATURES,
+            // "Target player who controls more creatures than they do and is their
+            // opponent." The comparison is against whoever is choosing -- the player
+            // whose upkeep it is -- rather than against Oath's own controller, which
+            // is what makes this a targeting restriction rather than a condition.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerWithMoreObjectsThanChooser {
+                    relation: PlayerRelation::Opponent,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                },
+            )
+            .chosen_by_event_player()],
             EffectDef::May {
                 player: EffectRecipientDef::EventPlayer,
-                effect: &OATH_DIGS_FOR_A_CREATURE,
+                effect: &EffectDef::MillUntil(&MillUntilDef {
+                    player: EffectRecipientDef::EventPlayer,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    matched_zone: ZoneKind::Battlefield,
+                    binding: None,
+                    then: None,
+                }),
             },
         ),
     ),
@@ -1507,28 +1494,6 @@ pub(in crate::card::sets) static WORKHORSE: CardRecord = CardRecord::new(
 );
 
 // EXO 143 — City of Traitors
-static CITY_ABILITIES: [AbilityDef; 2] = [
-    // The playing rather than the entering: a land an effect puts onto the
-    // battlefield never was played, and the City survives it.
-    AbilityDef::triggered(
-        "When you play another land, sacrifice this land.",
-        TriggerEventDef::LandPlayed {
-            land: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-            player: PlayerRelation::You,
-        },
-        EffectDef::Sacrifice {
-            object: EffectRecipientDef::Source,
-        },
-    ),
-    AbilityDef::activated_mana(
-        "{T}: Add {C}{C}.",
-        &CITY_MANA_COST,
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
-    ),
-];
-
-static CITY_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
 pub(in crate::card::sets) static CITY_OF_TRAITORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7a8b6b8-b95f-4014-b17a-a6d44d965995"),
     "City of Traitors",
@@ -1537,7 +1502,25 @@ pub(in crate::card::sets) static CITY_OF_TRAITORS: CardRecord = CardRecord::new(
     // Two mana from one land, for as long as you are willing to stop
     // playing lands. The turn it arrives is free; every turn after is a
     // choice between the mana and the land drop.
-    CardRules::new_land(&[]).with_abilities(&CITY_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        // The playing rather than the entering: a land an effect puts onto the
+        // battlefield never was played, and the City survives it.
+        AbilityDef::triggered(
+            "When you play another land, sacrifice this land.",
+            TriggerEventDef::LandPlayed {
+                land: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                player: PlayerRelation::You,
+            },
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

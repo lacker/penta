@@ -142,13 +142,6 @@ pub(in crate::card::sets) static FRANTIC_SALVAGE: CardRecord = CardRecord::new(
 );
 
 // MBS 7 — Gore Vassal
-static GORE_VASSAL_TARGET_SURVIVES: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-        left: ValueDef::TargetToughness(TargetIndex::PRIMARY),
-        comparison: ComparisonDef::GreaterOrEqual,
-        right: ValueDef::Constant(1),
-    });
-
 pub(in crate::card::sets) static GORE_VASSAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2889bba-58a8-46e1-959c-0fd38c1732f9"),
     "Gore Vassal",
@@ -168,7 +161,11 @@ pub(in crate::card::sets) static GORE_VASSAL: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
                 EffectDef::IfCondition {
-                    condition: &GORE_VASSAL_TARGET_SURVIVES,
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::TargetToughness(TargetIndex::PRIMARY),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            right: ValueDef::Constant(1),
+                        }),
                     then: &EffectDef::Regenerate {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
@@ -288,15 +285,6 @@ pub(in crate::card::sets) static MIRRAN_CRUSADER: CardRecord = CardRecord::new(
 );
 
 // MBS 15 — Phyrexian Rebirth
-static PHYREXIAN_REBIRTH_TOKEN_STATS: TokenStatsDef = TokenStatsDef {
-    power: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-    toughness: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-};
-
-static PHYREXIAN_REBIRTH_TOKEN: EffectDef =
-    EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
-        .with_variable_token_stats(&PHYREXIAN_REBIRTH_TOKEN_STATS);
-
 pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36b7536d-6b0b-4906-ba88-7fcfe9b854ee"),
     "Phyrexian Rebirth",
@@ -313,7 +301,11 @@ pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new
             can_regenerate: true,
             then: Some(DestroyFollowUpDef {
                 binding: ObjectSetBindingIndex::PRIMARY,
-                effect: &PHYREXIAN_REBIRTH_TOKEN,
+                effect: &EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
+                        .with_variable_token_stats(&TokenStatsDef {
+                            power: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                            toughness: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        }),
             }),
         },
     )),
@@ -458,36 +450,34 @@ pub(in crate::card::sets) static CORRUPTED_CONSCIENCE: CardRecord = CardRecord::
 );
 
 // MBS 23 — Cryptoplasm
-static CRYPTOPLASM_COPY: AbilityDef = AbilityDef::triggered_with_targets(
-    "At the beginning of your upkeep, you may have this creature become a copy of another target creature, except it has this ability.",
-    TriggerEventDef::StepBegins {
-        step: crate::card::TurnStepDef::Upkeep,
-        player: PlayerRelation::You,
-    },
-    &[AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-    )],
-    EffectDef::May {
-        player: EffectRecipientDef::Controller,
-        effect: &EffectDef::BecomeCopyOf {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            copier: None,
-            exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::This]),
-            duration: None,
-        },
-    },
-);
-
 pub(in crate::card::sets) static CRYPTOPLASM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15a31710-c1d6-45e4-9dbe-a75453a74da0"),
     "Cryptoplasm",
     crate::card::CardArt::new("15a31710-c1d6-45e4-9dbe-a75453a74da0", "Eric Deschamps"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Shapeshifter"], 2, 2)
-        .with_ability(CRYPTOPLASM_COPY),
+        .with_ability(AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may have this creature become a copy of another target creature, except it has this ability.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::BecomeCopyOf {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    copier: None,
+                    exceptions: CopyExceptionsDef::NONE.with_abilities(&[CopyAbilityDef::This]),
+                    duration: None,
+                },
+            },
+        )),
 );
 
 // MBS 24 — Distant Memories
@@ -650,14 +640,6 @@ pub(in crate::card::sets) static SERUM_RAKER: CardRecord = CardRecord::new(
 );
 
 // MBS 32 — Spire Serpent
-static SPIRE_SERPENT_METALCRAFT: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Composite(&[
-        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-        AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
-    ]),
-};
-
 pub(in crate::card::sets) static SPIRE_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a14e2a4-484b-46e4-a5a1-c66cb13be178"),
     "Spire Serpent",
@@ -669,7 +651,13 @@ pub(in crate::card::sets) static SPIRE_SERPENT: CardRecord = CardRecord::new(
             "Metalcraft — As long as you control three or more artifacts, this creature gets +2/+2 and can attack as though it didn't have defender.",
             EffectDef::IfCondition {
                 condition: &METALCRAFT,
-                then: &SPIRE_SERPENT_METALCRAFT,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                        AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
+                    ]),
+                },
             },
         ),
     ]),
@@ -1191,16 +1179,6 @@ pub(in crate::card::sets) static SCOURGE_SERVANT: CardRecord = CardRecord::new(
 );
 
 // MBS 55 — Septic Rats
-static DEFENDING_PLAYER_IS_POISONED: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-        left: ValueDef::PlayerCounters {
-            player: PlayerRelation::EventPlayer,
-            kind: CounterKind::Poison,
-        },
-        comparison: ComparisonDef::GreaterOrEqual,
-        right: ValueDef::Constant(1),
-    });
-
 pub(in crate::card::sets) static SEPTIC_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e7915d9-b941-4675-9a1b-18e579977144"),
     "Septic Rats",
@@ -1212,7 +1190,14 @@ pub(in crate::card::sets) static SEPTIC_RATS: CardRecord = CardRecord::new(
             AbilityDef::triggered_if(
                 "Whenever this creature attacks, if defending player is poisoned, it gets +1/+1 until end of turn.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                &DEFENDING_PLAYER_IS_POISONED,
+                &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::PlayerCounters {
+                            player: PlayerRelation::EventPlayer,
+                            kind: CounterKind::Poison,
+                        },
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(1),
+                    }),
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1281,12 +1266,6 @@ pub(in crate::card::sets) static BLISTERSTICK_SHAMAN: CardRecord = CardRecord::n
 );
 
 // MBS 59 — Burn the Impure
-static BURN_THE_IMPURE_TARGET_HAS_INFECT: TriggerConditionDef =
-    TriggerConditionDef::TargetMatches {
-        slot: TargetIndex::PRIMARY,
-        object: ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
-    };
-
 pub(in crate::card::sets) static BURN_THE_IMPURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5641730-428d-4484-866e-ec1ac669537f"),
     "Burn the Impure",
@@ -1303,7 +1282,10 @@ pub(in crate::card::sets) static BURN_THE_IMPURE: CardRecord = CardRecord::new(
                 amount: ValueDef::Constant(3),
             },
             EffectDef::IfCondition {
-                condition: &BURN_THE_IMPURE_TARGET_HAS_INFECT,
+                condition: &TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::HasKeyword(KeywordAbility::Infect),
+                    },
                 then: &EffectDef::DealDamage {
                     recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(3),
@@ -1506,16 +1488,6 @@ pub(in crate::card::sets) static KOTH_S_COURIER: CardRecord = CardRecord::new(
 );
 
 // MBS 69 — Kuldotha Flamefiend
-static KULDOTHA_FLAMEFIEND_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::AnyTarget,
-    minimum: 0,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: Some(DividedTotal::Fixed(4)),
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
 pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("189fea03-24db-4574-bbc2-4d3bc9e629a5"),
     "Kuldotha Flamefiend",
@@ -1524,7 +1496,15 @@ pub(in crate::card::sets) static KULDOTHA_FLAMEFIEND: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Elemental"], 4, 4).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, you may sacrifice an artifact. If you do, this creature deals 4 damage divided as you choose among any number of targets.",
-            &KULDOTHA_FLAMEFIEND_TARGETS,
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::AnyTarget,
+                minimum: 0,
+                maximum: AbilityTargetDef::UNLIMITED,
+                divided_total: Some(DividedTotal::Fixed(4)),
+                another: false,
+                excludes_source: false,
+                chooser: TargetChooserDef::Controller,
+            }],
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
@@ -1756,15 +1736,6 @@ pub(in crate::card::sets) static GLISSA_S_COURIER: CardRecord = CardRecord::new(
 );
 
 // MBS 81 — Green Sun's Zenith
-/// "With mana value X or less", where X is what this spell was cast for. The
-/// bound is read off the spell's own record, which outlives its move off the
-/// stack, so the search still knows how big it may go.
-static A_GREEN_CREATURE_WORTH_X: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Color(ManaColor::Green),
-    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
-]);
-
 pub(in crate::card::sets) static GREEN_SUN_S_ZENITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02335747-54e3-4827-ae19-4e362863da9b"),
     "Green Sun's Zenith",
@@ -1781,7 +1752,14 @@ pub(in crate::card::sets) static GREEN_SUN_S_ZENITH: CardRecord = CardRecord::ne
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
-                object: A_GREEN_CREATURE_WORTH_X,
+                // "With mana value X or less", where X is what this spell was cast for. The
+                // bound is read off the spell's own record, which outlives its move off the
+                // stack, so the search still knows how big it may go.
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                ]),
                 minimum: 0,
                 maximum: ValueDef::Constant(1),
                 reveal: false,
@@ -2178,43 +2156,6 @@ pub(in crate::card::sets) static BLADED_SENTINEL: CardRecord = CardRecord::new(
 );
 
 // MBS 99 — Blightsteel Colossus
-/// Revealed and shuffled back rather than exiled, so the deck keeps it and
-/// nothing gets to answer it permanently. The reveal is what makes the
-/// shuffle honest: everyone knows the card went back in.
-static COLOSSUS_RETURNS: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::MoveToZone(ZoneKind::Library),
-    ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Controller,
-    }),
-];
-
-/// Watched from everywhere the card can be, because "from anywhere" is the
-/// point: countered on the stack, discarded from hand, and milled from the
-/// library all come back the same way.
-static COLOSSUS_ZONES: [ZoneKind; 5] = [
-    ZoneKind::Battlefield,
-    ZoneKind::Stack,
-    ZoneKind::Hand,
-    ZoneKind::Library,
-    ZoneKind::Graveyard,
-];
-
-static COLOSSUS_ABILITIES: [AbilityDef; 4] = [
-    abilities::trample(),
-    abilities::infect(),
-    abilities::indestructible(),
-    AbilityDef::replacement_for(
-        "If Blightsteel Colossus would be put into a graveyard from anywhere, reveal Blightsteel Colossus and shuffle it into its owner's library instead.",
-        ReplacementEventDef::WouldMove {
-            from: None,
-            to: ZoneKind::Graveyard,
-            cause: ZoneMoveCauseDef::Any,
-        },
-        ReplacementEffectDef::Sequence(&COLOSSUS_RETURNS),
-    )
-    .with_source_zones(&COLOSSUS_ZONES),
-];
-
 pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::new_with_legacy_id(
     2183,
     "Blightsteel Colossus",
@@ -2224,7 +2165,38 @@ pub(in crate::card::sets) static BLIGHTSTEEL_COLOSSUS: CardRecord = CardRecord::
     // is not paying twelve mana honestly -- it is cheating it into play and
     // attacking once.
     CardRules::new_artifact_creature(mana_cost!("{12}"), &["Phyrexian", "Golem"], 11, 11)
-        .with_abilities(&COLOSSUS_ABILITIES),
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::infect(),
+            abilities::indestructible(),
+            AbilityDef::replacement_for(
+                "If Blightsteel Colossus would be put into a graveyard from anywhere, reveal Blightsteel Colossus and shuffle it into its owner's library instead.",
+                ReplacementEventDef::WouldMove {
+                    from: None,
+                    to: ZoneKind::Graveyard,
+                    cause: ZoneMoveCauseDef::Any,
+                },
+                // Revealed and shuffled back rather than exiled, so the deck keeps it and
+                // nothing gets to answer it permanently. The reveal is what makes the
+                // shuffle honest: everyone knows the card went back in.
+                ReplacementEffectDef::Sequence(&[
+                    ReplacementEffectDef::MoveToZone(ZoneKind::Library),
+                    ReplacementEffectDef::Perform(&EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::Controller,
+                    }),
+                ]),
+            )
+            // Watched from everywhere the card can be, because "from anywhere" is the
+            // point: countered on the stack, discarded from hand, and milled from the
+            // library all come back the same way.
+            .with_source_zones(&[
+                ZoneKind::Battlefield,
+                ZoneKind::Stack,
+                ZoneKind::Hand,
+                ZoneKind::Library,
+                ZoneKind::Graveyard,
+            ]),
+        ]),
 );
 
 // MBS 100 — Bonehoard
@@ -2675,24 +2647,6 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
 
 // MBS 122 — Phyrexian Revoker
 // Audit: partial — The chosen-name restriction covers every nonmana activation and battlefield mana abilities; player-facing restrictions cannot yet suppress mana abilities of sources outside the battlefield.
-static PHYREXIAN_REVOKER_RESTRICTIONS: [EffectDef; 2] = [
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasChosenName,
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Any,
-        ),
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-    },
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::EachPlayer,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
-            PlayActionMatcherDef::ActivateNonManaAbility,
-            ObjectPredicateDef::HasChosenName,
-        ))),
-    },
-];
-
 pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c7bec21-61b0-4e72-848b-82f38e1910e0"),
     "Phyrexian Revoker",
@@ -2708,7 +2662,23 @@ pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new
             ),
             AbilityDef::static_ability(
                 "Activated abilities of sources with the chosen name can't be activated.",
-                EffectDef::Sequence(&PHYREXIAN_REVOKER_RESTRICTIONS),
+                EffectDef::Sequence(&[
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasChosenName,
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                    },
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
+                            PlayActionMatcherDef::ActivateNonManaAbility,
+                            ObjectPredicateDef::HasChosenName,
+                        ))),
+                    },
+                ]),
             )
             .with_coverage(AbilityCoverageDef::partial(
                 "Mana abilities of sources outside the battlefield remain activatable; chosen-name restrictions cover every nonmana activation, while the permanent-facing prohibition also covers battlefield mana abilities.",
@@ -3260,33 +3230,6 @@ pub(in crate::card::sets) static TITAN_FORGE: CardRecord = CardRecord::new(
 );
 
 // MBS 142 — Training Drone
-static EQUIPMENT_ATTACHED_TO_TRAINING_DRONE: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::Subtype("Equipment"),
-        ObjectPredicateDef::AttachedToSource,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static TRAINING_DRONE_IS_EQUIPPED: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: EQUIPMENT_ATTACHED_TO_TRAINING_DRONE,
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
-static TRAINING_DRONE_IS_NOT_EQUIPPED: TriggerConditionDef =
-    TriggerConditionDef::Not(&TRAINING_DRONE_IS_EQUIPPED);
-
-static TRAINING_DRONE_CANNOT_ATTACK_OR_BLOCK: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::Source,
-    effect: AppliedEffectDef::Composite(&[
-        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-    ]),
-};
-
 pub(in crate::card::sets) static TRAINING_DRONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b7e986f-5b28-46d2-8ec2-ee719b07dbfd"),
     "Training Drone",
@@ -3296,8 +3239,26 @@ pub(in crate::card::sets) static TRAINING_DRONE: CardRecord = CardRecord::new(
         AbilityDef::static_ability(
             "This creature can't attack or block unless it's equipped.",
             EffectDef::IfCondition {
-                condition: &TRAINING_DRONE_IS_NOT_EQUIPPED,
-                then: &TRAINING_DRONE_CANNOT_ATTACK_OR_BLOCK,
+                condition: &TriggerConditionDef::Not(&TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::Subtype("Equipment"),
+                            ObjectPredicateDef::AttachedToSource,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                    ]),
+                },
             },
         ),
     ),

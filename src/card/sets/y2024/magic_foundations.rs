@@ -30,12 +30,6 @@ pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::
     crate::card::CardRules::unsupported(),
 );
 
-static LEYLINE_AXE_BONUS: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::add_ability(&abilities::double_strike()),
-    AppliedEffectDef::add_ability(&abilities::trample()),
-];
-
 // FDN 129 — Leyline Axe
 pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9c03336-a321-4c06-94d1-809f328fabd8"),
@@ -50,7 +44,11 @@ pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
                 "Equipped creature gets +1/+1 and has double strike and trample.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&LEYLINE_AXE_BONUS),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+                        AppliedEffectDef::add_ability(&abilities::double_strike()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
                 },
             ),
             abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
@@ -78,97 +76,6 @@ pub(in crate::card::sets) static GOBLIN_SURPRISE: CardRecord = CardRecord::new(
 );
 
 // FDN 330 — Kellan, Planar Trailblazer
-/// The Detective's own clause, granted rather than printed: a card exiled
-/// off the top and playable for the turn, which is what the second
-/// activation is paying to turn on.
-static KELLAN_INVESTIGATES: AbilityDef = AbilityDef::triggered(
-    "Whenever Kellan deals combat damage to a player, exile the top card of your library. You may \
-     play that card this turn.",
-    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-    EffectDef::ExileTopOfLibraryToPlay {
-        player: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        free: false,
-        face_down: false,
-        duration: ExilePlayDurationDef::ThisTurn,
-        spend_any_color: false,
-        play_condition: None,
-        cast_only: false,
-    },
-);
-
-/// "It becomes a Human Faerie Detective": a set rather than an addition, so
-/// the Scout it was is gone and the second activation has something to ask
-/// about.
-static KELLAN_BECOMES_A_DETECTIVE: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-        SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Detective"])),
-    )),
-    AppliedEffectDef::add_ability(&KELLAN_INVESTIGATES),
-];
-
-static KELLAN_DOUBLE_STRIKE: AbilityDef = abilities::double_strike();
-
-static KELLAN_BECOMES_A_ROGUE: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-        PowerToughnessOperationDef::SetBase {
-            power: ValueDef::Constant(3),
-            toughness: ValueDef::Constant(2),
-        },
-    )),
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
-        SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Rogue"])),
-    )),
-    AppliedEffectDef::add_ability(&KELLAN_DOUBLE_STRIKE),
-];
-
-/// Each activation asks what Kellan is now, so the two have to be paid in
-/// order and neither does anything twice.
-static KELLAN_IS_A_SCOUT: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::Subtype("Scout"),
-};
-
-static KELLAN_IS_A_DETECTIVE: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::Subtype("Detective"),
-};
-
-static KELLAN_GROWS_UP: EffectDef = EffectDef::IfCondition {
-    condition: &KELLAN_IS_A_SCOUT,
-    then: &EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Composite(&KELLAN_BECOMES_A_DETECTIVE),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-};
-
-static KELLAN_GROWS_UP_AGAIN: EffectDef = EffectDef::IfCondition {
-    condition: &KELLAN_IS_A_DETECTIVE,
-    then: &EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Composite(&KELLAN_BECOMES_A_ROGUE),
-        duration: ResolvedEffectDurationDef::Permanent,
-    },
-};
-
-static KELLAN_FIRST_STEP: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{1}{R}"))];
-static KELLAN_SECOND_STEP: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{2}{R}"))];
-
-static KELLAN_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::activated(
-        "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie Detective and gains \"Whenever \
-         Kellan deals combat damage to a player, exile the top card of your library. You may play \
-         that card this turn.\"",
-        &KELLAN_FIRST_STEP,
-        KELLAN_GROWS_UP,
-    ),
-    AbilityDef::activated(
-        "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double \
-         strike.",
-        &KELLAN_SECOND_STEP,
-        KELLAN_GROWS_UP_AGAIN,
-    ),
-];
-
 pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e413f37-b59a-4302-86d3-2abce81edc78"),
     "Kellan, Planar Trailblazer",
@@ -178,7 +85,77 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
     // has nothing better to do with.
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Faerie", "Scout"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&KELLAN_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{1}{R}: If Kellan is a Scout, it becomes a Human Faerie Detective and gains \"Whenever \
+                 Kellan deals combat damage to a player, exile the top card of your library. You may play \
+                 that card this turn.\"",
+                &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+                EffectDef::IfCondition {
+                    // Each activation asks what Kellan is now, so the two have to be paid in
+                    // order and neither does anything twice.
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Subtype("Scout"),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        // "It becomes a Human Faerie Detective": a set rather than an addition, so
+                        // the Scout it was is gone and the second activation has something to ask
+                        // about.
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
+                                SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Detective"])),
+                            )),
+                            // The Detective's own clause, granted rather than printed: a card exiled
+                            // off the top and playable for the turn, which is what the second
+                            // activation is paying to turn on.
+                            AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                                "Whenever Kellan deals combat damage to a player, exile the top card of your library. You may \
+                                 play that card this turn.",
+                                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                                EffectDef::ExileTopOfLibraryToPlay {
+                                    player: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                    free: false,
+                                    face_down: false,
+                                    duration: ExilePlayDurationDef::ThisTurn,
+                                    spend_any_color: false,
+                                    play_condition: None,
+                                    cast_only: false,
+                                },
+                            )),
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                },
+            ),
+            AbilityDef::activated(
+                "{2}{R}: If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double \
+                 strike.",
+                &[AbilityCostDef::Mana(mana_cost!("{2}{R}"))],
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Subtype("Detective"),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                                PowerToughnessOperationDef::SetBase {
+                                    power: ValueDef::Constant(3),
+                                    toughness: ValueDef::Constant(2),
+                                },
+                            )),
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(
+                                SetOperationDef::Set(CreatureTypeSetDef::named(&["Human", "Faerie", "Rogue"])),
+                            )),
+                            AppliedEffectDef::add_ability(&abilities::double_strike()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                },
+            ),
+        ]),
 );
 
 // FDN 528 — Undying Malice

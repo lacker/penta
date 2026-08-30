@@ -8,7 +8,7 @@ impl Game {
         &mut self,
         stack_object: StackObject,
         targets: Vec<Target>,
-        remaining_sacrifices: Vec<(GameObjectId, SpendModeDef)>,
+        remaining_sacrifices: Vec<(GameObjectId, SpellAdditionalCostDef)>,
     ) {
         let Some((stack_object, targets)) =
             self.pay_spell_object_costs(stack_object, targets, remaining_sacrifices)
@@ -22,117 +22,147 @@ impl Game {
         &mut self,
         mut stack_object: StackObject,
         targets: Vec<Target>,
-        mut remaining_sacrifices: Vec<(GameObjectId, SpendModeDef)>,
+        mut remaining_sacrifices: Vec<(GameObjectId, SpellAdditionalCostDef)>,
     ) -> Option<(StackObject, Vec<Target>)> {
         // The action carries object choices in the same order as their
         // additional-cost clauses. Process one at a time so a mandatory
         // return/exile cost and an optional sacrifice cost retain distinct
-        // spend operations even when both were selected for the same cast.
-        while let Some((spent, spend)) = remaining_sacrifices.first().copied() {
+        // semantic actions even when both were selected for the same cast.
+        while let Some((spent, cost)) = remaining_sacrifices.first().copied() {
             remaining_sacrifices.remove(0);
             if !stack_object.chosen_permanents.contains(&spent) {
                 stack_object.chosen_permanents.push(spent);
             }
-            if self
-                .battlefield
-                .iter()
-                .any(|permanent| permanent.card.id == spent)
-            {
-                match spend {
-                    SpendModeDef::ByZone => {
-                        self.capture_sacrifices(&[spent]);
-                        self.move_permanents_to_graveyard_then(
-                            &[spent],
-                            Some(BattlefieldExitCompletion::CompleteSpellCast {
-                                object: Box::new(stack_object),
-                                targets,
-                                remaining_sacrifices,
-                            }),
-                        );
-                        return None;
-                    }
-                    SpendModeDef::Exile | SpendModeDef::ReturnToHand => {
-                        let destination =
-                            Self::additional_cost_destination(spend, ZoneKind::Battlefield);
-                        self.move_target_to_zone(
-                            Target::Permanent(spent),
-                            destination,
-                            ZoneMoveCause::Effect {
-                                controller: stack_object.controller,
-                            },
-                            None,
-                            ZonePlacement::Top,
-                        );
-                    }
+            match cost {
+                SpellAdditionalCostDef::Sacrifice { .. } => {
+                    self.capture_sacrifices(&[spent]);
+                    self.move_permanents_to_graveyard_then(
+                        &[spent],
+                        Some(BattlefieldExitCompletion::CompleteSpellCast {
+                            object: Box::new(stack_object),
+                            targets,
+                            remaining_sacrifices,
+                        }),
+                    );
+                    return None;
                 }
-                continue;
+                SpellAdditionalCostDef::ReturnToHand { .. } => {
+                    self.move_target_to_zone(
+                        Target::Permanent(spent),
+                        ZoneKind::Hand,
+                        ZoneMoveCause::Effect {
+                            controller: stack_object.controller,
+                        },
+                        None,
+                        ZonePlacement::Top,
+                    );
+                    continue;
+                }
+                SpellAdditionalCostDef::Exile {
+                    from: ZoneKind::Battlefield,
+                    ..
+                } => {
+                    self.move_target_to_zone(
+                        Target::Permanent(spent),
+                        ZoneKind::Exile,
+                        ZoneMoveCause::Effect {
+                            controller: stack_object.controller,
+                        },
+                        None,
+                        ZonePlacement::Top,
+                    );
+                    continue;
+                }
+                SpellAdditionalCostDef::Discard { .. }
+                | SpellAdditionalCostDef::Exile { .. } => {}
+                SpellAdditionalCostDef::PayMana(_)
+                | SpellAdditionalCostDef::PayLife(_)
+                | SpellAdditionalCostDef::Forage
+                | SpellAdditionalCostDef::All(_)
+                | SpellAdditionalCostDef::Choice(_) => {
+                    unreachable!("scalar and composite costs do not name individual objects")
+                }
             }
 
-            let Some((from, card)) = self
-                .card_in_nonbattlefield_zone(spent)
-                .map(|(zone, card)| (zone, card.clone()))
-            else {
-                continue;
-            };
-            let destination = Self::additional_cost_destination(spend, from);
-            let owner = card.owner;
-            // "One or more cards" exiled from a graveyard by one payment is
-            // one move and therefore one trigger event. Keep that upstream
-            // batching while retaining each object's own spend provenance:
-            // a following return-to-hand object is not part of this batch.
-            if from == ZoneKind::Graveyard && destination == ZoneKind::Exile {
-                self.exile_graveyard_payment_batch(
-                    owner,
-                    spent,
-                    &mut remaining_sacrifices,
-                    &mut stack_object.chosen_permanents,
-                );
-                continue;
-            }
-            let moved = self.move_card_from_nonbattlefield_zone(
+            self.pay_nonbattlefield_spell_object_cost(
+                stack_object.controller,
                 spent,
-                from,
-                destination,
-                ZoneMoveCause::Effect {
-                    controller: stack_object.controller,
-                },
-                None,
+                cost,
+                &mut remaining_sacrifices,
+                &mut stack_object.chosen_permanents,
             );
-            if from == ZoneKind::Hand
-                && destination == ZoneKind::Graveyard
-                && let Some((card, actual_destination)) = moved
-                && actual_destination == ZoneKind::Graveyard
-            {
-                self.events.push(GameEvent::CardsDiscarded {
-                    player: owner,
-                    cards: vec![(card.id, card.definition)],
-                });
-                let discarded = self.printed_trigger_event_object(
-                    card.id,
-                    card.definition,
-                    owner,
-                    &CharacteristicContext::Graveyard,
-                );
-                self.capture_battlefield_triggers(&CommittedTriggerEvent::Discarded {
-                    player: owner,
-                    card: discarded,
-                });
-                self.capture_battlefield_triggers(&CommittedTriggerEvent::CardsDiscarded {
-                    player: owner,
-                });
-            }
         }
 
         Some((stack_object, targets))
     }
 
-    const fn additional_cost_destination(spend: SpendModeDef, from: ZoneKind) -> ZoneKind {
-        match spend {
-            SpendModeDef::ReturnToHand => ZoneKind::Hand,
-            SpendModeDef::ByZone if matches!(from, ZoneKind::Hand | ZoneKind::Battlefield) => {
-                ZoneKind::Graveyard
+    fn pay_nonbattlefield_spell_object_cost(
+        &mut self,
+        controller: PlayerId,
+        spent: GameObjectId,
+        cost: SpellAdditionalCostDef,
+        remaining_payments: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        paid_objects: &mut Vec<GameObjectId>,
+    ) {
+        let Some((from, card)) = self
+            .card_in_nonbattlefield_zone(spent)
+            .map(|(zone, card)| (zone, card.clone()))
+        else {
+            return;
+        };
+        let destination = match cost {
+            SpellAdditionalCostDef::Discard { .. } => ZoneKind::Graveyard,
+            SpellAdditionalCostDef::Exile { .. } => ZoneKind::Exile,
+            _ => unreachable!("battlefield costs were handled above"),
+        };
+        let owner = card.owner;
+        // "One or more cards" exiled from a graveyard by one payment is one
+        // move and therefore one trigger event. A following payment action is
+        // not part of this batch.
+        if matches!(
+            cost,
+            SpellAdditionalCostDef::Exile {
+                from: ZoneKind::Graveyard,
+                ..
             }
-            SpendModeDef::Exile | SpendModeDef::ByZone => ZoneKind::Exile,
+        ) {
+            self.exile_graveyard_payment_batch(
+                owner,
+                spent,
+                remaining_payments,
+                paid_objects,
+            );
+            return;
+        }
+        let discarded = if matches!(cost, SpellAdditionalCostDef::Discard { .. }) {
+            self.printed_trigger_event_object(
+                card.id,
+                card.definition,
+                owner,
+                &CharacteristicContext::Hand,
+            )
+        } else {
+            None
+        };
+        let moved = self.move_card_from_nonbattlefield_zone(
+            spent,
+            from,
+            destination,
+            ZoneMoveCause::Effect { controller },
+            None,
+        );
+        if let (Some(discarded), Some((card, _actual_destination))) = (discarded, moved) {
+            self.events.push(GameEvent::CardsDiscarded {
+                player: owner,
+                cards: vec![(card.id, card.definition)],
+            });
+            self.capture_battlefield_triggers(&CommittedTriggerEvent::Discarded {
+                player: owner,
+                card: Some(discarded),
+            });
+            self.capture_battlefield_triggers(&CommittedTriggerEvent::CardsDiscarded {
+                player: owner,
+            });
         }
     }
 
@@ -140,7 +170,7 @@ impl Game {
         &mut self,
         owner: PlayerId,
         spent: GameObjectId,
-        remaining_sacrifices: &mut Vec<(GameObjectId, SpendModeDef)>,
+        remaining_sacrifices: &mut Vec<(GameObjectId, SpellAdditionalCostDef)>,
         paid_objects: &mut Vec<GameObjectId>,
     ) {
         let mut exiled = Vec::new();
@@ -158,13 +188,17 @@ impl Game {
                 remaining_sacrifices
                     .first()
                     .copied()
-                    .and_then(|(candidate, candidate_spend)| {
+                    .and_then(|(candidate, candidate_cost)| {
                         let (candidate_zone, candidate_card) =
                             self.card_in_nonbattlefield_zone(candidate)?;
-                        let candidate_destination =
-                            Self::additional_cost_destination(candidate_spend, candidate_zone);
                         (candidate_zone == ZoneKind::Graveyard
-                            && candidate_destination == ZoneKind::Exile
+                            && matches!(
+                                candidate_cost,
+                                SpellAdditionalCostDef::Exile {
+                                    from: ZoneKind::Graveyard,
+                                    ..
+                                }
+                            )
                             && candidate_card.owner == owner)
                             .then_some(candidate)
                     });

@@ -7,16 +7,16 @@ use crate::card::{
     AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
     ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
+    CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
     ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
     ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PileExileDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, RoundingDef, SetOperationDef, SimultaneousChooseDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, SumValueDef,
-    TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
+    RevealObjectsDef, RoundingDef, SetOperationDef, SimultaneousChooseDef, SpellAdditionalCostDef,
+    SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities,
+    tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -575,9 +575,11 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
             // The escape cost counts card types rather than cards: one Artifact
             // Creature Land pays three quarters of it by itself, which is why the deck
             // playing this is the one with a graveyard full of odd things.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 0)
-                    .counted(SpellAdditionalCostCountDef::CardTypesAtLeast(4))
-                    .spent(SpendModeDef::Exile)),
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::CardTypesAtLeast(4),
+            )),
         ]),
 );
 
@@ -682,9 +684,11 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
             )
             // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
             // mana values add up to six, however many that takes.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 0)
-                    .counted(SpellAdditionalCostCountDef::TotalManaValueAtLeast(6))
-                    .spent(SpendModeDef::Exile))
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::TotalManaValueAtLeast(6),
+            ))
             .with_alternative_from_graveyard(),
             abilities::flying(),
             abilities::haste(),
@@ -1012,9 +1016,8 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                                 EffectDef::None,
                             )
                             // Retrace's own cost: the card's mana cost, plus a land out of your hand.
-                            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+                            .with_alternative_additional_cost(&SpellAdditionalCostDef::discard(
                                 ObjectPredicateDef::HasType(CardType::Land),
-                                ZoneKind::Hand,
                                 1,
                             )),
                         }),
@@ -1266,8 +1269,11 @@ pub(in crate::card::sets) static PHLAGE_TITAN_OF_FIRES_FURY: CardRecord =
                 // Five cards out of your own graveyard, exiled to pay. The card being cast
                 // is on the stack by the time costs are paid, so "other" takes care of
                 // itself: it is not there to be chosen.
-                .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 5)
-                        .spent(SpendModeDef::Exile)),
+                .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+                    ObjectPredicateDef::Any,
+                    ZoneKind::Graveyard,
+                    5,
+                )),
             ]),
     );
 
@@ -2397,9 +2403,8 @@ pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
                 ),
                 EffectDef::None,
             )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
-                ZoneKind::Battlefield,
                 1,
             )),
             // The free cast happens as the trigger resolves; what is not cast then

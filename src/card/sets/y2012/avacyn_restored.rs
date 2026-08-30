@@ -13,9 +13,9 @@ use crate::card::{
     EffectRecipientDef, KeywordAbility, ManaColor, ManaRestrictionDef, ManaSpendEffectDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostCountDef, SpellAdditionalCostDef,
-    SpendModeDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1791,15 +1791,7 @@ pub(in crate::card::sets) static BONE_SPLINTERS: CardRecord = CardRecord::new_wi
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
-        SpellAdditionalCostDef {
-            or_life: None,
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zone: ZoneKind::Battlefield,
-            count: 1,
-            counted: SpellAdditionalCostCountDef::Printed,
-            spend: SpendModeDef::ByZone,
-            or: None,
-        },
+        SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Creature), 1),
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             can_regenerate: true,

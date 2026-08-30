@@ -21,7 +21,7 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
             AbilityCostDef::MoveToZone(movement)
                 if movement.from == ZoneKind::Graveyard
                     && movement.to == ZoneKind::Exile
-                    && movement.count == 1 =>
+                    && movement.fixed_count() == Some(1) =>
             {
                 movement.binding
             }
@@ -139,8 +139,10 @@ pub(in super::super) fn shared_activated_costs(
                 battlefield
                     && matches!(movement.from, ZoneKind::Hand | ZoneKind::Graveyard)
                     && movement.to == ZoneKind::Exile
-                    && movement.count > 0
-                    && movement.binding.is_none_or(|_| movement.count == 1)
+                    && movement.fixed_count().is_some_and(|count| count > 0)
+                    && movement
+                        .binding
+                        .is_none_or(|_| movement.fixed_count() == Some(1))
                     && shared_object_predicate(movement.object)
             }
             // What pays the tap is out on the battlefield wherever the
@@ -223,26 +225,78 @@ pub(in super::super) fn shared_activated_costs(
         })
 }
 
-/// Only one object is chosen, and only from the two places the casting
-/// enumeration looks: the caster's own battlefield and graveyard.
 pub(in super::super) fn shared_spell_additional_cost(cost: Option<SpellAdditionalCostDef>) -> bool {
-    let Some(cost) = cost else {
-        return true;
-    };
-    // Each way of paying has to be one the runtime can enumerate, and all of
-    // them have to spend what they name the same way: the payment path reads
-    // one spend mode for the whole cost, and picks the zone per object.
-    cost.alternatives().into_iter().all(|alternative| {
-        alternative.spend == cost.spend
-            // A cost counted from something else has no printed number to
-            // check: what makes it payable is the X the spell is cast for,
-            // or how many modes were chosen.
-            && (alternative.counted != crate::card::SpellAdditionalCostCountDef::Printed
-                || alternative.count >= 1)
-            && matches!(
-                alternative.zone,
+    cost.is_none_or(shared_spell_additional_cost_def)
+}
+
+fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
+    match cost {
+        SpellAdditionalCostDef::PayMana(_)
+        | SpellAdditionalCostDef::PayLife(_)
+        | SpellAdditionalCostDef::Forage => true,
+        SpellAdditionalCostDef::Sacrifice { object, quantity }
+        | SpellAdditionalCostDef::Discard { object, quantity }
+        | SpellAdditionalCostDef::ReturnToHand { object, quantity } => {
+            shared_cost_quantity(quantity) && shared_object_predicate(object)
+        }
+        SpellAdditionalCostDef::Exile {
+            object,
+            from,
+            quantity,
+        } => {
+            matches!(
+                from,
                 ZoneKind::Battlefield | ZoneKind::Graveyard | ZoneKind::Hand
-            )
-            && shared_object_predicate(alternative.object)
-    })
+            ) && shared_cost_quantity(quantity)
+                && shared_object_predicate(object)
+        }
+        SpellAdditionalCostDef::All(costs) => {
+            !costs.is_empty() && costs.iter().copied().all(shared_spell_additional_cost_def)
+        }
+        SpellAdditionalCostDef::Choice(costs) => {
+            !costs.is_empty()
+                && costs.iter().copied().all(shared_spell_additional_cost_def)
+                // Cast actions currently carry the selected objects, not a
+                // separate cost-branch ID. Two objectless branches would
+                // therefore serialize identically and could not be replayed
+                // unambiguously.
+                && costs
+                    .iter()
+                    .copied()
+                    .filter(|cost| spell_cost_can_be_objectless(*cost))
+                    .count()
+                    <= 1
+        }
+    }
+}
+
+fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
+    match cost {
+        SpellAdditionalCostDef::PayMana(_) | SpellAdditionalCostDef::PayLife(_) => true,
+        SpellAdditionalCostDef::Sacrifice { quantity, .. }
+        | SpellAdditionalCostDef::Discard { quantity, .. }
+        | SpellAdditionalCostDef::Exile { quantity, .. }
+        | SpellAdditionalCostDef::ReturnToHand { quantity, .. } => matches!(
+            quantity,
+            crate::card::CostQuantityDef::ChosenX
+                | crate::card::CostQuantityDef::ModesBeyondFirst(_)
+        ),
+        SpellAdditionalCostDef::Forage => false,
+        SpellAdditionalCostDef::All(costs) => {
+            costs.iter().copied().all(spell_cost_can_be_objectless)
+        }
+        SpellAdditionalCostDef::Choice(costs) => {
+            costs.iter().copied().any(spell_cost_can_be_objectless)
+        }
+    }
+}
+
+fn shared_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
+    match quantity {
+        crate::card::CostQuantityDef::Fixed(count) => count >= 1,
+        crate::card::CostQuantityDef::ChosenX
+        | crate::card::CostQuantityDef::ModesBeyondFirst(_)
+        | crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
+        | crate::card::CostQuantityDef::CardTypesAtLeast(_) => true,
+    }
 }

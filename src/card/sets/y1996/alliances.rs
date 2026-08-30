@@ -391,14 +391,11 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
             ),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(
-            &SpellAdditionalCostDef::new(
-                ObjectPredicateDef::Color(ManaColor::Blue),
-                ZoneKind::Hand,
-                1,
-            )
-            .spent(SpendModeDef::Exile),
-        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Color(ManaColor::Blue),
+            ZoneKind::Hand,
+            1,
+        ))
         .with_alternative_life(1),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
@@ -1014,8 +1011,11 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
         )
         // Exiled from hand rather than discarded: the card is spent without ever
         // becoming a graveyard card, which is what "exile a red card" means.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
-                .spent(SpendModeDef::Exile)),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Color(ManaColor::Red),
+            ZoneKind::Hand,
+            1,
+        )),
         AbilityDef::spell_with_targets(
             "Pyrokinesis deals 4 damage divided as you choose among any number of target creatures.",
             // Four damage split however the caster likes. There is no printed ceiling on

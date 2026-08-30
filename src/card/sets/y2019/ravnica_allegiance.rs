@@ -2,7 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, InstalledTriggerDef, PlayerRelation,
+    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
+    InstalledTriggerDef, ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef,
     TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::mana_cost;
@@ -49,6 +50,37 @@ pub(in crate::card::sets) static SKEWER_THE_CRITICS: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// RNA 171 — Final Payment
+pub(in crate::card::sets) static FINAL_PAYMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("49a21a8f-9c7b-4ae8-8635-f2ee2151c8de"),
+    "Final Payment",
+    CardArt::new(
+        "49a21a8f-9c7b-4ae8-8635-f2ee2151c8de",
+        "Victor Adame Minguez",
+    ),
+    CardSet::RavnicaAllegiance,
+    CardRules::new_instant(mana_cost!("{W}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, pay 5 life or sacrifice a creature or \
+             enchantment.\nDestroy target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            SpellAdditionalCostDef::choice(&[
+                SpellAdditionalCostDef::pay_life(5),
+                SpellAdditionalCostDef::sacrifice(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    1,
+                ),
+            ]),
+            EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),
+        ),
+    ),
+);
+
 // RNA 172 — Fireblade Artist
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
@@ -59,7 +91,11 @@ pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&SPHINX_OF_FORESIGHT, &SKEWER_THE_CRITICS, &FIREBLADE_ARTIST];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &SPHINX_OF_FORESIGHT,
+    &SKEWER_THE_CRITICS,
+    &FINAL_PAYMENT,
+    &FIREBLADE_ARTIST,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

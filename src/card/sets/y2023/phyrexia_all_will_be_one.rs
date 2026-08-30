@@ -5,7 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
     MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef,
-    RevealObjectsDef, SacrificedAmountDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, mana_cost};
 
@@ -17,6 +18,35 @@ pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new
     crate::card::CardArt::new("8ee69a1f-aeed-4eb4-8987-fa720fc99715", "Campbell White"),
     crate::card::CardSet::PhyrexiaAllWillBeOne,
     crate::card::CardRules::unsupported(),
+);
+
+// ONE 80 — Annihilating Glare
+pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("be5d0b95-ec12-4e8e-99a0-7aca457f9107"),
+    "Annihilating Glare",
+    CardArt::new("be5d0b95-ec12-4e8e-99a0-7aca457f9107", "Konstantin Porubov"),
+    CardSet::PhyrexiaAllWillBeOne,
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_additional_cost(
+        "As an additional cost to cast this spell, pay {4} or sacrifice an artifact or \
+             creature.\nDestroy target creature or planeswalker.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Planeswalker),
+            ]),
+        )],
+        SpellAdditionalCostDef::choice(&[
+            SpellAdditionalCostDef::pay_mana(mana_cost!("{4}")),
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                1,
+            ),
+        ]),
+        EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),
+    )),
 );
 
 // ONE 108 — Sheoldred's Edict
@@ -240,6 +270,7 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLANAR_DISRUPTION,
+    &ANNIHILATING_GLARE,
     &SHEOLDRED_S_EDICT,
     &BARBED_BATTERFIST,
     &FURNACE_STRIDER,

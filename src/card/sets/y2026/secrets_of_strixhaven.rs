@@ -1,6 +1,11 @@
 //! SOS card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{
+    AbilityDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind,
+};
+use crate::mana_cost;
 
 // SOS 12 — Elite Interceptor
 // Audit: metadata-only — Card rules have not been implemented.
@@ -30,6 +35,37 @@ pub(in crate::card::sets) static SPELLBOOK_SEEKER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("cc44eaa4-59a4-419e-b1d1-d92f354ff588", "Scott Murphy"),
     crate::card::CardSet::SecretsOfStrixhaven,
     crate::card::CardRules::unsupported(),
+);
+
+// SOS 241 — Vicious Rivalry
+pub(in crate::card::sets) static VICIOUS_RIVALRY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6fa9cd18-3181-4373-ab65-49bf9de9487f"),
+    "Vicious Rivalry",
+    CardArt::new("6fa9cd18-3181-4373-ab65-49bf9de9487f", "Chris Rallis"),
+    CardSet::SecretsOfStrixhaven,
+    CardRules::new_sorcery(mana_cost!("{2}{B}{G}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, pay X life.\nDestroy all artifacts and \
+             creatures with mana value X or less.",
+            &[],
+            SpellAdditionalCostDef::pay_x_life(),
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // SOS 242 — Visionary's Dance
@@ -102,6 +138,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ELITE_INTERCEPTOR,
     &DELUGE_VIRTUOSO,
     &SPELLBOOK_SEEKER,
+    &VICIOUS_RIVALRY,
     &VISIONARY_S_DANCE,
     &FIELDS_OF_STRIFE,
     &FORUM_OF_AMITY,

@@ -14,10 +14,10 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    CostQuantityDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -1751,9 +1751,11 @@ pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_
             &[],
             // X cards from your own graveyard, exiled as the spell is cast. The count is
             // the X it is cast for, so a big Scrying costs the graveyard that fed it.
-            SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 0)
-                    .counted_in_x()
-                    .spent(SpendModeDef::Exile),
+            SpellAdditionalCostDef::exile_with_quantity(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::ChosenX,
+            ),
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,

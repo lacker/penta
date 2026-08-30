@@ -7,7 +7,7 @@ use crate::card::{
     CardType, ComparisonDef, CounterKind, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    SpendModeDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -429,12 +429,10 @@ pub(in crate::card::sets) static DAZE: CardRecord = CardRecord::new_with_legacy_
         )
         // One Island back to hand, which is what makes the card free on turn one and
         // a real cost on turn six.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            ZoneKind::Battlefield,
             1,
-        )
-        .spent(SpendModeDef::ReturnToHand)),
+        )),
     ]),
 );
 

@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
     EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef, PlayerRelation,
-    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellLifeCostDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
     ValueDef, ZoneKind,
 };
 use crate::{TargetIndex, mana_cost};
@@ -81,7 +81,7 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
-        .with_spell_life_cost(SpellLifeCostDef::variable()),
+        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_x_life()),
     ),
 );
 

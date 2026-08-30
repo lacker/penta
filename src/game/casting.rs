@@ -17,7 +17,7 @@ include!("casting/object_costs.rs");
 include!("casting/scalar_choices.rs");
 
 use crate::card::{
-    BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellLifeCostDef, SpendModeDef,
+    BattlefieldEntryScalarChoiceDef, CardSet, ScalarChoiceListDef, SpellAdditionalCostDef,
 };
 
 impl Game {
@@ -556,7 +556,7 @@ impl Game {
         &mut self,
         mut stack_object: StackObject,
         targets: Vec<Target>,
-        object_payments: Vec<(GameObjectId, SpendModeDef)>,
+        object_payments: Vec<(GameObjectId, SpellAdditionalCostDef)>,
         cost: ManaCost,
         x: u16,
         purpose: ManaPaymentPurpose,

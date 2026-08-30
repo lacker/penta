@@ -6,8 +6,8 @@ use crate::card::{
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -231,6 +231,32 @@ pub(in crate::card::sets) static THUNDERTRAP_TRAINER: CardRecord = CardRecord::n
     ]),
 );
 
+// BLB 94 — Feed the Cycle
+pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("7e017ff8-2936-4a1b-bece-00004cfbad06"),
+    "Feed the Cycle",
+    CardArt::new("7e017ff8-2936-4a1b-bece-00004cfbad06", "Donato Giancola"),
+    CardSet::Bloomburrow,
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, forage or pay {B}. (To forage, exile \
+             three cards from your graveyard or sacrifice a Food.)\nDestroy target creature or \
+             planeswalker.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+            )],
+            SpellAdditionalCostDef::choice(&[
+                SpellAdditionalCostDef::forage(),
+                SpellAdditionalCostDef::pay_mana(mana_cost!("{B}")),
+            ]),
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
+);
+
 // BLB 208 — Cindering Cutthroat
 // Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
@@ -329,6 +355,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KITSA_OTTERBALL_ELITE,
     &STORMCHASERS_TALENT,
     &THUNDERTRAP_TRAINER,
+    &FEED_THE_CYCLE,
     &CINDERING_CUTTHROAT,
     &TEMPEST_ANGLER,
     &HIDDEN_GROTTO,

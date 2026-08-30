@@ -15,6 +15,10 @@ use super::super::{
     TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
     extra_target_cost,
 };
+use crate::card::{ObjectPredicateDef, SpellAdditionalCostDef};
+use crate::game::casting_actions::{
+    CastScale, SpellAdditionalCostPayment, SpellAdditionalCostRequest,
+};
 
 impl Game {
     pub(in crate::game) fn mode_selection_is_valid(
@@ -268,21 +272,66 @@ impl Game {
             return None;
         }
         cost = add_mana_cost(cost, self.total_splice_cost(choices.spliced()));
-        // X comes from the mana cost's {X} or from a printed "pay X life",
-        // and a spell with neither is cast for nothing at all.
-        let life_cost = Self::spell_life_cost(definition, option);
-        let x_is_chosen = cost.variable_x || life_cost.is_some_and(|cost| cost.amount_is_x);
+        // X comes from the mana cost or any selected semantic additional
+        // cost. A spell with none is cast for zero.
+        let additional_x = self.maximum_x_for_spell_additional_costs(
+            definition,
+            option,
+            choices.costs(),
+            card,
+            player,
+            offer.map(|offer| offer.cost),
+        );
+        let x_is_chosen = cost.variable_x || additional_x.is_some();
         if !x_is_chosen && choices.x() != 0 {
             return None;
         }
-        let cast_life = self.configured_cast_life_payment(
-            definition,
-            option,
-            card_id,
-            choices.costs(),
-            choices.x(),
-            offer.map(|offer| offer.cost),
-        );
+        if additional_x.is_some_and(|maximum| choices.x() > maximum) {
+            return None;
+        }
+        let additional_payment = if behavior == CardBehavior::GoblinGrenade {
+            SpellAdditionalCostPayment {
+                objects: sacrifices
+                    .iter()
+                    .copied()
+                    .map(|object| {
+                        (
+                            object,
+                            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::Any, 1),
+                        )
+                    })
+                    .collect(),
+                mana: ManaCost::default(),
+                life: 0,
+            }
+        } else {
+            self.spell_additional_cost_payment_for_objects(
+                SpellAdditionalCostRequest {
+                    definition,
+                    option,
+                    costs: choices.costs(),
+                    card,
+                    player,
+                    scale: CastScale {
+                        x: choices.x(),
+                        modes: choices.modes().len(),
+                        offer: offer.map(|offer| offer.cost),
+                    },
+                },
+                sacrifices,
+            )?
+        };
+        cost = add_mana_cost(cost, additional_payment.mana);
+        let cast_life = self
+            .configured_cast_life_payment(
+                definition,
+                option,
+                card_id,
+                choices.costs(),
+                choices.x(),
+                offer.map(|offer| offer.cost),
+            )
+            .saturating_add(additional_payment.life);
         let library_life = if source_zone == CastSourceZone::LibraryTop {
             self.library_top_life_cost(card, player, option)
                 .unwrap_or(0)
@@ -374,7 +423,7 @@ impl Game {
             cost,
             choices.x(),
             &payment_purpose,
-            &[],
+            sacrifices,
             life_available,
         ) {
             return None;

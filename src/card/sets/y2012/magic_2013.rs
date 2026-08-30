@@ -25,9 +25,8 @@ use crate::card::{
     MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -3033,15 +3032,7 @@ pub(in crate::card::sets) static WILD_GUESS: CardRecord = CardRecord::new_with_l
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, discard a card.\nDraw two cards.",
             &[],
-            SpellAdditionalCostDef {
-                or_life: None,
-                object: ObjectPredicateDef::Any,
-                zone: ZoneKind::Hand,
-                count: 1,
-                counted: SpellAdditionalCostCountDef::Printed,
-                spend: SpendModeDef::ByZone,
-                or: None,
-            },
+            SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, 1),
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(2),

@@ -10,9 +10,9 @@ use super::{
     ImplementationStatus, KeywordAbility, ManaCost, ModalSpellDef,
     OptionalAdditionalCostAbilityDef, PregameAbilityDef, PregameConditionDef, PregameTimingDef,
     ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef, SpellLifeCostDef,
-    SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef, TriggerEventDef,
-    TriggeredAbilityDef, ValueDef, ZoneKind,
+    SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
+    StaticAbilityDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef,
+    ZoneKind,
 };
 
 /// One printed rules clause and its implementation.
@@ -53,21 +53,6 @@ impl AbilityDef {
             ),
             effect,
         )
-    }
-
-    /// A spell that pays life as it is cast, in addition to its mana.
-    ///
-    /// # Panics
-    ///
-    /// Panics for any ability that is not a nonmodal spell, since nothing
-    /// else carries a spell's additional cost.
-    #[must_use]
-    pub const fn with_spell_life_cost(mut self, cost: SpellLifeCostDef) -> Self {
-        let DeclarativeAbilityDef::Spell(spell) = self.definition else {
-            panic!("only a spell has an additional cost");
-        };
-        self.definition = DeclarativeAbilityDef::Spell(spell.with_life_cost(cost));
-        self
     }
 
     #[must_use]

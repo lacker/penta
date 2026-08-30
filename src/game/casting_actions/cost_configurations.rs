@@ -15,6 +15,8 @@ use super::super::{
 use crate::card::SpellAdditionalCostDef;
 use crate::game::ManaPaymentPurpose;
 
+include!("cost_configurations/object_combinations.rs");
+
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, and how many modes it was cast with.
 #[derive(Clone, Copy)]
@@ -22,6 +24,54 @@ pub(in crate::game) struct CastScale {
     pub(in crate::game) x: u16,
     pub(in crate::game) modes: usize,
     pub(in crate::game) offer: Option<CastOfferCost>,
+}
+
+#[derive(Clone, Copy)]
+pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
+    pub(in crate::game) definition: &'a CardDefinition,
+    pub(in crate::game) option: &'a PlayOptionDef,
+    pub(in crate::game) costs: &'a CostConfiguration,
+    pub(in crate::game) card: &'a CardInstance,
+    pub(in crate::game) player: PlayerId,
+    pub(in crate::game) scale: CastScale,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(in crate::game) struct SpellAdditionalCostPayment {
+    pub(in crate::game) objects: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+    pub(in crate::game) mana: ManaCost,
+    pub(in crate::game) life: u16,
+}
+
+impl SpellAdditionalCostPayment {
+    fn free() -> Self {
+        Self {
+            objects: Vec::new(),
+            mana: ManaCost::default(),
+            life: 0,
+        }
+    }
+
+    fn combine(&self, other: &Self) -> Option<Self> {
+        if other
+            .objects
+            .iter()
+            .any(|(object, _)| self.objects.iter().any(|(paid, _)| paid == object))
+        {
+            return None;
+        }
+        let mut objects = self.objects.clone();
+        objects.extend(other.objects.iter().copied());
+        Some(Self {
+            objects,
+            mana: add_mana_cost(self.mana, other.mana),
+            life: self.life.saturating_add(other.life),
+        })
+    }
+
+    pub(in crate::game) fn object_ids(&self) -> Vec<GameObjectId> {
+        self.objects.iter().map(|(object, _)| *object).collect()
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -34,7 +84,7 @@ struct PrintedAlternativeRequest<'a> {
 }
 
 impl Game {
-    pub(in crate::game) fn selected_object_additional_costs(
+    pub(in crate::game) fn selected_spell_additional_costs(
         &self,
         definition: &CardDefinition,
         option: &PlayOptionDef,
@@ -88,10 +138,73 @@ impl Game {
         required
     }
 
-    /// Every way to pay a spell's declarative additional cost. A spell with
-    /// none has exactly one way to pay it: spend nothing. A spell with one it
-    /// cannot afford has none at all, which is what stops it being offered.
-    pub(in crate::game) fn additional_cost_choices(
+    /// The largest X that the selected semantic additional costs can pay.
+    pub(in crate::game) fn maximum_x_for_spell_additional_costs(
+        &self,
+        definition: &CardDefinition,
+        option: &PlayOptionDef,
+        costs: &CostConfiguration,
+        card: &CardInstance,
+        player: PlayerId,
+        offer: Option<CastOfferCost>,
+    ) -> Option<u16> {
+        self.selected_spell_additional_costs(definition, option, costs, card, offer)
+            .into_iter()
+            .filter_map(|cost| self.maximum_x_for_spell_additional_cost(cost, card, player))
+            .min()
+    }
+
+    fn maximum_x_for_spell_additional_cost(
+        &self,
+        cost: SpellAdditionalCostDef,
+        card: &CardInstance,
+        player: PlayerId,
+    ) -> Option<u16> {
+        match cost {
+            SpellAdditionalCostDef::PayLife(life) if life.amount_is_x => {
+                Some(self.maximum_x_for_life(player))
+            }
+            SpellAdditionalCostDef::Sacrifice {
+                quantity: crate::card::CostQuantityDef::ChosenX,
+                ..
+            }
+            | SpellAdditionalCostDef::Discard {
+                quantity: crate::card::CostQuantityDef::ChosenX,
+                ..
+            }
+            | SpellAdditionalCostDef::Exile {
+                quantity: crate::card::CostQuantityDef::ChosenX,
+                ..
+            }
+            | SpellAdditionalCostDef::ReturnToHand {
+                quantity: crate::card::CostQuantityDef::ChosenX,
+                ..
+            } => Some(
+                u16::try_from(self.additional_cost_candidates(cost, card, player).len())
+                    .unwrap_or(u16::MAX),
+            ),
+            SpellAdditionalCostDef::All(costs) => costs
+                .iter()
+                .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
+                .min(),
+            SpellAdditionalCostDef::Choice(costs) => costs
+                .iter()
+                .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
+                .max(),
+            SpellAdditionalCostDef::PayMana(_)
+            | SpellAdditionalCostDef::PayLife(_)
+            | SpellAdditionalCostDef::Sacrifice { .. }
+            | SpellAdditionalCostDef::Discard { .. }
+            | SpellAdditionalCostDef::Exile { .. }
+            | SpellAdditionalCostDef::ReturnToHand { .. }
+            | SpellAdditionalCostDef::Forage => None,
+        }
+    }
+
+    /// Every semantic way to pay the selected spell costs. Named object
+    /// actions stay attached to their objects through execution; scalar mana
+    /// and life payments travel beside them.
+    pub(in crate::game) fn spell_additional_cost_payments(
         &self,
         definition: &CardDefinition,
         option: &PlayOptionDef,
@@ -99,47 +212,23 @@ impl Game {
         card: &CardInstance,
         player: PlayerId,
         scale: CastScale,
-    ) -> Vec<Vec<GameObjectId>> {
+    ) -> Vec<SpellAdditionalCostPayment> {
         let required =
-            self.selected_object_additional_costs(definition, option, costs, card, scale.offer);
+            self.selected_spell_additional_costs(definition, option, costs, card, scale.offer);
         if required.is_empty() {
-            return vec![Vec::new()];
+            return vec![SpellAdditionalCostPayment::free()];
         }
 
-        let mut combined = vec![Vec::new()];
+        let mut combined = vec![SpellAdditionalCostPayment::free()];
         for cost in required {
-            // "Sacrifice a creature or discard a card" is one cost with two
-            // ways to pay it, so the ways for this one cost are a union.
-            let mut ways = Vec::new();
-            for alternative in cost.alternatives() {
-                for payment in self.additional_cost_payments(alternative, card, player, scale) {
-                    if !ways.contains(&payment) {
-                        ways.push(payment);
-                    }
-                }
-            }
-            // "... or pay N life" spends no object, so the way it is paid is
-            // the empty one. Offered only when the life is there: paying
-            // down to exactly zero is legal (CR 118.4), below it is not.
-            if cost
-                .life_alternatives()
-                .into_iter()
-                .any(|life| i64::from(life) <= i64::from(self.players[player.index()].life))
-                && !ways.contains(&Vec::new())
-            {
-                ways.push(Vec::new());
-            }
-            // Separate additional costs all have to be paid. Form their
-            // Cartesian product without allowing one object to pay twice.
+            let ways = self.spell_additional_cost_payment_options(cost, card, player, scale);
             let mut next = Vec::new();
             for paid in &combined {
                 for way in &ways {
-                    if way.iter().any(|object| paid.contains(object)) {
-                        continue;
-                    }
-                    let mut payment = paid.clone();
-                    payment.extend(way);
-                    if !next.contains(&payment) {
+                    if let Some(payment) = paid.combine(way)
+                        && i64::from(payment.life) <= i64::from(self.players[player.index()].life)
+                        && !next.contains(&payment)
+                    {
                         next.push(payment);
                     }
                 }
@@ -149,69 +238,188 @@ impl Game {
         combined
     }
 
-    /// How many objects one additional cost spends. A collect-evidence cost
-    /// has no printed answer: it takes whatever reaches its total, which is
-    /// `remaining` -- the objects the payment still has left over after the
-    /// counted costs before it. No card prints two of them, so there is
-    /// never a second one to divide the remainder with.
-    pub(in crate::game) fn additional_cost_object_count(
-        cost: SpellAdditionalCostDef,
-        scale: CastScale,
-        remaining: usize,
-    ) -> usize {
-        match cost.counted {
-            crate::card::SpellAdditionalCostCountDef::Printed => usize::from(cost.count),
-            crate::card::SpellAdditionalCostCountDef::ChosenX => usize::from(scale.x),
-            crate::card::SpellAdditionalCostCountDef::ModesBeyondFirst => {
-                usize::from(cost.count).saturating_mul(scale.modes.saturating_sub(1))
-            }
-            // Both open-ended measures take whatever the payment had left.
-            crate::card::SpellAdditionalCostCountDef::TotalManaValueAtLeast(_)
-            | crate::card::SpellAdditionalCostCountDef::CardTypesAtLeast(_) => remaining,
-        }
-    }
-
-    /// The spend operation paired with each object in one generated action.
-    /// `additional_cost_choices` concatenates costs in this same order, so
-    /// carrying the parallel list through payment preserves each cost's
-    /// provenance without changing the public action shape.
-    pub(in crate::game) fn additional_cost_spend_modes(
+    pub(in crate::game) fn spell_additional_cost_payment_for_objects(
         &self,
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        costs: &CostConfiguration,
-        card: &CardInstance,
-        scale: CastScale,
-        paid_objects: usize,
-    ) -> Vec<crate::card::SpendModeDef> {
-        let mut modes = Vec::new();
-        let mut remaining = paid_objects;
-        for cost in
-            self.selected_object_additional_costs(definition, option, costs, card, scale.offer)
-        {
-            let count = Self::additional_cost_object_count(cost, scale, remaining);
-            remaining = remaining.saturating_sub(count);
-            modes.extend(core::iter::repeat_n(cost.spend, count));
-        }
-        modes
+        request: SpellAdditionalCostRequest<'_>,
+        objects: &[GameObjectId],
+    ) -> Option<SpellAdditionalCostPayment> {
+        let SpellAdditionalCostRequest {
+            definition,
+            option,
+            costs,
+            card,
+            player,
+            scale,
+        } = request;
+        self.spell_additional_cost_payments(definition, option, costs, card, player, scale)
+            .into_iter()
+            .find(|payment| payment.object_ids() == objects)
     }
 
-    /// Every way to pay one half of a spell's additional cost.
-    fn additional_cost_payments(
+    fn spell_additional_cost_payment_options(
         &self,
         cost: SpellAdditionalCostDef,
         card: &CardInstance,
         player: PlayerId,
         scale: CastScale,
-    ) -> Vec<Vec<GameObjectId>> {
-        let candidates: Vec<GameObjectId> = match cost.zone {
+    ) -> Vec<SpellAdditionalCostPayment> {
+        match cost {
+            SpellAdditionalCostDef::PayMana(mana) => vec![SpellAdditionalCostPayment {
+                objects: Vec::new(),
+                mana,
+                life: 0,
+            }],
+            SpellAdditionalCostDef::PayLife(life) => {
+                let amount = if life.amount_is_x {
+                    scale.x
+                } else {
+                    u16::from(life.amount)
+                };
+                (i64::from(amount) <= i64::from(self.players[player.index()].life))
+                    .then_some(SpellAdditionalCostPayment {
+                        objects: Vec::new(),
+                        mana: ManaCost::default(),
+                        life: amount,
+                    })
+                    .into_iter()
+                    .collect()
+            }
+            SpellAdditionalCostDef::Forage => {
+                let forage = [
+                    SpellAdditionalCostDef::exile(
+                        crate::card::ObjectPredicateDef::Any,
+                        ZoneKind::Graveyard,
+                        3,
+                    ),
+                    SpellAdditionalCostDef::sacrifice(
+                        crate::card::ObjectPredicateDef::Subtype("Food"),
+                        1,
+                    ),
+                ];
+                forage
+                    .into_iter()
+                    .flat_map(|cost| {
+                        self.spell_additional_cost_payment_options(cost, card, player, scale)
+                    })
+                    .collect()
+            }
+            SpellAdditionalCostDef::Choice(costs) => costs
+                .iter()
+                .flat_map(|cost| {
+                    self.spell_additional_cost_payment_options(*cost, card, player, scale)
+                })
+                .collect(),
+            SpellAdditionalCostDef::All(costs) => {
+                let mut combined = vec![SpellAdditionalCostPayment::free()];
+                for cost in costs {
+                    let ways =
+                        self.spell_additional_cost_payment_options(*cost, card, player, scale);
+                    let mut next = Vec::new();
+                    for paid in &combined {
+                        for way in &ways {
+                            if let Some(payment) = paid.combine(way)
+                                && !next.contains(&payment)
+                            {
+                                next.push(payment);
+                            }
+                        }
+                    }
+                    combined = next;
+                }
+                combined
+            }
+            SpellAdditionalCostDef::Sacrifice { quantity, .. }
+            | SpellAdditionalCostDef::Discard { quantity, .. }
+            | SpellAdditionalCostDef::Exile { quantity, .. }
+            | SpellAdditionalCostDef::ReturnToHand { quantity, .. } => {
+                self.spell_object_additional_cost_payments(cost, quantity, card, player, scale)
+            }
+        }
+    }
+
+    fn spell_object_additional_cost_payments(
+        &self,
+        cost: SpellAdditionalCostDef,
+        quantity: crate::card::CostQuantityDef,
+        card: &CardInstance,
+        player: PlayerId,
+        scale: CastScale,
+    ) -> Vec<SpellAdditionalCostPayment> {
+        let candidates = self.additional_cost_candidates(cost, card, player);
+        // One configuration per way of paying, so a cost naming more than one
+        // object enumerates combinations rather than candidates. Order does
+        // not matter -- exiling A then B is the same payment as B then A --
+        // so each combination appears once, in candidate order.
+        if let crate::card::CostQuantityDef::TotalManaValueAtLeast(total) = quantity {
+            return self
+                .mana_value_combinations(&candidates, u16::from(total))
+                .into_iter()
+                .map(|objects| SpellAdditionalCostPayment {
+                    objects: objects.into_iter().map(|object| (object, cost)).collect(),
+                    mana: ManaCost::default(),
+                    life: 0,
+                })
+                .collect();
+        }
+        if let crate::card::CostQuantityDef::CardTypesAtLeast(types) = quantity {
+            return self
+                .card_type_combinations(&candidates, u16::from(types))
+                .into_iter()
+                .map(|objects| SpellAdditionalCostPayment {
+                    objects: objects.into_iter().map(|object| (object, cost)).collect(),
+                    mana: ManaCost::default(),
+                    life: 0,
+                })
+                .collect();
+        }
+        let required = match quantity {
+            crate::card::CostQuantityDef::Fixed(count) => usize::from(count),
+            crate::card::CostQuantityDef::ChosenX => usize::from(scale.x),
+            // Escalate: a spell with one mode pays nothing extra, and every
+            // mode past the first costs another one of these.
+            crate::card::CostQuantityDef::ModesBeyondFirst(count) => {
+                usize::from(count).saturating_mul(scale.modes.saturating_sub(1))
+            }
+            crate::card::CostQuantityDef::TotalManaValueAtLeast(_)
+            | crate::card::CostQuantityDef::CardTypesAtLeast(_) => 0,
+        };
+        Self::object_combinations(&candidates, required)
+            .into_iter()
+            .map(|objects| SpellAdditionalCostPayment {
+                objects: objects.into_iter().map(|object| (object, cost)).collect(),
+                mana: ManaCost::default(),
+                life: 0,
+            })
+            .collect()
+    }
+
+    fn additional_cost_candidates(
+        &self,
+        cost: SpellAdditionalCostDef,
+        card: &CardInstance,
+        player: PlayerId,
+    ) -> Vec<GameObjectId> {
+        let (object, from) = match cost {
+            SpellAdditionalCostDef::Sacrifice { object, .. }
+            | SpellAdditionalCostDef::ReturnToHand { object, .. } => {
+                (object, ZoneKind::Battlefield)
+            }
+            SpellAdditionalCostDef::Discard { object, .. } => (object, ZoneKind::Hand),
+            SpellAdditionalCostDef::Exile { object, from, .. } => (object, from),
+            SpellAdditionalCostDef::PayMana(_)
+            | SpellAdditionalCostDef::PayLife(_)
+            | SpellAdditionalCostDef::Forage
+            | SpellAdditionalCostDef::All(_)
+            | SpellAdditionalCostDef::Choice(_) => return Vec::new(),
+        };
+        match from {
             ZoneKind::Battlefield => self
                 .battlefield
                 .iter()
                 .filter(|permanent| {
                     permanent.controller == player
                         && self.trigger_object_matches(
-                            cost.object,
+                            object,
                             &self.trigger_event_object(permanent),
                             permanent.card.id,
                             false,
@@ -228,7 +436,7 @@ impl Game {
                 .iter()
                 .filter(|held| {
                     held.id != card.id
-                        && self.card_object_matches(cost.object, held, ZoneKind::Graveyard, held.id)
+                        && self.card_object_matches(object, held, ZoneKind::Graveyard, held.id)
                 })
                 .map(|held| held.id)
                 .collect(),
@@ -239,160 +447,12 @@ impl Game {
                 .iter()
                 .filter(|held| {
                     held.id != card.id
-                        && self.card_object_matches(cost.object, held, ZoneKind::Hand, held.id)
+                        && self.card_object_matches(object, held, ZoneKind::Hand, held.id)
                 })
                 .map(|held| held.id)
                 .collect(),
             _ => Vec::new(),
-        };
-        // One configuration per way of paying, so a cost naming more than one
-        // object enumerates combinations rather than candidates. Order does
-        // not matter -- exiling A then B is the same payment as B then A --
-        // so each combination appears once, in candidate order.
-        if let crate::card::SpellAdditionalCostCountDef::TotalManaValueAtLeast(total) = cost.counted
-        {
-            return self.mana_value_combinations(&candidates, u16::from(total));
         }
-        if let crate::card::SpellAdditionalCostCountDef::CardTypesAtLeast(types) = cost.counted {
-            return self.card_type_combinations(&candidates, u16::from(types));
-        }
-        let required = match cost.counted {
-            crate::card::SpellAdditionalCostCountDef::Printed => usize::from(cost.count),
-            crate::card::SpellAdditionalCostCountDef::ChosenX => usize::from(scale.x),
-            // Escalate: a spell with one mode pays nothing extra, and every
-            // mode past the first costs another one of these.
-            crate::card::SpellAdditionalCostCountDef::ModesBeyondFirst => {
-                usize::from(cost.count).saturating_mul(scale.modes.saturating_sub(1))
-            }
-            crate::card::SpellAdditionalCostCountDef::TotalManaValueAtLeast(_)
-            | crate::card::SpellAdditionalCostCountDef::CardTypesAtLeast(_) => 0,
-        };
-        Self::object_combinations(&candidates, required)
-    }
-
-    /// Every way to reach `total` mana value that wastes nothing: a set
-    /// counts only if dropping any one of its cards would leave it short.
-    /// The rules permit exiling more than that, but every superset is a
-    /// strictly worse payment of the same cost, and enumerating them all
-    /// would grow the action list exponentially in the size of a graveyard.
-    fn mana_value_combinations(
-        &self,
-        candidates: &[GameObjectId],
-        total: u16,
-    ) -> Vec<Vec<GameObjectId>> {
-        let values = candidates
-            .iter()
-            .map(|id| {
-                self.card_in_nonbattlefield_zone(*id)
-                    .and_then(|(_, card)| self.catalog.get(card.definition))
-                    .map_or(0, |definition| {
-                        definition.rules.printed_mana_cost().mana_value()
-                    })
-            })
-            .collect::<Vec<_>>();
-        let mut payments = Vec::new();
-        for size in 1..=candidates.len() {
-            for combination in Self::object_combinations(candidates, size) {
-                let sum = combination
-                    .iter()
-                    .map(|id| {
-                        candidates
-                            .iter()
-                            .position(|candidate| candidate == id)
-                            .map_or(0, |index| values[index])
-                    })
-                    .fold(0_u16, u16::saturating_add);
-                if sum < total {
-                    continue;
-                }
-                // Minimal: with any one card taken out it no longer reaches.
-                let minimal = combination.iter().all(|id| {
-                    let value = candidates
-                        .iter()
-                        .position(|candidate| candidate == id)
-                        .map_or(0, |index| values[index]);
-                    sum.saturating_sub(value) < total
-                });
-                if minimal {
-                    payments.push(combination);
-                }
-            }
-        }
-        payments
-    }
-
-    /// Every way to reach `types` distinct card types between the chosen
-    /// cards, minimal in the same sense the mana-value search is: a set
-    /// counts only if dropping any one of its cards would leave it short.
-    /// One Artifact Creature Land pays for three of them at once, which is
-    /// what makes the cost cheap in the deck that wants it.
-    fn card_type_combinations(
-        &self,
-        candidates: &[GameObjectId],
-        types: u16,
-    ) -> Vec<Vec<GameObjectId>> {
-        let sets = candidates
-            .iter()
-            .map(|id| {
-                self.card_in_nonbattlefield_zone(*id)
-                    .and_then(|(_, card)| self.catalog.get(card.definition))
-                    .map_or_else(crate::card::CardTypeSet::empty, |definition| {
-                        definition.rules.types()
-                    })
-            })
-            .collect::<Vec<_>>();
-        let union = |combination: &[GameObjectId]| {
-            combination
-                .iter()
-                .filter_map(|id| candidates.iter().position(|candidate| candidate == id))
-                .fold(crate::card::CardTypeSet::empty(), |seen, index| {
-                    seen.union(sets[index])
-                })
-        };
-        let mut payments = Vec::new();
-        for size in 1..=candidates.len() {
-            for combination in Self::object_combinations(candidates, size) {
-                if union(&combination).count() < types {
-                    continue;
-                }
-                // Minimal: with any one card taken out it no longer reaches.
-                let minimal = combination.iter().all(|dropped| {
-                    let without = combination
-                        .iter()
-                        .copied()
-                        .filter(|id| id != dropped)
-                        .collect::<Vec<_>>();
-                    union(&without).count() < types
-                });
-                if minimal {
-                    payments.push(combination);
-                }
-            }
-        }
-        payments
-    }
-
-    /// Every `size`-element combination of `candidates`, in candidate order.
-    /// An empty requirement has exactly one payment: the empty one.
-    pub(in crate::game) fn object_combinations(
-        candidates: &[GameObjectId],
-        size: usize,
-    ) -> Vec<Vec<GameObjectId>> {
-        if size == 0 {
-            return vec![Vec::new()];
-        }
-        if candidates.len() < size {
-            return Vec::new();
-        }
-        let mut combinations = Vec::new();
-        for (index, candidate) in candidates.iter().enumerate() {
-            for mut rest in Self::object_combinations(&candidates[index + 1..], size - 1) {
-                let mut combination = vec![*candidate];
-                combination.append(&mut rest);
-                combinations.push(combination);
-            }
-        }
-        combinations
     }
 
     /// Whether the card's own printed cost is one of the ways to cast it

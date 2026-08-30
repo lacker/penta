@@ -2,9 +2,10 @@ use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
 
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardBehavior,
-    CardSupertype, CardType, ConditionDef, CounterKind, EffectDef, ImplementationStatus, ManaCost,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
+    CardSupertype, CardType, ConditionDef, CostQuantityDef, CounterKind, EffectDef,
+    ImplementationStatus, ManaCost, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ValueDef,
+    ZoneKind,
 };
 
 mod alternative_casts;
@@ -19,15 +20,10 @@ pub use pregame::*;
 pub enum SpellAbilityDef {
     Nonmodal {
         targets: &'static [AbilityTargetDef],
-        /// A nonmana cost paid as the spell is cast, chosen from the objects
-        /// it names. Unlike a target this is spent rather than pointed at, so
-        /// it is not checked again on resolution.
+        /// A semantic cost paid as the spell is cast, in addition to its
+        /// ordinary mana cost. Any objects it names are payment choices, not
+        /// targets, and are spent before the spell can resolve.
         additional_cost: Option<SpellAdditionalCostDef>,
-        /// A printed "as an additional cost to cast this spell, pay N life".
-        /// Life is spent rather than named, so unlike the cost above it
-        /// selects nothing and enumerates nothing -- except when the amount
-        /// is X, which the caster chooses as the spell is cast.
-        life_cost: Option<SpellLifeCostDef>,
         /// Where the card goes after a successful resolution. This is part of
         /// a spell's shared stack procedure rather than an instruction that
         /// can move the resolving object while it is off the stack.
@@ -66,56 +62,41 @@ pub enum SpellResolutionDestinationDef {
     LibraryShuffled,
 }
 
-/// Where an additional cost's count comes from.
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-pub enum SpellAdditionalCostCountDef {
-    /// The printed number, which is what almost every cost names.
-    #[default]
-    Printed,
-    /// The X the spell is cast for. Flash of Insight's flashback exiles as
-    /// many blue cards as its X, so the cost cannot be known until that X is
-    /// chosen.
-    ChosenX,
-    /// One for each mode chosen past the first, which is escalate
-    /// (CR 702.120a). A spell with one mode pays nothing extra.
-    ModesBeyondFirst,
-    /// Collect evidence N (CR 701.58a): not a number of cards at all, but a
-    /// total mana value the chosen cards have to reach between them. How
-    /// many that takes is whatever the graveyard makes it -- one card of
-    /// mana value six, or six of one.
-    TotalManaValueAtLeast(u8),
-    /// "With four or more card types among them": the same shape measured a
-    /// different way. What the chosen cards have to reach between them is a
-    /// count of distinct card types, so one Artifact Creature Land pays as
-    /// much of it as three separate cards would.
-    CardTypesAtLeast(u8),
-}
-
-/// An additional cost that selects objects to spend. The zone decides what
-/// spending means: a permanent on the battlefield is sacrificed, a card in a
-/// graveyard is exiled, and a card in hand is discarded.
+/// A semantic action or composition of actions paid while casting a spell.
+///
+/// Named game actions remain explicit here even when they share lower-level
+/// zone-change machinery. Sacrificing and discarding are not interchangeable
+/// with an arbitrary move to a graveyard: rules and triggers can care which
+/// action paid the cost.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct SpellAdditionalCostDef {
-    pub object: ObjectPredicateDef,
-    pub zone: ZoneKind,
-    pub count: u8,
-    /// Where the count comes from, when it is not the printed number above.
-    pub counted: SpellAdditionalCostCountDef,
-    pub spend: SpendModeDef,
-    /// A second way to pay the same printed cost. "Sacrifice a creature or
-    /// discard a card" is one cost with two ways to pay it, and which one is
-    /// paid is settled as the spell is cast rather than asked afterwards --
-    /// the chosen objects travel with the action either way.
-    ///
-    /// Held behind a reference so a cost stays one word wider than the
-    /// predicate it carries. Both halves spend what they name the same way;
-    /// what differs is the zone they name it in.
-    pub or: Option<&'static SpellAdditionalCostDef>,
-    /// A way to pay the same printed cost with life instead of objects.
-    /// "Discard a card or pay 3 life" is one cost with two ways to pay it,
-    /// and only one of them names anything: paying the life spends no
-    /// object at all, which is how the payment is told apart afterwards.
-    pub or_life: Option<u8>,
+pub enum SpellAdditionalCostDef {
+    PayMana(ManaCost),
+    PayLife(SpellLifeCostDef),
+    Sacrifice {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
+    Discard {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
+    Exile {
+        object: ObjectPredicateDef,
+        from: ZoneKind,
+        quantity: CostQuantityDef,
+    },
+    ReturnToHand {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
+    /// Forage (CR 701.59): exile three cards from your graveyard or sacrifice
+    /// a Food. Card definitions name the keyword while payment expands it
+    /// into its semantic exile and sacrifice actions.
+    Forage,
+    /// Pay every child cost.
+    All(&'static [SpellAdditionalCostDef]),
+    /// Choose exactly one child cost to pay.
+    Choice(&'static [SpellAdditionalCostDef]),
 }
 
 /// A printed "as an additional cost to cast this spell, pay N life".
@@ -147,104 +128,87 @@ impl SpellLifeCostDef {
     }
 }
 
-/// What spending a named object actually does to it.
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
-pub enum SpendModeDef {
-    /// Whatever the object's zone implies, which is what almost every printed
-    /// cost means: a permanent is sacrificed, a card in a graveyard is
-    /// exiled, and a card in hand is discarded.
-    #[default]
-    ByZone,
-    /// Exiled rather than put in a graveyard. "Exile a red card from your
-    /// hand" spends it without ever making it a graveyard card.
-    Exile,
-    /// Returned to its owner's hand. The free-spell cycle pays this way: the
-    /// lands come back rather than being lost.
-    ReturnToHand,
-}
-
 impl SpellAdditionalCostDef {
     #[must_use]
-    pub const fn new(object: ObjectPredicateDef, zone: ZoneKind, count: u8) -> Self {
-        Self {
-            or_life: None,
+    pub const fn pay_mana(cost: ManaCost) -> Self {
+        Self::PayMana(cost)
+    }
+
+    #[must_use]
+    pub const fn pay_life(amount: u8) -> Self {
+        Self::PayLife(SpellLifeCostDef::new(amount))
+    }
+
+    #[must_use]
+    pub const fn pay_x_life() -> Self {
+        Self::PayLife(SpellLifeCostDef::variable())
+    }
+
+    #[must_use]
+    pub const fn sacrifice(object: ObjectPredicateDef, count: u8) -> Self {
+        Self::sacrifice_with_quantity(object, CostQuantityDef::Fixed(count))
+    }
+
+    #[must_use]
+    pub const fn sacrifice_with_quantity(
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    ) -> Self {
+        Self::Sacrifice { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn discard(object: ObjectPredicateDef, count: u8) -> Self {
+        Self::discard_with_quantity(object, CostQuantityDef::Fixed(count))
+    }
+
+    #[must_use]
+    pub const fn discard_with_quantity(
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    ) -> Self {
+        Self::Discard { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn exile(object: ObjectPredicateDef, from: ZoneKind, count: u8) -> Self {
+        Self::exile_with_quantity(object, from, CostQuantityDef::Fixed(count))
+    }
+
+    #[must_use]
+    pub const fn exile_with_quantity(
+        object: ObjectPredicateDef,
+        from: ZoneKind,
+        quantity: CostQuantityDef,
+    ) -> Self {
+        Self::Exile {
             object,
-            zone,
-            count,
-            counted: SpellAdditionalCostCountDef::Printed,
-            spend: SpendModeDef::ByZone,
-            or: None,
+            from,
+            quantity,
         }
     }
 
-    /// Where the number of objects comes from, when the printed count is
-    /// not it -- an X, an escalate surcharge, or a total mana value to
-    /// reach.
     #[must_use]
-    pub const fn counted(mut self, counted: SpellAdditionalCostCountDef) -> Self {
-        self.counted = counted;
-        self
-    }
-
-    /// "... or <the other way>." The caster picks one of the two.
-    #[must_use]
-    pub const fn or(mut self, alternative: &'static SpellAdditionalCostDef) -> Self {
-        self.or = Some(alternative);
-        self
-    }
-
-    /// "... or pay N life." The same cost, paid with life rather than with
-    /// anything the clause names.
-    #[must_use]
-    pub const fn or_pay_life(mut self, life: u8) -> Self {
-        self.or_life = Some(life);
-        self
-    }
-
-    /// The life every alternative way of paying this cost would take,
-    /// smallest first. Empty when nothing about it may be paid with life.
-    #[must_use]
-    pub fn life_alternatives(self) -> Vec<u8> {
-        let mut life = self
-            .alternatives()
-            .into_iter()
-            .filter_map(|cost| cost.or_life)
-            .collect::<Vec<_>>();
-        life.sort_unstable();
-        life.dedup();
-        life
-    }
-
-    /// This cost and every alternative way of paying it, in printed order.
-    #[must_use]
-    pub fn alternatives(self) -> Vec<Self> {
-        let mut costs = vec![self];
-        let mut next = self.or;
-        while let Some(cost) = next {
-            costs.push(*cost);
-            next = cost.or;
+    pub const fn return_to_hand(object: ObjectPredicateDef, count: u8) -> Self {
+        Self::ReturnToHand {
+            object,
+            quantity: CostQuantityDef::Fixed(count),
         }
-        costs
-    }
-
-    /// The same cost, counted in X rather than in a printed number.
-    #[must_use]
-    pub const fn counted_in_x(mut self) -> Self {
-        self.counted = SpellAdditionalCostCountDef::ChosenX;
-        self
-    }
-
-    /// Escalate: the same cost, paid once for each mode past the first.
-    #[must_use]
-    pub const fn counted_per_extra_mode(mut self) -> Self {
-        self.counted = SpellAdditionalCostCountDef::ModesBeyondFirst;
-        self
     }
 
     #[must_use]
-    pub const fn spent(mut self, spend: SpendModeDef) -> Self {
-        self.spend = spend;
-        self
+    pub const fn forage() -> Self {
+        Self::Forage
+    }
+
+    #[must_use]
+    pub const fn all(costs: &'static [Self]) -> Self {
+        Self::All(costs)
+    }
+
+    #[must_use]
+    pub const fn choice(costs: &'static [Self]) -> Self {
+        Self::Choice(costs)
     }
 }
 
@@ -313,7 +277,6 @@ impl SpellAbilityDef {
         Self::Nonmodal {
             targets: &[],
             additional_cost: None,
-            life_cost: None,
             resolution_destination: SpellResolutionDestinationDef::Graveyard,
         }
     }
@@ -327,13 +290,10 @@ impl SpellAbilityDef {
     pub const fn with_targets(self, targets: &'static [AbilityTargetDef]) -> Self {
         match self {
             Self::Nonmodal {
-                additional_cost,
-                life_cost,
-                ..
+                additional_cost, ..
             } => Self::Nonmodal {
                 targets,
                 additional_cost,
-                life_cost,
                 resolution_destination: self.resolution_destination(),
             },
             Self::Modal(_) => panic!("targets belong on modal spell branches"),
@@ -348,13 +308,11 @@ impl SpellAbilityDef {
         match self {
             Self::Nonmodal {
                 targets,
-                life_cost,
                 resolution_destination,
                 ..
             } => Self::Nonmodal {
                 targets,
                 additional_cost: Some(cost),
-                life_cost,
                 resolution_destination,
             },
             // Escalate is printed on a modal spell and belongs to the whole
@@ -363,37 +321,6 @@ impl SpellAbilityDef {
                 additional_cost: Some(cost),
                 ..modal
             }),
-        }
-    }
-
-    /// "As an additional cost to cast this spell, pay N life."
-    ///
-    /// # Panics
-    ///
-    /// Panics for a modal wrapper, which has no single cost to attach.
-    #[must_use]
-    pub const fn with_life_cost(self, cost: SpellLifeCostDef) -> Self {
-        match self {
-            Self::Nonmodal {
-                targets,
-                additional_cost,
-                resolution_destination,
-                ..
-            } => Self::Nonmodal {
-                targets,
-                additional_cost,
-                life_cost: Some(cost),
-                resolution_destination,
-            },
-            Self::Modal(_) => panic!("a life cost belongs to a whole spell"),
-        }
-    }
-
-    #[must_use]
-    pub const fn life_cost(self) -> Option<SpellLifeCostDef> {
-        match self {
-            Self::Nonmodal { life_cost, .. } => life_cost,
-            Self::Modal(_) => None,
         }
     }
 
@@ -418,12 +345,10 @@ impl SpellAbilityDef {
             Self::Nonmodal {
                 targets,
                 additional_cost,
-                life_cost,
                 ..
             } => Self::Nonmodal {
                 targets,
                 additional_cost,
-                life_cost,
                 resolution_destination: destination,
             },
             Self::Modal(modal) => Self::Modal(modal),

@@ -9,9 +9,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     ArrivalAttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRefDef,
-    PlayerRelation, SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::card::{
     AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CounterKind,
@@ -964,15 +963,10 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
         // Two Mountains off the battlefield, which is why the card is a finisher
         // rather than a burn spell: it is cast from an empty board on the turn the
         // lands stop mattering.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef {
-            or_life: None,
-            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-            zone: ZoneKind::Battlefield,
-            count: 2,
-            counted: SpellAdditionalCostCountDef::Printed,
-            spend: SpendModeDef::ByZone,
-            or: None,
-        }),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            2,
+        )),
     ]),
 );
 
@@ -1406,15 +1400,7 @@ pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
             &[],
             // Paid as the spell is cast, so a board with nothing green on it cannot
             // cast this at all.
-            SpellAdditionalCostDef {
-                or_life: None,
-                object: A_GREEN_CREATURE,
-                zone: ZoneKind::Battlefield,
-                count: 1,
-                counted: SpellAdditionalCostCountDef::Printed,
-                spend: SpendModeDef::ByZone,
-                or: None,
-            },
+            SpellAdditionalCostDef::sacrifice(A_GREEN_CREATURE, 1),
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,

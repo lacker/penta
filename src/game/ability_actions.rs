@@ -520,7 +520,10 @@ impl Game {
                             })
                             .map(|card| card.id)
                             .collect();
-                        Self::object_combinations(&candidates, usize::from(movement.count))
+                        let Some(count) = movement.fixed_count() else {
+                            return;
+                        };
+                        Self::object_combinations(&candidates, usize::from(count))
                     }
                     Some(AbilityCostDef::DiscardCardMatching(object)) => self.players
                         [player.index()]

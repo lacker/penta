@@ -9,18 +9,17 @@ use crate::card::{
     BasicLandType, BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules,
     CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ChooseGroupDef,
     ClassifyObjectsDef, ColorSet, ComparisonDef, ConditionalValueDef, ControlDurationDef,
-    CopyExceptionsDef, CostModificationDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef,
-    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef, IfNoObjectsDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
+    CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind, CreatedTokensDef,
+    CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef,
+    IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
     ObjectChoiceBindingDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PartitionGroupDef, PayOrDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     QuantifierDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     RevealObjectsDef, RoundingDef, SacrificedAmountDef, SimultaneousChooseDef,
-    SpellAdditionalCostCountDef, SpellAdditionalCostDef, SpendModeDef, TargetChooserDef,
-    TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{
     AdditionalCostObjectIndex, ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex,
@@ -35,25 +34,14 @@ static CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 
 /// "As an additional cost to cast this spell, exile a creature card from your
 /// graveyard."
-static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    zone: ZoneKind::Graveyard,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
+static EXILE_A_CREATURE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::exile(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ZoneKind::Graveyard,
+    1,
+);
 
-static SACRIFICE_A_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-    zone: ZoneKind::Battlefield,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
+static SACRIFICE_A_CREATURE: SpellAdditionalCostDef =
+    SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Creature), 1);
 
 static ISD_MORBID_A_CREATURE_DIED: TriggerConditionDef = TriggerConditionDef::CreatureDiedThisTurn;
 
@@ -2119,15 +2107,13 @@ pub(in crate::card::sets) static SILENT_DEPARTURE: CardRecord = CardRecord::new_
 );
 
 // ISD 76 — Skaab Goliath
-/// `SpendModeDef::ByZone` would also exile a graveyard card, but the
-/// Skaabs print "exile" and keep that operation explicit in their definitions.
+/// The Skaabs print "exile", so their definitions name that operation directly.
 const fn exile_creature_cards_from_graveyard(count: u8) -> SpellAdditionalCostDef {
-    SpellAdditionalCostDef::new(
+    SpellAdditionalCostDef::exile(
         ObjectPredicateDef::HasType(CardType::Creature),
         ZoneKind::Graveyard,
         count,
     )
-    .spent(SpendModeDef::Exile)
 }
 
 pub(in crate::card::sets) static SKAAB_GOLIATH: CardRecord = CardRecord::new_with_legacy_id(
@@ -4001,13 +3987,28 @@ pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new
 );
 
 // ISD 146 — Harvest Pyre
-// Audit: metadata-only — Needs choosing and exiling X graveyard cards as a casting cost linked to the damage amount.
 pub(in crate::card::sets) static HARVEST_PYRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4d6220b4-a5b8-45c8-9422-fab9eb32322c"),
     "Harvest Pyre",
-    crate::card::CardArt::new("4d6220b4-a5b8-45c8-9422-fab9eb32322c", "Ryan Yee"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4d6220b4-a5b8-45c8-9422-fab9eb32322c", "Ryan Yee"),
+    CardSet::Innistrad,
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, exile X cards from your graveyard.\nHarvest Pyre deals X damage to target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            SpellAdditionalCostDef::exile_with_quantity(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                CostQuantityDef::ChosenX,
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+            },
+        ),
+    ),
 );
 
 // ISD 147 — Heretic's Punishment

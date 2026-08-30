@@ -19,19 +19,17 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    SpendModeDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    TriggerConditionDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 /// Islands you control, returned rather than sacrificed: what the cycle buys
 /// is tempo, not card advantage, and the lands are back in hand to replay.
 const fn return_islands(count: u8) -> SpellAdditionalCostDef {
-    SpellAdditionalCostDef::new(
+    SpellAdditionalCostDef::return_to_hand(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        ZoneKind::Battlefield,
         count,
     )
-    .spent(SpendModeDef::ReturnToHand)
 }
 
 // MMQ 1 — Afterlife (reprint)

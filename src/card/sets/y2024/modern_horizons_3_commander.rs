@@ -6,8 +6,8 @@ use crate::card::{
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SpendModeDef, SumValueDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, SumValueDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -175,10 +175,11 @@ pub(in crate::card::sets) static BLOODBRAID_CHALLENGER: CardRecord = CardRecord:
         // Three cards out of your own graveyard, exiled to pay. The card being cast
         // is on the stack by the time costs are paid, so "other" takes care of
         // itself: it is not there to be chosen.
-        .with_alternative_additional_cost(
-            &SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Graveyard, 3)
-                .spent(SpendModeDef::Exile),
-        ),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Any,
+            ZoneKind::Graveyard,
+            3,
+        )),
     ]),
 );
 

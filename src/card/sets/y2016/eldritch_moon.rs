@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    CardSet, CardType, CostQuantityDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -129,8 +129,10 @@ pub(in crate::card::sets) static COLLECTIVE_BRUTALITY: CardRecord = CardRecord::
         )
         // Escalate: one discard for every mode past the first, so one mode is free
         // and all three cost two cards.
-        .with_spell_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1)
-                .counted_per_extra_mode()),
+        .with_spell_additional_cost(&SpellAdditionalCostDef::discard_with_quantity(
+            ObjectPredicateDef::Any,
+            CostQuantityDef::ModesBeyondFirst(1),
+        )),
     ),
 );
 

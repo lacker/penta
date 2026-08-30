@@ -4,6 +4,20 @@ use super::{
 };
 use crate::ids::ObjectBindingIndex;
 
+/// How many objects a cost moves.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CostQuantityDef {
+    Fixed(u8),
+    /// The X announced for the spell or ability.
+    ChosenX,
+    /// This many payments for each mode chosen beyond the first.
+    ModesBeyondFirst(u8),
+    /// Move a minimal set whose total mana value reaches this amount.
+    TotalManaValueAtLeast(u8),
+    /// Move a minimal set containing at least this many card types.
+    CardTypesAtLeast(u8),
+}
+
 /// A chosen-object cost whose payment is a zone change.
 ///
 /// The destination is explicit rather than inferred from the source zone, so
@@ -14,21 +28,47 @@ pub struct MoveToZoneCostDef {
     pub object: ObjectPredicateDef,
     pub from: ZoneKind,
     pub to: ZoneKind,
-    pub count: u8,
+    pub quantity: CostQuantityDef,
     /// Saves the paid objects' successor identities for another cost or the
-    /// resolving effect. A single-object binding requires `count == 1`.
+    /// resolving effect. A single-object binding requires a fixed count of 1.
     pub binding: Option<ObjectBindingIndex>,
 }
 
 impl MoveToZoneCostDef {
     #[must_use]
     pub const fn new(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind, count: u8) -> Self {
+        Self::with_quantity(object, from, to, CostQuantityDef::Fixed(count))
+    }
+
+    #[must_use]
+    pub const fn with_quantity(
+        object: ObjectPredicateDef,
+        from: ZoneKind,
+        to: ZoneKind,
+        quantity: CostQuantityDef,
+    ) -> Self {
         Self {
             object,
             from,
             to,
-            count,
+            quantity,
             binding: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn chosen_x(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind) -> Self {
+        Self::with_quantity(object, from, to, CostQuantityDef::ChosenX)
+    }
+
+    #[must_use]
+    pub const fn fixed_count(self) -> Option<u8> {
+        match self.quantity {
+            CostQuantityDef::Fixed(count) => Some(count),
+            CostQuantityDef::ChosenX
+            | CostQuantityDef::ModesBeyondFirst(_)
+            | CostQuantityDef::TotalManaValueAtLeast(_)
+            | CostQuantityDef::CardTypesAtLeast(_) => None,
         }
     }
 

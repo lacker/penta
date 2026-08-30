@@ -7,10 +7,10 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
-    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, SpendModeDef,
+    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, CostQuantityDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
@@ -421,13 +421,11 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
         // X blue cards from your own graveyard, exiled to pay. The count is the same
         // X the spell is cast for, which is what makes the flashback expensive
         // exactly when it is worth casting big.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile_with_quantity(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Graveyard,
-            0,
-        )
-        .counted_in_x()
-        .spent(SpendModeDef::Exile)),
+            CostQuantityDef::ChosenX,
+        )),
     ]),
 );
 
@@ -679,9 +677,8 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             Some("Flashback—Sacrifice a creature."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Creature),
-            ZoneKind::Battlefield,
             1,
         )),
     ]),

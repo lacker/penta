@@ -1053,11 +1053,7 @@ pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         abilities::buyback_with_additional_cost(
             "Buyback—Sacrifice a land. (You may sacrifice a land in addition to any other costs as you cast this spell. If you do, put this card into your hand as it resolves.)",
-            &SpellAdditionalCostDef::new(
-                ObjectPredicateDef::HasType(CardType::Land),
-                ZoneKind::Battlefield,
-                1,
-            ),
+            &SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Land), 1),
         ),
         AbilityDef::spell(
             "Prevent all combat damage that would be dealt this turn.",

@@ -7,9 +7,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
     DividedTotal, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SpellLifeCostDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -2918,7 +2918,7 @@ pub(in crate::card::sets) static FIRE_COVENANT: CardRecord = CardRecord::new(
                 amount: ValueDef::DividedAmongTargets,
             },
         )
-        .with_spell_life_cost(SpellLifeCostDef::variable()),
+        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_x_life()),
     ),
 );
 

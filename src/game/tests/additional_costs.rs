@@ -1,10 +1,11 @@
-//! Additional costs that spend an object.
+//! Semantic additional costs that spend an object.
 //!
 //! Distinct from a target: the object is chosen and spent as the spell is
 //! cast, and never checked again. What these check is that the spell is not
 //! offered with nothing to spend, that casting it really exiles the chosen
 //! card, and that the choice is per-object rather than a single blanket
-//! option.
+//! option. Sacrifice, discard, and exile share selection machinery without
+//! being inferred from one another's zone movements.
 
 use super::*;
 use crate::AdditionalCostObjectIndex;
@@ -109,10 +110,10 @@ fn only_matching_cards_can_be_spent() {
     );
 }
 
-/// The zone decides what spending means. A creature on the battlefield is
-/// sacrificed rather than exiled.
+/// A sacrifice cost uses the sacrifice action, including its dedicated
+/// trigger event, rather than merely moving battlefield to graveyard.
 #[test]
-fn a_battlefield_cost_sacrifices_rather_than_exiles() {
+fn a_sacrifice_cost_emits_the_sacrifice_action() {
     let mut game = ready_game();
     let reap = card(10_000, cards::ALTARS_REAP, PlayerId::One);
     let reap_id = reap.id;
@@ -154,8 +155,8 @@ fn a_battlefield_cost_sacrifices_rather_than_exiles() {
     );
 }
 
-/// A cost paid from hand discards, and never offers the spell itself as its
-/// own payment.
+/// A discard cost emits the discard action, and never offers the spell itself
+/// as its own payment.
 #[test]
 fn a_hand_cost_discards_something_other_than_the_spell() {
     let mut game = ready_game();
@@ -182,6 +183,11 @@ fn a_hand_cost_discards_something_other_than_the_spell() {
     game.apply(PlayerId::One, action)
         .expect("the spell is cast");
     drain_pending(&mut game);
+
+    assert!(game.events.iter().any(|event| {
+        matches!(event, GameEvent::CardsDiscarded { player: PlayerId::One, cards }
+            if cards.iter().any(|(_, definition)| *definition == cards::SEDGE_TROLL))
+    }));
 
     assert!(
         game.players[PlayerId::One.index()]

@@ -12,9 +12,8 @@ use crate::card::{
     ChooseDef, ColorChoiceOperationDef, CostModificationDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostCountDef,
-    SpellAdditionalCostDef, SpendModeDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -527,15 +526,7 @@ pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
             // Any artifact at all, and the one you give up is usually the cheapest
             // thing you own: what the cost measures is a card on the battlefield rather
             // than what it was worth.
-            SpellAdditionalCostDef {
-                or_life: None,
-                object: ObjectPredicateDef::HasType(CardType::Artifact),
-                zone: ZoneKind::Battlefield,
-                count: 1,
-                counted: SpellAdditionalCostCountDef::Printed,
-                spend: SpendModeDef::ByZone,
-                or: None,
-            },
+            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Artifact), 1),
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1146,15 +1137,7 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_wit
             // Sacrificing a land is what makes this an instant-speed tutor rather than a
             // ramp spell: the land you give up pays for the one you go and get, so the
             // board count never moves.
-            SpellAdditionalCostDef {
-                or_life: None,
-                object: ObjectPredicateDef::HasType(CardType::Land),
-                zone: ZoneKind::Battlefield,
-                count: 1,
-                counted: SpellAdditionalCostCountDef::Printed,
-                spend: SpendModeDef::ByZone,
-                or: None,
-            },
+            SpellAdditionalCostDef::sacrifice(ObjectPredicateDef::HasType(CardType::Land), 1),
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,

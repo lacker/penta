@@ -2,7 +2,7 @@
 //! object payments, counters, and a separately granted flashback cost.
 
 use super::*;
-use crate::card::{BasicLandType, SpellAdditionalCostDef, SpendModeDef};
+use crate::card::{BasicLandType, SpellAdditionalCostDef};
 
 fn constant_mists_casts(game: &Game, spell: GameObjectId) -> Vec<Action> {
     game.legal_actions(PlayerId::One)
@@ -669,16 +669,13 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
 }
 
 #[test]
-fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_spend_modes() {
-    static RETURN_AN_ISLAND: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
+    static RETURN_AN_ISLAND: SpellAdditionalCostDef = SpellAdditionalCostDef::return_to_hand(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-        ZoneKind::Battlefield,
         1,
-    )
-    .spent(SpendModeDef::ReturnToHand);
-    static SACRIFICE_A_FOREST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
+    );
+    static SACRIFICE_A_FOREST: SpellAdditionalCostDef = SpellAdditionalCostDef::sacrifice(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-        ZoneKind::Battlefield,
         1,
     );
     static ABILITIES: [AbilityDef; 2] = [

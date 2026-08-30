@@ -2264,9 +2264,8 @@ pub(in crate::card::sets) static KULDOTHA_REBIRTH: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice an artifact.\nCreate three 1/1 red Goblin creature tokens.",
             &[],
-            SpellAdditionalCostDef::new(
+            SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
-                ZoneKind::Battlefield,
                 1,
             ),
             EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)

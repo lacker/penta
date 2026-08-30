@@ -8,11 +8,11 @@ use crate::card::{
 
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
-    AppliedEffectDef, CardDefinitionId, CardInstance, CardType, CharacteristicContext,
-    CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility,
-    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
-    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
+    AppliedEffectDef, CardBehavior, CardDefinitionId, CardInstance, CardType,
+    CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
+    EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
+    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind,
+    ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
     PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
     TriggerContext, ValueDef, ZoneKind, extra_target_cost,
@@ -61,12 +61,12 @@ impl Game {
                 choices,
                 sacrifices,
             } => {
-                let definition = self
+                let held = self
                     .players
                     .iter()
                     .flat_map(|player| player.hand.iter().chain(&player.graveyard))
-                    .find(|candidate| candidate.id == *card)
-                    .and_then(|candidate| self.catalog.get(candidate.definition))?;
+                    .find(|candidate| candidate.id == *card)?;
+                let definition = self.catalog.get(held.definition)?;
                 let option = definition.play_option(choices.play_option())?;
                 let offer = self
                     .pending_decisions
@@ -76,10 +76,34 @@ impl Game {
                     .map(|offer| offer.cost);
                 let cost =
                     self.configured_cast_mana_cost(player, *card, option, choices.costs(), offer)?;
+                let (additional_mana, additional_life) =
+                    if self.behavior(definition.id) == Some(CardBehavior::GoblinGrenade) {
+                        (ManaCost::default(), 0)
+                    } else {
+                        let payment = self.spell_additional_cost_payment_for_objects(
+                            super::casting_actions::SpellAdditionalCostRequest {
+                                definition,
+                                option,
+                                costs: choices.costs(),
+                                card: held,
+                                player,
+                                scale: super::casting_actions::CastScale {
+                                    x: choices.x(),
+                                    modes: choices.modes().len(),
+                                    offer,
+                                },
+                            },
+                            sacrifices,
+                        )?;
+                        (payment.mana, payment.life)
+                    };
                 let increased = add_mana_cost(
-                    add_generic(
-                        cost,
-                        extra_target_cost(definition, choices.iter_targets().count()),
+                    add_mana_cost(
+                        add_generic(
+                            cost,
+                            extra_target_cost(definition, choices.iter_targets().count()),
+                        ),
+                        additional_mana,
                     ),
                     self.spell_cost_increase(player, *card, choices.targets()),
                 );
@@ -104,6 +128,7 @@ impl Game {
                     .and_then(|held| self.library_top_life_cost(held, player, option))
                     .unwrap_or(0);
                 let total_life = cast_life
+                    .saturating_add(additional_life)
                     .saturating_add(library_life)
                     .saturating_add(phyrexian_life);
                 // Emerge's reduction is settled by what the cast sacrifices,

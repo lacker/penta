@@ -55,55 +55,6 @@ pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new
 );
 
 // WOE 142 — Monstrous Rage
-static MONSTER_ROLE_GRANT: AbilityDef = abilities::trample();
-
-/// What a Role may be attached to. Held as a static because the token
-/// carries it by reference.
-static ENCHANT_CREATURE: ObjectPredicateDef = ObjectPredicateDef::HasType(CardType::Creature);
-
-static MONSTER_ROLE_BONUS: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
-    AppliedEffectDef::add_ability(&MONSTER_ROLE_GRANT),
-];
-
-static MONSTER_ROLE_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-    "Enchanted creature gets +1/+1 and has trample.",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::AttachedPermanent,
-        effect: AppliedEffectDef::Composite(&MONSTER_ROLE_BONUS),
-    },
-)];
-
-/// The Monster Role: an Aura token that is never cast, so it carries no
-/// enchant clause of its own -- what it attaches to is decided by the effect
-/// that creates it. Two Roles from one player on one creature is the older
-/// one's problem, which the Role rule settles.
-static MONSTER_ROLE: TokenCharacteristics =
-    TokenCharacteristics::enchantment(&["Aura", "Role"], &[])
-        .enchanting(&ENCHANT_CREATURE)
-        .with_abilities(&MONSTER_ROLE_ABILITIES);
-
-static A_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
-/// The pump is until end of turn and the Role is not: the +2/+0 lapses with
-/// the turn and the +1/+1 stays for as long as the token does.
-static MONSTROUS_RAGE_EFFECT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(2),
-            ValueDef::Constant(0),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::CreateAttachedToken {
-        token: MONSTER_ROLE,
-        host: Some(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
-    },
-]);
-
 pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eef5a0ae-5907-42c9-a097-3f973737e392"),
     "Monstrous Rage",
@@ -115,111 +66,63 @@ pub(in crate::card::sets) static MONSTROUS_RAGE: CardRecord = CardRecord::new(
         "Target creature gets +2/+0 until end of turn. Create a Monster Role token attached to \
          it. (If you control another Role on it, put that one into the graveyard. Enchanted \
          creature gets +1/+1 and has trample.)",
-        &A_CREATURE,
-        MONSTROUS_RAGE_EFFECT,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        // The pump is until end of turn and the Role is not: the +2/+0 lapses with
+        // the turn and the +1/+1 stays for as long as the token does.
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                    EffectDef::CreateAttachedToken {
+                        // The Monster Role: an Aura token that is never cast, so it carries no
+                        // enchant clause of its own -- what it attaches to is decided by the effect
+                        // that creates it. Two Roles from one player on one creature is the older
+                        // one's problem, which the Role rule settles.
+                        token: TokenCharacteristics::enchantment(&["Aura", "Role"], &[])
+                            // What a Role may be attached to. Held as a static because the token
+                            // carries it by reference.
+                            .enchanting(&ObjectPredicateDef::HasType(CardType::Creature))
+                            .with_abilities(
+                                &const {
+                                    [AbilityDef::static_ability(
+                                        "Enchanted creature gets +1/+1 and has trample.",
+                                        EffectDef::StaticApply {
+                                            recipient: EffectRecipientDef::AttachedPermanent,
+                                            effect: AppliedEffectDef::Composite(
+                                                &const {
+                                                    [
+                                                        AppliedEffectDef::modify_power_toughness(
+                                                            ValueDef::Constant(1),
+                                                            ValueDef::Constant(1),
+                                                        ),
+                                                        AppliedEffectDef::add_ability(
+                                                            &const { abilities::trample() },
+                                                        ),
+                                                    ]
+                                                },
+                                            ),
+                                        },
+                                    )]
+                                },
+                            ),
+                        host: Some(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    },
+                ]
+            },
+        ),
     )),
 );
 
 // WOE 242 — Agatha's Soul Cauldron
-/// The Cauldron hands its abilities to creatures that are carrying a counter,
-/// whoever put it there. Read every time the layer is walked, so a creature
-/// that loses its last counter loses the abilities with it.
-static COUNTERED_CREATURES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// "Target card from a graveyard" reaches every graveyard, not only its
-/// controller's.
-static CAULDRON_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    }),
-    // The counter's target belongs to a reflexive trigger, which this engine
-    // declares up front alongside the activation's own target. "Up to one"
-    // rather than "one" is what keeps the activation legal for a player who
-    // controls no creature, which the printed card allows: the reflexive
-    // trigger simply never gets a target.
-    AbilityTargetDef::up_to(
-        AbilityTargetPredicate::Object {
-            object: ObjectPredicateDef::HasType(CardType::Creature),
-            zones: &[ZoneKind::Battlefield],
-            controller: Some(PlayerRelation::You),
-            owner: None,
-        },
-        1,
-    ),
-];
-
-/// "When a creature card is exiled this way": asked of the card the
-/// activation named, which by then has already moved to exile.
-static A_CREATURE_CARD_WAS_EXILED: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::HasType(CardType::Creature),
-};
-
-static CAULDRON_GROWS_A_CREATURE: EffectDef = EffectDef::AddCounters {
-    object: EffectRecipientDef::Target(TargetIndex(1)),
-    kind: CounterKind::PlusOnePlusOne,
-    amount: ValueDef::Constant(1),
-};
-
-static CAULDRON_EXILES_THEN_GROWS: [EffectDef; 2] = [
-    EffectDef::ExileLinkedToSource {
-        until_source_leaves: false,
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        face_down: false,
-        then: None,
-    },
-    EffectDef::IfCondition {
-        condition: &A_CREATURE_CARD_WAS_EXILED,
-        then: &CAULDRON_GROWS_A_CREATURE,
-    },
-];
-
-static CAULDRON_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-static AGATHAS_SOUL_CAULDRON_ABILITIES: [AbilityDef; 3] = [
-    AbilityDef::static_ability(
-        "You may spend mana as though it were mana of any color to activate abilities of \
-         creatures you control.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-            effect: AppliedEffectDef::Rule(
-                AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities,
-            ),
-        },
-    ),
-    AbilityDef::static_ability(
-        "Creatures you control with +1/+1 counters on them have all activated abilities of all \
-         creature cards exiled with Agatha's Soul Cauldron.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
-                COUNTERED_CREATURES_YOU_CONTROL,
-            )),
-            effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
-                AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                ),
-            )),
-        },
-    ),
-    AbilityDef::activated_with_targets(
-        "{T}: Exile target card from a graveyard. When a creature card is exiled this way, put a \
-         +1/+1 counter on target creature you control.",
-        &CAULDRON_TAP,
-        &CAULDRON_TARGETS,
-        EffectDef::Sequence(&CAULDRON_EXILES_THEN_GROWS),
-    ),
-];
-
 pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord::new_with_legacy_id(
     2251,
     "Agatha's Soul Cauldron",
@@ -227,7 +130,92 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
     CardSet::WildsOfEldraine,
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&AGATHAS_SOUL_CAULDRON_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "You may spend mana as though it were mana of any color to activate abilities of \
+                 creatures you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
+                    effect: AppliedEffectDef::Rule(
+                        AppliedRuleDef::MaySpendManaAsAnyColorForCreatureAbilities,
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Creatures you control with +1/+1 counters on them have all activated abilities of all \
+                 creature cards exiled with Agatha's Soul Cauldron.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        // The Cauldron hands its abilities to creatures that are carrying a counter,
+                        // whoever put it there. Read every time the layer is walked, so a creature
+                        // that loses its last counter loses the abilities with it.
+                        ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                    )),
+                    effect: AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                        AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ),
+                    )),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{T}: Exile target card from a graveyard. When a creature card is exiled this way, put a \
+                 +1/+1 counter on target creature you control.",
+                &[AbilityCostDef::TapSource],
+                // "Target card from a graveyard" reaches every graveyard, not only its
+                // controller's.
+                &[
+                    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Any,
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: None,
+                    }),
+                    // The counter's target belongs to a reflexive trigger, which this engine
+                    // declares up front alongside the activation's own target. "Up to one"
+                    // rather than "one" is what keeps the activation legal for a player who
+                    // controls no creature, which the printed card allows: the reflexive
+                    // trigger simply never gets a target.
+                    AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        },
+                        1,
+                    ),
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::ExileLinkedToSource {
+                        until_source_leaves: false,
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        face_down: false,
+                        then: None,
+                    },
+                    EffectDef::IfCondition {
+                        // "When a creature card is exiled this way": asked of the card the
+                        // activation named, which by then has already moved to exile.
+                        condition: &TriggerConditionDef::TargetMatches {
+                            slot: TargetIndex::PRIMARY,
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        },
+                        then: &EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::Constant(1),
+                        },
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // WOE 243 — Candy Trail
@@ -241,21 +229,6 @@ pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
 );
 
 // WOE 277 — Virtue of Loyalty
-static KNIGHT_KEYWORDS: [AbilityDef; 1] = [abilities::vigilance()];
-
-const fn ardenvale_fealty_rules() -> CardRules {
-    CardRules::new_instant(mana_cost!("{1}{W}"))
-        .with_subtypes(&["Adventure"])
-        .with_ability(
-            AbilityDef::spell(
-                "Create a 2/2 white Knight creature token with vigilance.",
-                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2)
-                    .with_abilities(&KNIGHT_KEYWORDS),
-            )
-            .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
-        )
-}
-
 /// "Those creatures" is the same set the clause just counted: nothing joins
 /// or leaves the battlefield while one effect resolves, so asking twice and
 /// binding the first answer come to the same thing.
@@ -265,17 +238,6 @@ static YOUR_CREATURES: EffectRecipientDef = EffectRecipientDef::matching_objects
     PlayerRelation::You,
 );
 
-static LOYALTY_REWARDS_THEM: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: YOUR_CREATURES,
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Untap {
-        object: YOUR_CREATURES,
-    },
-];
-
 const fn virtue_of_loyalty_rules() -> CardRules {
     CardRules::new_enchantment(mana_cost!("{3}{W}{W}")).with_ability(AbilityDef::triggered(
         "At the beginning of your end step, put a +1/+1 counter on each creature you control. \
@@ -284,13 +246,42 @@ const fn virtue_of_loyalty_rules() -> CardRules {
             step: TurnStepDef::End,
             player: PlayerRelation::You,
         },
-        EffectDef::Sequence(&LOYALTY_REWARDS_THEM),
+        EffectDef::Sequence(
+            &const {
+                [
+                    EffectDef::AddCounters {
+                        object: YOUR_CREATURES,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Untap {
+                        object: YOUR_CREATURES,
+                    },
+                ]
+            },
+        ),
     ))
 }
 
 fn virtue_of_loyalty_composition() -> CardComposition {
     let virtue = virtue_of_loyalty_rules();
-    let fealty = ardenvale_fealty_rules();
+    let fealty = const {
+        CardRules::new_instant(mana_cost!("{1}{W}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell(
+                    "Create a 2/2 white Knight creature token with vigilance.",
+                    EffectDef::create_creature_token(
+                        &const { ["Knight"] },
+                        &const { [ManaColor::White] },
+                        2,
+                        2,
+                    )
+                    .with_abilities(&const { [abilities::vigilance()] }),
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
     CardComposition {
         parts: vec![
             CardPart::new(CardPartId::PRIMARY, "Virtue of Loyalty", virtue),

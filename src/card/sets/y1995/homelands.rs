@@ -334,18 +334,6 @@ pub(in crate::card::sets) static MARJHAN: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-/// "Put it on top of its owner's library instead of into that player's
-/// graveyard": the counter still happens, and what changes is only where
-/// the card lands afterwards.
-static MEMORY_LAPSE_COUNTERS: EffectDef = EffectDef::Counter {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Library,
-    placement: ZonePlacement::Top,
-};
-
-static MEMORY_LAPSE_TARGET: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 // HML 32a — Memory Lapse
 pub(in crate::card::sets) static MEMORY_LAPSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d2cc591-3a81-468a-91a4-3c3aac83a21a"),
@@ -357,8 +345,15 @@ pub(in crate::card::sets) static MEMORY_LAPSE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. If that spell is countered this way, put it on top of its owner's \
          library instead of into that player's graveyard.",
-        &MEMORY_LAPSE_TARGET,
-        MEMORY_LAPSE_COUNTERS,
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        // "Put it on top of its owner's library instead of into that player's
+        // graveyard": the counter still happens, and what changes is only where
+        // the card lands afterwards.
+        EffectDef::Counter {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Library,
+            placement: ZonePlacement::Top,
+        },
     )),
 );
 
@@ -583,14 +578,6 @@ pub(in crate::card::sets) static IHSAN_S_SHADE: CardRecord = CardRecord::new(
 );
 
 // HML 54 — Irini Sengir
-static IRINI_ENCHANTMENT_SPELLS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::Color(ManaColor::Green),
-        ObjectPredicateDef::Color(ManaColor::White),
-    ]),
-]);
-
 pub(in crate::card::sets) static IRINI_SENGIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("518e3b77-d482-4b90-94c0-0b8cdd949b9f"),
     "Irini Sengir",
@@ -600,7 +587,13 @@ pub(in crate::card::sets) static IRINI_SENGIR: CardRecord = CardRecord::new(
         .with_supertype(CardSupertype::Legendary)
         .with_ability(abilities::spell_cost_increase(
             "Green enchantment spells and white enchantment spells cost {2} more to cast.",
-            IRINI_ENCHANTMENT_SPELLS,
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+            ]),
             PlayerRelation::Any,
             mana_cost!("{2}"),
         )),

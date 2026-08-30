@@ -395,17 +395,6 @@ pub(in crate::card::sets) static ENVELOP: CardRecord = CardRecord::new(
 );
 
 // JUD 40 — Flash of Insight
-/// X blue cards from your own graveyard, exiled to pay. The count is the same
-/// X the spell is cast for, which is what makes the flashback expensive
-/// exactly when it is worth casting big.
-static EXILE_X_BLUE_CARDS: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Blue),
-    ZoneKind::Graveyard,
-    0,
-)
-.counted_in_x()
-.spent(SpendModeDef::Exile);
-
 pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_with_legacy_id(
     2064,
     "Flash of Insight",
@@ -429,7 +418,16 @@ pub(in crate::card::sets) static FLASH_OF_INSIGHT: CardRecord = CardRecord::new_
             Some("Flashback—{1}{U}, Exile X blue cards from your graveyard."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&EXILE_X_BLUE_CARDS),
+        // X blue cards from your own graveyard, exiled to pay. The count is the same
+        // X the spell is cast for, which is what makes the flashback expensive
+        // exactly when it is worth casting big.
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+            ObjectPredicateDef::Color(ManaColor::Blue),
+            ZoneKind::Graveyard,
+            0,
+        )
+        .counted_in_x()
+        .spent(SpendModeDef::Exile)),
     ]),
 );
 
@@ -644,27 +642,6 @@ pub(in crate::card::sets) static BALTHOR_THE_DEFILED: CardRecord = CardRecord::n
 );
 
 // JUD 62 — Cabal Therapy
-/// Everything of the named card in the target's hand, revealed first so the
-/// choice is answered honestly and then taken all at once.
-static THERAPY_TAKE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::RevealHand {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-    EffectDef::DiscardCards {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-]);
-
-static THERAPY_SACRIFICE: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ZoneKind::Battlefield,
-    1,
-);
-
-static THERAPY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_with_legacy_id(
     2068,
     "Cabal Therapy",
@@ -675,14 +652,25 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
     CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Choose a nonland card name. Target player reveals their hand and discards all cards with that name.",
-            &THERAPY_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::ChooseCardName {
                 chooser: PlayerRefDef::EffectController,
                 nonland_only: true,
                 matched_in: PlayerRefDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 binding: ObjectSetBindingIndex::PRIMARY,
-                then: &THERAPY_TAKE,
+                // Everything of the named card in the target's hand, revealed first so the
+                // choice is answered honestly and then taken all at once.
+                then: &EffectDef::Sequence(&[
+                    EffectDef::RevealHand {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                    EffectDef::DiscardCards {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                    },
+                ]),
             },
         ),
         AbilityDef::alternative_cast(
@@ -691,7 +679,11 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             Some("Flashback—Sacrifice a creature."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&THERAPY_SACRIFICE),
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ZoneKind::Battlefield,
+            1,
+        )),
     ]),
 );
 
@@ -796,19 +788,6 @@ pub(in crate::card::sets) static STITCH_TOGETHER: CardRecord = CardRecord::new(
 );
 
 // JUD 73 — Sutured Ghoul
-/// A body assembled from the graveyard, read live off the pile rather than
-/// fixed as it entered: a characteristic-defining ability keeps answering.
-/// A body assembled from the graveyard, read live off the pile rather than
-/// fixed as it entered: a characteristic-defining ability keeps answering.
-/// This sets the base rather than adding to it, which is what a printed
-/// */* says.
-static GHOUL_BODY: AppliedEffectDef = AppliedEffectDef::Characteristic(
-    CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
-        power: ValueDef::TotalPowerOfLinkedExiles,
-        toughness: ValueDef::TotalToughnessOfLinkedExiles,
-    }),
-);
-
 pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new_with_legacy_id(
     2089,
     "Sutured Ghoul",
@@ -828,7 +807,18 @@ pub(in crate::card::sets) static SUTURED_GHOUL: CardRecord = CardRecord::new_wit
             "Sutured Ghoul's power is equal to the total power of the exiled cards and its toughness is equal to their total toughness.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: GHOUL_BODY,
+                // A body assembled from the graveyard, read live off the pile rather than
+                // fixed as it entered: a characteristic-defining ability keeps answering.
+                // A body assembled from the graveyard, read live off the pile rather than
+                // fixed as it entered: a characteristic-defining ability keeps answering.
+                // This sets the base rather than adding to it, which is what a printed
+                // */* says.
+                effect: AppliedEffectDef::Characteristic(
+                    CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::SetBase {
+                        power: ValueDef::TotalPowerOfLinkedExiles,
+                        toughness: ValueDef::TotalToughnessOfLinkedExiles,
+                    }),
+                ),
             },
         ),
     ]),
@@ -1319,33 +1309,6 @@ pub(in crate::card::sets) static IRONSHELL_BEETLE: CardRecord = CardRecord::new(
 );
 
 // JUD 122 — Krosan Reclamation
-/// The chosen shuffled back in. The shuffle follows the move so the
-/// library the cards join is the one that gets randomized.
-static RECLAMATION_SHUFFLE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Library,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::ShuffleLibrary {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    },
-]);
-
-/// The graveyard the cards come out of belongs to the targeted player, which
-/// is what makes the choice a resolution choice here rather than a second
-/// target: the constraint is "from their graveyard", and choosing on
-/// resolution states it exactly.
-static RECLAMATION_CANDIDATES: ObjectQueryDef = ObjectQueryDef::owned_by(
-    ObjectPredicateDef::Any,
-    &[ZoneKind::Graveyard],
-    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-);
-
-static RECLAMATION_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::new_with_legacy_id(
     2074,
     "Krosan Reclamation",
@@ -1356,17 +1319,44 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
     CardRules::new_instant(mana_cost!("{1}{G}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Target player shuffles up to two target cards from their graveyard into their library.",
-            &RECLAMATION_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(RECLAMATION_CANDIDATES),
+                // The graveyard the cards come out of belongs to the targeted player, which
+                // is what makes the choice a resolution choice here rather than a second
+                // target: the constraint is "from their graveyard", and choosing on
+                // resolution states it exactly.
+                candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                )),
                 exclude: None,
                 minimum: 0,
                 maximum: 2,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &RECLAMATION_SHUFFLE,
+                // The chosen shuffled back in. The shuffle follows the move so the
+                // library the cards join is the one that gets randomized.
+                then: &const {
+                    EffectDef::Sequence(&const {
+                        [
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    ObjectSetBindingIndex::PRIMARY,
+                                )),
+                                zone: ZoneKind::Library,
+                                placement: ZonePlacement::Top,
+                            },
+                            EffectDef::ShuffleLibrary {
+                                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        ]
+                    })
+                },
             }),
         ),
         AbilityDef::alternative_cast(
@@ -1482,8 +1472,6 @@ pub(in crate::card::sets) static SUDDEN_STRENGTH: CardRecord = CardRecord::new(
 );
 
 // JUD 133 — Sylvan Safekeeper
-static SAFEKEEPER_SHROUD: AbilityDef = abilities::shroud();
-
 pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new_with_legacy_id(
     293,
     "Sylvan Safekeeper",
@@ -1504,7 +1492,7 @@ pub(in crate::card::sets) static SYLVAN_SAFEKEEPER: CardRecord = CardRecord::new
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&SAFEKEEPER_SHROUD),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -1601,15 +1589,6 @@ pub(in crate::card::sets) static NANTUKO_MONASTERY: CardRecord = CardRecord::new
     crate::card::CardRules::unsupported(),
 );
 
-static RIFTSTONE_PORTAL_GRANTED_MANA: AbilityDef = AbilityDef::activated_mana(
-    "{T}: Add {G} or {W}.",
-    &[AbilityCostDef::TapSource],
-    EffectDef::AddMana(AddManaEffectDef::choice(&[
-        ManaColor::Green,
-        ManaColor::White,
-    ])),
-);
-
 // JUD 143 — Riftstone Portal
 pub(in crate::card::sets) static RIFTSTONE_PORTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92ece630-e484-4221-911f-e32048894f23"),
@@ -1626,7 +1605,14 @@ pub(in crate::card::sets) static RIFTSTONE_PORTAL: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-                effect: AppliedEffectDef::add_ability(&RIFTSTONE_PORTAL_GRANTED_MANA),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                    "{T}: Add {G} or {W}.",
+                    &[AbilityCostDef::TapSource],
+                    EffectDef::AddMana(AddManaEffectDef::choice(&[
+                        ManaColor::Green,
+                        ManaColor::White,
+                    ])),
+                )),
             },
         )
         .with_source_zones(&[ZoneKind::Graveyard]),

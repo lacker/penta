@@ -10,13 +10,13 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardAbilityBinding, CardArt, CardBehavior,
     CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
     ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef, CounterKind,
-    CreatedTokensDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, GraveyardPlayPermissionDef,
-    HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
+    CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef,
+    GraveyardPlayPermissionDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    QuantifierDef, ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    RoundingDef, SacrificedAmountDef, SimultaneousChooseDef, SpellAdditionalCostCountDef,
     SpellAdditionalCostDef, SpendModeDef, TargetChooserDef, TargetConditionDef,
     TopCardSelectionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
@@ -5985,13 +5985,63 @@ pub(in crate::card::sets) static GRIMGRIN_CORPSE_BORN: CardRecord = CardRecord::
 );
 
 // ISD 215 — Olivia Voldaren
-// Audit: metadata-only — Needs a permanent subtype-adding effect and control lasting only while the source remains controlled.
+static OLIVIA_ANOTHER_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
+    ObjectPredicateDef::All(&[
+        ObjectPredicateDef::HasType(CardType::Creature),
+        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+    ]),
+)];
+
+static OLIVIA_AS_A_VAMPIRE: AppliedEffectDef =
+    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Vampire"]));
+
+static OLIVIA_BITES: [EffectDef; 3] = [
+    EffectDef::DealDamage {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        amount: ValueDef::Constant(1),
+    },
+    EffectDef::Apply {
+        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        effect: OLIVIA_AS_A_VAMPIRE,
+        duration: ResolvedEffectDurationDef::Permanent,
+    },
+    EffectDef::AddCounters {
+        object: EffectRecipientDef::Source,
+        kind: CounterKind::PlusOnePlusOne,
+        amount: ValueDef::Constant(1),
+    },
+];
+
 pub(in crate::card::sets) static OLIVIA_VOLDAREN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed750692-ba6a-4a89-ad6d-92fda7edc2cb"),
     "Olivia Voldaren",
     crate::card::CardArt::new("ed750692-ba6a-4a89-ad6d-92fda7edc2cb", "Eric Deschamps"),
     crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{R}"), &["Vampire"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flying(),
+            AbilityDef::activated_with_targets(
+                "{1}{R}: Olivia Voldaren deals 1 damage to another target creature. That creature becomes a Vampire in addition to its other types. Put a +1/+1 counter on Olivia Voldaren.",
+                &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+                &OLIVIA_ANOTHER_CREATURE,
+                EffectDef::Sequence(&OLIVIA_BITES),
+            ),
+            AbilityDef::activated_with_targets(
+                "{3}{B}{B}: Gain control of target Vampire for as long as you control Olivia Voldaren.",
+                &[AbilityCostDef::Mana(mana_cost!("{3}{B}{B}"))],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Subtype("Vampire"),
+                )],
+                EffectDef::GainControl {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    duration: ControlDurationDef::WhileSourceRemains {
+                        while_tapped: false,
+                    },
+                },
+            ),
+        ]),
 );
 
 // ISD 216 — Blazing Torch (reprint)

@@ -12,7 +12,7 @@ use super::super::{
     AbilityTargetDef, AlternativeCastKindDef, CardEffectStatus, CastChoices, CastCostContext,
     CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game, GameObjectId,
     ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate,
-    TargetSlotDef, TargetSlotId, TriggerContext, add_mana_cost,
+    TargetSlotDef, TargetSlotId, TriggerContext, ZoneKind, add_mana_cost,
 };
 use crate::game::casting_actions::{CastScale, SpellAdditionalCostRequest};
 
@@ -157,6 +157,12 @@ impl Game {
                 state
                     .graveyard
                     .iter()
+                    .find(|card| card.id == card_id)
+                    .map(|card| (card, CastSourceZone::Graveyard))
+            })
+            .or_else(|| {
+                self.current_cast_offer(player, card_id, CastSourceZone::Graveyard)?;
+                self.cards_in_zone(ZoneKind::Graveyard)
                     .find(|card| card.id == card_id)
                     .map(|card| (card, CastSourceZone::Graveyard))
             })

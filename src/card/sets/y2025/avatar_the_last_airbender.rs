@@ -10,26 +10,6 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // TLA 144 — The Last Agni Kai
-static THE_LAST_AGNI_KAI_TARGETS: [AbilityTargetDef; 2] = [
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    }),
-    AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    }),
-];
-
-static THE_LAST_AGNI_KAI_ADD_MANA: EffectDef = EffectDef::AddManaEqualTo {
-    color: ManaColor::Red,
-    amount: ValueDef::MatchedCount,
-};
-
 pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61eaebc6-7575-48ed-b212-ff8b0c7ae694"),
     "The Last Agni Kai",
@@ -38,13 +18,29 @@ pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
         AbilityDef::spell_with_targets(
             "Target creature you control fights target creature an opponent controls. If excess damage was dealt to the creature an opponent controls this way, add that much {R}. Until end of turn, you don't lose this mana as steps and phases end.",
-            &THE_LAST_AGNI_KAI_TARGETS,
+            &[
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                }),
+                AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                }),
+            ],
             EffectDef::Fight {
                 first: ObjectRefDef::Target(TargetIndex::PRIMARY),
                 second: ObjectRefDef::Target(TargetIndex(1)),
                 excess: Some(FightExcessDef {
                     recipient: ObjectRefDef::Target(TargetIndex(1)),
-                    then: &THE_LAST_AGNI_KAI_ADD_MANA,
+                    then: &EffectDef::AddManaEqualTo {
+                        color: ManaColor::Red,
+                        amount: ValueDef::MatchedCount,
+                    },
                 }),
             },
         )

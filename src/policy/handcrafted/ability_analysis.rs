@@ -543,6 +543,8 @@ impl HandcraftedPolicy {
                 Self::target_condition_in_value(condition.then)
                     .or_else(|| Self::target_condition_in_value(condition.otherwise))
             }
+            ValueDef::IfCondition(condition) => Self::target_condition_in_value(condition.then)
+                .or_else(|| Self::target_condition_in_value(condition.otherwise)),
             ValueDef::IfMatchingObjectCount(condition) => {
                 Self::target_condition_in_object_predicate(condition.query.object)
                     .or_else(|| Self::target_condition_in_value(condition.then))

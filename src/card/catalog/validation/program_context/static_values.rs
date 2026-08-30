@@ -88,6 +88,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::Negate(_)
         | ValueDef::IfCreatureDiedThisTurn(_)
         | ValueDef::IfControllerLifeAtMost(_)
+        | ValueDef::IfCondition(_)
         | ValueDef::IfTargetMatches(_)
         | ValueDef::IfMatchingObjectCount(_)
         | ValueDef::ColorsOfManaSpent
@@ -156,6 +157,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::Halved(_)
         | ValueDef::IfCreatureDiedThisTurn(_)
         | ValueDef::IfControllerLifeAtMost(_)
+        | ValueDef::IfCondition(_)
         | ValueDef::IfSourceMatches(_)
         | ValueDef::IfTargetMatches(_)
         | ValueDef::CountersOnSource(_)

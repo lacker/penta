@@ -622,20 +622,41 @@ fn validate_value_target_references(
             target_count,
             scope,
         ),
+        ValueDef::IfCondition(condition) => {
+            validate_trigger_condition(*condition.condition, target_count, scope)?;
+            validate_value_pair_target_references(
+                condition.then,
+                condition.otherwise,
+                target_count,
+                scope,
+            )
+        }
         ValueDef::IfSourceMatches(condition) => {
             validate_object_predicate_references(condition.object, target_count, scope)?;
-            validate_value_target_references(condition.then, target_count, scope)?;
-            validate_value_target_references(condition.otherwise, target_count, scope)
+            validate_value_pair_target_references(
+                condition.then,
+                condition.otherwise,
+                target_count,
+                scope,
+            )
         }
         ValueDef::IfTargetMatches(condition) => {
             validate_target_index(condition.slot, target_count)?;
-            validate_value_target_references(condition.then, target_count, scope)?;
-            validate_value_target_references(condition.otherwise, target_count, scope)
+            validate_value_pair_target_references(
+                condition.then,
+                condition.otherwise,
+                target_count,
+                scope,
+            )
         }
         ValueDef::IfMatchingObjectCount(condition) => {
             validate_query(condition.query, target_count, scope)?;
-            validate_value_target_references(condition.then, target_count, scope)?;
-            validate_value_target_references(condition.otherwise, target_count, scope)
+            validate_value_pair_target_references(
+                condition.then,
+                condition.otherwise,
+                target_count,
+                scope,
+            )
         }
         ValueDef::AggregateObjectValues(aggregate) => {
             validate_object_set_target_references(aggregate.objects, target_count, scope)

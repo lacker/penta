@@ -187,6 +187,35 @@ fn increasing_ambition_searches_for_two_via_flashback() {
 }
 
 #[test]
+fn increasing_devotion_uses_cast_origin_for_its_single_token_amount() {
+    fn created(from: ZoneKind) -> usize {
+        let mut game = ready();
+        let devotion = card(10_000, cards::INCREASING_DEVOTION, PlayerId::One);
+        let devotion_id = devotion.id;
+        match from {
+            ZoneKind::Hand => game.players[0].hand.push(devotion),
+            ZoneKind::Graveyard => game.players[0].graveyard.push(devotion),
+            _ => unreachable!("the test only casts from hand or graveyard"),
+        }
+        game.players[0].mana_pool.white = 2;
+        game.players[0].mana_pool.colorless = if from == ZoneKind::Hand { 3 } else { 7 };
+
+        let action = game
+            .legal_actions(PlayerId::One)
+            .into_iter()
+            .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == devotion_id))
+            .expect("the appropriate cast is offered");
+        game.apply(PlayerId::One, action)
+            .expect("the spell is cast");
+        drain_pending(&mut game);
+        game.battlefield.len()
+    }
+
+    assert_eq!(created(ZoneKind::Hand), 5);
+    assert_eq!(created(ZoneKind::Graveyard), 10);
+}
+
+#[test]
 fn rummaging_goblin_discards_as_a_cost_then_draws() {
     let mut game = ready();
     let goblin = creature(10_000, cards::RUMMAGING_GOBLIN, PlayerId::One);

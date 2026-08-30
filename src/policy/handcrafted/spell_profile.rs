@@ -662,6 +662,7 @@ impl HandcraftedPolicy {
             | ValueDef::TargetManaValue(_)
             | ValueDef::IfCreatureDiedThisTurn(_)
             | ValueDef::IfControllerLifeAtMost(_)
+            | ValueDef::IfCondition(_)
             | ValueDef::IfSourceMatches(_)
             | ValueDef::IfTargetMatches(_)
             | ValueDef::IfMatchingObjectCount(_)

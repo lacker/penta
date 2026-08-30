@@ -8,10 +8,11 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef, CostModificationDef,
-    CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
+    ComparisonDef, ConditionValueDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef,
+    CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectBindingLabelDef, EffectDef,
+    EffectOutputBindingDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, QuantifierDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
@@ -317,36 +318,16 @@ pub(in crate::card::sets) static INCREASING_DEVOTION: CardRecord = CardRecord::n
     CardRules::new_sorcery(mana_cost!("{3}{W}{W}")).with_abilities(&[
         AbilityDef::spell(
             "Create five 1/1 white Human creature tokens. If this spell was cast from a graveyard, create ten of those tokens instead.",
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &CAST_FROM_GRAVEYARD,
-                    then: &EffectDef::create_creature_token(
-                        &["Human"],
-                        &[ManaColor::White],
-                        1,
-                        1,
-                    )
-                    .with_art(CardArt::new(
-                        "8894949b-f190-461e-996a-cf2b39f08a5d",
-                        "Michael C. Hayes",
-                    ))
-                    .with_amount(10),
-                },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
-                    then: &EffectDef::create_creature_token(
-                        &["Human"],
-                        &[ManaColor::White],
-                        1,
-                        1,
-                    )
-                    .with_art(CardArt::new(
-                        "8894949b-f190-461e-996a-cf2b39f08a5d",
-                        "Michael C. Hayes",
-                    ))
-                    .with_amount(5),
-                },
-            ]),
+            EffectDef::create_creature_token(&["Human"], &[ManaColor::White], 1, 1)
+                .with_art(CardArt::new(
+                    "8894949b-f190-461e-996a-cf2b39f08a5d",
+                    "Michael C. Hayes",
+                ))
+                .with_count(ValueDef::IfCondition(&ConditionValueDef::new(
+                    &CAST_FROM_GRAVEYARD,
+                    ValueDef::Constant(10),
+                    ValueDef::Constant(5),
+                ))),
         ),
         abilities::flashback(mana_cost!("{7}{W}{W}")),
     ]),
@@ -984,26 +965,14 @@ pub(in crate::card::sets) static INCREASING_CONFUSION: CardRecord = CardRecord::
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
             ))],
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &CAST_FROM_GRAVEYARD,
-                    then: &EffectDef::Mill {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Scaled(&ScaledValueDef::new(ValueDef::ChosenX, 2)),
-                        binding: None,
-                        then: None,
-                    },
-                },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
-                    then: &EffectDef::Mill {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::ChosenX,
-                        binding: None,
-                        then: None,
-                    },
-                },
-            ]),
+            EffectDef::Mill {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::IfCondition(&ConditionValueDef::new(
+                    &CAST_FROM_GRAVEYARD,
+                    ValueDef::Scaled(&ScaledValueDef::new(ValueDef::ChosenX, 2)),
+                    ValueDef::ChosenX,
+                )),
+            },
         ),
         abilities::flashback(mana_cost!("{X}{U}")),
     ]),
@@ -1572,7 +1541,7 @@ pub(in crate::card::sets) static INCREASING_AMBITION: CardRecord = CardRecord::n
             AbilityDef::spell(
                 "Search your library for a card and put that card into your hand. If this spell was cast from a graveyard, instead search your library for two cards and put those cards into your hand. Then shuffle.",
                 EffectDef::IfElseCondition {
-                    condition: &TriggerConditionDef::SourceCastFrom(ZoneKind::Graveyard),
+                    condition: &CAST_FROM_GRAVEYARD,
                     then: &EffectDef::SearchZone {
                         player: EffectRecipientDef::Controller,
                         source: ZoneKind::Library,
@@ -2275,28 +2244,17 @@ pub(in crate::card::sets) static INCREASING_VENGEANCE: CardRecord = CardRecord::
                 controller: Some(PlayerRelation::You),
                 owner: None,
             })],
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &CAST_FROM_GRAVEYARD,
-                    then: &EffectDef::CopyStackObject(&CopyStackObjectDef {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        controller: PlayerRefDef::EffectController,
-                        count: ValueDef::Constant(2),
-                        retarget: true,
-                        colors: None,
-                    }),
-                },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
-                    then: &EffectDef::CopyStackObject(&CopyStackObjectDef {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        controller: PlayerRefDef::EffectController,
-                        count: ValueDef::Constant(1),
-                        retarget: true,
-                        colors: None,
-                    }),
-                },
-            ]),
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::IfCondition(&ConditionValueDef::new(
+                    &CAST_FROM_GRAVEYARD,
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(1),
+                )),
+                retarget: true,
+                colors: None,
+            }),
         ),
         abilities::flashback(mana_cost!("{3}{R}{R}")),
     ]),
@@ -2917,24 +2875,15 @@ pub(in crate::card::sets) static INCREASING_SAVAGERY: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::Sequence(&[
-                EffectDef::IfCondition {
-                    condition: &CAST_FROM_GRAVEYARD,
-                    then: &EffectDef::AddCounters {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(10),
-                    },
-                },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::Not(&CAST_FROM_GRAVEYARD),
-                    then: &EffectDef::AddCounters {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::Constant(5),
-                    },
-                },
-            ]),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::IfCondition(&ConditionValueDef::new(
+                    &CAST_FROM_GRAVEYARD,
+                    ValueDef::Constant(10),
+                    ValueDef::Constant(5),
+                )),
+            },
         ),
         abilities::flashback(mana_cost!("{5}{G}{G}")),
     ]),
@@ -3908,20 +3857,24 @@ pub(in crate::card::sets) static HAUNTED_FENGRAF: CardRecord = CardRecord::new(
                 AbilityCostDef::TapSource,
                 AbilityCostDef::SacrificeSource,
             ],
-            EffectDef::SelectAtRandomFromZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Graveyard,
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                amount: ValueDef::Constant(1),
-                binding: ObjectSetBindingIndex::PRIMARY,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::PRIMARY,
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    effect: &EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: EffectOutputBindingDef::Objects("haunted_fengraf_card"),
+                },
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
+                        &EffectBindingLabelDef("haunted_fengraf_card"),
                     )),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },
-            },
+            ]),
         ),
     ]),
 );

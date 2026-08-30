@@ -378,36 +378,31 @@ fn validate_value_shape(
         ValueDef::Negate(value) => validate_value_shape(*value, targets),
         ValueDef::Scaled(value) => validate_value_shape(value.value, targets),
         ValueDef::Halved(value) => validate_value_shape(value.value, targets),
-        ValueDef::Sum(value) => {
-            validate_value_shape(value.left, targets)?;
-            validate_value_shape(value.right, targets)
-        }
+        ValueDef::Sum(value) => validate_value_pair_shape(value.left, value.right, targets),
         ValueDef::IfAdditionalCostPaid(value) => {
-            validate_value_shape(value.if_paid, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.if_paid, value.otherwise, targets)
         }
         ValueDef::IfControllerLifeAtMost(value) => {
-            validate_value_shape(value.then, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.then, value.otherwise, targets)
+        }
+        ValueDef::IfCondition(value) => {
+            validate_trigger_condition_shape(*value.condition, targets)?;
+            validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::IfCreatureDiedThisTurn(value) => {
-            validate_value_shape(value.then, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::IfSourceMatches(value) => {
             validate_object_predicate_shape(value.object, targets)?;
-            validate_value_shape(value.then, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::IfTargetMatches(value) => {
             validate_target_shape(value.slot, targets, RecipientExpectation::Object, false)?;
-            validate_value_shape(value.then, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::IfMatchingObjectCount(value) => {
             validate_query_shape(value.query, targets)?;
-            validate_value_shape(value.then, targets)?;
-            validate_value_shape(value.otherwise, targets)
+            validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::AggregateObjectValues(a) => validate_aggregate_shape(a.objects, targets),
         ValueDef::CountMatchingObjects(query)
@@ -551,6 +546,15 @@ fn validate_condition_shape(
             .iter()
             .try_for_each(|condition| validate_condition_shape(*condition, targets)),
     }
+}
+
+fn validate_value_pair_shape(
+    left: ValueDef,
+    right: ValueDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_value_shape(left, targets)?;
+    validate_value_shape(right, targets)
 }
 
 fn validate_trigger_condition_shape(

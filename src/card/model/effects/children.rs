@@ -196,6 +196,7 @@ mod tests {
             tapped: false,
             attacking: false,
             counters: None,
+            linked_to_source: false,
             created,
         };
 

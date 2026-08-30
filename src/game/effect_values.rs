@@ -255,7 +255,8 @@ impl Game {
             | ValueDef::AffectedManaValue
             | ValueDef::AffectedColorCount
             | ValueDef::TotalPowerOfLinkedExiles
-            | ValueDef::TotalToughnessOfLinkedExiles => 0,
+            | ValueDef::TotalToughnessOfLinkedExiles
+            | ValueDef::CountersOnCreator(_) => 0,
             // Read off the pile the source took rather than off the board,
             // which is where a resolving effect finds it too.
             ValueDef::CardTypesAmongLinkedExiles => {

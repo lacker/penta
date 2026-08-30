@@ -325,6 +325,11 @@ pub enum ValueDef {
     Halved(&'static HalvedValueDef),
     /// How many counters of one kind sit on the ability's own source.
     CountersOnSource(CounterKind),
+    /// How many counters of one kind sit on the permanent whose spell or
+    /// ability created this token. Unlike [`Self::CountersOnSource`], this
+    /// follows the token's explicit creation link and reads only the live
+    /// linked permanent: once that source leaves, the value is zero.
+    CountersOnCreator(CounterKind),
     /// How many counters of one kind a player has. The player-held pile
     /// rather than a permanent's: experience, poison, and energy are all
     /// counted here.

@@ -521,6 +521,7 @@ fn validate_value_target_references(
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)
+        | ValueDef::CountersOnCreator(_)
         | ValueDef::CardsDrawnThisTurn(_)
         | ValueDef::LandsPlayedThisTurn(_)
         | ValueDef::LifeGainedThisTurn(_)

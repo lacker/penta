@@ -21,6 +21,9 @@ struct TokenCopyRequest {
     /// clause that copies a permanent; squad buys as many as it was paid
     /// for.
     count: crate::card::ValueDef,
+    /// The source this token must remember, when the creating effect says
+    /// its authored rules refer back to that exact object.
+    creator: Option<crate::GameObjectId>,
     created: Option<crate::card::CreatedTokensDef>,
 }
 
@@ -70,6 +73,7 @@ impl Game {
             exceptions,
             controller,
             count,
+            creator,
             created,
         } = request;
         let count = usize::try_from(self.effect_value(count, object, context, scoped).max(0))
@@ -148,11 +152,12 @@ impl Game {
         self.entering_together(|game| {
             for (copy, double_faced, presented) in copies {
                 for _ in 0..game.tokens_created(holder, count) {
-                    minted.push(Target::Permanent(game.create_token_copy(
+                    minted.push(Target::Permanent(game.create_token_copy_from(
                         holder,
                         copy.clone(),
                         double_faced.clone(),
                         presented,
+                        creator,
                     )));
                 }
             }
@@ -195,6 +200,7 @@ impl Game {
                 tapped,
                 attacking,
                 counters,
+                linked_to_source,
                 created,
             } => {
                 if let Some(copy) = copy {
@@ -205,6 +211,7 @@ impl Game {
                             exceptions: copy.exceptions,
                             controller,
                             count,
+                            creator: linked_to_source.then_some(object.source.unwrap_or(object.id)),
                             created,
                         },
                         scoped,
@@ -248,10 +255,11 @@ impl Game {
                 // "Create four 1/1 Myr": they arrive at the same time, so a
                 // clause watching arrivals sees all four rather than each
                 // against a board the others have not joined yet.
+                let creator = linked_to_source.then_some(object.source.unwrap_or(object.id));
                 self.entering_together(|game| {
                     for _ in 0..game.tokens_created(controller, count) {
                         minted.push(Target::Permanent(game.create_token_arriving(
-                            controller, token, None, tapped, defender, counters,
+                            controller, token, creator, tapped, defender, counters,
                         )));
                     }
                 });

@@ -34,6 +34,7 @@ static CREATE_TOKEN: EffectDef = EffectDef::CreateToken {
     tapped: false,
     attacking: false,
     counters: None,
+    linked_to_source: false,
     created: None,
 };
 static MILL_THEN: EffectDef = EffectDef::Mill {

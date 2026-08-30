@@ -220,6 +220,27 @@ impl Game {
         )
     }
 
+    /// Creates a token copy that may remember the source whose effect made
+    /// it. Ordinary copy tokens pass no creator; source-linked authored rules
+    /// use the same permanent link as non-copy tokens.
+    pub(super) fn create_token_copy_from(
+        &mut self,
+        controller: PlayerId,
+        copy: CopiableCharacteristics,
+        double_faced: Option<DoubleFacedCopiableCharacteristics>,
+        presented: CardPartId,
+        creator: Option<GameObjectId>,
+    ) -> GameObjectId {
+        self.create_token_copy_with_completion(
+            controller,
+            copy,
+            double_faced,
+            presented,
+            EntryCompletion::None,
+            |permanent| permanent.created_by = creator,
+        )
+    }
+
     /// Creates a token copy through the normal battlefield-entry pipeline,
     /// with an optional completion for the effect that is moving it there.
     /// A copied permanent spell uses this path because it becomes a token as

@@ -31,6 +31,7 @@ static BALOTH_PAYS_A_LAND_OFF: [EffectDef; 2] = [
         tapped: true,
         attacking: false,
         counters: None,
+        linked_to_source: false,
         created: None,
     },
     EffectDef::Untap {

@@ -54,6 +54,7 @@ impl EffectDef {
             tapped: false,
             attacking: false,
             counters: None,
+            linked_to_source: false,
             created: None,
         }
     }
@@ -70,6 +71,7 @@ impl EffectDef {
             tapped: false,
             attacking: false,
             counters: None,
+            linked_to_source: false,
             created: None,
         }
     }
@@ -212,6 +214,25 @@ impl EffectDef {
         self
     }
 
+    /// Links each created token to the source of the resolving spell or
+    /// ability. The token may then use source-linked values such as
+    /// [`ValueDef::CountersOnCreator`] in its own rules.
+    ///
+    /// # Panics
+    ///
+    /// Panics when called on an effect other than [`Self::CreateToken`].
+    #[must_use]
+    pub const fn linked_to_source(mut self) -> Self {
+        let Self::CreateToken {
+            linked_to_source, ..
+        } = &mut self
+        else {
+            panic!("linked_to_source() requires a token-creation effect");
+        };
+        *linked_to_source = true;
+        self
+    }
+
     /// Records the created objects for a token-linked follow-up.
     ///
     /// # Panics
@@ -244,6 +265,7 @@ mod tests {
 
     const KRENKOS_COMMAND: EffectDef =
         EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_amount(2);
+    const LINKED_COMMAND: EffectDef = KRENKOS_COMMAND.linked_to_source();
 
     const WURMCOIL_TOKENS: [EffectDef; 2] = [
         EffectDef::create_artifact_creature_token(&["Phyrexian", "Wurm"], &[], 3, 3)
@@ -261,6 +283,7 @@ mod tests {
             tapped,
             attacking,
             counters,
+            linked_to_source,
             created,
             copy: _,
         } = KRENKOS_COMMAND
@@ -278,7 +301,16 @@ mod tests {
         assert!(!tapped);
         assert!(!attacking);
         assert_eq!(counters, None);
+        assert!(!linked_to_source);
         assert_eq!(created, None);
+
+        let EffectDef::CreateToken {
+            linked_to_source, ..
+        } = LINKED_COMMAND
+        else {
+            unreachable!()
+        };
+        assert!(linked_to_source);
     }
 
     #[test]

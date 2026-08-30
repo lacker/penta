@@ -71,6 +71,7 @@ fn catalog_validation_follows_nested_token_and_grant_continuations() {
         tapped: false,
         attacking: false,
         counters: None,
+        linked_to_source: false,
         created: None,
     };
     for effect in continuation_effects(&GRANT) {

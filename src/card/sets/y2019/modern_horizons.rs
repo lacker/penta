@@ -478,6 +478,7 @@ static PYROMANCER_MAKES_TOKENS: EffectDef = EffectDef::CreateToken {
     tapped: false,
     attacking: false,
     counters: None,
+    linked_to_source: false,
     created: None,
 };
 
@@ -508,6 +509,7 @@ static PYROMANCER_MAKES_TWO: EffectDef = EffectDef::CreateToken {
     tapped: false,
     attacking: false,
     counters: None,
+    linked_to_source: false,
     created: None,
 };
 

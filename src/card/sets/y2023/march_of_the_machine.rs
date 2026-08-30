@@ -22,40 +22,6 @@ pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRe
 );
 
 // MOM 40 — Sunfall
-/// Everyone's, which is what "all creatures" means.
-static EVERY_CREATURE: ObjectQueryDef = ObjectQueryDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Battlefield],
-);
-
-/// The creatures are bound before they move, because "X, where X is the
-/// number of creatures exiled this way" asks about a set the board no longer
-/// holds by the time the token is made.
-static SUNFALL_STEPS: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    // Incubate X. One token however large X is, and X of zero still makes
-    // one: the keyword creates the token unconditionally.
-    EffectDef::create_token(tokens::incubator())
-        .with_art(CardArt::new(
-            "2c5ed737-657b-43bf-b222-941da7579a4a",
-            "Johann Bodin",
-        ))
-        .with_counters(TokenCountersDef {
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-        }),
-];
-
-static SUNFALL_EXILES_THEN_INCUBATES: EffectDef = abilities::bind_objects_then(
-    crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(EVERY_CREATURE)),
-    ObjectSetBindingIndex::PRIMARY,
-    &EffectDef::Sequence(&SUNFALL_STEPS),
-);
-
 pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_legacy_id(
     2258,
     "Sunfall",
@@ -70,39 +36,43 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_lega
         "Exile all creatures. Incubate X, where X is the number of creatures exiled this way. \
          (Create an Incubator token with X +1/+1 counters on it and \"{2}: Transform this \
          token.\" It transforms into a 0/0 Phyrexian artifact creature.)",
-        SUNFALL_EXILES_THEN_INCUBATES,
+        abilities::bind_objects_then(
+            // Everyone's, which is what "all creatures" means.
+            crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
+                ObjectQueryDef::new(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                ),
+            )),
+            ObjectSetBindingIndex::PRIMARY,
+            // The creatures are bound before they move, because "X, where X is the
+            // number of creatures exiled this way" asks about a set the board no longer
+            // holds by the time the token is made.
+            &EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::PRIMARY,
+                    )),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+                // Incubate X. One token however large X is, and X of zero still makes
+                // one: the keyword creates the token unconditionally.
+                EffectDef::create_token(tokens::incubator())
+                    .with_art(CardArt::new(
+                        "2c5ed737-657b-43bf-b222-941da7579a4a",
+                        "Johann Bodin",
+                    ))
+                    .with_counters(TokenCountersDef {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                    }),
+            ]),
+        ),
     )),
 );
 
 // MOM 58 — Faerie Mastermind
-static FAERIE_MASTERMIND_ABILITIES: [AbilityDef; 4] = [
-    abilities::flash(),
-    abilities::flying(),
-    // The ordinal is the whole clause: their first card each turn is the one
-    // the rules hand them, so this catches the extra one and nothing else.
-    AbilityDef::triggered(
-        "Whenever an opponent draws their second card each turn, you draw a card.",
-        TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
-            PlayerRelation::Opponent,
-            2,
-        )),
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-    // Symmetrical on purpose: with the trigger above out, the copy they draw
-    // is the one that draws you another.
-    AbilityDef::activated(
-        "{3}{U}: Each player draws a card.",
-        &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
-        EffectDef::DrawCards {
-            recipient: EffectRecipientDef::players(PlayerSetDef::All),
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52d3005f-a1c7-4ef5-911f-ccc0752f4181"),
     "Faerie Mastermind",
@@ -111,8 +81,33 @@ pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new
     // A two-mana flash flier that is never a dead card: it taxes every
     // cantrip the other deck was going to cast anyway, and turns into a
     // draw engine once there is nothing else to spend mana on.
-    CardRules::new_creature(mana_cost!("{1}{U}"), &["Faerie", "Rogue"], 2, 1)
-        .with_abilities(&FAERIE_MASTERMIND_ABILITIES),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Faerie", "Rogue"], 2, 1).with_abilities(&[
+        abilities::flash(),
+        abilities::flying(),
+        // The ordinal is the whole clause: their first card each turn is the one
+        // the rules hand them, so this catches the extra one and nothing else.
+        AbilityDef::triggered(
+            "Whenever an opponent draws their second card each turn, you draw a card.",
+            TriggerEventDef::DrewCard(DrawEventMatcherDef::nth_each_turn(
+                PlayerRelation::Opponent,
+                2,
+            )),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        // Symmetrical on purpose: with the trigger above out, the copy they draw
+        // is the one that draws you another.
+        AbilityDef::activated(
+            "{3}{U}: Each player draws a card.",
+            &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::players(PlayerSetDef::All),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MOM 66 — Meeting of Minds
@@ -146,84 +141,6 @@ pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
 );
 
 // MOM 298 — Etali, Primal Conqueror // Etali, Primal Sickness
-static A_NONLAND_CARD: ObjectPredicateDef =
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land));
-
-/// Both libraries, and the permission is always Etali's controller's: what
-/// their library turned up is yours to cast.
-///
-/// The printed clause states no duration, which means the casting happens as
-/// the ability resolves: a card left uncast stays in exile uncastable rather
-/// than waiting for later in the turn.
-///
-/// Audit: partial — each exiled card is offered in turn rather than as a
-/// pile to be cast in an order you choose, so "a spell you cast this way can
-/// be the target of a later spell you cast this way" only holds when the
-/// exile order already put them that way.
-static ETALI_TAKES_FROM_EVERYONE: EffectDef = EffectDef::ExileFromTopUntil {
-    player: EffectRecipientDef::EachPlayer,
-    object: A_NONLAND_CARD,
-    permission: ExiledCastPermissionDef::FreeWhileResolving,
-};
-
-static ETALI_TRANSFORM_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{9}{G/P}"))];
-
-static ETALI_FRONT_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    abilities::enters_trigger(
-        "When this creature enters, each player exiles cards from the top of their library until \
-         they exile a nonland card. You may cast any number of spells from among the nonland \
-         cards exiled this way without paying their mana costs.",
-        ETALI_TAKES_FROM_EVERYONE,
-    ),
-    AbilityDef::activated(
-        "{9}{G/P}: Transform this creature. Activate only as a sorcery.",
-        &ETALI_TRANSFORM_COST,
-        EffectDef::Transform {
-            object: EffectRecipientDef::Source,
-        },
-    )
-    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
-];
-
-/// "They get that many poison counters": the amount is the damage that was
-/// dealt rather than the creature's power, which is what makes a blocked
-/// trampler give exactly what got through.
-static ETALI_POISONS_THEM: EffectDef = EffectDef::AddPlayerCounters {
-    recipient: EffectRecipientDef::EventPlayer,
-    kind: CounterKind::Poison,
-    amount: ValueDef::TriggerEventAmount,
-};
-
-static ETALI_BACK_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    abilities::indestructible(),
-    AbilityDef::triggered(
-        "Whenever this creature deals combat damage to a player, they get that many poison \
-         counters.",
-        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-        ETALI_POISONS_THEM,
-    ),
-];
-
-const fn etali_front_rules() -> CardRules {
-    CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Elder", "Dinosaur"], 7, 7)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&ETALI_FRONT_ABILITIES)
-}
-
-const fn etali_back_rules() -> CardRules {
-    CardRules::new_creature_without_mana_cost(&["Phyrexian", "Elder", "Dinosaur"], 11, 11)
-        .with_supertype(CardSupertype::Legendary)
-        .printed_colors(&[ManaColor::Green])
-        .with_abilities(&ETALI_BACK_ABILITIES)
-}
-
-static ETALI_FACES: [(&str, CardRules); 2] = [
-    ("Etali, Primal Conqueror", etali_front_rules()),
-    ("Etali, Primal Sickness", etali_back_rules()),
-];
-
 pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("3e97c609-3932-4428-96d4-1c97e61f0abb"),
     "Etali, Primal Conqueror // Etali, Primal Sickness",
@@ -231,7 +148,72 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
     CardSet::MarchOfTheMachine,
     // Seven mana that casts the two best cards on the table, and a back face
     // nobody in the cube ever pays for.
-    &ETALI_FACES,
+    &[
+        (
+            "Etali, Primal Conqueror",
+            const {
+                CardRules::new_creature(mana_cost!("{5}{R}{R}"), &const { ["Elder", "Dinosaur"] }, 7, 7)
+                .with_supertype(CardSupertype::Legendary)
+                .with_abilities(&const { [
+                    abilities::trample(),
+                    abilities::enters_trigger(
+                        "When this creature enters, each player exiles cards from the top of their library until \
+                         they exile a nonland card. You may cast any number of spells from among the nonland \
+                         cards exiled this way without paying their mana costs.",
+                        // Both libraries, and the permission is always Etali's controller's: what
+                        // their library turned up is yours to cast.
+                        //
+                        // The printed clause states no duration, which means the casting happens as
+                        // the ability resolves: a card left uncast stays in exile uncastable rather
+                        // than waiting for later in the turn.
+                        //
+                        // Audit: partial — each exiled card is offered in turn rather than as a
+                        // pile to be cast in an order you choose, so "a spell you cast this way can
+                        // be the target of a later spell you cast this way" only holds when the
+                        // exile order already put them that way.
+                        EffectDef::ExileFromTopUntil {
+                            player: EffectRecipientDef::EachPlayer,
+                            object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            permission: ExiledCastPermissionDef::FreeWhileResolving,
+                        },
+                    ),
+                    AbilityDef::activated(
+                        "{9}{G/P}: Transform this creature. Activate only as a sorcery.",
+                        &const { [AbilityCostDef::Mana(mana_cost!("{9}{G/P}"))] },
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )
+                    .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+                ] })
+            },
+        ),
+        (
+            "Etali, Primal Sickness",
+            const {
+                CardRules::new_creature_without_mana_cost(&const { ["Phyrexian", "Elder", "Dinosaur"] }, 11, 11)
+                .with_supertype(CardSupertype::Legendary)
+                .printed_colors(&const { [ManaColor::Green] })
+                .with_abilities(&const { [
+                    abilities::trample(),
+                    abilities::indestructible(),
+                    AbilityDef::triggered(
+                        "Whenever this creature deals combat damage to a player, they get that many poison \
+                         counters.",
+                        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                        // "They get that many poison counters": the amount is the damage that was
+                        // dealt rather than the creature's power, which is what makes a blocked
+                        // trampler give exactly what got through.
+                        EffectDef::AddPlayerCounters {
+                            recipient: EffectRecipientDef::EventPlayer,
+                            kind: CounterKind::Poison,
+                            amount: ValueDef::TriggerEventAmount,
+                        },
+                    ),
+                ] })
+            },
+        ),
+    ],
 );
 
 // MOM 328 — Zephyr Winder

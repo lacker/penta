@@ -165,41 +165,6 @@ pub(in crate::card::sets) static CATAPULT_SQUAD: CardRecord = CardRecord::new(
 );
 
 // ONS 12 — Chain of Silence
-static CHAIN_OF_SILENCE_COPY: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-        count: ValueDef::Constant(1),
-        retarget: true,
-        colors: None,
-    }),
-};
-
-static CHAIN_OF_SILENCE_EFFECTS: [EffectDef; 2] = [
-    EffectDef::PreventDamage {
-        prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::from(
-            ObjectRefDef::Target(TargetIndex::PRIMARY),
-        )),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    EffectDef::PayOr(PayOrDef::optional(
-        EffectPaymentDef {
-            payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-                TargetIndex::PRIMARY,
-            ))),
-            cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-                CardType::Land,
-            )),
-        },
-        &CHAIN_OF_SILENCE_COPY,
-    )),
-];
-
-static CHAIN_OF_SILENCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a60ac8e-11eb-433f-86f9-8e593b38c617"),
     "Chain of Silence",
@@ -207,8 +172,37 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
     crate::card::CardSet::Onslaught,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Prevent all damage target creature would deal this turn. That creature's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy.",
-        &CHAIN_OF_SILENCE_TARGET,
-        EffectDef::Sequence(&CHAIN_OF_SILENCE_EFFECTS),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef::from(
+                    ObjectRefDef::Target(TargetIndex::PRIMARY),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                },
+                &EffectDef::May {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                        count: ValueDef::Constant(1),
+                        retarget: true,
+                        colors: None,
+                    }),
+                },
+            )),
+        ]),
     )),
 );
 
@@ -825,34 +819,6 @@ pub(in crate::card::sets) static CALLOUS_OPPRESSOR: CardRecord = CardRecord::new
 );
 
 // ONS 73 — Chain of Vapor
-/// A land of their choice, sacrificed by whoever just had a permanent
-/// bounced. Paying buys the copy, which is what turns one Chain of Vapor into
-/// a board sweep in a deck holding the lands to spend.
-static CHAIN_OF_VAPOR_REBOUND: EffectDef = EffectDef::PayOr(PayOrDef::optional(
-    EffectPaymentDef {
-        payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
-            TargetIndex::PRIMARY,
-        ))),
-        cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-            CardType::Land,
-        )),
-    },
-    &EffectDef::May {
-        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-            count: ValueDef::Constant(1),
-            retarget: true,
-            colors: None,
-        }),
-    },
-));
-
-static A_NONLAND_PERMANENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-)];
-
 pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_with_legacy_id(
     2062,
     "Chain of Vapor",
@@ -862,14 +828,38 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
     // or stop.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Return target nonland permanent to its owner's hand. Then that permanent's controller may sacrifice a land of their choice. If the player does, they may copy this spell and may choose a new target for that copy.",
-        &A_NONLAND_PERMANENT,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+        )],
         EffectDef::Sequence(&[
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 placement: ZonePlacement::Top,
 },
-            CHAIN_OF_VAPOR_REBOUND,
+            // A land of their choice, sacrificed by whoever just had a permanent
+            // bounced. Paying buys the copy, which is what turns one Chain of Vapor into
+            // a board sweep in a deck holding the lands to spend.
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                        CardType::Land,
+                    )),
+                },
+                &EffectDef::May {
+                    player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                        controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                        count: ValueDef::Constant(1),
+                        retarget: true,
+                        colors: None,
+                    }),
+                },
+            )),
         ]),
     )),
 );
@@ -1460,24 +1450,6 @@ pub(in crate::card::sets) static CABAL_SLAVER: CardRecord = CardRecord::new(
 );
 
 // ONS 132 — Chain of Smog
-static CHAIN_OF_SMOG_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-/// The copy costs nothing here, unlike Chain of Vapor's land. Whoever was
-/// just hit decides whether to pass it on, and picks the next target -- which
-/// is why the chain usually stops at whoever cannot afford to keep it going.
-static CHAIN_OF_SMOG_REBOUND: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::player(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-    effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-        object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-        controller: PlayerRefDef::Target(TargetIndex::PRIMARY),
-        count: ValueDef::Constant(1),
-        retarget: true,
-        colors: None,
-    }),
-};
-
 pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_with_legacy_id(
     2155,
     "Chain of Smog",
@@ -1485,7 +1457,9 @@ pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_wit
     CardSet::Onslaught,
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target player discards two cards. That player may copy this spell and may choose a new target for that copy.",
-        &CHAIN_OF_SMOG_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::Sequence(&[
             EffectDef::Discard {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1493,7 +1467,19 @@ pub(in crate::card::sets) static CHAIN_OF_SMOG: CardRecord = CardRecord::new_wit
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: None,
             },
-            CHAIN_OF_SMOG_REBOUND,
+            // The copy costs nothing here, unlike Chain of Vapor's land. Whoever was
+            // just hit decides whether to pass it on, and picks the next target -- which
+            // is why the chain usually stops at whoever cannot afford to keep it going.
+            EffectDef::May {
+                player: EffectRecipientDef::player(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                    object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                    controller: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            },
         ]),
     )),
 );
@@ -2217,23 +2203,6 @@ pub(in crate::card::sets) static GOBLIN_MACHINIST: CardRecord = CardRecord::new(
 );
 
 // ONS 205 — Goblin Piledriver
-/// "Each other attacking Goblin", so the Piledriver never counts itself and
-/// a lone one gets nothing.
-static OTHER_ATTACKING_GOBLINS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Goblin"),
-        ObjectPredicateDef::Attacking,
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-static GOBLIN_PILEDRIVER_BONUS: ScaledValueDef = ScaledValueDef {
-    value: ValueDef::CountMatchingObjects(&OTHER_ATTACKING_GOBLINS),
-    factor: 2,
-};
-
 pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new_with_legacy_id(
     2019,
     "Goblin Piledriver",
@@ -2249,7 +2218,20 @@ pub(in crate::card::sets) static GOBLIN_PILEDRIVER: CardRecord = CardRecord::new
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Scaled(&GOBLIN_PILEDRIVER_BONUS),
+                    ValueDef::Scaled(&ScaledValueDef {
+                        // "Each other attacking Goblin", so the Piledriver never counts itself and
+                        // a lone one gets nothing.
+                        value: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Subtype("Goblin"),
+                                ObjectPredicateDef::Attacking,
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        )),
+                        factor: 2,
+                    }),
                     ValueDef::Constant(0),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -2797,28 +2779,6 @@ pub(in crate::card::sets) static CENTAUR_GLADE: CardRecord = CardRecord::new(
 );
 
 // ONS 252 — Chain of Acid
-static CHAIN_OF_ACID_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-)];
-
-static CHAIN_OF_ACID_EFFECTS: [EffectDef; 2] = [
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::May {
-        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-        effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-            object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
-            controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-            count: ValueDef::Constant(1),
-            retarget: true,
-            colors: None,
-        }),
-    },
-];
-
 pub(in crate::card::sets) static CHAIN_OF_ACID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d47ddca-a363-4ab7-b7f2-d0e0043c9916"),
     "Chain of Acid",
@@ -2826,8 +2786,26 @@ pub(in crate::card::sets) static CHAIN_OF_ACID: CardRecord = CardRecord::new(
     crate::card::CardSet::Onslaught,
     CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target noncreature permanent. Then that permanent's controller may copy this spell and may choose a new target for that copy.",
-        &CHAIN_OF_ACID_TARGET,
-        EffectDef::Sequence(&CHAIN_OF_ACID_EFFECTS),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                can_regenerate: true,
+                then: None,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                effect: &EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                    object: EffectRecipientDef::object(ObjectRefDef::ResolvingObject),
+                    controller: PlayerRefDef::ControllerOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            },
+        ]),
     )),
 );
 

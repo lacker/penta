@@ -6224,13 +6224,42 @@ pub(in crate::card::sets) static INQUISITOR_S_FLAIL: CardRecord = CardRecord::ne
 );
 
 // ISD 228 — Manor Gargoyle
-// Audit: metadata-only — Needs indestructible to depend continuously on retaining defender while an activation temporarily removes defender.
 pub(in crate::card::sets) static MANOR_GARGOYLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6bb40965-9096-4a19-b71d-4da2a5b36baa"),
     "Manor Gargoyle",
-    crate::card::CardArt::new("6bb40965-9096-4a19-b71d-4da2a5b36baa", "Matt Stewart"),
-    crate::card::CardSet::Innistrad,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6bb40965-9096-4a19-b71d-4da2a5b36baa", "Matt Stewart"),
+    CardSet::Innistrad,
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Gargoyle"], 4, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::static_ability(
+            "This creature has indestructible as long as it has defender.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Source,
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Defender),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+            },
+        ),
+        AbilityDef::activated(
+            "{1}: Until end of turn, this creature loses defender and gains flying.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                        KeywordAbility::Defender,
+                    )),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ISD 229 — Mask of Avacyn

@@ -34,21 +34,6 @@ static YOU_CONTROL_NO_ISLANDS: TriggerConditionDef = TriggerConditionDef::Object
 };
 
 // ARN 1 — Abu Ja'far
-/// Both sides of whatever block it was in. One direction is read off the
-/// candidate and the other off Abu Ja'far, whose own record is last-known by
-/// the time the trigger resolves -- it is dead, which is what set this off.
-static ABU_JAFARS_COMPANIONS: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::BlockedBySource,
-            ObjectPredicateDef::BlockingSource,
-        ]),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
 pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_legacy_id(
     1736,
     "Abu Ja'far",
@@ -59,7 +44,20 @@ pub(in crate::card::sets) static ABU_JAFAR: CardRecord = CardRecord::new_with_le
             "When this creature dies, destroy all creatures blocking or blocked by it. They \
              can't be regenerated.",
             EffectDef::Destroy {
-                object: ABU_JAFARS_COMPANIONS,
+                // Both sides of whatever block it was in. One direction is read off the
+                // candidate and the other off Abu Ja'far, whose own record is last-known by
+                // the time the trigger resolves -- it is dead, which is what set this off.
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::BlockedBySource,
+                            ObjectPredicateDef::BlockingSource,
+                        ]),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
                 can_regenerate: false,
                 then: None,
             },
@@ -497,22 +495,6 @@ pub(in crate::card::sets) static EL_HAJJAJ: CardRecord = CardRecord::new_with_le
 );
 
 // ARN 25 — Erg Raiders
-/// Two facts about the permanent itself, read at the end step: whether it went
-/// to war, and whether it has been here long enough to be asked. The turn it
-/// arrives is free, which is what stops it punishing a player who could not
-/// have attacked with it.
-static ERG_RAIDERS_IDLED: TriggerConditionDef = TriggerConditionDef::SourceMatches {
-    object: ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Not(&ObjectPredicateDef::AttackedThisTurn),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::CameUnderControlThisTurn),
-    ]),
-};
-
-static ERG_RAIDERS_TOLL: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(2),
-};
-
 pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_legacy_id(
     1813,
     "Erg Raiders",
@@ -526,8 +508,20 @@ pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_
                 step: TurnStepDef::End,
                 player: PlayerRelation::You,
             },
-            &ERG_RAIDERS_IDLED,
-            ERG_RAIDERS_TOLL,
+            // Two facts about the permanent itself, read at the end step: whether it went
+            // to war, and whether it has been here long enough to be asked. The turn it
+            // arrives is free, which is what stops it punishing a player who could not
+            // have attacked with it.
+            &TriggerConditionDef::SourceMatches {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::AttackedThisTurn),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::CameUnderControlThisTurn),
+                ]),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
         ),
     ),
 );
@@ -535,24 +529,6 @@ pub(in crate::card::sets) static ERG_RAIDERS: CardRecord = CardRecord::new_with_
 // ARN 25† — Erg Raiders (alternate printing)
 
 // ARN 26 — Guardian Beast
-static GUARDIAN_BEAST_ARTIFACTS: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-]);
-
-static GUARDIAN_BEAST_PROTECTION: EffectDef = EffectDef::StaticApply {
-    recipient: EffectRecipientDef::matching_objects(
-        GUARDIAN_BEAST_ARTIFACTS,
-        &[ZoneKind::Battlefield],
-        PlayerRelation::You,
-    ),
-    effect: AppliedEffectDef::Composite(&[
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotBecomeEnchanted),
-        AppliedEffectDef::add_ability(&abilities::indestructible()),
-        AppliedEffectDef::Rule(AppliedRuleDef::CannotChangeController),
-    ]),
-};
-
 pub(in crate::card::sets) static GUARDIAN_BEAST: CardRecord = CardRecord::new_with_legacy_id(
     606,
     "Guardian Beast",
@@ -563,7 +539,21 @@ pub(in crate::card::sets) static GUARDIAN_BEAST: CardRecord = CardRecord::new_wi
             "As long as this creature is untapped, noncreature artifacts you control can't be enchanted, they have indestructible, and other players can't gain control of them. This effect doesn't remove Auras already attached to those artifacts.",
             EffectDef::IfCondition {
                 condition: &TriggerConditionDef::SourceUntapped,
-                then: &GUARDIAN_BEAST_PROTECTION,
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotBecomeEnchanted),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotChangeController),
+                    ]),
+                },
             },
         ),
     ]),
@@ -768,13 +758,6 @@ pub(in crate::card::sets) static ALI_BABA: CardRecord = CardRecord::new_with_leg
 );
 
 // ARN 36 — Ali from Cairo
-/// Every source and every kind: the printed text names no exception.
-static ALI_FROM_CAIRO_ANY_DAMAGE: DamageEventMatcherDef = DamageEventMatcherDef {
-    kind: DamageKindDef::Any,
-    source: DamageSourceMatcherDef::Any,
-    recipient: DamageRecipientMatcherDef::Any,
-};
-
 pub(in crate::card::sets) static ALI_FROM_CAIRO: CardRecord = CardRecord::new_with_legacy_id(
     1716,
     "Ali from Cairo",
@@ -786,7 +769,12 @@ pub(in crate::card::sets) static ALI_FROM_CAIRO: CardRecord = CardRecord::new_wi
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Controller,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::LimitDamage {
-                    matcher: ALI_FROM_CAIRO_ANY_DAMAGE,
+                    // Every source and every kind: the printed text names no exception.
+                    matcher: DamageEventMatcherDef {
+                        kind: DamageKindDef::Any,
+                        source: DamageSourceMatcherDef::Any,
+                        recipient: DamageRecipientMatcherDef::Any,
+                    },
                     limit: DamageLimitDef::LeaveAtLeastLife(1),
                 }),
             },
@@ -875,16 +863,6 @@ pub(in crate::card::sets) static MAGNETIC_MOUNTAIN: CardRecord = CardRecord::new
 );
 
 // ARN 42 — Mijae Djinn
-/// The losing branch: out of combat, and tapped as if it had attacked.
-static MIJAE_DJINN_LOST: EffectDef = EffectDef::Sequence(&[
-    EffectDef::RemoveFromCombat {
-        object: EffectRecipientDef::Source,
-    },
-    EffectDef::Tap {
-        object: EffectRecipientDef::Source,
-    },
-]);
-
 pub(in crate::card::sets) static MIJAE_DJINN: CardRecord = CardRecord::new_with_legacy_id(
     1662,
     "Mijae Djinn",
@@ -898,7 +876,15 @@ pub(in crate::card::sets) static MIJAE_DJINN: CardRecord = CardRecord::new_with_
             EffectDef::Randomized {
                 likelihood: LikelihoodDef::new(0.5),
                 on_success: &EffectDef::None,
-                on_failure: &MIJAE_DJINN_LOST,
+                // The losing branch: out of combat, and tapped as if it had attacked.
+                on_failure: &EffectDef::Sequence(&[
+                    EffectDef::RemoveFromCombat {
+                        object: EffectRecipientDef::Source,
+                    },
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Source,
+                    },
+                ]),
             },
         ),
     ),
@@ -940,52 +926,6 @@ pub(in crate::card::sets) static YDWEN_EFREET: CardRecord = CardRecord::new(
 );
 
 // ARN 45 — Cyclone
-/// The damage is one number dealt twice over: every creature and every
-/// player, including its own controller and their own board.
-static CYCLONE_SWEEP: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasType(CardType::Creature),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Any,
-        ),
-        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::EachPlayer,
-        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-    },
-];
-
-static CYCLONE_SWEEP_SEQUENCE: EffectDef = EffectDef::Sequence(&CYCLONE_SWEEP);
-
-static CYCLONE_SACRIFICE: EffectDef = EffectDef::Sacrifice {
-    object: EffectRecipientDef::Source,
-};
-
-/// The counter goes on first, so the upkeep it lands on is already paying for
-/// it: the first upkeep costs {G} rather than nothing.
-static CYCLONE_UPKEEP: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::named("wind"),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::PayOr(PayOrDef {
-        payment: EffectPaymentDef {
-            payer: PlayerSetDef::Related(PlayerRelation::You),
-            cost: EffectPaymentCostDef::ColoredMana {
-                color: ManaColor::Green,
-                amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
-            },
-        },
-        if_paid: Some(&CYCLONE_SWEEP_SEQUENCE),
-        otherwise: Some(&CYCLONE_SACRIFICE),
-        visibility: ChoiceVisibilityDef::Public,
-        condition: None,
-    }),
-];
-
 pub(in crate::card::sets) static CYCLONE: CardRecord = CardRecord::new_with_legacy_id(
     1840,
     "Cyclone",
@@ -1000,7 +940,45 @@ pub(in crate::card::sets) static CYCLONE: CardRecord = CardRecord::new_with_lega
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        EffectDef::Sequence(&CYCLONE_UPKEEP),
+        // The counter goes on first, so the upkeep it lands on is already paying for
+        // it: the first upkeep costs {G} rather than nothing.
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("wind"),
+                amount: ValueDef::Constant(1),
+            },
+            EffectDef::PayOr(PayOrDef {
+                payment: EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: EffectPaymentCostDef::ColoredMana {
+                        color: ManaColor::Green,
+                        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
+                    },
+                },
+                // The damage is one number dealt twice over: every creature and every
+                // player, including its own controller and their own board.
+                if_paid: Some(&EffectDef::Sequence(&[
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
+                    },
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::EachPlayer,
+                        amount: ValueDef::CountersOnSource(CounterKind::named("wind")),
+                    },
+                ])),
+                otherwise: Some(&EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                }),
+                visibility: ChoiceVisibilityDef::Public,
+                condition: None,
+            }),
+        ]),
     )),
 );
 
@@ -1028,22 +1006,6 @@ pub(in crate::card::sets) static DROP_OF_HONEY: CardRecord = CardRecord::new(
 );
 
 // ARN 48 — Erhnam Djinn
-/// The gift is compulsory and goes to an opponent's creature, which is the
-/// drawback the Djinn is priced around.
-static ERHNAM_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-static ERHNAM_FORESTWALK: AbilityDef = abilities::forestwalk();
-
 pub(in crate::card::sets) static ERHNAM_DJINN: CardRecord = CardRecord::new_with_legacy_id(
     73,
     "Erhnam Djinn",
@@ -1056,10 +1018,22 @@ pub(in crate::card::sets) static ERHNAM_DJINN: CardRecord = CardRecord::new_with
             step: TurnStepDef::Upkeep,
             player: PlayerRelation::You,
         },
-        &ERHNAM_TARGET,
+        // The gift is compulsory and goes to an opponent's creature, which is the
+        // drawback the Djinn is priced around.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Wall")),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            },
+        )],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::add_ability(&ERHNAM_FORESTWALK),
+            effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
             duration: ResolvedEffectDurationDef::UntilYourNextUpkeep,
         },
     )]),
@@ -1076,26 +1050,6 @@ pub(in crate::card::sets) static GHAZBAN_OGRE: CardRecord = CardRecord::new(
 );
 
 // ARN 50 — Ifh-Bíff Efreet
-/// Hurricane in miniature, and it catches the Efreet too: it flies, so its
-/// own ability hits it.
-static IFH_BIFF_STRIKE: [EffectDef; 2] = [
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-            ]),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::Any,
-        ),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::EachPlayer,
-        amount: ValueDef::Constant(1),
-    },
-];
-
 pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new_with_legacy_id(
     1816,
     "Ifh-Bíff Efreet",
@@ -1107,7 +1061,25 @@ pub(in crate::card::sets) static IFH_BIFF_EFREET: CardRecord = CardRecord::new_w
             "{G}: This creature deals 1 damage to each creature with flying and each player. \
              Any player may activate this ability.",
             &[AbilityCostDef::Mana(mana_cost!("{G}"))],
-            EffectDef::Sequence(&IFH_BIFF_STRIKE),
+            // Hurricane in miniature, and it catches the Efreet too: it flies, so its
+            // own ability hits it.
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
         )
         .open_to_any_player(),
     ]),
@@ -1244,15 +1216,6 @@ pub(in crate::card::sets) static ALADDINS_RING: CardRecord = CardRecord::new_wit
 );
 
 // ARN 58 — Bottle of Suleiman
-static BOTTLE_OF_SULEIMAN_WON: EffectDef =
-    EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
-        .with_abilities(&[abilities::flying()]);
-
-static BOTTLE_OF_SULEIMAN_LOST: EffectDef = EffectDef::DealDamage {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::Constant(5),
-};
-
 pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::new_with_legacy_id(
     1483,
     "Bottle of Suleiman",
@@ -1268,8 +1231,12 @@ pub(in crate::card::sets) static BOTTLE_OF_SULEIMAN: CardRecord = CardRecord::ne
         ],
         EffectDef::Randomized {
             likelihood: LikelihoodDef::new(0.5),
-            on_success: &BOTTLE_OF_SULEIMAN_WON,
-            on_failure: &BOTTLE_OF_SULEIMAN_LOST,
+            on_success: &EffectDef::create_artifact_creature_token(&["Djinn"], &[], 5, 5)
+                .with_abilities(&[abilities::flying()]),
+            on_failure: &EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(5),
+            },
         },
     )),
 );
@@ -1315,16 +1282,6 @@ static BOTTLED: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
 ]);
 
-/// The casting prohibition has no "other": City in a Bottle was itself
-/// printed in Arabian Nights, so a second copy cannot be cast either.
-static FROM_THE_BOTTLE: ObjectPredicateDef = ObjectPredicateDef::DebutSet(CardSet::ArabianNights);
-
-static BOTTLED_PERMANENTS_EXIST: TriggerConditionDef = TriggerConditionDef::ObjectCount {
-    query: ObjectQueryDef::matching(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 1,
-};
-
 pub(in crate::card::sets) static CITY_IN_A_BOTTLE: CardRecord = CardRecord::new_with_legacy_id(
     110,
     "City in a Bottle",
@@ -1334,7 +1291,11 @@ pub(in crate::card::sets) static CITY_IN_A_BOTTLE: CardRecord = CardRecord::new_
         AbilityDef::triggered_if(
             "Whenever one or more other nontoken permanents with a name originally printed in the Arabian Nights expansion are on the battlefield, their controllers sacrifice them.",
             TriggerEventDef::StateCondition,
-            &BOTTLED_PERMANENTS_EXIST,
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
             EffectDef::Sacrifice {
                 object: EffectRecipientDef::matching_objects(BOTTLED, &[ZoneKind::Battlefield], PlayerRelation::Any),
             },
@@ -1344,7 +1305,9 @@ pub(in crate::card::sets) static CITY_IN_A_BOTTLE: CardRecord = CardRecord::new_
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::EachPlayer,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
-                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, FROM_THE_BOTTLE),
+                    // The casting prohibition has no "other": City in a Bottle was itself
+                    // printed in Arabian Nights, so a second copy cannot be cast either.
+                    PlayRestrictionDef::new(PlayActionMatcherDef::Any, ObjectPredicateDef::DebutSet(CardSet::ArabianNights)),
                 )),
             },
         ),
@@ -1491,41 +1454,6 @@ pub(in crate::card::sets) static PYRAMIDS: CardRecord = CardRecord::new(
 );
 
 // ARN 68 — Ring of Ma'rûf
-static RING_ORACLE_SOURCES: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::OutsideGame];
-
-static RING_OLD_SCHOOL_SOURCES: [CardChoiceSourceDef; 2] = [
-    CardChoiceSourceDef::Zone(ZoneKind::Exile),
-    CardChoiceSourceDef::OutsideGame,
-];
-
-static RING_ORACLE_CHOICE: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &RING_ORACLE_SOURCES,
-    object: ObjectPredicateDef::Any,
-    minimum: 1,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
-
-static RING_OLD_SCHOOL_CHOICE: EffectDef = EffectDef::ChooseCards {
-    player: EffectRecipientDef::Controller,
-    sources: &RING_OLD_SCHOOL_SOURCES,
-    object: ObjectPredicateDef::Any,
-    minimum: 1,
-    maximum: 1,
-    reveal: false,
-    destination: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-};
-
-static RING_FORMAT_CHOICE: EffectDef = EffectDef::IfFormat {
-    format: Format::OldSchool9394,
-    then: &RING_OLD_SCHOOL_CHOICE,
-    otherwise: &RING_ORACLE_CHOICE,
-};
-
 pub(in crate::card::sets) static RING_OF_MARUF: CardRecord = CardRecord::new_with_legacy_id(
     1362,
     "Ring of Ma'rûf",
@@ -1540,7 +1468,40 @@ pub(in crate::card::sets) static RING_OF_MARUF: CardRecord = CardRecord::new_wit
         ],
         EffectDef::ReplaceNextDrawThisTurn {
             player: EffectRecipientDef::Controller,
-            effect: &RING_FORMAT_CHOICE,
+            effect: &const {
+                EffectDef::IfFormat {
+                    format: Format::OldSchool9394,
+                    then: &const {
+                        EffectDef::ChooseCards {
+                            player: EffectRecipientDef::Controller,
+                            sources: &const {
+                                [
+                                    CardChoiceSourceDef::Zone(ZoneKind::Exile),
+                                    CardChoiceSourceDef::OutsideGame,
+                                ]
+                            },
+                            object: ObjectPredicateDef::Any,
+                            minimum: 1,
+                            maximum: 1,
+                            reveal: false,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        }
+                    },
+                    otherwise: &const {
+                        EffectDef::ChooseCards {
+                            player: EffectRecipientDef::Controller,
+                            sources: &const { [CardChoiceSourceDef::OutsideGame] },
+                            object: ObjectPredicateDef::Any,
+                            minimum: 1,
+                            maximum: 1,
+                            reveal: false,
+                            destination: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        }
+                    },
+                }
+            },
         },
     )),
 );
@@ -1603,16 +1564,6 @@ pub(in crate::card::sets) static CITY_OF_BRASS: CardRecord = CardRecord::new_wit
 );
 
 // ARN 72 — Desert
-/// "Target attacking creature", which the end-of-combat window still has
-/// standing in front of it: combat damage is dealt, but nothing is removed
-/// from combat until the step finishes.
-static DESERT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::Attacking,
-    ]),
-)];
-
 pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legacy_id(
     1805,
     "Desert",
@@ -1626,7 +1577,15 @@ pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legac
                 "{T}: This land deals 1 damage to target attacking creature. Activate only \
                  during the end of combat step.",
                 &[AbilityCostDef::TapSource],
-                &DESERT_TARGET,
+                // "Target attacking creature", which the end-of-combat window still has
+                // standing in front of it: combat damage is dealt, but nothing is removed
+                // from combat until the step finishes.
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                )],
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(1),
@@ -1637,13 +1596,6 @@ pub(in crate::card::sets) static DESERT: CardRecord = CardRecord::new_with_legac
 );
 
 // ARN 73 — Diamond Valley
-/// The life is whatever the creature's toughness was, which is last-known by
-/// the time this runs -- the creature is already gone, which is the point.
-static DIAMOND_VALLEY_PAYOFF: EffectDef = EffectDef::GainLife {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::TriggerEventAmount,
-};
-
 pub(in crate::card::sets) static DIAMOND_VALLEY: CardRecord = CardRecord::new_with_legacy_id(
     1764,
     "Diamond Valley",
@@ -1656,7 +1608,12 @@ pub(in crate::card::sets) static DIAMOND_VALLEY: CardRecord = CardRecord::new_wi
             count: ValueDef::Constant(1),
             player: EffectRecipientDef::Controller,
             object: ObjectPredicateDef::HasType(CardType::Creature),
-            then: Some(&DIAMOND_VALLEY_PAYOFF),
+            // The life is whatever the creature's toughness was, which is last-known by
+            // the time this runs -- the creature is already gone, which is the point.
+            then: Some(&EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::TriggerEventAmount,
+            }),
             amount: SacrificedAmountDef::Toughness,
             otherwise: None,
             optional: false,
@@ -1665,10 +1622,6 @@ pub(in crate::card::sets) static DIAMOND_VALLEY: CardRecord = CardRecord::new_wi
 );
 
 // ARN 74 — Elephant Graveyard
-static ELEPHANT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Subtype("Elephant"),
-)];
-
 pub(in crate::card::sets) static ELEPHANT_GRAVEYARD: CardRecord = CardRecord::new_with_legacy_id(
     1422,
     "Elephant Graveyard",
@@ -1679,7 +1632,9 @@ pub(in crate::card::sets) static ELEPHANT_GRAVEYARD: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{T}: Regenerate target Elephant.",
             &[AbilityCostDef::TapSource],
-            &ELEPHANT_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Elephant"),
+            )],
             EffectDef::Regenerate {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             },
@@ -1688,13 +1643,6 @@ pub(in crate::card::sets) static ELEPHANT_GRAVEYARD: CardRecord = CardRecord::ne
 );
 
 // ARN 75 — Island of Wak-Wak
-static ISLAND_OF_WAK_WAK_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-    ]),
-)];
-
 pub(in crate::card::sets) static ISLAND_OF_WAK_WAK: CardRecord = CardRecord::new_with_legacy_id(
     1806,
     "Island of Wak-Wak",
@@ -1703,7 +1651,12 @@ pub(in crate::card::sets) static ISLAND_OF_WAK_WAK: CardRecord = CardRecord::new
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_with_targets(
         "{T}: Target creature with flying has base power 0 until end of turn.",
         &[AbilityCostDef::TapSource],
-        &ISLAND_OF_WAK_WAK_TARGET,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+            ]),
+        )],
         EffectDef::Apply {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
             effect: AppliedEffectDef::set_base_power(ValueDef::Constant(0)),

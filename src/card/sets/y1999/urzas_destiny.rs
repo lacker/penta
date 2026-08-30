@@ -125,34 +125,6 @@ pub(in crate::card::sets) static MASTER_HEALER: CardRecord = CardRecord::new(
 );
 
 // UDS 13 — Opalescence
-/// Every other non-Aura enchantment. An Aura is left alone because a
-/// creature Aura would fall off whatever it was attached to, and the
-/// enchantment doing the animating is not one of the things it animates.
-static OTHER_NON_AURA_ENCHANTMENTS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Enchantment),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::Any,
-);
-
-/// A creature in addition to its other types, with a body its own cost
-/// decides: the number is read off each affected enchantment rather than off
-/// the Opalescence.
-static ANIMATE_AS_ITS_OWN_COST: AppliedEffectDef = AppliedEffectDef::Composite(&[
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
-        CardTypeSet::single(CardType::Creature),
-    ))),
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-        PowerToughnessOperationDef::SetBase {
-            power: ValueDef::AffectedManaValue,
-            toughness: ValueDef::AffectedManaValue,
-        },
-    )),
-]);
-
 pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new_with_legacy_id(
     2080,
     "Opalescence",
@@ -164,9 +136,33 @@ pub(in crate::card::sets) static OPALESCENCE: CardRecord = CardRecord::new_with_
         "Each other non-Aura enchantment is a creature in addition to its other types and has base power and base toughness each equal to its mana value.",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
-                OTHER_NON_AURA_ENCHANTMENTS,
+                // Every other non-Aura enchantment. An Aura is left alone because a
+                // creature Aura would fall off whatever it was attached to, and the
+                // enchantment doing the animating is not one of the things it animates.
+                ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
             )),
-            effect: ANIMATE_AS_ITS_OWN_COST,
+            // A creature in addition to its other types, with a body its own cost
+            // decides: the number is read off each affected enchantment rather than off
+            // the Opalescence.
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
+                    CardTypeSet::single(CardType::Creature),
+                ))),
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                    PowerToughnessOperationDef::SetBase {
+                        power: ValueDef::AffectedManaValue,
+                        toughness: ValueDef::AffectedManaValue,
+                    },
+                )),
+            ]),
         },
     )),
 );
@@ -182,15 +178,6 @@ pub(in crate::card::sets) static RELIQUARY_MONK: CardRecord = CardRecord::new(
 );
 
 // UDS 15 — Replenish
-/// Every enchantment card the graveyard holds, all at once. The printed
-/// reminder about Auras is the ordinary rule for an Aura arriving with
-/// nothing to enchant, not a clause of its own.
-static ENCHANTMENTS_IN_YOUR_GRAVEYARD: EffectRecipientDef = EffectRecipientDef::matching_objects(
-    ObjectPredicateDef::HasType(CardType::Enchantment),
-    &[ZoneKind::Graveyard],
-    PlayerRelation::You,
-);
-
 pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new_with_legacy_id(
     2077,
     "Replenish",
@@ -201,7 +188,14 @@ pub(in crate::card::sets) static REPLENISH: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{3}{W}")).with_ability(AbilityDef::spell(
         "Return all enchantment cards from your graveyard to the battlefield.",
         EffectDef::MoveToZone {
-            object: ENCHANTMENTS_IN_YOUR_GRAVEYARD,
+            // Every enchantment card the graveyard holds, all at once. The printed
+            // reminder about Auras is the ordinary rule for an Aura arriving with
+            // nothing to enchant, not a clause of its own.
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                &[ZoneKind::Graveyard],
+                PlayerRelation::You,
+            ),
             zone: ZoneKind::Battlefield,
             placement: ZonePlacement::Top,
         },
@@ -1435,38 +1429,6 @@ pub(in crate::card::sets) static METALWORKER: CardRecord = CardRecord::new(
 );
 
 // UDS 136 — Powder Keg
-/// Everything the fuse counters name. A Keg with no counters on it destroys
-/// every nothing-cost permanent, which is the mode that answers a board of
-/// tokens.
-static MATCHING_ARTIFACTS_AND_CREATURES: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-    ]),
-    ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(CounterKind::named("fuse"))),
-]);
-
-static KEG_DETONATION: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::matching_objects(
-        MATCHING_ARTIFACTS_AND_CREATURES,
-        &[ZoneKind::Battlefield],
-        PlayerRelation::Any,
-    ),
-    can_regenerate: true,
-    then: None,
-};
-
-/// The counter is optional, so the Keg can be held at whatever size the board
-/// calls for rather than ticking past it.
-static KEG_FUSE: EffectDef = EffectDef::May {
-    player: EffectRecipientDef::Controller,
-    effect: &EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::named("fuse"),
-        amount: ValueDef::Constant(1),
-    },
-};
-
 pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_legacy_id(
     2053,
     "Powder Keg",
@@ -1479,12 +1441,38 @@ pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_l
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            KEG_FUSE,
+            // The counter is optional, so the Keg can be held at whatever size the board
+            // calls for rather than ticking past it.
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::named("fuse"),
+                    amount: ValueDef::Constant(1),
+                },
+            },
         ),
         AbilityDef::activated(
             "{T}, Sacrifice this artifact: Destroy each artifact and creature with mana value equal to the number of fuse counters on this artifact.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-            KEG_DETONATION,
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    // Everything the fuse counters name. A Keg with no counters on it destroys
+                    // every nothing-cost permanent, which is the mode that answers a board of
+                    // tokens.
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(CounterKind::named("fuse"))),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
         ),
     ]),
 );

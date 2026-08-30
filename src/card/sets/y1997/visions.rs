@@ -492,43 +492,6 @@ pub(in crate::card::sets) static VANISHING: CardRecord = CardRecord::new(
 );
 
 // VIS 49 — Vision Charm
-static VISION_CHARM_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static VISION_CHARM_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Artifact),
-)];
-
-/// The printed first choice is "a land type", which includes the nonbasic
-/// ones. Nothing in this card pool carries a nonbasic land subtype, so the
-/// choice offered is over the basic types alone.
-static VISION_CHARM_MODES: [AbilityDef; 3] = [
-    AbilityDef::spell_with_targets(
-        "Target player mills four cards.",
-        &VISION_CHARM_PLAYER,
-        EffectDef::Mill {
-            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(4),
-            binding: None,
-            then: None,
-        },
-    ),
-    AbilityDef::spell(
-        "Choose a land type and a basic land type. Each land of the first chosen type becomes the second chosen type until end of turn.",
-        EffectDef::SubstituteBasicLandTypeUntilEndOfTurn {
-            chooser: PlayerRefDef::EffectController,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target artifact phases out.",
-        &VISION_CHARM_ARTIFACT,
-        EffectDef::PhaseOut {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with_legacy_id(
     2090,
     "Vision Charm",
@@ -539,7 +502,38 @@ pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with
     // an artifact at instant speed.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
         "Choose one —\n• Target player mills four cards.\n• Choose a land type and a basic land type. Each land of the first chosen type becomes the second chosen type until end of turn.\n• Target artifact phases out.",
-        &VISION_CHARM_MODES,
+        // The printed first choice is "a land type", which includes the nonbasic
+        // ones. Nothing in this card pool carries a nonbasic land subtype, so the
+        // choice offered is over the basic types alone.
+        &[
+            AbilityDef::spell_with_targets(
+                "Target player mills four cards.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::Mill {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(4),
+                    binding: None,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell(
+                "Choose a land type and a basic land type. Each land of the first chosen type becomes the second chosen type until end of turn.",
+                EffectDef::SubstituteBasicLandTypeUntilEndOfTurn {
+                    chooser: PlayerRefDef::EffectController,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target artifact phases out.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                )],
+                EffectDef::PhaseOut {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+        ],
         1,
         1,
         false,
@@ -690,55 +684,6 @@ pub(in crate::card::sets) static KAERVEK_S_SPITE: CardRecord = CardRecord::new(
 );
 
 // VIS 64 — Necromancy
-/// Any graveyard, not only your own: the card is a reanimation spell for
-/// whatever died, whoever owned it.
-static NECROMANCY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
-/// "The controller of the permanent it becomes sacrifices it at the
-/// beginning of the next cleanup step" -- the price of casting it at
-/// instant speed, and nothing at all when it was cast on your own turn.
-static NECROMANCY_SACRIFICES_ITSELF: AbilityDef = AbilityDef::triggered(
-    "At the beginning of the next cleanup step, sacrifice this enchantment.",
-    TriggerEventDef::StepBegins {
-        step: TurnStepDef::Cleanup,
-        player: PlayerRelation::Any,
-    },
-    EffectDef::Sacrifice {
-        object: EffectRecipientDef::Source,
-    },
-);
-
-static NECROMANCY_CAST_AT_INSTANT_SPEED: TriggerConditionDef =
-    TriggerConditionDef::SourceCastAtInstantSpeed;
-
-/// The reanimation and the attachment are one step: what arrives is a new
-/// object, so a following effect would have nothing left to name.
-static NECROMANCY_REANIMATES: [EffectDef; 2] = [
-    EffectDef::WithBattlefieldArrival {
-        effect: &EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-        },
-        arrival: crate::card::BattlefieldArrivalDef {
-            controller: Some(PlayerRelation::You),
-            attachment: Some(ArrivalAttachmentDef::SourceToArrival),
-            ..crate::card::BattlefieldArrivalDef::DEFAULT
-        },
-    },
-    EffectDef::IfCondition {
-        condition: &NECROMANCY_CAST_AT_INSTANT_SPEED,
-        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&NECROMANCY_SACRIFICES_ITSELF)),
-    },
-];
-
 pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new_with_legacy_id(
     2202,
     "Necromancy",
@@ -759,7 +704,57 @@ pub(in crate::card::sets) static NECROMANCY: CardRecord = CardRecord::new_with_l
             // reads the keyword, and nothing in the pool reads an
             // enchantment's.
             abilities::flash(),
-            abilities::enters_trigger_with_targets("When this enchantment enters, if it's on the battlefield, it becomes an Aura with \"enchant creature put onto the battlefield with Necromancy.\" Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it.", &NECROMANCY_TARGET, EffectDef::Sequence(&NECROMANCY_REANIMATES)),
+            // Any graveyard, not only your own: the card is a reanimation spell for
+            // whatever died, whoever owned it.
+            abilities::enters_trigger_with_targets("When this enchantment enters, if it's on the battlefield, it becomes an Aura with \"enchant creature put onto the battlefield with Necromancy.\" Put target creature card from a graveyard onto the battlefield under your control and attach this enchantment to it.", &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            // The reanimation and the attachment are one step: what arrives is a new
+            // object, so a following effect would have nothing left to name.
+            )], EffectDef::Sequence(&const {
+                [
+                    // The reanimation and the attachment are one step: what arrives is a new
+                    // object, so a following effect would have nothing left to name.
+                    EffectDef::WithBattlefieldArrival {
+                        effect: &const {
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                zone: ZoneKind::Battlefield,
+                                placement: ZonePlacement::Top,
+                            }
+                        },
+                        arrival: crate::card::BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            attachment: Some(ArrivalAttachmentDef::SourceToArrival),
+                            ..crate::card::BattlefieldArrivalDef::DEFAULT
+                        },
+                    },
+                    EffectDef::IfCondition {
+                        condition: &const { TriggerConditionDef::SourceCastAtInstantSpeed },
+                        // "The controller of the permanent it becomes sacrifices it at the
+                        // beginning of the next cleanup step" -- the price of casting it at
+                        // instant speed, and nothing at all when it was cast on your own turn.
+                        then: &const {
+                            EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
+                                AbilityDef::triggered(
+                                    "At the beginning of the next cleanup step, sacrifice this enchantment.",
+                                    TriggerEventDef::StepBegins {
+                                        step: TurnStepDef::Cleanup,
+                                        player: PlayerRelation::Any,
+                                    },
+                                    EffectDef::Sacrifice {
+                                        object: EffectRecipientDef::Source,
+                                    },
+                                )
+                            }))
+                        },
+                    },
+                ]
+            })),
             AbilityDef::triggered(
                 "When this enchantment leaves the battlefield, that creature's controller sacrifices it.",
                 TriggerEventDef::zone_changed(
@@ -944,23 +939,6 @@ pub(in crate::card::sets) static ELKIN_LAIR: CardRecord = CardRecord::new(
 );
 
 // VIS 79 — Fireblast
-/// Two Mountains off the battlefield, which is why the card is a finisher
-/// rather than a burn spell: it is cast from an empty board on the turn the
-/// lands stop mattering.
-static SACRIFICE_TWO_MOUNTAINS: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-    zone: ZoneKind::Battlefield,
-    count: 2,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
-static FIREBLAST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_legacy_id(
     2035,
     "Fireblast",
@@ -969,7 +947,9 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
     CardRules::new_instant(mana_cost!("{4}{R}{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Fireblast deals 4 damage to any target.",
-            &FIREBLAST_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(4),
@@ -981,7 +961,18 @@ pub(in crate::card::sets) static FIREBLAST: CardRecord = CardRecord::new_with_le
             Some("You may sacrifice two Mountains rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SACRIFICE_TWO_MOUNTAINS),
+        // Two Mountains off the battlefield, which is why the card is a finisher
+        // rather than a burn spell: it is cast from an empty board on the turn the
+        // lands stop mattering.
+        .with_alternative_additional_cost(&SpellAdditionalCostDef {
+            or_life: None,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            zone: ZoneKind::Battlefield,
+            count: 2,
+            counted: SpellAdditionalCostCountDef::Printed,
+            spend: SpendModeDef::ByZone,
+            or: None,
+        }),
     ]),
 );
 
@@ -1238,33 +1229,6 @@ pub(in crate::card::sets) static CREEPING_MOLD: CardRecord = CardRecord::new(
 static ELEPHANT_GRASS_BLACK_CREATURES: ObjectPredicateDef =
     ObjectPredicateDef::Color(ManaColor::Black);
 
-static ELEPHANT_GRASS_NONBLACK_CREATURES: ObjectPredicateDef =
-    ObjectPredicateDef::Not(&ELEPHANT_GRASS_BLACK_CREATURES);
-
-static ELEPHANT_GRASS_SACRIFICE: EffectDef = EffectDef::Sacrifice {
-    object: EffectRecipientDef::Source,
-};
-
-static ELEPHANT_GRASS_UPKEEP_STEPS: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::named("age"),
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::PayOr(PayOrDef::unless(
-        EffectPaymentDef::generic_mana(
-            PlayerSetDef::One(PlayerRefDef::EffectController),
-            ValueDef::CountersOnSource(CounterKind::named("age")),
-        ),
-        &ELEPHANT_GRASS_SACRIFICE,
-    )),
-];
-
-static ELEPHANT_GRASS_UPKEEP: EffectDef = EffectDef::IfCondition {
-    condition: &TriggerConditionDef::SourceOnBattlefield,
-    then: &EffectDef::Sequence(&ELEPHANT_GRASS_UPKEEP_STEPS),
-};
-
 pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4c1f5a7-0d28-43ab-9b66-937e963f42cd"),
     "Elephant Grass",
@@ -1277,7 +1241,25 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            ELEPHANT_GRASS_UPKEEP,
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceOnBattlefield,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("age"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::PayOr(PayOrDef::unless(
+                        EffectPaymentDef::generic_mana(
+                            PlayerSetDef::One(PlayerRefDef::EffectController),
+                            ValueDef::CountersOnSource(CounterKind::named("age")),
+                        ),
+                        &EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )),
+                ]),
+            },
         ),
         AbilityDef::static_ability(
             "Black creatures can't attack you.",
@@ -1297,7 +1279,7 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::Controller,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(
                     AttackRestrictionDef::unless_paid(
-                        ELEPHANT_GRASS_NONBLACK_CREATURES,
+                        ObjectPredicateDef::Not(&ELEPHANT_GRASS_BLACK_CREATURES),
                         AttackDefenderScopeDef::AffectedPlayer,
                         mana_cost!("{2}"),
                     ),
@@ -1409,18 +1391,6 @@ static A_GREEN_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::Color(ManaColor::Green),
 ]);
 
-/// Paid as the spell is cast, so a board with nothing green on it cannot
-/// cast this at all.
-static SACRIFICE_A_GREEN_CREATURE: SpellAdditionalCostDef = SpellAdditionalCostDef {
-    or_life: None,
-    object: A_GREEN_CREATURE,
-    zone: ZoneKind::Battlefield,
-    count: 1,
-    counted: SpellAdditionalCostCountDef::Printed,
-    spend: SpendModeDef::ByZone,
-    or: None,
-};
-
 pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0845f0b0-9413-4ddd-861d-9607636bebc6"),
     "Natural Order",
@@ -1434,7 +1404,17 @@ pub(in crate::card::sets) static NATURAL_ORDER: CardRecord = CardRecord::new(
             "As an additional cost to cast this spell, sacrifice a green creature.\nSearch your \
              library for a green creature card, put it onto the battlefield, then shuffle.",
             &[],
-            SACRIFICE_A_GREEN_CREATURE,
+            // Paid as the spell is cast, so a board with nothing green on it cannot
+            // cast this at all.
+            SpellAdditionalCostDef {
+                or_life: None,
+                object: A_GREEN_CREATURE,
+                zone: ZoneKind::Battlefield,
+                count: 1,
+                counted: SpellAdditionalCostCountDef::Printed,
+                spend: SpendModeDef::ByZone,
+                or: None,
+            },
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,

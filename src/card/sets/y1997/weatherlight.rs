@@ -15,26 +15,6 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // WTH 1 — Abeyance
-/// Both halves of the same lock, applied to the same player for the same
-/// turn: no instants or sorceries, and no activations but mana abilities.
-static ABEYANCE_LOCK: [AppliedEffectDef; 2] = [
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
-        PlayActionMatcherDef::CastSpell,
-        ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Instant),
-            ObjectPredicateDef::HasType(CardType::Sorcery),
-        ]),
-    ))),
-    AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
-        PlayActionMatcherDef::ActivateNonManaAbility,
-        ObjectPredicateDef::Any,
-    ))),
-];
-
-static ABEYANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
 pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new_with_legacy_id(
     2086,
     "Abeyance",
@@ -44,11 +24,27 @@ pub(in crate::card::sets) static ABEYANCE: CardRecord = CardRecord::new_with_leg
     // deck holding it is buying one turn without interaction.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Until end of turn, target player can't cast instant or sorcery spells, and that player can't activate abilities that aren't mana abilities.\nDraw a card.",
-        &ABEYANCE_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
         EffectDef::Sequence(&[
             EffectDef::Apply {
                 recipient: EffectRecipientDef::target_players(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::Composite(&ABEYANCE_LOCK),
+                // Both halves of the same lock, applied to the same player for the same
+                // turn: no instants or sorceries, and no activations but mana abilities.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
+                        PlayActionMatcherDef::CastSpell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ))),
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
+                        PlayActionMatcherDef::ActivateNonManaAbility,
+                        ObjectPredicateDef::Any,
+                    ))),
+                ]),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
             EffectDef::DrawCards {
@@ -728,27 +724,6 @@ pub(in crate::card::sets) static COILS_OF_THE_MEDUSA: CardRecord = CardRecord::n
 );
 
 // WTH 66 — Doomsday
-/// Half the life you have, rounded up: at twenty that is ten, and the deck
-/// casting this intends to win before losing the other ten.
-static DOOMSDAY_LIFE: HalvedValueDef =
-    HalvedValueDef::new(ValueDef::LifeTotal(PlayerRelation::You), RoundingDef::Up);
-
-/// The search and the life are one clause resolving in order, and the order
-/// matters: the five cards are chosen while the library still exists.
-static DOOMSDAY_STEPS: [EffectDef; 2] = [
-    EffectDef::SearchZonesAndExileRest {
-        player: EffectRecipientDef::Controller,
-        zones: &DOOMSDAY_ZONES,
-        count: 5,
-    },
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Halved(&DOOMSDAY_LIFE),
-    },
-];
-
-static DOOMSDAY_ZONES: [ZoneKind; 2] = [ZoneKind::Library, ZoneKind::Graveyard];
-
 pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new_with_legacy_id(
     2185,
     "Doomsday",
@@ -759,7 +734,21 @@ pub(in crate::card::sets) static DOOMSDAY: CardRecord = CardRecord::new_with_leg
     // to draw the five cards it just stacked and win on the spot.
     CardRules::new_sorcery(mana_cost!("{B}{B}{B}")).with_ability(AbilityDef::spell(
         "Search your library and graveyard for five cards and exile the rest. Put the chosen cards on top of your library in any order. You lose half your life, rounded up.",
-        EffectDef::Sequence(&DOOMSDAY_STEPS),
+        // The search and the life are one clause resolving in order, and the order
+        // matters: the five cards are chosen while the library still exists.
+        EffectDef::Sequence(&[
+            EffectDef::SearchZonesAndExileRest {
+                player: EffectRecipientDef::Controller,
+                zones: &[ZoneKind::Library, ZoneKind::Graveyard],
+                count: 5,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                // Half the life you have, rounded up: at twenty that is ten, and the deck
+                // casting this intends to win before losing the other ten.
+                amount: ValueDef::Halved(&HalvedValueDef::new(ValueDef::LifeTotal(PlayerRelation::You), RoundingDef::Up)),
+            },
+        ]),
     )),
 );
 
@@ -1136,32 +1125,6 @@ pub(in crate::card::sets) static GOBLIN_GRENADIERS: CardRecord = CardRecord::new
 );
 
 // WTH 105 — Goblin Vandal
-/// The artifact has to belong to the player being attacked, which in a
-/// two-player game is the only opponent there is.
-static DEFENDERS_ARTIFACT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Artifact),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::Opponent),
-        owner: None,
-    },
-)];
-
-/// Paying trades the hit for the artifact: the Vandal connects, and then
-/// deals nothing because it spent the swing breaking something instead.
-static VANDAL_TRADE: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Destroy {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        can_regenerate: true,
-        then: None,
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-]);
-
 pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_with_legacy_id(
     2032,
     "Goblin Vandal",
@@ -1173,13 +1136,35 @@ pub(in crate::card::sets) static GOBLIN_VANDAL: CardRecord = CardRecord::new_wit
             TriggerEventDef::AttacksAndIsNotBlocked {
                 attacker: ObjectPredicateDef::Source,
             },
-            &DEFENDERS_ARTIFACT,
+            // The artifact has to belong to the player being attacked, which in a
+            // two-player game is the only opponent there is.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef::mana(
                     PlayerSetDef::Related(PlayerRelation::You),
                     mana_cost!("{R}"),
                 ),
-                &VANDAL_TRADE,
+                // Paying trades the hit for the artifact: the Vandal connects, and then
+                // deals nothing because it spent the swing breaking something instead.
+                &EffectDef::Sequence(&[
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
             )),
         ),
     ),
@@ -1697,34 +1682,6 @@ pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new_with_leg
 );
 
 // WTH 155 — Phyrexian Furnace
-/// Any card in any graveyard, which is what the sacrifice mode reaches. The
-/// tap mode needs no target beyond the player, because a graveyard has only
-/// one bottom card.
-static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-)];
-
-static A_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-)];
-
-static FURNACE_EXILE_AND_DRAW: EffectDef = EffectDef::Sequence(&[
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-]);
-
 pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new_with_legacy_id(
     2054,
     "Phyrexian Furnace",
@@ -1736,7 +1693,9 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "{T}: Exile the bottom card of target player's graveyard.",
             &[AbilityCostDef::TapSource],
-            &A_PLAYER,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::objects(ObjectSetDef::BottomOfGraveyard(
                     PlayerRefDef::Target(TargetIndex::PRIMARY),
@@ -1751,8 +1710,32 @@ pub(in crate::card::sets) static PHYREXIAN_FURNACE: CardRecord = CardRecord::new
                 AbilityCostDef::Mana(mana_cost!("{1}")),
                 AbilityCostDef::SacrificeSource,
             ],
-            &A_CARD_IN_A_GRAVEYARD,
-            FURNACE_EXILE_AND_DRAW,
+            // Any card in any graveyard, which is what the sacrifice mode reaches. The
+            // tap mode needs no target beyond the player, because a graveyard has only
+            // one bottom card.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(
+                &const {
+                    [
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    ]
+                },
+            ),
         ),
     ]),
 );
@@ -1841,14 +1824,6 @@ pub(in crate::card::sets) static XANTHIC_STATUE: CardRecord = CardRecord::new(
 );
 
 // WTH 164 — Gemstone Mine
-static GEMSTONE_MINE_COSTS: [AbilityCostDef; 2] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::RemoveCountersFromSource {
-        kind: CounterKind::named("mining"),
-        amount: 1,
-    },
-];
-
 pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_with_legacy_id(
     2049,
     "Gemstone Mine",
@@ -1868,7 +1843,13 @@ pub(in crate::card::sets) static GEMSTONE_MINE: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated_mana(
             "{T}, Remove a mining counter from this land: Add one mana of any color. If there are no mining counters on this land, sacrifice it.",
-            &GEMSTONE_MINE_COSTS,
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::named("mining"),
+                    amount: 1,
+                },
+            ],
             EffectDef::AddMana(
                 AddManaEffectDef::any_color().sacrificing_source_when_out_of(CounterKind::named("mining")),
             ),

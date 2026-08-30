@@ -18,23 +18,6 @@ use crate::card::{
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // MH2 25 — Prismatic Ending
-/// A nonland permanent of any size may be targeted; whether it is actually
-/// exiled is settled on resolution, against what paid for the spell.
-static ENDING_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-)];
-
-static ENDING_SMALL_ENOUGH: TriggerConditionDef = TriggerConditionDef::TargetMatches {
-    slot: TargetIndex::PRIMARY,
-    object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent),
-};
-
-static ENDING_EXILE: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    zone: ZoneKind::Exile,
-    placement: ZonePlacement::Top,
-};
-
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
     2193,
     "Prismatic Ending",
@@ -46,70 +29,26 @@ pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_
         .with_converge()
         .with_ability(AbilityDef::spell_with_targets(
             "Converge — Exile target nonland permanent if its mana value is less than or equal to the number of colors of mana spent to cast this spell.",
-            &ENDING_TARGET,
+            // A nonland permanent of any size may be targeted; whether it is actually
+            // exiled is settled on resolution, against what paid for the spell.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+            )],
             EffectDef::IfCondition {
-                condition: &ENDING_SMALL_ENOUGH,
-                then: &ENDING_EXILE,
+                condition: &TriggerConditionDef::TargetMatches {
+                    slot: TargetIndex::PRIMARY,
+                    object: ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ColorsOfManaSpent),
+                },
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
             },
         )),
 );
 
 // MH2 32 — Solitude
-static EXILE_A_WHITE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::White),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
-
-/// "Up to one other": declining is a legal choice, and Solitude herself is
-/// never one of the options.
-static ANOTHER_CREATURE: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-/// Swords to Plowshares' pair, in the same order: the power the life is
-/// read from is the one the creature had as it left the battlefield.
-static SOLITUDE_EXILES: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-        amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
-    },
-];
-
-static SOLITUDE_ABILITIES: [AbilityDef; 5] = [
-    abilities::flash(),
-    abilities::lifelink(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, exile up to one other target creature. That creature's \
-         controller gains life equal to its power.",
-        &ANOTHER_CREATURE,
-        EffectDef::Sequence(&SOLITUDE_EXILES),
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a white card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_WHITE_CARD),
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
 pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b648cc94-7880-456b-82ea-859746d52397"),
     "Solitude",
@@ -118,7 +57,58 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
     // Two white cards for a free Swords to Plowshares at instant speed, and
     // a lifelinking 3/2 on the turns five mana is available instead.
     CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Elemental", "Incarnation"], 3, 2)
-        .with_abilities(&SOLITUDE_ABILITIES),
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::lifelink(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, exile up to one other target creature. That creature's \
+                 controller gains life equal to its power.",
+                // "Up to one other": declining is a legal choice, and Solitude herself is
+                // never one of the options.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                // Swords to Plowshares' pair, in the same order: the power the life is
+                // read from is the one the creature had as it left the battlefield.
+                EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+                    },
+                ]),
+            ),
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("Evoke—Exile a white card from your hand."),
+                EffectDef::None,
+            )
+            .with_alternative_additional_cost(
+                &SpellAdditionalCostDef::new(
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    ZoneKind::Hand,
+                    1,
+                )
+                .spent(SpendModeDef::Exile),
+            ),
+            abilities::evoke_sacrifice(
+                "When this creature enters, if it was evoked, sacrifice it.",
+            ),
+        ]),
 );
 
 // MH2 36 — Unbounded Potential
@@ -142,21 +132,6 @@ pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
 );
 
 // MH2 49 — Lose Focus
-/// The copies are a cast trigger rather than part of the spell's own clause,
-/// exactly as storm is: what differs is only where the count comes from, and
-/// replicate counts what was paid rather than what was cast.
-static LOSE_FOCUS_REPLICATES: EffectDef =
-    EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-        object: EffectRecipientDef::Source,
-        controller: PlayerRefDef::EffectController,
-        count: ValueDef::TimesAdditionalCostPaid,
-        retarget: true,
-        colors: None,
-    });
-
-static A_SPELL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("985bdb0c-ce6c-4506-8163-76f3b2fdf5fb"),
     "Lose Focus",
@@ -168,63 +143,28 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
         abilities::replicate(mana_cost!("{U}")),
         AbilityDef::spell_with_targets(
             "Counter target spell unless its controller pays {2}.",
-            &A_SPELL,
+            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
             abilities::counter_target_unless_paid(ValueDef::Constant(2)),
         ),
         AbilityDef::triggered(
             "Replicate {U} (When you cast this spell, copy it for each time you paid its \
              replicate cost. You may choose new targets for the copies.)",
             TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
-            LOSE_FOCUS_REPLICATES,
+            // The copies are a cast trigger rather than part of the spell's own clause,
+            // exactly as storm is: what differs is only where the count comes from, and
+            // replicate counts what was paid rather than what was cast.
+            EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                object: EffectRecipientDef::Source,
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::TimesAdditionalCostPaid,
+                retarget: true,
+                colors: None,
+            }),
         ),
     ]),
 );
 
 // MH2 67 — Subtlety
-static EXILE_A_BLUE_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Blue),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
-
-/// A creature or planeswalker spell on the stack, anybody's. "Up to one"
-/// means a Subtlety with nothing worth answering still enters and still
-/// leaves a 3/3 behind.
-static SUBTLETY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Stack],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static SUBTLETY_ABILITIES: [AbilityDef; 5] = [
-    abilities::flash(),
-    abilities::flying(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, choose up to one target creature spell or planeswalker \
-         spell. Its owner puts it on their choice of the top or bottom of their library.",
-        &SUBTLETY_TARGET,
-        EffectDef::PutSpellIntoOwnersLibrary {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a blue card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_BLUE_CARD),
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
 pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_legacy_id(
     2236,
     "Subtlety",
@@ -236,68 +176,56 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
     // Free interaction that leaves a body when you have the mana, and a
     // blue card off the top of your hand when you do not.
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Elemental", "Incarnation"], 3, 3)
-        .with_abilities(&SUBTLETY_ABILITIES),
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::flying(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, choose up to one target creature spell or planeswalker \
+                 spell. Its owner puts it on their choice of the top or bottom of their library.",
+                // A creature or planeswalker spell on the stack, anybody's. "Up to one"
+                // means a Subtlety with nothing worth answering still enters and still
+                // leaves a 3/3 behind.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                    1,
+                )],
+                EffectDef::PutSpellIntoOwnersLibrary {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("Evoke—Exile a blue card from your hand."),
+                EffectDef::None,
+            )
+            .with_alternative_additional_cost(
+                &SpellAdditionalCostDef::new(
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ZoneKind::Hand,
+                    1,
+                )
+                .spent(SpendModeDef::Exile),
+            ),
+            abilities::evoke_sacrifice(
+                "When this creature enters, if it was evoked, sacrifice it.",
+            ),
+        ]),
 );
 
 // MH2 75 — Archon of Cruelty
-/// One printed ability with two ways in: he arrives, or he attacks. Two
-/// abilities would make him trigger twice on a turn he does both, which the
-/// card does not say -- and would count as two triggered abilities where the
-/// card has one.
-static ARCHON_TRIGGERS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::attacks(ObjectPredicateDef::Source),
-];
-
-static AN_OPPONENT: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
 static A_CREATURE_OR_PLANESWALKER: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
     ObjectPredicateDef::HasType(CardType::Creature),
     ObjectPredicateDef::HasType(CardType::Planeswalker),
 ]);
-
-/// Four things in one sentence, in the order they are printed: what the
-/// opponent gives up, then what you get. The sacrifice is theirs to choose,
-/// which is why it is a procedure rather than a targeted destruction.
-static ARCHON_TOLL: [EffectDef; 4] = [
-    EffectDef::SacrificeOfChoice {
-        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        object: A_CREATURE_OR_PLANESWALKER,
-        count: ValueDef::Constant(1),
-        then: None,
-        amount: SacrificedAmountDef::Power,
-        otherwise: None,
-        optional: false,
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    EffectDef::LoseLife {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(3),
-    },
-    EffectDef::Sequence(&ARCHON_REWARD),
-];
-
-static ARCHON_REWARD: [EffectDef; 2] = [
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::GainLife {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(3),
-    },
-];
 
 pub(in crate::card::sets) static ARCHON_OF_CRUELTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1be9d9a4-d7ee-4854-abc2-85cabf993ec9"),
@@ -313,34 +241,60 @@ pub(in crate::card::sets) static ARCHON_OF_CRUELTY: CardRecord = CardRecord::new
             "Whenever this creature enters or attacks, target opponent sacrifices a creature or \
              planeswalker of their choice, discards a card, and loses 3 life. You draw a card and \
              gain 3 life.",
-            TriggerEventDef::AnyOf(&ARCHON_TRIGGERS),
-            &AN_OPPONENT,
-            EffectDef::Sequence(&ARCHON_TOLL),
+            // One printed ability with two ways in: he arrives, or he attacks. Two
+            // abilities would make him trigger twice on a turn he does both, which the
+            // card does not say -- and would count as two triggered abilities where the
+            // card has one.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            // Four things in one sentence, in the order they are printed: what the
+            // opponent gives up, then what you get. The sacrifice is theirs to choose,
+            // which is why it is a procedure rather than a targeted destruction.
+            EffectDef::Sequence(&[
+                EffectDef::SacrificeOfChoice {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    object: A_CREATURE_OR_PLANESWALKER,
+                    count: ValueDef::Constant(1),
+                    then: None,
+                    amount: SacrificedAmountDef::Power,
+                    otherwise: None,
+                    optional: false,
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                ]),
+            ]),
         ),
     ]),
 );
 
 // MH2 76 — Bone Shards
-/// The second half of "sacrifice a creature or discard a card". Which half
-/// is paid is settled as the spell is cast: both spend a card the caster
-/// already had, and the enumeration offers every one of them.
-static BONE_SHARDS_DISCARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1);
-
-static BONE_SHARDS_COST: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    ZoneKind::Battlefield,
-    1,
-)
-.or(&BONE_SHARDS_DISCARD);
-
-static BONE_SHARDS_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Planeswalker),
-    ]),
-)];
-
 pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_legacy_id(
     2169,
     "Bone Shards",
@@ -351,8 +305,21 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
     CardRules::new_sorcery(mana_cost!("{B}")).with_ability(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature or discard a card.\nDestroy target creature or planeswalker.",
-            &BONE_SHARDS_TARGET,
-            BONE_SHARDS_COST,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+            )],
+            SpellAdditionalCostDef::new(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ZoneKind::Battlefield,
+                1,
+            )
+            // The second half of "sacrifice a creature or discard a card". Which half
+            // is paid is settled as the spell is cast: both spend a card the caster
+            // already had, and the enumeration offers every one of them.
+            .or(&SpellAdditionalCostDef::new(ObjectPredicateDef::Any, ZoneKind::Hand, 1)),
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: true,
@@ -363,10 +330,6 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
 );
 
 // MH2 80 — Damn
-static DAMN_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::HasType(CardType::Creature),
-)];
-
 pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_id(
     2192,
     "Damn",
@@ -378,7 +341,9 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_sorcery(mana_cost!("{B}{B}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Destroy target creature. A creature destroyed this way can't be regenerated.",
-            &DAMN_TARGET,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 can_regenerate: false,
@@ -403,41 +368,6 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
 );
 
 // MH2 87 — Grief
-static EXILE_A_BLACK_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Black),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
-
-static GRIEF_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-)];
-
-/// Thoughtseize's clause without the life, and aimed at an opponent rather
-/// than any player: revealed rather than looked at, so the choice is one
-/// both players can check.
-static GRIEF_ABILITIES: [AbilityDef; 4] = [
-    abilities::menace(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, target opponent reveals their hand. You choose a nonland \
-         card from it. That player discards that card.",
-        &GRIEF_TARGET,
-        EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-        )),
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a black card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_BLACK_CARD),
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
 pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40d77804-b81f-4e89-8528-1f3970ef3cd6"),
     "Grief",
@@ -446,7 +376,36 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
     // Two black cards for a Thoughtseize on turn one, and a 3/2 that is
     // hard to block on the turns you have four mana instead.
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Elemental", "Incarnation"], 3, 2)
-        .with_abilities(&GRIEF_ABILITIES),
+        // Thoughtseize's clause without the life, and aimed at an opponent rather
+        // than any player: revealed rather than looked at, so the choice is one
+        // both players can check.
+        .with_abilities(&[
+            abilities::menace(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, target opponent reveals their hand. You choose a nonland \
+                 card from it. That player discards that card.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+                )],
+                EffectDef::Sequence(&abilities::reveal_hand_and_discard_chosen_card(
+                    PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                )),
+            ),
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("Evoke—Exile a black card from your hand."),
+                EffectDef::None,
+            )
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+                ObjectPredicateDef::Color(ManaColor::Black),
+                ZoneKind::Hand,
+                1,
+            )
+            .spent(SpendModeDef::Exile)),
+            abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
+        ]),
 );
 
 // MH2 91 — Loathsome Curator
@@ -480,67 +439,6 @@ pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
 );
 
 // MH2 121 — Dragon's Rage Channeler
-static A_NONCREATURE_SPELL_YOU_CAST: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-/// Four card types among the cards in your own graveyard, which the surveil
-/// above is what fills: the look is the cost of nothing and the delirium is
-/// what it buys.
-static DELIRIUM: TriggerConditionDef = TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-    left: ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
-    comparison: ComparisonDef::GreaterOrEqual,
-    right: ValueDef::Constant(4),
-});
-
-static CHANNELER_FLYING: AbilityDef = abilities::flying();
-
-static CHANNELER_MUST_ATTACK: AbilityDef =
-    abilities::attacks_each_combat_if_able("This creature attacks each combat if able.");
-
-/// Three grants under one condition, so they arrive and leave together: a
-/// graveyard that falls back under four takes the flying and the compulsion
-/// with it.
-static CHANNELER_DELIRIUM_GRANTS: [EffectDef; 3] = [
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::Constant(2),
-            ValueDef::Constant(2),
-        ),
-    },
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&CHANNELER_FLYING),
-    },
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::add_ability(&CHANNELER_MUST_ATTACK),
-    },
-];
-
-static CHANNELER_DELIRIUM: EffectDef = EffectDef::Sequence(&CHANNELER_DELIRIUM_GRANTS);
-
-static CHANNELER_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::triggered(
-        "Whenever you cast a noncreature spell, surveil 1. (Look at the top card of your library. \
-         You may put that card into your graveyard.)",
-        TriggerEventDef::spell_cast(A_NONCREATURE_SPELL_YOU_CAST),
-        abilities::surveil(ValueDef::Constant(1)),
-    ),
-    // "As long as", so it is asked live rather than once: the 3/3 flier is
-    // a 1/1 again the moment the fourth card type leaves the graveyard.
-    AbilityDef::static_ability(
-        "Delirium — As long as there are four or more card types among cards in your graveyard, \
-         this creature gets +2/+2, has flying, and attacks each combat if able.",
-        EffectDef::IfCondition {
-            condition: &DELIRIUM,
-            then: &CHANNELER_DELIRIUM,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ced112a-e775-4f97-97b3-74877e9dce12"),
     "Dragon's Rage Channeler",
@@ -550,93 +448,107 @@ pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecor
     // flier for doing what the deck was going to do anyway. The compulsion
     // to attack is the price, and it is rarely one.
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Shaman"], 1, 1)
-        .with_abilities(&CHANNELER_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever you cast a noncreature spell, surveil 1. (Look at the top card of your library. \
+                 You may put that card into your graveyard.)",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                abilities::surveil(ValueDef::Constant(1)),
+            ),
+            // "As long as", so it is asked live rather than once: the 3/3 flier is
+            // a 1/1 again the moment the fourth card type leaves the graveyard.
+            AbilityDef::static_ability(
+                "Delirium — As long as there are four or more card types among cards in your graveyard, \
+                 this creature gets +2/+2, has flying, and attacks each combat if able.",
+                EffectDef::IfCondition {
+                    // Four card types among the cards in your own graveyard, which the surveil
+                    // above is what fills: the look is the cost of nothing and the delirium is
+                    // what it buys.
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::CardTypesAmongGraveyards(PlayerRelation::You),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(4),
+                    }),
+                    // Three grants under one condition, so they arrive and leave together: a
+                    // graveyard that falls back under four takes the flying and the compulsion
+                    // with it.
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(2),
+                                ValueDef::Constant(2),
+                            ),
+                        },
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                        },
+                        EffectDef::StaticApply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able("This creature attacks each combat if able.")),
+                        },
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MH2 126 — Fury
-/// Four damage split however the caster likes, over creatures and
-/// planeswalkers alike. Every target must be assigned at least one, so four
-/// is the most it can ever cover.
-static FURY_TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef {
-    predicate: AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-    minimum: 1,
-    maximum: AbilityTargetDef::UNLIMITED,
-    divided_total: Some(DividedTotal::Fixed(4)),
-    another: false,
-    excludes_source: false,
-    chooser: TargetChooserDef::Controller,
-}];
-
-static EXILE_A_RED_CARD: SpellAdditionalCostDef =
-    SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
-        .spent(SpendModeDef::Exile);
-
-static FURY_ABILITIES: [AbilityDef; 4] = [
-    abilities::double_strike(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
-        &FURY_TARGETS,
-        EffectDef::DealDamage {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::DividedAmongTargets,
-        },
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a red card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_RED_CARD),
-    // Evoke's own sacrifice. It is a separate trigger because it happens
-    // after the Elemental has arrived, alongside the damage trigger rather
-    // than instead of it -- which is why an evoked Fury still burns.
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
 pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_id(
     2157,
     "Fury",
     CardArt::new("bd281158-8180-40b9-a5b7-03cfc712d81a", "Raoul Vitale"),
     CardSet::ModernHorizons2,
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Elemental", "Incarnation"], 3, 3)
-        .with_abilities(&FURY_ABILITIES),
+        .with_abilities(&[
+            abilities::double_strike(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
+                // Four damage split however the caster likes, over creatures and
+                // planeswalkers alike. Every target must be assigned at least one, so four
+                // is the most it can ever cover.
+                &[AbilityTargetDef {
+                    predicate: AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    minimum: 1,
+                    maximum: AbilityTargetDef::UNLIMITED,
+                    divided_total: Some(DividedTotal::Fixed(4)),
+                    another: false,
+                    excludes_source: false,
+                    chooser: TargetChooserDef::Controller,
+                }],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::DividedAmongTargets,
+                },
+            ),
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("Evoke—Exile a red card from your hand."),
+                EffectDef::None,
+            )
+            .with_alternative_additional_cost(&SpellAdditionalCostDef::new(ObjectPredicateDef::Color(ManaColor::Red), ZoneKind::Hand, 1)
+                    .spent(SpendModeDef::Exile)),
+            // Evoke's own sacrifice. It is a separate trigger because it happens
+            // after the Elemental has arrived, alongside the damage trigger rather
+            // than instead of it -- which is why an evoked Fury still burns.
+            abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
+        ]),
 );
 
 // MH2 135 — Mine Collapse
-/// A Mountain, not a red source: what the cost names is the land type, so a
-/// Sacred Foundry pays it and a Mountain that has stopped being one does not.
-static SACRIFICE_A_MOUNTAIN: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-    ZoneKind::Battlefield,
-    1,
-);
-
-/// "If it's your turn" gates only the free cast. The printed cost is always
-/// available, which is why this is a condition on the alternative rather
-/// than a restriction on the card.
-static YOUR_TURN: TriggerConditionDef = TriggerConditionDef::ActivePlayer(PlayerRelation::You);
-
-static MINE_COLLAPSE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_with_legacy_id(
     2261,
     "Mine Collapse",
@@ -655,11 +567,30 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
             ),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SACRIFICE_A_MOUNTAIN)
-        .with_alternative_condition(&YOUR_TURN),
+        // A Mountain, not a red source: what the cost names is the land type, so a
+        // Sacred Foundry pays it and a Mountain that has stopped being one does not.
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::new(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            ZoneKind::Battlefield,
+            1,
+        ))
+        // "If it's your turn" gates only the free cast. The printed cost is always
+        // available, which is why this is a condition on the alternative rather
+        // than a restriction on the card.
+        .with_alternative_condition(&TriggerConditionDef::ActivePlayer(PlayerRelation::You)),
         AbilityDef::spell_with_targets(
             "Mine Collapse deals 5 damage to target creature or planeswalker.",
-            &MINE_COLLAPSE_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(5),
@@ -669,42 +600,6 @@ pub(in crate::card::sets) static MINE_COLLAPSE: CardRecord = CardRecord::new_wit
 );
 
 // MH2 138 — Ragavan, Nimble Pilferer
-static RAGAVAN_CONNECTS: [EffectDef; 2] = [
-    EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
-        "630c0d1c-9ddb-4e76-a82a-9cdd8a5b487b",
-        "Alayna Danner",
-    )),
-    // "That player's library", and the permission is yours: what the Monkey
-    // steals is theirs to lose and yours to cast.
-    EffectDef::ExileTopOfLibraryToPlay {
-        player: EffectRecipientDef::EventPlayer,
-        amount: ValueDef::Constant(1),
-        free: false,
-        face_down: false,
-        duration: ExilePlayDurationDef::ThisTurn,
-        spend_any_color: false,
-        play_condition: None,
-        cast_only: true,
-    },
-];
-
-static RAGAVAN_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::triggered(
-        "Whenever this creature deals combat damage to a player, create a Treasure token and \
-         exile the top card of that player's library. Until end of turn, you may cast that card.",
-        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-        EffectDef::Sequence(&RAGAVAN_CONNECTS),
-    ),
-    abilities::dash(
-        mana_cost!("{1}{R}"),
-        "Dash {1}{R} (You may cast this spell for its dash cost. If you do, it gains haste, and \
-         it's returned from the battlefield to its owner's hand at the beginning of the next end \
-         step.)",
-    ),
-    abilities::dashed_haste(),
-    abilities::dashed_return(),
-];
-
 pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9738cda-adb1-47fb-9f4c-ecd930228c4d"),
     "Ragavan, Nimble Pilferer",
@@ -715,32 +610,42 @@ pub(in crate::card::sets) static RAGAVAN_NIMBLE_PILFERER: CardRecord = CardRecor
     // killed.
     CardRules::new_creature(mana_cost!("{R}"), &["Monkey", "Pirate"], 2, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&RAGAVAN_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, create a Treasure token and \
+                 exile the top card of that player's library. Until end of turn, you may cast that card.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::Sequence(&[
+                    EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
+                        "630c0d1c-9ddb-4e76-a82a-9cdd8a5b487b",
+                        "Alayna Danner",
+                    )),
+                    // "That player's library", and the permission is yours: what the Monkey
+                    // steals is theirs to lose and yours to cast.
+                    EffectDef::ExileTopOfLibraryToPlay {
+                        player: EffectRecipientDef::EventPlayer,
+                        amount: ValueDef::Constant(1),
+                        free: false,
+                        face_down: false,
+                        duration: ExilePlayDurationDef::ThisTurn,
+                        spend_any_color: false,
+                        play_condition: None,
+                        cast_only: true,
+                    },
+                ]),
+            ),
+            abilities::dash(
+                mana_cost!("{1}{R}"),
+                "Dash {1}{R} (You may cast this spell for its dash cost. If you do, it gains haste, and \
+                 it's returned from the battlefield to its owner's hand at the beginning of the next end \
+                 step.)",
+            ),
+            abilities::dashed_haste(),
+            abilities::dashed_return(),
+        ]),
 );
 
 // MH2 145 — Unholy Heat
-/// Delirium changes the amount, not the effect, so it is a conditional value
-/// rather than a second clause: four card types in your own graveyard, and
-/// the same spell deals six.
-static UNHOLY_HEAT_AMOUNT: GraveyardTypeConditionDef = GraveyardTypeConditionDef {
-    player: PlayerRelation::You,
-    minimum: 4,
-    then: ValueDef::Constant(6),
-    otherwise: ValueDef::Constant(2),
-};
-
-static UNHOLY_HEAT_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::HasType(CardType::Planeswalker),
-        ]),
-        zones: &[ZoneKind::Battlefield],
-        controller: None,
-        owner: None,
-    },
-)];
-
 pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_legacy_id(
     2159,
     "Unholy Heat",
@@ -748,10 +653,28 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_
     CardSet::ModernHorizons2,
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
         "Unholy Heat deals 2 damage to target creature or planeswalker.\nDelirium — Unholy Heat deals 6 damage instead if there are four or more card types among cards in your graveyard.",
-        &UNHOLY_HEAT_TARGET,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::DealDamage {
             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::IfCardTypesAmongGraveyards(&UNHOLY_HEAT_AMOUNT),
+            // Delirium changes the amount, not the effect, so it is a conditional value
+            // rather than a second clause: four card types in your own graveyard, and
+            // the same spell deals six.
+            amount: ValueDef::IfCardTypesAmongGraveyards(&GraveyardTypeConditionDef {
+                player: PlayerRelation::You,
+                minimum: 4,
+                then: ValueDef::Constant(6),
+                otherwise: ValueDef::Constant(2),
+            }),
         },
     )),
 );
@@ -777,42 +700,6 @@ pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::ne
 );
 
 // MH2 157 — Endurance
-static EXILE_A_GREEN_CARD: SpellAdditionalCostDef = SpellAdditionalCostDef::new(
-    ObjectPredicateDef::Color(ManaColor::Green),
-    ZoneKind::Hand,
-    1,
-)
-.spent(SpendModeDef::Exile);
-
-/// "Up to one target player" includes yourself, which is the mode nobody
-/// prints on the card: an Endurance can put your own graveyard back when
-/// something else is trying to eat it.
-static ENDURANCE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Player(PlayerRelation::Any),
-    1,
-)];
-
-static ENDURANCE_ABILITIES: [AbilityDef; 5] = [
-    abilities::flash(),
-    abilities::reach(),
-    abilities::enters_trigger_with_targets(
-        "When this creature enters, up to one target player puts all the cards from their \
-         graveyard on the bottom of their library in a random order.",
-        &ENDURANCE_TARGET,
-        EffectDef::BuryGraveyard {
-            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        },
-    ),
-    AbilityDef::alternative_cast(
-        mana_cost!("{0}"),
-        AlternativeCastKindDef::AlternativeCost,
-        Some("Evoke—Exile a green card from your hand."),
-        EffectDef::None,
-    )
-    .with_alternative_additional_cost(&EXILE_A_GREEN_CARD),
-    abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
-];
-
 pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb0e0404-4846-4891-acfa-bd0951ecf9c6"),
     "Endurance",
@@ -825,7 +712,41 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
     // green card off the top of your hand when the graveyard is the whole
     // reason you are casting it.
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elemental", "Incarnation"], 3, 4)
-        .with_abilities(&ENDURANCE_ABILITIES),
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::reach(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, up to one target player puts all the cards from their \
+                 graveyard on the bottom of their library in a random order.",
+                // "Up to one target player" includes yourself, which is the mode nobody
+                // prints on the card: an Endurance can put your own graveyard back when
+                // something else is trying to eat it.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    1,
+                )],
+                EffectDef::BuryGraveyard {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some("Evoke—Exile a green card from your hand."),
+                EffectDef::None,
+            )
+            .with_alternative_additional_cost(
+                &SpellAdditionalCostDef::new(
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ZoneKind::Hand,
+                    1,
+                )
+                .spent(SpendModeDef::Exile),
+            ),
+            abilities::evoke_sacrifice(
+                "When this creature enters, if it was evoked, sacrifice it.",
+            ),
+        ]),
 );
 
 // MH2 181 — Urban Daggertooth
@@ -850,128 +771,6 @@ pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::ne
 
 // MH2 202 — Grist, the Hunger Tide
 // Audit: partial — The minus names its destruction target on activation instead of through a reflexive trigger, so an answered target counters the sacrifice too.
-static GRIST_INSECT: EffectDef =
-    EffectDef::create_creature_token(&["Insect"], &[ManaColor::Black, ManaColor::Green], 1, 1);
-
-static GRIST_LOYALTY: EffectDef = EffectDef::AddCounters {
-    object: EffectRecipientDef::Source,
-    kind: CounterKind::Loyalty,
-    amount: ValueDef::Constant(1),
-};
-
-/// An Insect card in the library keeps the process going -- and a Grist on
-/// top is one, which is what his own first clause is for.
-static AN_INSECT_CARD: ObjectPredicateDef = ObjectPredicateDef::Subtype("Insect");
-
-/// "A 1/1 Insect creature in addition to its other types": a creature card
-/// with an Insect subtype and a body, added to what the card already is
-/// rather than replacing it.
-static GRIST_IS_AN_INSECT: [AppliedEffectDef; 3] = [
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
-        CardTypeSet::single(CardType::Creature),
-    ))),
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(
-        &["Insect"],
-    ))),
-    AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
-        PowerToughnessOperationDef::SetBase {
-            power: ValueDef::Constant(1),
-            toughness: ValueDef::Constant(1),
-        },
-    )),
-];
-
-static GRIST_IS_AN_INSECT_EVERYWHERE_ELSE: AppliedEffectDef =
-    AppliedEffectDef::Composite(&GRIST_IS_AN_INSECT);
-
-/// "As long as Grist isn't on the battlefield": every zone but that one,
-/// which is a list of source zones rather than a condition to recheck.
-static GRIST_OFF_THE_BATTLEFIELD: [ZoneKind; 5] = [
-    ZoneKind::Library,
-    ZoneKind::Hand,
-    ZoneKind::Graveyard,
-    ZoneKind::Exile,
-    ZoneKind::Command,
-];
-
-/// The library is what bounds this in practice; the limit is only there so
-/// a process with nothing to stop it still stops.
-static GRIST_PLUS_ONE: EffectDef = EffectDef::MillWhileMatching(&MillLoopDef {
-    player: EffectRecipientDef::Controller,
-    body: &GRIST_INSECT,
-    object: AN_INSECT_CARD,
-    on_match: &GRIST_LOYALTY,
-    limit: 512,
-});
-
-static GRIST_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    A_CREATURE_OR_PLANESWALKER,
-)];
-
-static GRIST_DESTROYS_IT: EffectDef = EffectDef::Destroy {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    can_regenerate: true,
-    then: None,
-};
-
-static A_CREATURE_YOU_CONTROL: EffectPaymentCostDef =
-    EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
-        CardType::Creature,
-    ));
-
-static CREATURE_CARDS_IN_YOUR_GRAVEYARD: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasType(CardType::Creature),
-    &[ZoneKind::Graveyard],
-    PlayerRelation::You,
-);
-
-static GRIST_ABILITIES: [AbilityDef; 4] = [
-    AbilityDef::static_ability(
-        "As long as Grist isn't on the battlefield, it's a 1/1 Insect creature in addition to its \
-         other types.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: GRIST_IS_AN_INSECT_EVERYWHERE_ELSE,
-        },
-    )
-    .with_source_zones(&GRIST_OFF_THE_BATTLEFIELD),
-    AbilityDef::activated(
-        "+1: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect \
-         card was milled this way, put a loyalty counter on Grist and repeat this process.",
-        &[AbilityCostDef::Loyalty(1)],
-        GRIST_PLUS_ONE,
-    ),
-    // The target is declared as the ability is activated rather than when
-    // the sacrifice is actually made, which is the one place this differs
-    // from the printed reflexive trigger: a board with nothing to destroy
-    // does not offer the ability at all. It follows that an answer to the
-    // target counters the whole ability, so the creature that would have
-    // paid for it survives; the printed card still offers the sacrifice and
-    // loses only the destruction.
-    AbilityDef::activated_with_targets(
-        "\u{2212}2: You may sacrifice a creature. When you do, destroy target creature or \
-         planeswalker.",
-        &[AbilityCostDef::Loyalty(-2)],
-        &GRIST_TARGET,
-        EffectDef::PayOr(PayOrDef::optional(
-            EffectPaymentDef {
-                payer: PlayerSetDef::Related(PlayerRelation::You),
-                cost: A_CREATURE_YOU_CONTROL,
-            },
-            &GRIST_DESTROYS_IT,
-        )),
-    ),
-    AbilityDef::activated(
-        "\u{2212}5: Each opponent loses life equal to the number of creature cards in your \
-         graveyard.",
-        &[AbilityCostDef::Loyalty(-5)],
-        EffectDef::LoseLife {
-            recipient: EffectRecipientDef::Opponent,
-            amount: ValueDef::CountMatchingObjects(&CREATURE_CARDS_IN_YOUR_GRAVEYARD),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8eadbeaf-f01c-4c85-8eaf-6a569a1bdf64"),
     "Grist, the Hunger Tide",
@@ -982,60 +781,105 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
     // do one of those.
     CardRules::new_planeswalker(mana_cost!("{1}{B}{G}"), &["Grist"], 3)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&GRIST_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "As long as Grist isn't on the battlefield, it's a 1/1 Insect creature in addition to its \
+                 other types.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: // "A 1/1 Insect creature in addition to its other types": a creature card
+                        // with an Insect subtype and a body, added to what the card already is
+                        // rather than replacing it.
+                        AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Add(
+                                CardTypeSet::single(CardType::Creature),
+                            ))),
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(SetOperationDef::Add(
+                                &["Insect"],
+                            ))),
+                            AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
+                                PowerToughnessOperationDef::SetBase {
+                                    power: ValueDef::Constant(1),
+                                    toughness: ValueDef::Constant(1),
+                                },
+                            )),
+                        ]),
+                },
+            )
+            // "As long as Grist isn't on the battlefield": every zone but that one,
+            // which is a list of source zones rather than a condition to recheck.
+            .with_source_zones(&[
+                ZoneKind::Library,
+                ZoneKind::Hand,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                ZoneKind::Command,
+            ]),
+            AbilityDef::activated(
+                "+1: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect \
+                 card was milled this way, put a loyalty counter on Grist and repeat this process.",
+                &[AbilityCostDef::Loyalty(1)],
+                // The library is what bounds this in practice; the limit is only there so
+                // a process with nothing to stop it still stops.
+                EffectDef::MillWhileMatching(&MillLoopDef {
+                    player: EffectRecipientDef::Controller,
+                    body: &EffectDef::create_creature_token(&["Insect"], &[ManaColor::Black, ManaColor::Green], 1, 1),
+                    // An Insect card in the library keeps the process going -- and a Grist on
+                    // top is one, which is what his own first clause is for.
+                    object: ObjectPredicateDef::Subtype("Insect"),
+                    on_match: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::Loyalty,
+                        amount: ValueDef::Constant(1),
+                    },
+                    limit: 512,
+                }),
+            ),
+            // The target is declared as the ability is activated rather than when
+            // the sacrifice is actually made, which is the one place this differs
+            // from the printed reflexive trigger: a board with nothing to destroy
+            // does not offer the ability at all. It follows that an answer to the
+            // target counters the whole ability, so the creature that would have
+            // paid for it survives; the printed card still offers the sacrifice and
+            // loses only the destruction.
+            AbilityDef::activated_with_targets(
+                "\u{2212}2: You may sacrifice a creature. When you do, destroy target creature or \
+                 planeswalker.",
+                &[AbilityCostDef::Loyalty(-2)],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    A_CREATURE_OR_PLANESWALKER,
+                )],
+                EffectDef::PayOr(PayOrDef::optional(
+                    EffectPaymentDef {
+                        payer: PlayerSetDef::Related(PlayerRelation::You),
+                        cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                                CardType::Creature,
+                            )),
+                    },
+                    &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                )),
+            ),
+            AbilityDef::activated(
+                "\u{2212}5: Each opponent loses life equal to the number of creature cards in your \
+                 graveyard.",
+                &[AbilityCostDef::Loyalty(-5)],
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Opponent,
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    )),
+                },
+            ),
+        ]),
 );
 
 // MH2 216 — Territorial Kavu
-/// Domain: how many of the five basic land types are among your lands. A
-/// Kavu on a two-colour board is a 2/2, and one behind a full spread of
-/// fetched duals is a 5/5.
-static KAVU_DOMAIN: AppliedEffectDef = AppliedEffectDef::define_power_toughness(
-    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
-    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
-);
-
-/// "If you do": the draw is sized by what the discard actually took, so an
-/// empty hand discards nothing and draws nothing.
-static KAVU_DRAW_WHAT_WAS_DISCARDED: EffectDef = EffectDef::DrawCards {
-    recipient: EffectRecipientDef::Controller,
-    amount: ValueDef::MatchedCount,
-};
-
-static A_CARD_IN_A_GRAVEYARD: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::Any,
-        zones: &[ZoneKind::Graveyard],
-        controller: None,
-        owner: None,
-    },
-    1,
-)];
-
-static KAVU_MODES: [AbilityDef; 2] = [
-    AbilityDef::spell(
-        "Discard a card. If you do, draw a card.",
-        EffectDef::Discard {
-            recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::Constant(1),
-            selection: DiscardSelectionDef::RecipientChooses,
-            then: Some(DiscardFollowUpDef {
-                counted: ObjectPredicateDef::Any,
-                bound: None,
-                effect: &KAVU_DRAW_WHAT_WAS_DISCARDED,
-            }),
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Exile up to one target card from a graveyard.",
-        &A_CARD_IN_A_GRAVEYARD,
-        EffectDef::MoveToZone {
-            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            zone: ZoneKind::Exile,
-            placement: ZonePlacement::Top,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2605df98-0b02-4aab-bc36-01e93c693743"),
     "Territorial Kavu",
@@ -1049,71 +893,61 @@ pub(in crate::card::sets) static TERRITORIAL_KAVU: CardRecord = CardRecord::new(
              land types among lands you control.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::Source,
-                effect: KAVU_DOMAIN,
+                // Domain: how many of the five basic land types are among your lands. A
+                // Kavu on a two-colour board is a 2/2, and one behind a full spread of
+                // fetched duals is a 5/5.
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                    ValueDef::BasicLandTypesControlled(PlayerRelation::You),
+                ),
             },
         ),
         AbilityDef::modal_triggered(
             "Whenever this creature attacks, choose one —\n• Discard a card. If you do, draw a \
              card.\n• Exile up to one target card from a graveyard.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
-            &KAVU_MODES,
+            &[
+                AbilityDef::spell(
+                    "Discard a card. If you do, draw a card.",
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: Some(DiscardFollowUpDef {
+                            counted: ObjectPredicateDef::Any,
+                            bound: None,
+                            // "If you do": the draw is sized by what the discard actually took, so an
+                            // empty hand discards nothing and draws nothing.
+                            effect: &EffectDef::DrawCards {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::MatchedCount,
+                            },
+                        }),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Exile up to one target card from a graveyard.",
+                    &[AbilityTargetDef::up_to(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Any,
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: None,
+                        },
+                        1,
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+            ],
         ),
     ]),
 );
 
 // MH2 227 — Kaldra Compleat
-/// The clause the equipped creature gains, not one Kaldra has itself: "that
-/// creature" is the one that took the damage, which is a different object
-/// from the one that dealt it.
-static KALDRA_EXILES_WHAT_IT_HITS: AbilityDef = AbilityDef::triggered(
-    "Whenever this creature deals combat damage to a creature, exile that creature.",
-    TriggerEventDef::DamageDealt(DamageEventMatcherDef {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
-        recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
-            CardType::Creature,
-        )),
-    }),
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::DamagedObject,
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-);
-
-static KALDRA_FIRST_STRIKE: AbilityDef = abilities::first_strike();
-
-static KALDRA_TRAMPLE: AbilityDef = abilities::trample();
-
-static KALDRA_INDESTRUCTIBLE: AbilityDef = abilities::indestructible();
-
-static KALDRA_HASTE: AbilityDef = abilities::haste();
-
-static KALDRA_GRANTS: [AppliedEffectDef; 6] = [
-    AppliedEffectDef::modify_power_toughness(ValueDef::Constant(5), ValueDef::Constant(5)),
-    AppliedEffectDef::add_ability(&KALDRA_FIRST_STRIKE),
-    AppliedEffectDef::add_ability(&KALDRA_TRAMPLE),
-    AppliedEffectDef::add_ability(&KALDRA_INDESTRUCTIBLE),
-    AppliedEffectDef::add_ability(&KALDRA_HASTE),
-    AppliedEffectDef::add_ability(&KALDRA_EXILES_WHAT_IT_HITS),
-];
-
-static KALDRA_EQUIP_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{7}"))];
-
-static KALDRA_COMPLEAT_ABILITIES: [AbilityDef; 4] = [
-    abilities::living_weapon(),
-    abilities::indestructible(),
-    AbilityDef::static_ability(
-        "Equipped creature gets +5/+5 and has first strike, trample, indestructible, haste, and \
-         \"Whenever this creature deals combat damage to a creature, exile that creature.\"",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::AttachedPermanent,
-            effect: AppliedEffectDef::Composite(&KALDRA_GRANTS),
-        },
-    ),
-    abilities::equip(&KALDRA_EQUIP_COST, "Equip {7}"),
-];
-
 pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b6c6ad4-d5fb-4503-8b15-c2104f125990"),
     "Kaldra Compleat",
@@ -1125,7 +959,43 @@ pub(in crate::card::sets) static KALDRA_COMPLEAT: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{7}"))
         .with_supertype(CardSupertype::Legendary)
         .with_subtypes(&["Equipment"])
-        .with_abilities(&KALDRA_COMPLEAT_ABILITIES),
+        .with_abilities(&[
+            abilities::living_weapon(),
+            abilities::indestructible(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +5/+5 and has first strike, trample, indestructible, haste, and \
+                 \"Whenever this creature deals combat damage to a creature, exile that creature.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(5), ValueDef::Constant(5)),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                        // The clause the equipped creature gains, not one Kaldra has itself: "that
+                        // creature" is the one that took the damage, which is a different object
+                        // from the one that dealt it.
+                        AppliedEffectDef::add_ability(&AbilityDef::triggered(
+                            "Whenever this creature deals combat damage to a creature, exile that creature.",
+                            TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                                kind: DamageKindDef::Combat,
+                                source: DamageSourceMatcherDef::Object(ObjectRefDef::Source),
+                                recipient: DamageRecipientMatcherDef::MatchingObject(ObjectPredicateDef::HasType(
+                                    CardType::Creature,
+                                )),
+                            }),
+                            EffectDef::MoveToZone {
+                                object: EffectRecipientDef::DamagedObject,
+                                zone: ZoneKind::Exile,
+                                placement: ZonePlacement::Top,
+                            },
+                        )),
+                    ]),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{7}"))], "Equip {7}"),
+        ]),
 );
 
 // MH2 231 — Nettlecyst
@@ -1186,21 +1056,6 @@ pub(in crate::card::sets) static YAVIMAYA_CRADLE_OF_GROWTH: CardRecord =
     );
 
 // MH2 355 — Ignoble Hierarch
-static IGNOBLE_HIERARCH_MANA_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-static IGNOBLE_HIERARCH_ABILITIES: [AbilityDef; 2] = [
-    abilities::exalted(),
-    AbilityDef::activated_mana(
-        "{T}: Add {B}, {R}, or {G}.",
-        &IGNOBLE_HIERARCH_MANA_COST,
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Black,
-            ManaColor::Red,
-            ManaColor::Green,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("404f83fb-0090-49d5-a4d0-c963adac2fb2"),
     "Ignoble Hierarch",
@@ -1209,102 +1064,26 @@ pub(in crate::card::sets) static IGNOBLE_HIERARCH: CardRecord = CardRecord::new(
     // Noble Hierarch in the other three colours: the same one-mana
     // accelerant, and the same 0/1 that exalted turns into a real
     // dividend on a turn when only one creature attacks.
-    CardRules::new_creature(mana_cost!("{G}"), &["Goblin", "Shaman"], 0, 1)
-        .with_abilities(&IGNOBLE_HIERARCH_ABILITIES),
+    CardRules::new_creature(mana_cost!("{G}"), &["Goblin", "Shaman"], 0, 1).with_abilities(&[
+        abilities::exalted(),
+        AbilityDef::activated_mana(
+            "{T}: Add {B}, {R}, or {G}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // MH2 380 — Urza's Saga
-static SAGA_TAP_FOR_COLORLESS_COST: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
-/// What chapter I hands the land. It is granted for good rather than for the
-/// turn: the Saga taps for mana from the moment the first chapter resolves
-/// until it sacrifices itself after the third.
-static SAGA_MANA_ABILITY: AbilityDef = AbilityDef::activated_mana(
-    "{T}: Add {C}.",
-    &SAGA_TAP_FOR_COLORLESS_COST,
-    EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
-);
-
 static ARTIFACTS_YOU_CONTROL_SAGA: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Artifact),
     &[ZoneKind::Battlefield],
     PlayerRelation::You,
 );
-
-/// The token's own clause, printed on the token rather than on the Saga:
-/// it counts itself, so the first one is a 1/1 on an otherwise empty board.
-static CONSTRUCT_SIZE: [AbilityDef; 1] = [AbilityDef::static_ability(
-    "This token gets +1/+1 for each artifact you control.",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL_SAGA),
-            ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL_SAGA),
-        ),
-    },
-)];
-
-static SAGA_CONSTRUCT_COST: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{2}")),
-    AbilityCostDef::TapSource,
-];
-
-static SAGA_CONSTRUCT_ABILITY: AbilityDef = AbilityDef::activated(
-    "{2}, {T}: Create a 0/0 colorless Construct artifact creature token with \"This token gets \
-     +1/+1 for each artifact you control.\"",
-    &SAGA_CONSTRUCT_COST,
-    EffectDef::create_artifact_creature_token(&["Construct"], &[], 0, 0)
-        .with_abilities(&CONSTRUCT_SIZE),
-);
-
-/// "An artifact card with mana cost {0} or {1}": a mana value of at most
-/// one, which is the same set of cards and the comparison the engine has.
-static A_CHEAP_ARTIFACT: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Artifact),
-    ObjectPredicateDef::ManaValueAtMost(1),
-]);
-
-static SAGA_CHAPTERS: [AbilityDef; 3] = [
-    abilities::saga_chapter(
-        1,
-        "I — This Saga gains \"{T}: Add {C}.\"",
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::add_ability(&SAGA_MANA_ABILITY),
-            duration: ResolvedEffectDurationDef::Permanent,
-        },
-    ),
-    abilities::saga_chapter(
-        2,
-        "II — This Saga gains \"{2}, {T}: Create a 0/0 colorless Construct artifact creature \
-         token with 'This token gets +1/+1 for each artifact you control.'\"",
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::add_ability(&SAGA_CONSTRUCT_ABILITY),
-            duration: ResolvedEffectDurationDef::Permanent,
-        },
-    ),
-    abilities::saga_chapter(
-        3,
-        "III — Search your library for an artifact card with mana cost {0} or {1}, put it onto \
-         the battlefield, then shuffle.",
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: A_CHEAP_ARTIFACT,
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: true,
-            destination: ZoneKind::Battlefield,
-            placement: ZonePlacement::Top,
-            shuffle: true,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: None,
-        },
-    ),
-];
 
 pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1cf96437-0943-40f9-b175-31a1504028ba"),
@@ -1319,7 +1098,79 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
     // counters read.
     CardRules::new_land(&["Urza's", "Saga"])
         .with_type(CardType::Enchantment)
-        .with_abilities(&SAGA_CHAPTERS),
+        .with_abilities(&[
+            abilities::saga_chapter(
+                1,
+                "I — This Saga gains \"{T}: Add {C}.\"",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    // What chapter I hands the land. It is granted for good rather than for the
+                    // turn: the Saga taps for mana from the moment the first chapter resolves
+                    // until it sacrifices itself after the third.
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
+                        "{T}: Add {C}.",
+                        &[AbilityCostDef::TapSource],
+                        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+                    )),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+            abilities::saga_chapter(
+                2,
+                "II — This Saga gains \"{2}, {T}: Create a 0/0 colorless Construct artifact creature \
+                 token with 'This token gets +1/+1 for each artifact you control.'\"",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated(
+                        "{2}, {T}: Create a 0/0 colorless Construct artifact creature token with \"This token gets \
+                         +1/+1 for each artifact you control.\"",
+                        &[
+                            AbilityCostDef::Mana(mana_cost!("{2}")),
+                            AbilityCostDef::TapSource,
+                        ],
+                        EffectDef::create_artifact_creature_token(&["Construct"], &[], 0, 0)
+                            // The token's own clause, printed on the token rather than on the Saga:
+                            // it counts itself, so the first one is a 1/1 on an otherwise empty board.
+                            .with_abilities(&[AbilityDef::static_ability(
+                                "This token gets +1/+1 for each artifact you control.",
+                                EffectDef::StaticApply {
+                                    recipient: EffectRecipientDef::Source,
+                                    effect: AppliedEffectDef::modify_power_toughness(
+                                        ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL_SAGA),
+                                        ValueDef::CountMatchingObjects(&ARTIFACTS_YOU_CONTROL_SAGA),
+                                    ),
+                                },
+                            )]),
+                    )),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+            abilities::saga_chapter(
+                3,
+                "III — Search your library for an artifact card with mana cost {0} or {1}, put it onto \
+                 the battlefield, then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    // "An artifact card with mana cost {0} or {1}": a mana value of at most
+                    // one, which is the same set of cards and the comparison the engine has.
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::ManaValueAtMost(1),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // MH2 421 — Goblin Anarchomancer
@@ -1333,71 +1184,6 @@ pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::
 );
 
 // MH2 450 — Dauthi Voidwalker
-/// The counter is the whole point: it marks the pile this creature is
-/// allowed to reach back into, which is what separates it from the
-/// graveyard hate that only takes things away.
-static VOIDWALKER_EXILES_IT: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
-    ReplacementEffectDef::PlaceCountersOnMovedObject {
-        kind: CounterKind::named("void"),
-        amount: 1,
-    },
-];
-
-/// Their cards, not yours, and cards rather than tokens: a token that would
-/// die still dies, and ceases to exist as it always would.
-static VOIDWALKER_WATCHES_THEIR_GRAVEYARD: ReplacementEventDef =
-    ReplacementEventDef::AnyObjectWouldMove {
-        to: ZoneKind::Graveyard,
-        owner: PlayerRelation::Opponent,
-        tokens: false,
-    };
-
-static VOIDWALKER_MARKED_CARDS: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::HasCounter(CounterKind::named("void")),
-    &[ZoneKind::Exile],
-    PlayerRelation::Opponent,
-);
-
-/// One card, chosen as the ability resolves and cast then or not at all.
-/// What it costs is nothing at all, which is why the creature has to die to
-/// ask.
-static VOIDWALKER_TAKES_ONE: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(VOIDWALKER_MARKED_CARDS),
-    exclude: None,
-    minimum: 1,
-    maximum: 1,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
-        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-        duration: FreePlayDurationDef::WhileResolving,
-        mandatory: false,
-        grants_haste: false,
-    }),
-});
-
-static VOIDWALKER_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
-
-static VOIDWALKER_ABILITIES: [AbilityDef; 3] = [
-    abilities::shadow(),
-    AbilityDef::replacement_for(
-        "If a card would be put into an opponent\'s graveyard from anywhere, instead exile it \
-         with a void counter on it.",
-        VOIDWALKER_WATCHES_THEIR_GRAVEYARD,
-        ReplacementEffectDef::Sequence(&VOIDWALKER_EXILES_IT),
-    ),
-    AbilityDef::activated(
-        "{T}, Sacrifice this creature: Choose an exiled card an opponent owns with a void counter \
-         on it. You may play it this turn without paying its mana cost.",
-        &VOIDWALKER_COST,
-        VOIDWALKER_TAKES_ONE,
-    ),
-];
-
 pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b7029b0-cd20-4970-9355-a27611b817bc"),
     "Dauthi Voidwalker",
@@ -1409,7 +1195,58 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
     // Two mana for a body nothing ordinary can block, a graveyard nobody
     // else gets to use, and one card off the top of that pile.
     CardRules::new_creature(mana_cost!("{B}{B}"), &["Dauthi", "Rogue"], 3, 2)
-        .with_abilities(&VOIDWALKER_ABILITIES),
+        .with_abilities(&[
+            abilities::shadow(),
+            AbilityDef::replacement_for(
+                "If a card would be put into an opponent\'s graveyard from anywhere, instead exile it \
+                 with a void counter on it.",
+                // Their cards, not yours, and cards rather than tokens: a token that would
+                // die still dies, and ceases to exist as it always would.
+                ReplacementEventDef::AnyObjectWouldMove {
+                        to: ZoneKind::Graveyard,
+                        owner: PlayerRelation::Opponent,
+                        tokens: false,
+                    },
+                // The counter is the whole point: it marks the pile this creature is
+                // allowed to reach back into, which is what separates it from the
+                // graveyard hate that only takes things away.
+                ReplacementEffectDef::Sequence(&[
+                    ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
+                    ReplacementEffectDef::PlaceCountersOnMovedObject {
+                        kind: CounterKind::named("void"),
+                        amount: 1,
+                    },
+                ]),
+            ),
+            AbilityDef::activated(
+                "{T}, Sacrifice this creature: Choose an exiled card an opponent owns with a void counter \
+                 on it. You may play it this turn without paying its mana cost.",
+                &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+                // One card, chosen as the ability resolves and cast then or not at all.
+                // What it costs is nothing at all, which is why the creature has to die to
+                // ask.
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasCounter(CounterKind::named("void")),
+                        &[ZoneKind::Exile],
+                        PlayerRelation::Opponent,
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                        duration: FreePlayDurationDef::WhileResolving,
+                        mandatory: false,
+                        grants_haste: false,
+                    }),
+                }),
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

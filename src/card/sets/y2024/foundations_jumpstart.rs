@@ -23,23 +23,6 @@ pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord:
 );
 
 // J25 24 — Scythecat Cub
-/// A land arriving under your control, which is what landfall watches: a
-/// land put onto the battlefield by a search counts exactly as one played
-/// from hand does.
-static A_LAND_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
-    ObjectPredicateDef::HasType(CardType::Land),
-    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-]);
-
-static A_CREATURE_YOU_CONTROL: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
 /// The count includes the resolution asking, so the second land of the turn
 /// reads two. A third reads three and is not the second time, which is why
 /// the two branches are one condition and its negation rather than a pair of
@@ -48,33 +31,6 @@ static CUB_SECOND_TIME: TriggerConditionDef = TriggerConditionDef::SourceResolut
     comparison: ComparisonDef::Equal,
     amount: 2,
 };
-
-static CUB_NOT_SECOND_TIME: TriggerConditionDef = TriggerConditionDef::Not(&CUB_SECOND_TIME);
-
-static CUB_GROWS_IT: EffectDef = EffectDef::AddCounters {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    kind: CounterKind::PlusOnePlusOne,
-    amount: ValueDef::Constant(1),
-};
-
-/// "Double the number of +1/+1 counters on that creature": what it has, not
-/// what this ability put there, so a creature somebody else grew doubles
-/// just as readily.
-static CUB_DOUBLES_IT: EffectDef = EffectDef::DoubleCounters {
-    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    kind: CounterKind::PlusOnePlusOne,
-};
-
-static CUB_LANDFALL: [EffectDef; 2] = [
-    EffectDef::IfCondition {
-        condition: &CUB_NOT_SECOND_TIME,
-        then: &CUB_GROWS_IT,
-    },
-    EffectDef::IfCondition {
-        condition: &CUB_SECOND_TIME,
-        then: &CUB_DOUBLES_IT,
-    },
-];
 
 pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3dd3c7d-4685-4579-b483-14ddaaaddf5b"),
@@ -90,9 +46,45 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
             "Landfall \u{2014} Whenever a land you control enters, put a +1/+1 counter on target \
              creature you control. If this is the second time this ability has resolved this \
              turn, double the number of +1/+1 counters on that creature instead.",
-            TriggerEventDef::zone_changed(A_LAND_YOU_CONTROL, None, Some(ZoneKind::Battlefield)),
-            &A_CREATURE_YOU_CONTROL,
-            EffectDef::Sequence(&CUB_LANDFALL),
+            // A land arriving under your control, which is what landfall watches: a
+            // land put onto the battlefield by a search counts exactly as one played
+            // from hand does.
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::Not(&CUB_SECOND_TIME),
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+                EffectDef::IfCondition {
+                    condition: &CUB_SECOND_TIME,
+                    // "Double the number of +1/+1 counters on that creature": what it has, not
+                    // what this ability put there, so a creature somebody else grew doubles
+                    // just as readily.
+                    then: &EffectDef::DoubleCounters {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        kind: CounterKind::PlusOnePlusOne,
+                    },
+                },
+            ]),
         ),
     ]),
 );
@@ -108,29 +100,6 @@ pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::n
 );
 
 // J25 37 — Plagon, Lord of the Beach
-/// "Each creature you control with toughness greater than its power": the
-/// comparison is between one creature's own two numbers, which is what makes
-/// a board of defensive bodies into a handful of cards.
-static YOUR_DEFENSIVE_CREATURES: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::ToughnessGreaterThanItsPower,
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-static PLAGON_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::Object {
-        object: ObjectPredicateDef::HasType(CardType::Creature),
-        zones: &[ZoneKind::Battlefield],
-        controller: Some(PlayerRelation::You),
-        owner: None,
-    },
-)];
-
-static PLAGON_COST: [AbilityCostDef; 1] = [AbilityCostDef::Mana(mana_cost!("{W/U}"))];
-
 pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f8a6bfe-6033-4f6b-ab45-6b553f8b51a1"),
     "Plagon, Lord of the Beach",
@@ -147,14 +116,31 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
                  greater than its power.",
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::CountMatchingObjects(&YOUR_DEFENSIVE_CREATURES),
+                    // "Each creature you control with toughness greater than its power": the
+                    // comparison is between one creature's own two numbers, which is what makes
+                    // a board of defensive bodies into a handful of cards.
+                    amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ToughnessGreaterThanItsPower,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
                 },
             ),
             AbilityDef::activated_with_targets(
                 "{W/U}: Target creature you control assigns combat damage equal to its toughness \
                  rather than its power this turn.",
-                &PLAGON_COST,
-                &PLAGON_TARGET,
+                &[AbilityCostDef::Mana(mana_cost!("{W/U}"))],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::You),
+                        owner: None,
+                    },
+                )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Rule(
@@ -167,41 +153,6 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
 );
 
 // J25 50 — Ivora, Insatiable Heir
-/// One printed ability with two ways in, which is what "when it enters and
-/// whenever it deals combat damage" says. Splitting it would make her two
-/// triggered abilities where the card has one.
-static IVORA_MAKES_BLOOD: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-];
-
-static IVORA_ABILITIES: [AbilityDef; 3] = [
-    abilities::trample(),
-    AbilityDef::triggered(
-        "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
-        TriggerEventDef::AnyOf(&IVORA_MAKES_BLOOD),
-        EffectDef::create_token(tokens::blood()).with_art(CardArt::new(
-            "6b563165-b97f-42c6-82a8-65d8ee69e381",
-            "Stephen Andrade",
-        )),
-    ),
-    // Any discard, including one paid as a cost -- which is how her own Blood
-    // token feeds her.
-    AbilityDef::triggered(
-        "Whenever you discard a card, put a +1/+1 counter on Ivora.",
-        TriggerEventDef::Discarded(PlayerRelation::You),
-        EffectDef::AddCounters {
-            object: EffectRecipientDef::Source,
-            kind: CounterKind::PlusOnePlusOne,
-            amount: ValueDef::Constant(1),
-        },
-    ),
-];
-
 pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord::new_with_legacy_id(
     2148,
     "Ivora, Insatiable Heir",
@@ -209,7 +160,38 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
     CardSet::FoundationsJumpstart,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Vampire", "Warrior"], 1, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&IVORA_ABILITIES),
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::triggered(
+                "When Ivora enters and whenever it deals combat damage to a player, create a Blood token.",
+                // One printed ability with two ways in, which is what "when it enters and
+                // whenever it deals combat damage" says. Splitting it would make her two
+                // triggered abilities where the card has one.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                ]),
+                EffectDef::create_token(tokens::blood()).with_art(CardArt::new(
+                    "6b563165-b97f-42c6-82a8-65d8ee69e381",
+                    "Stephen Andrade",
+                )),
+            ),
+            // Any discard, including one paid as a cost -- which is how her own Blood
+            // token feeds her.
+            AbilityDef::triggered(
+                "Whenever you discard a card, put a +1/+1 counter on Ivora.",
+                TriggerEventDef::Discarded(PlayerRelation::You),
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // J25 114 — Dark Confidant (reprint)
@@ -238,24 +220,6 @@ pub(in crate::card::sets) static PESTERMITE: CardRecord = CardRecord::new(
 );
 
 // J25 349 — Remand
-/// The countered card goes to its owner's hand rather than their graveyard,
-/// which the counter effect's own destination says. The draw is a second
-/// clause and happens whether or not the counter found anything to do.
-static REMAND_EFFECT: EffectDef = EffectDef::Sequence(&[
-    EffectDef::Counter {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-    },
-]);
-
-static A_SPELL: [AbilityTargetDef; 1] =
-    [AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)];
-
 pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("581f3780-c480-48c6-b15c-1618f2feccb9"),
     "Remand",
@@ -266,8 +230,21 @@ pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. If that spell is countered this way, put it into its owner's hand \
          instead of into that player's graveyard.\nDraw a card.",
-        &A_SPELL,
-        REMAND_EFFECT,
+        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        // The countered card goes to its owner's hand rather than their graveyard,
+        // which the counter effect's own destination says. The draw is a second
+        // clause and happens whether or not the counter found anything to do.
+        EffectDef::Sequence(&[
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
     )),
 );
 

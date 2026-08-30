@@ -1676,22 +1676,6 @@ pub(in crate::card::sets) static PLAGUE_STINGER: CardRecord = CardRecord::new(
 );
 
 // SOM 76 — Psychic Miasma
-static PSYCHIC_MIASMA_DISCARDED_LAND: TriggerConditionDef =
-    TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-        left: ValueDef::MatchedCount,
-        comparison: ComparisonDef::GreaterOrEqual,
-        right: ValueDef::Constant(1),
-    });
-
-static PSYCHIC_MIASMA_RETURN: EffectDef = EffectDef::IfCondition {
-    condition: &PSYCHIC_MIASMA_DISCARDED_LAND,
-    then: &EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-    },
-};
-
 pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd9c3267-7988-416c-85a4-0e314e42ddb9"),
     "Psychic Miasma",
@@ -1710,7 +1694,18 @@ pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
                 then: Some(DiscardFollowUpDef {
                     counted: ObjectPredicateDef::HasType(CardType::Land),
                     bound: None,
-                    effect: &PSYCHIC_MIASMA_RETURN,
+                    effect: &EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                                left: ValueDef::MatchedCount,
+                                comparison: ComparisonDef::GreaterOrEqual,
+                                right: ValueDef::Constant(1),
+                            }),
+                        then: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Source,
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    },
                 }),
             },
         ),
@@ -2139,30 +2134,6 @@ pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::
 );
 
 // SOM 94 — Koth of the Hammer
-static KOTH_MOUNTAIN_DAMAGE: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}: This land deals 1 damage to any target.",
-    &[AbilityCostDef::TapSource],
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(1),
-    },
-);
-
-static KOTH_EMBLEM_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-    "Mountains you control have “{T}: This land deals 1 damage to any target.”",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::matching_objects(
-            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-            &[ZoneKind::Battlefield],
-            PlayerRelation::You,
-        ),
-        effect: AppliedEffectDef::add_ability(&KOTH_MOUNTAIN_DAMAGE),
-    },
-)];
-
 pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af8b9c79-a161-4d7d-944d-82a44a5f2ab9"),
     "Koth of the Hammer",
@@ -2227,7 +2198,27 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
             AbilityDef::activated(
                 "−5: You get an emblem with “Mountains you control have ‘{T}: This land deals 1 damage to any target.’”",
                 &[AbilityCostDef::Loyalty(-5)],
-                EffectDef::create_emblem("Koth of the Hammer emblem", &KOTH_EMBLEM_ABILITIES),
+                EffectDef::create_emblem("Koth of the Hammer emblem", &[AbilityDef::static_ability(
+                    "Mountains you control have “{T}: This land deals 1 damage to any target.”",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                            "{T}: This land deals 1 damage to any target.",
+                            &[AbilityCostDef::TapSource],
+                            &[AbilityTargetDef::exactly_one(
+                                AbilityTargetPredicate::AnyTarget,
+                            )],
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(1),
+                            },
+                        )),
+                    },
+                )]),
             ),
         ]),
 );
@@ -3025,21 +3016,6 @@ pub(in crate::card::sets) static WITHSTAND_DEATH: CardRecord = CardRecord::new(
 );
 
 // SOM 135 — Venser, the Sojourner
-static VENSER_EMBLEM_ABILITY: AbilityDef = AbilityDef::triggered_with_targets(
-    "Whenever you cast a spell, exile target permanent.",
-    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
-    &[AbilityTargetDef::exactly_one_permanent(
-        ObjectPredicateDef::Any,
-    )],
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-);
-
-static VENSER_EMBLEM_ABILITIES: [AbilityDef; 1] = [VENSER_EMBLEM_ABILITY];
-
 pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d48d62e-5c1f-464c-aa81-8a5d2690f48e"),
     "Venser, the Sojourner",
@@ -3079,7 +3055,18 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
             AbilityDef::activated(
                 "−8: You get an emblem with “Whenever you cast a spell, exile target permanent.”",
                 &[AbilityCostDef::Loyalty(-8)],
-                EffectDef::create_emblem("Venser, the Sojourner emblem", &VENSER_EMBLEM_ABILITIES),
+                EffectDef::create_emblem("Venser, the Sojourner emblem", &[AbilityDef::triggered_with_targets(
+                    "Whenever you cast a spell, exile target permanent.",
+                    TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                )]),
             ),
         ]),
 );
@@ -3655,51 +3642,6 @@ pub(in crate::card::sets) static GOLDEN_URN: CardRecord = CardRecord::new(
 );
 
 // SOM 159 — Golem Artisan
-static GOLEM_ARTISAN_MODES: &[AbilityDef] = &[
-    AbilityDef::spell_with_targets(
-        "Target artifact creature gains flying until end of turn",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                ObjectPredicateDef::HasType(CardType::Creature),
-            ]),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::add_ability(&abilities::flying()),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target artifact creature gains trample until end of turn",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                ObjectPredicateDef::HasType(CardType::Creature),
-            ]),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::add_ability(&abilities::trample()),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-    AbilityDef::spell_with_targets(
-        "Target artifact creature gains haste until end of turn",
-        &[AbilityTargetDef::exactly_one_permanent(
-            ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                ObjectPredicateDef::HasType(CardType::Creature),
-            ]),
-        )],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            effect: AppliedEffectDef::add_ability(&abilities::haste()),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
-    ),
-];
-
 pub(in crate::card::sets) static GOLEM_ARTISAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9"),
     "Golem Artisan",
@@ -3725,7 +3667,50 @@ pub(in crate::card::sets) static GOLEM_ARTISAN: CardRecord = CardRecord::new(
         AbilityDef::modal_activated(
             "{2}: Target artifact creature gains your choice of flying, trample, or haste until end of turn.",
             &[AbilityCostDef::Mana(mana_cost!("{2}"))],
-            GOLEM_ARTISAN_MODES,
+            &[
+                AbilityDef::spell_with_targets(
+                    "Target artifact creature gains flying until end of turn",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target artifact creature gains trample until end of turn",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target artifact creature gains haste until end of turn",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )],
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ],
             1,
             1,
             false,
@@ -3828,18 +3813,6 @@ pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
 );
 
 // SOM 164 — Heavy Arbalest
-static HEAVY_ARBALEST_GRANTED: AbilityDef = AbilityDef::activated_with_targets(
-    "{T}: This creature deals 2 damage to any target.",
-    &[AbilityCostDef::TapSource],
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-);
-
 pub(in crate::card::sets) static HEAVY_ARBALEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5737246f-1292-4af6-aecf-8f161f5300cb"),
     "Heavy Arbalest",
@@ -3859,7 +3832,17 @@ pub(in crate::card::sets) static HEAVY_ARBALEST: CardRecord = CardRecord::new(
                 "Equipped creature has “{T}: This creature deals 2 damage to any target.”",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&HEAVY_ARBALEST_GRANTED),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
+                        "{T}: This creature deals 2 damage to any target.",
+                        &[AbilityCostDef::TapSource],
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                    )),
                 },
             ),
             abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
@@ -4040,18 +4023,6 @@ pub(in crate::card::sets) static LIQUIMETAL_COATING: CardRecord = CardRecord::ne
 );
 
 // SOM 172 — Livewire Lash
-static LIVEWIRE_LASH_GRANTED: AbilityDef = AbilityDef::triggered_with_targets(
-    "Whenever this creature becomes the target of a spell, this creature deals 2 damage to any target.",
-    TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
-    &[AbilityTargetDef::exactly_one(
-        AbilityTargetPredicate::AnyTarget,
-    )],
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-        amount: ValueDef::Constant(2),
-    },
-);
-
 pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbef3e31-eb5a-43f7-a0b2-12348df6968d"),
     "Livewire Lash",
@@ -4074,7 +4045,17 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
                 "Whenever equipped creature becomes the target of a spell, that creature deals 2 damage to any target.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::add_ability(&LIVEWIRE_LASH_GRANTED),
+                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
+                        "Whenever this creature becomes the target of a spell, this creature deals 2 damage to any target.",
+                        TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+                        &[AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::AnyTarget,
+                        )],
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                    )),
                 },
             ),
             abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
@@ -4224,9 +4205,6 @@ pub(in crate::card::sets) static MORIOK_REPLICA: CardRecord = CardRecord::new(
 );
 
 // SOM 179 — Mox Opal
-/// The Mox counts itself, which is what makes two other artifacts enough.
-static MOX_OPAL_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
-
 pub(in crate::card::sets) static MOX_OPAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6be9b1d5-9ab8-4adb-ba54-2c0117e842fa"),
     "Mox Opal",
@@ -4239,78 +4217,14 @@ pub(in crate::card::sets) static MOX_OPAL: CardRecord = CardRecord::new(
         .with_ability(AbilityDef::activated_mana_if(
             "Metalcraft — {T}: Add one mana of any color. Activate only if you control three or \
              more artifacts.",
-            &MOX_OPAL_TAP,
+            // The Mox counts itself, which is what makes two other artifacts enough.
+            &[AbilityCostDef::TapSource],
             &METALCRAFT,
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         )),
 );
 
 // SOM 180 — Myr Battlesphere
-/// Untapped Myr under your control. The Battlesphere is a Myr itself, but
-/// an attacking one is tapped, so it is not among its own candidates unless
-/// something untapped it.
-static UNTAPPED_MYR_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
-    ObjectPredicateDef::All(&[
-        ObjectPredicateDef::Subtype("Myr"),
-        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-    ]),
-    &[ZoneKind::Battlefield],
-    PlayerRelation::You,
-);
-
-/// What the tapping buys, in the order the card prints it: the Myr go down,
-/// the Battlesphere grows, and the damage is the same count.
-static BATTLESPHERE_PAYOFF: [EffectDef; 3] = [
-    EffectDef::Tap {
-        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::modify_power_toughness(
-            ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-            ValueDef::Constant(0),
-        ),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-    // "The player or planeswalker it's attacking": whichever the
-    // declaration named, read off the Battlesphere rather than off the
-    // trigger, which carries only the player.
-    EffectDef::DealDamage {
-        recipient: EffectRecipientDef::DefenderOfSource,
-        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-    },
-];
-
-static BATTLESPHERE_PAYOFF_SEQUENCE: EffectDef = EffectDef::Sequence(&BATTLESPHERE_PAYOFF);
-
-/// "You may tap X untapped Myr you control": X is however many the player
-/// picks, none included, so the choice is what settles the size.
-static BATTLESPHERE_TAPS_MYR: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
-    unchosen: None,
-    chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Query(UNTAPPED_MYR_YOU_CONTROL),
-    exclude: None,
-    minimum: 0,
-    maximum: usize::MAX,
-    visibility: ChoiceVisibilityDef::Public,
-    then: &BATTLESPHERE_PAYOFF_SEQUENCE,
-});
-
-static BATTLESPHERE_ABILITIES: [AbilityDef; 2] = [
-    abilities::enters_trigger(
-        "When this creature enters, create four 1/1 colorless Myr artifact creature tokens.",
-        EffectDef::create_artifact_creature_token(&["Myr"], &[], 1, 1).with_amount(4),
-    ),
-    AbilityDef::triggered(
-        "Whenever this creature attacks, you may tap X untapped Myr you control. If you do, this \
-         creature gets +X/+0 until end of turn and deals X damage to the player or planeswalker \
-         it's attacking.",
-        TriggerEventDef::attacks(ObjectPredicateDef::Source),
-        BATTLESPHERE_TAPS_MYR,
-    ),
-];
-
 pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b0ae94ed-7314-470b-baba-f2f58bbc894a"),
     "Myr Battlesphere",
@@ -4319,7 +4233,62 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
     // Seven mana for eleven power across five bodies, and an attack that
     // cashes the little ones in for damage that no blocker can stop.
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Myr", "Construct"], 4, 7)
-        .with_abilities(&BATTLESPHERE_ABILITIES),
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this creature enters, create four 1/1 colorless Myr artifact creature tokens.",
+                EffectDef::create_artifact_creature_token(&["Myr"], &[], 1, 1).with_amount(4),
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, you may tap X untapped Myr you control. If you do, this \
+                 creature gets +X/+0 until end of turn and deals X damage to the player or planeswalker \
+                 it's attacking.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                // "You may tap X untapped Myr you control": X is however many the player
+                // picks, none included, so the choice is what settles the size.
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    // Untapped Myr under your control. The Battlesphere is a Myr itself, but
+                    // an attacking one is tapped, so it is not among its own candidates unless
+                    // something untapped it.
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Subtype("Myr"),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: usize::MAX,
+                    visibility: ChoiceVisibilityDef::Public,
+                    // What the tapping buys, in the order the card prints it: the Myr go down,
+                    // the Battlesphere grows, and the damage is the same count.
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::Tap {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                        },
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Source,
+                            effect: AppliedEffectDef::modify_power_toughness(
+                                ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                                ValueDef::Constant(0),
+                            ),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                        // "The player or planeswalker it's attacking": whichever the
+                        // declaration named, read off the Battlesphere rather than off the
+                        // trigger, which carries only the player.
+                        EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::DefenderOfSource,
+                            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        },
+                    ]),
+                }),
+            ),
+        ]),
 );
 
 // SOM 181 — Myr Galvanizer
@@ -5463,39 +5432,25 @@ pub(in crate::card::sets) static WURMCOIL_ENGINE: CardRecord = CardRecord::new(
 );
 
 // SOM 224 — Blackcleave Cliffs
-static BLACKCLEAVE_CLIFFS_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {B} or {R}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Black,
-            ManaColor::Red,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new_with_legacy_id(
     2131,
     "Blackcleave Cliffs",
     CardArt::new("3d71be5f-0fd7-4a88-8041-f4d6bc4cc9ac", "Dave Kendall"),
     CardSet::ScarsOfMirrodin,
-    CardRules::new_land(&[]).with_abilities(&BLACKCLEAVE_CLIFFS_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+    ]),
 );
 
 // SOM 225 — Copperline Gorge
-static COPPERLINE_GORGE_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {R} or {G}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Red,
-            ManaColor::Green,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_with_legacy_id(
     2132,
     "Copperline Gorge",
@@ -5504,28 +5459,36 @@ pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_
         "Zoltan Boros & Gabor Szikszai",
     ),
     CardSet::ScarsOfMirrodin,
-    CardRules::new_land(&[]).with_abilities(&COPPERLINE_GORGE_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {G}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::Green,
+            ])),
+        ),
+    ]),
 );
 
 // SOM 226 — Darkslick Shores
-static DARKSLICK_SHORES_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {U} or {B}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Blue,
-            ManaColor::Black,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_with_legacy_id(
     2133,
     "Darkslick Shores",
     CardArt::new("e530388b-eb19-4211-abd8-8a4c3c38c3af", "Charles Urbach"),
     CardSet::ScarsOfMirrodin,
-    CardRules::new_land(&[]).with_abilities(&DARKSLICK_SHORES_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {B}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Blue,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // SOM 227 — Glimmerpost
@@ -5555,45 +5518,41 @@ pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
 );
 
 // SOM 228 — Razorverge Thicket
-static RAZORVERGE_THICKET_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {G} or {W}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::Green,
-            ManaColor::White,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new_with_legacy_id(
     2134,
     "Razorverge Thicket",
     CardArt::new("345e053a-3178-485c-8602-1624bbf2f064", "James Paick"),
     CardSet::ScarsOfMirrodin,
-    CardRules::new_land(&[]).with_abilities(&RAZORVERGE_THICKET_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {G} or {W}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Green,
+                ManaColor::White,
+            ])),
+        ),
+    ]),
 );
 
 // SOM 229 — Seachrome Coast
-static SEACHROME_COAST_ABILITIES: [AbilityDef; 2] = [
-    FAST_LAND_ENTERS,
-    AbilityDef::activated_mana(
-        "{T}: Add {W} or {U}.",
-        &[AbilityCostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::choice(&[
-            ManaColor::White,
-            ManaColor::Blue,
-        ])),
-    ),
-];
-
 pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_with_legacy_id(
     2135,
     "Seachrome Coast",
     CardArt::new("99939b90-e88c-4c2f-ba78-56d455611703", "Lars Grant-West"),
     CardSet::ScarsOfMirrodin,
-    CardRules::new_land(&[]).with_abilities(&SEACHROME_COAST_ABILITIES),
+    CardRules::new_land(&[]).with_abilities(&[
+        FAST_LAND_ENTERS,
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {U}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Blue,
+            ])),
+        ),
+    ]),
 );
 
 // SOM 230 — Plains (reprint)

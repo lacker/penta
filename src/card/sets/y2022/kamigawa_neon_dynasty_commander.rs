@@ -11,39 +11,6 @@ use crate::card::{
 use crate::mana_cost;
 
 // NEC 14 — Kappa Cannoneer
-/// "This creature or another artifact you control": the Cannoneer's own
-/// arrival counts, and so does every artifact after it -- including the ones
-/// that are not creatures.
-static CANNONEER_ARRIVALS: [TriggerEventDef; 2] = [
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::Source,
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-    TriggerEventDef::zone_changed(
-        ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-        ]),
-        None,
-        Some(ZoneKind::Battlefield),
-    ),
-];
-
-static CANNONEER_GROWS: [EffectDef; 2] = [
-    EffectDef::AddCounters {
-        object: EffectRecipientDef::Source,
-        kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::Constant(1),
-    },
-    EffectDef::Apply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
-        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-    },
-];
-
 pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("85a89077-b384-4fca-9d26-7297962c1541"),
     "Kappa Cannoneer",
@@ -58,64 +25,42 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
             AbilityDef::triggered(
                 "Whenever this creature or another artifact you control enters, put a +1/+1 \
                  counter on this creature. It can't be blocked this turn.",
-                TriggerEventDef::AnyOf(&CANNONEER_ARRIVALS),
-                EffectDef::Sequence(&CANNONEER_GROWS),
+                // "This creature or another artifact you control": the Cannoneer's own
+                // arrival counts, and so does every artifact after it -- including the ones
+                // that are not creatures.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                ]),
+                EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
             ),
         ]),
 );
 
 // NEC 76 — Shorikai, Genesis Engine
-/// The Pilot is worth three power to a Vehicle and one to everything else,
-/// so the loot pays for its own crew: three activations put an 8/8 in the
-/// air, and every one of them drew two cards on the way.
-static PILOT_CREWS_FOR_MORE: [AbilityDef; 1] = [AbilityDef::static_ability(
-    "This token crews Vehicles as though its power were 2 greater.",
-    EffectDef::StaticApply {
-        recipient: EffectRecipientDef::Source,
-        effect: AppliedEffectDef::Rule(AppliedRuleDef::CrewsAsThoughPowerGreater(2)),
-    },
-)];
-
-static SHORIKAI_MAKES_A_PILOT: EffectDef = EffectDef::create_creature_token(&["Pilot"], &[], 1, 1)
-    .with_abilities(&PILOT_CREWS_FOR_MORE)
-    .with_art(CardArt::new(
-        "be84f259-2809-48c9-9c70-861437f08c23",
-        "Mila Pesic",
-    ));
-
-static SHORIKAI_LOOTS: [EffectDef; 3] = [
-    EffectDef::DrawCards {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(2),
-    },
-    EffectDef::Discard {
-        recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::Constant(1),
-        selection: DiscardSelectionDef::RecipientChooses,
-        then: None,
-    },
-    SHORIKAI_MAKES_A_PILOT,
-];
-
-static SHORIKAI_ACTIVATION: [AbilityCostDef; 2] = [
-    AbilityCostDef::Mana(mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-];
-
-static SHORIKAI_ABILITIES: [AbilityDef; 2] = [
-    AbilityDef::activated(
-        "{1}, {T}: Draw two cards, then discard a card. Create a 1/1 colorless Pilot creature \
-         token with \"This token crews Vehicles as though its power were 2 greater.\"",
-        &SHORIKAI_ACTIVATION,
-        EffectDef::Sequence(&SHORIKAI_LOOTS),
-    ),
-    abilities::crew(
-        "Crew 8 (Tap any number of creatures you control with total power 8 or more: This \
-         Vehicle becomes an artifact creature until end of turn.)",
-        8,
-    ),
-];
-
 pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0347cf84-42f5-4674-99de-619b0ae51d62"),
     "Shorikai, Genesis Engine",
@@ -125,7 +70,48 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
     // does it -- the 8/8 is what the Pilots are for rather than the plan.
     CardRules::new_vehicle(mana_cost!("{2}{W}{U}"), 8, 8)
         .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&SHORIKAI_ABILITIES),
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{1}, {T}: Draw two cards, then discard a card. Create a 1/1 colorless Pilot creature \
+                 token with \"This token crews Vehicles as though its power were 2 greater.\"",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{1}")),
+                    AbilityCostDef::TapSource,
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                    EffectDef::create_creature_token(&["Pilot"], &[], 1, 1)
+                        // The Pilot is worth three power to a Vehicle and one to everything else,
+                        // so the loot pays for its own crew: three activations put an 8/8 in the
+                        // air, and every one of them drew two cards on the way.
+                        .with_abilities(&[AbilityDef::static_ability(
+                            "This token crews Vehicles as though its power were 2 greater.",
+                            EffectDef::StaticApply {
+                                recipient: EffectRecipientDef::Source,
+                                effect: AppliedEffectDef::Rule(AppliedRuleDef::CrewsAsThoughPowerGreater(2)),
+                            },
+                        )])
+                        .with_art(CardArt::new(
+                            "be84f259-2809-48c9-9c70-861437f08c23",
+                            "Mila Pesic",
+                        )),
+                ]),
+            ),
+            abilities::crew(
+                "Crew 8 (Tap any number of creatures you control with total power 8 or more: This \
+                 Vehicle becomes an artifact creature until end of turn.)",
+                8,
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] =

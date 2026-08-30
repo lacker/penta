@@ -217,53 +217,6 @@ impl Game {
         locked
     }
 
-    /// Pays what a graveyard activation owes. The permanent it taps goes
-    /// first, so automatic mana payment cannot tap it out from under the
-    /// cost it is paying.
-    fn pay_graveyard_activation_costs(
-        &mut self,
-        player: PlayerId,
-        source: GameObjectId,
-        definition: &crate::card::ActivatedAbilityDef,
-        announced: AnnouncedActivationCost<'_>,
-    ) {
-        let AnnouncedActivationCost {
-            cost_objects,
-            x,
-            payment_purpose,
-            mana_payment,
-        } = announced;
-        let priced_mana_cost = self.priced_ability_mana_cost(source, definition);
-        if definition
-            .costs
-            .iter()
-            .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count: 1, .. }))
-            && let Some(chosen) = cost_objects.first()
-        {
-            let _ = self.tap_permanent(*chosen);
-        }
-        for cost in definition.costs.as_slice() {
-            match cost {
-                AbilityCostDef::Mana(printed) => {
-                    let cost = priced_mana_cost.unwrap_or(*printed);
-                    let cost = self.announced_activation_cost(player, cost, mana_payment);
-                    self.activate_mana_for_cost_avoiding_for(
-                        player,
-                        cost,
-                        x,
-                        None,
-                        payment_purpose,
-                    );
-                    let _ = self.pay_player_cost_for(player, cost, x, payment_purpose);
-                }
-                // Paid above, before anything else could tap it.
-                AbilityCostDef::TapPermanents { count: 1, .. } => {}
-                AbilityCostDef::ExileSource => self.exile_graveyard_source(player, source),
-                _ => unreachable!("unsupported graveyard-zone costs are not offered"),
-            }
-        }
-    }
-
     /// Activates the ability carried by a resolved ongoing effect. The effect
     /// is command-zone-resident only as an engine source-zone approximation;
     /// it has no permanent state and therefore supports only the source-free

@@ -3,16 +3,22 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
 use crate::card::sets::y2012::return_to_ravnica;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
-    CopyAbilityDef, CopyExceptionsDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, LikelihoodDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef,
-    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
+    BattlefieldArrivalDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef,
+    CollectionInspectionDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CopyStackObjectDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
+    LikelihoodDef, ManaColor, ManaTypeSetDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
+    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -200,13 +206,28 @@ pub(in crate::card::sets) static RIOT_CONTROL: CardRecord = CardRecord::new_with
 );
 
 // DGM 7 — Scion of Vitu-Ghazi
-// Audit: unsupported — Needs an enters-trigger condition that remembers whether the permanent was cast from hand, plus populate's token-copy choice.
 pub(in crate::card::sets) static SCION_OF_VITU_GHAZI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cd20865-0a9a-4a72-92f9-77c8d6384b46"),
     "Scion of Vitu-Ghazi",
     crate::card::CardArt::new("3cd20865-0a9a-4a72-92f9-77c8d6384b46", "Willian Murai"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Elemental"], 4, 4).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::triggered_if(
+            "When this creature enters, if you cast it from your hand, create a 1/1 white Bird creature token with flying, then populate.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            &TriggerConditionDef::SourceCastFrom(ZoneKind::Hand),
+            EffectDef::Sequence(&[
+                EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::flying()]),
+                abilities::populate(),
+            ]),
+        ),
+    ]),
 );
 
 // DGM 8 — Steeple Roc
@@ -298,7 +319,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
 );
 
 // DGM 12 — Hidden Strings
-// Audit: unsupported — Needs tap-or-untap choices made independently on resolution and cipher's encoded-card link, combat-damage trigger, and free-copy casting permission.
+// Audit: unsupported — Independent tap-or-untap resolution choices are available, but cipher still needs an encoded-card link, its combat-damage trigger, and free-copy casting permission.
 pub(in crate::card::sets) static HIDDEN_STRINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("216e8047-6f54-49ce-bf86-27dc8fc8c8f7"),
     "Hidden Strings",
@@ -433,13 +454,55 @@ pub(in crate::card::sets) static TRAIT_DOCTORING: CardRecord = CardRecord::new(
 );
 
 // DGM 19 — Uncovered Clues
-// Audit: unsupported — Needs a top-four selection constrained to up to two instant or sorcery followed by ordering the unselected cards on the library bottom.
 pub(in crate::card::sets) static UNCOVERED_CLUES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9dd24556-994f-4480-835e-11d4443f0700"),
     "Uncovered Clues",
     crate::card::CardArt::new("9dd24556-994f-4480-835e-11d4443f0700", "Jaime Jones"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
+        "Look at the top four cards of your library. You may reveal up to two instant and/or sorcery cards from among them and put the revealed cards into your hand. Put the rest on the bottom of your library in any order.",
+        EffectDef::ChooseCardsFromCollection(crate::card::ChooseCardsFromCollectionDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(4),
+            },
+            actor: PlayerRefDef::EffectController,
+            inspection: CollectionInspectionDef::Look,
+            object: ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Instant),
+                ObjectPredicateDef::HasType(CardType::Sorcery),
+            ]),
+            minimum: 0,
+            maximum: 2,
+            chosen: Binding!("uncovered_clues_chosen"),
+            remainder: Binding!("uncovered_clues_remainder"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(Binding!("uncovered_clues_chosen")),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+                EffectDef::ChooseObjectOrder(crate::card::ChooseObjectOrderDef {
+                    actor: PlayerRefDef::EffectController,
+                    input: ObjectSetDef::Binding(Binding!("uncovered_clues_remainder")),
+                    ordered: ParentBinding,
+                    placement: ZonePlacement::Bottom,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Bottom,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                }),
+            ]),
+        }),
+    )),
 );
 
 // DGM 20 — Wind Drake (reprint)
@@ -454,7 +517,7 @@ pub(in crate::card::sets) static BANE_ALLEY_BLACKGUARD: CardRecord = CardRecord:
 );
 
 // DGM 22 — Blood Scrivener
-// Audit: unsupported — Needs a draw-event replacement that checks an empty hand and replaces one draw with two cards plus one life loss.
+// Audit: unsupported — Hand-size draw adjustments and continued replaced draws exist separately, but no replacement-with-effect can both draw an additional card and make its controller lose 1 life.
 pub(in crate::card::sets) static BLOOD_SCRIVENER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ea8179a-d3c9-4cdc-a5b5-68cc73279050"),
     "Blood Scrivener",
@@ -464,13 +527,36 @@ pub(in crate::card::sets) static BLOOD_SCRIVENER: CardRecord = CardRecord::new(
 );
 
 // DGM 23 — Crypt Incursion
-// Audit: unsupported — Needs the number of cards actually exiled by a graveyard sweep to feed one life-gain event after replacements are applied.
 pub(in crate::card::sets) static CRYPT_INCURSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c3b71cc5-0a81-4cab-bae3-49335c04aaaa"),
     "Crypt Incursion",
     crate::card::CardArt::new("c3b71cc5-0a81-4cab-bae3-49335c04aaaa", "Svetlin Velinov"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Exile all creature cards from target player's graveyard. You gain 3 life for each card exiled this way.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+            PlayerRelation::Any,
+        ))],
+        EffectDef::WithZoneMoveResult {
+            effect: &EffectDef::MoveToZone {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Graveyard],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ))),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+            binding: ParentBinding,
+            then: &EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Scaled(&ScaledValueDef::new(
+                    ValueDef::BoundObjectCount(ParentBinding),
+                    3,
+                )),
+            },
+        },
+    )),
 );
 
 // DGM 24 — Fatal Fumes
@@ -496,13 +582,32 @@ pub(in crate::card::sets) static FATAL_FUMES: CardRecord = CardRecord::new_with_
 );
 
 // DGM 25 — Hired Torturer
-// Audit: unsupported — Needs revealing a random card from the targeted opponent's hand after the life-loss effect.
 pub(in crate::card::sets) static HIRED_TORTURER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("62e9f79e-6606-4c9b-838c-eda5d8cc612c"),
     "Hired Torturer",
     crate::card::CardArt::new("62e9f79e-6606-4c9b-838c-eda5d8cc612c", "Winona Nelson"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Rogue"], 2, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{3}{B}, {T}: Target opponent loses 2 life, then reveals a card at random from their hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}{B}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Opponent,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::RevealAtRandomFromHand {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ]),
+        ),
+    ),
 );
 
 // DGM 26 — Maze Abomination
@@ -570,13 +675,41 @@ pub(in crate::card::sets) static RAKDOS_DRAKE: CardRecord = CardRecord::new_with
 );
 
 // DGM 29 — Sinister Possession
-// Audit: unsupported — Needs an Aura to observe both attack and block events from its attached creature and make that creature's controller lose life.
 pub(in crate::card::sets) static SINISTER_POSSESSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f54c15b-fec0-49a6-8a49-d1af4eeee40e"),
     "Sinister Possession",
     crate::card::CardArt::new("7f54c15b-fec0-49a6-8a49-d1af4eeee40e", "Anthony Palumbo"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant creature",
+                &CREATURE_TARGET,
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever enchanted creature attacks or blocks, its controller loses 2 life.",
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::attacks(ObjectPredicateDef::AttachedToSource),
+                    TriggerEventDef::BlocksOrBecomesBlockedBy {
+                        creature: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AttachedToSource,
+                            ObjectPredicateDef::Blocking,
+                        ]),
+                        other: ObjectPredicateDef::Any,
+                    },
+                ]),
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                        ObjectRefDef::AttachedToSource,
+                    )),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+        ]),
 );
 
 // DGM 30 — Ubul Sar Gatekeepers
@@ -669,7 +802,7 @@ pub(in crate::card::sets) static MAZE_RUSHER: CardRecord = CardRecord::new_with_
 );
 
 // DGM 34 — Possibility Storm
-// Audit: unsupported — Needs spell-type-aware library reveal-until, free casting of the found card, and random ordering of the linked exiled cards.
+// Audit: unsupported — Cascade supplies a free-cast offer and random-bottom cleanup for its own mana-value search, but no reusable reveal-until procedure matches card types against the triggering spell and tracks Possibility Storm's exiled pile.
 pub(in crate::card::sets) static POSSIBILITY_STORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("858aa831-b491-4f1e-bb56-33eeca14771d"),
     "Possibility Storm",
@@ -710,13 +843,45 @@ pub(in crate::card::sets) static PUNISH_THE_ENEMY: CardRecord = CardRecord::new_
 );
 
 // DGM 36 — Pyrewild Shaman
-// Audit: unsupported — Needs one grouped combat-damage event and a paid trigger from the graveyard.
 pub(in crate::card::sets) static PYREWILD_SHAMAN: CardRecord = CardRecord::new_with_legacy_id(
     626,
     "Pyrewild Shaman",
     CardArt::new("8c6f6e45-f613-420d-83d2-d93c643265ee", "Lucas Graciano"),
     CardSet::DragonsMaze,
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Shaman"], 3, 1).with_abilities(&[
+        abilities::bloodrush(
+            mana_cost!("{1}{R}"),
+            "Bloodrush — {1}{R}, Discard this card: Target attacking creature gets +3/+1 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Attacking,
+            ]))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(1)),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever one or more creatures you control deal combat damage to a player, if this card is in your graveyard, you may pay {3}. If you do, return this card to your hand.",
+            TriggerEventDef::CombatDamageDealtToPlayers {
+                sources: ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                players: PlayerRelation::Any,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef::mana(
+                    PlayerSetDef::Related(PlayerRelation::You),
+                    mana_cost!("{3}"),
+                ),
+                &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            )),
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // DGM 37 — Riot Piker
@@ -913,13 +1078,36 @@ pub(in crate::card::sets) static MENDING_TOUCH: CardRecord = CardRecord::new_wit
 );
 
 // DGM 45 — Mutant's Prey
-// Audit: unsupported — Needs a target predicate for a +1/+1 counter and the simultaneous fight damage procedure.
 pub(in crate::card::sets) static MUTANT_S_PREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9e32d47-2796-4eac-b373-a93506d8d6b7"),
     "Mutant's Prey",
     crate::card::CardArt::new("d9e32d47-2796-4eac-b373-a93506d8d6b7", "Ryan Barger"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control with a +1/+1 counter on it fights target creature an opponent controls.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::Opponent),
+                owner: None,
+            }),
+        ],
+        EffectDef::Fight {
+            first: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            second: ObjectRefDef::Target(TargetIndex(1)),
+            excess: None,
+        },
+    )),
 );
 
 // DGM 46 — Phytoburst
@@ -945,7 +1133,7 @@ pub(in crate::card::sets) static PHYTOBURST: CardRecord = CardRecord::new_with_l
 );
 
 // DGM 47 — Renegade Krasis
-// Audit: unsupported — Needs evolve's characteristic comparison and an evolve event that can drive the counter sweep.
+// Audit: unsupported — Evolve is available, but its counter placement has no distinct event from any other +1/+1 counter placement to drive the counter sweep.
 pub(in crate::card::sets) static RENEGADE_KRASIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23b68921-0c34-4d92-83c3-21542f62c7f6"),
     "Renegade Krasis",
@@ -1078,13 +1266,40 @@ pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new_w
 );
 
 // DGM 55 — Blast of Genius
-// Audit: unsupported — Needs a discard choice whose chosen card's mana value feeds the later damage effect.
 pub(in crate::card::sets) static BLAST_OF_GENIUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2ff592c-bd35-4947-ba17-8b6170d5388e"),
     "Blast of Genius",
     crate::card::CardArt::new("b2ff592c-bd35-4947-ba17-8b6170d5388e", "Terese Nielsen"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{U}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Choose any target. Draw three cards, then discard a card. This spell deals damage equal to the discarded card's mana value to that permanent or player.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Any,
+                        bound: Some(ParentBinding),
+                        effect: &EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                objects: ObjectSetDef::Binding(ParentBinding),
+                                select: ObjectValueDef::ManaValue,
+                                operation: AggregateOperationDef::Sum,
+                            }),
+                        },
+                    }),
+                },
+            ]),
+        ),
+    ),
 );
 
 // DGM 56 — Blaze Commando
@@ -1151,13 +1366,26 @@ pub(in crate::card::sets) static BOROS_BATTLESHAPER: CardRecord = CardRecord::ne
 );
 
 // DGM 59 — Bred for the Hunt
-// Audit: unsupported — Needs a combat-damage source predicate that tests for a +1/+1 counter on the dealing creature.
 pub(in crate::card::sets) static BRED_FOR_THE_HUNT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4258a536-2275-45e8-8833-e921ca15c5a7"),
     "Bred for the Hunt",
     crate::card::CardArt::new("4258a536-2275-45e8-8833-e921ca15c5a7", "Karl Kopinski"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}{U}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature you control with a +1/+1 counter on it deals combat damage to a player, you may draw a card.",
+        TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+        ])),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        },
+    )),
 );
 
 // DGM 60 — Bronzebeak Moa
@@ -1183,7 +1411,7 @@ pub(in crate::card::sets) static BRONZEBEAK_MOA: CardRecord = CardRecord::new_wi
 );
 
 // DGM 61 — Carnage Gladiator
-// Audit: unsupported — Needs a blocking event that identifies each blocker and regeneration shields for the activated ability.
+// Audit: unsupported — Regeneration is available, but the global blocking event exposes the other creature rather than the blocker whose controller must lose life.
 pub(in crate::card::sets) static CARNAGE_GLADIATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20bde6c1-917c-4860-a8d0-a9d7c461f8d2"),
     "Carnage Gladiator",
@@ -1193,7 +1421,7 @@ pub(in crate::card::sets) static CARNAGE_GLADIATOR: CardRecord = CardRecord::new
 );
 
 // DGM 62 — Council of the Absolute
-// Audit: unsupported — Needs a stored noncreature, nonland card-name choice that both prohibits opponents' matching spells and reduces matching spells you cast.
+// Audit: unsupported — Stored card-name rules and their cast restriction and discount consumers exist, but the entry choice cannot be restricted to noncreature, nonland names.
 pub(in crate::card::sets) static COUNCIL_OF_THE_ABSOLUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da18a6a5-0042-40ae-bd33-a6d5a65a9944"),
     "Council of the Absolute",
@@ -1203,17 +1431,74 @@ pub(in crate::card::sets) static COUNCIL_OF_THE_ABSOLUTE: CardRecord = CardRecor
 );
 
 // DGM 63 — Deadbridge Chant
-// Audit: unsupported — Needs a random graveyard-card choice followed by a card-type-dependent destination.
 pub(in crate::card::sets) static DEADBRIDGE_CHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("26417a58-b0c9-49fa-956c-794ee1c09a4f"),
     "Deadbridge Chant",
     crate::card::CardArt::new("26417a58-b0c9-49fa-956c-794ee1c09a4f", "Zoltan Boros"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{B}{G}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, mill ten cards.",
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(10),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, choose a card at random in your graveyard. If it's a creature card, put it onto the battlefield. Otherwise, put it into your hand.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    effect: &EffectDef::SelectAtRandomFromZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Graveyard,
+                        object: ObjectPredicateDef::Any,
+                        amount: ValueDef::Constant(1),
+                    },
+                    binding: Binding!("random_graveyard_card"),
+                },
+                EffectDef::IfElseCondition {
+                    condition: &TriggerConditionDef::ObjectSetCount(
+                        &ObjectSetCountConditionDef {
+                            objects: &ObjectSetDef::Binding(Binding!("random_graveyard_card")),
+                            filter: Some(ObjectSetFilterDef::Predicate(
+                                &ObjectPredicateDef::HasType(CardType::Creature),
+                            )),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 1,
+                        },
+                    ),
+                    then: &EffectDef::WithBattlefieldArrival {
+                        effect: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                                "random_graveyard_card"
+                            ))),
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                        },
+                        arrival: BattlefieldArrivalDef {
+                            controller: Some(PlayerRelation::You),
+                            ..BattlefieldArrivalDef::DEFAULT
+                        },
+                    },
+                    otherwise: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "random_graveyard_card"
+                        ))),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DGM 64 — Debt to the Deathless
-// Audit: unsupported — Needs arithmetic values for twice X and one life-gain event equal to the life actually lost by all opponents.
+// Audit: unsupported — Needs one life-gain event equal to the life actually lost by all opponents; a separate scaled-X gain would be wrong when an opponent's life total cannot change.
 pub(in crate::card::sets) static DEBT_TO_THE_DEATHLESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("610e5a91-857b-4121-8b75-dbbea27aa0aa"),
     "Debt to the Deathless",
@@ -1252,13 +1537,64 @@ pub(in crate::card::sets) static DEPUTY_OF_ACQUITTALS: CardRecord = CardRecord::
 );
 
 // DGM 66 — Dragonshift
-// Audit: unsupported — Needs its targeted and overload programs migrated to one composite type, color, ability, power/toughness, and flying effect.
 pub(in crate::card::sets) static DRAGONSHIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c046e4e-810c-4123-bb1a-4f97e0cd43d1"),
     "Dragonshift",
     crate::card::CardArt::new("6c046e4e-810c-4123-bb1a-4f97e0cd43d1", "Svetlin Velinov"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Until end of turn, target creature you control becomes a blue and red Dragon with base power and toughness 4/4, loses all abilities, and gains flying.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            })],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Dragon"])),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[
+                        ManaColor::Blue,
+                        ManaColor::Red,
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::overload(
+            mana_cost!("{3}{U}{U}{R}{R}"),
+            "Until end of turn, each creature you control becomes a blue and red Dragon with base power and toughness 4/4, loses all abilities, and gains flying.",
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&["Dragon"])),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[
+                        ManaColor::Blue,
+                        ManaColor::Red,
+                    ])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(4),
+                        ValueDef::Constant(4),
+                    ),
+                    AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // DGM 67 — Drown in Filth
@@ -1545,7 +1881,7 @@ pub(in crate::card::sets) static KOROZDA_GORGON: CardRecord = CardRecord::new(
 );
 
 // DGM 79 — Krasis Incubation
-// Audit: unsupported — Needs attached-creature attack, block, and activated-ability prohibitions plus returning the Aura as a cost while retaining its former attachment through last-known information.
+// Audit: unsupported — The static prohibitions and ReturnSourceToHand cost exist, but paying that cost loses the Aura's attachment before the resolving ability can put counters on its former host.
 pub(in crate::card::sets) static KRASIS_INCUBATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8da986da-e8ee-4b53-8bbd-9285d0f7f3cb"),
     "Krasis Incubation",
@@ -1555,17 +1891,36 @@ pub(in crate::card::sets) static KRASIS_INCUBATION: CardRecord = CardRecord::new
 );
 
 // DGM 80 — Lavinia of the Tenth
-// Audit: unsupported — Needs detain's persistent restrictions and a nonland permanent sweep filtered by mana value.
 pub(in crate::card::sets) static LAVINIA_OF_THE_TENTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("813f1967-c048-4e6e-9720-216773fde47e"),
     "Lavinia of the Tenth",
     crate::card::CardArt::new("813f1967-c048-4e6e-9720-216773fde47e", "Willian Murai"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{U}"), &["Human", "Soldier"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::keyword(
+                "Protection from red",
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::Color(ManaColor::Red)),
+            ),
+            abilities::enters_trigger(
+                "When this creature enters, detain each nonland permanent your opponents control with mana value 4 or less.",
+                EffectDef::Detain {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            ObjectPredicateDef::ManaValueAtMost(4),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                },
+            ),
+        ]),
 );
 
 // DGM 81 — Legion's Initiative
-// Audit: unsupported — Needs a non-choice binding for exactly the creatures exiled together so the installed beginning-of-combat trigger can return and grant haste only to that group.
+// Audit: unsupported — The delayed trigger can retain bindings, but zone-move result bindings capture intended recipients before replacements rather than exactly the creatures successfully exiled together.
 pub(in crate::card::sets) static LEGION_S_INITIATIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("672051a6-d232-4546-842a-369d412c38d2"),
     "Legion's Initiative",
@@ -1575,7 +1930,7 @@ pub(in crate::card::sets) static LEGION_S_INITIATIVE: CardRecord = CardRecord::n
 );
 
 // DGM 82 — Master of Cruelties
-// Audit: unsupported — Needs an attack-alone restriction, an unblocked-attacker trigger that sets a player's life total, and suppression of this creature's combat damage.
+// Audit: unsupported — The unblocked-attacker trigger can set the defending player's life total and suppress this creature's combat damage, but no attack restriction can require this creature to attack alone.
 pub(in crate::card::sets) static MASTER_OF_CRUELTIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b4d8ab5-252c-4727-817d-6f18cbaedd91"),
     "Master of Cruelties",
@@ -1614,13 +1969,64 @@ pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::ne
 );
 
 // DGM 84 — Melek, Izzet Paragon
-// Audit: unsupported — Needs a continuously revealed library top, cast permission from that zone, and copying spells cast from the library with target reselection.
 pub(in crate::card::sets) static MELEK_IZZET_PARAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19b4dc6c-940e-478c-b87f-b3939a30efbd"),
     "Melek, Izzet Paragon",
     crate::card::CardArt::new("3e892d86-f443-4846-8049-40ec6b8c22b4", "Jason Chan"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{R}"), &["Weird", "Wizard"], 2, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Play with the top card of your library revealed.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::You,
+                    )),
+                    effect: AppliedEffectDef::Rule(
+                        AppliedRuleDef::PlaysWithTopOfLibraryRevealed,
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "You may cast instant and sorcery spells from the top of your library.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::You,
+                    )),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::MayPlayFromTopOfLibrary {
+                        restriction: PlayRestrictionDef::new(
+                            PlayActionMatcherDef::CastSpell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                        ),
+                        cost: TopOfLibraryCostDef::Printed,
+                    }),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever you cast an instant or sorcery spell from your library, copy it. You may choose new targets for the copy.",
+                TriggerEventDef::spell_cast_from(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ]),
+                    ZoneKind::Library,
+                ),
+                EffectDef::CopyStackObject(&CopyStackObjectDef {
+                    object: EffectRecipientDef::TriggeringObject,
+                    controller: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            ),
+        ]),
 );
 
 // DGM 85 — Mirko Vosk, Mind Drinker
@@ -1657,11 +2063,11 @@ pub(in crate::card::sets) static MORGUE_BURST: CardRecord = CardRecord::new_with
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },
-                binding: Binding!("returned"),
+                binding: ParentBinding,
                 then: &EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex(1)),
                     amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
-                        objects: ObjectSetDef::Binding(Binding!("returned")),
+                        objects: ObjectSetDef::Binding(ParentBinding),
                         select: ObjectValueDef::Power,
                         operation: AggregateOperationDef::Sum,
                     }),
@@ -1702,13 +2108,30 @@ pub(in crate::card::sets) static NIVIX_CYCLOPS: CardRecord = CardRecord::new_wit
 );
 
 // DGM 88 — Notion Thief
-// Audit: unsupported — Needs a draw-event replacement that recognizes the first draw of each opponent's draw step and redirects every other draw.
 pub(in crate::card::sets) static NOTION_THIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("728e660b-ad8b-49d2-a7e5-6588e496519b"),
     "Notion Thief",
     crate::card::CardArt::new("728e660b-ad8b-49d2-a7e5-6588e496519b", "Clint Cearley"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{B}"), &["Human", "Rogue"], 3, 1)
+        .with_abilities(&[
+            abilities::flash(),
+            AbilityDef::defined_replacement(
+                "If an opponent would draw a card except the first one they draw in each of their draw steps, instead you draw a card.",
+                ReplacementAbilityDef::new().with_event(ReplacementEventDef::WouldDraw {
+                    player: PlayerRelation::Opponent,
+                    during_own_draw_step: false,
+                    except_first_in_draw_step: true,
+                }),
+                ReplacementEffectDef::Sequence(&[
+                    ReplacementEffectDef::ReplaceEventWithNothing,
+                    ReplacementEffectDef::Perform(&EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    }),
+                ]),
+            ),
+        ]),
 );
 
 // DGM 89 — Obzedat's Aid
@@ -1766,7 +2189,7 @@ pub(in crate::card::sets) static PILFERED_PLANS: CardRecord = CardRecord::new_wi
 );
 
 // DGM 91 — Plasm Capture
-// Audit: unsupported — Needs a delayed first-main-phase mana effect that lets its controller distribute the countered spell's mana value among any combination of colors.
+// Audit: unsupported — Needs a successful-counter result whose mana value can be retained by a delayed first-main-phase mana effect; variable mana combinations themselves are supported.
 pub(in crate::card::sets) static PLASM_CAPTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ffe8485-d5fb-47cc-af53-6e0fd062b7a2"),
     "Plasm Capture",
@@ -1898,7 +2321,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
 );
 
 // DGM 95 — Reap Intellect
-// Audit: unsupported — Needs an X-bounded private-hand choice, same-name searches across three zones, exile of every chosen group, and the final shuffle.
+// Audit: unsupported — ChooseExact cannot model the optional “up to X” private-hand choice; the chosen-name union must then drive exiles across three zones and one final shuffle.
 pub(in crate::card::sets) static REAP_INTELLECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c6297df2-c67a-4054-9617-5c6202c76de8"),
     "Reap Intellect",
@@ -1908,33 +2331,90 @@ pub(in crate::card::sets) static REAP_INTELLECT: CardRecord = CardRecord::new(
 );
 
 // DGM 96 — Render Silent
-// Audit: unsupported — Needs a turn-long prohibition on the countered spell's controller casting any spell.
 pub(in crate::card::sets) static RENDER_SILENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4514a13f-5eee-49a8-876c-6b4befff4592"),
     "Render Silent",
     crate::card::CardArt::new("e3f3d6e4-0abe-4042-a7f6-0395683e8582", "Matt Stewart"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell. Its controller can't cast spells this turn.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::counter_target(TargetIndex::PRIMARY),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                    PlayRestrictionDef::new(
+                        PlayActionMatcherDef::CastSpell,
+                        ObjectPredicateDef::Any,
+                    ),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // DGM 97 — Restore the Peace
-// Audit: unsupported — Needs per-turn damage history on creatures and a simultaneous return sweep over every creature that dealt damage.
 pub(in crate::card::sets) static RESTORE_THE_PEACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("105902f6-99d0-4bee-9dfd-87a92ac04d91"),
     "Restore the Peace",
     crate::card::CardArt::new("105902f6-99d0-4bee-9dfd-87a92ac04d91", "Kev Walker"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}{U}")).with_ability(AbilityDef::spell(
+        "Return each creature that dealt damage this turn to its owner's hand.",
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::DealtDamageThisTurn,
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // DGM 98 — Rot Farm Skeleton
-// Audit: unsupported — Needs an executable can't-block restriction and milling cards as an activation cost from the graveyard.
 pub(in crate::card::sets) static ROT_FARM_SKELETON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ef5af2dd-75c7-402c-be9a-3d0d4290520c"),
     "Rot Farm Skeleton",
     crate::card::CardArt::new("ef5af2dd-75c7-402c-be9a-3d0d4290520c", "Maciej Kuciara"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{G}"), &["Plant", "Skeleton"], 4, 1)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "This creature can't block.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                },
+            ),
+            AbilityDef::activated(
+                "{2}{B}{G}, Mill four cards: Return this card from your graveyard to the battlefield. Activate only as a sorcery.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}{B}{G}")),
+                    AbilityCostDef::MillCards(4),
+                ],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+            )
+            .with_source_zones(&[ZoneKind::Graveyard])
+            .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+        ]),
 );
 
 // DGM 99 — Ruric Thar, the Unbowed
@@ -1968,17 +2448,36 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
 );
 
 // DGM 100 — Savageborn Hydra
-// Audit: unsupported — Needs an X-sized battlefield-entry counter replacement and a hybrid-mana activation restricted to sorcery timing.
 pub(in crate::card::sets) static SAVAGEBORN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f2b73cd-6179-4885-9d92-1782d0b492c1"),
     "Savageborn Hydra",
     crate::card::CardArt::new("2f2b73cd-6179-4885-9d92-1782d0b492c1", "Raymond Swanland"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{X}{R}{G}"), &["Hydra"], 0, 0).with_abilities(&[
+        abilities::double_strike(),
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+        AbilityDef::activated(
+            "{1}{R/G}: Put a +1/+1 counter on this creature. Activate only as a sorcery.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{R/G}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // DGM 101 — Scab-Clan Giant
-// Audit: unsupported — Needs a uniformly random legal opponent-creature choice followed by the simultaneous fight damage procedure.
+// Audit: unsupported — Fight is available, but the trigger still cannot lock a uniformly random legal opponent-creature target as it is put on the stack.
 pub(in crate::card::sets) static SCAB_CLAN_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8e360ae-4c78-47a9-81d4-1849cfa518b7"),
     "Scab-Clan Giant",
@@ -2133,13 +2632,40 @@ pub(in crate::card::sets) static TAJIC_BLADE_OF_THE_LEGION: CardRecord = CardRec
 );
 
 // DGM 108 — Teysa, Envoy of Ghosts
-// Audit: unsupported — Needs protection from creatures and a combat-damage trigger that destroys the specific dealing creature before creating a token.
 pub(in crate::card::sets) static TEYSA_ENVOY_OF_GHOSTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cbd8183c-6967-4332-b822-02b82c14ef2d"),
     "Teysa, Envoy of Ghosts",
     crate::card::CardArt::new("cbd8183c-6967-4332-b822-02b82c14ef2d", "Karla Ortiz"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{W}{B}"), &["Human", "Advisor"], 4, 4)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            AbilityDef::keyword(
+                "Protection from creatures",
+                KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ),
+            AbilityDef::triggered(
+                "Whenever a creature deals combat damage to you, destroy that creature. Create a 1/1 white and black Spirit creature token with flying.",
+            TriggerEventDef::DamageDealt(DamageEventMatcherDef::combat_to(
+                EffectRecipientDef::Controller,
+            )),
+                EffectDef::Sequence(&[
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::TriggeringObject,
+                        can_regenerate: true,
+                        then: None,
+                    },
+                    EffectDef::create_creature_token(
+                        &["Spirit"],
+                        &[ManaColor::White, ManaColor::Black],
+                        1,
+                        1,
+                    )
+                    .with_abilities(&[abilities::flying()]),
+                ]),
+            ),
+        ]),
 );
 
 // DGM 109 — Tithe Drinker
@@ -2207,7 +2733,7 @@ pub(in crate::card::sets) static UNFLINCHING_COURAGE: CardRecord = CardRecord::n
 );
 
 // DGM 112 — Varolz, the Scar-Striped
-// Audit: unsupported — Needs granting scavenge to graveyard cards with each card's own mana cost and power, plus regeneration shields.
+// Audit: unsupported — Regeneration is available, but granting scavenge to every creature card in your graveyard still needs each card's own mana cost and power.
 pub(in crate::card::sets) static VAROLZ_THE_SCAR_STRIPED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4c3ae3db-c14a-4ffc-805c-a3a51da9370d"),
     "Varolz, the Scar-Striped",
@@ -2293,7 +2819,7 @@ pub(in crate::card::sets) static VOICE_OF_RESURGENCE: CardRecord = CardRecord::n
 );
 
 // DGM 115 — Vorel of the Hull Clade
-// Audit: unsupported — Needs an effect that doubles every kind of counter on one targeted artifact, creature, or land.
+// Audit: unsupported — DoubleCounters handles one named kind, not every counter kind present on the targeted artifact, creature, or land.
 pub(in crate::card::sets) static VOREL_OF_THE_HULL_CLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db0665d4-d974-4d5e-ba29-7bf40cbbe29c"),
     "Vorel of the Hull Clade",
@@ -2327,13 +2853,29 @@ pub(in crate::card::sets) static WARLEADERS_HELIX: CardRecord = CardRecord::new_
 );
 
 // DGM 117 — Warped Physique
-// Audit: unsupported — Needs a current hand-card count value and its negation to drive the temporary +X/-X effect.
 pub(in crate::card::sets) static WARPED_PHYSIQUE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("134802b2-7c5c-4eda-a879-b29bc06faaed"),
     "Warped Physique",
     crate::card::CardArt::new("134802b2-7c5c-4eda-a879-b29bc06faaed", "Karl Kopinski"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +X/-X until end of turn, where X is the number of cards in your hand.",
+        &CREATURE_TARGET,
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::CardsInHandAbove {
+                    player: PlayerRelation::You,
+                    threshold: 0,
+                },
+                ValueDef::Negate(&ValueDef::CardsInHandAbove {
+                    player: PlayerRelation::You,
+                    threshold: 0,
+                }),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // DGM 118 — Woodlot Crawler
@@ -2349,13 +2891,23 @@ pub(in crate::card::sets) static WOODLOT_CRAWLER: CardRecord = CardRecord::new_w
 );
 
 // DGM 119 — Zhur-Taa Ancient
-// Audit: unsupported — Needs mana-production provenance so the trigger can add one mana of a type the tapped land produced.
 pub(in crate::card::sets) static ZHUR_TAA_ANCIENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2076308f-0f4e-4b31-9e75-c2965942e7d1"),
     "Zhur-Taa Ancient",
     crate::card::CardArt::new("2076308f-0f4e-4b31-9e75-c2965942e7d1", "Adam Paquette"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{G}"), &["Beast"], 7, 5).with_ability(
+        AbilityDef::triggered_mana(
+            "Whenever a player taps a land for mana, that player adds one mana of any type that land produced.",
+            TriggerEventDef::tapped_for_mana(ObjectPredicateDef::HasType(CardType::Land)),
+            EffectDef::AddMana(
+                AddManaEffectDef::choice_from(ManaTypeSetDef::produced_by(
+                    ObjectRefDef::TriggeringObject,
+                ))
+                .to_triggering_objects_controller(),
+            ),
+        ),
+    ),
 );
 
 // DGM 120 — Zhur-Taa Druid
@@ -2378,53 +2930,255 @@ pub(in crate::card::sets) static ZHUR_TAA_DRUID: CardRecord = CardRecord::new_wi
 );
 
 // DGM 121 — Alive // Well
-// Audit: unsupported — Needs fuse spell composition plus a 3/3 green Centaur token and a creature-count life-gain value multiplied by two.
-pub(in crate::card::sets) static ALIVE_WELL: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ALIVE_WELL: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("db84415e-048a-4cfc-9121-5ae17a412198"),
     "Alive // Well",
-    crate::card::CardArt::new("db84415e-048a-4cfc-9121-5ae17a412198", "Nils Hamm"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("db84415e-048a-4cfc-9121-5ae17a412198", "Nils Hamm"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Alive",
+            CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+                "Create a 3/3 green Centaur creature token.",
+                EffectDef::create_creature_token(&["Centaur"], &[ManaColor::Green], 3, 3),
+            )),
+        ),
+        (
+            "Well",
+            CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell(
+                "You gain 2 life for each creature you control.",
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Scaled(&ScaledValueDef::new(
+                        ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        2,
+                    )),
+                },
+            )),
+        ),
+    ],
+    mana_cost!("{3}{G}{W}"),
 );
 
 // DGM 122 — Armed // Dangerous
-// Audit: unsupported — Needs fuse spell composition and a turn-long requirement that every creature able to block the Dangerous target does so.
-pub(in crate::card::sets) static ARMED_DANGEROUS: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ARMED_DANGEROUS: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("ff7f4fc2-6f76-44e7-a30b-7166a0d10d2a"),
     "Armed // Dangerous",
-    crate::card::CardArt::new("ff7f4fc2-6f76-44e7-a30b-7166a0d10d2a", "David Palumbo"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ff7f4fc2-6f76-44e7-a30b-7166a0d10d2a", "David Palumbo"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Armed",
+            CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature gets +1/+1 and gains double strike until end of turn.",
+                    &CREATURE_TARGET,
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(1),
+                            ),
+                            AppliedEffectDef::add_ability(&abilities::double_strike()),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ),
+        ),
+        (
+            "Dangerous",
+            CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "All creatures able to block target creature this turn do so.",
+                    &CREATURE_TARGET,
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ),
+        ),
+    ],
+    mana_cost!("{4}{R}{G}"),
 );
 
 // DGM 123 — Beck // Call
-// Audit: unsupported — Needs fuse spell composition plus a temporary enters-the-battlefield listener and a 1/1 white flying Bird token.
-pub(in crate::card::sets) static BECK_CALL: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BECK_CALL: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("a01d6540-9eaf-4e08-a62d-682551ee78e9"),
     "Beck // Call",
-    crate::card::CardArt::new("a01d6540-9eaf-4e08-a62d-682551ee78e9", "Adam Paquette"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a01d6540-9eaf-4e08-a62d-682551ee78e9", "Adam Paquette"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Beck",
+            CardRules::new_sorcery(mana_cost!("{G}{U}")).with_ability(AbilityDef::spell(
+                "Whenever a creature enters this turn, you may draw a card.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&AbilityDef::triggered(
+                    "Whenever a creature enters this turn, you may draw a card.",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    EffectDef::May {
+                        player: EffectRecipientDef::Controller,
+                        effect: &EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                    },
+                ))),
+            )),
+        ),
+        (
+            "Call",
+            CardRules::new_sorcery(mana_cost!("{4}{W}{U}")).with_ability(AbilityDef::spell(
+                "Create four 1/1 white Bird creature tokens with flying.",
+                EffectDef::create_creature_token(&["Bird"], &[ManaColor::White], 1, 1)
+                    .with_abilities(&[abilities::flying()])
+                    .with_amount(4),
+            )),
+        ),
+    ],
+    mana_cost!("{4}{G}{W}{U}{U}"),
 );
 
 // DGM 124 — Breaking // Entering
-// Audit: unsupported — Needs fuse spell composition and a nontarget creature-card choice from either graveyard for Entering.
-pub(in crate::card::sets) static BREAKING_ENTERING: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static BREAKING_ENTERING: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("50e30e21-0bf7-4d10-b2cc-ed0c52b95955"),
     "Breaking // Entering",
-    crate::card::CardArt::new("66724f4e-59dd-4c70-b09b-49947320e6d1", "Mathias Kollros"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("66724f4e-59dd-4c70-b09b-49947320e6d1", "Mathias Kollros"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Breaking",
+            CardRules::new_sorcery(mana_cost!("{U}{B}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target player mills eight cards.",
+                    &ANY_PLAYER_TARGET,
+                    EffectDef::Mill {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(8),
+                    },
+                ),
+            ),
+        ),
+        (
+            "Entering",
+            CardRules::new_sorcery(mana_cost!("{4}{B}{R}")).with_ability(AbilityDef::spell(
+                "Put a creature card from a graveyard onto the battlefield under your control. It gains haste until end of turn.",
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Graveyard],
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::WithZoneMoveResult {
+                        effect: &EffectDef::WithBattlefieldArrival {
+                            effect: &EffectDef::MoveToZone {
+                                object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                    ParentBinding,
+                                )),
+                                zone: ZoneKind::Battlefield,
+                                placement: ZonePlacement::Top,
+                            },
+                            arrival: BattlefieldArrivalDef {
+                                controller: Some(PlayerRelation::You),
+                                ..BattlefieldArrivalDef::DEFAULT
+                            },
+                        },
+                        binding: ParentBinding,
+                        then: &EffectDef::Apply {
+                            recipient: EffectRecipientDef::binding_zone_change_successors(
+                                ParentBinding,
+                            ),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    },
+                }),
+            )),
+        ),
+    ],
+    mana_cost!("{4}{U}{B}{B}{R}"),
 );
 
 // DGM 125 — Catch // Release
-// Audit: unsupported — Needs fuse spell composition and one independent permanent choice for each named card type from every player.
-pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static CATCH_RELEASE: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("29968873-56f3-4528-ab0b-f11dd67dd162"),
     "Catch // Release",
-    crate::card::CardArt::new("29968873-56f3-4528-ab0b-f11dd67dd162", "Kev Walker"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("29968873-56f3-4528-ab0b-f11dd67dd162", "Kev Walker"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Catch",
+            CardRules::new_sorcery(mana_cost!("{1}{U}{R}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Gain control of target permanent until end of turn. Untap it. It gains haste until end of turn.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )],
+                    EffectDef::Sequence(&[
+                        EffectDef::GainControl {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            duration: ControlDurationDef::UntilEndOfTurn,
+                            controller: PlayerRefDef::EffectController,
+                        },
+                        EffectDef::Untap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                        EffectDef::Apply {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                        },
+                    ]),
+                ),
+            ),
+        ),
+        (
+            "Release",
+            CardRules::new_sorcery(mana_cost!("{4}{R}{W}")).with_ability(AbilityDef::spell(
+                "Each player sacrifices an artifact, a creature, an enchantment, a land, and a planeswalker of their choice.",
+                EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                    player: EffectRecipientDef::EachPlayer,
+                    candidates: ObjectPredicateDef::Any,
+                    zone: ZoneKind::Battlefield,
+                    selection: PerPlayerSelectionDef::OneOfEach(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                    ]),
+                    visibility: ChoiceVisibilityDef::Public,
+                    chosen: Binding!("release_sacrificed_permanents"),
+                    unchosen: Binding!("release_spared_permanents"),
+                    then: &EffectDef::Sacrifice {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "release_sacrificed_permanents"
+                        ))),
+                    },
+                }),
+            )),
+        ),
+    ],
+    mana_cost!("{5}{U}{R}{R}{W}"),
 );
 
 // DGM 126 — Down // Dirty
@@ -2518,17 +3272,73 @@ pub(in crate::card::sets) static FAR_AWAY: CardRecord = CardRecord::new_fuse_wit
 );
 
 // DGM 128 — Flesh // Blood
-// Audit: unsupported — Needs fuse spell composition and a value carrying the exiled graveyard card's power into Flesh's counter effect.
-pub(in crate::card::sets) static FLESH_BLOOD: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static FLESH_BLOOD: CardRecord = CardRecord::new_fuse(
     PrintingAnchor::scryfall("02b40fe4-901a-4832-8d52-a6bb5cc07b63"),
     "Flesh // Blood",
-    crate::card::CardArt::new("02b40fe4-901a-4832-8d52-a6bb5cc07b63", "Lucas Graciano"),
-    crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("02b40fe4-901a-4832-8d52-a6bb5cc07b63", "Lucas Graciano"),
+    CardSet::DragonsMaze,
+    &[
+        (
+            "Flesh",
+            CardRules::new_sorcery(mana_cost!("{3}{B}{G}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Exile target creature card from a graveyard. Put X +1/+1 counters on target creature, where X is the power of the card you exiled.",
+                    &[
+                        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: None,
+                        }),
+                        AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                            CardType::Creature,
+                        )),
+                    ],
+                    EffectDef::Sequence(&[
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            zone: ZoneKind::Exile,
+                            placement: ZonePlacement::Top,
+                        },
+                        EffectDef::AddCounters {
+                            object: EffectRecipientDef::Target(TargetIndex(1)),
+                            kind: CounterKind::PlusOnePlusOne,
+                            amount: ValueDef::ObjectPower(ObjectRefDef::Target(
+                                TargetIndex::PRIMARY,
+                            )),
+                        },
+                    ]),
+                ),
+            ),
+        ),
+        (
+            "Blood",
+            CardRules::new_sorcery(mana_cost!("{R}{G}")).with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature you control deals damage equal to its power to any target.",
+                    &[
+                        AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Battlefield],
+                            controller: Some(PlayerRelation::You),
+                            owner: None,
+                        }),
+                        AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget),
+                    ],
+                    EffectDef::DealDamageFrom {
+                        source: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                        amount: ValueDef::ObjectPower(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    },
+                ),
+            ),
+        ),
+    ],
+    mana_cost!("{3}{B}{R}{G}{G}"),
 );
 
 // DGM 129 — Give // Take
-// Audit: unsupported — Needs fuse spell composition and removing all +1/+1 counters from the targeted creature while remembering the removed count.
+// Audit: unsupported — RemoveAllCounters does not expose how many +1/+1 counters it removed for the fused Take half's draw instruction.
 pub(in crate::card::sets) static GIVE_TAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9af07d28-45a2-45d6-b1cb-0858c609a881"),
     "Give // Take",
@@ -2683,7 +3493,7 @@ pub(in crate::card::sets) static READY_WILLING: CardRecord = CardRecord::new_fus
 );
 
 // DGM 133 — Toil // Trouble
-// Audit: unsupported — Needs fuse spell composition and a value for the targeted player's current hand size.
+// Audit: unsupported — Needs a value for the targeted player's current hand size; the available hand-size value is source-controller-relative.
 pub(in crate::card::sets) static TOIL_TROUBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15bb3454-e3bb-4af9-9e93-461e210c26b7"),
     "Toil // Trouble",
@@ -2976,13 +3786,54 @@ pub(in crate::card::sets) static SIMIC_CLUESTONE: CardRecord = CardRecord::new_w
 // DGM 151 — Izzet Guildgate (reprint)
 
 // DGM 152 — Maze's End
-// Audit: unsupported — Needs returning the land as an activation cost, a Gate-specific library search to the battlefield, and the ten-distinct-names win condition.
 pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6966ecf0-6dab-4652-bf5b-6e766b8347d0"),
     "Maze's End",
     crate::card::CardArt::new("401f7042-24fd-42a0-ae7c-e6b7de1aa446", "Cliff Childs"),
     crate::card::CardSet::DragonsMaze,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{3}, {T}, Return this land to its owner's hand: Search your library for a Gate card, put it onto the battlefield, then shuffle. If you control ten or more Gates with different names, you win the game.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::ReturnSourceToHand,
+            ],
+            EffectDef::Sequence(&[
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Subtype("Gate"),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                        left: ValueDef::DistinctNamesAmong(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype("Gate"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        right: ValueDef::Constant(10),
+                    }),
+                    then: &EffectDef::WinTheGame {
+                        player: EffectRecipientDef::Controller,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // DGM 153 — Orzhov Guildgate (reprint)

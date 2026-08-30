@@ -247,6 +247,17 @@ impl Game {
                     else {
                         return;
                     };
+                    let mill_count = definition
+                        .costs
+                        .iter()
+                        .filter_map(|cost| match cost {
+                            AbilityCostDef::MillCards(amount) => Some(usize::from(*amount)),
+                            _ => None,
+                        })
+                        .sum::<usize>();
+                    if self.players[player.index()].library.len() < mill_count {
+                        return;
+                    }
                     let mut mana_cost = mana_cost;
                     let payment_purpose = ManaPaymentPurpose::Ability {
                         source: card.id,
@@ -301,7 +312,7 @@ impl Game {
                 // The card itself, and one permanent on the battlefield: a
                 // card in a graveyard can still name something out there to
                 // tap.
-                AbilityCostDef::ExileSource => {}
+                AbilityCostDef::ExileSource | AbilityCostDef::MillCards(_) => {}
                 AbilityCostDef::TapPermanents {
                     object,
                     controller,

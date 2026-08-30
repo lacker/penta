@@ -314,7 +314,8 @@ const BINDING_LABELS: &[&str] = &[
     "produced_cards",
     "random_graveyard_card",
     "random_graveyard_cards",
-    "returned",
+    "release_sacrificed_permanents",
+    "release_spared_permanents",
     "revealed_card",
     "revealed_cards",
     "scry_bottom",
@@ -332,6 +333,8 @@ const BINDING_LABELS: &[&str] = &[
     "top_card_remainder",
     "ugin_sacrificed_permanents",
     "ugin_spared_permanents",
+    "uncovered_clues_chosen",
+    "uncovered_clues_remainder",
     "wilderness_remainder",
     "wilds_land",
 ];

@@ -158,9 +158,12 @@ pub(in super::super) fn shared_activated_costs(
                     && (battlefield || (graveyard && *count == 1))
                     && shared_object_predicate(*object)
             }
-            // Exiling the source is the one cost a card can pay from its own
-            // graveyard; the rest of these need a permanent to act on.
-            AbilityCostDef::ExileSource => battlefield || graveyard,
+            // Exiling the source and milling the activating player's library
+            // are the source-independent costs supported from a graveyard;
+            // the rest of these need a permanent to act on.
+            AbilityCostDef::ExileSource | AbilityCostDef::MillCards(_) => {
+                battlefield || graveyard
+            }
             // A fixed object sacrifice is supported only when it names the
             // source whose activation is being checked.
             AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(_))
@@ -188,7 +191,6 @@ pub(in super::super) fn shared_activated_costs(
             // "Discard your hand" takes every card and asks nothing, so like
             // the random discard it needs only a permanent to activate from.
             | AbilityCostDef::DiscardHand
-            | AbilityCostDef::MillCards(_)
             // Crew and saddle name no predicate: what may pay is every other
             // untapped creature the payer controls, and the decision that
             // asks reads the battlefield directly.

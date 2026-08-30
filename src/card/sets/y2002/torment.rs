@@ -526,21 +526,6 @@ pub(in crate::card::sets) static BONESHARD_SLASHER: CardRecord = CardRecord::new
 );
 
 // TOR 51 — Cabal Ritual
-/// Threshold counts the graveyard as the spell resolves, so the cards the
-/// turn has already spent are in it -- which is why a storm turn tends to
-/// reach seven before it needs the five mana.
-static SEVEN_IN_YOUR_GRAVEYARD: ObjectCountConditionDef = ObjectCountConditionDef {
-    query: ObjectQueryDef::matching(
-        ObjectPredicateDef::Any,
-        &[ZoneKind::Graveyard],
-        PlayerRelation::You,
-    ),
-    comparison: ComparisonDef::GreaterOrEqual,
-    amount: 7,
-};
-
-static CABAL_THRESHOLD: ConditionDef = ConditionDef::ObjectCount(&SEVEN_IN_YOUR_GRAVEYARD);
-
 pub(in crate::card::sets) static CABAL_RITUAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5403b49d-03a7-4cc3-af3c-df098c1c9c2e"),
     "Cabal Ritual",
@@ -554,7 +539,21 @@ pub(in crate::card::sets) static CABAL_RITUAL: CardRecord = CardRecord::new(
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Black)
                 .with_amount(3)
-                .with_amount_override(CABAL_THRESHOLD, 5),
+                // Threshold counts the graveyard as the spell resolves, so the cards the
+                // turn has already spent are in it -- which is why a storm turn tends to
+                // reach seven before it needs the five mana.
+                .with_amount_override(
+                    ConditionDef::ObjectCount(&ObjectCountConditionDef {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 7,
+                    }),
+                    5,
+                ),
         ),
     )),
 );
@@ -692,32 +691,6 @@ pub(in crate::card::sets) static HYPNOX: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-static ICHORID_IS_IN_GRAVEYARD: TriggerConditionDef =
-    TriggerConditionDef::SourceInZone(ZoneKind::Graveyard);
-
-static ICHORID_EXILE_CHOSEN_CREATURE: [EffectDef; 2] = [
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-        zone: ZoneKind::Exile,
-        placement: ZonePlacement::Top,
-    },
-    EffectDef::MoveToZone {
-        object: EffectRecipientDef::Source,
-        zone: ZoneKind::Battlefield,
-        placement: ZonePlacement::Top,
-    },
-];
-
-static ICHORID_CHOSE_A_CREATURE: TriggerConditionDef = TriggerConditionDef::BoundObjectMatches {
-    binding: ObjectBindingIndex::PRIMARY,
-    object: ObjectPredicateDef::Any,
-};
-
-static ICHORID_RETURN_IF_PAID: EffectDef = EffectDef::IfCondition {
-    condition: &ICHORID_CHOSE_A_CREATURE,
-    then: &EffectDef::Sequence(&ICHORID_EXILE_CHOSEN_CREATURE),
-};
-
 // TOR 65 — Ichorid
 pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97431dca-54ca-47ef-ab00-943140e8e758"),
@@ -742,7 +715,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            &ICHORID_IS_IN_GRAVEYARD,
+            &const { TriggerConditionDef::SourceInZone(ZoneKind::Graveyard) },
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
                 unchosen: None,
@@ -759,7 +732,34 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                 minimum: 0,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &ICHORID_RETURN_IF_PAID,
+                then: &const {
+                    EffectDef::IfCondition {
+                        condition: &const {
+                            TriggerConditionDef::BoundObjectMatches {
+                                binding: ObjectBindingIndex::PRIMARY,
+                                object: ObjectPredicateDef::Any,
+                            }
+                        },
+                        then: &const {
+                            EffectDef::Sequence(&const {
+                                [
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                                            ObjectBindingIndex::PRIMARY,
+                                        )),
+                                        zone: ZoneKind::Exile,
+                                        placement: ZonePlacement::Top,
+                                    },
+                                    EffectDef::MoveToZone {
+                                        object: EffectRecipientDef::Source,
+                                        zone: ZoneKind::Battlefield,
+                                        placement: ZonePlacement::Top,
+                                    },
+                                ]
+                            })
+                        },
+                    }
+                },
             }),
         )
         .with_source_zones(&[ZoneKind::Graveyard]),
@@ -1097,10 +1097,6 @@ pub(in crate::card::sets) static FLASH_OF_DEFIANCE: CardRecord = CardRecord::new
 );
 
 // TOR 100 — Grim Lavamancer
-static ANY_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
-    AbilityTargetPredicate::AnyTarget,
-)];
-
 pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_with_legacy_id(
     2036,
     "Grim Lavamancer",
@@ -1121,7 +1117,9 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
                     2,
                 )),
             ],
-            &ANY_TARGET,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 amount: ValueDef::Constant(2),

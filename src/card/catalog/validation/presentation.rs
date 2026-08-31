@@ -141,6 +141,16 @@ pub(in crate::card::catalog) fn validate_semantic_spell_presentation(
                 semantic: semantic.text,
             });
         }
+        let semantic_additional_mana_cost = modal.mode_additional_mana_cost(presentation.id);
+        if presentation.additional_mana_cost != semantic_additional_mana_cost {
+            return Err(CatalogError::MismatchedSpellModeAdditionalManaCost {
+                definition: definition.id,
+                option: option.id,
+                mode: presentation.id,
+                presentation: Box::new(presentation.additional_mana_cost),
+                semantic: Box::new(semantic_additional_mana_cost),
+            });
+        }
         let expected_status = if ability.is_executable() && semantic.is_executable() {
             CardEffectStatus::Implemented
         } else {

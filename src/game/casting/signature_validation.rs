@@ -275,14 +275,19 @@ impl Game {
         cost = add_mana_cost(cost, self.total_splice_cost(choices.spliced()));
         // X comes from the mana cost or any selected semantic additional
         // cost. A spell with none is cast for zero.
-        let additional_x = self.maximum_x_for_spell_additional_costs(
+        let additional_x = self.maximum_x_for_spell_additional_costs(SpellAdditionalCostRequest {
             definition,
             option,
-            choices.costs(),
+            costs: choices.costs(),
             card,
             player,
-            offer.map(|offer| offer.cost),
-        );
+            modes: choices.modes(),
+            scale: CastScale {
+                x: choices.x(),
+                modes: choices.modes().len(),
+                offer: offer.map(|offer| offer.cost),
+            },
+        });
         let x_is_chosen = cost.variable_x || additional_x.is_some();
         if !x_is_chosen && choices.x() != 0 {
             return None;
@@ -316,6 +321,7 @@ impl Game {
                     costs: choices.costs(),
                     card,
                     player,
+                    modes: choices.modes(),
                     scale: CastScale {
                         x: choices.x(),
                         modes: choices.modes().len(),

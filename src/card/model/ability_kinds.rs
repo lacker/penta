@@ -158,7 +158,7 @@ impl SpellAdditionalCostDef {
 pub struct ModalSpellDef {
     /// Each mode is an ordinary spell ability. Its positional index supplies
     /// the stable [`ModeId`] used by casting and presentation.
-    pub modes: &'static [AbilityDef],
+    pub modes: ModalModeListDef,
     pub minimum: u8,
     pub maximum: u8,
     /// Some spells explicitly allow the same mode to be chosen more than once.
@@ -172,6 +172,100 @@ pub struct ModalSpellDef {
     /// the spell is offered; it never lowers the printed one, and the
     /// minimum is unaffected because the extra mode is always optional.
     pub conditional_maximum: Option<ConditionalModeMaximumDef>,
+}
+
+/// The ordered branches of a modal ability.
+///
+/// Ordinary modes are selected instructions. A mode with a listed cost also
+/// owns the mana paid for choosing that instruction; keeping the two together
+/// prevents a cast signature from selecting one while paying for another.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum ModalModeListDef {
+    Ordinary(&'static [AbilityDef]),
+    WithAdditionalManaCosts(&'static [(ManaCost, AbilityDef)]),
+}
+
+pub enum ModalModeIter {
+    Ordinary(std::slice::Iter<'static, AbilityDef>),
+    WithAdditionalManaCosts(std::slice::Iter<'static, (ManaCost, AbilityDef)>),
+}
+
+impl Iterator for ModalModeIter {
+    type Item = &'static AbilityDef;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::Ordinary(modes) => modes.next(),
+            Self::WithAdditionalManaCosts(modes) => modes.next().map(|(_, mode)| mode),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        match self {
+            Self::Ordinary(modes) => modes.size_hint(),
+            Self::WithAdditionalManaCosts(modes) => modes.size_hint(),
+        }
+    }
+}
+
+impl ExactSizeIterator for ModalModeIter {}
+
+impl ModalModeListDef {
+    #[must_use]
+    pub const fn len(self) -> usize {
+        match self {
+            Self::Ordinary(modes) => modes.len(),
+            Self::WithAdditionalManaCosts(modes) => modes.len(),
+        }
+    }
+
+    #[must_use]
+    pub const fn is_empty(self) -> bool {
+        self.len() == 0
+    }
+
+    #[must_use]
+    pub fn iter(self) -> ModalModeIter {
+        match self {
+            Self::Ordinary(modes) => ModalModeIter::Ordinary(modes.iter()),
+            Self::WithAdditionalManaCosts(modes) => {
+                ModalModeIter::WithAdditionalManaCosts(modes.iter())
+            }
+        }
+    }
+
+    #[must_use]
+    pub fn get(self, index: usize) -> Option<&'static AbilityDef> {
+        match self {
+            Self::Ordinary(modes) => modes.get(index),
+            Self::WithAdditionalManaCosts(modes) => match modes.get(index) {
+                Some((_, mode)) => Some(mode),
+                None => None,
+            },
+        }
+    }
+
+    #[must_use]
+    pub fn additional_mana_cost(self, mode: ModeId) -> Option<ManaCost> {
+        let Self::WithAdditionalManaCosts(modes) = self else {
+            return None;
+        };
+        modes.get(mode.index()).map(|(cost, _)| *cost)
+    }
+
+    #[must_use]
+    pub const fn has_additional_mana_costs(self) -> bool {
+        matches!(self, Self::WithAdditionalManaCosts(_))
+    }
+}
+
+impl IntoIterator for ModalModeListDef {
+    type Item = &'static AbilityDef;
+    type IntoIter = ModalModeIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
 }
 
 /// The two halves of "you may choose two instead": what has to be true, and
@@ -191,7 +285,7 @@ impl ModalSpellDef {
         may_repeat: bool,
     ) -> Self {
         Self {
-            modes,
+            modes: ModalModeListDef::Ordinary(modes),
             minimum,
             maximum,
             may_repeat,
@@ -210,6 +304,29 @@ impl ModalSpellDef {
     #[must_use]
     pub const fn choose_one(modes: &'static [AbilityDef]) -> Self {
         Self::new(modes, 1, 1, false)
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    /// # Panics
+    ///
+    /// Panics when more modes are supplied than the runtime mode-count field
+    /// can represent.
+    pub const fn spree(modes: &'static [(ManaCost, AbilityDef)]) -> Self {
+        assert!(modes.len() <= u8::MAX as usize);
+        Self {
+            modes: ModalModeListDef::WithAdditionalManaCosts(modes),
+            minimum: 1,
+            maximum: modes.len() as u8,
+            may_repeat: false,
+            additional_cost: None,
+            conditional_maximum: None,
+        }
+    }
+
+    #[must_use]
+    pub fn mode_additional_mana_cost(self, mode: ModeId) -> Option<ManaCost> {
+        self.modes.additional_mana_cost(mode)
     }
 }
 

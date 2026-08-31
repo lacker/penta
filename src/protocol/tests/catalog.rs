@@ -15,6 +15,25 @@ fn the_catalog_lists_every_card_with_names_and_costs() {
 }
 
 #[test]
+fn spree_mode_additional_mana_costs_are_published() {
+    let catalog = poc::catalog().expect("catalog builds");
+    let value = catalog_json(&catalog);
+    let dance = value["cards"]
+        .as_array()
+        .expect("cards array")
+        .iter()
+        .find(|card| card["name"] == "Dance of the Tumbleweeds")
+        .expect("Dance is cataloged");
+    let modes = dance["playOptions"][0]["modes"]["choices"]
+        .as_array()
+        .expect("Spree modes");
+
+    assert_eq!(modes[0]["additionalManaCost"]["generic"], 1);
+    assert_eq!(modes[1]["additionalManaCost"]["generic"], 3);
+    assert!(modes[0]["additionalManaCost"].is_object());
+}
+
+#[test]
 fn catalog_mana_cost_distinguishes_no_cost_from_printed_zero() {
     let catalog = poc::catalog().expect("catalog builds");
     let value = catalog_json(&catalog);

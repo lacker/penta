@@ -254,6 +254,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Spree and mode-local additional mana costs.** A modal spell can now attach
+  a mandatory additional mana cost to each mode, and choosing one or more
+  modes carries exactly those costs through action generation, cost
+  increases and reductions, validation, and payment. Chosen Spree modes and
+  their independent targets remain frozen through copying and resolution.
+  Rustler Rampage, Explosive Derailment, and Dance of the Tumbleweeds use the
+  shared declaration; Dance finishes its land search before sizing the token
+  created by its later mode. Catalog mode choices expose the optional additive
+  `additionalManaCost` member; protocol 29, checkpoint format 9, and replay
+  version 2 are unchanged.
+
 - **Player-scoped declarative rules, attachment queries, and simultaneous
   phasing.** Witchbane Orb destroys only Curses attached to its controller and
   gives that player hexproof. Form of the Dragon resets its controller to five

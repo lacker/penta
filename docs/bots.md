@@ -879,6 +879,13 @@ actions already enumerate only the mode selections available right now, so
 that larger maximum tells a bot what the card can do rather than what it may
 do this turn. Every other modal spell omits the key.
 
+Each entry in `modes.choices` may carry an optional `additionalManaCost` with
+the ordinary mana-cost object shape. It is present when choosing that mode
+itself requires the listed additional mana, as with Spree. Add the costs of
+all selected modes to the spell's base or alternative cost; concrete legal
+actions and the engine's payment validation remain authoritative after cost
+increases and reductions.
+
 Catalog target labels and simplified target projections are presentation data,
 not identity or a complete rules predicate. A richer semantic target can lack
 that legacy projection while still producing targeted legal actions; use the

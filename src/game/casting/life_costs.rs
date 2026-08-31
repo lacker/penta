@@ -273,6 +273,7 @@ impl Game {
                     costs: signature.costs(),
                     card: held,
                     player,
+                    modes: signature.modes(),
                     scale: super::casting_actions::CastScale {
                         x: signature.x(),
                         modes: signature.modes().len(),

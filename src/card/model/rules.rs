@@ -646,7 +646,12 @@ impl CardRules {
             .copied()
             .enumerate()
             .map(|(index, mode)| {
-                mode.mode_presentation(ModeId::from_index(index)?, ability.is_executable())
+                let id = ModeId::from_index(index)?;
+                mode.mode_presentation(
+                    id,
+                    ability.is_executable(),
+                    modal.mode_additional_mana_cost(id),
+                )
             })
             .collect::<Option<Vec<_>>>()?;
         Some(ModeSetDef {

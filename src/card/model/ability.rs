@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::fmt::Write as _;
 
 use crate::ids::TargetIndex;
 
@@ -200,6 +201,17 @@ impl AbilityDef {
     #[must_use]
     pub const fn choose_one_spell(text: &'static str, modes: &'static [AbilityDef]) -> Self {
         Self::modal_spell(text, modes, 1, 1, false)
+    }
+
+    /// Spree (CR 702.172): choose one or more modes and pay the additional
+    /// mana cost attached to each mode chosen.
+    #[must_use]
+    pub const fn spree(modes: &'static [(ManaCost, AbilityDef)]) -> Self {
+        Self::defined(
+            "Spree",
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::spree(modes))),
+            EffectDef::None,
+        )
     }
 
     #[must_use]
@@ -868,6 +880,18 @@ impl AbilityDef {
                 if definition.mana_cost.is_some() && self.text == definition.kind.label() =>
             {
                 Cow::Owned(definition.rules_text())
+            }
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
+                if self.text == "Spree" && modal.modes.has_additional_mana_costs() =>
+            {
+                let mut text = String::from("Spree (Choose one or more additional costs.)");
+                if let super::ModalModeListDef::WithAdditionalManaCosts(modes) = modal.modes {
+                    for (cost, mode) in modes {
+                        write!(text, "\n+ {cost} — {}", mode.text)
+                            .expect("writing to a string cannot fail");
+                    }
+                }
+                Cow::Owned(text)
             }
             _ => Cow::Borrowed(self.text),
         }

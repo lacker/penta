@@ -179,6 +179,41 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
 }
 
 #[test]
+fn spree_modes_derive_costs_and_complete_rules_text() {
+    const RULES: CardRules =
+        CardRules::new_instant(crate::mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
+            (
+                crate::mana_cost!("{1}"),
+                AbilityDef::spell("First instruction.", EffectDef::None),
+            ),
+            (
+                crate::mana_cost!("{2}{G}"),
+                AbilityDef::spell("Second instruction.", EffectDef::None),
+            ),
+        ]));
+    let composition = CardComposition::single("Test Spree Spell", RULES);
+    let modes = composition.play_options[0]
+        .modes
+        .as_ref()
+        .expect("Spree synthesizes modal presentation");
+
+    assert_eq!((modes.minimum, modes.maximum), (1, 2));
+    assert!(!modes.may_repeat);
+    assert_eq!(
+        modes.modes[0].additional_mana_cost,
+        Some(crate::mana_cost!("{1}")),
+    );
+    assert_eq!(
+        modes.modes[1].additional_mana_cost,
+        Some(crate::mana_cost!("{2}{G}")),
+    );
+    assert_eq!(
+        RULES.rules_text(),
+        "Spree (Choose one or more additional costs.)\n+ {1} — First instruction.\n+ {2}{G} — Second instruction.",
+    );
+}
+
+#[test]
 fn semantic_target_labels_are_derived_from_predicates() {
     let opponent =
         AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Opponent));

@@ -294,11 +294,15 @@ fn target_slot_json(slot: &TargetSlotDef) -> Value {
 }
 
 fn mode_json(mode: &ModeDef) -> Value {
-    json!({
+    let mut value = json!({
         "id": mode.id.0,
         "label": mode.label,
         "targets": mode.targets.iter().map(target_slot_json).collect::<Vec<_>>(),
-    })
+    });
+    if let Some(cost) = mode.additional_mana_cost {
+        value["additionalManaCost"] = mana_cost_json(&cost);
+    }
+    value
 }
 
 fn play_option_json(option: &PlayOptionDef) -> Value {

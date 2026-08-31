@@ -306,6 +306,7 @@ mod spell_colors;
 mod spell_cost_reduction;
 mod spore;
 mod spore_cloud;
+mod spree;
 mod stale_followups;
 mod stat_counters;
 mod state_triggers_and_life;

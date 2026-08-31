@@ -12,6 +12,7 @@ use super::super::{
     GameObjectId, ManaCost, PlayOptionDef, PlayerId, TriggerContext, ZoneKind, add_mana_cost,
     configured_base_mana_cost,
 };
+use crate::ModeId;
 use crate::card::SpellAdditionalCostDef;
 use crate::game::ManaPaymentPurpose;
 
@@ -49,6 +50,7 @@ pub(in crate::game) struct SpellAdditionalCostRequest<'a> {
     pub(in crate::game) costs: &'a CostConfiguration,
     pub(in crate::game) card: &'a CardInstance,
     pub(in crate::game) player: PlayerId,
+    pub(in crate::game) modes: &'a [ModeId],
     pub(in crate::game) scale: CastScale,
 }
 
@@ -106,6 +108,7 @@ impl Game {
         option: &PlayOptionDef,
         costs: &CostConfiguration,
         card: &CardInstance,
+        selected_modes: &[ModeId],
         offer: Option<CastOfferCost>,
     ) -> Vec<SpellAdditionalCostDef> {
         let selected_alternative = costs
@@ -142,6 +145,16 @@ impl Game {
         {
             required.push(cost);
         }
+        if let Some((_, ability)) = Self::spell_ability(definition, option)
+            && let DeclarativeAbilityDef::Spell(spell) = ability.definition
+            && let Some(modal) = spell.modal()
+        {
+            required.extend(selected_modes.iter().filter_map(|mode| {
+                modal
+                    .mode_additional_mana_cost(*mode)
+                    .map(SpellAdditionalCostDef::pay_mana)
+            }));
+        }
         for selected in costs.additional() {
             if let Some((_, ability, _)) =
                 Self::optional_additional_cost_clause(definition, option, *selected)
@@ -157,17 +170,21 @@ impl Game {
     /// The largest X that the selected semantic additional costs can pay.
     pub(in crate::game) fn maximum_x_for_spell_additional_costs(
         &self,
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        costs: &CostConfiguration,
-        card: &CardInstance,
-        player: PlayerId,
-        offer: Option<CastOfferCost>,
+        request: SpellAdditionalCostRequest<'_>,
     ) -> Option<u16> {
-        self.selected_spell_additional_costs(definition, option, costs, card, offer)
-            .into_iter()
-            .filter_map(|cost| self.maximum_x_for_spell_additional_cost(cost, card, player))
-            .min()
+        self.selected_spell_additional_costs(
+            request.definition,
+            request.option,
+            request.costs,
+            request.card,
+            request.modes,
+            request.scale.offer,
+        )
+        .into_iter()
+        .filter_map(|cost| {
+            self.maximum_x_for_spell_additional_cost(cost, request.card, request.player)
+        })
+        .min()
     }
 
     fn maximum_x_for_spell_additional_cost(
@@ -222,27 +239,34 @@ impl Game {
     /// and life payments travel beside them.
     pub(in crate::game) fn spell_additional_cost_payments(
         &self,
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        costs: &CostConfiguration,
-        card: &CardInstance,
-        player: PlayerId,
-        scale: CastScale,
+        request: SpellAdditionalCostRequest<'_>,
     ) -> Vec<SpellAdditionalCostPayment> {
-        let required =
-            self.selected_spell_additional_costs(definition, option, costs, card, scale.offer);
+        let required = self.selected_spell_additional_costs(
+            request.definition,
+            request.option,
+            request.costs,
+            request.card,
+            request.modes,
+            request.scale.offer,
+        );
         if required.is_empty() {
             return vec![SpellAdditionalCostPayment::free()];
         }
 
         let mut combined = vec![SpellAdditionalCostPayment::free()];
         for cost in required {
-            let ways = self.spell_additional_cost_payment_options(cost, card, player, scale);
+            let ways = self.spell_additional_cost_payment_options(
+                cost,
+                request.card,
+                request.player,
+                request.scale,
+            );
             let mut next = Vec::new();
             for paid in &combined {
                 for way in &ways {
                     if let Some(payment) = paid.combine(way)
-                        && i64::from(payment.life) <= i64::from(self.players[player.index()].life)
+                        && i64::from(payment.life)
+                            <= i64::from(self.players[request.player.index()].life)
                         && !next.contains(&payment)
                     {
                         next.push(payment);
@@ -259,15 +283,7 @@ impl Game {
         request: SpellAdditionalCostRequest<'_>,
         objects: &[GameObjectId],
     ) -> Option<SpellAdditionalCostPayment> {
-        let SpellAdditionalCostRequest {
-            definition,
-            option,
-            costs,
-            card,
-            player,
-            scale,
-        } = request;
-        self.spell_additional_cost_payments(definition, option, costs, card, player, scale)
+        self.spell_additional_cost_payments(request)
             .into_iter()
             .find(|payment| payment.object_ids() == objects)
     }

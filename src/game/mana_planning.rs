@@ -87,6 +87,7 @@ impl Game {
                                 costs: choices.costs(),
                                 card: held,
                                 player,
+                                modes: choices.modes(),
                                 scale: super::casting_actions::CastScale {
                                     x: choices.x(),
                                     modes: choices.modes().len(),

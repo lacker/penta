@@ -10,7 +10,8 @@ use super::presentation_predicates::{
 use super::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, CardEffectStatus,
     CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef, DividedTotal,
-    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, TargetPredicate, ZoneKind,
+    ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRelation, TargetPredicate,
+    ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -587,6 +588,9 @@ fn conditional_target_label(
 pub struct ModeDef {
     pub id: ModeId,
     pub label: String,
+    /// The additional mana required when this particular mode is chosen.
+    /// Present for Spree modes and absent for ordinary modal instructions.
+    pub additional_mana_cost: Option<ManaCost>,
     pub targets: Vec<TargetSlotDef>,
     pub effect_status: CardEffectStatus,
 }
@@ -621,6 +625,7 @@ impl AbilityDef {
         self,
         id: ModeId,
         outer_is_executable: bool,
+        additional_mana_cost: Option<ManaCost>,
     ) -> Option<ModeDef> {
         let DeclarativeAbilityDef::Spell(spell) = self.definition else {
             return None;
@@ -643,6 +648,7 @@ impl AbilityDef {
         Some(ModeDef {
             id,
             label: self.text.into(),
+            additional_mana_cost,
             targets,
             effect_status: if outer_is_executable && self.is_executable() {
                 CardEffectStatus::Implemented

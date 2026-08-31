@@ -693,6 +693,16 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "spell mode {mode:?} in play option {option:?} of card definition {definition:?} is labeled {presentation:?} but its semantic branch is labeled {semantic:?}"
             ),
+            Self::MismatchedSpellModeAdditionalManaCost {
+                definition,
+                option,
+                mode,
+                presentation,
+                semantic,
+            } => write!(
+                formatter,
+                "spell mode {mode:?} in play option {option:?} of card definition {definition:?} presents additional mana cost {presentation:?} but declares {semantic:?}"
+            ),
             Self::DuplicateAlternativeCostId {
                 definition,
                 option,

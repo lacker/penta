@@ -2,13 +2,52 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef,
+    ScaledValueDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+
+// OTJ 27 — Rustler Rampage
+pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("33ed7ca3-894b-45f4-a15f-51b6bcd3f474"),
+    "Rustler Rampage",
+    CardArt::new("33ed7ca3-894b-45f4-a15f-51b6bcd3f474", "Josu Hernaiz"),
+    CardSet::OutlawsOfThunderJunction,
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spree(&[
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell_with_targets(
+                "Untap all creatures target player controls.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::Untap {
+                    object: EffectRecipientDef::objects(ObjectSetDef::PermanentsControlledBy(
+                        PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    )),
+                },
+            ),
+        ),
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell_with_targets(
+                "Target creature gains double strike until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ),
+    ])),
+);
 
 // OTJ 45 — Duelist of the Mind
 pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::new_with_legacy_id(
@@ -129,6 +168,39 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
         ]),
 );
 
+// OTJ 122 — Explosive Derailment
+pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f0e3df9c-0a86-4e6f-a3c7-84a883328a3d"),
+    "Explosive Derailment",
+    CardArt::new("f0e3df9c-0a86-4e6f-a3c7-84a883328a3d", "Leon Tukker"),
+    CardSet::OutlawsOfThunderJunction,
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spree(&[
+        (
+            mana_cost!("{2}"),
+            AbilityDef::spell_with_targets(
+                "Explosive Derailment deals 4 damage to target creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(4),
+                },
+            ),
+        ),
+        (
+            mana_cost!("{2}"),
+            AbilityDef::destroy_target(
+                "Destroy target artifact.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                )),
+                true,
+            ),
+        ),
+    ])),
+);
+
 // OTJ 157 — Bristly Bill, Spine Sower
 pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
     CardRecord::new_with_legacy_id(
@@ -176,6 +248,62 @@ pub(in crate::card::sets) static BRISTLY_BILL_SPINE_SOWER: CardRecord =
                 ),
             ]),
     );
+
+// OTJ 160 — Dance of the Tumbleweeds
+static DANCE_LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Land),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("caf0e715-befb-4904-82e6-d3f8c7fbd454"),
+    "Dance of the Tumbleweeds",
+    CardArt::new(
+        "caf0e715-befb-4904-82e6-d3f8c7fbd454",
+        "Dan Murayama Scott",
+    ),
+    CardSet::OutlawsOfThunderJunction,
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::spree(&[
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell(
+                "Search your library for a basic land card or a Desert card, put it onto the battlefield, then shuffle.",
+                EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                            ObjectPredicateDef::Subtype("Desert"),
+                        ]),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            ),
+        ),
+        (
+            mana_cost!("{3}"),
+            AbilityDef::spell(
+                "Create an X/X green Elemental creature token, where X is the number of lands you control.",
+                EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 0, 0)
+                    .with_variable_token_stats(&TokenStatsDef {
+                        power: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
+                        toughness: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
+                    }),
+            ),
+        ),
+    ])),
+);
 
 // OTJ 188 — Voracious Varmint
 // Audit: metadata-only — Card rules have not been implemented.
@@ -341,10 +469,13 @@ pub(in crate::card::sets) static SLICKSHOT_SHOW_OFF: CardRecord = CardRecord::ne
 // OTJ 359 — Pillage the Bog (alternate printing)
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &RUSTLER_RAMPAGE,
     &DUELIST_OF_THE_MIND,
     &PHANTOM_INTERFERENCE,
     &CAUSTIC_BRONCO,
+    &EXPLOSIVE_DERAILMENT,
     &BRISTLY_BILL_SPINE_SOWER,
+    &DANCE_OF_THE_TUMBLEWEEDS,
     &VORACIOUS_VARMINT,
     &PILLAGE_THE_BOG,
     &LAVASPUR_BOOTS,

@@ -49,6 +49,7 @@ fn mode(id: u8, targets: Vec<TargetSlotDef>) -> ModeDef {
     ModeDef {
         id: ModeId(id),
         label: "test mode".into(),
+        additional_mana_cost: None,
         targets,
         effect_status: CardEffectStatus::MetadataOnly,
     }

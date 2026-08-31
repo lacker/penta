@@ -772,6 +772,22 @@ fn semantic_spell_mode_presentation_matches_branch_order_and_predicates() {
             ..
         }
     ));
+
+    let mut wrong_cost = semantic_modal_definition(
+        vec![semantic_mode(Vec::new())],
+        Some(ModeSetDef::choose_one(vec![mode(0, Vec::new())])),
+    );
+    wrong_cost.play_options[0].modes.as_mut().unwrap().modes[0].additional_mana_cost =
+        Some(ManaCost::new(1, 0));
+    assert!(matches!(
+        error(wrong_cost),
+        CatalogError::MismatchedSpellModeAdditionalManaCost {
+            mode: ModeId(0),
+            presentation,
+            semantic,
+            ..
+        } if presentation.is_some() && semantic.is_none()
+    ));
 }
 
 #[test]

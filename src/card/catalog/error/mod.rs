@@ -776,6 +776,13 @@ pub enum CatalogError {
         presentation: String,
         semantic: &'static str,
     },
+    MismatchedSpellModeAdditionalManaCost {
+        definition: CardDefinitionId,
+        option: PlayOptionId,
+        mode: ModeId,
+        presentation: Box<Option<ManaCost>>,
+        semantic: Box<Option<ManaCost>>,
+    },
     DuplicateAlternativeCostId {
         definition: CardDefinitionId,
         option: PlayOptionId,

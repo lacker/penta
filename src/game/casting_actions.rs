@@ -401,12 +401,19 @@ impl Game {
                                     None
                                 };
                                 let additional_x = self.maximum_x_for_spell_additional_costs(
-                                    definition,
-                                    option,
-                                    &costs,
-                                    card,
-                                    player,
-                                    offer.map(|offer| offer.cost),
+                                    SpellAdditionalCostRequest {
+                                        definition,
+                                        option,
+                                        costs: &costs,
+                                        card,
+                                        player,
+                                        modes: &modes,
+                                        scale: CastScale {
+                                            x: 0,
+                                            modes: modes.len(),
+                                            offer: offer.map(|offer| offer.cost),
+                                        },
+                                    },
                                 );
                                 let max_x = [mana_x, additional_x]
                                     .into_iter()
@@ -455,15 +462,18 @@ impl Game {
                                             .collect()
                                     } else {
                                         self.spell_additional_cost_payments(
-                                            definition,
-                                            option,
-                                            &costs,
-                                            card,
-                                            player,
-                                            CastScale {
-                                                x,
-                                                modes: modes.len(),
-                                                offer: offer.map(|offer| offer.cost),
+                                            SpellAdditionalCostRequest {
+                                                definition,
+                                                option,
+                                                costs: &costs,
+                                                card,
+                                                player,
+                                                modes: &modes,
+                                                scale: CastScale {
+                                                    x,
+                                                    modes: modes.len(),
+                                                    offer: offer.map(|offer| offer.cost),
+                                                },
                                             },
                                         )
                                     };

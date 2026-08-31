@@ -115,6 +115,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
             ModeDef {
                 id: implemented_mode,
                 label: "Target a player".into(),
+                additional_mana_cost: None,
                 targets: vec![TargetSlotDef::exactly_one(
                     slot_id,
                     "target player",
@@ -125,12 +126,14 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
             ModeDef {
                 id: metadata_mode,
                 label: "Not implemented".into(),
+                additional_mana_cost: None,
                 targets: Vec::new(),
                 effect_status: CardEffectStatus::MetadataOnly,
             },
             ModeDef {
                 id: second_implemented_mode,
                 label: "Second implemented mode".into(),
+                additional_mana_cost: None,
                 targets: Vec::new(),
                 effect_status: CardEffectStatus::Implemented,
             },
@@ -511,6 +514,7 @@ fn manual_mode_target_slots_are_rebased_after_selected_modes_are_flattened() {
     let local = |id: ModeId, label: &str| ModeDef {
         id,
         label: label.into(),
+        additional_mana_cost: None,
         targets: vec![TargetSlotDef::exactly_one(
             TargetSlotId(0),
             "target player",

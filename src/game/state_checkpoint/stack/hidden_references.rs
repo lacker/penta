@@ -181,6 +181,9 @@ pub(in crate::game::state_checkpoint) fn resolution_context_referenced_object_id
     context: &EffectResolutionContext,
 ) -> Vec<GameObjectId> {
     let mut ids = context.trigger.object.into_iter().collect::<Vec<_>>();
+    if let Some(draw) = &context.replaced_draw {
+        ids.extend(draw.applied.iter().map(|source| source.object));
+    }
     ids.extend(
         context
             .single_objects()

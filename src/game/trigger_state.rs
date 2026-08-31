@@ -11,6 +11,14 @@ use crate::ids::{GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, Player
 
 use super::{CastSourceZone, ObjectCharacteristics, StackAbilityResolver};
 
+/// The prospective draw an ordinary effect inside a replacement program may
+/// resume. The applied sources are event-local CR 614.5 state.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) struct ReplacedDrawContinuation {
+    pub(super) player: PlayerId,
+    pub(super) applied: Vec<AbilitySourceRef>,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct TriggerContext {
     pub(super) object: Option<GameObjectId>,
@@ -53,6 +61,7 @@ impl TriggerContext {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct EffectResolutionContext {
     pub(super) trigger: TriggerContext,
+    pub(super) replaced_draw: Option<ReplacedDrawContinuation>,
     /// What a payment made during this resolution actually cost, for the
     /// branch that reads it back. "You may pay {X}" settles X here rather
     /// than at the cast, which is where an ordinary X lives.
@@ -85,6 +94,7 @@ impl EffectResolutionContext {
     pub(super) fn new(trigger: TriggerContext) -> Self {
         Self {
             trigger,
+            replaced_draw: None,
             paid_amount: None,
             matched_count: None,
             matched_card_types: None,
@@ -188,6 +198,7 @@ impl EffectResolutionContext {
     ) -> Self {
         Self {
             trigger,
+            replaced_draw: None,
             paid_amount: None,
             matched_count: None,
             matched_card_types: None,

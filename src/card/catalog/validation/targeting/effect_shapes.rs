@@ -625,6 +625,7 @@ fn validate_effect_target_shapes(
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ModifyCost(_)
         | EffectDef::None
+        | EffectDef::ContinueReplacedDraw
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }

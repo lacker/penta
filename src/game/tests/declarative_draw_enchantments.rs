@@ -426,3 +426,140 @@ fn island_sanctuary_blocks_ground_attacks_but_not_fliers_islandwalk_or_planeswal
     game.commit_next_turn(PlayerId::One, Vec::new());
     assert!(game.resolved_attack_restrictions.is_empty());
 }
+
+#[test]
+fn chains_spares_the_first_draw_step_card_then_replaces_the_next_draw() {
+    let mut game = ready_game();
+    game.step = Step::Draw;
+    game.active_player = PlayerId::One;
+    game.battlefield.push(creature(
+        10_100,
+        cards::CHAINS_OF_MEPHISTOPHELES,
+        PlayerId::Two,
+    ));
+    game.players[0].library = vec![
+        card(10_101, cards::PLAINS, PlayerId::One),
+        card(10_102, cards::MOUNTAIN, PlayerId::One),
+    ];
+
+    assert!(game.draw_card(PlayerId::One).is_some());
+    assert_eq!(game.players[0].hand.len(), 1);
+    assert_eq!(game.cards_drawn_this_turn[0], 1);
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    assert_eq!(game.players[0].hand.len(), 1, "discard one, then draw one");
+    assert_eq!(game.players[0].graveyard.len(), 1);
+    assert!(game.players[0].library.is_empty());
+    assert_eq!(game.cards_drawn_this_turn[0], 2);
+}
+
+#[test]
+fn chains_mills_instead_when_the_affected_player_cannot_discard() {
+    let mut game = ready_game();
+    game.step = Step::PrecombatMain;
+    game.battlefield.push(creature(
+        10_110,
+        cards::CHAINS_OF_MEPHISTOPHELES,
+        PlayerId::Two,
+    ));
+    game.players[0].library = vec![
+        card(10_111, cards::PLAINS, PlayerId::One),
+        card(10_112, cards::MOUNTAIN, PlayerId::One),
+    ];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    assert!(game.players[0].hand.is_empty());
+    assert_eq!(game.players[0].library.len(), 1);
+    assert_eq!(game.players[0].graveyard.len(), 1);
+    assert_eq!(game.cards_drawn_this_turn[0], 0);
+}
+
+#[test]
+fn multiple_chains_each_apply_once_to_the_same_draw() {
+    let mut game = ready_game();
+    game.step = Step::PrecombatMain;
+    game.battlefield.extend([
+        creature(10_120, cards::CHAINS_OF_MEPHISTOPHELES, PlayerId::One),
+        creature(10_121, cards::CHAINS_OF_MEPHISTOPHELES, PlayerId::Two),
+    ]);
+    game.players[0].hand = vec![
+        card(10_122, cards::PLAINS, PlayerId::One),
+        card(10_123, cards::MOUNTAIN, PlayerId::One),
+    ];
+    game.players[0].library = vec![card(10_124, cards::FOREST, PlayerId::One)];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    let replacement = game.observe(PlayerId::One).decision.unwrap();
+    game.choose_decision(PlayerId::One, replacement.id, &[1]);
+    let discard = game.observe(PlayerId::One).decision.unwrap();
+    game.choose_decision(PlayerId::One, discard.id, &[discard.options[0].id]);
+
+    assert_eq!(game.players[0].graveyard.len(), 2);
+    assert_eq!(game.players[0].hand.len(), 1);
+    assert!(game.players[0].library.is_empty());
+    assert_eq!(game.cards_drawn_this_turn[0], 1);
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn milling_for_one_chains_ends_the_draw_before_another_can_apply() {
+    let mut game = ready_game();
+    game.step = Step::PrecombatMain;
+    game.battlefield.extend([
+        creature(10_130, cards::CHAINS_OF_MEPHISTOPHELES, PlayerId::One),
+        creature(10_131, cards::CHAINS_OF_MEPHISTOPHELES, PlayerId::Two),
+    ]);
+    game.players[0].library = vec![
+        card(10_132, cards::PLAINS, PlayerId::One),
+        card(10_133, cards::MOUNTAIN, PlayerId::One),
+    ];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    let replacement = game.observe(PlayerId::One).decision.unwrap();
+    game.choose_decision(PlayerId::One, replacement.id, &[1]);
+
+    assert_eq!(game.players[0].library.len(), 1);
+    assert_eq!(game.players[0].graveyard.len(), 1);
+    assert_eq!(game.cards_drawn_this_turn[0], 0);
+    assert!(game.pending_decisions.is_empty());
+}
+
+#[test]
+fn another_replacement_can_apply_after_chains_continues_the_draw() {
+    let mut game = ready_game();
+    game.step = Step::PrecombatMain;
+    game.battlefield.extend([
+        creature(10_140, cards::CHAINS_OF_MEPHISTOPHELES, PlayerId::One),
+        creature(10_141, cards::HULLBREACHER, PlayerId::Two),
+    ]);
+    game.players[0].hand = vec![card(10_142, cards::PLAINS, PlayerId::One)];
+    game.players[0].library = vec![card(10_143, cards::MOUNTAIN, PlayerId::One)];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    let replacement = game.observe(PlayerId::One).decision.unwrap();
+    let chains = replacement
+        .options
+        .iter()
+        .find(|option| {
+            option
+                .ability_text
+                .as_deref()
+                .is_some_and(|text| text.contains("discards a card instead"))
+        })
+        .unwrap()
+        .id;
+    game.choose_decision(PlayerId::One, replacement.id, &[chains]);
+
+    assert!(game.players[0].hand.is_empty());
+    assert_eq!(game.players[0].graveyard.len(), 1);
+    assert_eq!(game.players[0].library.len(), 1);
+    assert_eq!(game.cards_drawn_this_turn[0], 0);
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .filter(|permanent| permanent.controller == PlayerId::Two)
+            .filter(|permanent| game.effective_subtypes(permanent).contains(&"Treasure"))
+            .count(),
+        1,
+    );
+}

@@ -518,6 +518,7 @@ impl HandcraftedPolicy {
             | EffectDef::CopyStackObject(_)
             | EffectDef::ChangeStackTargets(_)
             | EffectDef::None
+            | EffectDef::ContinueReplacedDraw
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }
             | EffectDef::ShuffleLibrary { .. }

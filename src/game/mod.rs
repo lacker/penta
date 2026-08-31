@@ -211,8 +211,8 @@ use replacement_state::{
 };
 use trigger_state::{
     AbilitySourceRef, BattlefieldTriggerListener, CommittedTriggerEvent, EffectResolutionContext,
-    InstalledTrigger, InstalledTriggerLifetime, PendingTrigger, TriggerCapture, TriggerContext,
-    TriggerEventObject, TriggerPlacementBatch,
+    InstalledTrigger, InstalledTriggerLifetime, PendingTrigger, ReplacedDrawContinuation,
+    TriggerCapture, TriggerContext, TriggerEventObject, TriggerPlacementBatch,
 };
 
 #[cfg(test)]
@@ -744,9 +744,6 @@ pub struct Game {
     mulligans: [u8; 2],
     cleanup_pending: bool,
     pending_decisions: Vec<PendingDecision>,
-    /// What to run when the discard now being answered finishes. One discard
-    /// effect is in flight at a time, so this is a slot rather than a queue.
-    pending_discard_follow_up: Option<DiscardFollowUp>,
     next_decision_id: u32,
     pending_events: VecDeque<PendingEvent>,
     /// The entry events of a batch of permanents arriving together, held

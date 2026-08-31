@@ -680,7 +680,8 @@ fn validate_resolving_effect(
         {
             Err("Apply grants an ability to a nonbattlefield source")
         }
-        EffectDef::ConditionalStatic(_)
+        EffectDef::ContinueReplacedDraw
+        | EffectDef::ConditionalStatic(_)
         | EffectDef::StaticApply { .. }
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard

@@ -645,7 +645,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         // names no recipient to check.
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::BecomeMonarch { .. }
-        | EffectDef::GainClassLevel { .. } => true,
+        | EffectDef::GainClassLevel { .. }
+        | EffectDef::ContinueReplacedDraw => true,
         // Each of these asks a question and then runs an inner effect,
         // so the question has to be allowed here and the answer has to be
         // something the shared procedure can carry out.

@@ -43,6 +43,11 @@ impl Game {
                     None,
                 );
             }
+            EffectDef::ContinueReplacedDraw => {
+                if let Some(draw) = context.replaced_draw {
+                    let _ = self.continue_draw_card(draw.player, draw.applied);
+                }
+            }
             EffectDef::BindOutput { .. } => {
                 self.resolve_bound_output_effect(scoped, object, context);
             }

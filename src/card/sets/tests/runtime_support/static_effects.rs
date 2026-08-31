@@ -329,6 +329,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Detain { .. }
         | EffectDef::ExchangeControl { .. }
         | EffectDef::InstallTrigger(_)
+        | EffectDef::ContinueReplacedDraw
         | EffectDef::None
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }

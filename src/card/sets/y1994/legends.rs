@@ -6,13 +6,14 @@ use crate::card::{
     CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef,
     ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    ScaledValueDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1827,13 +1828,47 @@ pub(in crate::card::sets) static CARRION_ANTS: CardRecord = CardRecord::new_with
 );
 
 // LEG 91 — Chains of Mephistopheles
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “If a player would draw a card except the first one they draw in each of their draw steps, that player discards a card instead. If the player discards a card this way, they draw a card.…”.
 pub(in crate::card::sets) static CHAINS_OF_MEPHISTOPHELES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2bb0e884-5bb4-41f3-b04b-6f638357c166"),
     "Chains of Mephistopheles",
     crate::card::CardArt::new("2bb0e884-5bb4-41f3-b04b-6f638357c166", "Heather Hudson"),
-    crate::card::CardSet::Legends,
-    crate::card::CardRules::unsupported(),
+    CardSet::Legends,
+    CardRules::new_enchantment(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::defined_replacement(
+            "If a player would draw a card except the first one they draw in each of their draw steps, that player discards a card instead. If the player discards a card this way, they draw a card. If the player doesn't discard a card this way, they mill a card.",
+            ReplacementAbilityDef::new().with_event(ReplacementEventDef::WouldDraw {
+                player: PlayerRelation::Any,
+                during_own_draw_step: false,
+                except_first_in_draw_step: true,
+            }),
+            ReplacementEffectDef::Sequence(&[
+                ReplacementEffectDef::ReplaceEventWithNothing,
+                ReplacementEffectDef::Perform(&EffectDef::Discard {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: Some(DiscardFollowUpDef {
+                        counted: ObjectPredicateDef::Any,
+                        bound: None,
+                        effect: &EffectDef::IfElseCondition {
+                            condition: &TriggerConditionDef::ValueComparison(
+                                &ValueComparisonDef {
+                                    left: ValueDef::MatchedCount,
+                                    comparison: ComparisonDef::GreaterOrEqual,
+                                    right: ValueDef::Constant(1),
+                                },
+                            ),
+                            then: &EffectDef::ContinueReplacedDraw,
+                            otherwise: &EffectDef::Mill {
+                                player: EffectRecipientDef::EventPlayer,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                    }),
+                }),
+            ]),
+        ),
+    ),
 );
 
 // LEG 92 — Cosmic Horror

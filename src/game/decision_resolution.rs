@@ -65,6 +65,7 @@ impl Game {
                 mut remaining,
                 mut chosen,
                 cause,
+                follow_up,
             } => {
                 let selected = pending
                     .observation
@@ -75,10 +76,19 @@ impl Game {
                     .collect::<Vec<_>>();
                 chosen.push((player, selected));
                 if remaining.is_empty() {
-                    self.complete_effect_discards(chosen, cause);
+                    let mut later_procedures = std::mem::take(&mut self.pending_procedures);
+                    self.complete_effect_discards(chosen, cause, follow_up.map(|value| *value));
+                    self.pending_procedures.append(&mut later_procedures);
                 } else {
                     let next = remaining.remove(0);
-                    self.queue_next_effect_discard(next, amount, remaining, chosen, cause);
+                    self.queue_next_effect_discard(
+                        next,
+                        amount,
+                        remaining,
+                        chosen,
+                        cause,
+                        follow_up.map(|value| *value),
+                    );
                 }
             }
             DecisionContinuation::CardNameChoice {
@@ -765,6 +775,7 @@ impl Game {
             }
             DecisionContinuation::DrawReplacement {
                 player,
+                mut applied,
                 mut replacements,
             } => {
                 let selected = options
@@ -790,6 +801,9 @@ impl Game {
                     return;
                 };
                 let replacement = replacements.remove(selected);
+                if let Some(source) = Self::draw_replacement_source(&replacement) {
+                    applied.push(source);
+                }
                 self.draw_replacements[player.index()].extend(
                     replacements
                         .into_iter()
@@ -802,11 +816,7 @@ impl Game {
                 // work. In particular, a replacement that draws must not be
                 // deferred until after the original instruction resumes.
                 let mut later_procedures = std::mem::take(&mut self.pending_procedures);
-                self.resolve_effect_def(
-                    replacement.effect,
-                    &replacement.object,
-                    replacement.context,
-                );
+                self.apply_draw_replacement(player, replacement, applied);
                 self.pending_procedures.append(&mut later_procedures);
             }
             DecisionContinuation::RecallDiscard { player } => {

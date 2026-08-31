@@ -55,7 +55,7 @@ impl Game {
                     source, controller, effect, context, choices,
                 );
             }
-            EffectDef::None | EffectDef::Randomized { .. } | EffectDef::Choose(_) |
+            EffectDef::None | EffectDef::ContinueReplacedDraw | EffectDef::Randomized { .. } | EffectDef::Choose(_) |
 EffectDef::ChooseCardsFromCollection(_) |
 EffectDef::LookAtObjects(_) | EffectDef::ChooseObjectOrder(_) |
 EffectDef::ClassifyObjects(_) | EffectDef::RevealAndClassifyCards(_) |

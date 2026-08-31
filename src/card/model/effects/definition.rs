@@ -367,6 +367,10 @@ pub enum EffectDef {
         recipient: EffectRecipientDef,
         amount: ValueDef,
     },
+    /// Resume the prospective draw whose replacement program is currently
+    /// resolving. This is not a fresh draw: the replacement effects already
+    /// applied to that event remain applied under CR 614.5.
+    ContinueReplacedDraw,
     /// The affected player loses all unspent mana without invoking the
     /// turn-based mana-pool emptying procedure (and therefore without mana
     /// burn in formats that use it).

@@ -222,6 +222,66 @@ fn island_sanctuary_draw_choice_and_attack_restriction_survive_checkpoint_round_
 }
 
 #[test]
+fn chains_replacement_and_discard_choices_survive_checkpoint_round_trip() {
+    let mut game = crate::game::tests::ready_game();
+    game.put_onto_battlefield(
+        PlayerId::One,
+        crate::card::cards::CHAINS_OF_MEPHISTOPHELES,
+    )
+    .expect("first Chains enters");
+    game.put_onto_battlefield(
+        PlayerId::Two,
+        crate::card::cards::CHAINS_OF_MEPHISTOPHELES,
+    )
+    .expect("second Chains enters");
+    game.step = Step::PrecombatMain;
+    game.players[0].hand = vec![
+        crate::game::tests::card(77_010, crate::card::cards::PLAINS, PlayerId::One),
+        crate::game::tests::card(77_011, crate::card::cards::MOUNTAIN, PlayerId::One),
+    ];
+    game.players[0].library = vec![crate::game::tests::card(
+        77_012,
+        crate::card::cards::FOREST,
+        PlayerId::One,
+    )];
+
+    assert_eq!(game.draw_card(PlayerId::One), None);
+    let (_, rebuilt_choice) = rebuild_current_checkpoint(&game, PlayerId::One, 4_252);
+    let DecisionContinuation::DrawReplacement {
+        applied,
+        replacements,
+        ..
+    } = &rebuilt_choice.pending_decisions[0].continuation
+    else {
+        panic!("Chains replacement choice reconstructs");
+    };
+    assert!(applied.is_empty());
+    assert_eq!(replacements.len(), 2);
+    assert!(replacements.iter().all(|replacement| matches!(
+        replacement.effect.effect,
+        crate::card::EffectDef::Discard { .. }
+    )));
+
+    let replacement = game.pending_decisions[0].observation.clone();
+    game.choose_decision(PlayerId::One, replacement.id, &[1]);
+    assert!(matches!(
+        game.pending_decisions[0].continuation,
+        DecisionContinuation::DiscardForEffect {
+            follow_up: Some(_),
+            ..
+        }
+    ));
+    let (_, mut rebuilt_discard) = rebuild_current_checkpoint(&game, PlayerId::One, 4_253);
+    let discard = rebuilt_discard.pending_decisions[0].observation.clone();
+    rebuilt_discard.choose_decision(PlayerId::One, discard.id, &[discard.options[0].id]);
+
+    assert_eq!(rebuilt_discard.players[0].graveyard.len(), 2);
+    assert_eq!(rebuilt_discard.players[0].hand.len(), 1);
+    assert!(rebuilt_discard.players[0].library.is_empty());
+    assert_eq!(rebuilt_discard.cards_drawn_this_turn[0], 1);
+}
+
+#[test]
 fn sylvan_library_for_each_payment_resumes_after_checkpoint_round_trip() {
     let mut game = crate::game::tests::ready_game();
     game.turn = 2;

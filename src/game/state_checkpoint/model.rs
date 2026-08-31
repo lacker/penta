@@ -844,11 +844,20 @@ include!("model_trigger_context.rs");
 pub(super) struct EffectResolutionContextSnapshot {
     pub(super) trigger: TriggerContextSnapshot,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) replaced_draw: Option<ReplacedDrawSnapshot>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) chosen_counter: Option<CounterKindSnapshot>,
     pub(super) single_objects: [Option<TargetSnapshot>; crate::ObjectBindingIndex::COUNT],
     pub(super) object_groups: [Vec<TargetSnapshot>; crate::ObjectSetBindingIndex::COUNT],
     #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
     pub(super) named_object_groups: std::collections::BTreeMap<String, Vec<TargetSnapshot>>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ReplacedDrawSnapshot {
+    pub(super) player: usize,
+    pub(super) applied: Vec<AbilitySourceSnapshot>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

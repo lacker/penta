@@ -237,9 +237,15 @@ fn continuation_snapshot(
         },
         DecisionContinuation::DrawReplacement {
             player,
+            applied,
             replacements,
         } => DecisionContinuationSnapshot::DrawReplacement {
             player: player.index(),
+            applied: applied
+                .iter()
+                .copied()
+                .map(ability_source_snapshot)
+                .collect(),
             replacements: replacements
                 .iter()
                 .map(|replacement| {
@@ -258,6 +264,7 @@ fn continuation_snapshot(
             remaining,
             chosen,
             cause,
+            follow_up,
         } => DecisionContinuationSnapshot::DiscardForEffect {
             player: player.index(),
             amount: *amount,
@@ -271,6 +278,15 @@ fn continuation_snapshot(
                 })
                 .collect(),
             cause: cause_snapshot(*cause),
+            follow_up: match follow_up.as_deref() {
+                Some(follow_up) => Some(discard_follow_up_snapshot(
+                    game,
+                    viewer,
+                    follow_up,
+                    visible_rebindings,
+                )?),
+                None => None,
+            },
         },
         DecisionContinuation::BasicLandTypeTextChange { target } => {
             DecisionContinuationSnapshot::BasicLandTypeTextChange {

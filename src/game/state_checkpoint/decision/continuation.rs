@@ -129,9 +129,11 @@ fn parse_continuation(
         },
         DecisionContinuationSnapshot::DrawReplacement {
             player: owner,
+            applied,
             replacements,
         } => DecisionContinuation::DrawReplacement {
             player: player(*owner)?,
+            applied: applied.iter().copied().map(parse_ability_source).collect(),
             replacements: replacements
                 .iter()
                 .map(|replacement| parse_draw_replacement(replacement, game))
@@ -143,6 +145,7 @@ fn parse_continuation(
             remaining,
             chosen,
             cause,
+            follow_up,
         } => DecisionContinuation::DiscardForEffect {
             player: player(*current)?,
             amount: *amount,
@@ -163,6 +166,27 @@ fn parse_continuation(
                 })
                 .collect::<Result<Vec<_>, String>>()?,
             cause: parse_cause(*cause)?,
+            follow_up: follow_up
+                .as_ref()
+                .map(|snapshot| {
+                    let continuation = parse_effect_continuation(snapshot, game)?;
+                    let crate::card::EffectDef::Discard {
+                        then: Some(definition),
+                        ..
+                    } = continuation.effect.effect
+                    else {
+                        return Err("discard follow-up locator does not identify a discard".into());
+                    };
+                    Ok::<_, String>(Box::new(crate::game::decision_state::DiscardFollowUp {
+                        counted: definition.counted,
+                        bound: definition.bound,
+                        definition: continuation.effect,
+                        effect: continuation.effect.with_effect(*definition.effect),
+                        object: continuation.object,
+                        context: continuation.context,
+                    }))
+                })
+                .transpose()?,
         },
         DecisionContinuationSnapshot::BasicLandTypeTextChange { target } => {
             DecisionContinuation::BasicLandTypeTextChange {

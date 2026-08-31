@@ -780,6 +780,7 @@ fn validate_effect_references(
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
+        | EffectDef::ContinueReplacedDraw
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn

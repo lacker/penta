@@ -168,13 +168,13 @@ impl Game {
     ) {
         let amount = usize::try_from(amount).unwrap_or(0);
         if amount == 0 || players.is_empty() {
+            self.complete_effect_discards(Vec::new(), cause, follow_up);
             return;
         }
         players.sort_by_key(|player| (*player != self.active_player, player.index()));
         players.dedup();
         let first = players.remove(0);
-        self.pending_discard_follow_up = follow_up;
-        self.queue_next_effect_discard(first, amount, players, Vec::new(), cause);
+        self.queue_next_effect_discard(first, amount, players, Vec::new(), cause, follow_up);
     }
 
     pub(super) fn queue_next_effect_discard(
@@ -184,16 +184,17 @@ impl Game {
         mut remaining: Vec<PlayerId>,
         mut chosen: Vec<(PlayerId, Vec<GameObjectId>)>,
         cause: ZoneMoveCause,
+        follow_up: Option<DiscardFollowUp>,
     ) {
         let hand = &self.players[player.index()].hand;
         let count = amount.min(hand.len());
         if count == 0 || count == hand.len() {
             chosen.push((player, hand.iter().map(|card| card.id).collect()));
             if remaining.is_empty() {
-                self.complete_effect_discards(chosen, cause);
+                self.complete_effect_discards(chosen, cause, follow_up);
             } else {
                 let next = remaining.remove(0);
-                self.queue_next_effect_discard(next, amount, remaining, chosen, cause);
+                self.queue_next_effect_discard(next, amount, remaining, chosen, cause, follow_up);
             }
             return;
         }
@@ -212,6 +213,7 @@ impl Game {
                 remaining,
                 chosen,
                 cause,
+                follow_up: follow_up.map(Box::new),
             },
         );
     }
@@ -220,11 +222,11 @@ impl Game {
         &mut self,
         chosen: Vec<(PlayerId, Vec<GameObjectId>)>,
         cause: ZoneMoveCause,
+        follow_up: Option<DiscardFollowUp>,
     ) {
         // Counted before the cards move: "each land card discarded this way"
         // asks what went, and by the time they are in a graveyard they are
         // indistinguishable from what was already there.
-        let follow_up = self.pending_discard_follow_up.take();
         let counted = follow_up.as_ref().map_or_else(Vec::new, |follow_up| {
             chosen
                 .iter()

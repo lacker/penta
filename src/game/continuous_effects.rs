@@ -596,6 +596,7 @@ impl Game {
         matches!(
             effect,
             EffectDef::None
+                | EffectDef::ContinueReplacedDraw
                 | EffectDef::Randomized { .. }
                 | EffectDef::Choose(_)
                 | EffectDef::ChooseCardsFromCollection(_)

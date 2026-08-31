@@ -248,7 +248,6 @@ impl Game {
             mulligans: [0, 0],
             cleanup_pending: false,
             pending_decisions: Vec::new(),
-            pending_discard_follow_up: None,
             next_decision_id: 0,
             pending_events: VecDeque::new(),
             entry_event_batch: None,

@@ -32,6 +32,8 @@ use ability_kind::{StackAbilityCondition, stack_ability_condition, stack_payload
 mod cast_context;
 use cast_context::{detached_cast_context, stack_cast_context};
 mod current;
+mod effect_context;
+use effect_context::{parse_replaced_draw, replaced_draw_snapshot};
 mod hidden_references;
 pub(super) use current::current_stack_snapshot;
 pub(in crate::game::state_checkpoint) use hidden_references::*;
@@ -353,6 +355,7 @@ pub(super) fn effect_resolution_context_snapshot(
 ) -> EffectResolutionContextSnapshot {
     EffectResolutionContextSnapshot {
         trigger: trigger_context_snapshot(context.trigger),
+        replaced_draw: context.replaced_draw.as_ref().map(replaced_draw_snapshot),
         chosen_counter: context.chosen_counter.map(CounterKindSnapshot),
         single_objects: std::array::from_fn(|index| {
             context.single_objects()[index].map(target_snapshot)
@@ -807,6 +810,7 @@ pub(super) fn parse_effect_resolution_context(
             .map(|(label, objects)| (label, objects.into_iter().map(parse_target).collect()))
             .collect(),
     );
+    context.replaced_draw = value.replaced_draw.map(parse_replaced_draw).transpose()?;
     context.chosen_counter = value.chosen_counter.map(|kind| kind.0);
     Ok(context)
 }

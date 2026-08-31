@@ -97,6 +97,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::RevealAtRandomFromHand { .. }
+        | EffectDef::ContinueReplacedDraw
         | EffectDef::Mill { .. }
         | EffectDef::MillUntil(_)
         | EffectDef::GainClassLevel { .. }

@@ -76,6 +76,10 @@ pub(super) enum ResolvedEffectPayment {
 pub(super) struct DiscardFollowUp {
     pub(super) counted: ObjectPredicateDef,
     pub(super) bound: Option<ObjectSetBindingIndex>,
+    /// The authored discard whose nested follow-up this is. Checkpoints
+    /// relocate the parent and recover the counted predicate and binding
+    /// from it rather than serializing catalog definitions.
+    pub(super) definition: ScopedEffect,
     pub(super) effect: ScopedEffect,
     pub(super) object: Box<StackObject>,
     pub(super) context: EffectResolutionContext,
@@ -237,6 +241,7 @@ pub(super) enum DecisionContinuation {
         remaining: Vec<PlayerId>,
         chosen: Vec<(PlayerId, Vec<GameObjectId>)>,
         cause: ZoneMoveCause,
+        follow_up: Option<Box<DiscardFollowUp>>,
     },
     SearchZone {
         controller: PlayerId,
@@ -342,6 +347,7 @@ pub(super) enum DecisionContinuation {
     /// replacements consumes this draw. Unchosen replacements remain live.
     DrawReplacement {
         player: PlayerId,
+        applied: Vec<AbilitySourceRef>,
         replacements: Vec<DrawReplacement>,
     },
     BasicLandTypeTextChange {

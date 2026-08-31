@@ -157,3 +157,21 @@ fn resolving_program_context_follows_every_recursive_continuation() {
         );
     }
 }
+
+#[test]
+fn continuing_a_replaced_draw_is_rejected_outside_a_replacement_program() {
+    let ability = AbilityDef::spell(
+        "Continue a draw that was not replaced.",
+        EffectDef::ContinueReplacedDraw,
+    );
+    assert_eq!(
+        error(definition_with_ability(ability)),
+        CatalogError::UnsupportedAbilityEffectProgramContext {
+            definition: CardDefinitionId::new(1),
+            part: CardPartId::PRIMARY,
+            ability: AbilityId::PRIMARY,
+            context: "resolving",
+            operation: "ContinueReplacedDraw",
+        },
+    );
+}

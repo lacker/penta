@@ -44,6 +44,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::GainLife { .. } => "GainLife",
         EffectDef::SetLifeTotal { .. } => "SetLifeTotal",
         EffectDef::DrawCards { .. } => "DrawCards",
+        EffectDef::ContinueReplacedDraw => "ContinueReplacedDraw",
         EffectDef::ShuffleLibrary { .. } => "ShuffleLibrary",
         EffectDef::BuryGraveyard { .. } => "BuryGraveyard",
         EffectDef::EmptyManaPool { .. } => "EmptyManaPool",

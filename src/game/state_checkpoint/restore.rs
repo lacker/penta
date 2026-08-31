@@ -306,7 +306,6 @@ impl Game {
             mulligans: checkpoint.mulligans,
             cleanup_pending: checkpoint.cleanup_pending,
             pending_decisions: Vec::new(),
-            pending_discard_follow_up: None,
             next_decision_id: checkpoint.next_decision_id,
             pending_events: VecDeque::new(),
             // A batch is a thing in flight, and a checkpoint is taken

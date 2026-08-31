@@ -254,6 +254,16 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Chains of Mephistopheles replaces each eligible draw as one continuing
+  event.** Its declaration composes an ordinary discard, a result-counted
+  conditional, and a same-event draw continuation; the failure branch mills
+  one card. Draw replacements retain their per-event CR 614.5 identities while
+  the discard choice is answered, so one Chains cannot apply to the same draw
+  twice, another copy still can, and a different replacement may change the
+  continued draw. Generic discard follow-ups now reconstruct through additive
+  checkpoint members; checkpoint format 10, replay version 2, and protocol 29
+  are unchanged.
+
 - **Spree and mode-local additional mana costs.** A modal spell can now attach
   a mandatory additional mana cost to each mode, and choosing one or more
   modes carries exactly those costs through action generation, cost

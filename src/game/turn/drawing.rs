@@ -30,6 +30,17 @@ impl Game {
     }
 
     pub(in crate::game) fn draw_card(&mut self, player: PlayerId) -> Option<GameObjectId> {
+        self.continue_draw_card(player, Vec::new())
+    }
+
+    /// Re-evaluates one prospective draw after replacement effects have
+    /// changed it. `applied` is event-local CR 614.5 state: another copy of
+    /// an effect may still apply, but the same source ability may not.
+    pub(in crate::game) fn continue_draw_card(
+        &mut self,
+        player: PlayerId,
+        mut applied: Vec<AbilitySourceRef>,
+    ) -> Option<GameObjectId> {
         // A draw past the bound simply does not happen (CR 121.3), so
         // nothing watching for a draw fires and no replacement is spent on
         // it -- the instruction is not carried out at all.
@@ -42,20 +53,19 @@ impl Game {
         let mut replacements = self.draw_replacements[player.index()]
             .drain(..)
             .collect::<Vec<_>>();
-        replacements.extend(self.applicable_static_draw_replacements(player));
+        replacements.extend(self.applicable_static_draw_replacements(player, &applied));
         match replacements.as_slice() {
             [] => self.commit_draw_card(player),
             [replacement] if !replacement.optional => {
                 let replacement = replacement.clone();
-                self.resolve_effect_def(
-                    replacement.effect,
-                    &replacement.object,
-                    replacement.context,
-                );
+                if let Some(source) = Self::draw_replacement_source(&replacement) {
+                    applied.push(source);
+                }
+                self.apply_draw_replacement(player, replacement, applied);
                 None
             }
             _ => {
-                self.queue_draw_replacement_choice(player, replacements);
+                self.queue_draw_replacement_choice(player, applied, replacements);
                 None
             }
         }
@@ -120,6 +130,7 @@ impl Game {
     fn queue_draw_replacement_choice(
         &mut self,
         player: PlayerId,
+        applied: Vec<AbilitySourceRef>,
         replacements: Vec<super::super::DrawReplacement>,
     ) {
         let may_draw = replacements.iter().all(|replacement| replacement.optional);
@@ -164,6 +175,7 @@ impl Game {
             options,
             DecisionContinuation::DrawReplacement {
                 player,
+                applied,
                 replacements,
             },
         );
@@ -172,6 +184,7 @@ impl Game {
     fn applicable_static_draw_replacements(
         &self,
         player: PlayerId,
+        applied: &[AbilitySourceRef],
     ) -> Vec<super::super::DrawReplacement> {
         let mut replacements = Vec::new();
         for permanent in &self.battlefield {
@@ -194,6 +207,10 @@ impl Game {
                 let Some(effect) = Self::draw_replacement_performed_effect(program) else {
                     return;
                 };
+                let source = AbilitySourceRef {
+                    object: permanent.card.id,
+                    ability: effective.origin,
+                };
                 let condition_matches = definition.condition.is_none_or(|condition| {
                     self.per_card_draw_replacement_condition_matches(permanent, condition)
                 });
@@ -201,7 +218,8 @@ impl Game {
                     event_player: Some(player),
                     ..TriggerContext::empty()
                 };
-                if !ability.is_executable()
+                if applied.contains(&source)
+                    || !ability.is_executable()
                     || !definition.source_zones.contains(&ZoneKind::Battlefield)
                     || (during_own_draw_step
                         && (self.step != Step::Draw || self.active_player != player))
@@ -226,47 +244,68 @@ impl Game {
                     effective.origin,
                     Self::effective_rules_source(permanent),
                 );
-                let scoped = ScopedEffect::primary(effect);
-                let object = StackObject {
-                    id: permanent.card.id,
-                    kind: StackObjectKind::TriggeredAbility,
-                    card: permanent.card.clone(),
-                    source: Some(permanent.card.id),
-                    ability: Some(StackAbilityPayload {
-                        origin: effective.origin,
-                        definition: None,
-                        presentation,
-                        text: Some(ability.text),
-                        target_defs: Vec::new(),
-                        targets: Vec::new(),
-                        context: event_context.into(),
-                        resolver: StackAbilityResolver::Declarative(scoped),
-                        condition: None,
-                        mode_effects: Vec::new(),
-                        resolution_destination: None,
-                        x: 0,
-                        sacrificed_mana_value: 0,
-                    }),
-                    controller: permanent.controller,
-                    signature: None,
-                    chosen_permanents: Vec::new(),
-                    applied_effects: Vec::new(),
-                    text_changes: Vec::new(),
-                    colors: None,
-                    cast: None,
-                    face_down: None,
-                    is_copy: false,
-                };
-                replacements.push(super::super::DrawReplacement {
-                    object: Box::new(object),
-                    context: event_context.into(),
-                    effect: scoped,
-                    optional: definition.optional,
-                    installed: false,
-                });
+                replacements.push(Self::static_draw_replacement(
+                    permanent,
+                    effective.origin,
+                    presentation,
+                    ability.text,
+                    event_context,
+                    effect,
+                    definition.optional,
+                ));
             });
         }
         replacements
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn static_draw_replacement(
+        permanent: &Permanent,
+        origin: AbilityOrigin,
+        presentation: ObjectCharacteristics,
+        text: &'static str,
+        event_context: TriggerContext,
+        effect: EffectDef,
+        optional: bool,
+    ) -> super::super::DrawReplacement {
+        let scoped = ScopedEffect::primary(effect);
+        let object = StackObject {
+            id: permanent.card.id,
+            kind: StackObjectKind::TriggeredAbility,
+            card: permanent.card.clone(),
+            source: Some(permanent.card.id),
+            ability: Some(StackAbilityPayload {
+                origin,
+                definition: None,
+                presentation,
+                text: Some(text),
+                target_defs: Vec::new(),
+                targets: Vec::new(),
+                context: event_context.into(),
+                resolver: StackAbilityResolver::Declarative(scoped),
+                condition: None,
+                mode_effects: Vec::new(),
+                resolution_destination: None,
+                x: 0,
+                sacrificed_mana_value: 0,
+            }),
+            controller: permanent.controller,
+            signature: None,
+            chosen_permanents: Vec::new(),
+            applied_effects: Vec::new(),
+            text_changes: Vec::new(),
+            colors: None,
+            cast: None,
+            face_down: None,
+            is_copy: false,
+        };
+        super::super::DrawReplacement {
+            object: Box::new(object),
+            context: event_context.into(),
+            effect: scoped,
+            optional,
+            installed: false,
+        }
     }
 
     /// Conditions read for each prospective card draw. A hand-size condition
@@ -321,6 +360,30 @@ impl Game {
         });
         let effect = performed.next()?;
         (effects.len() == 2 && replaces == 1 && performed.next().is_none()).then_some(effect)
+    }
+
+    pub(in crate::game) fn draw_replacement_source(
+        replacement: &super::super::DrawReplacement,
+    ) -> Option<AbilitySourceRef> {
+        if replacement.installed {
+            return None;
+        }
+        let ability = replacement.object.ability.as_ref()?;
+        Some(AbilitySourceRef {
+            object: replacement.object.source.unwrap_or(replacement.object.id),
+            ability: ability.origin,
+        })
+    }
+
+    pub(in crate::game) fn apply_draw_replacement(
+        &mut self,
+        player: PlayerId,
+        replacement: super::super::DrawReplacement,
+        applied: Vec<AbilitySourceRef>,
+    ) {
+        let mut context = replacement.context;
+        context.replaced_draw = Some(super::super::ReplacedDrawContinuation { player, applied });
+        self.resolve_effect_def(replacement.effect, &replacement.object, context);
     }
 
     /// Whether a card offers a miracle cost at all.

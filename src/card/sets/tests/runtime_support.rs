@@ -664,6 +664,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     // A triggered mana ability resolves without an offer to
                     // read an amount off, so this one stays outside.
                     EffectDef::BindOutput { .. }
+                    | EffectDef::ContinueReplacedDraw
                     | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
                     | EffectDef::Choose(_)

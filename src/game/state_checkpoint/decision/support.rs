@@ -7,6 +7,26 @@ use crate::card::SacrificedAmountDef;
 use crate::game::{ApplicableZoneMoveReplacement, PendingBattlefieldExitBatch};
 use crate::game::{ResolvedEffectPayment, SacrificeDeclined};
 
+pub(super) fn discard_follow_up_snapshot(
+    game: &Game,
+    viewer: PlayerId,
+    follow_up: &crate::game::decision_state::DiscardFollowUp,
+    visible_rebindings: &[GameObjectId],
+) -> Option<Box<super::super::model::EffectContinuationSnapshot>> {
+    let mut continuation = effect_continuation_snapshot(
+        game,
+        viewer,
+        &follow_up.object,
+        &follow_up.context,
+        follow_up.definition,
+        visible_rebindings,
+    )?;
+    if follow_up.context.replaced_draw.is_some() {
+        continuation.object.kind = super::super::model::StackObjectKindSnapshot::ReplacementEffect;
+    }
+    Some(Box::new(continuation))
+}
+
 #[allow(clippy::too_many_lines)]
 pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
     continuation: &DecisionContinuation,
@@ -146,12 +166,23 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
                     .map(|candidate| candidate.context.source.object),
             );
         }
-        DecisionContinuation::DrawReplacement { replacements, .. } => {
+        DecisionContinuation::DrawReplacement {
+            applied,
+            replacements,
+            ..
+        } => {
+            ids.extend(applied.iter().map(|source| source.object));
             ids.extend(
                 replacements
                     .iter()
                     .flat_map(draw_replacement_referenced_object_ids),
             );
+        }
+        DecisionContinuation::DiscardForEffect {
+            follow_up: Some(follow_up),
+            ..
+        } => {
+            extend_stack_continuation_ids(&mut ids, &follow_up.object, &follow_up.context);
         }
         DecisionContinuation::ExploredCardPlacement { revealed, .. } => ids.push(*revealed),
         DecisionContinuation::Proliferate { candidates } => {
@@ -259,7 +290,9 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         // Nothing in a name choice is an object id.
         | DecisionContinuation::CardNameChoice { .. }
         | DecisionContinuation::ChooseCards { .. }
-        | DecisionContinuation::DiscardForEffect { .. }
+        | DecisionContinuation::DiscardForEffect {
+            follow_up: None, ..
+        }
         | DecisionContinuation::BasicLandTypeTextChange { .. }
         | DecisionContinuation::RecallDiscard { .. }
         | DecisionContinuation::RecallReturn { .. }

@@ -86,6 +86,8 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     },
     DrawReplacement {
         player: usize,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        applied: Vec<AbilitySourceSnapshot>,
         replacements: Vec<DrawReplacementSnapshot>,
     },
     BasicLandTypeTextChange {
@@ -97,6 +99,10 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         remaining: Vec<usize>,
         chosen: Vec<DiscardChoiceSnapshot>,
         cause: ZoneMoveCauseSnapshot,
+        /// The authored discard is relocated so its result-counting
+        /// follow-up can be reconstructed without serializing definitions.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        follow_up: Option<Box<EffectContinuationSnapshot>>,
     },
     SacrificeToTotalPower {
         player: usize,

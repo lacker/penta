@@ -276,8 +276,16 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
         AbilityDef::spell_with_targets(
             "Counter target noncreature spell. If that spell is countered this way, exile it \
              instead of putting it into its owner's graveyard.",
-            &[AbilityTargetDef::exactly_one_spell(
-                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
             )],
             // The destination is part of the counter rather than a second
             // clause: a spell countered this way never reaches a graveyard,

@@ -68,6 +68,7 @@ impl Game {
                 }
                 AbilityCostDef::DiscardSource
                 | AbilityCostDef::ManaCostOf(_)
+                | AbilityCostDef::ManaValueOfTarget { .. }
                 | AbilityCostDef::UntapSource
                 | AbilityCostDef::SacrificeObject(_)
                 | AbilityCostDef::MoveToZone(_)

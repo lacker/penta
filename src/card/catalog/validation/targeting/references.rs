@@ -276,6 +276,18 @@ fn validate_target_index(
     }
 }
 
+pub(super) fn validate_ability_cost_target_references(
+    costs: &[AbilityCostDef],
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    for cost in costs {
+        if let AbilityCostDef::ManaValueOfTarget { target, .. } = cost {
+            validate_target_shape(*target, targets, RecipientExpectation::Object, true)?;
+        }
+    }
+    Ok(())
+}
+
 fn validate_object_reference(
     reference: ObjectRefDef,
     target_count: usize,

@@ -5,9 +5,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
     ControlDurationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, StackTargetKindDef,
-    TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, TokenStatsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -331,10 +330,11 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
                     AbilityCostDef::TapSource,
                 ],
                 &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::StackObject {
-                        object: ObjectPredicateDef::Any,
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Ability,
+                        zones: &[ZoneKind::Stack],
                         controller: Some(PlayerRelation::You),
-                        kind: StackTargetKindDef::AbilityOnly,
+                        owner: None,
                     },
                 )],
                 EffectDef::CopyStackObject(&LITHOFORM_RETARGET_COPY),
@@ -347,9 +347,12 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
                 ],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
                         ]),
                         zones: &[ZoneKind::Stack],
                         controller: Some(PlayerRelation::You),
@@ -366,12 +369,15 @@ pub(in crate::card::sets) static LITHOFORM_ENGINE: CardRecord = CardRecord::new(
                 ],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Enchantment),
-                            ObjectPredicateDef::HasType(CardType::Land),
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Artifact),
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Enchantment),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
                         ]),
                         zones: &[ZoneKind::Stack],
                         controller: Some(PlayerRelation::You),

@@ -3,13 +3,14 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     CardArt, CardBehavior, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, DamageCoverageDef, DamageEventMatcherDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor,
+    ChangeStackTargetsDef, ComparisonDef, DamageCoverageDef, DamageEventMatcherDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor,
     ManaTypeSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, RoundingDef,
-    SacrificedAmountDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    SacrificedAmountDef, StackTargetChangeDef, TargetChooserDef, TargetPredicate,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -2298,13 +2299,42 @@ pub(in crate::card::sets) static NECROPOLIS: CardRecord = CardRecord::new(
 );
 
 // DRK 106 — Reflecting Mirror
-// Audit: metadata-only — Needs a stack-spell target-change effect plus an activation cost derived from twice that spell's mana value.
 pub(in crate::card::sets) static REFLECTING_MIRROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d551ff93-d8da-4c21-bc3c-6451c0dde07e"),
     "Reflecting Mirror",
     crate::card::CardArt::new("d551ff93-d8da-4c21-bc3c-6451c0dde07e", "Mark Poole"),
     crate::card::CardSet::TheDark,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
+        "{X}, {T}: Change the target of target spell with a single target if that target is you. The new target must be a player. X is twice the mana value of that spell.",
+        &[
+            AbilityCostDef::ManaValueOfTarget {
+                target: TargetIndex::PRIMARY,
+                multiplier: 2,
+            },
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::DeclaredTargetCount {
+                    minimum: 1,
+                    maximum: 1,
+                },
+                ObjectPredicateDef::HasDeclaredPlayerTarget(PlayerRelation::You),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            chooser: PlayerRefDef::EffectController,
+            change: StackTargetChangeDef::ChooseNew {
+                optional: false,
+                restriction: Some(TargetPredicate::Player),
+            },
+        }),
+    )),
 );
 
 // DRK 107 — Runesword

@@ -15,8 +15,19 @@ use super::{
     ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
     PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
-    TriggerContext, ValueDef, ZoneKind, extra_target_cost,
+    TargetSlotId, TriggerContext, ValueDef, ZoneKind, extra_target_cost,
 };
+
+#[derive(Clone, Copy)]
+struct AbilityManaRequest<'a> {
+    player: PlayerId,
+    source: GameObjectId,
+    ability: AbilityOrigin,
+    targets: &'a [TargetSelection],
+    cost_objects: &'a [GameObjectId],
+    x: u16,
+    mana_payment: Option<&'a ManaPaymentChoice>,
+}
 
 impl Game {
     /// Returns the mana sources the engine's default payment policy would tap
@@ -171,18 +182,20 @@ impl Game {
             Action::ActivateAbility {
                 source,
                 ability,
+                targets,
                 cost_objects,
                 x,
                 mana_payment,
                 ..
-            } => self.ability_mana_requirement(
+            } => self.ability_mana_requirement(AbilityManaRequest {
                 player,
-                *source,
-                *ability,
+                source: *source,
+                ability: *ability,
+                targets,
                 cost_objects,
-                *x,
-                mana_payment.as_deref(),
-            ),
+                x: *x,
+                mana_payment: mana_payment.as_deref(),
+            }),
             _ => None,
         }
     }
@@ -229,15 +242,19 @@ impl Game {
 
     /// The mana half of an activation cost, and how the payment should treat
     /// the ability's own source.
-    pub(super) fn ability_mana_requirement(
+    fn ability_mana_requirement(
         &self,
-        player: PlayerId,
-        source: GameObjectId,
-        ability: AbilityOrigin,
-        cost_objects: &[GameObjectId],
-        x: u16,
-        mana_payment: Option<&ManaPaymentChoice>,
+        request: AbilityManaRequest<'_>,
     ) -> Option<(ManaCost, u16, ManaPlanOptions, ManaPaymentPurpose)> {
+        let AbilityManaRequest {
+            player,
+            source,
+            ability,
+            targets,
+            cost_objects,
+            x,
+            mana_payment,
+        } = request;
         if let Some(card) = self.players[player.index()]
             .hand
             .iter()
@@ -311,7 +328,7 @@ impl Game {
                 animates_source,
             );
             return self
-                .activated_ability_mana_cost_for(&definition, cost_objects)
+                .activated_ability_mana_cost_for(&definition, targets, cost_objects)
                 .map(|cost| {
                     (
                         Self::announced_mana_cost(

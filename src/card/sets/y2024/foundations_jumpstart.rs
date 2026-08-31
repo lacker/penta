@@ -221,7 +221,14 @@ pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. If that spell is countered this way, put it into its owner's hand \
          instead of into that player's graveyard.\nDraw a card.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         // The countered card goes to its owner's hand rather than their graveyard,
         // which the counter effect's own destination says. The draw is a second
         // clause and happens whether or not the counter found anything to do.

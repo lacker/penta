@@ -8,7 +8,6 @@ use super::{
     ManaCost, NonbattlefieldAbilityGrant, ObjectCharacteristics, PendingDecision, PlayerId,
     ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TargetSlotId,
     TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement, flatten_target_selections,
-    target_combinations,
 };
 use crate::card::{
     AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,

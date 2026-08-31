@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, BasicLandType, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -16,7 +16,14 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_l
     CardSet::PlanarChaos,
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {1}.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         abilities::counter_target_unless_paid(ValueDef::Constant(1)),
     )),
 );

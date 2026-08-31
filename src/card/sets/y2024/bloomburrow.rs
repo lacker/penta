@@ -53,9 +53,12 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
                 // is being cast at you.
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Instant),
-                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
                         ]),
                         zones: &[ZoneKind::Stack],
                         controller: Some(PlayerRelation::You),

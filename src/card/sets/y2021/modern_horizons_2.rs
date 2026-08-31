@@ -140,7 +140,14 @@ pub(in crate::card::sets) static LOSE_FOCUS: CardRecord = CardRecord::new(
         abilities::replicate(mana_cost!("{U}")),
         AbilityDef::spell_with_targets(
             "Counter target spell unless its controller pays {2}.",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             abilities::counter_target_unless_paid(ValueDef::Constant(2)),
         ),
         AbilityDef::triggered(
@@ -230,9 +237,12 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
                 // leaves a 3/3 behind.
                 &[AbilityTargetDef::up_to(
                     AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Planeswalker),
+                            ]),
                         ]),
                         zones: &[ZoneKind::Stack],
                         controller: None,

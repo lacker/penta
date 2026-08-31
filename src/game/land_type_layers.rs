@@ -506,6 +506,12 @@ impl Game {
             }),
             ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::Spell
+            | ObjectPredicateDef::Ability
+            | ObjectPredicateDef::ActivatedAbility
+            | ObjectPredicateDef::TriggeredAbility
+            | ObjectPredicateDef::DeclaredTargetCount { .. }
+            | ObjectPredicateDef::HasDeclaredTarget(_)
+            | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
             | ObjectPredicateDef::NoncreatureSpell
             | ObjectPredicateDef::Color(_)
             | ObjectPredicateDef::ColorCount(_)

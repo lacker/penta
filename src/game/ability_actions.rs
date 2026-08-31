@@ -388,6 +388,7 @@ impl Game {
                         // which is a legal way to pay it.
                         | AbilityCostDef::DiscardHand
                         | AbilityCostDef::ManaCostOf(_)
+                        | AbilityCostDef::ManaValueOfTarget { .. }
                         | AbilityCostDef::TapSource
                         // Always payable: what it spends is a future untap
                         // step, and the permanent has one whatever state it
@@ -628,7 +629,11 @@ impl Game {
                             }
                             for cost_objects in &cost_object_choices {
                                 let payable_mana_cost = self
-                                    .activated_ability_mana_cost_for(&definition, cost_objects)
+                                    .activated_ability_mana_cost_for(
+                                        &definition,
+                                        &selections,
+                                        cost_objects,
+                                    )
                                     .map(|cost| {
                                         self.activation_mana_cost(
                                             &definition,
@@ -636,11 +641,13 @@ impl Game {
                                             cost,
                                         )
                                     });
-                                if definition
-                                    .costs
-                                    .iter()
-                                    .any(|cost| matches!(cost, AbilityCostDef::ManaCostOf(_)))
-                                    && payable_mana_cost.is_none()
+                                if definition.costs.iter().any(|cost| {
+                                    matches!(
+                                        cost,
+                                        AbilityCostDef::ManaCostOf(_)
+                                            | AbilityCostDef::ManaValueOfTarget { .. }
+                                    )
+                                }) && payable_mana_cost.is_none()
                                 {
                                     continue;
                                 }

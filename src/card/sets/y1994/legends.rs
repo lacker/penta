@@ -1092,7 +1092,15 @@ pub(in crate::card::sets) static FLASH_COUNTER: CardRecord = CardRecord::new_wit
     CardSet::Legends,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target instant spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Instant)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Instant),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 
@@ -1139,7 +1147,14 @@ pub(in crate::card::sets) static FORCE_SPIKE: CardRecord = CardRecord::new_with_
     CardSet::Legends,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {1}.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         abilities::counter_target_unless_paid(ValueDef::Constant(1)),
     )),
 );
@@ -1420,7 +1435,15 @@ pub(in crate::card::sets) static REMOVE_SOUL: CardRecord = CardRecord::new_with_
     CardSet::Legends,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target creature spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Creature)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 

@@ -797,7 +797,14 @@ pub(in crate::card::sets) static VODALIAN_MAGE: CardRecord = CardRecord::new_wit
                 AbilityCostDef::Mana(mana_cost!("{U}")),
                 AbilityCostDef::TapSource,
             ],
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             abilities::counter_target_unless_paid(ValueDef::Constant(1)),
         ),
     ]),

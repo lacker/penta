@@ -774,8 +774,16 @@ pub(in crate::card::sets) static HALT_ORDER: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target artifact spell. Draw a card.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::HasType(CardType::Artifact),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {
@@ -1065,10 +1073,18 @@ pub(in crate::card::sets) static TURN_ASIDE: CardRecord = CardRecord::new(
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell that targets a permanent you control.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::ControlledBy(
-                PlayerRelation::You,
-            )),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::ControlledBy(
+                        PlayerRelation::You,
+                    )),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::counter_target(TargetIndex::PRIMARY),
     )),

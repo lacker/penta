@@ -120,6 +120,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
         | EffectDef::Counter { .. }
         | EffectDef::CopyStackObject(_)
+        | EffectDef::ChangeStackTargets(_)
         | EffectDef::CreateEmblem { .. }
         | EffectDef::CreateOngoingEffect(_)
         | EffectDef::CreateAttachedToken { .. }

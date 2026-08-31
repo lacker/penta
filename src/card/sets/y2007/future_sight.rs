@@ -2,12 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
-    ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
-    CounterKind, CreatureStats, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CounterKind, CreatureStats, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ReplacementConditionDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellResolutionDestinationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{ObjectBindingIndex, TargetIndex, mana_cost};
 
@@ -32,6 +33,43 @@ pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_wi
         )),
         abilities::suspend("Suspend 3—{2}{U}", 3, &mana_cost!("{2}{U}")),
     ]),
+);
+
+// FUT 46 — Venser, Shaper Savant
+pub(in crate::card::sets) static VENSER_SHAPER_SAVANT: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("0e84fc99-4045-4518-b588-512a675f2933"),
+    "Venser, Shaper Savant",
+    CardArt::new("0e84fc99-4045-4518-b588-512a675f2933", "Aleksi Briclot"),
+    CardSet::FutureSight,
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Wizard"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, return target spell or permanent to its owner's hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyOf(&[
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Spell,
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Any,
+                            zones: &[ZoneKind::Battlefield],
+                            controller: None,
+                            owner: None,
+                        },
+                    ]),
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // FUT 47 — Venser's Diffusion
@@ -470,6 +508,7 @@ pub(in crate::card::sets) static HORIZON_CANOPY: CardRecord = CardRecord::new_wi
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &REALITY_STROBE,
+    &VENSER_SHAPER_SAVANT,
     &VENSERS_DIFFUSION,
     &NARCOMOEBA,
     &SHIMIAN_SPECTER,

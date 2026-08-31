@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet,
-    CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TokenCharacteristics, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
+    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    ColorSet, ComparisonDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellCastQueryDef, TokenCharacteristics,
+    TriggerConditionDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -146,6 +147,60 @@ pub(in crate::card::sets) static JACE_THE_MIND_SCULPTOR: CardRecord =
                 ),
             ]),
     );
+
+// WWK 87 — Ricochet Trap
+pub(in crate::card::sets) static RICOCHET_TRAP: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5d782375-9192-4ed0-bd79-f3404e5a1b01"),
+    "Ricochet Trap",
+    CardArt::new(
+        "5d782375-9192-4ed0-bd79-f3404e5a1b01",
+        "Jaime Jones",
+    ),
+    CardSet::Worldwake,
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_subtypes(&["Trap"]).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{R}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent cast a blue spell this turn, you may pay {R} rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+            left: ValueDef::CountSpellsCastThisTurn(&SpellCastQueryDef {
+                player: PlayerRelation::Opponent,
+                spell: ObjectPredicateDef::Color(ManaColor::Blue),
+            }),
+            comparison: ComparisonDef::GreaterOrEqual,
+            right: ValueDef::Constant(1),
+        })),
+        AbilityDef::spell_with_targets(
+            "Change the target of target spell with a single target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::DeclaredTargetCount {
+                            minimum: 1,
+                            maximum: 1,
+                        },
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: None,
+                },
+            }),
+        ),
+    ]),
+);
 
 // WWK 118 — Wolfbriar Elemental
 pub(in crate::card::sets) static WOLFBRIAR_ELEMENTAL: CardRecord = CardRecord::new(
@@ -321,6 +376,7 @@ pub(in crate::card::sets) static QUICKSAND: CardRecord = CardRecord::new(
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STONEFORGE_MYSTIC,
     &JACE_THE_MIND_SCULPTOR,
+    &RICOCHET_TRAP,
     &WOLFBRIAR_ELEMENTAL,
     &EVERFLOWING_CHALICE,
     &CELESTIAL_COLONNADE,

@@ -6,8 +6,8 @@
 
 use super::{
     AbilityTargetDef, AbilityTargetPredicate, CardInstance, CardType, CharacteristicContext, Game,
-    GameObjectId, ObjectPredicateDef, PlayerId, PlayerRelation, StackObjectKind,
-    StackTargetKindDef, Target, TargetSelection, TriggerContext, ZoneKind,
+    GameObjectId, ObjectPredicateDef, PlayerId, PlayerRelation, StackObjectKind, Target,
+    TargetSelection, TriggerContext, ZoneKind,
 };
 
 /// The two player identities target selection needs. Printed relations such
@@ -483,42 +483,6 @@ impl Game {
                 context,
                 source_is_spell,
             ),
-            // Spells and abilities alike, which is the whole difference from
-            // the stack-zone object slot above.
-            AbilityTargetPredicate::StackObject {
-                object,
-                controller: controller_relation,
-                kind,
-            } => self
-                .stack
-                .iter()
-                .filter_map(|stack_object| {
-                    if kind == StackTargetKindDef::AbilityOnly
-                        && stack_object.kind == StackObjectKind::Spell
-                    {
-                        return None;
-                    }
-                    let characteristics = self.stack_object_event_object(stack_object)?;
-                    (controller_relation.is_none_or(|relation| {
-                        self.player_relation_matches(
-                            stack_object.controller,
-                            relation,
-                            actors.chooser,
-                            context,
-                        )
-                    }) && self.trigger_object_matches_for_controller(
-                        object,
-                        &characteristics,
-                        source,
-                        true,
-                        // The player choosing targets, which is who "a land
-                        // you control" is measured from. A spell still in
-                        // hand has no controller to derive it from.
-                        Some(actors.chooser),
-                    ))
-                    .then_some(Target::Spell(stack_object.id))
-                })
-                .collect(),
         }
     }
 
@@ -657,25 +621,28 @@ impl Game {
         }
         if zones.contains(&ZoneKind::Stack) {
             targets.extend(self.stack.iter().filter_map(|stack_object| {
-                let characteristics = self.stack_trigger_event_object(stack_object)?;
-                (stack_object.kind == StackObjectKind::Spell
-                    && controller_relation.is_none_or(|relation| {
-                        self.player_relation_matches(
-                            stack_object.controller,
-                            relation,
-                            actors.chooser,
-                            context,
-                        )
-                    })
-                    && owner_relation.is_none_or(|relation| {
-                        self.player_relation_matches(
-                            stack_object.card.owner,
-                            relation,
-                            actors.chooser,
-                            context,
-                        )
-                    })
-                    && self.trigger_object_matches(object, &characteristics, source, true))
+                let characteristics = self.stack_object_event_object(stack_object)?;
+                (controller_relation.is_none_or(|relation| {
+                    self.player_relation_matches(
+                        stack_object.controller,
+                        relation,
+                        actors.chooser,
+                        context,
+                    )
+                }) && owner_relation.is_none_or(|relation| {
+                    self.player_relation_matches(
+                        stack_object.card.owner,
+                        relation,
+                        actors.chooser,
+                        context,
+                    )
+                }) && self.trigger_object_matches_for_controller(
+                    object,
+                    &characteristics,
+                    source,
+                    stack_object.kind == StackObjectKind::Spell,
+                    Some(actors.chooser),
+                ))
                 .then_some(Target::Spell(stack_object.id))
             }));
         }

@@ -417,6 +417,12 @@ pub(super) enum DecisionContinuation {
         spell: StackObject,
         target_lists: Vec<Vec<TargetSelection>>,
     },
+    /// A resolving effect has enumerated legal replacement targets for an
+    /// existing stack object and is waiting for the chooser to select one.
+    ChangeStackTargets {
+        object: GameObjectId,
+        target_lists: Vec<Vec<TargetSelection>>,
+    },
     RecallDiscard {
         player: PlayerId,
     },

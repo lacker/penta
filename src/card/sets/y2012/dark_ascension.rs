@@ -665,8 +665,16 @@ pub(in crate::card::sets) static BONE_TO_ASH: CardRecord = CardRecord::new_with_
     CardSet::DarkAscension,
     CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target creature spell.\nDraw a card.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::HasType(CardType::Creature),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {

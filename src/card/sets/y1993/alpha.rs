@@ -1089,7 +1089,15 @@ pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::
         &[
             AbilityDef::counter_target(
                 "Counter target red spell",
-                &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Red)),
+                &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                }),
             ),
             AbilityDef::destroy_target(
                 "Destroy target red permanent",
@@ -1659,9 +1667,17 @@ pub(in crate::card::sets) static SPELL_BLAST: CardRecord = CardRecord::new_with_
     CardRules::new_instant(mana_cost!("{X}{U}")).with_abilities(&[
         AbilityDef::counter_target(
             "Counter target spell with mana value X. (For example, if that spell's mana cost is {3}{U}{U}, X is 5.)",
-            &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::ManaValueEqualTo(
+            &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+ObjectPredicateDef::Spell,
+ObjectPredicateDef::ManaValueEqualTo(
                 ValueDef::ChosenX,
-            )),
+            )
+]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            }),
         )
         .with_coverage(AbilityCoverageDef::partial(
             "A target spell's chosen X is omitted from its stack mana value.",
@@ -2121,8 +2137,16 @@ pub(in crate::card::sets) static DEATHGRIP: CardRecord = CardRecord::new_with_le
         AbilityDef::activated_with_targets(
             "{B}{B}: Counter target green spell.",
             &[AbilityCostDef::Mana(mana_cost!("{B}{B}"))],
-            &[AbilityTargetDef::exactly_one_spell(
-                ObjectPredicateDef::Color(ManaColor::Green),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
             )],
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3267,10 +3291,18 @@ pub(in crate::card::sets) static FORK: CardRecord = CardRecord::new_with_legacy_
     CardRules::new_instant(mana_cost!("{R}{R}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Copy target instant or sorcery spell, except that the copy is red. You may choose new targets for the copy.",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::AnyOf(&[
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+ObjectPredicateDef::Spell,
+ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Instant),
                 ObjectPredicateDef::HasType(CardType::Sorcery),
-            ]))],
+            ])
+]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 controller: PlayerRefDef::EffectController,
@@ -3575,7 +3607,15 @@ pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::n
         &[
             AbilityDef::counter_target(
                 "Counter target blue spell",
-                &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Blue)),
+                &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                }),
             ),
             AbilityDef::destroy_target(
                 "Destroy target blue permanent",
@@ -4406,8 +4446,16 @@ pub(in crate::card::sets) static LIFEFORCE: CardRecord = CardRecord::new_with_le
         AbilityDef::activated_with_targets(
             "{G}{G}: Counter target black spell.",
             &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
-            &[AbilityTargetDef::exactly_one_spell(
-                ObjectPredicateDef::Color(ManaColor::Black),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
             )],
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

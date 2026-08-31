@@ -26,7 +26,13 @@ pub(super) fn object_predicate_implies(
                     .copied()
                     .all(|predicate| object_predicate_implies(predicate, expected))
         }
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
@@ -91,7 +97,13 @@ pub(super) fn predicate_color(predicate: ObjectPredicateDef) -> Option<ManaColor
     match predicate {
         ObjectPredicateDef::Color(color) => Some(color),
         ObjectPredicateDef::All(predicates) => predicates.iter().copied().find_map(predicate_color),
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
@@ -158,7 +170,13 @@ pub(super) fn predicate_color_count(predicate: ObjectPredicateDef) -> Option<u8>
         ObjectPredicateDef::All(predicates) => {
             predicates.iter().copied().find_map(predicate_color_count)
         }
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
@@ -225,7 +243,13 @@ pub(super) fn predicate_subtype(predicate: ObjectPredicateDef) -> Option<&'stati
         ObjectPredicateDef::All(predicates) => {
             predicates.iter().copied().find_map(predicate_subtype)
         }
-        ObjectPredicateDef::Named(_)
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Named(_)
         | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
@@ -296,7 +320,13 @@ pub(super) fn predicate_negated_subtype(predicate: ObjectPredicateDef) -> Option
             .iter()
             .copied()
             .find_map(predicate_negated_subtype),
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
@@ -367,7 +397,13 @@ pub(super) fn predicate_power_at_least(predicate: ObjectPredicateDef) -> Option<
             .iter()
             .copied()
             .find_map(predicate_power_at_least),
-        ObjectPredicateDef::ToughnessExactly(_)
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::ToughnessExactly(_)
         | ObjectPredicateDef::TotalPowerAndToughnessAtMost(_)
         | ObjectPredicateDef::ToughnessLessThan(_)
         | ObjectPredicateDef::PowerGreaterThan(_)
@@ -434,7 +470,13 @@ pub(super) fn predicate_mana_value_at_most(predicate: ObjectPredicateDef) -> Opt
             .iter()
             .copied()
             .find_map(predicate_mana_value_at_most),
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::Tapped
@@ -501,8 +543,14 @@ pub(super) fn predicate_controller(predicate: ObjectPredicateDef) -> Option<Play
         ObjectPredicateDef::All(predicates) => {
             predicates.iter().copied().find_map(predicate_controller)
         }
+        ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         // Owning a card is not controlling it, so it names no controller.
-        ObjectPredicateDef::OwnedBy(_)
+        | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token

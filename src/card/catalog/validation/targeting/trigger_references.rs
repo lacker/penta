@@ -64,6 +64,12 @@ fn validate_trigger_object_predicate(
             }
         }
         ObjectPredicateDef::HasAbility(_)
+        | ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::ControlledBy(
             PlayerRelation::ChosenPlayer | PlayerRelation::EventPlayer,
         )
@@ -138,6 +144,12 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)

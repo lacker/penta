@@ -426,7 +426,14 @@ pub(in crate::card::sets) static MISCALCULATION: CardRecord = CardRecord::new_wi
     CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
         AbilityDef::spell_with_targets(
             "Counter target spell unless its controller pays {2}.",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             abilities::counter_target_unless_paid(ValueDef::Constant(2)),
         ),
         abilities::cycling(

@@ -1,7 +1,10 @@
 use std::collections::HashSet;
 
 use super::program_context::validate_ability_effect_context;
-use super::targeting::{validate_ability_program_targets, validate_ability_trigger_event};
+use super::targeting::{
+    validate_ability_cost_target_references, validate_ability_program_targets,
+    validate_ability_trigger_event,
+};
 use crate::card::catalog::{
     CatalogError, GrantedAbilityValidationError, MismatchedAdditionalCost,
     MismatchedAlternativeCost,
@@ -593,6 +596,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
     }
     if let DeclarativeAbilityDef::Activated(activated) = ability.definition {
         validate_activated_target_choosers(activated.targets)?;
+        validate_ability_cost_target_references(activated.costs.as_slice(), targets)?;
     }
     if ability.is_executable() {
         validate_triggered_ability_shape(ability, targets.len())?;

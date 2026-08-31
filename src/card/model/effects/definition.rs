@@ -223,6 +223,8 @@ pub enum EffectDef {
     },
     /// Copies one or more named spells or abilities on the stack.
     CopyStackObject(&'static CopyStackObjectDef),
+    /// Changes the locked targets of one spell or ability on the stack.
+    ChangeStackTargets(&'static ChangeStackTargetsDef),
     /// Gives its controller an emblem, an object that sits outside every
     /// zone and does nothing but carry its abilities.
     CreateEmblem {

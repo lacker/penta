@@ -8,7 +8,7 @@ use super::super::{
     AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardTypeSet,
     ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, ValueDef, ZoneKind,
+    ResolvedEffectDurationDef, TargetPredicate, ValueDef, ZoneKind,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 
@@ -260,6 +260,38 @@ pub struct CopyStackObjectDef {
     pub retarget: bool,
     /// A copy-process color override. Fork is the canonical case.
     pub colors: Option<ColorSet>,
+}
+
+/// One target-changing operation over a spell or ability already on the stack.
+///
+/// Kept behind a static reference in [`EffectDef`] for the same reason as
+/// [`CopyStackObjectDef`]: the ordinary effect stays small while the uncommon
+/// stack procedure carries its complete semantics beside the card that uses it.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ChangeStackTargetsDef {
+    /// The spell or ability whose locked targets may change.
+    pub object: EffectRecipientDef,
+    /// Who makes any choice the change requires.
+    pub chooser: PlayerRefDef,
+    pub change: StackTargetChangeDef,
+}
+
+/// How a target-changing effect edits the locked target selections.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum StackTargetChangeDef {
+    /// Choose a legal replacement configuration for any number of the
+    /// object's targets. `optional` is the printed "may": when false, the
+    /// unchanged configuration is not offered if any change is possible.
+    ChooseNew {
+        optional: bool,
+        /// An extra restriction on each target that actually changes. The
+        /// original stack object's own slot restriction is always enforced
+        /// first. Rebound uses this to require the new target to be a player.
+        restriction: Option<TargetPredicate>,
+    },
+    /// Change exactly one target occurrence to the named object if that
+    /// object is legal for the original slot. Spellskite is this shape.
+    ReplaceOneWith(EffectRecipientDef),
 }
 
 /// What follows a destruction, with the permanents actually put into graveyards saved for it.

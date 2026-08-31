@@ -302,6 +302,16 @@ fn continuation_snapshot(
                 .map(|targets| targets.iter().map(target_selection_snapshot).collect())
                 .collect(),
         },
+        DecisionContinuation::ChangeStackTargets {
+            object,
+            target_lists,
+        } => DecisionContinuationSnapshot::ChangeStackTargets {
+            object: object.0,
+            target_lists: target_lists
+                .iter()
+                .map(|targets| targets.iter().map(target_selection_snapshot).collect())
+                .collect(),
+        },
         DecisionContinuation::Endure {
             player,
             permanent,

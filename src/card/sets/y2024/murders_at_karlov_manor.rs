@@ -127,7 +127,14 @@ pub(in crate::card::sets) static NO_MORE_LIES: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{W}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {3}. If that spell is countered this \
          way, exile it instead of putting it into its owner's graveyard.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         abilities::counter_target_to_exile_unless_paid(ValueDef::Constant(3)),
     )),
 );

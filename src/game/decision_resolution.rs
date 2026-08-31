@@ -362,6 +362,17 @@ impl Game {
                     );
                 }
             }
+            DecisionContinuation::ChangeStackTargets {
+                object,
+                target_lists,
+            } => {
+                if let Some(option) = options.first().copied()
+                    && let Some(targets) =
+                        target_lists.get(usize::try_from(option).unwrap_or(usize::MAX))
+                {
+                    self.change_stack_targets(object, targets);
+                }
+            }
             DecisionContinuation::ExploredCardPlacement { player, revealed } => {
                 self.place_explored_card(player, revealed, options.contains(&1));
             }

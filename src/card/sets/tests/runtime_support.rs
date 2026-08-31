@@ -49,6 +49,12 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
@@ -748,6 +754,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::Counter { .. }
                     | EffectDef::PutSpellIntoOwnersLibrary { .. }
                     | EffectDef::CopyStackObject(_)
+                    | EffectDef::ChangeStackTargets(_)
                     | EffectDef::AddCounters { .. }
                     | EffectDef::ChooseCounterKind { .. }
                     | EffectDef::ChooseEffect { .. }

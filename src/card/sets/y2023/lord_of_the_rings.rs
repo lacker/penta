@@ -127,7 +127,14 @@ pub(in crate::card::sets) static REPRIEVE: CardRecord = CardRecord::new_with_leg
     CardSet::LordOfTheRings,
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Return target spell to its owner's hand.\nDraw a card.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         // Returning the spell is not countering it, so a spell that cannot be
         // countered is answered all the same -- and its controller keeps the card,
         // which is the price. Drawing pays for the tempo either way.
@@ -181,13 +188,21 @@ pub(in crate::card::sets) static STERN_SCOLDING: CardRecord = CardRecord::new_wi
         // "Power or toughness 2 or less" is a disjunction, not a pair of bounds: a
         // 5/1 is small enough and a 1/5 is too. Written as "less than 3" because
         // that is the comparison the predicate offers.
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
-                ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                        ObjectPredicateDef::ToughnessLessThan(ValueDef::Constant(3)),
+                    ]),
+                ]),
             ]),
-        ])),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 

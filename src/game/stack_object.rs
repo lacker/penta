@@ -147,6 +147,41 @@ impl ScopedEffect {
 }
 
 impl StackObject {
+    fn target_selections(&self) -> &[TargetSelection] {
+        self.signature.as_ref().map_or_else(
+            || {
+                self.ability
+                    .as_ref()
+                    .map(|ability| ability.targets.as_slice())
+                    .unwrap_or_default()
+            },
+            CastSignature::targets,
+        )
+    }
+
+    fn replace_target_selections(
+        &mut self,
+        targets: &[TargetSelection],
+    ) -> Result<(), crate::casting::TargetReplacementError> {
+        let signature = self
+            .signature
+            .as_ref()
+            .map(|signature| signature.with_replaced_targets(targets.to_vec()))
+            .transpose()?;
+        let ability_targets = self
+            .ability
+            .as_ref()
+            .map(|ability| {
+                CastSignature::target_shape_replacement(&ability.targets, targets.to_vec())
+            })
+            .transpose()?;
+        self.signature = signature;
+        if let (Some(ability), Some(targets)) = (&mut self.ability, ability_targets) {
+            ability.targets = targets;
+        }
+        Ok(())
+    }
+
     fn iter_targets(&self) -> impl Iterator<Item = &Target> {
         self.signature
             .iter()

@@ -5,8 +5,8 @@ use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, DrawEventMatcherDef, EffectDef,
     EffectRecipientDef, GraveyardPlayPermissionDef, InstalledTriggerDef, ObjectPredicateDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, StackTargetKindDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -263,10 +263,11 @@ pub(in crate::card::sets) static ERTAI_RESURRECTED: CardRecord = CardRecord::new
                     // there is: mana abilities never use the stack, so the wider slot needs no
                     // clause excluding them.
                     &[AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::StackObject {
+                        AbilityTargetPredicate::Object {
                             object: ObjectPredicateDef::Any,
+                            zones: &[ZoneKind::Stack],
                             controller: None,
-                            kind: StackTargetKindDef::SpellOrAbility,
+                            owner: None,
                         },
                     )],
                     EffectDef::Sequence(&[

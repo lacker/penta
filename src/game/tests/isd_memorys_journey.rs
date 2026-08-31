@@ -167,6 +167,25 @@ fn journey_copy_retargeting_preserves_the_player_graveyard_link() {
     assert!(has_pair(PlayerId::One, ours.id));
     assert!(has_pair(PlayerId::Two, theirs.id));
     assert!(!has_pair(PlayerId::One, theirs.id));
+    assert!(
+        !has_pair(PlayerId::Two, ours.id),
+        "changing the player cannot make an unchanged legal card target illegal",
+    );
+
+    game.players[0]
+        .graveyard
+        .retain(|candidate| candidate.id != ours.id);
+    let choices = game.copy_target_choices(
+        game.stack.last().expect("Journey remains on the stack"),
+        PlayerId::One,
+    );
+    assert!(
+        choices.iter().any(|targets| {
+            targets[0].targets() == [Target::Player(PlayerId::Two)]
+                && targets[1].targets() == [Target::Card(ours.id)]
+        }),
+        "an already-illegal target may remain unchanged while another target changes"
+    );
 }
 
 #[test]

@@ -3532,13 +3532,35 @@ pub(in crate::card::sets) static STAFF_OF_THE_WILD_MAGUS: CardRecord =
     );
 
 // M14 224 — Strionic Resonator
-// Audit: metadata-only — Triggered abilities are not targetable stack objects and cannot be copied or retargeted declaratively.
 pub(in crate::card::sets) static STRIONIC_RESONATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94d1fc0f-5c8b-4e47-aaf8-8888c025f70f"),
     "Strionic Resonator",
     crate::card::CardArt::new("94d1fc0f-5c8b-4e47-aaf8-8888c025f70f", "Noah Bradley"),
     crate::card::CardSet::Magic2014,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Copy target triggered ability you control. You may choose new targets for the copy. (A triggered ability uses the words \"when,\" \"whenever,\" or \"at.\")",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::TriggeredAbility,
+                    zones: &[ZoneKind::Stack],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ),
+    ),
 );
 
 // M14 225 — Trading Post (reprint)

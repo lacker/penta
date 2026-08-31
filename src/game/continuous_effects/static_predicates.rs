@@ -71,6 +71,14 @@ impl Game {
             ObjectPredicateDef::Tapped => Some(affected.tapped),
             ObjectPredicateDef::WasDealtDamageThisTurn => Some(affected.was_dealt_damage_this_turn),
             ObjectPredicateDef::DealtDamageThisTurn => Some(affected.dealt_damage_this_turn),
+            ObjectPredicateDef::Spell
+            | ObjectPredicateDef::NoncreatureSpell
+            | ObjectPredicateDef::Ability
+            | ObjectPredicateDef::ActivatedAbility
+            | ObjectPredicateDef::TriggeredAbility
+            | ObjectPredicateDef::DeclaredTargetCount { .. }
+            | ObjectPredicateDef::HasDeclaredTarget(_)
+            | ObjectPredicateDef::HasDeclaredPlayerTarget(_) => Some(false),
             ObjectPredicateDef::Unpaired => Some(affected.paired_with.is_none()),
             // Symmetric, so reading it off the source is the same answer.
             ObjectPredicateDef::PairedWithSource => {
@@ -99,8 +107,6 @@ impl Game {
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
                 .map(|types| types.contains(card_type)),
-            // A static recipient is a permanent, never a spell.
-            ObjectPredicateDef::Spell | ObjectPredicateDef::NoncreatureSpell => Some(false),
             ObjectPredicateDef::Color(color) => {
                 let rules = self.effective_rules(affected)?;
                 let colors = self.effective_colors(affected, &rules);
@@ -181,6 +187,14 @@ impl Game {
             | ObjectPredicateDef::PairedWithSource
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
+            | ObjectPredicateDef::Spell
+            | ObjectPredicateDef::NoncreatureSpell
+            | ObjectPredicateDef::Ability
+            | ObjectPredicateDef::ActivatedAbility
+            | ObjectPredicateDef::TriggeredAbility
+            | ObjectPredicateDef::DeclaredTargetCount { .. }
+            | ObjectPredicateDef::HasDeclaredTarget(_)
+            | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
             | ObjectPredicateDef::Special(_) => None,
         }
     }

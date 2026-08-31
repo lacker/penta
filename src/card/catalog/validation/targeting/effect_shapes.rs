@@ -427,6 +427,13 @@ fn validate_effect_target_shapes(
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_shape(copy.object, targets, RecipientExpectation::Object)
         }
+        EffectDef::ChangeStackTargets(change) => {
+            validate_recipient_shape(change.object, targets, RecipientExpectation::Object)?;
+            if let crate::card::StackTargetChangeDef::ReplaceOneWith(replacement) = change.change {
+                validate_recipient_shape(replacement, targets, RecipientExpectation::Any)?;
+            }
+            Ok(())
+        }
         EffectDef::Destroy {
             object,
             then: Some(follow_up),

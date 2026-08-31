@@ -104,7 +104,6 @@ fn target_matches_expectation(
         RecipientExpectation::Object => matches!(
             predicate,
             AbilityTargetPredicate::Object { .. }
-                | AbilityTargetPredicate::StackObject { .. }
                 | AbilityTargetPredicate::ControlledByTargetOf { .. }
                 | AbilityTargetPredicate::OwnedByTargetPlayer { .. }
         ),

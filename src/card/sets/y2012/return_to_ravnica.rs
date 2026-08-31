@@ -749,7 +749,12 @@ pub(in crate::card::sets) static CANCEL: CardRecord = CardRecord::new_with_legac
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Spell,
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 
@@ -838,7 +843,15 @@ pub(in crate::card::sets) static DISPEL: CardRecord = CardRecord::new_with_legac
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::counter_target(
         "Counter target instant spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Instant)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Instant),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 
@@ -3601,9 +3614,15 @@ pub(in crate::card::sets) static ESSENCE_BACKLASH: CardRecord = CardRecord::new_
     CardRules::new_instant(mana_cost!("{2}{U}{R}")).with_ability(
         AbilityDef::spell_with_targets(
             "Counter target creature spell. Essence Backlash deals damage equal to that spell's power to its controller.",
-            &[AbilityTargetDef::exactly_one_spell(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::Sequence(&[
                 EffectDef::Counter {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3630,7 +3649,14 @@ pub(in crate::card::sets) static FALL_OF_THE_GAVEL: CardRecord = CardRecord::new
     CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{3}{W}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. You gain 5 life.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Sequence(&[
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -3841,9 +3867,16 @@ pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new_with_
         AbilityDef::choose_one_spell(
             "Choose one —\n• Counter target noncreature spell unless its controller pays {2}.\n• Izzet Charm deals 2 damage to target creature.\n• Draw two cards, then discard two cards.",
             &[
-                AbilityDef::spell_with_targets("Counter a noncreature spell unless its controller pays {2}", &[AbilityTargetDef::exactly_one_spell(
-                    ObjectPredicateDef::NoncreatureSpell,
-                )], abilities::counter_target_unless_paid(ValueDef::Constant(2))),
+                AbilityDef::spell_with_targets(
+                    "Counter a noncreature spell unless its controller pays {2}",
+                    &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::NoncreatureSpell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    })],
+                    abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+                ),
                 AbilityDef::spell_with_targets("Deal 2 damage to a creature", &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )], EffectDef::DealDamage {
@@ -4954,10 +4987,18 @@ pub(in crate::card::sets) static JUDGES_FAMILIAR: CardRecord = CardRecord::new_w
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Counter target instant or sorcery spell unless its controller pays {1}.",
             &[AbilityCostDef::SacrificeSource],
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::AnyOf(&[
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+ObjectPredicateDef::Spell,
+ObjectPredicateDef::AnyOf(&[
                 ObjectPredicateDef::HasType(CardType::Instant),
                 ObjectPredicateDef::HasType(CardType::Sorcery),
-            ]))],
+            ])
+]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             abilities::counter_target_unless_paid(ValueDef::Constant(1)),
         ),
     ]),

@@ -1540,7 +1540,12 @@ pub(in crate::card::sets) static DISSIPATE: CardRecord = CardRecord::new_with_le
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_ability(
         AbilityDef::spell_with_targets(
             "Counter target spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard.",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Exile,
@@ -1608,7 +1613,14 @@ pub(in crate::card::sets) static FRIGHTFUL_DELUSION: CardRecord = CardRecord::ne
     CardSet::Innistrad,
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {1}. That player discards a card.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         EffectDef::Sequence(&[
             abilities::counter_target_unless_paid(ValueDef::Constant(1)),
             EffectDef::Discard {
@@ -1725,7 +1737,12 @@ pub(in crate::card::sets) static LOST_IN_THE_MIST: CardRecord = CardRecord::new_
     CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. Return target permanent to its owner's hand.",
         &[
-            AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            }),
             AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
         ],
         EffectDef::Sequence(&[

@@ -516,6 +516,7 @@ impl HandcraftedPolicy {
             | EffectDef::LoseTheGame { .. }
             | EffectDef::WinTheGame { .. }
             | EffectDef::CopyStackObject(_)
+            | EffectDef::ChangeStackTargets(_)
             | EffectDef::None
             | EffectDef::AddMana(_)
             | EffectDef::AddManaEqualTo { .. }

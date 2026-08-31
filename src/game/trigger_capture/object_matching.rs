@@ -352,6 +352,49 @@ impl Game {
         }
     }
 
+    fn stack_state_predicate_matches(
+        &self,
+        predicate: ObjectPredicateDef,
+        object: GameObjectId,
+        controller: Option<PlayerId>,
+    ) -> bool {
+        self.stack
+            .iter()
+            .find(|candidate| candidate.id == object)
+            .is_some_and(|stack_object| match predicate {
+                ObjectPredicateDef::Ability => {
+                    stack_object.kind != crate::game::StackObjectKind::Spell
+                }
+                ObjectPredicateDef::ActivatedAbility => {
+                    stack_object.kind == crate::game::StackObjectKind::ActivatedAbility
+                }
+                ObjectPredicateDef::TriggeredAbility => {
+                    stack_object.kind == crate::game::StackObjectKind::TriggeredAbility
+                }
+                ObjectPredicateDef::DeclaredTargetCount { minimum, maximum } => {
+                    let count = stack_object.declared_targets().len();
+                    count >= usize::from(minimum) && count <= usize::from(maximum)
+                }
+                ObjectPredicateDef::HasDeclaredTarget(predicate) => stack_object
+                    .declared_targets()
+                    .iter()
+                    .any(|target| self.target_matches(predicate, *target)),
+                ObjectPredicateDef::HasDeclaredPlayerTarget(relation) => controller.is_some_and(
+                    |controller| {
+                        stack_object.declared_targets().iter().any(|target| {
+                            matches!(target, Target::Player(player) if self.player_relation_matches(
+                                *player,
+                                relation,
+                                controller,
+                                TriggerContext::empty(),
+                            ))
+                        })
+                    },
+                ),
+                _ => unreachable!("only live stack predicates arrive here"),
+            })
+    }
+
     /// Whether a spell or ability on the stack already targets something
     /// matching. Read off the targets it chose, not the ones it could have
     /// taken: "that targets a land you control" is about the object as it
@@ -456,6 +499,14 @@ impl Game {
             ObjectPredicateDef::Spell => is_spell,
             ObjectPredicateDef::NoncreatureSpell => {
                 is_spell && !object.types.contains(CardType::Creature)
+            }
+            ObjectPredicateDef::Ability
+            | ObjectPredicateDef::ActivatedAbility
+            | ObjectPredicateDef::TriggeredAbility
+            | ObjectPredicateDef::DeclaredTargetCount { .. }
+            | ObjectPredicateDef::HasDeclaredTarget(_)
+            | ObjectPredicateDef::HasDeclaredPlayerTarget(_) => {
+                self.stack_state_predicate_matches(predicate, object.id, controller)
             }
             ObjectPredicateDef::Color(color) => color
                 .color_index()

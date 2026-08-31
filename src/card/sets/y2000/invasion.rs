@@ -19,8 +19,8 @@ use crate::card::{
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
     ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, RevealObjectsDef, StackTargetKindDef, TriggerConditionDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -742,7 +742,7 @@ pub(in crate::card::sets) static PROHIBIT: CardRecord = CardRecord::new_with_leg
 );
 
 // INV 68 — Psychic Battle
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — The final target change is supported, but this still needs an event for choosing spell-or-ability targets, simultaneous top-card reveals by every player, and repeat-until-untied highest-mana-value selection.
 pub(in crate::card::sets) static PSYCHIC_BATTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8758ca24-e613-43bf-be58-4cf557f82d0c"),
     "Psychic Battle",
@@ -863,14 +863,15 @@ pub(in crate::card::sets) static TEFERIS_RESPONSE: CardRecord = CardRecord::new_
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell or ability an opponent controls that targets a land you control. If a permanent's ability is countered this way, destroy that permanent.\nDraw two cards.",
         &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::StackObject {
+            AbilityTargetPredicate::Object {
                 // A land you control, read off what the spell or ability already targets.
                 object: ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Land),
                     ObjectPredicateDef::ControlledBy(PlayerRelation::You),
                 ])),
+                zones: &[ZoneKind::Stack],
                 controller: Some(PlayerRelation::Opponent),
-                kind: StackTargetKindDef::SpellOrAbility,
+                owner: None,
             },
         )],
         // The destroy follows the counter rather than preceding it: the countered

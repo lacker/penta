@@ -595,13 +595,36 @@ pub(in crate::card::sets) static CLAIRVOYANCE: CardRecord = CardRecord::new(
 // ICE 64 — Counterspell (reprint)
 
 // ICE 65 — Deflection
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DEFLECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1005a00a-6a0e-44cb-abea-37e2e53125e2"),
     "Deflection",
     crate::card::CardArt::new("1005a00a-6a0e-44cb-abea-37e2e53125e2", "Mike Raabe"),
     crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the target of target spell with a single target.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            chooser: PlayerRefDef::EffectController,
+            change: crate::card::StackTargetChangeDef::ChooseNew {
+                optional: false,
+                restriction: None,
+            },
+        }),
+    )),
 );
 
 // ICE 66 — Dreams of the Dead
@@ -678,7 +701,15 @@ pub(in crate::card::sets) static HYDROBLAST: CardRecord = CardRecord::new_with_l
         &[
             AbilityDef::counter_target(
                 "Counter target spell if it's red",
-                &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Red)),
+                &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+ObjectPredicateDef::Spell,
+ObjectPredicateDef::Color(ManaColor::Red)
+]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                }),
             ),
             AbilityDef::destroy_target(
                 "Destroy target permanent if it's red",
@@ -2136,7 +2167,15 @@ pub(in crate::card::sets) static PYROBLAST: CardRecord = CardRecord::new_with_le
         &[
             AbilityDef::counter_target(
                 "Counter target spell if it's blue",
-                &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Blue)),
+                &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+ObjectPredicateDef::Spell,
+ObjectPredicateDef::Color(ManaColor::Blue)
+]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                }),
             ),
             AbilityDef::destroy_target(
                 "Destroy target permanent if it's blue",

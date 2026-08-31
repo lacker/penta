@@ -460,7 +460,15 @@ pub(in crate::card::sets) static ARTIFACT_BLAST: CardRecord = CardRecord::new_wi
     CardSet::Antiquities,
     CardRules::new_instant(mana_cost!("{R}")).with_abilities(&[AbilityDef::counter_target(
         "Counter target artifact spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Artifact)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )]),
 );
 

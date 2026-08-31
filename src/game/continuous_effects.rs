@@ -659,6 +659,7 @@ impl Game {
                 | EffectDef::Attach { .. }
                 | EffectDef::Counter { .. }
                 | EffectDef::CopyStackObject(_)
+                | EffectDef::ChangeStackTargets(_)
                 | EffectDef::AddCounters { .. }
                 | EffectDef::ChooseCounterKind { .. }
                 | EffectDef::ChooseEffect { .. }

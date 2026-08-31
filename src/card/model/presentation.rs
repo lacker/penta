@@ -95,6 +95,12 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::AttackedDuringControllersLastTurn
         | ObjectPredicateDef::HasType(_)
         | ObjectPredicateDef::Spell
+        | ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::NoncreatureSpell
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
@@ -273,6 +279,9 @@ fn semantic_object_target_subject(
     zones: &'static [ZoneKind],
     owner: Option<PlayerRelation>,
 ) -> String {
+    if zones == [ZoneKind::Stack] {
+        return semantic_stack_object_subject(object);
+    }
     if zones == [ZoneKind::Graveyard] {
         let subject = semantic_card_subject(object);
         let graveyard = match owner {
@@ -304,6 +313,20 @@ fn semantic_object_target_subject(
         [ZoneKind::Library] => format!("{subject} in a library"),
         [ZoneKind::Exile] => format!("{subject} in exile"),
         _ => subject,
+    }
+}
+
+fn semantic_stack_object_subject(object: ObjectPredicateDef) -> String {
+    if object_predicate_implies(object, ObjectPredicateDef::ActivatedAbility) {
+        "activated ability".into()
+    } else if object_predicate_implies(object, ObjectPredicateDef::TriggeredAbility) {
+        "triggered ability".into()
+    } else if object_predicate_implies(object, ObjectPredicateDef::Ability) {
+        "activated or triggered ability".into()
+    } else if object_predicate_implies(object, ObjectPredicateDef::Spell) {
+        object_target_subject(object, TargetPredicate::Spell)
+    } else {
+        "spell or ability".into()
     }
 }
 
@@ -440,9 +463,6 @@ fn presentation_target_predicate(predicate: AbilityTargetPredicate) -> Option<Ta
                 Some(TargetPredicate::Permanent)
             }
         }
-        // Presented as a spell slot: a client has no narrower kind, and the
-        // ability half is the rarer reading.
-        AbilityTargetPredicate::StackObject { .. } => Some(TargetPredicate::Spell),
         AbilityTargetPredicate::OwnedByTargetPlayer { .. }
         | AbilityTargetPredicate::Object { .. } => None,
     }
@@ -508,13 +528,6 @@ impl AbilityTargetDef {
                 let subject = object_target_subject(object, TargetPredicate::Permanent);
                 format!("target player who controls more {subject}s than they do")
             }
-            AbilityTargetPredicate::StackObject { controller, .. } => {
-                let mut label = "target spell or ability".to_string();
-                if let Some(relation) = controller {
-                    append_relation_suffix(&mut label, controller_suffix(relation));
-                }
-                label
-            }
             AbilityTargetPredicate::Object {
                 object,
                 zones,
@@ -522,10 +535,14 @@ impl AbilityTargetDef {
                 owner,
             } => {
                 let predicate = presentation_target_predicate(self.predicate);
-                let subject = predicate.map_or_else(
-                    || semantic_object_target_subject(object, zones, owner),
-                    |predicate| object_target_subject(object, predicate),
-                );
+                let subject = if zones == [ZoneKind::Stack] {
+                    semantic_stack_object_subject(object)
+                } else {
+                    predicate.map_or_else(
+                        || semantic_object_target_subject(object, zones, owner),
+                        |predicate| object_target_subject(object, predicate),
+                    )
+                };
                 let mut label = format!("target {subject}");
                 if predicate_negates(object, ObjectPredicateDef::Source) {
                     label.insert_str("target ".len(), "another ");

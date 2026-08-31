@@ -592,11 +592,19 @@ pub(in crate::card::sets) static FLASHFREEZE: CardRecord = CardRecord::new(
     crate::card::CardSet::Magic2012,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target red or green spell.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::AnyOf(&[
-                ObjectPredicateDef::Color(ManaColor::Red),
-                ObjectPredicateDef::Color(ManaColor::Green),
-            ]),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::Red),
+                        ObjectPredicateDef::Color(ManaColor::Green),
+                    ]),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Counter {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

@@ -517,6 +517,13 @@ fn validate_effect_references(
         EffectDef::CopyStackObject(copy) => {
             validate_recipient_target_references(copy.object, target_count, scope)
         }
+        EffectDef::ChangeStackTargets(change) => {
+            validate_recipient_target_references(change.object, target_count, scope)?;
+            if let crate::card::StackTargetChangeDef::ReplaceOneWith(replacement) = change.change {
+                validate_recipient_target_references(replacement, target_count, scope)?;
+            }
+            Ok(())
+        }
         EffectDef::Discard {
             recipient,
             amount,

@@ -11,8 +11,8 @@ use crate::card::{
     AttackRestrictionDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef,
     CostModificationDef, CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, StackTargetKindDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -479,7 +479,12 @@ pub(in crate::card::sets) static DECREE_OF_SILENCE: CardRecord = CardRecord::new
         AbilityDef::triggered_with_targets(
             "When you cycle this card, you may counter target spell.",
             TriggerEventDef::Cycled,
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Counter {
@@ -696,10 +701,11 @@ pub(in crate::card::sets) static STIFLE: CardRecord = CardRecord::new_with_legac
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target activated or triggered ability.",
         &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::StackObject {
-                object: ObjectPredicateDef::Any,
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Ability,
+                zones: &[ZoneKind::Stack],
                 controller: None,
-                kind: StackTargetKindDef::AbilityOnly,
+                owner: None,
             },
         )],
         EffectDef::Counter {

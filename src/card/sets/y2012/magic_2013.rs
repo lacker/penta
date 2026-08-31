@@ -977,7 +977,15 @@ pub(in crate::card::sets) static ESSENCE_SCATTER: CardRecord = CardRecord::new_w
     CardSet::Magic2013,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target creature spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::HasType(CardType::Creature)),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 
@@ -1194,9 +1202,15 @@ pub(in crate::card::sets) static NEGATE: CardRecord = CardRecord::new_with_legac
     CardSet::Magic2013,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::counter_target(
         "Counter target noncreature spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Not(
-            &ObjectPredicateDef::HasType(CardType::Creature),
-        )),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 
@@ -1220,13 +1234,30 @@ pub(in crate::card::sets) static OMNISCIENCE: CardRecord = CardRecord::new_with_
 );
 
 // M13 64 — Redirect
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REDIRECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("60bae44b-c6f2-40bf-a427-aee5cfbdfea9"),
     "Redirect",
     crate::card::CardArt::new("0eef8431-f63c-44e0-940c-e1a38c338214", "Izzy"),
     crate::card::CardSet::Magic2013,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "You may choose new targets for target spell.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            chooser: PlayerRefDef::EffectController,
+            change: crate::card::StackTargetChangeDef::ChooseNew {
+                optional: true,
+                restriction: None,
+            },
+        }),
+    )),
 );
 
 // M13 65 — Rewind (reprint)

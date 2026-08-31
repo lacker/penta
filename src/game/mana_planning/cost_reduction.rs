@@ -622,6 +622,29 @@ impl Game {
                     .len(),
             )
             .unwrap_or(u16::MAX),
+            ValueDef::IfMatchingObjectCount(condition) => {
+                let count = self
+                    .objects_matching_query(
+                        condition.query,
+                        player,
+                        source,
+                        TriggerContext::empty(),
+                    )
+                    .len();
+                let chosen = if crate::game::effect_support::compare(
+                    &count,
+                    condition.comparison,
+                    &usize::from(condition.amount),
+                ) {
+                    condition.then
+                } else {
+                    condition.otherwise
+                };
+                self.cost_reduction_value(chosen, player, source)
+            }
+            ValueDef::Sum(sum) => self
+                .cost_reduction_value(sum.left, player, source)
+                .saturating_add(self.cost_reduction_value(sum.right, player, source)),
             // Domain: how many basic land types are among the lands you
             // control, which is a count of types rather than of permanents
             // and so cannot be said as a query.

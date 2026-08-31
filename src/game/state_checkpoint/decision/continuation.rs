@@ -242,6 +242,21 @@ fn parse_continuation(
                 })
                 .collect::<Result<Vec<_>, _>>()?,
         },
+        DecisionContinuationSnapshot::ChangeStackTargets {
+            object,
+            target_lists,
+        } => DecisionContinuation::ChangeStackTargets {
+            object: GameObjectId(*object),
+            target_lists: target_lists
+                .iter()
+                .map(|targets| {
+                    targets
+                        .iter()
+                        .map(parse_target_selection)
+                        .collect::<Result<Vec<_>, _>>()
+                })
+                .collect::<Result<Vec<_>, _>>()?,
+        },
         DecisionContinuationSnapshot::Endure {
             player: enduring_player,
             permanent,

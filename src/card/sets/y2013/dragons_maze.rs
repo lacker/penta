@@ -337,7 +337,14 @@ pub(in crate::card::sets) static MINDSTATIC: CardRecord = CardRecord::new_with_l
     CardSet::DragonsMaze,
     CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {6}.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         abilities::counter_target_unless_paid(ValueDef::Constant(6)),
     )),
 );

@@ -59,8 +59,16 @@ pub(in crate::card::sets) static SPELL_PIERCE: CardRecord = CardRecord::new_with
     CardSet::Zendikar,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target noncreature spell unless its controller pays {2}.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Creature)),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         abilities::counter_target_unless_paid(ValueDef::Constant(2)),
     )),

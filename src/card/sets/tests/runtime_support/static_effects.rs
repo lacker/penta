@@ -100,6 +100,27 @@ fn shared_spell_cost_value(value: ValueDef) -> bool {
     }
 }
 
+fn shared_source_cost_reduction_value(value: ValueDef) -> bool {
+    match value {
+        ValueDef::Constant(_) => true,
+        ValueDef::CountMatchingObjects(query) => {
+            shared_static_query(*query) && shared_object_predicate(query.object)
+        }
+        ValueDef::IfMatchingObjectCount(condition) => {
+            shared_static_query(condition.query)
+                && shared_object_predicate(condition.query.object)
+                && shared_source_cost_reduction_value(condition.then)
+                && shared_source_cost_reduction_value(condition.otherwise)
+        }
+        ValueDef::BasicLandTypesControlled(relation) => shared_cost_modifier_caster(relation, true),
+        ValueDef::Sum(sum) => {
+            shared_source_cost_reduction_value(sum.left)
+                && shared_source_cost_reduction_value(sum.right)
+        }
+        _ => false,
+    }
+}
+
 fn shared_cost_modifier_caster(caster: PlayerRelation, allow_nonactive: bool) -> bool {
     matches!(
         caster,
@@ -138,16 +159,7 @@ pub(in super::super) fn shared_static_non_apply_effect(
         }
         EffectDef::ModifyCost(modification) => shared_cost_modification(source_zones, modification),
         EffectDef::ReduceGenericCostBy(value) => {
-            source_zones == [ZoneKind::Hand]
-                && matches!(
-                    value,
-                    crate::card::ValueDef::Constant(_)
-                        | crate::card::ValueDef::CountMatchingObjects(_)
-                        // Domain counts basic land types rather than
-                        // permanents, and the planner reads it the same way
-                        // it reads a count of lands.
-                        | crate::card::ValueDef::BasicLandTypesControlled(_)
-                )
+            source_zones == [ZoneKind::Hand] && shared_source_cost_reduction_value(value)
         }
         EffectDef::Sequence(effects) => {
             !effects.is_empty()
@@ -395,6 +407,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::Counter { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }
         | EffectDef::CopyStackObject(_)
+        | EffectDef::ChangeStackTargets(_)
         | EffectDef::AddCounters { .. }
         | EffectDef::ChooseCounterKind { .. }
         | EffectDef::ChooseEffect { .. }

@@ -575,10 +575,18 @@ pub(in crate::card::sets) static ANNUL: CardRecord = CardRecord::new_with_legacy
     CardSet::UrzasSaga,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::counter_target(
         "Counter target artifact or enchantment spell.",
-        &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Enchantment),
-        ])),
+        &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Spell,
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            ]),
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        }),
     )),
 );
 

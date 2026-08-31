@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -27,7 +27,14 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
         &[
             AbilityDef::spell_with_targets(
                 "Counter target spell unless its controller pays {3}.",
-                &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 abilities::counter_target_unless_paid(ValueDef::Constant(3)),
             ),
             AbilityDef::spell_with_targets(

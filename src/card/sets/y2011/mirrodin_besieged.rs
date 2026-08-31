@@ -500,7 +500,12 @@ pub(in crate::card::sets) static FUEL_FOR_THE_CAUSE: CardRecord = CardRecord::ne
     CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_ability(
         AbilityDef::spell_with_targets(
             "Counter target spell, then proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
             EffectDef::Sequence(&[
                 EffectDef::Counter {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -675,9 +680,15 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
         &[
             AbilityDef::spell_with_targets(
                 "Counter target artifact spell",
-                &[AbilityTargetDef::exactly_one_spell(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )],
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                })],
                 EffectDef::Counter {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Graveyard,

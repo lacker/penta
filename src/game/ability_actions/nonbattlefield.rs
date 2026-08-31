@@ -106,6 +106,7 @@ impl Game {
                 // itself along with everything else.
                 AbilityCostDef::DiscardHand
                 | AbilityCostDef::ManaCostOf(_)
+                | AbilityCostDef::ManaValueOfTarget { .. }
                 | AbilityCostDef::TapSource
                 | AbilityCostDef::ExertSource
                 | AbilityCostDef::UntapSource

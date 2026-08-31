@@ -5,10 +5,11 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardSupertype, CardType, CardTypeSet, CastTimingPermissionDef, ComparisonDef,
-    CopyExceptionsDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TopOfLibraryCostDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CopyExceptionsDef, CountConditionDef, CounterKind, CreatureTypeSetDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -156,6 +157,56 @@ pub(in crate::card::sets) static BOLASS_CITADEL: CardRecord = CardRecord::new_wi
                 },
             ),
         ]),
+);
+
+// WAR 115 — Bolt Bend
+pub(in crate::card::sets) static BOLT_BEND: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("39b35408-3728-4e1b-9f58-b0775df914d6"),
+    "Bolt Bend",
+    CardArt::new("39b35408-3728-4e1b-9f58-b0775df914d6", "Svetlin Velinov"),
+    CardSet::WarOfTheSpark,
+    CardRules::new_instant(mana_cost!("{3}{R}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "This spell costs {3} less to cast if you control a creature with power 4 or greater.",
+            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&CountConditionDef {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(4),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+                then: ValueDef::Constant(3),
+                otherwise: ValueDef::Constant(0),
+            })),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::spell_with_targets(
+            "Change the target of target spell or ability with a single target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: None,
+                },
+            }),
+        ),
+    ]),
 );
 
 // WAR 125 — Dreadhorde Arcanist
@@ -539,6 +590,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &JACE_WIELDER_OF_MYSTERIES,
     &NARSET_PARTER_OF_VEILS,
     &BOLASS_CITADEL,
+    &BOLT_BEND,
     &DREADHORDE_ARCANIST,
     &GRIM_INITIATE,
     &NISSA_WHO_SHAKES_THE_WORLD,

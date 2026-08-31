@@ -67,6 +67,7 @@ impl Game {
     pub(super) fn activated_ability_mana_cost_for(
         &self,
         definition: &ActivatedAbilityDef,
+        targets: &[TargetSelection],
         cost_objects: &[GameObjectId],
     ) -> Option<ManaCost> {
         let mut cost = ManaCost::default();
@@ -91,6 +92,25 @@ impl Game {
                     has_mana_cost = true;
                 }
                 AbilityCostDef::ManaCostOf(_) => return None,
+                AbilityCostDef::ManaValueOfTarget { target, multiplier } => {
+                    let slot = TargetSlotId::from_index(target.index())?;
+                    let selected = targets
+                        .iter()
+                        .find(|selection| selection.slot() == slot)?
+                        .targets()
+                        .first()?;
+                    let object = match selected {
+                        Target::Card(object)
+                        | Target::Permanent(object)
+                        | Target::Spell(object) => *object,
+                        Target::Player(_) => return None,
+                    };
+                    let amount = self
+                        .current_or_last_known_mana_value(object)?
+                        .saturating_mul(u16::from(*multiplier));
+                    cost = add_mana_cost(cost, ManaCost::new(amount, 0));
+                    has_mana_cost = true;
+                }
                 _ => {}
             }
         }

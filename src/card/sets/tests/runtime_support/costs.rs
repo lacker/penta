@@ -73,7 +73,9 @@ fn multi_tap_cost_has_no_mana_component(costs: &[AbilityCostDef]) -> bool {
         || !costs.iter().any(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::Mana(_) | AbilityCostDef::ManaCostOf(_)
+                AbilityCostDef::Mana(_)
+                    | AbilityCostDef::ManaCostOf(_)
+                    | AbilityCostDef::ManaValueOfTarget { .. }
             )
         })
 }
@@ -119,6 +121,9 @@ pub(in super::super) fn shared_activated_costs(
             // A variable X is offered one activation per affordable value.
             // More than one is not: nothing enumerates a cost charging X twice.
             AbilityCostDef::Mana(cost) => cost.x_multiplier <= 1,
+            AbilityCostDef::ManaValueOfTarget { multiplier, .. } => {
+                battlefield && *multiplier > 0
+            }
             // The chosen object comes from the battlefield or from the
             // activating player's own graveyard, so only the predicate
             // needs checking.

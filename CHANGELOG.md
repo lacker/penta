@@ -259,11 +259,25 @@ distinguishes snapshots of the covered source and build inputs.
   modes carries exactly those costs through action generation, cost
   increases and reductions, validation, and payment. Chosen Spree modes and
   their independent targets remain frozen through copying and resolution.
-  Rustler Rampage, Explosive Derailment, and Dance of the Tumbleweeds use the
-  shared declaration; Dance finishes its land search before sizing the token
-  created by its later mode. Catalog mode choices expose the optional additive
-  `additionalManaCost` member; protocol 29, checkpoint format 9, and replay
-  version 2 are unchanged.
+  Rustler Rampage, Explosive Derailment, Dance of the Tumbleweeds, and Return
+  the Favor use the shared declaration; Dance finishes its land search before
+  sizing the token created by its later mode. Catalog mode choices expose the
+  optional additive `additionalManaCost` member; protocol 29, checkpoint
+  format 9, and replay version 2 are unchanged.
+
+- **Spells and abilities can change targets declaratively.** Stack targets can
+  now distinguish spells, activated abilities, and triggered abilities; bound
+  their declared target count; and require an existing target kind or a player
+  in a relation to the effect's controller. Resolving effects enumerate whole
+  legal replacement configurations, preserve divided amounts and dependent
+  restrictions, update both the cast signature and the frozen resolving
+  payload, and publish newly-targeted events. Activated abilities can also
+  price a generic mana cost as a multiple of a chosen target's mana value.
+  Deflection, Rebound, Silver Wyvern, Divert, Misdirection, Redirect,
+  Spellskite, Strionic Resonator, Reroute, Wild Ricochet, Ricochet Trap, Bolt
+  Bend, Return the Favor, and Reflecting Mirror use the shared model. The
+  pending target-choice continuation is additive; checkpoint format 10,
+  replay version 2, and protocol 29 are unchanged.
 
 - **Player-scoped declarative rules, attachment queries, and simultaneous
   phasing.** Witchbane Orb destroys only Curses attached to its controller and

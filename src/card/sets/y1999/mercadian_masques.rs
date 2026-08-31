@@ -19,8 +19,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    ObjectQueryDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -899,13 +899,51 @@ pub(in crate::card::sets) static KARN_S_TOUCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 87 — Misdirection
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MISDIRECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("581ad59c-29e9-4498-a6fd-33bf21e8e7c4"),
     "Misdirection",
     crate::card::CardArt::new("581ad59c-29e9-4498-a6fd-33bf21e8e7c4", "Paolo Parente"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "You may exile a blue card from your hand rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Color(ManaColor::Blue),
+            ZoneKind::Hand,
+            CostQuantityDef::Fixed(1),
+        )),
+        AbilityDef::spell_with_targets(
+            "Change the target of target spell with a single target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::DeclaredTargetCount {
+                            minimum: 1,
+                            maximum: 1,
+                        },
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: None,
+                },
+            }),
+        ),
+    ]),
 );
 
 // MMQ 88 — Misstep

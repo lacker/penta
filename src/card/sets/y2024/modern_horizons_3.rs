@@ -1844,15 +1844,21 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
             const {
                 CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
                 "Return target spell or nonland permanent an opponent controls to its owner's hand.",
-                // One slot over two zones: a land is never a spell, so "nonland" is the
-                // whole of the restriction on either side of the "or".
                 &const { [AbilityTargetDef::exactly_one(
-                        AbilityTargetPredicate::Object {
-                            object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                            zones: &const { [ZoneKind::Stack, ZoneKind::Battlefield] },
-                            controller: Some(PlayerRelation::Opponent),
-                            owner: None,
-                        },
+                        AbilityTargetPredicate::AnyOf(&const { [
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Spell,
+                                zones: &[ZoneKind::Stack],
+                                controller: Some(PlayerRelation::Opponent),
+                                owner: None,
+                            },
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                                zones: &[ZoneKind::Battlefield],
+                                controller: Some(PlayerRelation::Opponent),
+                                owner: None,
+                            },
+                        ] }),
                     )] },
                 // Returning a spell is not countering it: one that cannot be countered is
                 // answered all the same, and its controller keeps the card.

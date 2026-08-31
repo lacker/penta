@@ -42,6 +42,7 @@ impl Game {
                 // A hand of nothing discards nothing, which pays it.
                 | AbilityCostDef::DiscardHand
                 | AbilityCostDef::ManaCostOf(_)
+                | AbilityCostDef::ManaValueOfTarget { .. }
                 | AbilityCostDef::TapSource
                 | AbilityCostDef::ExertSource
                 | AbilityCostDef::UntapSource
@@ -145,6 +146,7 @@ impl Game {
             }
             AbilityCostDef::UntapSource
             | AbilityCostDef::ManaCostOf(_)
+            | AbilityCostDef::ManaValueOfTarget { .. }
             | AbilityCostDef::SacrificeObject(_)
             | AbilityCostDef::DiscardSource
             | AbilityCostDef::DiscardCards(_)

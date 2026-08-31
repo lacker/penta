@@ -159,6 +159,18 @@ impl TargetSelection {
         &self.amounts
     }
 
+    /// Replaces the targets while preserving the amount assigned to each
+    /// target position. Target-changing effects cannot redistribute a spell
+    /// whose damage or counters were divided as it was cast.
+    #[must_use]
+    pub fn with_replaced_targets(&self, targets: Vec<Target>) -> Option<Self> {
+        (self.targets.len() == targets.len()).then(|| Self {
+            slot: self.slot,
+            targets,
+            amounts: self.amounts.clone(),
+        })
+    }
+
     /// How much this target takes of a divided total, or nothing when the
     /// slot is not divided.
     #[must_use]
@@ -316,6 +328,14 @@ pub struct CastSignature {
 }
 
 impl CastSignature {
+    pub(crate) fn target_shape_replacement(
+        original: &[TargetSelection],
+        targets: Vec<TargetSelection>,
+    ) -> Result<Vec<TargetSelection>, TargetReplacementError> {
+        validate_target_replacement(original, &targets)?;
+        Ok(targets)
+    }
+
     /// Freezes choices after the engine has validated `choices` and derived
     /// the resulting spell form from its cataloged play option.
     #[must_use]
@@ -373,7 +393,7 @@ impl CastSignature {
             .flat_map(|selection| selection.targets.iter())
     }
 
-    /// Produces a spell-copy signature with replacement target values.
+    /// Produces a signature with replacement target values.
     ///
     /// The replacement must retain the same ordered slots and target counts.
     /// Target legality is deliberately checked by the game engine: retaining
@@ -384,37 +404,58 @@ impl CastSignature {
     ///
     /// Returns [`TargetReplacementError`] when the replacement changes the
     /// number, order, identity, or cardinality of the original target slots.
-    pub fn copy_with_targets(
+    pub fn with_replaced_targets(
         &self,
         targets: Vec<TargetSelection>,
     ) -> Result<Self, TargetReplacementError> {
-        if self.targets.len() != targets.len() {
-            return Err(TargetReplacementError::SelectionCount {
-                expected: self.targets.len(),
-                actual: targets.len(),
-            });
-        }
-        for (index, (original, replacement)) in self.targets.iter().zip(&targets).enumerate() {
-            if original.slot != replacement.slot {
-                return Err(TargetReplacementError::Slot {
-                    index,
-                    expected: original.slot,
-                    actual: replacement.slot,
-                });
-            }
-            if original.targets.len() != replacement.targets.len() {
-                return Err(TargetReplacementError::TargetCount {
-                    slot: original.slot,
-                    expected: original.targets.len(),
-                    actual: replacement.targets.len(),
-                });
-            }
-        }
+        validate_target_replacement(&self.targets, &targets)?;
 
         let mut copied = self.clone();
         copied.targets = targets;
         Ok(copied)
     }
+
+    /// Compatibility spelling for callers performing the copy procedure.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`TargetReplacementError`] when the replacement changes the
+    /// ordered shape of the original target selections.
+    pub fn copy_with_targets(
+        &self,
+        targets: Vec<TargetSelection>,
+    ) -> Result<Self, TargetReplacementError> {
+        self.with_replaced_targets(targets)
+    }
+}
+
+fn validate_target_replacement(
+    original: &[TargetSelection],
+    replacement: &[TargetSelection],
+) -> Result<(), TargetReplacementError> {
+    if original.len() != replacement.len() {
+        return Err(TargetReplacementError::SelectionCount {
+            expected: original.len(),
+            actual: replacement.len(),
+        });
+    }
+    for (index, (original, replacement)) in original.iter().zip(replacement).enumerate() {
+        if original.slot != replacement.slot {
+            return Err(TargetReplacementError::Slot {
+                index,
+                expected: original.slot,
+                actual: replacement.slot,
+            });
+        }
+        if original.targets.len() != replacement.targets.len() {
+            return Err(TargetReplacementError::TargetCount {
+                slot: original.slot,
+                expected: original.targets.len(),
+                actual: replacement.targets.len(),
+            });
+        }
+    }
+    Ok(())
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -440,7 +481,7 @@ impl fmt::Display for TargetReplacementError {
         match self {
             Self::SelectionCount { expected, actual } => write!(
                 formatter,
-                "a spell copy must keep {expected} target selections, but received {actual}"
+                "a target change must keep {expected} target selections, but received {actual}"
             ),
             Self::Slot {
                 index,
@@ -564,5 +605,25 @@ mod tests {
             ]),
             Err(TargetReplacementError::TargetCount { .. })
         ));
+    }
+
+    #[test]
+    fn target_changes_preserve_divided_amounts_by_position() {
+        let original = TargetSelection::divided(
+            TargetSlotId(0),
+            vec![
+                Target::Permanent(GameObjectId(10)),
+                Target::Permanent(GameObjectId(11)),
+            ],
+            vec![1, 4],
+        );
+        let changed = original
+            .with_replaced_targets(vec![
+                Target::Permanent(GameObjectId(20)),
+                Target::Permanent(GameObjectId(21)),
+            ])
+            .expect("a target change keeps the target count");
+
+        assert_eq!(changed.amounts(), &[1, 4]);
     }
 }

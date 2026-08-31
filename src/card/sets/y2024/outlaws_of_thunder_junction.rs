@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef,
-    ScaledValueDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
+    CopyStackObjectDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
+    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StackTargetChangeDef,
+    TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
@@ -196,6 +197,67 @@ pub(in crate::card::sets) static EXPLOSIVE_DERAILMENT: CardRecord = CardRecord::
                     CardType::Artifact,
                 )),
                 true,
+            ),
+        ),
+    ])),
+);
+
+// OTJ 142 — Return the Favor
+pub(in crate::card::sets) static RETURN_THE_FAVOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a9cc02d1-799d-42aa-9bc2-4c05452b63b4"),
+    "Return the Favor",
+    CardArt::new("a9cc02d1-799d-42aa-9bc2-4c05452b63b4", "Eli Minaya"),
+    CardSet::OutlawsOfThunderJunction,
+    CardRules::new_instant(mana_cost!("{R}{R}")).with_ability(AbilityDef::spree(&[
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell_with_targets(
+                "Copy target instant spell, sorcery spell, activated ability, or triggered ability. You may choose new targets for the copy.",
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                        ]),
+                        ObjectPredicateDef::Ability,
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                })],
+                EffectDef::CopyStackObject(&CopyStackObjectDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            ),
+        ),
+        (
+            mana_cost!("{1}"),
+            AbilityDef::spell_with_targets(
+                "Change the target of target spell or ability with a single target.",
+                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                })],
+                EffectDef::ChangeStackTargets(&ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: StackTargetChangeDef::ChooseNew {
+                        optional: false,
+                        restriction: None,
+                    },
+                }),
             ),
         ),
     ])),
@@ -474,6 +536,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PHANTOM_INTERFERENCE,
     &CAUSTIC_BRONCO,
     &EXPLOSIVE_DERAILMENT,
+    &RETURN_THE_FAVOR,
     &BRISTLY_BILL_SPINE_SOWER,
     &DANCE_OF_THE_TUMBLEWEEDS,
     &VORACIOUS_VARMINT,

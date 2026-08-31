@@ -592,7 +592,7 @@ pub(in crate::card::sets) static WEAVER_OF_LIES: CardRecord = CardRecord::new(
 );
 
 // LGN 58 — Willbender
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Morph can turn this face up, but no shared trigger event observes that special action and freezes the targeted spell or ability before the target-change effect can run.
 pub(in crate::card::sets) static WILLBENDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb33b35b-33c9-4d59-9ed6-7ad40ea82cb0"),
     "Willbender",

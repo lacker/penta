@@ -989,8 +989,16 @@ pub(in crate::card::sets) static SCATTER_ARC: CardRecord = CardRecord::new_with_
     CardSet::Gatecrash,
     CardRules::new_instant(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target noncreature spell. Draw a card.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::NoncreatureSpell,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::NoncreatureSpell,
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {
@@ -3967,8 +3975,16 @@ pub(in crate::card::sets) static PSYCHIC_STRIKE: CardRecord = CardRecord::new_wi
     CardSet::Gatecrash,
     CardRules::new_instant(mana_cost!("{1}{U}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. Its controller mills two cards.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::Spell,
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::Spell,
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {

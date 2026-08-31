@@ -875,6 +875,12 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => static_source_value_supported(value),
         ObjectPredicateDef::HasAbility(_)
+        | ObjectPredicateDef::Ability
+        | ObjectPredicateDef::ActivatedAbility
+        | ObjectPredicateDef::TriggeredAbility
+        | ObjectPredicateDef::DeclaredTargetCount { .. }
+        | ObjectPredicateDef::HasDeclaredTarget(_)
+        | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::HasName(
             ObjectRefDef::AbilityGrantSource
             | ObjectRefDef::CreatingSource

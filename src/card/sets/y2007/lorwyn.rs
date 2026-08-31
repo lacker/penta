@@ -29,7 +29,14 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_w
         &[
             AbilityDef::counter_target(
                 "Counter target spell.",
-                &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)][0],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Spell,
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )][0],
             ),
             AbilityDef::spell_with_targets(
                 "Return target permanent to its owner's hand.",
@@ -166,13 +173,47 @@ pub(in crate::card::sets) static TARFIRE: CardRecord = CardRecord::new(
 );
 
 // LRW 196 — Wild Ricochet
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WILD_RICOCHET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d76f09bc-b49a-4ad2-be2d-2a191d41b86d"),
     "Wild Ricochet",
     crate::card::CardArt::new("d76f09bc-b49a-4ad2-be2d-2a191d41b86d", "Dan Murayama Scott"),
     crate::card::CardSet::Lorwyn,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "You may choose new targets for target instant or sorcery spell. Then copy that spell. You may choose new targets for the copy.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: crate::card::StackTargetChangeDef::ChooseNew {
+                        optional: true,
+                        restriction: None,
+                    },
+                }),
+                EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    controller: PlayerRefDef::EffectController,
+                    count: ValueDef::Constant(1),
+                    retarget: true,
+                    colors: None,
+                }),
+            ]),
+        ),
+    ),
 );
 
 // LRW 262 — Thorn of Amethyst

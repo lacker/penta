@@ -97,9 +97,15 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
             &[
                 AbilityDef::counter_target(
                     "Counter target blue spell",
-                    &AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(
-                        ManaColor::Blue,
-                    )),
+                    &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::Color(ManaColor::Blue),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    }),
                 ),
                 AbilityDef::destroy_target(
                     "Destroy target blue permanent",
@@ -286,8 +292,15 @@ fn semantic_target_labels_are_derived_from_predicates() {
             .is_none()
     );
 
-    let blue_spell =
-        AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Color(ManaColor::Blue));
+    let blue_spell = AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::All(&[
+            ObjectPredicateDef::Spell,
+            ObjectPredicateDef::Color(ManaColor::Blue),
+        ]),
+        zones: &[ZoneKind::Stack],
+        controller: None,
+        owner: None,
+    });
     let presentation = blue_spell
         .presentation(crate::TargetSlotId(0))
         .expect("a stack target has a presentation projection");

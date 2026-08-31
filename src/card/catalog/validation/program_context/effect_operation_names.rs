@@ -95,6 +95,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::IfFormat { .. } => "IfFormat",
         EffectDef::Counter { .. } => "Counter",
         EffectDef::CopyStackObject(_) => "CopyStackObject",
+        EffectDef::ChangeStackTargets(_) => "ChangeStackTargets",
         EffectDef::PutSpellIntoOwnersLibrary { .. } => "PutSpellIntoOwnersLibrary",
         EffectDef::DrainLife { .. } => "DrainLife",
         EffectDef::AddManaEqualTo { .. } => "AddManaEqualTo",

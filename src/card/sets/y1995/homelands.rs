@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -345,7 +345,14 @@ pub(in crate::card::sets) static MEMORY_LAPSE: CardRecord = CardRecord::new(
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. If that spell is countered this way, put it on top of its owner's \
          library instead of into that player's graveyard.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         // "Put it on top of its owner's library instead of into that player's
         // graveyard": the counter still happens, and what changes is only where
         // the card lands afterwards.

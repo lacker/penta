@@ -3,7 +3,7 @@ use super::{
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
     ValueDef, ZoneKind,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::{ObjectBindingIndex, TargetIndex};
 
 /// The quantity a semantic cost asks its payer to provide.
 ///
@@ -122,6 +122,13 @@ pub enum CostDef {
     /// supplied by another cost in this same activation, which is Back from
     /// the Brink's "exile ... and pay its mana cost" shape.
     ManaCostOf(ObjectRefDef),
+    /// Pay generic mana equal to a multiple of the mana value of a target
+    /// chosen for this activation. Targets are chosen before costs are paid,
+    /// so the amount is fixed by the announced activation.
+    ManaValueOfTarget {
+        target: TargetIndex,
+        multiplier: u8,
+    },
     TapSource,
     UntapSource,
     SacrificeSource,

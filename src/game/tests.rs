@@ -307,6 +307,7 @@ mod spell_cost_reduction;
 mod spore;
 mod spore_cloud;
 mod spree;
+mod stack_target_changes;
 mod stale_followups;
 mod stat_counters;
 mod state_triggers_and_life;

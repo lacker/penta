@@ -8,7 +8,7 @@
 
 use super::super::*;
 use super::{determinized, true_hidden_hypothesis};
-use crate::game::tests::{card, creature, ready_game};
+use crate::game::tests::{card, cast_action, creature, ready_game};
 use crate::game::{DecisionContinuation, ResolvedEffectPayment};
 use crate::{Action, CardDefinitionId, CounterKind, ManaColor, TargetSelection};
 use serde_json::Value;
@@ -71,6 +71,41 @@ pub(super) fn assert_reconstructs(game: &Game, label: &str) {
             "{label}: {kind} changed the public observation",
         );
     }
+}
+
+#[test]
+fn stack_target_change_decision_round_trips() {
+    let mut game = ready_game();
+    let first = game
+        .put_onto_battlefield(PlayerId::Two, crate::card::cards::SAVANNAH_LIONS)
+        .expect("cataloged");
+    game.put_onto_battlefield(PlayerId::Two, crate::card::cards::SAVANNAH_LIONS)
+        .expect("cataloged");
+    game.finish_rules_procedure();
+    let bolt = card(84_900, crate::card::cards::LIGHTNING_BOLT, PlayerId::One);
+    game.players[0].hand.push(bolt.clone());
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 1);
+    game.apply(
+        PlayerId::One,
+        cast_action(bolt.id, vec![Target::Permanent(first)], Vec::new(), 0),
+    )
+    .expect("the Bolt is cast");
+    let spell = game.stack.last().expect("the Bolt is on the stack").clone();
+    game.queue_stack_target_change(
+        PlayerId::One,
+        &spell,
+        crate::card::StackTargetChangeDef::ChooseNew {
+            optional: true,
+            restriction: None,
+        },
+        None,
+    );
+
+    assert!(matches!(
+        game.pending_decisions[0].continuation,
+        DecisionContinuation::ChangeStackTargets { .. }
+    ));
+    assert_reconstructs(&game, "stack target change decision");
 }
 
 fn rebuild_from_truth(game: &Game, seed: u64) -> Game {

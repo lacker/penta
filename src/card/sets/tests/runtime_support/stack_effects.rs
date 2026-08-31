@@ -592,6 +592,16 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::CopyStackObject(copy) => {
             deferred_decision_allowed && shared_effect_recipient(copy.object)
         }
+        EffectDef::ChangeStackTargets(change) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(change.object)
+                && match change.change {
+                    crate::card::StackTargetChangeDef::ChooseNew { .. } => true,
+                    crate::card::StackTargetChangeDef::ReplaceOneWith(replacement) => {
+                        shared_effect_recipient(replacement)
+                    }
+                }
+        }
         EffectDef::Counter { object, zone, .. } => {
             // The four places a countered card can end up. A library is one
             // of them because Memory Lapse puts it back on top rather than

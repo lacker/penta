@@ -1177,8 +1177,16 @@ pub(in crate::card::sets) static GEIST_SNATCH: CardRecord = CardRecord::new_with
     CardSet::AvacynRestored,
     CardRules::new_instant(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target creature spell. Create a 1/1 blue Spirit creature token with flying.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::HasType(CardType::Creature),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {

@@ -1,7 +1,7 @@
 use crate::card::ZoneRelativePositionDef;
 use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
-    AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
+    AbilityCostDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
     AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
     BattlefieldEntryChoiceDestinationDef, BlockRestrictionDef, BlockRestrictionMatchDef,

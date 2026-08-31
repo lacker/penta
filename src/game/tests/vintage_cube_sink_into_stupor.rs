@@ -205,6 +205,24 @@ fn the_front_answers_a_spell_on_the_stack() {
     );
 }
 
+/// Sharing a zone with spells does not make an activated ability a spell.
+#[test]
+fn the_front_does_not_target_an_ability_on_the_stack() {
+    let (mut game, held) = staged();
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Blue, 3);
+    let mut ability = spell(96_001, cards::PRODIGAL_SORCERER, PlayerId::Two, 0);
+    ability.kind = StackObjectKind::ActivatedAbility;
+    ability.source = Some(GameObjectId(96_002));
+    ability.signature = None;
+    let ability_id = ability.id;
+    game.stack.push(ability);
+
+    assert!(
+        answers(&game, held, Target::Spell(ability_id)).is_empty(),
+        "the stack branch is restricted to spells",
+    );
+}
+
 /// "Nonland permanent an opponent controls": not your own creature, and not
 /// a land on either side.
 #[test]

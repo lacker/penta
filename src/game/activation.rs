@@ -11,9 +11,7 @@ use crate::ManaPaymentChoice;
 
 mod nonbattlefield;
 
-/// What one activation announced about paying its cost: the value of X, the
-/// objects its costs spend, what the mana is being raised for, and how any
-/// flexible symbol in it is being paid.
+/// The payment facts announced for one activation.
 #[derive(Clone, Copy)]
 struct AnnouncedActivationCost<'a> {
     cost_objects: &'a [GameObjectId],
@@ -407,7 +405,7 @@ impl Game {
                         );
                         let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                     }
-                    AbilityCostDef::ManaCostOf(_) => {
+                    AbilityCostDef::ManaCostOf(_) | AbilityCostDef::ManaValueOfTarget { .. } => {
                         unreachable!("hand abilities cannot price another chosen card")
                     }
                     AbilityCostDef::DiscardSource => {
@@ -657,13 +655,16 @@ impl Game {
                     .expect("a legal activation chose the one to tap");
                 let _ = self.tap_permanent(chosen);
             }
-            let has_linked_card_mana = definition
-                .costs
-                .iter()
-                .any(|cost| matches!(cost, AbilityCostDef::ManaCostOf(_)));
+            let has_dynamic_mana = definition.costs.iter().any(|cost| {
+                matches!(
+                    cost,
+                    AbilityCostDef::ManaCostOf(_) | AbilityCostDef::ManaValueOfTarget { .. }
+                )
+            });
+            let mut dynamic_mana_paid = false;
             for cost in definition.costs.as_slice() {
                 match cost {
-                    AbilityCostDef::Mana(_) if has_linked_card_mana => {}
+                    AbilityCostDef::Mana(_) if has_dynamic_mana => {}
                     AbilityCostDef::Mana(cost) => {
                         // Read through any increase on the battlefield and
                         // any discount, printed or granted, so what is paid
@@ -693,11 +694,15 @@ impl Game {
                         // differently from the offer it came from.
                         let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
                     }
-                    AbilityCostDef::ManaCostOf(_) => {
+                    AbilityCostDef::ManaCostOf(_)
+                    | AbilityCostDef::ManaValueOfTarget { .. } => {
+                        if dynamic_mana_paid {
+                            continue;
+                        }
                         let cost = self
-                            .activated_ability_mana_cost_for(&definition, cost_objects)
+                            .activated_ability_mana_cost_for(&definition, &frozen_targets, cost_objects)
                             .map(|cost| self.activation_mana_cost(&definition, source, cost))
-                            .expect("a legal linked card-mana activation has its chosen card");
+                            .expect("a legal dynamic-mana activation has its priced object");
                         let payment_purpose = ManaPaymentPurpose::Ability {
                             source,
                             taps_source,
@@ -714,6 +719,7 @@ impl Game {
                             &payment_purpose,
                         );
                         let _ = self.pay_player_cost_for(player, cost, x, &payment_purpose);
+                        dynamic_mana_paid = true;
                     }
                     AbilityCostDef::TapSource => {
                         let _ = self.tap_permanent(source);

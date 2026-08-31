@@ -264,7 +264,12 @@ pub(in crate::card::sets) static ARCANE_DENIAL: CardRecord = CardRecord::new_wit
     // too late to matter in a deck that is about to lock the game up.
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell. Its controller may draw up to two cards at the beginning of the next turn's upkeep.\nYou draw a card at the beginning of the next turn's upkeep.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Spell,
+            zones: &[ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })],
         EffectDef::Sequence(&[
             EffectDef::Counter {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -399,7 +404,14 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
         .with_alternative_life(1),
         AbilityDef::spell_with_targets(
             "Counter target spell.",
-            &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
             EffectDef::counter_target(TargetIndex::PRIMARY),
         ),
     ]),

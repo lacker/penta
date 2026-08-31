@@ -14,10 +14,11 @@ use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    CostQuantityDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ObjectSetBindingIndex;
 use crate::{TargetIndex, mana_cost};
@@ -895,7 +896,6 @@ pub(in crate::card::sets) static DEMATERIALIZE: CardRecord = CardRecord::new(
 );
 
 // ODY 82 — Divert
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DIVERT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8eb6e9f8-a508-451e-8a72-5f9834ba5352"),
     "Divert",
@@ -904,7 +904,39 @@ pub(in crate::card::sets) static DIVERT: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the target of target spell with a single target unless that spell's controller pays {2}.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::PayOr(PayOrDef::unless(
+            EffectPaymentDef::mana(
+                PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                    TargetIndex::PRIMARY,
+                ))),
+                mana_cost!("{2}"),
+            ),
+            &EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: None,
+                },
+            }),
+        )),
+    )),
 );
 
 // ODY 83 — Dreamwinder

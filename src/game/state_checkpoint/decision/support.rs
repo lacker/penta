@@ -116,6 +116,20 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::CopyStackObject { spell, .. } => {
             ids.extend(referenced_object_ids(spell));
         }
+        DecisionContinuation::ChangeStackTargets {
+            object,
+            target_lists,
+        } => {
+            ids.push(*object);
+            ids.extend(
+                target_lists
+                    .iter()
+                    .flatten()
+                    .flat_map(crate::TargetSelection::targets)
+                    .copied()
+                    .filter_map(target_object_id),
+            );
+        }
         DecisionContinuation::SacrificeOfChoice {
             followup: Some(followup),
             ..

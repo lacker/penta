@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::abilities;
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, EffectRecipientDef, MoveObjectsDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, EffectDef,
+    EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, RevealObjectsDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement,
 };
-use crate::{ObjectSetBindingIndex, mana_cost};
+use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
 
 // RAV 81 — Dark Confidant
 /// One card off the top, shown to everybody, into your hand. Nothing is
@@ -58,6 +59,50 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     ),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&DARK_CONFIDANT];
+// RAV 139 — Reroute
+pub(in crate::card::sets) static REROUTE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("42794e10-ddcd-4d2d-ab0c-a6b99b6d4662"),
+    "Reroute",
+    CardArt::new(
+        "42794e10-ddcd-4d2d-ab0c-a6b99b6d4662",
+        "Christopher Rush",
+    ),
+    CardSet::RavnicaCityOfGuilds,
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Change the target of target activated ability with a single target. (Mana abilities can't be targeted.)\nDraw a card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::ActivatedAbility,
+                        ObjectPredicateDef::DeclaredTargetCount {
+                            minimum: 1,
+                            maximum: 1,
+                        },
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    chooser: PlayerRefDef::EffectController,
+                    change: crate::card::StackTargetChangeDef::ChooseNew {
+                        optional: false,
+                        restriction: None,
+                    },
+                }),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&DARK_CONFIDANT, &REROUTE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

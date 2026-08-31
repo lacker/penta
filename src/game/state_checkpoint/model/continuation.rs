@@ -140,6 +140,13 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         #[serde(default)]
         remaining: u16,
     },
+    /// An additive pending target-change decision. The affected object stays
+    /// in the checkpoint's ordinary stack; only its id and the frozen legal
+    /// replacement configurations are carried here.
+    ChangeStackTargets {
+        object: u32,
+        target_lists: Vec<Vec<TargetSelectionSnapshot>>,
+    },
     Endure {
         player: usize,
         permanent: u32,

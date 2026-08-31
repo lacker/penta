@@ -6,11 +6,11 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2012::dark_ascension as catalog_dka;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
-    ObjectPredicateDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
+    ObjectPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind,
     abilities,
 };
@@ -380,7 +380,14 @@ pub(in crate::card::sets) static MANA_LEAK: CardRecord = CardRecord::new_with_le
     CardSet::Stronghold,
     CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell unless its controller pays {3}.",
-        &[AbilityTargetDef::exactly_one_spell(ObjectPredicateDef::Any)],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
         abilities::counter_target_unless_paid(ValueDef::Constant(3)),
     )),
 );
@@ -416,13 +423,39 @@ pub(in crate::card::sets) static RANSACK: CardRecord = CardRecord::new(
 );
 
 // STH 40 — Rebound
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REBOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb6ca66e-1116-4739-8375-87af99e9bba5"),
     "Rebound",
     crate::card::CardArt::new("bb6ca66e-1116-4739-8375-87af99e9bba5", "Doug Chaffee"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the target of target spell that targets only a player. The new target must be a player.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::DeclaredTargetCount {
+                        minimum: 1,
+                        maximum: 1,
+                    },
+                    ObjectPredicateDef::HasDeclaredTarget(
+                        crate::card::TargetPredicate::Player,
+                    ),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+            object: EffectRecipientDef::Target(crate::TargetIndex::PRIMARY),
+            chooser: PlayerRefDef::EffectController,
+            change: crate::card::StackTargetChangeDef::ChooseNew {
+                optional: false,
+                restriction: Some(crate::card::TargetPredicate::Player),
+            },
+        }),
+    )),
 );
 
 // STH 41 — Reins of Power
@@ -446,13 +479,42 @@ pub(in crate::card::sets) static SIFT: CardRecord = CardRecord::new(
 );
 
 // STH 43 — Silver Wyvern
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVER_WYVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02a20067-4ac2-4688-b8e8-3463185c4a41"),
     "Silver Wyvern",
     crate::card::CardArt::new("02a20067-4ac2-4688-b8e8-3463185c4a41", "Colin MacNeil"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Drake"], 4, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{U}: Change the target of target spell or ability that targets only this creature. The new target must be a creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::TargetsObjectMatching(
+                            &ObjectPredicateDef::Source,
+                        ),
+                        ObjectPredicateDef::DeclaredTargetCount {
+                            minimum: 1,
+                            maximum: 1,
+                        },
+                    ]),
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+                object: EffectRecipientDef::Target(crate::TargetIndex::PRIMARY),
+                chooser: PlayerRefDef::EffectController,
+                change: crate::card::StackTargetChangeDef::ChooseNew {
+                    optional: false,
+                    restriction: Some(crate::card::TargetPredicate::CreaturePermanent),
+                },
+            }),
+        ),
+    ]),
 );
 
 // STH 44 — Spindrift Drake

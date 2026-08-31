@@ -718,6 +718,35 @@ impl Game {
                     }
                 }
             }
+            EffectDef::ChangeStackTargets(change) => {
+                let Some(chooser) = self.player_reference(change.chooser, object, &context, scoped)
+                else {
+                    return;
+                };
+                let replacement = match change.change {
+                    crate::card::StackTargetChangeDef::ChooseNew { .. } => None,
+                    crate::card::StackTargetChangeDef::ReplaceOneWith(recipient) => self
+                        .effect_recipients(recipient, object, &context, scoped)
+                        .into_iter()
+                        .next(),
+                };
+                for target in self.effect_recipients(change.object, object, &context, scoped) {
+                    if let Target::Spell(id) = target
+                        && let Some(stack_object) = self
+                            .stack
+                            .iter()
+                            .find(|candidate| candidate.id == id)
+                            .cloned()
+                    {
+                        self.queue_stack_target_change(
+                            chooser,
+                            &stack_object,
+                            change.change,
+                            replacement,
+                        );
+                    }
+                }
+            }
             EffectDef::PutSpellIntoOwnersLibrary { object: recipient } => {
                 for target in self.effect_recipients(recipient, object, &context, scoped) {
                     if let Target::Spell(spell) = target {

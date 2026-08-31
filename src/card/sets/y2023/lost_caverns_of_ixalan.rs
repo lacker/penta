@@ -10,8 +10,7 @@ use crate::card::{
     ExilePlayDurationDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    StackTargetKindDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -378,10 +377,11 @@ pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::
                 // in with nothing on the stack is still a 3/2. Mana abilities never use the
                 // stack, so nothing has to exclude them.
                 &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::StackObject {
-                        object: ObjectPredicateDef::Any,
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::Ability,
+                        zones: &[ZoneKind::Stack],
                         controller: None,
-                        kind: StackTargetKindDef::AbilityOnly,
+                        owner: None,
                     },
                     1,
                 )],

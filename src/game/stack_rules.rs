@@ -203,6 +203,7 @@ impl Game {
             | EffectDef::Counter { .. }
             | EffectDef::PutSpellIntoOwnersLibrary { .. }
             | EffectDef::CopyStackObject(_)
+            | EffectDef::ChangeStackTargets(_)
             | EffectDef::AddCounters { .. }
             | EffectDef::ChooseCounterKind { .. }
             | EffectDef::ChooseEffect { .. }

@@ -3,7 +3,7 @@ use crate::ids::TargetIndex;
 use super::{
     AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
     CardSupertype, CardType, ComparisonDef, CounterKind, KeywordAbility, ManaColor, ObjectRefDef,
-    PlayerRelation, ValueDef, ZoneKind,
+    PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
 };
 
 /// A composable predicate over a card or game object.
@@ -34,6 +34,23 @@ pub enum ObjectPredicateDef {
     HasAnyBasicLandType(&'static [BasicLandType]),
     Spell,
     NoncreatureSpell,
+    /// An activated or triggered ability currently waiting on the stack.
+    Ability,
+    /// An activated ability currently waiting on the stack.
+    ActivatedAbility,
+    /// A triggered ability currently waiting on the stack.
+    TriggeredAbility,
+    /// A stack object with this inclusive number of declared targets.
+    DeclaredTargetCount {
+        minimum: u8,
+        maximum: u8,
+    },
+    /// A stack object that currently has at least one declared target of this
+    /// broad kind.
+    HasDeclaredTarget(TargetPredicate),
+    /// A stack object that currently has at least one player target in this
+    /// relation to the controller of the ability asking the question.
+    HasDeclaredPlayerTarget(PlayerRelation),
     Color(ManaColor),
     /// Has exactly this many colors. Zero matches colorless objects and one
     /// matches monocolored objects.
@@ -277,18 +294,6 @@ pub enum AbilityTargetPredicate {
         slot: TargetIndex,
     },
     Player(PlayerRelation),
-    /// A spell or an ability waiting on the stack. [`Self::Object`] over a
-    /// stack zone names only spells, because that is what "target spell"
-    /// means everywhere else; this is the wider slot "target spell or
-    /// ability" needs.
-    StackObject {
-        object: ObjectPredicateDef,
-        controller: Option<PlayerRelation>,
-        /// Which stack objects are eligible. Mana abilities never use the
-        /// stack, so "mana abilities can't be targeted" needs no clause of
-        /// its own.
-        kind: StackTargetKindDef,
-    },
     Object {
         object: ObjectPredicateDef,
         zones: &'static [ZoneKind],
@@ -298,15 +303,6 @@ pub enum AbilityTargetPredicate {
         /// relation for private zones such as a graveyard.
         owner: Option<PlayerRelation>,
     },
-}
-
-/// Which objects on the stack a target may name.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum StackTargetKindDef {
-    /// A spell or an ability, which is what "target spell or ability" says.
-    SpellOrAbility,
-    /// An ability only. Stifle cannot answer a spell.
-    AbilityOnly,
 }
 
 /// A const-friendly target declaration kept beside a printed ability.
@@ -527,19 +523,6 @@ impl AbilityTargetDef {
             another: false,
             excludes_source: false,
         }
-    }
-
-    /// One spell target, optionally narrowed by color, type, or another
-    /// object predicate. Stack object enumeration already excludes abilities,
-    /// so callers only need to state the characteristic restriction.
-    #[must_use]
-    pub const fn exactly_one_spell(object: ObjectPredicateDef) -> Self {
-        Self::exactly_one(AbilityTargetPredicate::Object {
-            object,
-            zones: &[ZoneKind::Stack],
-            controller: None,
-            owner: None,
-        })
     }
 
     /// One permanent target, optionally narrowed by color, type, or another

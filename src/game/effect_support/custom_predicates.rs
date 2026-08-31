@@ -17,8 +17,7 @@ impl Game {
                 Self::ability_target_uses_custom_predicate(*if_paid)
                     || Self::ability_target_uses_custom_predicate(*otherwise)
             }
-            AbilityTargetPredicate::Object { object, .. }
-            | AbilityTargetPredicate::StackObject { object, .. } => {
+            AbilityTargetPredicate::Object { object, .. } => {
                 Self::object_predicate_uses_custom_predicate(object)
             }
         }
@@ -41,6 +40,12 @@ impl Game {
             | ObjectPredicateDef::HasType(_)
             | ObjectPredicateDef::HasAnyBasicLandType(_)
             | ObjectPredicateDef::Spell
+            | ObjectPredicateDef::Ability
+            | ObjectPredicateDef::ActivatedAbility
+            | ObjectPredicateDef::TriggeredAbility
+            | ObjectPredicateDef::DeclaredTargetCount { .. }
+            | ObjectPredicateDef::HasDeclaredTarget(_)
+            | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
             | ObjectPredicateDef::HasSourcesChosenScalar(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::NoncreatureSpell

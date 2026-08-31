@@ -898,8 +898,16 @@ pub(in crate::card::sets) static MENTAL_MISSTEP: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_instant(mana_cost!("{U/P}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell with mana value 1.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Counter {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -1062,8 +1070,16 @@ pub(in crate::card::sets) static PSYCHIC_BARRIER: CardRecord = CardRecord::new(
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_instant(mana_cost!("{U}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target creature spell. Its controller loses 1 life.",
-        &[AbilityTargetDef::exactly_one_spell(
-            ObjectPredicateDef::HasType(CardType::Creature),
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Spell,
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ]),
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
         )],
         EffectDef::Sequence(&[
             EffectDef::Counter {
@@ -3749,13 +3765,36 @@ pub(in crate::card::sets) static SOUL_CONDUIT: CardRecord = CardRecord::new(
 );
 
 // NPH 159 — Spellskite
-// Audit: metadata-only — Needs a retarget operation that revalidates this permanent as a legal replacement target for the chosen spell or ability.
 pub(in crate::card::sets) static SPELLSKITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a84bada-ed6a-4e97-8a0c-05b7cb32d66f"),
     "Spellskite",
     crate::card::CardArt::new("1a84bada-ed6a-4e97-8a0c-05b7cb32d66f", "Chippy"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(
+        mana_cost!("{2}"),
+        &["Phyrexian", "Horror"],
+        0,
+        4,
+    )
+    .with_ability(AbilityDef::activated_with_targets(
+        "{U/P}: Change a target of target spell or ability to this creature. ({U/P} can be paid with either {U} or 2 life.)",
+        &[AbilityCostDef::Mana(mana_cost!("{U/P}"))],
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::ChangeStackTargets(&crate::card::ChangeStackTargetsDef {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            chooser: PlayerRefDef::EffectController,
+            change: crate::card::StackTargetChangeDef::ReplaceOneWith(
+                EffectRecipientDef::Source,
+            ),
+        }),
+    )),
 );
 
 // NPH 160 — Surge Node

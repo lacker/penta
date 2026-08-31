@@ -19,7 +19,7 @@ impl Game {
     pub(super) fn prepared_static_program(
         &self,
         source: ObjectCharacteristics,
-    ) -> Option<PreparedStaticProgram> {
+    ) -> Option<&PreparedStaticProgram> {
         let ObjectCharacteristics::Card { definition, part } = source else {
             return None;
         };

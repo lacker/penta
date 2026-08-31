@@ -4,18 +4,19 @@ mod untap_limits;
 use std::cell::Cell;
 
 #[cfg(test)]
-use super::{AbilityId, AbilityOrigin, ObjectCharacteristics};
+use super::{AbilityId, AbilityOrigin};
 use super::{
     AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     AppliedRuleEffect, CardDefinitionId, CardPartId, CardRules, CardSet, CardType, CardTypeSet,
     CharacteristicContext, CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration,
     ControlFlow, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
-    GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef,
-    ObjectSetDef, Permanent, PlayerId, PlayerRelation, ResolvedContinuousEffect,
+    GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectCharacteristics, ObjectPredicateDef,
+    ObjectRefDef, ObjectSetDef, Permanent, PlayerId, PlayerRelation, ResolvedContinuousEffect,
     ResolvedContinuousEffectKind, RetiredObject, SetOperationDef, StackAbilityResolver,
     StackObject, StaticAppliedEffect, StaticEffectTraversal, Target, TargetIndex,
     TriggerConditionDef, TriggerContext, TriggerEventObject, ZoneKind,
 };
+use crate::prepared_engine::PreparedStaticLane;
 
 thread_local! {
     /// Guards the live set-characteristic walk when a static recipient query
@@ -84,6 +85,18 @@ impl StaticEffectKind {
                     AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(_)),
                 )
         )
+    }
+
+    const fn prepared_lane(self) -> PreparedStaticLane {
+        match self {
+            Self::Any => PreparedStaticLane::Any,
+            Self::Rules => PreparedStaticLane::Rules,
+            Self::CardTypes => PreparedStaticLane::CardTypes,
+            Self::Colors => PreparedStaticLane::Colors,
+            Self::Abilities => PreparedStaticLane::Abilities,
+            Self::Subtypes => PreparedStaticLane::Subtypes,
+            Self::PowerToughness => PreparedStaticLane::PowerToughness,
+        }
     }
 }
 

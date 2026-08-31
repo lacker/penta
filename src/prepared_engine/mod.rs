@@ -10,7 +10,10 @@ mod executor;
 
 use std::collections::HashMap;
 
-use crate::{CardCatalog, CardDefinitionId, CardPartId, PlayerId};
+use crate::{
+    AbilityId, AppliedEffectDef, CardCatalog, CardDefinitionId, CardPartId, EffectDef,
+    EffectRecipientDef, GrantId, PlayerId, TriggerConditionDef, ZoneKind,
+};
 
 pub(crate) use compiler::{compile_catalog, compile_effect};
 
@@ -19,14 +22,83 @@ pub(crate) enum PreparedEffect {
     DrawCards { count: u16 },
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(crate) struct PreparedStaticProgram {
     supplies_land_type_effect: bool,
+    abilities: Box<[PreparedStaticAbility]>,
 }
 
 impl PreparedStaticProgram {
-    pub(crate) const fn supplies_land_type_effect(self) -> bool {
+    pub(crate) const fn supplies_land_type_effect(&self) -> bool {
         self.supplies_land_type_effect
+    }
+
+    pub(crate) fn abilities(&self) -> &[PreparedStaticAbility] {
+        &self.abilities
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct PreparedStaticAbility {
+    pub(crate) id: AbilityId,
+    pub(crate) source_zones: &'static [ZoneKind],
+    pub(crate) reference_effect: EffectDef,
+    pub(crate) applications: Option<Box<[PreparedStaticApplication]>>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct PreparedStaticApplication {
+    pub(crate) recipient: EffectRecipientDef,
+    pub(crate) starts_in_type_layer: bool,
+    pub(crate) trigger_conditions: Box<[(TriggerConditionDef, bool)]>,
+    pub(crate) components: Box<[PreparedStaticComponent]>,
+    lanes: u8,
+}
+
+impl PreparedStaticApplication {
+    pub(crate) const fn supplies(&self, lane: PreparedStaticLane) -> bool {
+        matches!(lane, PreparedStaticLane::Any) || self.lanes & lane.mask() != 0
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct PreparedStaticComponent {
+    pub(crate) effect: AppliedEffectDef,
+    pub(crate) grant: Option<GrantId>,
+    pub(crate) component_order: u16,
+    lane: PreparedStaticLane,
+}
+
+impl PreparedStaticComponent {
+    pub(crate) fn supplies(self, lane: PreparedStaticLane) -> bool {
+        lane == PreparedStaticLane::Any || self.lane == lane
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum PreparedStaticLane {
+    Any,
+    Other,
+    Rules,
+    CardTypes,
+    Colors,
+    Abilities,
+    Subtypes,
+    PowerToughness,
+}
+
+impl PreparedStaticLane {
+    const fn mask(self) -> u8 {
+        match self {
+            Self::Any => u8::MAX,
+            Self::Other => 0,
+            Self::Rules => 1 << 0,
+            Self::CardTypes => 1 << 1,
+            Self::Colors => 1 << 2,
+            Self::Abilities => 1 << 3,
+            Self::Subtypes => 1 << 4,
+            Self::PowerToughness => 1 << 5,
+        }
     }
 }
 
@@ -59,7 +131,7 @@ impl PreparedCatalog {
         &self,
         definition: CardDefinitionId,
         part: CardPartId,
-    ) -> Option<PreparedStaticProgram> {
+    ) -> Option<&PreparedStaticProgram> {
         let parts = if let Ok(index) = u16::try_from(definition.get()) {
             self.dense_static_programs
                 .get(usize::from(index))?
@@ -69,7 +141,7 @@ impl PreparedCatalog {
         };
         parts
             .iter()
-            .find_map(|(candidate, program)| (*candidate == part).then_some(*program))
+            .find_map(|(candidate, program)| (*candidate == part).then_some(program))
     }
 }
 
@@ -99,7 +171,7 @@ impl PreparedEngine {
         &self,
         definition: CardDefinitionId,
         part: CardPartId,
-    ) -> Option<PreparedStaticProgram> {
+    ) -> Option<&PreparedStaticProgram> {
         self.enabled
             .then(|| self.catalog.static_program(definition, part))
             .flatten()

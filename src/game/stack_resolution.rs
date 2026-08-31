@@ -616,7 +616,7 @@ impl Game {
             StackAbilityResolver::Custom(behavior) => match object.kind {
                 StackObjectKind::Spell => self.resolve_spell_effect(object, behavior),
                 StackObjectKind::ActivatedAbility => {
-                    self.resolve_custom_activated_ability(object, behavior);
+                    debug_assert!(false, "custom activated abilities are not cataloged");
                 }
                 StackObjectKind::TriggeredAbility => {
                     self.resolve_custom_triggered_ability(object, behavior);

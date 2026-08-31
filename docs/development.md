@@ -247,12 +247,14 @@ the individual fixed-pool cards in each status. The report output is
 intentionally not checked in: the source declarations remain authoritative, so
 adding a card does not require updating a second copy of the totals or names.
 
-Each complete custom definition also has a canonical
+Each complete definition on the frozen legacy custom allowlist also has a canonical
 `// Audit: custom — Needs ...` annotation so declarative migration work remains
 visible while browsing or searching collector-ordered set sources. Execution
 metadata remains authoritative for classification; source-organization tests
-keep the annotations in exact agreement with the derived custom set. Remove the
-annotation when every part and modal clause has moved to declarative execution.
+keep the annotations in exact agreement with the derived custom set and reject
+any addition outside the shrinking allowlist. Remove the annotation and its
+allowlist entry when every part and modal clause has moved to declarative
+execution.
 
 ## Performance work
 

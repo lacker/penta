@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeSet, HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -506,6 +506,24 @@ fn complete_custom_definitions_have_migration_audits() {
             "a complete-custom definition has more than one custom audit"
         );
     }
+
+    let custom_definitions = catalog
+        .definitions()
+        .into_iter()
+        .filter(|definition| {
+            definition.implementation_status() == crate::ImplementationStatus::Complete
+                && super::definition_uses_custom_execution(definition)
+        })
+        .map(|definition| definition.name.clone())
+        .collect::<BTreeSet<_>>();
+    let legacy_allowlist = ["Balance", "Fireball", "Recall", "Tetravus"]
+        .into_iter()
+        .map(str::to_owned)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        custom_definitions, legacy_allowlist,
+        "the legacy custom-card allowlist may only shrink; new cards must use shared declarative execution or retain honest incomplete coverage",
+    );
 
     for definition in catalog.definitions() {
         let expected = definition.implementation_status() == crate::ImplementationStatus::Complete

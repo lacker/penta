@@ -2,11 +2,8 @@
 pub enum CardBehavior {
     Balance,
     BloodBaronOfVizkopa,
-    DustToDust,
     EssenceScatter,
     Fireball,
-    GoblinGrenade,
-    LibraryOfAlexandria,
     Negate,
     PillarOfFlame,
     Recall,

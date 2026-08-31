@@ -1,13 +1,13 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardBehavior,
-    CardDefinition, CardInstance, CardType, CastChoices, CastContext, CastOfferCost, CastSignature,
-    CastSourceZone, CharacteristicContext, CommittedTriggerEvent, CostConfiguration,
-    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
-    DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
-    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
-    PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId,
-    StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardDefinition,
+    CardInstance, CardType, CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone,
+    CharacteristicContext, CommittedTriggerEvent, CostConfiguration, DecisionContinuation,
+    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
+    EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaAbilityActivation,
+    ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry,
+    Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId, StackObject, StackObjectKind,
+    Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 mod signature_validation;
 include!("casting/life_costs.rs");
@@ -351,7 +351,7 @@ impl Game {
         choices: &CastChoices,
         sacrifices: &[GameObjectId],
     ) {
-        let (signature, cost, behavior, source_zone) = self
+        let (signature, cost, source_zone) = self
             .validated_cast_signature(player, card_id, choices, sacrifices)
             .expect("validated casting choices remain valid while paying costs");
         self.reveal_spliced_cards(player, choices.spliced());
@@ -369,7 +369,6 @@ impl Game {
             player,
             card_id,
             &signature,
-            behavior,
             super::CastCostContext { source_zone, offer },
             sacrifices,
         );

@@ -1,18 +1,4 @@
 use super::*;
-pub(super) fn dust_to_dust_targets(game: &mut Game, mut spell: StackObject) {
-    spell.signature = Some(CastSignature::from_validated_choices(
-        SpellForm::Part(CardPartId::PRIMARY),
-        cast_choices(
-            vec![
-                Target::Permanent(CardInstanceId(10_000)),
-                Target::Permanent(CardInstanceId(10_001)),
-            ],
-            0,
-        ),
-    ));
-    game.resolve_spell_effect(&spell, CardBehavior::DustToDust);
-}
-
 #[test]
 fn nevinyrrals_disk_uses_the_shared_stack_and_destroys_every_named_type() {
     let mut game = ready_game();

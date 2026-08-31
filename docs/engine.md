@@ -270,7 +270,7 @@ category, costs, targets, structured effect, effect execution, and coverage.
 The displayed card text is the clauses' text joined in printed order with
 newlines, so presentation and execution do not duplicate Oracle text. Clause
 IDs are assigned from that order when definitions are attached to a card part.
-Effect execution is either declarative or a closed custom selector. Coverage
+Effect execution is either declarative or a closed legacy custom selector. Coverage
 is independent: a declarative or custom clause can be Complete, Partial, or
 MetadataOnly, with an explanation for custom complete clauses and every gap.
 Card coverage is derived from all clauses and the executable land/creature
@@ -286,9 +286,10 @@ regardless of which printing might eventually be selected for presentation.
 
 Many executable effects use reusable declarative primitives or constructors in
 `card::abilities`. A `CardBehavior` value supplies a closed,
-serialization-safe selector for custom effect execution, while declarative
-effects need none. A clause keeps its selector, coverage, and explanation
-together even though custom handlers remain centralized. Unsupported cards can
+serialization-safe selector for the shrinking legacy custom allowlist, while
+declarative effects need none. New card definitions cannot add custom selectors.
+A legacy clause keeps its selector, coverage, and explanation together even
+though custom handlers remain centralized. Unsupported cards can
 exist in other catalogs and hidden zones but do not generate play options that
 would resolve as silent no-ops. This makes partial coverage explicit and keeps
 arbitrary card code out of serialized game state.

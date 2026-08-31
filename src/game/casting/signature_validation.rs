@@ -15,11 +15,7 @@ use super::super::{
     TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
     extra_target_cost,
 };
-use crate::card::CostQuantityDef;
-use crate::card::{ObjectPredicateDef, SpellAdditionalCostDef};
-use crate::game::casting_actions::{
-    CastScale, SpellAdditionalCostPayment, SpellAdditionalCostRequest,
-};
+use crate::game::casting_actions::{CastScale, SpellAdditionalCostRequest};
 
 impl Game {
     pub(in crate::game) fn mode_selection_is_valid(
@@ -139,7 +135,7 @@ impl Game {
         card_id: GameObjectId,
         choices: &CastChoices,
         sacrifices: &[GameObjectId],
-    ) -> Option<(CastSignature, ManaCost, CardBehavior, CastSourceZone)> {
+    ) -> Option<(CastSignature, ManaCost, CastSourceZone)> {
         let state = &self.players[player.index()];
         let (card, source_zone) = state
             .hand
@@ -295,42 +291,22 @@ impl Game {
         if additional_x.is_some_and(|maximum| choices.x() > maximum) {
             return None;
         }
-        let additional_payment = if behavior == CardBehavior::GoblinGrenade {
-            SpellAdditionalCostPayment {
-                objects: sacrifices
-                    .iter()
-                    .copied()
-                    .map(|object| {
-                        (
-                            object,
-                            SpellAdditionalCostDef::sacrifice(
-                                ObjectPredicateDef::Any,
-                                CostQuantityDef::Fixed(1),
-                            ),
-                        )
-                    })
-                    .collect(),
-                mana: ManaCost::default(),
-                life: 0,
-            }
-        } else {
-            self.spell_additional_cost_payment_for_objects(
-                SpellAdditionalCostRequest {
-                    definition,
-                    option,
-                    costs: choices.costs(),
-                    card,
-                    player,
-                    modes: choices.modes(),
-                    scale: CastScale {
-                        x: choices.x(),
-                        modes: choices.modes().len(),
-                        offer: offer.map(|offer| offer.cost),
-                    },
+        let additional_payment = self.spell_additional_cost_payment_for_objects(
+            SpellAdditionalCostRequest {
+                definition,
+                option,
+                costs: choices.costs(),
+                card,
+                player,
+                modes: choices.modes(),
+                scale: CastScale {
+                    x: choices.x(),
+                    modes: choices.modes().len(),
+                    offer: offer.map(|offer| offer.cost),
                 },
-                sacrifices,
-            )?
-        };
+            },
+            sacrifices,
+        )?;
         cost = add_mana_cost(cost, additional_payment.mana);
         let cast_life = self
             .configured_cast_life_payment(
@@ -442,7 +418,6 @@ impl Game {
         Some((
             CastSignature::from_validated_choices(option.form.clone(), choices.clone()),
             cost,
-            behavior,
             source_zone,
         ))
     }

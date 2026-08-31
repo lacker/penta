@@ -269,13 +269,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         EffectDef::Tap {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
         },
-    )
-    .with_effect_execution(EffectExecutionDef::Custom(
-        CardBehavior::LibraryOfAlexandria,
-    ))
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "The test intentionally grants a custom resolver.",
-    ));
+    );
     static SOURCE_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
         "This permanent has the test ability.",
         EffectDef::StaticApply {
@@ -334,27 +328,27 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(
-            CardBehavior::LibraryOfAlexandria
-        ))
+        Some(StackAbilityResolver::Declarative(ScopedEffect {
+            effect: EffectDef::Tap { .. },
+            ..
+        }))
     ));
 
     // This models a continuous/copy effect changing the effective rules of a
     // source after activation. The origin remains provenance, while the stack
-    // object's executable payload must remain the Library procedure.
+    // object's executable payload must remain the captured declarative effect.
     game.battlefield[0].copy_effect = Some(copied_characteristics(cards::JAYEMDAE_TOME));
     pass_priority_pair(&mut game);
     pass_priority_pair(&mut game);
 
-    assert_eq!(
-        game.players[PlayerId::One.index()].hand.len(),
-        1,
-        "resolution must not rediscover a different handler from the changed source",
+    assert!(
+        game.battlefield[1].tapped,
+        "resolution must not rediscover a different effect from the changed source",
     );
 }
 
 #[test]
-fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
+fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
     static TARGETS: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::AnyTarget,
     )];
@@ -368,11 +362,7 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
                 amount: ValueDef::Constant(1),
             },
         ),
-        AbilityDef::custom_full(
-            "A separate custom clause.",
-            CardBehavior::Fireball,
-            "The test keeps one explicitly custom clause beside the declarative clause.",
-        ),
+        AbilityDef::activated("A separate clause.", &[], EffectDef::None),
     ];
     let definition_id = CardDefinitionId::new(10_060);
     let mut definition = CardDefinition::new(
@@ -416,12 +406,12 @@ fn declarative_clause_uses_its_own_resolver_on_a_card_with_custom_behavior() {
     pass_priority_pair(&mut game);
     assert_eq!(
         game.players[1].life, 19,
-        "the selected definition must not dispatch through Fireball's unrelated hook",
+        "the selected definition must retain its own effect",
     );
 }
 
 #[test]
-fn legacy_activated_clauses_keep_their_own_origins() {
+fn activated_clauses_keep_their_own_origins() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
@@ -430,14 +420,7 @@ fn legacy_activated_clauses_keep_their_own_origins() {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(
-            CardBehavior::LibraryOfAlexandria,
-        ))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the Library of Alexandria resolver.",
-        ))
-        .with_legacy_procedure(),
+        ),
         AbilityDef::activated(
             "{T}: Draw a card. Activate only if you have exactly seven cards in hand.",
             &[AbilityCostDef::TapSource],
@@ -445,14 +428,7 @@ fn legacy_activated_clauses_keep_their_own_origins() {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(
-            CardBehavior::LibraryOfAlexandria,
-        ))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the Library of Alexandria resolver.",
-        ))
-        .with_legacy_procedure(),
+        ),
     ];
     let definition_id = CardDefinitionId::new(10_096);
     let mut definition = CardDefinition::new(
@@ -491,22 +467,23 @@ fn legacy_activated_clauses_keep_their_own_origins() {
 
     game.apply(PlayerId::One, second).unwrap();
     assert_eq!(game.stack[0].ability_origin(), Some(second_origin));
-    assert_eq!(
+    assert!(matches!(
         game.stack[0]
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(
-            CardBehavior::LibraryOfAlexandria,
-        )),
-    );
+        Some(StackAbilityResolver::Declarative(ScopedEffect {
+            effect: EffectDef::DrawCards { .. },
+            ..
+        }))
+    ));
     pass_priority_pair(&mut game);
     assert!(game.battlefield[0].tapped);
     assert_eq!(game.players[PlayerId::One.index()].hand.len(), 8);
 }
 
 #[test]
-fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
+fn a_second_activation_after_another_clause_keeps_its_own_origin() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "You gain 1 life.",
@@ -523,14 +500,7 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(
-            CardBehavior::LibraryOfAlexandria,
-        ))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The test uses the Library of Alexandria resolver.",
-        ))
-        .with_legacy_procedure(),
+        ),
     ];
     let definition_id = CardDefinitionId::new(10_097);
     let mut definition = CardDefinition::new(
@@ -559,10 +529,10 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
     game.players[PlayerId::One.index()]
         .hand
         .extend((0..7).map(|offset| card(10_001 + offset, cards::MOUNTAIN, PlayerId::One)));
-    let legacy_origin = activated_ability_for(&game, source, 1);
+    let second_origin = activated_ability_for(&game, source, 1);
     let action = Action::ActivateAbility {
         source,
-        ability: legacy_origin,
+        ability: second_origin,
         targets: Vec::new(),
         cost_objects: Vec::new(),
         x: 0,
@@ -572,16 +542,17 @@ fn a_legacy_activation_after_a_shared_clause_keeps_its_own_origin() {
 
     assert!(game.legal_actions(PlayerId::One).contains(&action));
     game.apply(PlayerId::One, action).unwrap();
-    assert_eq!(game.stack[0].ability_origin(), Some(legacy_origin));
-    assert_eq!(
+    assert_eq!(game.stack[0].ability_origin(), Some(second_origin));
+    assert!(matches!(
         game.stack[0]
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Custom(
-            CardBehavior::LibraryOfAlexandria,
-        )),
-    );
+        Some(StackAbilityResolver::Declarative(ScopedEffect {
+            effect: EffectDef::DrawCards { .. },
+            ..
+        }))
+    ));
     assert_eq!(game.players[PlayerId::One.index()].life, 20);
     pass_priority_pair(&mut game);
     assert_eq!(game.players[PlayerId::One.index()].hand.len(), 8);
@@ -746,8 +717,25 @@ fn dust_to_dust_exiles_two_artifacts_and_hurkyls_recall_returns_them() {
         creature(10_000, cards::SOL_RING, PlayerId::Two),
         creature(10_001, cards::BLACK_VISE, PlayerId::Two),
     ]);
-    let dust = spell(10_002, cards::DUST_TO_DUST, PlayerId::One, 0);
-    dust_to_dust_targets(&mut game, dust);
+    let dust = card(10_002, cards::DUST_TO_DUST, PlayerId::One);
+    game.players[0].hand.push(dust.clone());
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 3);
+    game.apply(
+        PlayerId::One,
+        Action::CastSpell {
+            card: dust.id,
+            choices: cast_choices(
+                vec![
+                    Target::Permanent(CardInstanceId(10_000)),
+                    Target::Permanent(CardInstanceId(10_001)),
+                ],
+                0,
+            ),
+            sacrifices: Vec::new(),
+        },
+    )
+    .unwrap();
+    drain_pending(&mut game);
     assert_eq!(game.players[0].exile.len(), 0);
     assert_eq!(game.players[1].exile.len(), 2);
 

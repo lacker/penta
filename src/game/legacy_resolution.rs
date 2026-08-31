@@ -6,22 +6,9 @@ use super::{
 };
 
 impl Game {
-    pub(super) fn resolve_custom_activated_ability(
-        &mut self,
-        object: &StackObject,
-        behavior: CardBehavior,
-    ) {
-        if behavior == CardBehavior::LibraryOfAlexandria {
-            self.draw_instruction(object.controller, 1);
-        }
-    }
-
     #[allow(clippy::too_many_lines)]
     pub(super) fn resolve_spell_effect(&mut self, object: &StackObject, behavior: CardBehavior) {
         match behavior {
-            CardBehavior::GoblinGrenade => {
-                self.damage_target(object.first_target(), 5);
-            }
             CardBehavior::Fireball => {
                 let divisor = u16::try_from(object.target_count()).unwrap_or(u16::MAX);
                 let amount = object.x().checked_div(divisor).unwrap_or(0);
@@ -36,14 +23,6 @@ impl Game {
                     })
                     .collect();
                 self.deal_damage_simultaneously(assignments);
-            }
-            CardBehavior::DustToDust => {
-                for target in object.iter_targets().filter_map(|target| match target {
-                    Target::Permanent(id) => Some(*id),
-                    Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
-                }) {
-                    self.exile_permanent(target);
-                }
             }
             CardBehavior::Negate | CardBehavior::EssenceScatter => {
                 if let Some(Target::Spell(target)) = object.first_target() {

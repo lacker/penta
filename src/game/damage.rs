@@ -81,6 +81,7 @@ struct PreparedDamage {
 }
 
 impl Game {
+    #[cfg(test)]
     pub(super) fn damage_target(&mut self, target: Option<Target>, amount: u16) -> u16 {
         self.damage_target_from(None, target, amount)
     }

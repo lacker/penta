@@ -8,11 +8,11 @@ use crate::card::{
 
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, ActivatedAbilityDef,
-    AppliedEffectDef, CardBehavior, CardDefinitionId, CardInstance, CardType,
-    CharacteristicContext, CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair,
-    KeywordAbility, ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind,
-    ManaCost, ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
+    AppliedEffectDef, CardDefinitionId, CardInstance, CardType, CharacteristicContext,
+    CharacteristicOperationDef, CostConfiguration, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, FlexibleManaSource, Game, GameObjectId, HybridPair, KeywordAbility,
+    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaContributionKind, ManaCost,
+    ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
     PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
     TargetSlotId, TriggerContext, ValueDef, ZoneKind, extra_target_cost,
@@ -87,28 +87,23 @@ impl Game {
                     .map(|offer| offer.cost);
                 let cost =
                     self.configured_cast_mana_cost(player, *card, option, choices.costs(), offer)?;
-                let (additional_mana, additional_life) =
-                    if self.behavior(definition.id) == Some(CardBehavior::GoblinGrenade) {
-                        (ManaCost::default(), 0)
-                    } else {
-                        let payment = self.spell_additional_cost_payment_for_objects(
-                            super::casting_actions::SpellAdditionalCostRequest {
-                                definition,
-                                option,
-                                costs: choices.costs(),
-                                card: held,
-                                player,
-                                modes: choices.modes(),
-                                scale: super::casting_actions::CastScale {
-                                    x: choices.x(),
-                                    modes: choices.modes().len(),
-                                    offer,
-                                },
-                            },
-                            sacrifices,
-                        )?;
-                        (payment.mana, payment.life)
-                    };
+                let payment = self.spell_additional_cost_payment_for_objects(
+                    super::casting_actions::SpellAdditionalCostRequest {
+                        definition,
+                        option,
+                        costs: choices.costs(),
+                        card: held,
+                        player,
+                        modes: choices.modes(),
+                        scale: super::casting_actions::CastScale {
+                            x: choices.x(),
+                            modes: choices.modes().len(),
+                            offer,
+                        },
+                    },
+                    sacrifices,
+                )?;
+                let (additional_mana, additional_life) = (payment.mana, payment.life);
                 let increased = add_mana_cost(
                     add_mana_cost(
                         add_generic(

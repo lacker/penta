@@ -1,10 +1,10 @@
 use super::{
     AbilityCostDef, AbilityOrigin, AbilityProcedureDef, ActivationChoices, ActivationTimingDef,
-    CardBehavior, CardInstance, CharacteristicContext, CommittedTriggerEvent, CounterKind,
-    DeclarativeAbilityDef, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
-    ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, PendingActivation,
-    PendingActivationTargeting, PlayRestriction, PlayerId, SacrificeQuota, Step, TapQuota, Target,
-    TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    CardInstance, CharacteristicContext, CommittedTriggerEvent, CounterKind, DeclarativeAbilityDef,
+    FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose,
+    ManaPlanOptions, ObjectCharacteristics, PendingActivation, PendingActivationTargeting,
+    PlayRestriction, PlayerId, SacrificeQuota, Step, TapQuota, Target, TargetSelection, ZoneKind,
+    ZoneMoveCause, ZonePlacement, remove_card,
 };
 
 use crate::ManaPaymentChoice;
@@ -583,27 +583,6 @@ impl Game {
                         if definition.procedure == AbilityProcedureDef::Shared
                 )
         });
-        let behavior = selected_ability.and_then(|ability| match ability.definition {
-            DeclarativeAbilityDef::Activated(definition)
-                if definition.procedure == AbilityProcedureDef::Legacy =>
-            {
-                ability.custom_behavior()
-            }
-            DeclarativeAbilityDef::Legacy => ability.custom_behavior(),
-            DeclarativeAbilityDef::Spell(_)
-            | DeclarativeAbilityDef::ActivatedMana(_)
-            | DeclarativeAbilityDef::TriggeredMana(_)
-            | DeclarativeAbilityDef::Activated(_)
-            | DeclarativeAbilityDef::Triggered(_)
-            | DeclarativeAbilityDef::Static(_)
-            | DeclarativeAbilityDef::Replacement(_)
-            | DeclarativeAbilityDef::AlternativeCast(_)
-            | DeclarativeAbilityDef::OptionalAdditionalCost(_)
-            | DeclarativeAbilityDef::SpecialAction(_)
-            | DeclarativeAbilityDef::Pregame(_)
-            | DeclarativeAbilityDef::Keyword(_)
-            | DeclarativeAbilityDef::DeckConstruction(_) => None,
-        });
         if let Some(ability_def) = declarative {
             let DeclarativeAbilityDef::Activated(definition) = ability_def.definition else {
                 unreachable!("the declarative activation filter checked its category")
@@ -979,19 +958,6 @@ impl Game {
                 remaining_sacrifices,
             );
             return;
-        }
-        if let Some(CardBehavior::LibraryOfAlexandria) = behavior {
-            let card = self
-                .tap_permanent(source)
-                .expect("legal activation has a source");
-            self.push_activated_ability(
-                source,
-                &card,
-                player,
-                frozen_ability,
-                frozen_targets,
-                Vec::new(),
-            );
         }
         self.consecutive_passes = 0;
         self.check_state_based_actions();

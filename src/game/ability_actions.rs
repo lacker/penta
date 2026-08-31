@@ -221,19 +221,9 @@ impl Game {
                 continue;
             }
             let only_open_abilities = permanent.controller != player;
-            let mut legacy_activations = Vec::new();
-            let mut untyped_legacy_activation = None;
             let mut last_activated_origin = None;
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
-                if ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Legacy)
-                    && untyped_legacy_activation.is_none()
-                {
-                    untyped_legacy_activation = ability
-                        .custom_behavior()
-                        .map(|behavior| (effective.origin, behavior));
-                }
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                     return;
                 };
@@ -284,9 +274,6 @@ impl Game {
                     return;
                 }
                 if definition.procedure == AbilityProcedureDef::Legacy {
-                    if let Some(behavior) = ability.custom_behavior() {
-                        legacy_activations.push((effective.origin, definition, behavior));
-                    }
                     return;
                 }
                 let mut fixed_sacrifices = Vec::new();
@@ -704,12 +691,6 @@ impl Game {
                     }
                 }
             });
-            if let Some((origin, behavior)) = untyped_legacy_activation {
-                self.add_legacy_activated_actions(player, permanent, origin, behavior, actions);
-            }
-            for (origin, _definition, behavior) in legacy_activations {
-                self.add_legacy_activated_actions(player, permanent, origin, behavior, actions);
-            }
         }
         self.add_hand_ability_actions(player, actions);
         self.add_graveyard_ability_actions(player, actions);
@@ -755,35 +736,6 @@ impl Game {
                     mana_payment: None,
                 });
             }
-        }
-    }
-
-    #[allow(clippy::too_many_lines)]
-    pub(super) fn add_legacy_activated_actions(
-        &self,
-        player: PlayerId,
-        permanent: &Permanent,
-        ability: AbilityOrigin,
-        behavior: CardBehavior,
-        actions: &mut Vec<Action>,
-    ) {
-        match behavior {
-            CardBehavior::LibraryOfAlexandria
-                if !permanent.tapped
-                    && self.can_use_tap_or_untap_ability(permanent)
-                    && self.players[player.index()].hand.len() == 7 =>
-            {
-                actions.push(Action::ActivateAbility {
-                    source: permanent.card.id,
-                    ability,
-                    targets: Vec::new(),
-                    cost_objects: Vec::new(),
-                    x: 0,
-                    modes: Vec::new(),
-                    mana_payment: None,
-                });
-            }
-            _ => {}
         }
     }
 

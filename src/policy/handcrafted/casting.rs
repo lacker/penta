@@ -116,16 +116,14 @@ impl HandcraftedPolicy {
             return -10_000;
         }
         let damage = match behavior {
-            Some(CardBehavior::GoblinGrenade) => Some(5),
             Some(CardBehavior::Fireball) => fireball_damage,
             _ => declarative.and_then(|profile| profile.damage),
         };
         let cards_drawn = declarative.and_then(|profile| profile.cards_drawn);
         let counters =
             declarative.is_some_and(|profile| profile.has(DeclarativeSpellProfile::COUNTERS));
-        let removes = declarative
-            .is_some_and(|profile| profile.has(DeclarativeSpellProfile::REMOVES))
-            || Self::is_hostile_removal(behavior);
+        let removes =
+            declarative.is_some_and(|profile| profile.has(DeclarativeSpellProfile::REMOVES));
         let sweeps_creatures = declarative
             .is_some_and(|profile| profile.has(DeclarativeSpellProfile::SWEEPS_CREATURES));
         let extra_turn =
@@ -153,7 +151,6 @@ impl HandcraftedPolicy {
         )
         .unwrap_or(i32::MAX);
         let base = match behavior {
-            Some(CardBehavior::GoblinGrenade) => 8_500,
             Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
             Some(behavior) if behavior.types().is_permanent() => 6_800,
             _ if extra_turn => 8_300,

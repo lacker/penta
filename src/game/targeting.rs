@@ -406,11 +406,6 @@ impl Game {
         exact_count: Option<usize>,
     ) -> Vec<Vec<Target>> {
         match behavior {
-            CardBehavior::GoblinGrenade => self
-                .damage_targets()
-                .into_iter()
-                .map(|target| vec![target])
-                .collect(),
             CardBehavior::Fireball => {
                 let targets = self.damage_targets();
                 // "Any number of targets" starts at none (CR 601.2c).
@@ -420,15 +415,6 @@ impl Game {
                     .into_iter()
                     .flat_map(|count| target_combinations(&targets, count))
                     .collect()
-            }
-            CardBehavior::DustToDust => {
-                let artifacts: Vec<_> = self
-                    .battlefield
-                    .iter()
-                    .filter(|permanent| self.is_artifact_permanent(permanent))
-                    .map(|permanent| Target::Permanent(permanent.card.id))
-                    .collect();
-                target_combinations(&artifacts, 2)
             }
             _ => vec![Vec::new()],
         }

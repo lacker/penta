@@ -2,7 +2,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    CardArt, CardBehavior, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
+    CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
     ChangeStackTargetsDef, ComparisonDef, DamageCoverageDef, DamageEventMatcherDef,
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef,
     EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, KeywordAbility, ManaColor,
@@ -72,17 +72,36 @@ pub(in crate::card::sets) static CLEANSING: CardRecord = CardRecord::new(
 );
 
 // DRK 5 — Dust to Dust
-// Audit: custom — Needs migration to declarative exact-two artifact targeting and exile resolution.
 pub(in crate::card::sets) static DUST_TO_DUST: CardRecord = CardRecord::new_with_legacy_id(
     112,
     "Dust to Dust",
     CardArt::new("ade075fd-73ee-4d12-a2da-48e5938043af", "Drew Tucker"),
     CardSet::TheDark,
-    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_abilities(&[AbilityDef::custom_full(
-        "Exile two target artifacts.",
-        CardBehavior::DustToDust,
-        "Artifact targeting and exile are implemented by the legacy spell resolver.",
-    )]),
+    CardRules::new_sorcery(mana_cost!("{1}{W}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile two target artifacts.",
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                chooser: TargetChooserDef::Controller,
+                minimum: 2,
+                maximum: 2,
+                exact_count: None,
+                divided_total: None,
+                another: false,
+                excludes_source: false,
+            }],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::target_objects(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // DRK 6 — Exorcist

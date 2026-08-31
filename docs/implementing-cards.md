@@ -41,7 +41,7 @@ power/toughness values are not otherwise a special exception. Keep every
 allowed extracted component after the header and before the `CardRecord`,
 adjacent to the clause it supports and in printed-clause order.
 
-A complete definition that still uses custom execution puts
+A complete definition on the frozen legacy custom allowlist puts
 `// Audit: custom — Needs ...` immediately below the header, naming the work
 required to migrate it to declarative execution; card-local helpers follow the
 audit. An incomplete identity uses `blocked`, `partial`, or `metadata-only` as
@@ -98,7 +98,7 @@ rather than from parallel card-level assertions.
 
 Reuse constructors from `card::abilities` and declarative rules primitives
 where they fit. Keep rules text, implementation coverage, and execution tied to
-the same clause even when the final effect requires custom code.
+the same clause. New custom execution is not an available extension boundary.
 
 ## Extension boundaries
 
@@ -106,13 +106,13 @@ Use the smallest boundary that truthfully implements the behavior:
 
 - A recurring mechanic or general Magic rules concept belongs in a reusable,
   card-agnostic primitive that ability definitions can invoke.
-- Genuinely card-specific behavior, or behavior whose reusable shape is not yet
-  clear, belongs in a card-scoped implementation reached from the relevant
-  ability clause. Keep timing, costs, targets, and stack behavior declarative
-  around the custom portion whenever possible.
-- A direct card-identity branch in generic `Game` or state-machine flow is an
-  escape valve when the definition and card-scoped paths cannot reasonably
-  express the card. Keep it narrow, searchable, documented, and tested.
+- Genuinely card-specific composition belongs directly in the relevant card's
+  declarative ability clause. When the required semantic shape is reusable,
+  add a shared primitive rather than a card-scoped resolver.
+- If neither the definition nor a reasonably scoped shared primitive can
+  express the complete card, leave the unsupported portion honestly partial or
+  metadata-only. Do not add a direct card-identity branch in generic `Game` or
+  state-machine flow.
 
 Custom resolution must not silently change an explicit ability category or let
 a supported activated or triggered non-mana ability bypass the shared stack.
@@ -122,9 +122,10 @@ the better boundary clear and reasonably scoped.
 
 ## Coverage and partial support
 
-Declarative effects need no custom behavior identity. A custom clause keeps its
-closed effect selector, independent coverage, and explanation beside the clause
-even when its handler remains centralized. Unsupported cards may exist in
+Declarative effects need no custom behavior identity. The remaining legacy
+custom clauses keep their closed effect selectors, independent coverage, and
+explanations beside the clause while they await migration. Their explicit
+allowlist may only shrink. Unsupported cards may exist in
 catalogs and hidden zones, but the engine does not offer play options that
 would resolve as silent no-ops.
 
@@ -145,9 +146,8 @@ logic through unrelated engine paths.
 1. Confirm the printed clauses and the format or card interaction being added.
 2. Represent the clauses, categories, costs, targets, effects, and coverage in
    the card definition.
-3. Reuse an existing primitive, add a shared primitive, attach card-local
-   execution, or introduce a narrow special case according to the preference
-   ladder above.
+3. Reuse an existing primitive or add a shared primitive according to the
+   preference ladder above; otherwise retain honest incomplete coverage.
 4. Test new shared rule behavior once at the narrowest useful boundary. Add a
    card-level test only for text-sensitive composition, a legality boundary,
    or an interaction that could fail while the shared primitive still passes.
@@ -158,9 +158,9 @@ logic through unrelated engine paths.
 Before adding a card test, find the closest existing mechanic test. A second
 card using the same primitive does not need another happy-path dispatch test;
 extend the mechanic test only when the new card contributes a distinct case.
-Do not test a named card merely to assert derived implementation status, audit
-classification, or the absence of custom behavior. Source audits and generated
-catalog reports own those facts.
+Do not test a named card merely to assert derived implementation status or audit
+classification. The shrinking legacy custom allowlist is the one exception;
+source audits and generated catalog reports own all other coverage facts.
 
 ## Adding a set or fixed card pool
 

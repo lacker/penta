@@ -170,7 +170,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
             slot_id,
             Target::Player(PlayerId::Two),
         )]);
-    let (signature, cost, _, _) = game
+    let (signature, cost, _) = game
         .validated_cast_signature(PlayerId::One, card_id, &valid, &[])
         .expect("all structured choices are recognized and payable");
     assert_eq!(signature.play_option(), option_id);

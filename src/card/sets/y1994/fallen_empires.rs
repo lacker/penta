@@ -2,13 +2,13 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardType,
-    ChoiceVisibilityDef, ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ComparisonDef, ControlDurationDef, CostModificationDef, CostQuantityDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
     EffectRecipientDef, InstalledTriggerDef, LikelihoodDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -1371,17 +1371,23 @@ pub(in crate::card::sets) static GOBLIN_FLOTILLA: CardRecord = CardRecord::new(
 );
 
 // FEM 56a — Goblin Grenade
-// Audit: custom — Needs migration to a declarative Goblin sacrifice additional cost, any target, and fixed damage effect.
 pub(in crate::card::sets) static GOBLIN_GRENADE: CardRecord = CardRecord::new_with_legacy_id(
     26,
     "Goblin Grenade",
     CardArt::new("8837eaba-9602-4f63-9897-85583fcdcf51", "Ron Spencer"),
     CardSet::FallenEmpires,
     CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
-        AbilityDef::custom_full(
+        AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a Goblin.\nGoblin Grenade deals 5 damage to any target.",
-            CardBehavior::GoblinGrenade,
-            "The additional cost, target selection, and damage are implemented by the legacy spell resolver.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
+            SpellAdditionalCostDef::sacrifice(
+                ObjectPredicateDef::Subtype("Goblin"),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(5),
+            },
         ),
     ]),
 );

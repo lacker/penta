@@ -3,8 +3,6 @@
 // Included textually into `casting.rs`, so the imports here are the parent
 // module's.
 
-use crate::card::CostQuantityDef;
-
 impl Game {
     /// The largest X a "pay X life" cost can be paid at. A player may pay
     /// life only down to zero (CR 118.4), so their life total is the bound;
@@ -215,7 +213,6 @@ impl Game {
         player: PlayerId,
         card_id: GameObjectId,
         signature: &CastSignature,
-        behavior: CardBehavior,
         context: super::CastCostContext,
         sacrifices: &[GameObjectId],
     ) -> (Vec<(GameObjectId, SpellAdditionalCostDef)>, u16) {
@@ -247,26 +244,8 @@ impl Game {
         let option = definition
             .play_option(signature.play_option())
             .expect("a validated cast option remains in the catalog");
-        let payment = if behavior == CardBehavior::GoblinGrenade {
-            super::casting_actions::SpellAdditionalCostPayment {
-                objects: sacrifices
-                    .iter()
-                    .copied()
-                    .map(|object| {
-                        (
-                            object,
-                            SpellAdditionalCostDef::sacrifice(
-                                crate::card::ObjectPredicateDef::Any,
-                                CostQuantityDef::Fixed(1),
-                            ),
-                        )
-                    })
-                    .collect(),
-                mana: ManaCost::default(),
-                life: 0,
-            }
-        } else {
-            self.spell_additional_cost_payment_for_objects(
+        let payment = self
+            .spell_additional_cost_payment_for_objects(
                 super::casting_actions::SpellAdditionalCostRequest {
                     definition,
                     option,
@@ -282,8 +261,7 @@ impl Game {
                 },
                 sacrifices,
             )
-            .expect("a validated object payment remains a legal semantic payment")
-        };
+            .expect("a validated object payment remains a legal semantic payment");
         assert_eq!(
             sacrifices,
             payment.object_ids(),

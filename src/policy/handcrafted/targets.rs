@@ -1,6 +1,6 @@
 use super::{
-    AbilityOrigin, CardBehavior, CardDefinitionId, CardType, CardTypeSet, GameObjectId,
-    HandcraftedPolicy, PlayerId, PlayerObservation, StackObjectKind, StackObservation, Target,
+    AbilityOrigin, CardDefinitionId, CardType, CardTypeSet, GameObjectId, HandcraftedPolicy,
+    PlayerId, PlayerObservation, StackObjectKind, StackObservation, Target,
 };
 
 impl HandcraftedPolicy {
@@ -215,10 +215,6 @@ impl HandcraftedPolicy {
         }
     }
 
-    pub(super) fn is_hostile_removal(behavior: Option<CardBehavior>) -> bool {
-        matches!(behavior, Some(CardBehavior::DustToDust))
-    }
-
     /// Removal aimed at your own board is never worth its base score, so the
     /// penalty has to cancel that base outright rather than merely rank below
     /// a hostile target that may not exist.
@@ -301,7 +297,6 @@ impl HandcraftedPolicy {
             return value;
         }
         match self.behavior(definition) {
-            Some(CardBehavior::GoblinGrenade) => 75,
             Some(behavior) if behavior.types().is_creature() => 65,
             Some(_) => 55,
             None => self.catalog.get(definition).map_or(0, |card| {

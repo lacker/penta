@@ -1,5 +1,3 @@
-use crate::card::CostQuantityDef;
-
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, Action, AdditionalCostId,
     AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
@@ -14,18 +12,13 @@ use super::{
     target_combinations,
 };
 
-use crate::card::{
-    AlternateSpellKind, CardStructure, ModeSetDef, ObjectPredicateDef, SpellAdditionalCostDef,
-    SpellForm,
-};
+use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm};
 use crate::game::mana_planning::reduce_generic;
 
 mod cost_configurations;
 mod land_actions;
 mod mana_payments;
-pub(in crate::game) use cost_configurations::{
-    CastScale, SpellAdditionalCostPayment, SpellAdditionalCostRequest,
-};
+pub(in crate::game) use cost_configurations::{CastScale, SpellAdditionalCostRequest};
 
 impl Game {
     /// Whether this player could cast a sorcery right now: their own main
@@ -404,46 +397,21 @@ impl Game {
                                         x,
                                         offer.map(|offer| offer.cost),
                                     );
-                                    let additional_payments = if behavior
-                                        == CardBehavior::GoblinGrenade
-                                    {
-                                        self.battlefield
-                                            .iter()
-                                            .filter(|permanent| {
-                                                permanent.controller == player
-                                                    && self.effective_rules(permanent).is_some_and(
-                                                        |rules| rules.has_subtype("Goblin"),
-                                                    )
-                                            })
-                                            .map(|permanent| SpellAdditionalCostPayment {
-                                                objects: vec![(
-                                                    permanent.card.id,
-                                                    SpellAdditionalCostDef::sacrifice(
-                                                        ObjectPredicateDef::Any,
-                                                        CostQuantityDef::Fixed(1),
-                                                    ),
-                                                )],
-                                                mana: ManaCost::default(),
-                                                life: 0,
-                                            })
-                                            .collect()
-                                    } else {
-                                        self.spell_additional_cost_payments(
-                                            SpellAdditionalCostRequest {
-                                                definition,
-                                                option,
-                                                costs: &costs,
-                                                card,
-                                                player,
-                                                modes: &modes,
-                                                scale: CastScale {
-                                                    x,
-                                                    modes: modes.len(),
-                                                    offer: offer.map(|offer| offer.cost),
-                                                },
+                                    let additional_payments = self.spell_additional_cost_payments(
+                                        SpellAdditionalCostRequest {
+                                            definition,
+                                            option,
+                                            costs: &costs,
+                                            card,
+                                            player,
+                                            modes: &modes,
+                                            scale: CastScale {
+                                                x,
+                                                modes: modes.len(),
+                                                offer: offer.map(|offer| offer.cost),
                                             },
-                                        )
-                                    };
+                                        },
+                                    );
                                     let library_life = if source_zone == CastSourceZone::LibraryTop
                                     {
                                         self.library_top_life_cost(card, player, option)

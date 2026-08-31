@@ -5,8 +5,9 @@ use super::{
     CardPrintingId, CardRules, CardSet, CardType, CardTypeSet, CostQuantityDef, CreatureStats,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
     LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
-    ManaSelectionDef, ManaTypeSetDef, ObjectPredicateDef, PlayOptionDef, PlayerRelation,
-    PrintedManaCost, SpellAdditionalCostDef, SpellForm, TargetPredicate, TriggerEventDef, ZoneKind,
+    ManaSelectionDef, ManaTypeSetDef, ModalModeListDef, ObjectPredicateDef, PlayOptionDef,
+    PlayerRelation, PrintedManaCost, SpellAbilityDef, SpellAdditionalCostDef, SpellForm,
+    TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
@@ -216,6 +217,32 @@ fn spree_modes_derive_costs_and_complete_rules_text() {
     assert_eq!(
         RULES.rules_text(),
         "Spree (Choose one or more additional costs.)\n+ {1} — First instruction.\n+ {2}{G} — Second instruction.",
+    );
+}
+
+#[test]
+fn modal_escalate_spell_derives_its_mode_range_and_attaches_its_cost() {
+    const COST: SpellAdditionalCostDef =
+        SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1));
+    const MODES: [AbilityDef; 3] = [
+        AbilityDef::spell("First mode.", EffectDef::None),
+        AbilityDef::spell("Second mode.", EffectDef::None),
+        AbilityDef::spell("Third mode.", EffectDef::None),
+    ];
+    const ABILITY: AbilityDef =
+        AbilityDef::modal_escalate_spell("Escalate—Pay the cost.", COST, &MODES);
+
+    let DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) = ABILITY.definition else {
+        panic!("escalate should define a modal spell");
+    };
+    assert_eq!(modal.minimum, 1);
+    assert_eq!(modal.maximum, 3);
+    assert!(!modal.may_repeat);
+    assert_eq!(modal.modes, ModalModeListDef::Ordinary(&MODES));
+    assert_eq!(modal.escalate_cost, Some(COST));
+    assert_eq!(
+        ABILITY.rules_text(),
+        "Escalate—Pay the cost.\nChoose one or more —\n• First mode.\n• Second mode.\n• Third mode."
     );
 }
 

@@ -526,9 +526,10 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
     match ability.definition {
         DeclarativeAbilityDef::Spell(definition) => {
             if let Some(modal) = definition.modal() {
-                modal.modes.iter().all(|mode| {
-                    mode.declarative_effect().is_none() || shared_definition_ability(mode)
-                })
+                shared_spell_additional_cost(modal.escalate_cost)
+                    && modal.modes.iter().all(|mode| {
+                        mode.declarative_effect().is_none() || shared_definition_ability(mode)
+                    })
             } else {
                 // A clause that exists only to carry an additional cost has
                 // nothing to do on resolution, which is why None is allowed
@@ -891,7 +892,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     modal.minimum <= 1
                         && modal.maximum == 1
                         && !modal.may_repeat
-                        && modal.additional_cost.is_none()
+                        && modal.escalate_cost.is_none()
                         && modal.conditional_maximum.is_none()
                         && modal.modes.iter().all(|mode| {
                             mode.declarative_effect().is_none() || shared_definition_ability(mode)

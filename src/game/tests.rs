@@ -143,6 +143,7 @@ mod equipment_expansion_batch_one;
 mod equipment_expansion_batch_three;
 mod equipment_expansion_batch_two;
 mod erg_raiders;
+mod escalate;
 mod evolve;
 mod evolve_scavenge_cards;
 mod exalted;

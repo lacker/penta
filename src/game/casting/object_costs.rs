@@ -58,6 +58,17 @@ impl Game {
                     );
                     continue;
                 }
+                SpellAdditionalCostDef::Tap { .. } => {
+                    if !self
+                        .battlefield
+                        .iter()
+                        .any(|permanent| permanent.card.id == spent && !permanent.tapped)
+                    {
+                        return None;
+                    }
+                    self.tap_permanent(spent)?;
+                    continue;
+                }
                 SpellAdditionalCostDef::Exile {
                     from: ZoneKind::Battlefield,
                     ..

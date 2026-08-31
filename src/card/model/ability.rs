@@ -1,6 +1,3 @@
-use std::borrow::Cow;
-use std::fmt::Write as _;
-
 use crate::ids::TargetIndex;
 
 use super::{
@@ -15,6 +12,8 @@ use super::{
     StaticAbilityDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef,
     ZoneKind,
 };
+
+mod rules_text;
 
 /// One printed rules clause and its implementation.
 ///
@@ -133,6 +132,29 @@ impl AbilityDef {
             DeclarativeAbilityDef::Spell(SpellAbilityDef::modal_spell(
                 modes, minimum, maximum, may_repeat,
             )),
+            EffectDef::None,
+        )
+    }
+
+    /// Escalate: choose one or more modes, paying `escalate_cost` for the
+    /// modes chosen beyond the first. The complete printed clause is rendered
+    /// from the keyword text followed by the ordered modes.
+    ///
+    /// # Panics
+    ///
+    /// Panics when `modes` is empty or has more than 255 entries.
+    #[must_use]
+    pub const fn modal_escalate_spell(
+        escalate_text: &'static str,
+        escalate_cost: SpellAdditionalCostDef,
+        modes: &'static [AbilityDef],
+    ) -> Self {
+        Self::defined(
+            escalate_text,
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(ModalSpellDef::escalate(
+                escalate_cost,
+                modes,
+            ))),
             EffectDef::None,
         )
     }
@@ -864,36 +886,6 @@ impl AbilityDef {
             self.effect.declarative_replacement()
         } else {
             None
-        }
-    }
-
-    /// Renders the complete printed clause. Most abilities borrow their
-    /// canonical static text; structured alternative-casting keywords insert
-    /// their owned mana cost into canonical reminder text.
-    #[must_use]
-    pub fn rules_text(&self) -> Cow<'static, str> {
-        match self.definition {
-            DeclarativeAbilityDef::AlternativeCast(definition) => {
-                Cow::Owned(definition.rules_text())
-            }
-            DeclarativeAbilityDef::OptionalAdditionalCost(definition)
-                if definition.mana_cost.is_some() && self.text == definition.kind.label() =>
-            {
-                Cow::Owned(definition.rules_text())
-            }
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
-                if self.text == "Spree" && modal.modes.has_additional_mana_costs() =>
-            {
-                let mut text = String::from("Spree (Choose one or more additional costs.)");
-                if let super::ModalModeListDef::WithAdditionalManaCosts(modes) = modal.modes {
-                    for (cost, mode) in modes {
-                        write!(text, "\n+ {cost} — {}", mode.text)
-                            .expect("writing to a string cannot fail");
-                    }
-                }
-                Cow::Owned(text)
-            }
-            _ => Cow::Borrowed(self.text),
         }
     }
 

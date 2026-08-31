@@ -240,7 +240,8 @@ fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
         SpellAdditionalCostDef::PayLife(quantity) => shared_scalar_cost_quantity(quantity),
         SpellAdditionalCostDef::Sacrifice { object, quantity }
         | SpellAdditionalCostDef::Discard { object, quantity }
-        | SpellAdditionalCostDef::ReturnToHand { object, quantity } => {
+        | SpellAdditionalCostDef::ReturnToHand { object, quantity }
+        | SpellAdditionalCostDef::Tap { object, quantity } => {
             shared_object_cost_quantity(quantity) && shared_object_predicate(object)
         }
         SpellAdditionalCostDef::Exile {
@@ -280,7 +281,8 @@ fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
         SpellAdditionalCostDef::Sacrifice { quantity, .. }
         | SpellAdditionalCostDef::Discard { quantity, .. }
         | SpellAdditionalCostDef::Exile { quantity, .. }
-        | SpellAdditionalCostDef::ReturnToHand { quantity, .. } => matches!(
+        | SpellAdditionalCostDef::ReturnToHand { quantity, .. }
+        | SpellAdditionalCostDef::Tap { quantity, .. } => matches!(
             quantity,
             crate::card::CostQuantityDef::ChosenX
                 | crate::card::CostQuantityDef::ModeCount

@@ -89,6 +89,13 @@ pub enum SpellAdditionalCostDef {
         object: ObjectPredicateDef,
         quantity: CostQuantityDef,
     },
+    /// Tap untapped permanents you control. Unlike an activated ability's
+    /// tap-symbol cost, this does not care how long a creature has been under
+    /// your control.
+    Tap {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
     /// Forage (CR 701.59): exile three cards from your graveyard or sacrifice
     /// a Food. Card definitions name the keyword while payment expands it
     /// into its semantic exile and sacrifice actions.
@@ -139,6 +146,11 @@ impl SpellAdditionalCostDef {
     }
 
     #[must_use]
+    pub const fn tap(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::Tap { object, quantity }
+    }
+
+    #[must_use]
     pub const fn forage() -> Self {
         Self::Forage
     }
@@ -163,10 +175,10 @@ pub struct ModalSpellDef {
     pub maximum: u8,
     /// Some spells explicitly allow the same mode to be chosen more than once.
     pub may_repeat: bool,
-    /// A cost paid as the whole spell is cast, on top of its mana. Escalate
-    /// is the only one printed on a modal spell, and it belongs to the spell
-    /// rather than to any mode: what varies is how many modes were chosen.
-    pub additional_cost: Option<SpellAdditionalCostDef>,
+    /// The single additional cost Escalate charges for each mode chosen
+    /// beyond the first. The cast planner derives the number of payments from
+    /// the selected modes, just as Spree derives costs from its modal shape.
+    pub escalate_cost: Option<SpellAdditionalCostDef>,
     /// A printed "if <condition> as you cast this spell, you may choose two
     /// instead". The larger maximum applies when the condition holds where
     /// the spell is offered; it never lowers the printed one, and the
@@ -289,7 +301,7 @@ impl ModalSpellDef {
             minimum,
             maximum,
             may_repeat,
-            additional_cost: None,
+            escalate_cost: None,
             conditional_maximum: None,
         }
     }
@@ -319,7 +331,26 @@ impl ModalSpellDef {
             minimum: 1,
             maximum: modes.len() as u8,
             may_repeat: false,
-            additional_cost: None,
+            escalate_cost: None,
+            conditional_maximum: None,
+        }
+    }
+
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    /// # Panics
+    ///
+    /// Panics when no modes are supplied or the mode count does not fit the
+    /// runtime mode-count field.
+    pub const fn escalate(cost: SpellAdditionalCostDef, modes: &'static [AbilityDef]) -> Self {
+        assert!(!modes.is_empty());
+        assert!(modes.len() <= u8::MAX as usize);
+        Self {
+            modes: ModalModeListDef::Ordinary(modes),
+            minimum: 1,
+            maximum: modes.len() as u8,
+            may_repeat: false,
+            escalate_cost: Some(cost),
             conditional_maximum: None,
         }
     }
@@ -374,12 +405,7 @@ impl SpellAbilityDef {
                 additional_cost: Some(cost),
                 resolution_destination,
             },
-            // Escalate is printed on a modal spell and belongs to the whole
-            // of it; what varies is how many modes it was cast with.
-            Self::Modal(modal) => Self::Modal(ModalSpellDef {
-                additional_cost: Some(cost),
-                ..modal
-            }),
+            Self::Modal(_) => panic!("ordinary additional costs do not belong on modal spells"),
         }
     }
 
@@ -389,7 +415,7 @@ impl SpellAbilityDef {
             Self::Nonmodal {
                 additional_cost, ..
             } => additional_cost,
-            Self::Modal(modal) => modal.additional_cost,
+            Self::Modal(_) => None,
         }
     }
 

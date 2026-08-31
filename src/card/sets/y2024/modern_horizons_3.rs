@@ -803,6 +803,48 @@ pub(in crate::card::sets) static BASKING_BROODSCALE: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// MH3 147 — Collective Resistance
+pub(in crate::card::sets) static COLLECTIVE_RESISTANCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f260bd08-68b6-44f4-ace9-e298cb13d82e"),
+    "Collective Resistance",
+    CardArt::new("f260bd08-68b6-44f4-ace9-e298cb13d82e", "Raoul Vitale"),
+    CardSet::ModernHorizons3,
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::modal_escalate_spell(
+        "Escalate {G} (Pay this cost for each mode chosen beyond the first.)",
+        SpellAdditionalCostDef::pay_mana(mana_cost!("{G}")),
+        &[
+            AbilityDef::destroy_target(
+                "Destroy target artifact.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Artifact,
+                )),
+                true,
+            ),
+            AbilityDef::destroy_target(
+                "Destroy target enchantment.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                    CardType::Enchantment,
+                )),
+                true,
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature gains hexproof and indestructible until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_ability(&abilities::hexproof()),
+                        AppliedEffectDef::add_ability(&abilities::indestructible()),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
+);
+
 // MH3 148 — Colossal Dreadmask
 pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::new_with_legacy_id(
     1703,
@@ -2558,6 +2600,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &GALVANIC_DISCHARGE,
     &MOLTEN_GATEKEEPER,
     &BASKING_BROODSCALE,
+    &COLLECTIVE_RESISTANCE,
     &COLOSSAL_DREADMASK,
     &ELDRAZI_REPURPOSER,
     &EVOLUTION_WITNESS,

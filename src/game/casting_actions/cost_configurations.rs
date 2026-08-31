@@ -17,6 +17,7 @@ use crate::card::SpellAdditionalCostDef;
 use crate::game::ManaPaymentPurpose;
 
 include!("cost_configurations/object_combinations.rs");
+include!("cost_configurations/additional_cost_payments.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
 /// for, and how many modes it was cast with.
@@ -101,8 +102,23 @@ struct PrintedAlternativeRequest<'a> {
     context: CastCostContext,
 }
 
+#[derive(Clone, Copy)]
+struct SelectedSpellAdditionalCost {
+    cost: SpellAdditionalCostDef,
+    repetitions: u16,
+}
+
+impl SelectedSpellAdditionalCost {
+    const fn once(cost: SpellAdditionalCostDef) -> Self {
+        Self {
+            cost,
+            repetitions: 1,
+        }
+    }
+}
+
 impl Game {
-    pub(in crate::game) fn selected_spell_additional_costs(
+    fn selected_spell_additional_costs(
         &self,
         definition: &CardDefinition,
         option: &PlayOptionDef,
@@ -110,7 +126,7 @@ impl Game {
         card: &CardInstance,
         selected_modes: &[ModeId],
         offer: Option<CastOfferCost>,
-    ) -> Vec<SpellAdditionalCostDef> {
+    ) -> Vec<SelectedSpellAdditionalCost> {
         let selected_alternative = costs
             .alternative()
             .and_then(|selected| Self::alternative_cast_ability(definition, option, selected))
@@ -128,7 +144,7 @@ impl Game {
             });
         let mut required = Vec::new();
         if let Some(cost) = selected_alternative {
-            required.push(cost);
+            required.push(SelectedSpellAdditionalCost::once(cost));
         }
         // An alternative replaces only the spell's mana cost. Every mandatory
         // additional cost printed by the spell still applies (CR 118.9d).
@@ -137,9 +153,23 @@ impl Game {
             .ability_clauses()
             .iter()
             .find_map(|ability| match ability.definition {
-                DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => {
-                    spell.additional_cost()
-                }
+                DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => match spell {
+                    crate::card::SpellAbilityDef::Nonmodal {
+                        additional_cost: Some(cost),
+                        ..
+                    } => Some(SelectedSpellAdditionalCost::once(cost)),
+                    crate::card::SpellAbilityDef::Modal(modal) => {
+                        modal.escalate_cost.map(|cost| SelectedSpellAdditionalCost {
+                            cost,
+                            repetitions: u16::try_from(selected_modes.len().saturating_sub(1))
+                                .unwrap_or(u16::MAX),
+                        })
+                    }
+                    crate::card::SpellAbilityDef::Nonmodal {
+                        additional_cost: None,
+                        ..
+                    } => None,
+                },
                 _ => None,
             })
         {
@@ -153,6 +183,7 @@ impl Game {
                 modal
                     .mode_additional_mana_cost(*mode)
                     .map(SpellAdditionalCostDef::pay_mana)
+                    .map(SelectedSpellAdditionalCost::once)
             }));
         }
         for selected in costs.additional() {
@@ -161,7 +192,7 @@ impl Game {
                 && let DeclarativeAbilityDef::OptionalAdditionalCost(optional) = ability.definition
                 && let Some(cost) = optional.additional_cost
             {
-                required.push(cost);
+                required.push(SelectedSpellAdditionalCost::once(cost));
             }
         }
         required
@@ -181,8 +212,8 @@ impl Game {
             request.scale.offer,
         )
         .into_iter()
-        .filter_map(|cost| {
-            self.maximum_x_for_spell_additional_cost(cost, request.card, request.player)
+        .filter_map(|selected| {
+            self.maximum_x_for_spell_additional_cost(selected.cost, request.card, request.player)
         })
         .min()
     }
@@ -212,6 +243,10 @@ impl Game {
             | SpellAdditionalCostDef::ReturnToHand {
                 quantity: crate::card::CostQuantityDef::ChosenX,
                 ..
+            }
+            | SpellAdditionalCostDef::Tap {
+                quantity: crate::card::CostQuantityDef::ChosenX,
+                ..
             } => Some(
                 u16::try_from(self.additional_cost_candidates(cost, card, player).len())
                     .unwrap_or(u16::MAX),
@@ -230,6 +265,7 @@ impl Game {
             | SpellAdditionalCostDef::Discard { .. }
             | SpellAdditionalCostDef::Exile { .. }
             | SpellAdditionalCostDef::ReturnToHand { .. }
+            | SpellAdditionalCostDef::Tap { .. }
             | SpellAdditionalCostDef::Forage => None,
         }
     }
@@ -254,9 +290,10 @@ impl Game {
         }
 
         let mut combined = vec![SpellAdditionalCostPayment::free()];
-        for cost in required {
-            let ways = self.spell_additional_cost_payment_options(
-                cost,
+        for selected in required {
+            let ways = self.repeated_spell_additional_cost_payment_options(
+                selected.cost,
+                selected.repetitions,
                 request.card,
                 request.player,
                 request.scale,
@@ -288,85 +325,6 @@ impl Game {
             .find(|payment| payment.object_ids() == objects)
     }
 
-    fn spell_additional_cost_payment_options(
-        &self,
-        cost: SpellAdditionalCostDef,
-        card: &CardInstance,
-        player: PlayerId,
-        scale: CastScale,
-    ) -> Vec<SpellAdditionalCostPayment> {
-        match cost {
-            SpellAdditionalCostDef::PayMana(mana) => vec![SpellAdditionalCostPayment {
-                objects: Vec::new(),
-                mana,
-                life: 0,
-            }],
-            SpellAdditionalCostDef::PayLife(quantity) => {
-                let amount = scale
-                    .quantity(quantity)
-                    .expect("object thresholds cannot quantify a life payment");
-                (i64::from(amount) <= i64::from(self.players[player.index()].life))
-                    .then_some(SpellAdditionalCostPayment {
-                        objects: Vec::new(),
-                        mana: ManaCost::default(),
-                        life: amount,
-                    })
-                    .into_iter()
-                    .collect()
-            }
-            SpellAdditionalCostDef::Forage => {
-                let forage = [
-                    SpellAdditionalCostDef::exile(
-                        crate::card::ObjectPredicateDef::Any,
-                        ZoneKind::Graveyard,
-                        crate::card::CostQuantityDef::Fixed(3),
-                    ),
-                    SpellAdditionalCostDef::sacrifice(
-                        crate::card::ObjectPredicateDef::Subtype("Food"),
-                        crate::card::CostQuantityDef::Fixed(1),
-                    ),
-                ];
-                forage
-                    .into_iter()
-                    .flat_map(|cost| {
-                        self.spell_additional_cost_payment_options(cost, card, player, scale)
-                    })
-                    .collect()
-            }
-            SpellAdditionalCostDef::Choice(costs) => costs
-                .iter()
-                .flat_map(|cost| {
-                    self.spell_additional_cost_payment_options(*cost, card, player, scale)
-                })
-                .collect(),
-            SpellAdditionalCostDef::All(costs) => {
-                let mut combined = vec![SpellAdditionalCostPayment::free()];
-                for cost in costs {
-                    let ways =
-                        self.spell_additional_cost_payment_options(*cost, card, player, scale);
-                    let mut next = Vec::new();
-                    for paid in &combined {
-                        for way in &ways {
-                            if let Some(payment) = paid.combine(way)
-                                && !next.contains(&payment)
-                            {
-                                next.push(payment);
-                            }
-                        }
-                    }
-                    combined = next;
-                }
-                combined
-            }
-            SpellAdditionalCostDef::Sacrifice { quantity, .. }
-            | SpellAdditionalCostDef::Discard { quantity, .. }
-            | SpellAdditionalCostDef::Exile { quantity, .. }
-            | SpellAdditionalCostDef::ReturnToHand { quantity, .. } => {
-                self.spell_object_additional_cost_payments(cost, quantity, card, player, scale)
-            }
-        }
-    }
-
     fn spell_object_additional_cost_payments(
         &self,
         cost: SpellAdditionalCostDef,
@@ -396,6 +354,17 @@ impl Game {
                 .quantity(quantity)
                 .expect("object thresholds are handled before scalar quantities"),
         );
+        self.spell_object_additional_cost_payments_for_count(cost, required, card, player)
+    }
+
+    fn spell_object_additional_cost_payments_for_count(
+        &self,
+        cost: SpellAdditionalCostDef,
+        required: usize,
+        card: &CardInstance,
+        player: PlayerId,
+    ) -> Vec<SpellAdditionalCostPayment> {
+        let candidates = self.additional_cost_candidates(cost, card, player);
         Self::object_combinations(&candidates, required)
             .into_iter()
             .map(|objects| SpellAdditionalCostPayment {
@@ -417,6 +386,7 @@ impl Game {
             | SpellAdditionalCostDef::ReturnToHand { object, .. } => {
                 (object, ZoneKind::Battlefield)
             }
+            SpellAdditionalCostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
             SpellAdditionalCostDef::Discard { object, .. } => (object, ZoneKind::Hand),
             SpellAdditionalCostDef::Exile { object, from, .. } => (object, from),
             SpellAdditionalCostDef::PayMana(_)
@@ -431,6 +401,8 @@ impl Game {
                 .iter()
                 .filter(|permanent| {
                     permanent.controller == player
+                        && (!matches!(cost, SpellAdditionalCostDef::Tap { .. })
+                            || !permanent.tapped)
                         && self.trigger_object_matches(
                             object,
                             &self.trigger_event_object(permanent),

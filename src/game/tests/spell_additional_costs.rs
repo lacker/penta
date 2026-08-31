@@ -1,7 +1,7 @@
 //! Semantic spell additional costs and their composed alternatives.
 
 use super::*;
-use crate::card::{CostQuantityDef, SpellAdditionalCostDef};
+use crate::card::{CostQuantityDef, SpellAbilityDef, SpellAdditionalCostDef};
 
 fn spell_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
     let catalog = poc::catalog().expect("catalog builds");
@@ -16,6 +16,21 @@ fn spell_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
             _ => None,
         })
         .expect("the spell declares its additional cost")
+}
+
+fn escalate_cost(definition: CardDefinitionId) -> SpellAdditionalCostDef {
+    let catalog = poc::catalog().expect("catalog builds");
+    catalog
+        .get(definition)
+        .expect("the card is cataloged")
+        .rules
+        .ability_clauses()
+        .iter()
+        .find_map(|ability| match ability.definition {
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) => modal.escalate_cost,
+            _ => None,
+        })
+        .expect("the modal spell declares its Escalate cost")
 }
 
 fn cast_actions(game: &Game, spell: GameObjectId) -> Vec<Action> {
@@ -77,15 +92,115 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
         SpellAdditionalCostDef::PayLife(CostQuantityDef::ChosenX)
     );
     assert!(matches!(
-        spell_cost(cards::COLLECTIVE_BRUTALITY),
+        escalate_cost(cards::COLLECTIVE_BRUTALITY),
         SpellAdditionalCostDef::Discard {
-            quantity: CostQuantityDef::Subtract(
-                &CostQuantityDef::ModeCount,
-                &CostQuantityDef::Fixed(1),
-            ),
+            quantity: CostQuantityDef::Fixed(1),
             ..
         }
     ));
+    assert!(matches!(
+        escalate_cost(cards::COLLECTIVE_EFFORT),
+        SpellAdditionalCostDef::Tap {
+            quantity: CostQuantityDef::Fixed(1),
+            ..
+        }
+    ));
+}
+
+#[test]
+fn collective_effort_taps_one_untapped_creature_for_an_extra_mode() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.players[0].hand.clear();
+    let effort = card(109_000, cards::COLLECTIVE_EFFORT, PlayerId::One);
+    let effort_id = effort.id;
+    game.players[0].hand.push(effort);
+    let payer = game
+        .put_onto_battlefield(PlayerId::One, cards::GRIZZLY_BEARS)
+        .expect("cataloged");
+    let already_tapped = game
+        .put_onto_battlefield(PlayerId::One, cards::SAVANNAH_LIONS)
+        .expect("cataloged");
+    game.tap_permanent(already_tapped)
+        .expect("it can be tapped");
+    game.put_onto_battlefield(PlayerId::Two, cards::RURIC_THAR_THE_UNBOWED)
+        .expect("cataloged");
+    drain_pending(&mut game);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 3);
+    game.step = Step::PrecombatMain;
+    game.active_player = PlayerId::One;
+    game.priority = PlayerId::One;
+
+    let destroy_large = ModeId::from_index(0).expect("first mode");
+    let counters = ModeId::from_index(2).expect("third mode");
+    let cast = cast_actions(&game, effort_id)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell {
+                    choices,
+                    sacrifices,
+                    ..
+                } if choices.modes() == [destroy_large, counters] && sacrifices == &[payer]
+            )
+        })
+        .expect("the fresh untapped creature can pay for one extra mode");
+    assert!(
+        cast_actions(&game, effort_id).iter().all(|action| {
+            !matches!(
+                action,
+                Action::CastSpell { sacrifices, .. } if sacrifices.contains(&already_tapped)
+            )
+        }),
+        "an already tapped creature is not a payment candidate",
+    );
+
+    game.apply(PlayerId::One, cast).expect("the cast is legal");
+    assert!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == payer)
+            .expect("the payer remains on the battlefield")
+            .tapped,
+        "paying the Escalate cost taps the selected creature",
+    );
+}
+
+fn borrowed_grace_game(white_mana: u16) -> (Game, GameObjectId) {
+    let mut game = ready_game();
+    game.players[0].hand.clear();
+    let grace = card(109_100, cards::BORROWED_GRACE, PlayerId::One);
+    let grace_id = grace.id;
+    game.players[0].hand.push(grace);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::White, white_mana);
+    (game, grace_id)
+}
+
+#[test]
+fn mana_escalate_cost_is_charged_once_for_the_extra_mode() {
+    let (base_game, grace) = borrowed_grace_game(3);
+    assert!(cast_actions(&base_game, grace).iter().all(|action| {
+        matches!(
+            action,
+            Action::CastSpell { choices, .. } if choices.modes().len() == 1
+        )
+    }));
+
+    let (mut escalated_game, grace) = borrowed_grace_game(5);
+    let cast = cast_actions(&escalated_game, grace)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::CastSpell { choices, .. } if choices.modes().len() == 2
+            )
+        })
+        .expect("{2}{W} plus the {1}{W} per-extra-mode cost is payable");
+    escalated_game
+        .apply(PlayerId::One, cast)
+        .expect("the escalated cast is legal");
+    assert_eq!(escalated_game.players[0].mana_pool.white, 0);
 }
 
 #[test]

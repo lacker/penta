@@ -3,7 +3,7 @@ mod name;
 mod validation;
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use self::name::normalize_name;
 use self::validation::validate_composition;
@@ -28,6 +28,7 @@ use self::validation::{
 #[derive(Clone, Debug, Default)]
 pub struct CardCatalog {
     entries: Arc<CatalogEntries>,
+    prepared: Arc<OnceLock<Arc<crate::prepared_engine::PreparedCatalog>>>,
 }
 
 #[derive(Debug, Default)]
@@ -191,7 +192,14 @@ impl CardCatalog {
         entries.sort_definitions_by_id();
         Ok(Self {
             entries: Arc::new(entries),
+            prepared: Arc::new(OnceLock::new()),
         })
+    }
+
+    pub(crate) fn prepared_catalog(&self) -> Arc<crate::prepared_engine::PreparedCatalog> {
+        self.prepared
+            .get_or_init(|| Arc::new(crate::prepared_engine::compile_catalog(self)))
+            .clone()
     }
 
     #[must_use]

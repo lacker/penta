@@ -192,6 +192,7 @@ impl Game {
             .iter()
             .map(|rule| play_restriction::parse_resolved_player_rule(&catalog, rule))
             .collect::<Result<Vec<_>, _>>()?;
+        let prepared_engine = crate::prepared_engine::PreparedEngine::compile(&catalog);
         let mut game = Self {
             format,
             arrived: None,
@@ -223,6 +224,7 @@ impl Game {
             seed: rollout_seed,
             rng: ReplayRng::new(rollout_seed),
             catalog,
+            prepared_engine,
             physical_cards: Vec::new(),
             players,
             battlefield: Vec::new(),

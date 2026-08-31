@@ -77,6 +77,7 @@ impl Game {
         let primary = match ability.resolver {
             StackAbilityResolver::Declarative(effect)
             | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => Some(effect),
+            StackAbilityResolver::Prepared { reference, .. } => Some(reference),
             StackAbilityResolver::CastOffer(_) => None,
         };
         primary

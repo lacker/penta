@@ -29,6 +29,7 @@ pub mod game;
 pub mod ids;
 pub mod poc;
 pub mod policy;
+mod prepared_engine;
 pub mod protocol;
 mod rng;
 pub mod rules;
@@ -66,8 +67,8 @@ pub use card::{
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayActionKind,
     PlayActionMatcherDef, PlayOptionDef, PlayRestriction, PlayRestrictionDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessCounter, PowerToughnessOperationDef,
-    PrintedManaCost, ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    PreparedEffectDef, PrintedManaCost, ReplacementAbilityDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
     ResolvedEffectDurationSetDef, ScalarChoiceListDef, SetOperationDef, SourceMatchValueDef,
     SpecialActionDef, SpellAbilityDef, SpellForm, SpellResolutionDestinationDef, StaticAbilityDef,
     TapEventMatcherDef, TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate,

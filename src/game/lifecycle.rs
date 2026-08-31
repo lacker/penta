@@ -63,6 +63,7 @@ impl Game {
         let sideboards = [deck_one_sideboard.clone(), deck_two_sideboard.clone()];
 
         let format_rules = format.rules();
+        let prepared_engine = crate::prepared_engine::PreparedEngine::compile(&catalog);
 
         let mut players = {
             let mut build_player = |player: PlayerId,
@@ -186,6 +187,7 @@ impl Game {
             seed,
             rng,
             catalog,
+            prepared_engine,
             physical_cards,
             players,
             battlefield: Vec::new(),

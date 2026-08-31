@@ -12,16 +12,16 @@ use super::model::{
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
     CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, FreePlayDef,
-    FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility,
-    LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
+    DiscardSelectionDef, EffectDef, EffectExecutorDef, EffectPaymentDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PutObjectsOntoBattlefieldFaceDownDef, ReplacementAbilityDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef, ScaledValueDef,
-    SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
+    PlayerRelation, PlayerSetDef, PreparedEffectDef, PutObjectsOntoBattlefieldFaceDownDef,
+    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealAndClassifyCardsDef, RevealObjectsDef, SacrificedAmountDef,
+    ScaledValueDef, SpellAdditionalCostDef, SpellCostConditionDef, SpellCostModificationDef,
     SpellResolutionDestinationDef, SuspendAbilityDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
@@ -553,6 +553,20 @@ pub const fn connive() -> EffectDef {
 }
 
 include!("abilities/object_collections.rs");
+
+/// "Draw N cards" as a whole resolving instruction. A nonconstant amount
+/// keeps the same reference effect but deliberately fails preparation until
+/// the value compiler supports that input node.
+#[must_use]
+pub const fn prepared_draw_cards(amount: ValueDef) -> PreparedEffectDef {
+    PreparedEffectDef::new(
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount,
+        },
+        EffectExecutorDef::DrawCards(amount),
+    )
+}
 
 static CONNIVE_STEPS: [EffectDef; 2] = [
     EffectDef::DrawCards {

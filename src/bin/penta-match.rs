@@ -57,6 +57,7 @@ struct Config {
     deck2: String,
     games: u64,
     seed: u64,
+    prepared_engine: bool,
 }
 
 fn parse_args() -> Result<Config, String> {
@@ -67,6 +68,7 @@ fn parse_args() -> Result<Config, String> {
         deck2: "Random".to_string(),
         games: 100,
         seed: 1,
+        prepared_engine: true,
     };
     let mut args = std::env::args().skip(1);
     while let Some(flag) = args.next() {
@@ -96,6 +98,10 @@ fn parse_args() -> Result<Config, String> {
                     .parse()
                     .map_err(|_| format!("--seed must be a number, got {count}"))?;
             }
+            // Diagnostic escape hatch intentionally omitted from --help: the
+            // prepared engine is the normal runtime, while this preserves a
+            // same-binary reference path for differential tests and timing.
+            "--reference-engine" => config.prepared_engine = false,
             "--help" | "-h" => {
                 return Err(
                     "usage: penta-match [--p1 random|handcrafted] [--p2 random|handcrafted] \
@@ -169,6 +175,7 @@ fn main() -> ExitCode {
                 return ExitCode::FAILURE;
             }
         };
+        game.set_prepared_engine_enabled(config.prepared_engine);
         let (first, second) = if swapped {
             (config.p2, config.p1)
         } else {

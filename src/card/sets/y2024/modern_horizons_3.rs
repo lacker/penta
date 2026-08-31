@@ -1351,13 +1351,10 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
     // graveyard into the evasion, and draws a card every time it connects.
     CardRules::new_creature(mana_cost!("{U}{B}"), &["Frog"], 1, 2).with_abilities(&[
         // A player or a planeswalker: the Frog is happy to be chumped by neither.
-        AbilityDef::triggered(
+        AbilityDef::prepared_triggered(
             "Whenever this creature deals combat damage to a player or planeswalker, draw a card.",
             TriggerEventDef::combat_damage_to_player_or_planeswalker(ObjectPredicateDef::Source),
-            EffectDef::DrawCards {
-                recipient: EffectRecipientDef::Controller,
-                amount: ValueDef::Constant(1),
-            },
+            abilities::prepared_draw_cards(ValueDef::Constant(1)),
         ),
         // No mana in either cost, and no tap: the Frog grows as often as the hand
         // allows and flies as often as the graveyard does.

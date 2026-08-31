@@ -575,6 +575,18 @@ impl Game {
             })
             .expect("ability stack objects freeze their complete payload");
         match resolver {
+            StackAbilityResolver::Prepared {
+                reference: _,
+                effect,
+            } if self.prepared_engine.enabled() && mode_effects.is_empty() => {
+                crate::prepared_engine::execute_effect(effect, self, object.controller);
+            }
+            StackAbilityResolver::Prepared { reference, .. } => {
+                let mut effects = Vec::with_capacity(mode_effects.len() + 1);
+                effects.push(reference);
+                effects.extend_from_slice(mode_effects);
+                self.resolve_effects_in_order(effects, object, context);
+            }
             StackAbilityResolver::Declarative(effect)
             | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => {
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);

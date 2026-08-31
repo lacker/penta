@@ -17,6 +17,12 @@ impl Game {
             {
                 StackAbilityResolver::DeclarativeIgnoringTargetFizzle(scoped)
             }
+            _ if let Some(effect) = crate::prepared_engine::compile_effect(effect) => {
+                StackAbilityResolver::Prepared {
+                    reference: scoped,
+                    effect,
+                }
+            }
             _ => StackAbilityResolver::Declarative(scoped),
         }
     }

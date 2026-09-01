@@ -12,7 +12,6 @@ pub mod cards;
 pub mod face_down;
 pub mod tokens;
 
-mod behavior;
 mod catalog;
 mod characteristics;
 mod creature_types;
@@ -20,14 +19,11 @@ mod model;
 mod record;
 pub(crate) mod sets;
 
-pub(crate) use model::child_effects;
-pub(crate) use record::CardAbilityBinding;
-
-pub use behavior::CardBehavior;
 pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityValidationError};
 pub(crate) use characteristics::applicable_part_ids_ref;
 pub use characteristics::{CharacteristicContext, CharacteristicError, applicable_part_ids};
 pub use creature_types::{CREATURE_TYPES, creature_type_name};
+pub(crate) use model::child_effects;
 pub use model::{
     AbilityCostDef, AbilityCostList, AbilityCostReductionDef, AbilityCoverageDef, AbilityDef,
     AbilityEffectDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,
@@ -43,23 +39,24 @@ pub use model::{
     CardArt, CardChoiceSourceDef, CardComposition, CardDefinition, CardEffectStatus, CardPart,
     CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     CardTypeSet, CastTimingPermissionDef, ChangeStackTargetsDef, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef, ChooseGroupDef,
-    ChooseObjectOrderDef, ChooseOneOfEachDef, ClassifyObjectsDef, CollectionInspectionDef,
-    ColorChoiceOperationDef, ColorSet, CombineObjectsDef, CompanionConditionDef, ComparisonDef,
-    ConditionDef, ConditionValueDef, ConditionalStaticEffectDef, ConditionalValueDef,
-    ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef,
-    CostAmountDef, CostDef, CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily,
-    CounterKind, CounterKindDef, CounterName, CounterOperationDef, CreatedTokensDef, CreatureStats,
+    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef,
+    ChooseForEachPlayerDef, ChooseGroupDef, ChooseObjectOrderDef, ChooseOneOfEachDef,
+    ClassifyObjectsDef, CollectionInspectionDef, ColorChoiceOperationDef, ColorSet,
+    CombineObjectsDef, CompanionConditionDef, ComparisonDef, ConditionDef, ConditionValueDef,
+    ConditionalStaticEffectDef, ConditionalValueDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
+    CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily, CounterKind,
+    CounterKindDef, CounterName, CounterOperationDef, CreatedTokensDef, CreatureStats,
     CreatureTypeSetDef, DamageCoverageDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
     DamagePreventionCapacityDef, DamagePreventionDef, DamagePreventionFollowUpDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeckConstructionDef,
     DeclarativeAbilityDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef,
     DividedTotal, DoubleFacedKind, DrawEventMatcherDef, EffectBindingLabelDef, EffectChoiceDef,
-    EffectDef, EffectExecutionDef, EffectOutputBindingDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, EffectRecipientSetDef, EmblemCharacteristics, ExilePlayConditionDef,
-    ExilePlayDurationDef, ExiledCastPermissionDef, FaceDownCharacteristics, FlexibleManaSymbol,
-    FreePlayDef, FreePlayDurationDef, GraveyardPlayPermissionDef, GraveyardTypeConditionDef,
-    HalvedValueDef, HybridPair, IfNoObjectsDef, ImplementationStatus, InstalledTriggerDef,
+    EffectDef, EffectOutputBindingDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    EffectRecipientSetDef, EmblemCharacteristics, ExilePlayConditionDef, ExilePlayDurationDef,
+    ExiledCastPermissionDef, FaceDownCharacteristics, FlexibleManaSymbol, FreePlayDef,
+    FreePlayDurationDef, GraveyardPlayPermissionDef, GraveyardTypeConditionDef, HalvedValueDef,
+    HybridPair, IfNoObjectsDef, ImplementationStatus, InstalledTriggerDef,
     InstalledTriggerLifetimeDef, IntrinsicCounter, KeywordAbility, KeywordCounter, LAND_SUBTYPES,
     LifeConditionDef, LikelihoodDef, LookAtObjectsDef, ManaColor, ManaCost, ManaCostParseError,
     ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit,
@@ -70,25 +67,25 @@ pub use model::{
     ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueAggregateDef, ObjectValueDef,
     OngoingEffectDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef,
-    PartitionGroupDef, PayOrDef, PileExileDef, PlayActionKind, PlayActionMatcherDef, PlayOptionDef,
-    PlayRestriction, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation,
+    PartitionGroupDef, PayOrDef, PerPlayerSelectionDef, PileExileDef, PlayActionKind,
+    PlayActionMatcherDef, PlayOptionDef, PlayRestriction, PlayRestrictionDef,
+    PlayerAttachmentQueryDef, PlayerObjectCountAggregateDef, PlayerRefDef, PlayerRelation,
     PlayerRuleDef, PlayerSetDef, PowerToughnessCounter, PowerToughnessOperationDef,
     PregameAbilityDef, PregameConditionDef, PregameTimingDef, PrintedManaCost,
-    PutObjectsOntoBattlefieldFaceDownDef, QuantifierDef, RandomizeObjectOrderDef,
+    PutObjectsOntoBattlefieldFaceDownDef, QuantifierDef, QuotientValueDef, RandomizeObjectOrderDef,
     ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectDurationSetDef,
     RevealAndClassifyCardsDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
-    ScalarChoiceListDef, ScaledValueDef, SetOperationDef, SimultaneousChooseDef,
-    SourceMatchValueDef, SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef,
-    SpellCastQueryDef, SpellCostConditionDef, SpellCostModificationDef, SpellForm,
-    SpellResolutionDestinationDef, StackTargetChangeDef, StaticAbilityDef, StaticApplyDef,
-    SumValueDef, SuspendAbilityDef, SuspendTimeDef, TapEventMatcherDef, TapPurposeDef,
-    TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
-    TokenCopyDef, TokenCountersDef, TokenPart, TokenStatsDef, TokenStructure, TopOfLibraryCostDef,
-    TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnKindDef, TurnPhaseDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneChangeObservationDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef, ZonePlacement,
-    ZoneRelativePositionDef,
+    ScalarChoiceListDef, ScaledValueDef, SetOperationDef, SourceMatchValueDef, SpecialActionDef,
+    SpellAbilityDef, SpellAdditionalCostDef, SpellCastQueryDef, SpellCostConditionDef,
+    SpellCostModificationDef, SpellForm, SpellResolutionDestinationDef, StackTargetChangeDef,
+    StaticAbilityDef, StaticApplyDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef,
+    TapEventMatcherDef, TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate,
+    TargetSlotDef, TokenCharacteristics, TokenCopyDef, TokenCountersDef, TokenPart, TokenStatsDef,
+    TokenStructure, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef,
+    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef,
+    ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
 };
 pub use model::{DamageAssignmentDef, FightExcessDef};
 
@@ -110,11 +107,4 @@ static BUILT_IN: LazyLock<Result<CardCatalog, CatalogError>> = LazyLock::new(|| 
 /// accidentally duplicated or references an unknown card.
 pub fn catalog() -> Result<CardCatalog, CatalogError> {
     BUILT_IN.clone()
-}
-
-pub(crate) fn ability_binding(
-    origin: crate::AbilityOrigin,
-    ability: &AbilityDef,
-) -> Option<&'static CardAbilityBinding> {
-    sets::ability_binding(origin, ability)
 }

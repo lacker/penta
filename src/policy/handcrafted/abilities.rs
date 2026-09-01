@@ -360,7 +360,6 @@ impl HandcraftedPolicy {
     ) -> i32 {
         let (source_definition, declarative) =
             self.activated_source_profile(observation, source, ability);
-        let behavior = source_definition.and_then(|id| self.behavior(id));
         let global_destroy_types =
             declarative.map_or_else(CardTypeSet::empty, |profile| profile.global_destroy_types);
         let target = targets
@@ -396,24 +395,23 @@ impl HandcraftedPolicy {
             ) - sacrifice_cost
                 - discard_source_cost;
         }
-        let score = match behavior {
-            _ if declarative
+        let score = match () {
+            () if declarative
                 .is_some_and(|profile| profile.has(DeclarativeSpellProfile::EXTRA_TURN)) =>
             {
                 8_300
             }
-            Some(_) => 4_500 + target_score,
-            None if !global_destroy_types.is_empty() => {
+            () if !global_destroy_types.is_empty() => {
                 self.global_destroy_score(observation, global_destroy_types)
             }
-            None if declarative.is_some_and(|profile| {
+            () if declarative.is_some_and(|profile| {
                 profile.has(DeclarativeSpellProfile::REMOVES | DeclarativeSpellProfile::TAPS)
             }) =>
             {
                 7_200 + target_score
             }
-            None if declarative.is_some_and(|profile| profile.cards_drawn.is_some()) => 6_500,
-            None if self.ability_spends_mana_on_nothing(
+            () if declarative.is_some_and(|profile| profile.cards_drawn.is_some()) => 6_500,
+            () if self.ability_spends_mana_on_nothing(
                 observation,
                 source,
                 ability,
@@ -425,28 +423,28 @@ impl HandcraftedPolicy {
                 -100
             }
             // Eating your own board to pump only pays when it wins.
-            None if source_definition.is_some_and(|definition| {
+            () if source_definition.is_some_and(|definition| {
                 self.sacrifice_pump_wins_now(observation, source, definition, ability)
             }) =>
             {
                 10_000
             }
-            None if declarative.is_some_and(|profile| {
+            () if declarative.is_some_and(|profile| {
                 profile.taps_source && profile.has(DeclarativeSpellProfile::APPLIES)
             }) =>
             {
                 5_200 + target_score + i32::from(x) * 100
             }
-            None if declarative.is_some_and(|profile| profile.damage.is_some()) => {
+            () if declarative.is_some_and(|profile| profile.damage.is_some()) => {
                 7_200 + target_score
             }
-            None if declarative
+            () if declarative
                 .is_some_and(|profile| profile.has(DeclarativeSpellProfile::APPLIES)) =>
             {
                 5_200 + target_score
             }
-            None if declarative.is_some() => 4_500 + target_score,
-            None => -10_000,
+            () if declarative.is_some() => 4_500 + target_score,
+            () => -10_000,
         };
         if !sacrifices.is_empty()
             && let Some(amount) = declarative.and_then(|profile| profile.damage)

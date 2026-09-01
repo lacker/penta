@@ -256,6 +256,7 @@ impl Game {
                     scale: super::casting_actions::CastScale {
                         x: signature.x(),
                         modes: signature.modes().len(),
+                        targets: signature.iter_targets().count(),
                         offer,
                     },
                 },

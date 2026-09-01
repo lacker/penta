@@ -3,10 +3,10 @@ use crate::ids::{
 };
 
 use super::{
-    CardBehavior, CardEffectStatus, CardPart, CardPrinting, CardRules, CardSet, CardStructure,
-    CardSupertype, CardType, CompanionConditionDef, DeckConstructionDef, DeclarativeAbilityDef,
-    DoubleFacedKind, ImplementationStatus, ManaCost, ModeSetDef, PlayActionKind, PlayRestriction,
-    PrintedManaCost, SpellForm, TargetSlotDef,
+    CardEffectStatus, CardPart, CardPrinting, CardRules, CardSet, CardStructure, CardSupertype,
+    CardType, CompanionConditionDef, DeckConstructionDef, DeclarativeAbilityDef, DoubleFacedKind,
+    ImplementationStatus, ManaCost, ModeSetDef, PlayActionKind, PlayRestriction, PrintedManaCost,
+    SpellForm, TargetSlotDef,
 };
 
 /// A named alternative to the cost supplied by a play option.
@@ -490,21 +490,15 @@ pub struct CardDefinition {
 }
 
 impl CardDefinition {
-    /// Creates a definition using the built-in metadata for `behavior`.
+    /// Creates a single-part definition from the supplied declarative rules.
     #[must_use]
     pub fn new(
         id: CardDefinitionId,
         name: impl Into<String>,
         debut_set: CardSet,
-        is_basic_land: bool,
-        behavior: CardBehavior,
+        rules: CardRules,
     ) -> Self {
         let name = name.into();
-        let rules = if is_basic_land {
-            (*behavior.rules()).with_supertype(CardSupertype::Basic)
-        } else {
-            *behavior.rules()
-        };
         let composition = CardComposition::single(name.clone(), rules);
         Self {
             id,

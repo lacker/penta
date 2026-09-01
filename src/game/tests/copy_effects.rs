@@ -287,7 +287,6 @@ fn stage_keeps_a_resolved_factory_animation_after_copying_another_land() {
         (game.power(stage), game.toughness(stage)),
         (Some(2), Some(2))
     );
-    assert_eq!(game.effective_behavior(stage), None);
 
     let pump = Action::ActivateAbility {
         source: factory_id,

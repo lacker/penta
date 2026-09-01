@@ -5,10 +5,9 @@ mod triggers;
 
 use super::decision_search_resolution::SearchResolution;
 use super::{
-    BalanceAction, BasicLandType, BasicLandTypeChange, BattlefieldArrival,
-    BattlefieldExitCompletion, DecisionContinuation, DecisionOption, Game, GameEvent, ManaCost,
-    PlayerId, ReplaceableEvent, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
-    remove_card,
+    BasicLandType, BasicLandTypeChange, BattlefieldArrival, BattlefieldExitCompletion,
+    DecisionContinuation, DecisionOption, Game, GameEvent, ManaCost, PlayerId, ReplaceableEvent,
+    Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 use crate::card::{BattlefieldEntryChoiceDestinationDef, EffectDef, ReplacementEffectDef};
 
@@ -102,7 +101,7 @@ impl Game {
             } => self.resolve_card_name_choice(
                 &choices, searched, zone, binding, &object, context, effect, options,
             ),
-            DecisionContinuation::SimultaneousChoose {
+            DecisionContinuation::ChooseForEachPlayer {
                 definition,
                 task,
                 players,
@@ -120,7 +119,7 @@ impl Game {
                         .filter_map(|option| option.card.map(|(card, _)| card))
                         .filter(|card| candidates.contains(card)),
                 );
-                self.queue_next_simultaneous_choice(
+                self.queue_next_player_choice(
                     definition,
                     task + 1,
                     players,
@@ -818,46 +817,6 @@ impl Game {
                 let mut later_procedures = std::mem::take(&mut self.pending_procedures);
                 self.apply_draw_replacement(player, replacement, applied);
                 self.pending_procedures.append(&mut later_procedures);
-            }
-            DecisionContinuation::Balance {
-                controller,
-                phase,
-                task,
-                mut remaining,
-            } => {
-                let mut discards = Vec::new();
-                let mut sacrifices = Vec::new();
-                for option in &pending.observation.options {
-                    if !options.contains(&option.id) {
-                        continue;
-                    }
-                    let Some((card, _)) = option.card else {
-                        continue;
-                    };
-                    match task.action {
-                        BalanceAction::Sacrifice => sacrifices.push(card),
-                        BalanceAction::Discard => discards.push(card),
-                    }
-                }
-                if sacrifices.is_empty() {
-                    self.discard_cards_with_cause(task.player, &discards, task.cause);
-                    if !remaining.is_empty() {
-                        let next = remaining.remove(0);
-                        self.queue_balance_task(controller, phase, next, remaining);
-                    } else if let Some(next) = phase.next() {
-                        self.queue_balance_phase(controller, next);
-                    }
-                } else {
-                    debug_assert!(discards.is_empty(), "a Balance task uses one zone action");
-                    self.move_permanents_to_graveyard_then(
-                        &sacrifices,
-                        Some(BattlefieldExitCompletion::Balance {
-                            controller,
-                            phase,
-                            remaining,
-                        }),
-                    );
-                }
             }
             trigger @ (DecisionContinuation::TriggerOrder { .. }
             | DecisionContinuation::TriggerPlacement { .. }

@@ -11,8 +11,8 @@ use self::spell_profile::DeclarativeSpellProfile;
 use super::Policy;
 use crate::card::{
     AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, BasicLandType, CardBehavior, CardCatalog, CardSupertype, CardType,
-    CardTypeSet, CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
+    AppliedEffectDef, BasicLandType, CardCatalog, CardSupertype, CardType, CardTypeSet,
+    CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef, SetOperationDef, SpellForm,
     ValueDef, ZoneKind,
 };

@@ -341,11 +341,16 @@ fn validate_effect_target_shapes(
         | EffectDef::RevealHand { player } => {
             validate_recipient_shape(player, targets, RecipientExpectation::Player)
         }
-        EffectDef::SimultaneousChoose(choice) => {
+        EffectDef::ChooseForEachPlayer(choice) => {
             validate_recipient_shape(choice.player, targets, RecipientExpectation::Player)?;
             validate_object_predicate_shape(choice.candidates, targets)?;
-            for selector in choice.one_of_each {
-                validate_object_predicate_shape(*selector, targets)?;
+            match choice.selection {
+                PerPlayerSelectionDef::OneOfEach(selectors) => {
+                    for selector in selectors {
+                        validate_object_predicate_shape(*selector, targets)?;
+                    }
+                }
+                PerPlayerSelectionDef::Count(amount) => validate_value_shape(amount, targets)?,
             }
             validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
         }
@@ -549,7 +554,7 @@ fn validate_effect_target_shapes(
                 | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::DeckConstruction(_)
-                | DeclarativeAbilityDef::Legacy => None,
+                | DeclarativeAbilityDef::Unimplemented => None,
             };
             validate_program_target_shapes(
                 trigger.ability.effect.definition,

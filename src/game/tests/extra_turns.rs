@@ -16,8 +16,7 @@ fn install_extra_turn_replacement(game: &mut Game, id: u32) -> GameObjectId {
         definition_id,
         "Extra Turn Suppressor",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0))
         .with_abilities(&TEST_EXTRA_TURN_REPLACEMENT_ABILITIES);

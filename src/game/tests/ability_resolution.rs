@@ -80,8 +80,7 @@ fn declarative_activation_preserves_multiple_slots_before_sacrificing_its_source
         definition_id,
         "Multi-slot activation test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0))
         .with_abilities(&MULTI_SLOT_ACTIVATION_ABILITIES);
@@ -198,8 +197,7 @@ fn one_ability_target_slot_resolves_for_every_selected_legal_target() {
         definition_id,
         "Multi-target slot test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -282,8 +280,7 @@ fn granted_ability_keeps_its_frozen_resolver_when_the_source_changes() {
         definition_id,
         "Granted resolver test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&SOURCE_ABILITIES);
@@ -369,8 +366,7 @@ fn declarative_clause_uses_its_own_resolver_among_multiple_clauses() {
         definition_id,
         "Mixed resolver test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -435,8 +431,7 @@ fn activated_clauses_keep_their_own_origins() {
         definition_id,
         "Multiple legacy activation test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -507,8 +502,7 @@ fn a_second_activation_after_another_clause_keeps_its_own_origin() {
         definition_id,
         "Mixed shared and legacy activation test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &[], 1, 1).with_abilities(&ABILITIES);

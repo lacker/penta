@@ -35,15 +35,15 @@ impl fmt::Display for CatalogError {
                 ability,
             } => write!(
                 formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} has a non-declarative implementation without an explanation"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} has incomplete coverage without an explanation"
             ),
-            Self::LegacyProcedureRequiresCustomExecution {
+            Self::UnsupportedLegacyProcedure {
                 definition,
                 part,
                 ability,
             } => write!(
                 formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} uses the legacy rules procedure without a custom effect executor"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} uses an unsupported legacy rules procedure"
             ),
             Self::DuplicatePartId { definition, part } => write!(
                 formatter,
@@ -123,15 +123,6 @@ impl fmt::Display for CatalogError {
             } => write!(
                 formatter,
                 "mode {mode:?} of spell ability {ability:?} on part {part:?} of card definition {definition:?} is itself modal"
-            ),
-            Self::CustomSpellModeImplementation {
-                definition,
-                part,
-                ability,
-                mode,
-            } => write!(
-                formatter,
-                "mode {mode:?} of spell ability {ability:?} on part {part:?} of card definition {definition:?} uses a custom implementation, but modal branches currently require declarative effects"
             ),
             Self::InvalidSpellMode {
                 definition,

@@ -1,8 +1,8 @@
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AlternativeCostDef,
-    CardBehavior, CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
-    CardPrintingId, CardRules, CardSet, CardType, CardTypeSet, CostQuantityDef, CreatureStats,
+    CardComposition, CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId,
+    CardRules, CardSet, CardType, CardTypeSet, CostQuantityDef, CreatureStats,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, FlexibleManaSymbol, ImplementationStatus,
     LikelihoodDef, ManaColor, ManaCost, ManaCostParseErrorKind, ManaRestrictionDef,
     ManaSelectionDef, ManaTypeSetDef, ModalModeListDef, ObjectPredicateDef, PlayOptionDef,
@@ -10,7 +10,8 @@ use super::{
     TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
-    AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
+    AbilityCoverageDef, AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId,
+    PlayOptionId, TargetIndex,
 };
 
 static DEFERRED_CLAUSE: [AbilityDef; 1] = [AbilityDef::not_implemented(
@@ -356,8 +357,7 @@ fn definitions_start_with_their_primary_printing() {
         id,
         "Test Card",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
 
     assert_eq!(
@@ -649,17 +649,6 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
         uncategorized.implementation_status(),
         ImplementationStatus::MetadataOnly
     );
-    let custom = CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::custom_full(
-        "A card-local effect.",
-        CardBehavior::Fireball,
-        "Implemented by the named card-local special behavior.",
-    ));
-    assert_eq!(
-        custom.implementation_status(),
-        ImplementationStatus::Complete
-    );
-    assert_eq!(custom.special_behavior(), Some(CardBehavior::Fireball));
-
     let metadata_only =
         CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::not_implemented(
             "A deferred spell effect.",
@@ -677,20 +666,17 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
         CardDefinitionId::new(8),
         "Unsupported",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     assert_eq!(
         metadata_definition.implementation_status(),
         ImplementationStatus::MetadataOnly
     );
 
-    let partial =
-        CardRules::new_enchantment(ManaCost::default()).with_ability(AbilityDef::custom_partial(
-            "A custom clause with one deferred rider.",
-            CardBehavior::Fireball,
-            "One rider is deferred.",
-        ));
+    let partial = CardRules::new_enchantment(ManaCost::default()).with_ability(
+        AbilityDef::spell("A clause with one deferred rider.", EffectDef::None)
+            .with_coverage(AbilityCoverageDef::partial("One rider is deferred.")),
+    );
     assert_eq!(
         partial.ability_clauses()[0].coverage.explanation,
         Some("One rider is deferred.")

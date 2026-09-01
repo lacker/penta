@@ -420,8 +420,7 @@ fn a_non_executable_cannot_be_countered_clause_does_not_change_gameplay() {
         definition_id,
         "Incomplete uncounterable spell",
         CardSet::ReturnToRavnica,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -450,8 +449,7 @@ fn a_composite_static_clause_can_make_its_source_uncounterable() {
         definition_id,
         "Composite uncounterable spell",
         CardSet::ReturnToRavnica,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -504,8 +502,7 @@ fn overload_does_not_silently_discard_selected_modal_effects() {
         definition_id,
         "Modal overload test",
         CardSet::ReturnToRavnica,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

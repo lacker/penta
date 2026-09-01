@@ -66,7 +66,7 @@ EffectDef::IfNoObjects(_) |
 EffectDef::PartitionGroup(_) | EffectDef::RandomizeObjectOrder(_) |
 EffectDef::RevealObjects(_) | EffectDef::MoveObjects(_) |
 EffectDef::PutObjectsOntoBattlefieldFaceDown(_) |
-EffectDef::SimultaneousChoose(_) | EffectDef::ChooseCardName { .. } |
+EffectDef::ChooseForEachPlayer(_) | EffectDef::ChooseCardName { .. } |
 EffectDef::SelectAtRandomFromZone { .. } |
 EffectDef::ForEachInBinding { .. } | EffectDef::PayOr(_) |
 EffectDef::PreventDamage { .. } |

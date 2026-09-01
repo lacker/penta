@@ -1,7 +1,7 @@
 use super::*;
 use crate::card::{
     ArrivalAttachmentDef, ChooseDef, DiscardSelectionDef, EffectPaymentDef, ObjectChoiceBindingDef,
-    ValueDef,
+    PerPlayerSelectionDef, ValueDef,
 };
 
 pub(in super::super) fn shared_stack_effect(effect: EffectDef) -> bool {
@@ -265,17 +265,19 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     .all(shared_object_predicate)
                 && shared_object_collection_continuation(*definition.then, true)
         }
-        EffectDef::SimultaneousChoose(choice) => {
+        EffectDef::ChooseForEachPlayer(choice) => {
             deferred_decision_allowed
-                && !choice.one_of_each.is_empty()
                 && choice.chosen != choice.unchosen
                 && shared_effect_recipient(choice.player)
                 && shared_object_predicate(choice.candidates)
-                && choice
-                    .one_of_each
-                    .iter()
-                    .copied()
-                    .all(shared_object_predicate)
+                && matches!(choice.zone, ZoneKind::Battlefield | ZoneKind::Hand)
+                && match choice.selection {
+                    PerPlayerSelectionDef::OneOfEach(selectors) => {
+                        !selectors.is_empty()
+                            && selectors.iter().copied().all(shared_object_predicate)
+                    }
+                    PerPlayerSelectionDef::Count(_) => true,
+                }
                 && shared_stack_effect_at_position(*choice.then, true)
         }
         EffectDef::RevealAtRandomFromHand { player, .. }

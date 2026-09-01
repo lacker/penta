@@ -88,8 +88,7 @@ fn flexible_allocation_caps_each_color_by_the_affordable_sources() {
         pain_definition_id,
         "White pain source test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     pain_definition.rules = CardRules::new_land(&[]).with_abilities(&PAIN_ABILITIES);
     synchronize_single_part_definition(&mut pain_definition);
@@ -183,8 +182,7 @@ fn exact_mana_plan_preserves_cross_color_source_correlation() {
             id,
             name,
             CardSet::Magic2014,
-            false,
-            CardBehavior::Unsupported,
+            crate::card::CardRules::unsupported(),
         );
         definition.rules = CardRules::new_land(&[]).with_abilities(abilities);
         synchronize_single_part_definition(&mut definition);

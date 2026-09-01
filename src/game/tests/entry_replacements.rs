@@ -62,8 +62,7 @@ fn resolved_grants_participate_in_external_entry_replacement_discovery() {
         source_definition,
         "Test resolved replacement source",
         CardSet::Gatecrash,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     source.rules = CardRules::new_enchantment(ManaCost::default());
     synchronize_single_part_definition(&mut source);
@@ -71,8 +70,7 @@ fn resolved_grants_participate_in_external_entry_replacement_discovery() {
         land_definition,
         "Test entering land",
         CardSet::Gatecrash,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     land.rules = CardRules::new_land(&[]);
     synchronize_single_part_definition(&mut land);
@@ -249,8 +247,7 @@ fn replacement_effects_are_ordered_and_re_evaluated_before_entry_commits() {
         external_definition,
         "Test entry restriction",
         CardSet::Gatecrash,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::new(2, 0))
         .with_abilities(&TEST_OPPONENT_LANDS_ENTER_TAPPED_ABILITY);
@@ -338,8 +335,7 @@ fn nested_replacement_effects_keep_their_source_controller_context() {
         external_definition,
         "Test source-relative entry replacement",
         CardSet::Gatecrash,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::new(2, 0))
         .with_abilities(&TEST_EXTERNAL_CONTEXT_ABILITY);

@@ -658,21 +658,22 @@ fn parse_continuation(
                 context: continuation.context,
             }
         }
-        DecisionContinuationSnapshot::SimultaneousChoose {
+        DecisionContinuationSnapshot::ChooseForEachPlayer {
             continuation: snapshot,
             task,
             players,
             chosen,
+            private_chosen,
         } => {
             let continuation = parse_effect_continuation(snapshot, game)?;
             if !ability_locator_matches_origin(&snapshot.ability, &continuation.object) {
                 return Err(
-                    "simultaneous-choice locator disagrees with its resolving ability".into(),
+                    "per-player choice locator disagrees with its resolving ability".into(),
                 );
             }
-            let EffectDef::SimultaneousChoose(definition) = continuation.effect.effect else {
+            let EffectDef::ChooseForEachPlayer(definition) = continuation.effect.effect else {
                 return Err(
-                    "simultaneous-choice locator does not identify an authored choice".into(),
+                    "per-player choice locator does not identify an authored choice".into(),
                 );
             };
             let players = players
@@ -680,42 +681,76 @@ fn parse_continuation(
                 .copied()
                 .map(player)
                 .collect::<Result<Vec<_>, _>>()?;
-            let expected = game.simultaneous_choice_players(
+            let expected = game.choice_players_apnap(
                 definition,
                 &continuation.object,
                 &continuation.context,
                 continuation.effect,
             );
             if players != expected {
-                return Err("simultaneous-choice players disagree with the authored choice".into());
+                return Err("per-player choice order disagrees with the authored choice".into());
             }
-            let chosen = chosen.iter().copied().map(GameObjectId).collect::<Vec<_>>();
+            let chosen = if definition.zone == crate::card::ZoneKind::Hand {
+                if !chosen.is_empty() || private_chosen.len() != players.len() {
+                    return Err("private per-player choice state has an invalid shape".into());
+                }
+                private_chosen
+                    .iter()
+                    .zip(&players)
+                    .map(|(choice, expected_owner)| {
+                        let owner = player(choice.player)?;
+                        if owner != *expected_owner {
+                            return Err(
+                                "private per-player choice owner order is invalid".into(),
+                            );
+                        }
+                        match &choice.cards {
+                            Some(cards) => Ok(game_ids(cards)),
+                            None => hidden_player_choices(
+                                hidden,
+                                owner,
+                                choice.count,
+                                game,
+                            ),
+                        }
+                    })
+                    .collect::<Result<Vec<_>, String>>()?
+                    .into_iter()
+                    .flatten()
+                    .collect()
+            } else {
+                if !private_chosen.is_empty() {
+                    return Err("public per-player choice carries private state".into());
+                }
+                chosen.iter().copied().map(GameObjectId).collect::<Vec<_>>()
+            };
             let state = game
-                .simultaneous_choice_decision_state(
-                    definition,
+                .per_player_choice_decision_state(
                     *task,
                     &players,
                     &chosen,
                     &continuation.object,
+                    &continuation.context,
+                    continuation.effect,
                 )
-                .ok_or("simultaneous-choice task is out of range")?;
-            if state.candidates.len() <= 1 {
+                .ok_or("per-player choice task is out of range")?;
+            if state.candidates.len() <= state.count {
                 return Err(
-                    "simultaneous-choice checkpoint encodes an automatic choice".into(),
+                    "per-player choice checkpoint encodes an automatic choice".into(),
                 );
             }
             validate_authored_decision(
                 observation,
                 state.chooser,
-                "Choose a permanent",
-                DecisionVisibility::Public,
+                state.prompt,
+                state.visibility,
                 state.preference,
-                1,
-                1,
+                state.count,
+                state.count,
                 &state.options,
-                "simultaneous choice",
+                "per-player choice",
             )?;
-            DecisionContinuation::SimultaneousChoose {
+            DecisionContinuation::ChooseForEachPlayer {
                 definition: continuation.effect,
                 task: *task,
                 players,
@@ -915,20 +950,6 @@ fn parse_continuation(
                 .map(|declined| parse_sacrifice_declined(declined, game))
                 .transpose()?,
             optional: *optional,
-        },
-        DecisionContinuationSnapshot::Balance {
-            controller,
-            phase,
-            task,
-            remaining,
-        } => DecisionContinuation::Balance {
-            controller: player(*controller)?,
-            phase: parse_balance_phase(*phase),
-            task: parse_balance_task(task, game)?,
-            remaining: remaining
-                .iter()
-                .map(|task| parse_balance_task(task, game))
-                .collect::<Result<Vec<_>, _>>()?,
         },
         DecisionContinuationSnapshot::SearchZonesAndExileRest {
             player: owner,

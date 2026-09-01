@@ -1,5 +1,5 @@
 use super::{
-    AppliedEffectDef, CardBehavior, CardDefinition, CardDefinitionId, CardSupertype, CardTypeSet,
+    AppliedEffectDef, CardDefinition, CardDefinitionId, CardSupertype, CardTypeSet,
     CharacteristicContext, CharacteristicOperationDef, Cow, DeclarativeAbilityDef, EffectDef,
     EffectRecipientDef, Game, GameObjectId, ManaCost, ModeId, ObjectCharacteristics,
     PlayRestriction, PlayerId, PowerToughnessOperationDef, RetiredObject, SetOperationDef,
@@ -389,64 +389,6 @@ impl Game {
             }
         }
     }
-
-    /// Every legal target list, with hexproof and protection applied once at
-    /// the end rather than in each of the several dozen per-card filters
-    /// below. Doing it here is not just tidier: protection used to be spelled
-    /// out arm by arm, and the arms that forgot -- Terror among them -- were
-    /// simply wrong.
-    pub(super) fn legal_target_lists(
-        &self,
-        behavior: CardBehavior,
-        player: PlayerId,
-        exact_count: Option<usize>,
-        source: GameObjectId,
-    ) -> Vec<Vec<Target>> {
-        self.printed_target_lists(behavior, exact_count)
-            .into_iter()
-            .filter(|choice| {
-                choice.iter().all(|target| match target {
-                    Target::Permanent(id) => {
-                        self.battlefield
-                            .iter()
-                            .find(|permanent| permanent.card.id == *id)
-                            .is_none_or(|permanent| {
-                                // Hexproof stops opponents only; you can always
-                                // target your own. Protection stops everyone,
-                                // including the permanent's own controller.
-                                (permanent.controller == player || !self.has_hexproof(permanent))
-                                    && !self.is_protected_from_object(permanent, source, true)
-                            })
-                    }
-                    Target::Player(targeted) => {
-                        self.player_can_be_targeted_by(*targeted, player, source, true)
-                    }
-                    Target::Card(_) | Target::Spell(_) => true,
-                })
-            })
-            .collect()
-    }
-
-    #[allow(clippy::too_many_lines)]
-    pub(super) fn printed_target_lists(
-        &self,
-        behavior: CardBehavior,
-        exact_count: Option<usize>,
-    ) -> Vec<Vec<Target>> {
-        match behavior {
-            CardBehavior::Fireball => {
-                let targets = self.damage_targets();
-                // "Any number of targets" starts at none (CR 601.2c).
-                let counts: Vec<_> =
-                    exact_count.map_or_else(|| (0..=targets.len()).collect(), |count| vec![count]);
-                counts
-                    .into_iter()
-                    .flat_map(|count| target_combinations(&targets, count))
-                    .collect()
-            }
-            _ => vec![Vec::new()],
-        }
-    }
 }
 
 /// Every way to split `total` into exactly `parts` positive whole numbers,
@@ -526,18 +468,6 @@ pub(super) fn repeated_mode_selections(modes: &[ModeId], count: usize) -> Vec<Ve
         }
     }
     result
-}
-
-/// "This spell costs {1} more to cast for each target beyond the first." The
-/// first target is free, so a single-target cast pays nothing extra.
-pub(super) fn extra_target_cost(definition: &CardDefinition, target_count: usize) -> u16 {
-    let per_target = definition.rules.additional_generic_per_extra_target();
-    if per_target == 0 {
-        return 0;
-    }
-    u16::try_from(target_count.saturating_sub(1))
-        .unwrap_or(u16::MAX)
-        .saturating_mul(per_target)
 }
 
 pub(super) fn one_or_none(values: &[GameObjectId]) -> Vec<Vec<GameObjectId>> {

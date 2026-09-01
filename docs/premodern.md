@@ -105,7 +105,7 @@ result and rebuild sampled Premodern positions from their observations.
 The card declarations and their inline `// Audit:` entries are the authoritative
 implementation inventory. Run `make catalog-report` for current Premodern
 coverage counts. The report partitions the format's full twenty-nine-set legal
-window into declarative, custom, partial, metadata-only, and blocked cards, so
+window into declarative, partial, metadata-only, and blocked cards, so
 it gives a rough picture of how much of Premodern is implemented rather than an
 interaction audit limited to these eight decks.
 

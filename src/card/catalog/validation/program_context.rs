@@ -30,8 +30,8 @@ pub(super) fn validate_ability_effect_context(
     ability: &AbilityDef,
 ) -> Result<(), EffectProgramContextError> {
     let Some(effect) = ability.declarative_effect() else {
-        // Metadata-only, custom, card-owned, and replacement programs do not
-        // execute this ordinary effect tree through either runtime.
+        // Metadata-only and replacement programs do not execute this ordinary
+        // effect tree through either runtime.
         return Ok(());
     };
     match ability.definition {
@@ -57,7 +57,7 @@ pub(super) fn validate_ability_effect_context(
         | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::DeckConstruction(_)
-        | DeclarativeAbilityDef::Legacy => {
+        | DeclarativeAbilityDef::Unimplemented => {
             validate_resolving_effect(effect, resolving_source_zones(ability)).map_err(
                 |operation| EffectProgramContextError {
                     context: "resolving",
@@ -81,7 +81,7 @@ fn resolving_source_zones(ability: &AbilityDef) -> &'static [ZoneKind] {
         | DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::DeckConstruction(_)
-        | DeclarativeAbilityDef::Legacy => &[ZoneKind::Stack],
+        | DeclarativeAbilityDef::Unimplemented => &[ZoneKind::Stack],
         DeclarativeAbilityDef::Static(_) | DeclarativeAbilityDef::Replacement(_) => &[],
     }
 }

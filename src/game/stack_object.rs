@@ -88,12 +88,6 @@ enum StackAbilityResolver {
     /// The declarative program still runs when rule 608.2b would ordinarily
     /// stop an ability whose targets have all become illegal.
     DeclarativeIgnoringTargetFizzle(ScopedEffect),
-    DeclarativeWithCustomFollowup {
-        effect: ScopedEffect,
-        behavior: CardBehavior,
-    },
-    Custom(CardBehavior),
-    CardOwned(&'static CardAbilityResolver),
     /// A linked triggered ability whose resolution offers its source card
     /// for one exact alternative cost.
     CastOffer(AlternativeCastKindDef),

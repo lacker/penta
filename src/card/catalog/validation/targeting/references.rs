@@ -134,6 +134,10 @@ fn cast_target_count_value_supported(value: ValueDef) -> bool {
                 && cast_target_count_value_supported(conditional.otherwise)
         }
         ValueDef::Halved(halved) => cast_target_count_value_supported(halved.value),
+        ValueDef::Quotient(quotient) => {
+            cast_target_count_value_supported(quotient.numerator)
+                && cast_target_count_value_supported(quotient.denominator)
+        }
         _ => false,
     }
 }
@@ -601,6 +605,10 @@ fn validate_value_target_references(
         ValueDef::Halved(halved) => {
             validate_value_target_references(halved.value, target_count, scope)
         }
+        ValueDef::Quotient(quotient) => {
+            validate_value_target_references(quotient.numerator, target_count, scope)?;
+            validate_value_target_references(quotient.denominator, target_count, scope)
+        }
         ValueDef::Sum(sum) => {
             validate_value_target_references(sum.left, target_count, scope)?;
             validate_value_target_references(sum.right, target_count, scope)
@@ -661,6 +669,10 @@ fn validate_value_target_references(
         }
         ValueDef::AggregateObjectValues(aggregate) => {
             validate_object_set_target_references(aggregate.objects, target_count, scope)
+        }
+        ValueDef::AggregatePlayerObjectCounts(aggregate) => {
+            validate_player_set(aggregate.players, target_count, scope)?;
+            validate_query(aggregate.query, target_count, scope)
         }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
@@ -725,7 +737,8 @@ fn validate_value_target_references(
         // This reads the share assigned to the target currently being
         // affected; the surrounding recipient carries the slot reference.
         | ValueDef::DistinctTargets
-        | ValueDef::DividedAmongTargets => Ok(()),
+        | ValueDef::DividedAmongTargets
+        | ValueDef::ResolvedRecipientCount => Ok(()),
     }
 }
 

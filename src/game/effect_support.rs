@@ -1,8 +1,7 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOperationDef, AbilityOrigin, AbilitySourceRef,
-    AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef, CastSignature,
-    CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet, ComparisonDef,
-    ContinuousEffectExpiration, ContinuousEffectTimestamp, ControlFlow, CounterKind,
+    AbilityDef, AbilityId, AbilityOperationDef, AbilityOrigin, AbilitySourceRef, AppliedEffectDef,
+    AppliedRuleDef, CastSignature, CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet,
+    ComparisonDef, ContinuousEffectExpiration, ContinuousEffectTimestamp, ControlFlow, CounterKind,
     EffectRecipientDef, EffectRecipientSetDef, EffectResolutionContext, Game, GameObjectId,
     GrantId, ManaColor, NonbattlefieldAbilityGrant, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, Permanent, PlayerId, PlayerRefDef, PlayerSetDef,
@@ -772,26 +771,12 @@ impl Game {
             return true;
         };
         let Some(definition) = ability.target_defs.get(slot.index()) else {
-            // Legacy custom actions can carry targets without a declarative
-            // target slot. Their historic resolver remains authoritative.
-            return true;
+            // An installed trigger retains its installer's selections as
+            // lexical references while declaring no fresh targets of its own.
+            // They do not become targets again and therefore are not checked
+            // for legality as the delayed ability resolves.
+            return ability.target_defs.is_empty();
         };
-        if Self::ability_target_uses_custom_predicate(definition.predicate) {
-            // Custom activated handlers offered these targets before the
-            // shared predicate vocabulary could express their full legality.
-            // Preserve their prior zone-presence check until the named
-            // predicate itself is migrated; treating `Special` as no matches
-            // would incorrectly counter every such ability on resolution.
-            return match target {
-                Target::Player(_) => true,
-                Target::Card(id) => self.card_in_nonbattlefield_zone(id).is_some(),
-                Target::Permanent(id) => self
-                    .battlefield
-                    .iter()
-                    .any(|permanent| permanent.card.id == id),
-                Target::Spell(id) => self.stack.iter().any(|candidate| candidate.id == id),
-            };
-        }
         // Measured against whoever chose, which for almost every ability is
         // its controller. A slot the clause handed to somebody else is still
         // theirs on resolution: legality asks the same question it asked
@@ -823,4 +808,29 @@ impl Game {
 
 include!("effect_support/conditions.rs");
 include!("effect_support/references.rs");
-include!("effect_support/custom_predicates.rs");
+
+/// One comparison, so a condition reads the same however it is counted.
+pub(super) fn compare<T: Ord>(left: &T, comparison: ComparisonDef, right: &T) -> bool {
+    match comparison {
+        ComparisonDef::Less => left < right,
+        ComparisonDef::LessOrEqual => left <= right,
+        ComparisonDef::Equal => left == right,
+        ComparisonDef::GreaterOrEqual => left >= right,
+        ComparisonDef::Greater => left > right,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::compare;
+    use crate::ComparisonDef;
+
+    #[test]
+    fn comparisons_follow_their_ordering_semantics() {
+        assert!(compare(&1, ComparisonDef::Less, &2));
+        assert!(compare(&2, ComparisonDef::LessOrEqual, &2));
+        assert!(compare(&2, ComparisonDef::Equal, &2));
+        assert!(compare(&2, ComparisonDef::GreaterOrEqual, &2));
+        assert!(compare(&3, ComparisonDef::Greater, &2));
+    }
+}

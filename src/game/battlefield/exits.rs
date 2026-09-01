@@ -766,11 +766,7 @@ impl Game {
         }
         self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
 
-        for ((permanent, snapshot, _, to, returns_with, presented), event) in
-            removed.into_iter().zip(events)
-        {
-            self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
-
+        for (permanent, _, _, to, returns_with, presented) in removed {
             // Undying observes the creature as it died, then returns the card
             // from the graveyard as a fresh object under its owner's control.
             if to.zone == ZoneKind::Graveyard
@@ -824,18 +820,6 @@ impl Game {
                 followup,
                 sacrificed,
             } => self.resolve_sacrifice_followup(&followup, sacrificed),
-            BattlefieldExitCompletion::Balance {
-                controller,
-                phase,
-                mut remaining,
-            } => {
-                if !remaining.is_empty() {
-                    let next = remaining.remove(0);
-                    self.queue_balance_task(controller, phase, next, remaining);
-                } else if let Some(next) = phase.next() {
-                    self.queue_balance_phase(controller, next);
-                }
-            }
             BattlefieldExitCompletion::CompleteSpellCast {
                 object,
                 targets,

@@ -272,16 +272,14 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         }
         // The prototype names the object its mana came from, which is a
         // provenance rather than a reference the decision has to keep alive.
-        DecisionContinuation::SimultaneousChoose {
+        DecisionContinuation::ChooseForEachPlayer {
             object,
             context,
             candidates,
-            chosen,
             ..
         } => {
             extend_stack_continuation_ids(&mut ids, object, context);
             ids.extend(candidates.iter().copied());
-            ids.extend(chosen.iter().copied());
         }
         DecisionContinuation::ScryBottom { .. }
         | DecisionContinuation::ScryTop { .. }
@@ -296,7 +294,6 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::BasicLandTypeTextChange { .. }
         | DecisionContinuation::SpellLibraryEnd { .. }
         | DecisionContinuation::SacrificeOfChoice { followup: None, .. }
-        | DecisionContinuation::Balance { .. }
         | DecisionContinuation::SearchZonesAndExileRest { .. }
         | DecisionContinuation::Vote { .. }
         | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
@@ -587,102 +584,6 @@ pub(super) fn parse_card_type_set(flags: [bool; CardType::COUNT]) -> CardTypeSet
         })
 }
 
-pub(super) fn balance_task_snapshot(
-    catalog: &CardCatalog,
-    viewer: PlayerId,
-    task: &BalanceTask,
-) -> Option<BalanceTaskSnapshot> {
-    let cards = if task.zone != DecisionZone::Hand || task.player == viewer {
-        Some(
-            task.cards
-                .iter()
-                .copied()
-                .map(|(object, characteristics)| {
-                    Some(DecisionCardSnapshot {
-                        object_id: object.0,
-                        characteristics: object_characteristics_snapshot(catalog, characteristics)?,
-                    })
-                })
-                .collect::<Option<Vec<_>>>()?,
-        )
-    } else {
-        None
-    };
-    Some(BalanceTaskSnapshot {
-        player: task.player.index(),
-        prompt: task.prompt.clone(),
-        zone: decision_zone_snapshot(task.zone),
-        cards,
-        count: task.count,
-        action: match task.action {
-            BalanceAction::Sacrifice => BalanceActionSnapshot::Sacrifice,
-            BalanceAction::Discard => BalanceActionSnapshot::Discard,
-        },
-        cause: cause_snapshot(task.cause),
-    })
-}
-
-pub(super) fn parse_balance_task(
-    snapshot: &BalanceTaskSnapshot,
-    game: &Game,
-) -> Result<BalanceTask, String> {
-    let owner = player(snapshot.player)?;
-    let zone = parse_decision_zone_snapshot(snapshot.zone);
-    let cards = match &snapshot.cards {
-        Some(cards) => cards
-            .iter()
-            .map(|card| {
-                Ok((
-                    GameObjectId(card.object_id),
-                    object_characteristics_from_snapshot(&game.catalog, &card.characteristics)
-                        .ok_or_else(|| {
-                            "Balance card characteristics are absent from this catalog".to_owned()
-                        })?,
-                ))
-            })
-            .collect::<Result<Vec<_>, String>>()?,
-        None if zone == DecisionZone::Hand => game.players[owner.index()]
-            .hand
-            .iter()
-            .map(|card| {
-                (
-                    card.id,
-                    ObjectCharacteristics::card(card.definition, CardPartId::PRIMARY),
-                )
-            })
-            .collect(),
-        None => return Err("only hidden Balance hand tasks may omit card identities".into()),
-    };
-    Ok(BalanceTask {
-        player: owner,
-        prompt: snapshot.prompt.clone(),
-        zone,
-        cards,
-        count: snapshot.count,
-        action: match snapshot.action {
-            BalanceActionSnapshot::Sacrifice => BalanceAction::Sacrifice,
-            BalanceActionSnapshot::Discard => BalanceAction::Discard,
-        },
-        cause: parse_cause(snapshot.cause)?,
-    })
-}
-
-pub(super) const fn balance_phase_snapshot(phase: BalancePhase) -> BalancePhaseSnapshot {
-    match phase {
-        BalancePhase::Lands => BalancePhaseSnapshot::Lands,
-        BalancePhase::Hands => BalancePhaseSnapshot::Hands,
-        BalancePhase::Creatures => BalancePhaseSnapshot::Creatures,
-    }
-}
-
-pub(super) const fn parse_balance_phase(phase: BalancePhaseSnapshot) -> BalancePhase {
-    match phase {
-        BalancePhaseSnapshot::Lands => BalancePhase::Lands,
-        BalancePhaseSnapshot::Hands => BalancePhase::Hands,
-        BalancePhaseSnapshot::Creatures => BalancePhase::Creatures,
-    }
-}
-
 pub(super) const fn decision_zone_snapshot(zone: DecisionZone) -> DecisionZoneSnapshot {
     match zone {
         DecisionZone::Hand => DecisionZoneSnapshot::Hand,
@@ -695,21 +596,6 @@ pub(super) const fn decision_zone_snapshot(zone: DecisionZone) -> DecisionZoneSn
         DecisionZone::Command => DecisionZoneSnapshot::Command,
         DecisionZone::DrawnThisStep => DecisionZoneSnapshot::DrawnThisStep,
         DecisionZone::None => DecisionZoneSnapshot::None,
-    }
-}
-
-pub(super) const fn parse_decision_zone_snapshot(zone: DecisionZoneSnapshot) -> DecisionZone {
-    match zone {
-        DecisionZoneSnapshot::Hand => DecisionZone::Hand,
-        DecisionZoneSnapshot::Graveyard => DecisionZone::Graveyard,
-        DecisionZoneSnapshot::Battlefield => DecisionZone::Battlefield,
-        DecisionZoneSnapshot::Stack => DecisionZone::Stack,
-        DecisionZoneSnapshot::Library => DecisionZone::Library,
-        DecisionZoneSnapshot::Exile => DecisionZone::Exile,
-        DecisionZoneSnapshot::OutsideGame => DecisionZone::OutsideGame,
-        DecisionZoneSnapshot::Command => DecisionZone::Command,
-        DecisionZoneSnapshot::DrawnThisStep => DecisionZone::DrawnThisStep,
-        DecisionZoneSnapshot::None => DecisionZone::None,
     }
 }
 
@@ -862,6 +748,37 @@ pub(super) fn hidden_discard_choices(
                 .get(index)
                 .map(|card| card.id)
                 .ok_or_else(|| format!("hidden discard hand index {index} is out of range"))
+        })
+        .collect()
+}
+
+pub(super) fn hidden_player_choices(
+    hidden: &Value,
+    owner: PlayerId,
+    expected: usize,
+    game: &Game,
+) -> Result<Vec<GameObjectId>, String> {
+    let indices = hidden
+        .get("decision")
+        .and_then(|decision| decision.get("playerChoices"))
+        .and_then(|choices| choices.get(super::super::seat_label(owner)))
+        .ok_or("hidden hypothesis lacks opposing player choices")?;
+    let indices = array(indices)?;
+    if indices.len() != expected {
+        return Err("hidden player-choice count does not match checkpoint".into());
+    }
+    indices
+        .iter()
+        .map(|index| {
+            let index = index
+                .as_u64()
+                .and_then(|index| usize::try_from(index).ok())
+                .ok_or("hidden player choices must be hand indices")?;
+            game.players[owner.index()]
+                .hand
+                .get(index)
+                .map(|card| card.id)
+                .ok_or_else(|| format!("hidden player-choice hand index {index} is out of range"))
         })
         .collect()
 }

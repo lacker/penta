@@ -1,33 +1,9 @@
 use super::{
-    BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
-    DamageAssignment, DecisionZone, Game, GameEvent, GameObjectId, ObjectCharacteristics,
-    ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    CardInstance, Game, GameEvent, GameObjectId, ObjectPredicateDef, PlayerId, Target, ZoneKind,
+    ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
-    #[allow(clippy::too_many_lines)]
-    pub(super) fn resolve_spell_effect(&mut self, object: &StackObject, behavior: CardBehavior) {
-        match behavior {
-            CardBehavior::Fireball => {
-                let divisor = u16::try_from(object.target_count()).unwrap_or(u16::MAX);
-                let amount = object.x().checked_div(divisor).unwrap_or(0);
-                let assignments = object
-                    .targets()
-                    .into_iter()
-                    .map(|target| DamageAssignment {
-                        source: Some(object.id),
-                        target: Some(target),
-                        amount,
-                        combat: false,
-                    })
-                    .collect();
-                self.deal_damage_simultaneously(assignments);
-            }
-            CardBehavior::Balance => self.resolve_balance(object.controller),
-            _ => {}
-        }
-    }
-
     /// Lifts the top `count` cards off a library, fewer if it is short, in
     /// top-first order. A library keeps its top at the end, which is the end
     /// a draw takes from, so taking from the front would have handed back the
@@ -214,116 +190,5 @@ impl Game {
             .map(|card| card.id)
             .collect::<Vec<_>>();
         self.discard_cards_with_cause(player, &discarded, cause);
-    }
-
-    pub(super) fn resolve_balance(&mut self, controller: PlayerId) {
-        self.queue_balance_phase(controller, BalancePhase::Lands);
-    }
-
-    pub(super) fn queue_balance_phase(&mut self, controller: PlayerId, phase: BalancePhase) {
-        let mut tasks = self.balance_tasks(controller, phase);
-        if tasks.is_empty() {
-            if let Some(next) = phase.next() {
-                self.queue_balance_phase(controller, next);
-            }
-            return;
-        }
-        let first = tasks.remove(0);
-        self.queue_balance_task(controller, phase, first, tasks);
-    }
-
-    pub(super) fn balance_tasks(
-        &self,
-        controller: PlayerId,
-        phase: BalancePhase,
-    ) -> Vec<BalanceTask> {
-        let mut tasks = Vec::new();
-        if phase == BalancePhase::Hands {
-            let keep = self.players[0].hand.len().min(self.players[1].hand.len());
-            for player in [self.active_player, self.active_player.opponent()] {
-                let count = self.players[player.index()].hand.len().saturating_sub(keep);
-                if count > 0 {
-                    tasks.push(BalanceTask {
-                        player,
-                        prompt: format!("Choose {count} card(s) to discard to Balance"),
-                        zone: DecisionZone::Hand,
-                        cards: self.players[player.index()]
-                            .hand
-                            .iter()
-                            .map(|card| {
-                                (
-                                    card.id,
-                                    ObjectCharacteristics::card(
-                                        card.definition,
-                                        CardPartId::PRIMARY,
-                                    ),
-                                )
-                            })
-                            .collect(),
-                        count,
-                        action: BalanceAction::Discard,
-                        cause: ZoneMoveCause::Effect { controller },
-                    });
-                }
-            }
-            return tasks;
-        }
-
-        let card_type = match phase {
-            BalancePhase::Lands => CardType::Land,
-            BalancePhase::Creatures => CardType::Creature,
-            BalancePhase::Hands => unreachable!("the hand phase returned above"),
-        };
-        let counts = [self.active_player, self.active_player.opponent()].map(|player| {
-            self.battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == player
-                        && if card_type == CardType::Creature {
-                            self.power(permanent).is_some()
-                        } else {
-                            self.permanent_types(permanent)
-                                .is_some_and(|types| types.contains(CardType::Land))
-                        }
-                })
-                .count()
-        });
-        let keep = counts[0].min(counts[1]);
-        for player in [self.active_player, self.active_player.opponent()] {
-            let cards = self
-                .battlefield
-                .iter()
-                .filter(|permanent| {
-                    permanent.controller == player
-                        && if card_type == CardType::Creature {
-                            self.power(permanent).is_some()
-                        } else {
-                            self.permanent_types(permanent)
-                                .is_some_and(|types| types.contains(CardType::Land))
-                        }
-                })
-                .map(|permanent| (permanent.card.id, Self::effective_rules_source(permanent)))
-                .collect::<Vec<_>>();
-            let count = cards.len().saturating_sub(keep);
-            if count > 0 {
-                tasks.push(BalanceTask {
-                    player,
-                    prompt: format!(
-                        "Choose {count} {} to sacrifice to Balance",
-                        if card_type == CardType::Land {
-                            "land(s)"
-                        } else {
-                            "creature(s)"
-                        }
-                    ),
-                    zone: DecisionZone::Battlefield,
-                    cards,
-                    count,
-                    action: BalanceAction::Sacrifice,
-                    cause: ZoneMoveCause::Effect { controller },
-                });
-            }
-        }
-        tasks
     }
 }

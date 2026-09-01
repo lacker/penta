@@ -41,8 +41,7 @@ fn granted_activation_freezes_payload_before_sacrificing_grant_source() {
         grantor_definition_id,
         "Activated snapshot test grantor",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     grantor_definition.rules =
         CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&GRANTOR_ABILITIES);
@@ -135,8 +134,7 @@ fn separate_grant_sites_receive_distinct_structural_origins() {
         definition_id,
         "Grant identity test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -218,8 +216,7 @@ fn a_nonmatching_grant_site_still_advances_the_structural_origin() {
         definition_id,
         "Nonmatching grant identity test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -293,8 +290,7 @@ fn nonmatching_composite_grant_sites_still_advance_structural_origins() {
         definition_id,
         "Conditional composite grant identity test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -389,8 +385,7 @@ fn copy_grant_source_definition(
         id,
         name,
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(abilities);
     synchronize_single_part_definition(&mut definition);

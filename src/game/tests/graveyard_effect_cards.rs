@@ -194,8 +194,7 @@ fn entering_tapped_is_not_a_separate_tap_event() {
         watcher_definition,
         "Tap-event watcher",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_abilities(&WATCHER_ABILITIES);

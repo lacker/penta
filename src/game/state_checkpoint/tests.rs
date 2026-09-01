@@ -591,6 +591,7 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         .filter_map(|id| opponent_hand.iter().position(|card| card.id == *id))
         .collect::<Vec<_>>();
     let mut discard_choices = serde_json::Map::new();
+    let mut player_choices = serde_json::Map::new();
     if let Some(DecisionContinuation::DiscardForEffect { chosen, .. }) = game
         .pending_decisions
         .first()
@@ -606,6 +607,23 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
                 .filter_map(|id| hand.iter().position(|card| card.id == *id))
                 .collect::<Vec<_>>();
             discard_choices.insert(seat_label(*player).into(), json!(indices));
+        }
+    }
+    if let Some(DecisionContinuation::ChooseForEachPlayer { chosen, .. }) = game
+        .pending_decisions
+        .first()
+        .map(|pending| &pending.continuation)
+    {
+        for player in [PlayerId::One, PlayerId::Two] {
+            if player == viewer {
+                continue;
+            }
+            let hand = &game.players[player.index()].hand;
+            let indices = chosen
+                .iter()
+                .filter_map(|id| hand.iter().position(|card| card.id == *id))
+                .collect::<Vec<_>>();
+            player_choices.insert(seat_label(player).into(), json!(indices));
         }
     }
     json!({
@@ -625,6 +643,7 @@ fn true_hidden_hypothesis(game: &Game, viewer: PlayerId) -> Value {
         },
         "decision": {
             "discardChoices": discard_choices,
+            "playerChoices": player_choices,
         },
     })
 }

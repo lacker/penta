@@ -296,17 +296,13 @@ impl HandcraftedPolicy {
         if let Some(value) = self.declarative_mana_value(definition) {
             return value;
         }
-        match self.behavior(definition) {
-            Some(behavior) if behavior.types().is_creature() => 65,
-            Some(_) => 55,
-            None => self.catalog.get(definition).map_or(0, |card| {
-                if card.rules.has_type(CardType::Creature) {
-                    65
-                } else {
-                    55
-                }
-            }),
-        }
+        self.catalog.get(definition).map_or(0, |card| {
+            if card.rules.has_type(CardType::Creature) {
+                65
+            } else {
+                55
+            }
+        })
     }
 
     /// Values either a catalog card or inline token characteristics without

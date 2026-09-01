@@ -1,8 +1,8 @@
 use super::{
-    BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CopiableCharacteristics,
-    CounterKind, DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameEvent,
-    PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
-    StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
+    BattlefieldExitCompletion, CardPartId, CopiableCharacteristics, CounterKind,
+    DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameEvent, PendingBattlefieldEntry,
+    PendingProcedure, Permanent, PlayerId, StackAbilityResolver, StackObject, StackObjectKind,
+    Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
 use crate::card::{
@@ -66,12 +66,10 @@ impl Game {
             .definition
             .card_definition()
             .expect("a spell object is backed by a card definition");
-        let behavior = self
-            .behavior(definition)
-            .unwrap_or(CardBehavior::Unsupported);
         let spell_types = self
             .stack_spell_types(&object)
-            .unwrap_or_else(|| behavior.types());
+            .or_else(|| self.catalog.get(definition).map(|card| card.rules.types()))
+            .unwrap_or_else(crate::card::CardTypeSet::empty);
         let aura_host = Self::aura_host_for(&object);
         let aura_player = Self::aura_player_for(&object);
         // A bestow spell whose host is gone is not countered: it loses the
@@ -249,20 +247,6 @@ impl Game {
             ) {
                 return;
             }
-        } else {
-            let pending_before = self.pending_decisions.len();
-            let procedures_before = self.pending_procedures.len();
-            let events_before = self.pending_events.len();
-            self.resolve_spell_effect(&object, behavior);
-            if self.defer_stack_resolution(
-                pending_before,
-                procedures_before,
-                events_before,
-                &object,
-                true,
-            ) {
-                return;
-            }
         }
         self.finish_stack_resolution(&object, !spell_fizzled);
     }
@@ -346,19 +330,17 @@ impl Game {
             .card_definition()
             .expect("a spell object is backed by a card definition");
 
-        let behavior = self
-            .behavior(definition)
-            .unwrap_or(CardBehavior::Unsupported);
         let spell_types = self
             .stack_spell_types(object)
-            .unwrap_or_else(|| behavior.types());
+            .or_else(|| self.catalog.get(definition).map(|card| card.rules.types()))
+            .unwrap_or_else(crate::card::CardTypeSet::empty);
         let aura_fizzles = !self.was_cast_for_bestow(object)
             && spell_types.is_permanent()
             && Self::aura_host_for(object).is_some()
             && self.spell_fizzles(object);
         let card_id = object.id;
         if !spell_types.is_permanent() || aura_fizzles {
-            self.finish_spell_destination(object, behavior, resolved);
+            self.finish_spell_destination(object, resolved);
         }
         self.events.push(GameEvent::SpellResolved {
             card: card_id,
@@ -405,12 +387,7 @@ impl Game {
         }
     }
 
-    fn finish_spell_destination(
-        &mut self,
-        object: &StackObject,
-        _behavior: CardBehavior,
-        resolved: bool,
-    ) {
+    fn finish_spell_destination(&mut self, object: &StackObject, resolved: bool) {
         let owner = object.card.owner;
         let destination = if resolved {
             object
@@ -603,36 +580,7 @@ impl Game {
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);
                 effects.push(effect);
                 effects.extend_from_slice(mode_effects);
-                self.resolve_effects_in_order(effects, object, context, None);
-            }
-            StackAbilityResolver::DeclarativeWithCustomFollowup { effect, behavior } => {
-                let mut effects = Vec::with_capacity(mode_effects.len() + 1);
-                effects.push(effect);
-                effects.extend_from_slice(mode_effects);
-                self.resolve_effects_in_order(effects, object, context, Some(behavior));
-            }
-            StackAbilityResolver::Custom(behavior) => match object.kind {
-                StackObjectKind::Spell => self.resolve_spell_effect(object, behavior),
-                StackObjectKind::ActivatedAbility => {
-                    debug_assert!(false, "custom activated abilities are not cataloged");
-                }
-                StackObjectKind::TriggeredAbility => {
-                    Self::resolve_custom_triggered_ability(object, behavior);
-                }
-            },
-            StackAbilityResolver::CardOwned(resolver) => {
-                let targets = object
-                    .ability
-                    .as_ref()
-                    .map_or_else(Vec::new, |ability| ability.targets.clone());
-                let mut runtime = CardRuntime { game: self };
-                resolver.resolve(
-                    &mut runtime,
-                    &ResolvedAbility {
-                        controller: object.controller,
-                        targets,
-                    },
-                );
+                self.resolve_effects_in_order(effects, object, context);
             }
             StackAbilityResolver::CastOffer(alternative) => {
                 if let (Some(card), Some(payload)) = (object.source, object.ability.as_ref()) {
@@ -651,16 +599,6 @@ impl Game {
             }
         }
         true
-    }
-
-    pub(super) fn resolve_custom_triggered_ability(_object: &StackObject, _behavior: CardBehavior) {
-        // No cataloged triggered ability currently needs a custom resolver.
-    }
-
-    pub(super) fn resolve_custom_spell_followup(_object: &StackObject, _behavior: CardBehavior) {
-        // No cataloged spell currently needs the legacy declarative-plus-custom
-        // bridge. The procedure shape remains checkpoint-readable until the
-        // next checkpoint-format migration removes it.
     }
 
     pub(super) fn stack_ability_fizzles(&self, object: &StackObject) -> bool {

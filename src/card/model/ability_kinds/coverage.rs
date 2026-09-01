@@ -6,9 +6,8 @@
 
 /// Clause-level implementation coverage, independent of effect dispatch.
 ///
-/// An explanation is optional only for an ordinary complete declarative
-/// clause. Complete custom and compatibility clauses keep a note explaining
-/// their implementation; partial and metadata-only clauses explain the gap.
+/// An explanation is optional for a complete clause. Partial and
+/// metadata-only clauses explain the remaining gap.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityCoverageDef {
     pub status: ImplementationStatus,

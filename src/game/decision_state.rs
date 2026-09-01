@@ -9,7 +9,7 @@ use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId
 
 use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
-    CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DecisionZone, DrawReplacement,
+    CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DrawReplacement,
     EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
     PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger,
     ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
@@ -149,44 +149,10 @@ pub(super) struct DeferredBeginTurnEffect {
     pub(super) effect: EffectDef,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub(super) enum BalanceAction {
-    Sacrifice,
-    Discard,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum BalancePhase {
-    Lands,
-    Hands,
-    Creatures,
-}
-
-impl BalancePhase {
-    pub(super) const fn next(self) -> Option<Self> {
-        match self {
-            Self::Lands => Some(Self::Hands),
-            Self::Hands => Some(Self::Creatures),
-            Self::Creatures => None,
-        }
-    }
-}
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ZoneMoveCause {
     Rules,
     Effect { controller: PlayerId },
-}
-
-#[derive(Clone, Debug)]
-pub(super) struct BalanceTask {
-    pub(super) player: PlayerId,
-    pub(super) prompt: String,
-    pub(super) zone: DecisionZone,
-    pub(super) cards: Vec<(GameObjectId, ObjectCharacteristics)>,
-    pub(super) count: usize,
-    pub(super) action: BalanceAction,
-    pub(super) cause: ZoneMoveCause,
 }
 
 /// Where a spell taken off the stack ends up. A counter sends it to the
@@ -406,7 +372,7 @@ pub(super) enum DecisionContinuation {
     /// One step of a declarative multi-player choice. All chosen permanents
     /// travel together until every player has answered, then the definition
     /// binds both halves and resumes its ordinary nested effect.
-    SimultaneousChoose {
+    ChooseForEachPlayer {
         definition: ScopedEffect,
         task: usize,
         players: Vec<PlayerId>,
@@ -604,12 +570,6 @@ pub(super) enum DecisionContinuation {
         followup: Option<SacrificeFollowup>,
         declined: Option<SacrificeDeclined>,
         optional: bool,
-    },
-    Balance {
-        controller: PlayerId,
-        phase: BalancePhase,
-        task: BalanceTask,
-        remaining: Vec<BalanceTask>,
     },
     /// A Doomsday-style search in progress: the cards chosen go on top of
     /// the library in the order they were chosen, and everything left in the

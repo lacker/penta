@@ -6,17 +6,17 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityEffectDef, AbilityTargetDef,
     AbilityTargetPredicate, ActivatedAbilityDef, AdditionalCostDef, AlternateSpellKind,
     AlternativeCastKindDef, AlternativeCostDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryModificationDef, CardBehavior, CardDefinition, CardEffectStatus, CardPart,
-    CardPrinting, CardPrintingId, CardSet, CardStructure, CardType, ChoiceVisibilityDef, ChooseDef,
+    BattlefieldEntryModificationDef, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
+    CardPrintingId, CardSet, CardStructure, CardType, ChoiceVisibilityDef, ChooseDef,
     DamageEventMatcherDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectExecutionDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaCost, ModeDef, ModeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayOptionDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost,
-    ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SpellForm, TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef,
+    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaCost, ModeDef, ModeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost, ReplacementAbilityDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SpellForm,
+    TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
@@ -29,8 +29,7 @@ fn definition(id: u64, name: &str, set: CardSet) -> CardDefinition {
         CardDefinitionId::new(id),
         name,
         set,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     )
 }
 

@@ -76,11 +76,8 @@ impl Game {
         let ability = object.ability.as_ref()?;
         let primary = match ability.resolver {
             StackAbilityResolver::Declarative(effect)
-            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect)
-            | StackAbilityResolver::DeclarativeWithCustomFollowup { effect, .. } => Some(effect),
-            StackAbilityResolver::Custom(_)
-            | StackAbilityResolver::CardOwned(_)
-            | StackAbilityResolver::CastOffer(_) => None,
+            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => Some(effect),
+            StackAbilityResolver::CastOffer(_) => None,
         };
         primary
             .into_iter()

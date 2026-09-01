@@ -1,8 +1,8 @@
 use super::{
     AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    BasicLandType, CardBehavior, CardDefinitionId, CardType, CardTypeSet, CastChoices,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef,
-    PlayerRelation, SpellForm, ValueDef, ZoneKind,
+    BasicLandType, CardDefinitionId, CardType, CardTypeSet, CastChoices, DeclarativeAbilityDef,
+    EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef, PlayerRelation,
+    SpellForm, ValueDef, ZoneKind,
 };
 use crate::PlayerSetDef;
 
@@ -13,7 +13,7 @@ pub(super) struct DeclarativeSpellProfile {
     /// Cards every player draws. This is not ordinary card advantage for the
     /// caster, so the casting policy scores it separately.
     pub(super) cards_drawn_by_each_player: Option<u16>,
-    pub(super) effect_kinds: u8,
+    pub(super) effect_kinds: u16,
     /// Permanent types swept by untargeted global destruction. This is the
     /// guaranteed subset of a matching predicate, so an `AnyOf` can record
     /// each type it names without guessing at narrower predicates.
@@ -21,46 +21,40 @@ pub(super) struct DeclarativeSpellProfile {
     /// Whether the activation taps its own source. A land that taps to pump
     /// is spending the mana it could have made.
     pub(super) taps_source: bool,
-    pub(super) opponent_creature_sweep: bool,
-    pub(super) opponent_spell_sweep: bool,
     /// Whether every effect this cast would resolve scales with the chosen X,
     /// so casting for X=0 resolves to nothing at all. `None` until an effect
     /// has been collected, which keeps a profile that recognized nothing from
     /// claiming that the spell is empty.
     pub(super) empty_without_x: Option<bool>,
+    target_count: u16,
 }
 
 impl DeclarativeSpellProfile {
-    pub(super) const COUNTERS: u8 = 1 << 0;
-    pub(super) const REMOVES: u8 = 1 << 1;
-    pub(super) const TAPS: u8 = 1 << 2;
-    pub(super) const APPLIES: u8 = 1 << 3;
-    pub(super) const SWEEPS_CREATURES: u8 = 1 << 4;
-    pub(super) const EXTRA_TURN: u8 = 1 << 5;
+    pub(super) const COUNTERS: u16 = 1 << 0;
+    pub(super) const REMOVES: u16 = 1 << 1;
+    pub(super) const TAPS: u16 = 1 << 2;
+    pub(super) const APPLIES: u16 = 1 << 3;
+    pub(super) const SWEEPS_CREATURES: u16 = 1 << 4;
+    pub(super) const EXTRA_TURN: u16 = 1 << 5;
+    pub(super) const OPPONENT_CREATURE_SWEEP: u16 = 1 << 6;
+    pub(super) const OPPONENT_SPELL_SWEEP: u16 = 1 << 7;
+    pub(super) const EVENLY_DIVIDED_DAMAGE: u16 = 1 << 8;
 
-    pub(super) fn mark(&mut self, effect_kind: u8) {
+    pub(super) fn mark(&mut self, effect_kind: u16) {
         self.effect_kinds |= effect_kind;
     }
 
-    pub(super) const fn has(self, effect_kind: u8) -> bool {
+    pub(super) const fn has(self, effect_kind: u16) -> bool {
         self.effect_kinds & effect_kind != 0
     }
 }
 
 impl HandcraftedPolicy {
-    pub(super) fn behavior(&self, definition: CardDefinitionId) -> Option<CardBehavior> {
-        self.catalog
-            .get(definition)
-            .and_then(|card| card.rules.special_behavior())
-    }
-
     /// Whether casting this spell for X=0 resolves to nothing at all, so the
     /// card is spent to draw, deal, or discard nothing. The policy only ever
     /// sees an X=0 cast when the bot has exactly the base cost and no more,
     /// which is precisely when it should wait, so a true answer here means
     /// hold the card. Restricted to spells that really do pay into an X.
-    /// Fireball is named rather than inspected because its card-local damage
-    /// selector leaves it no declarative effect to read.
     pub(super) fn is_empty_at_zero_x(
         &self,
         definition: CardDefinitionId,
@@ -72,8 +66,7 @@ impl HandcraftedPolicy {
         if !card.rules.mana_cost().is_some_and(|cost| cost.variable_x) {
             return false;
         }
-        matches!(card.rules.special_behavior(), Some(CardBehavior::Fireball))
-            || declarative.is_some_and(|profile| profile.empty_without_x == Some(true))
+        declarative.is_some_and(|profile| profile.empty_without_x == Some(true))
     }
 
     pub(super) fn is_mana_source(&self, definition: CardDefinitionId) -> bool {
@@ -143,7 +136,10 @@ impl HandcraftedPolicy {
             if !choices.modes().is_empty() {
                 return None;
             }
-            let mut profile = DeclarativeSpellProfile::default();
+            let mut profile = DeclarativeSpellProfile {
+                target_count: u16::try_from(choices.iter_targets().count()).unwrap_or(u16::MAX),
+                ..DeclarativeSpellProfile::default()
+            };
             Self::collect_spell_effect(
                 ability.declarative_effect()?,
                 choices.x(),
@@ -158,7 +154,10 @@ impl HandcraftedPolicy {
         let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
             unreachable!("the selected ability is a spell ability")
         };
-        let mut profile = DeclarativeSpellProfile::default();
+        let mut profile = DeclarativeSpellProfile {
+            target_count: u16::try_from(choices.iter_targets().count()).unwrap_or(u16::MAX),
+            ..DeclarativeSpellProfile::default()
+        };
         Self::collect_spell_effect(
             ability.declarative_effect()?,
             choices.x(),
@@ -247,8 +246,23 @@ impl HandcraftedPolicy {
         x: u16,
         profile: &mut DeclarativeSpellProfile,
     ) {
-        profile.damage = Self::policy_value(amount, x);
-        profile.opponent_creature_sweep |= Self::hits_every_opposing_creature(recipient);
+        profile.damage = match amount {
+            ValueDef::Quotient(quotient)
+                if quotient.denominator == ValueDef::ResolvedRecipientCount =>
+            {
+                profile.mark(DeclarativeSpellProfile::EVENLY_DIVIDED_DAMAGE);
+                Self::policy_value(quotient.numerator, x).map(|total| {
+                    quotient
+                        .apply(total.into(), profile.target_count.into())
+                        .try_into()
+                        .unwrap_or(0)
+                })
+            }
+            _ => Self::policy_value(amount, x),
+        };
+        if Self::hits_every_opposing_creature(recipient) {
+            profile.mark(DeclarativeSpellProfile::OPPONENT_CREATURE_SWEEP);
+        }
     }
 
     fn target_slot_is_on_battlefield(targets: &[AbilityTargetDef], index: usize) -> bool {
@@ -313,7 +327,12 @@ impl HandcraftedPolicy {
             | EffectDef::Discard { amount, .. }
             | EffectDef::Mill { amount, .. }
             | EffectDef::GainLife { amount, .. }
-            | EffectDef::LoseLife { amount, .. } => amount == ValueDef::ChosenX,
+            | EffectDef::LoseLife { amount, .. } => {
+                amount == ValueDef::ChosenX
+                    || matches!(amount, ValueDef::Quotient(quotient)
+                        if quotient.numerator == ValueDef::ChosenX
+                            && quotient.denominator == ValueDef::ResolvedRecipientCount)
+            }
             EffectDef::DealDamageSimultaneously(assignments) => {
                 !assignments.is_empty()
                     && assignments
@@ -397,7 +416,7 @@ impl HandcraftedPolicy {
             EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
                 Self::collect_spell_effect_profile(*definition.then, x, targets, profile);
             }
-            EffectDef::SimultaneousChoose(choice) => {
+            EffectDef::ChooseForEachPlayer(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
             EffectDef::ChooseCardName { then, .. }
@@ -466,7 +485,7 @@ impl HandcraftedPolicy {
             | EffectDef::PutSpellIntoOwnersLibrary { object }
             | EffectDef::Counter { object, .. } => {
                 profile.mark(DeclarativeSpellProfile::COUNTERS);
-                profile.opponent_spell_sweep |= object.object_query().is_some_and(|query| {
+                if object.object_query().is_some_and(|query| {
                     query.object == ObjectPredicateDef::Spell
                         && query.zones == [ZoneKind::Stack]
                         && query.controller.is_none()
@@ -477,7 +496,9 @@ impl HandcraftedPolicy {
                                 PlayerRelation::Opponent | PlayerRelation::NotYou
                             ))
                         )
-                });
+                }) {
+                    profile.mark(DeclarativeSpellProfile::OPPONENT_SPELL_SWEEP);
+                }
             }
             EffectDef::Destroy { object, then, .. } => {
                 Self::collect_destroy_profile(object, profile);
@@ -636,6 +657,7 @@ impl HandcraftedPolicy {
             | ValueDef::CountMatchingPlayerAttachments(_)
             | ValueDef::CountSpellsCastThisTurn(_)
             | ValueDef::AggregateObjectValues(_)
+            | ValueDef::AggregatePlayerObjectCounts(_)
             | ValueDef::AnyMatchingObject(_)
             | ValueDef::CountersOnSource(_)
             | ValueDef::CountersOnObject(_)
@@ -658,6 +680,7 @@ impl HandcraftedPolicy {
             | ValueDef::AdditionalCostPayments(_)
             | ValueDef::IfAdditionalCostPaid(_)
             | ValueDef::DividedAmongTargets
+            | ValueDef::ResolvedRecipientCount
             | ValueDef::TargetPower(_)
             | ValueDef::TargetToughness(_)
             | ValueDef::TargetLibrarySize(_)
@@ -673,6 +696,7 @@ impl HandcraftedPolicy {
             | ValueDef::Negate(_)
             | ValueDef::Scaled(_)
             | ValueDef::Halved(_)
+            | ValueDef::Quotient(_)
             | ValueDef::Sum(_)
             | ValueDef::CreaturesDiedThisTurn
             | ValueDef::OpponentsWhoLostLifeThisTurn

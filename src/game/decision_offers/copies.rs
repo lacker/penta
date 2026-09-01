@@ -329,32 +329,6 @@ impl Game {
             return choices;
         }
         let slots = Self::target_slots_for(option, signature.modes());
-        if Self::uses_legacy_behavior_targets(definition, option) {
-            let Some(behavior) = Self::play_option_behavior(definition, option) else {
-                return vec![signature.targets().to_vec()];
-            };
-            let mut choices = self
-                .legal_target_lists(
-                    behavior,
-                    player,
-                    Some(signature.iter_targets().count()),
-                    spell.id,
-                )
-                .into_iter()
-                .map(|targets| {
-                    if targets.is_empty() {
-                        Vec::new()
-                    } else {
-                        vec![TargetSelection::new(TargetSlotId(0), targets)]
-                    }
-                })
-                .collect::<Vec<_>>();
-            choices.push(signature.targets().to_vec());
-            choices.sort_unstable_by_key(|targets| flatten_target_selections(targets));
-            choices.dedup();
-            return choices;
-        }
-
         let mut choices = vec![Vec::new()];
         for original in signature.targets() {
             let Some(slot) = slots.iter().find(|slot| slot.id == original.slot()) else {

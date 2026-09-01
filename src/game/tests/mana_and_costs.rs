@@ -110,8 +110,7 @@ fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
         definition_id,
         "Mana preview tap-source test card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

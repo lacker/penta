@@ -1,11 +1,11 @@
 use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
 
 use super::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardBehavior,
-    CardSupertype, CardType, ConditionDef, CostQuantityDef, CounterKind, EffectDef,
-    ImplementationStatus, ManaCost, ObjectPredicateDef, ObjectQueryDef, ObjectSetCountConditionDef,
-    ObjectSetDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype,
+    CardType, ConditionDef, CostQuantityDef, CounterKind, EffectDef, ImplementationStatus,
+    ManaCost, ObjectPredicateDef, ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef,
+    PlayerRelation, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    TriggerEventDef, ValueDef, ZoneKind,
 };
 
 mod alternative_casts;
@@ -70,7 +70,11 @@ pub enum SpellResolutionDestinationDef {
 /// action paid the cost.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum SpellAdditionalCostDef {
-    PayMana(ManaCost),
+    /// Pay this mana cost the computed number of times.
+    PayMana {
+        cost: ManaCost,
+        quantity: CostQuantityDef,
+    },
     PayLife(CostQuantityDef),
     Sacrifice {
         object: ObjectPredicateDef,
@@ -109,7 +113,12 @@ pub enum SpellAdditionalCostDef {
 impl SpellAdditionalCostDef {
     #[must_use]
     pub const fn pay_mana(cost: ManaCost) -> Self {
-        Self::PayMana(cost)
+        Self::pay_mana_times(cost, CostQuantityDef::Fixed(1))
+    }
+
+    #[must_use]
+    pub const fn pay_mana_times(cost: ManaCost, quantity: CostQuantityDef) -> Self {
+        Self::PayMana { cost, quantity }
     }
 
     #[must_use]
@@ -883,32 +892,11 @@ pub enum DeclarativeAbilityDef {
     /// A permission the card grants the deck it is built into. It is read
     /// while a deck is assembled and is silent during play.
     DeckConstruction(DeckConstructionDef),
-    /// Transitional structural marker for a clause still dispatched through
-    /// the owning card's legacy custom behavior.
-    Legacy,
+    /// A printed clause whose behavior is not implemented yet.
+    Unimplemented,
 }
 
-/// How an ability's declared effect is executed.
-///
-/// Coverage is deliberately not represented here: a custom effect can be
-/// complete or partial, and a declarative effect can likewise have a gap in
-/// its costs, targeting, timing, or another non-effect portion of the clause.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum EffectExecutionDef {
-    Declarative,
-    Custom(CardBehavior),
-    /// A resolver the card itself supplies, reached through the set module's
-    /// ability bindings rather than a shared dispatch key. The clause says so
-    /// here so that a reader, the coverage view, and the shared-runtime
-    /// boundary all learn how it executes from the clause itself.
-    CardOwned,
-}
-
-/// The structured effect and the resolver responsible for executing it.
-///
-/// Custom execution retains the structured definition as documentation and a
-/// migration target, but the shared resolver must not execute that definition
-/// until the execution kind becomes [`EffectExecutionDef::Declarative`].
+/// The structured program of an ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityProgramDef {
     Effects(EffectDef),
@@ -923,7 +911,6 @@ pub enum AbilityProgramDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityEffectDef {
     pub definition: AbilityProgramDef,
-    pub execution: EffectExecutionDef,
 }
 
 impl AbilityEffectDef {
@@ -931,7 +918,6 @@ impl AbilityEffectDef {
     pub const fn declarative(definition: EffectDef) -> Self {
         Self {
             definition: AbilityProgramDef::Effects(definition),
-            execution: EffectExecutionDef::Declarative,
         }
     }
 
@@ -939,43 +925,22 @@ impl AbilityEffectDef {
     pub const fn replacement_program(definition: ReplacementEffectDef) -> Self {
         Self {
             definition: AbilityProgramDef::Replacement(definition),
-            execution: EffectExecutionDef::Declarative,
         }
     }
 
     #[must_use]
-    pub const fn with_execution(mut self, execution: EffectExecutionDef) -> Self {
-        self.execution = execution;
-        self
-    }
-
-    #[must_use]
     pub const fn declarative_definition(self) -> Option<EffectDef> {
-        match (self.execution, self.definition) {
-            (EffectExecutionDef::Declarative, AbilityProgramDef::Effects(definition)) => {
-                Some(definition)
-            }
-            (EffectExecutionDef::Declarative, AbilityProgramDef::Replacement(_))
-            | (EffectExecutionDef::Custom(_) | EffectExecutionDef::CardOwned, _) => None,
+        match self.definition {
+            AbilityProgramDef::Effects(definition) => Some(definition),
+            AbilityProgramDef::Replacement(_) => None,
         }
     }
 
     #[must_use]
     pub const fn declarative_replacement(self) -> Option<ReplacementEffectDef> {
-        match (self.execution, self.definition) {
-            (EffectExecutionDef::Declarative, AbilityProgramDef::Replacement(definition)) => {
-                Some(definition)
-            }
-            (EffectExecutionDef::Declarative, AbilityProgramDef::Effects(_))
-            | (EffectExecutionDef::Custom(_) | EffectExecutionDef::CardOwned, _) => None,
-        }
-    }
-
-    #[must_use]
-    pub const fn custom_behavior(self) -> Option<CardBehavior> {
-        match self.execution {
-            EffectExecutionDef::Custom(behavior) => Some(behavior),
-            EffectExecutionDef::Declarative | EffectExecutionDef::CardOwned => None,
+        match self.definition {
+            AbilityProgramDef::Replacement(definition) => Some(definition),
+            AbilityProgramDef::Effects(_) => None,
         }
     }
 }

@@ -11,17 +11,20 @@ fn divine_reckoning_effect(game: &Game) -> EffectDef {
 }
 
 #[test]
-fn uses_simultaneous_choice_then_standard_destroy() {
+fn chooses_for_each_player_then_uses_standard_destroy() {
     let game = ready_game();
-    let EffectDef::SimultaneousChoose(choice) = divine_reckoning_effect(&game) else {
-        panic!("Divine Reckoning starts with a simultaneous choice");
+    let EffectDef::ChooseForEachPlayer(choice) = divine_reckoning_effect(&game) else {
+        panic!("Divine Reckoning starts by choosing for each player");
     };
     assert_eq!(choice.player, EffectRecipientDef::EachPlayer);
     assert_eq!(
         choice.candidates,
         ObjectPredicateDef::HasType(CardType::Creature)
     );
-    assert_eq!(choice.one_of_each, &[ObjectPredicateDef::Any]);
+    assert_eq!(
+        choice.selection,
+        PerPlayerSelectionDef::OneOfEach(&[ObjectPredicateDef::Any])
+    );
     assert_ne!(choice.chosen, choice.unchosen);
     assert_eq!(
         *choice.then,

@@ -118,11 +118,10 @@ Activated and triggered mana abilities resolve immediately and do not use the
 stack. This is an explicit ability category, not something inferred from its
 effect: an ability that produces mana can still be an ordinary activated
 ability and use the stack. Other supported activated abilities create stack
-objects with their source, clause origin, text, targets, and resolver frozen at
+objects with their source, clause origin, text, targets, and effect frozen at
 activation. Removing or changing the source does not erase that independent
-ability object. Definition-driven declarative and custom resolvers share this
-lifecycle for supported non-mana activated and triggered abilities; custom
-execution does not make one of those abilities atomic or bypass the stack.
+ability object. Every supported non-mana activated and triggered ability uses
+this shared lifecycle and the declarative effect runtime.
 
 Committed events capture matching triggered abilities from the objects that
 declare them. The active player's simultaneous triggers are handled before the
@@ -165,11 +164,11 @@ target slot, trigger target-fizzle rules, or re-run target legality. Chaos Orb
 uses that non-targeting path, while the same operation can choose a spell on the
 stack or a card in another zone when its candidate query permits one.
 
-Spell choices bind targets to stable target slots. Fireball's legacy behavior
-uses one variable-cardinality slot: it enumerates affordable, distinct target
-combinations, charges one additional generic mana for each target beyond the
-first, and divides X evenly on resolution. Different slots are independent,
-so two instructions may choose the same object. After Fork resolves, its
+Spell choices bind targets to stable target slots. A variable-cardinality slot
+can enumerate any number of distinct targets; a semantic additional cost may
+multiply mana by an arithmetic target-count quantity, and an effect may divide
+a value by the recipient count with an explicit rounding direction. Different slots
+are independent, so two instructions may choose the same object. After Fork resolves, its
 controller chooses legal replacement values for the existing slots or keeps
 the original targets. Spell actions also carry explicit payment objects for
 costs such as Goblin Grenade's sacrifice.
@@ -266,13 +265,12 @@ parts, topology, and play options. Other structured cards attach a
 composition automatically.
 
 An `AbilityDef` owns one rules-text clause together with its explicit timing
-category, costs, targets, structured effect, effect execution, and coverage.
+category, costs, targets, structured effect, and coverage.
 The displayed card text is the clauses' text joined in printed order with
 newlines, so presentation and execution do not duplicate Oracle text. Clause
 IDs are assigned from that order when definitions are attached to a card part.
-Effect execution is either declarative or a closed legacy custom selector. Coverage
-is independent: a declarative or custom clause can be Complete, Partial, or
-MetadataOnly, with an explanation for custom complete clauses and every gap.
+Coverage is independent of the effect shape: a clause can be Complete,
+Partial, or MetadataOnly, with an explanation for every gap.
 Card coverage is derived from all clauses and the executable land/creature
 baseline rather than stored as a second card-level assertion.
 
@@ -285,12 +283,9 @@ is legal when at least one printing belongs to the format's allowed sets,
 regardless of which printing might eventually be selected for presentation.
 
 Many executable effects use reusable declarative primitives or constructors in
-`card::abilities`. A `CardBehavior` value supplies a closed,
-serialization-safe selector for the shrinking legacy custom allowlist, while
-declarative effects need none. New card definitions cannot add custom selectors.
-A legacy clause keeps its selector, coverage, and explanation together even
-though custom handlers remain centralized. Unsupported cards can
-exist in other catalogs and hidden zones but do not generate play options that
+`card::abilities`. Card definitions do not carry an alternate execution
+selector: executable clauses are composed from the shared declarative model.
+Unsupported cards can exist in other catalogs and hidden zones but do not generate play options that
 would resolve as silent no-ops. This makes partial coverage explicit and keeps
 arbitrary card code out of serialized game state.
 

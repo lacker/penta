@@ -15,6 +15,10 @@ fn entry_value_supported(value: ValueDef) -> bool {
                 && entry_value_supported(conditional.otherwise)
         }
         ValueDef::Halved(halved) => entry_value_supported(halved.value),
+        ValueDef::Quotient(quotient) => {
+            entry_value_supported(quotient.numerator)
+                && entry_value_supported(quotient.denominator)
+        }
         _ => false,
     }
 }

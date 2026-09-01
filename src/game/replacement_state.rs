@@ -5,10 +5,9 @@ use crate::card::{
 use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
 
 use super::{
-    AbilitySourceRef, BalancePhase, BalanceTask, CounterKind, EffectResolutionContext,
-    FrozenActivatedAbility, Game, Mana, ManaAbilityActivation, ManaPaymentPurpose,
-    ObjectCharacteristics, ObjectInstance, Permanent, PlannedManaActivation, SacrificeFollowup,
-    ScopedEffect, StackObject, Target, TargetSelection,
+    AbilitySourceRef, CounterKind, EffectResolutionContext, FrozenActivatedAbility, Game, Mana,
+    ManaAbilityActivation, ManaPaymentPurpose, ObjectCharacteristics, ObjectInstance, Permanent,
+    PlannedManaActivation, SacrificeFollowup, ScopedEffect, StackObject, Target, TargetSelection,
 };
 
 /// One replacement effect that currently applies to a prospective event.
@@ -121,11 +120,6 @@ pub(super) enum BattlefieldExitCompletion {
     SacrificeFollowup {
         followup: SacrificeFollowup,
         sacrificed: Option<GameObjectId>,
-    },
-    Balance {
-        controller: PlayerId,
-        phase: BalancePhase,
-        remaining: Vec<BalanceTask>,
     },
     CompleteSpellCast {
         object: Box<StackObject>,

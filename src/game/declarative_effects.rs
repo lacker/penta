@@ -40,7 +40,6 @@ impl Game {
                         .collect(),
                     object,
                     context,
-                    None,
                 );
             }
             EffectDef::ContinueReplacedDraw => {
@@ -110,8 +109,8 @@ impl Game {
             EffectDef::ChooseOneOfEach(definition) => {
                 self.queue_choose_one_of_each(definition, object, context, scoped);
             }
-            EffectDef::SimultaneousChoose(definition) => {
-                self.queue_simultaneous_choice(definition, object, context, scoped);
+            EffectDef::ChooseForEachPlayer(definition) => {
+                self.queue_choices_for_each_player(definition, object, context, scoped);
             }
             EffectDef::ForEachInBinding {
                 objects,

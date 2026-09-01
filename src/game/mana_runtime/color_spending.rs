@@ -133,6 +133,10 @@ impl Game {
             ValueDef::Negate(value) => Self::value_reads_colors_spent(*value),
             ValueDef::Scaled(value) => Self::value_reads_colors_spent(value.value),
             ValueDef::Halved(value) => Self::value_reads_colors_spent(value.value),
+            ValueDef::Quotient(value) => {
+                Self::value_reads_colors_spent(value.numerator)
+                    || Self::value_reads_colors_spent(value.denominator)
+            }
             ValueDef::Sum(value) => {
                 Self::value_reads_colors_spent(value.left)
                     || Self::value_reads_colors_spent(value.right)

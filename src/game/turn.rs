@@ -1,5 +1,5 @@
 use super::{
-    Action, AppliedRuleDef, CardBehavior, CombatDamageStage, CommittedTriggerEvent, CounterKind,
+    Action, AppliedRuleDef, CombatDamageStage, CommittedTriggerEvent, CounterKind,
     DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectDef, EffectResolutionContext, Game,
     GameEvent, GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure,
     PlayerId, ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef,
@@ -814,8 +814,7 @@ impl Game {
                     effects,
                     object,
                     context,
-                    custom_followup,
-                } => self.resolve_effects_in_order(effects, &object, context, custom_followup),
+                } => self.resolve_effects_in_order(effects, &object, context),
                 PendingProcedure::ForEachInBinding {
                     objects,
                     binding,
@@ -847,7 +846,6 @@ impl Game {
         mut effects: Vec<super::ScopedEffect>,
         object: &super::StackObject,
         context: impl Into<EffectResolutionContext>,
-        custom_followup: Option<CardBehavior>,
     ) {
         let mut context = context.into();
         let mut later_procedures = std::mem::take(&mut self.pending_procedures);
@@ -863,21 +861,17 @@ impl Game {
                 || !self.pending_events.is_empty()
                 || !self.pending_procedures.is_empty()
             {
-                if !effects.is_empty() || custom_followup.is_some() {
+                if !effects.is_empty() {
                     self.pending_procedures
                         .push_back(PendingProcedure::ResolveEffects {
                             effects,
                             object: Box::new(object.clone()),
                             context,
-                            custom_followup,
                         });
                 }
                 self.pending_procedures.append(&mut later_procedures);
                 return;
             }
-        }
-        if let Some(behavior) = custom_followup {
-            Self::resolve_custom_spell_followup(object, behavior);
         }
         self.pending_procedures.append(&mut later_procedures);
     }

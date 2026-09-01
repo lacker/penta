@@ -15,7 +15,7 @@ use super::{
     ManaPaymentPurpose, ManaPlanOptions, ManaPool, ManaSourceOutput, ManaSourceOutputs,
     ObjectRefDef, PaymentCapacity, Permanent, PlannedManaActivation, PlannedPaymentKind,
     PlayActionKind, PlayOptionDef, PlayerId, SetOperationDef, Target, TargetSelection,
-    TargetSlotId, TriggerContext, ValueDef, ZoneKind, extra_target_cost,
+    TargetSlotId, TriggerContext, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy)]
@@ -98,6 +98,7 @@ impl Game {
                         scale: super::casting_actions::CastScale {
                             x: choices.x(),
                             modes: choices.modes().len(),
+                            targets: choices.iter_targets().count(),
                             offer,
                         },
                     },
@@ -105,13 +106,7 @@ impl Game {
                 )?;
                 let (additional_mana, additional_life) = (payment.mana, payment.life);
                 let increased = add_mana_cost(
-                    add_mana_cost(
-                        add_generic(
-                            cost,
-                            extra_target_cost(definition, choices.iter_targets().count()),
-                        ),
-                        additional_mana,
-                    ),
+                    add_mana_cost(cost, additional_mana),
                     self.spell_cost_increase(player, *card, choices.targets()),
                 );
                 let (locked, phyrexian_life) = Self::locked_mana_payment(
@@ -313,7 +308,7 @@ impl Game {
                 | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
                 | DeclarativeAbilityDef::DeckConstruction(_)
-                | DeclarativeAbilityDef::Legacy => None,
+                | DeclarativeAbilityDef::Unimplemented => None,
             })
         {
             let (options, purpose) = Self::battlefield_ability_mana_context(

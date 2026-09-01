@@ -2,7 +2,6 @@
 //! Canonical cards live in one set module; reprints and alternate art point back to it.
 //! Partial and metadata-only entries carry explicit coverage reasons.
 
-mod legacy;
 mod y1993;
 mod y1994;
 mod y1995;
@@ -38,11 +37,8 @@ mod y2024;
 mod y2025;
 mod y2026;
 
-use super::record::{CardAbilityBinding, CardRecord, PrintingAnchor, PrintingRecord};
-use crate::AbilityOrigin;
-use crate::card::{AbilityDef, CardBehavior, CardDefinition, CardPrinting, CardRules, CardSet};
-
-static UNSUPPORTED_RULES: CardRules = CardRules::unsupported();
+use super::record::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::card::{CardDefinition, CardPrinting, CardSet};
 
 #[cfg(test)]
 pub(crate) use y1994::antiquities::TETRAVITE;
@@ -922,29 +918,6 @@ pub(super) fn definitions() -> Vec<CardDefinition> {
     definitions
 }
 
-pub(crate) fn ability_binding(
-    origin: AbilityOrigin,
-    actual: &AbilityDef,
-) -> Option<&'static CardAbilityBinding> {
-    let AbilityOrigin::Printed {
-        definition,
-        part,
-        ability,
-    } = origin
-    else {
-        return None;
-    };
-    SET_MODULES
-        .iter()
-        .flat_map(|module| module.cards.iter().copied())
-        .find(|record| record.id() == definition)?
-        .ability_bindings
-        .iter()
-        .find(|binding| {
-            binding.part == part && binding.ability == ability && binding.expected == *actual
-        })
-}
-
 pub(super) fn additional_printings() -> Vec<CardPrinting> {
     SET_MODULES
         .iter()
@@ -956,8 +929,6 @@ pub(super) fn additional_printings() -> Vec<CardPrinting> {
         })
         .collect()
 }
-
-pub(super) use legacy::rules;
 
 #[cfg(test)]
 mod tests;

@@ -1,3 +1,19 @@
+fn resolve_balance_effect(game: &mut Game) {
+    let effect = game
+        .catalog
+        .get(cards::BALANCE)
+        .expect("Balance is cataloged")
+        .rules
+        .ability_clauses()[0]
+        .declarative_effect()
+        .expect("Balance uses a resolving effect program");
+    game.resolve_effect_def(
+        ScopedEffect::primary(effect),
+        &spell(99_960, cards::BALANCE, PlayerId::One, 0),
+        TriggerContext::empty(),
+    );
+}
+
 #[test]
 fn balance_recounts_creatures_after_loxodon_smiter_replaces_its_discard() {
     let mut game = ready_game();
@@ -16,50 +32,10 @@ fn balance_recounts_creatures_after_loxodon_smiter_replaces_its_discard() {
     .unwrap();
     pass_priority_pair(&mut game);
 
-    let discard = game
-        .observe(PlayerId::Two)
-        .decision
-        .expect("Balance makes player two discard down to zero");
-    assert_eq!(discard.visibility, DecisionVisibility::Private);
-    let smiter = discard
-        .options
-        .iter()
-        .find(|option| {
-            option
-                .card
-                .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::LOXODON_SMITER))
-        })
-        .expect("Loxodon Smiter is the discard choice")
-        .id;
-    game.apply(
-        PlayerId::Two,
-        Action::ChooseDecision {
-            decision: discard.id,
-            options: vec![smiter],
-        },
-    )
-    .unwrap();
-
-    let sacrifice = game
-        .observe(PlayerId::Two)
-        .decision
-        .expect("the creature step is counted after the discard step");
-    assert_eq!(sacrifice.visibility, DecisionVisibility::Public);
-    assert!(sacrifice.prompt.contains("creature"));
-    assert_eq!(sacrifice.options.len(), 1);
     assert!(
-        sacrifice.options[0]
-            .card
-            .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::LOXODON_SMITER))
+        game.observe(PlayerId::Two).decision.is_none(),
+        "keeping zero objects makes both one-object choices automatic"
     );
-    game.apply(
-        PlayerId::Two,
-        Action::ChooseDecision {
-            decision: sacrifice.id,
-            options: vec![sacrifice.options[0].id],
-        },
-    )
-    .unwrap();
 
     assert!(
         game.battlefield
@@ -97,39 +73,26 @@ fn balance_defers_one_apnap_trigger_batch_until_its_decisions_finish() {
         card(10_005, cards::MOUNTAIN, PlayerId::One),
     ]);
 
-    game.resolve_balance(PlayerId::One);
-    let discard = game.observe(PlayerId::One).decision.unwrap();
-    assert_eq!(discard.kind, DecisionKind::Choice);
-    assert!(discard.prompt.contains("discard"));
-    game.apply(
-        PlayerId::One,
-        Action::ChooseDecision {
-            decision: discard.id,
-            options: discard.options.iter().map(|option| option.id).collect(),
-        },
-    )
-    .unwrap();
-
+    resolve_balance_effect(&mut game);
     let sacrifice = game.observe(PlayerId::One).decision.unwrap();
-    let su_chi = sacrifice
+    let savannah_lion = sacrifice
         .options
         .iter()
-        .filter(|option| {
+        .find(|option| {
             option
                 .card
-                .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::SU_CHI))
+                .is_some_and(|(_, characteristics)| characteristics.card_definition() == Some(cards::SAVANNAH_LIONS))
         })
-        .map(|option| option.id)
-        .collect::<Vec<_>>();
-    assert_eq!(su_chi.len(), 2);
-    assert!(sacrifice.prompt.contains("creature"));
+        .expect("the creature to keep is offered")
+        .id;
+    assert_eq!(sacrifice.minimum, 1);
     assert!(game.stack.is_empty());
     assert!(game.pending_triggers.is_empty());
     game.apply(
         PlayerId::One,
         Action::ChooseDecision {
             decision: sacrifice.id,
-            options: su_chi,
+            options: vec![savannah_lion],
         },
     )
     .unwrap();
@@ -179,24 +142,7 @@ fn balance_sacrifices_a_shrouded_creature_it_could_never_have_targeted() {
     .unwrap();
     pass_priority_pair(&mut game);
 
-    let sacrifice = game
-        .observe(PlayerId::Two)
-        .decision
-        .expect("their only creature is one more than your none");
-    assert!(sacrifice.prompt.contains("creature"));
-    assert_eq!(
-        sacrifice.options.len(),
-        1,
-        "shroud is no reason to leave it out of the choice",
-    );
-    game.apply(
-        PlayerId::Two,
-        Action::ChooseDecision {
-            decision: sacrifice.id,
-            options: vec![sacrifice.options[0].id],
-        },
-    )
-    .unwrap();
+    assert!(game.observe(PlayerId::Two).decision.is_none());
 
     assert!(
         game.battlefield.is_empty(),

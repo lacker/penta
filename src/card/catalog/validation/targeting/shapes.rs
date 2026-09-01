@@ -312,6 +312,9 @@ fn validate_value_shape(
         ValueDef::Negate(value) => validate_value_shape(*value, targets),
         ValueDef::Scaled(value) => validate_value_shape(value.value, targets),
         ValueDef::Halved(value) => validate_value_shape(value.value, targets),
+        ValueDef::Quotient(value) => {
+            validate_value_pair_shape(value.numerator, value.denominator, targets)
+        }
         ValueDef::Sum(value) => validate_value_pair_shape(value.left, value.right, targets),
         ValueDef::IfAdditionalCostPaid(value) => {
             validate_value_pair_shape(value.if_paid, value.otherwise, targets)
@@ -339,6 +342,10 @@ fn validate_value_shape(
             validate_value_pair_shape(value.then, value.otherwise, targets)
         }
         ValueDef::AggregateObjectValues(a) => validate_aggregate_shape(a.objects, targets),
+        ValueDef::AggregatePlayerObjectCounts(aggregate) => {
+            validate_player_set_shape(aggregate.players, targets)?;
+            validate_query_shape(aggregate.query, targets)
+        }
         ValueDef::CountMatchingObjects(query)
         | ValueDef::AnyMatchingObject(query)
         | ValueDef::DistinctNamesAmong(query) => validate_query_shape(*query, targets),
@@ -398,7 +405,8 @@ fn validate_value_shape(
         | ValueDef::SacrificedManaValue
         | ValueDef::AdditionalCostPayments(_)
         | ValueDef::DistinctTargets
-        | ValueDef::DividedAmongTargets => Ok(()),
+        | ValueDef::DividedAmongTargets
+        | ValueDef::ResolvedRecipientCount => Ok(()),
         ValueDef::CardTypesAmongObjects(objects) => {
             validate_object_set_shape(*objects, targets)
         }

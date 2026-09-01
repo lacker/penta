@@ -22,8 +22,7 @@ fn untap_source_game() -> (Game, GameObjectId, Action) {
         definition_id,
         "Untap source cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact_creature(ManaCost::new(3, 0), &["Scarecrow"], 2, 2)
         .with_abilities(&UNTAP_ABILITIES);

@@ -76,8 +76,7 @@ fn a_basic_land_subtype_only_grants_mana_to_a_land() {
         definition_id,
         "Forest creature",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature(ManaCost::default(), &["Forest"], 1, 1);
     synchronize_single_part_definition(&mut definition);
@@ -102,8 +101,7 @@ fn printed_and_intrinsic_mana_abilities_coexist() {
         definition_id,
         "Forest with printed mana",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&["Forest"]).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -164,8 +162,7 @@ fn direct_and_composite_land_type_effects_grant_intrinsic_mana_in_order() {
         definition_id,
         "Composite land-type test Aura",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -240,10 +237,6 @@ fn blood_moon_replaces_nonbasic_land_abilities_with_intrinsic_red_mana() {
             AbilityOrigin::IntrinsicBasicLand(BasicLandType::Mountain)
         );
         assert!(activations[0].effect.restrictions.is_empty());
-        assert!(
-            game.effective_behavior(permanent).is_none(),
-            "Blood Moon grants intrinsic rules, not a special-behavior hook"
-        );
     }
 }
 
@@ -307,8 +300,7 @@ fn blood_moon_preserves_nonland_subtypes_on_a_land_creature() {
         definition_id,
         "Forest Dryad",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature_without_mana_cost(
         &["Forest", "Gate", "Cave", "Locus", "Dryad"],

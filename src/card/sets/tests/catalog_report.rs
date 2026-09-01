@@ -3,13 +3,12 @@ use std::path::Path;
 
 use super::source_organization::{AuditStatus, source_audits_for_format};
 use super::*;
-use crate::card::{CardComposition, CardDefinition, CardRules};
-use crate::{AbilityCoverageDef, CardBehavior, FormatCategory, FormatDefinition};
+use crate::card::CardDefinition;
+use crate::{FormatCategory, FormatDefinition};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 struct CatalogCoverage {
     declarative: usize,
-    custom: usize,
     partial: usize,
     metadata_only: usize,
 }
@@ -19,9 +18,6 @@ impl CatalogCoverage {
         let mut coverage = Self::default();
         for definition in definitions {
             match definition.implementation_status() {
-                ImplementationStatus::Complete if definition_uses_custom_execution(definition) => {
-                    coverage.custom += 1;
-                }
                 ImplementationStatus::Complete => coverage.declarative += 1,
                 ImplementationStatus::Partial => coverage.partial += 1,
                 ImplementationStatus::MetadataOnly => coverage.metadata_only += 1,
@@ -31,7 +27,7 @@ impl CatalogCoverage {
     }
 
     const fn total(self) -> usize {
-        self.declarative + self.custom + self.partial + self.metadata_only
+        self.declarative + self.partial + self.metadata_only
     }
 }
 
@@ -67,7 +63,6 @@ impl SetCoverage {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 struct PoolCoverage {
     declarative: Vec<String>,
-    custom: Vec<String>,
     partial: Vec<String>,
     metadata_only: Vec<String>,
     uncataloged: Vec<String>,
@@ -85,9 +80,6 @@ impl PoolCoverage {
                 continue;
             };
             match definition.implementation_status() {
-                ImplementationStatus::Complete if definition_uses_custom_execution(definition) => {
-                    coverage.custom.push(name.to_owned());
-                }
                 ImplementationStatus::Complete => coverage.declarative.push(name.to_owned()),
                 ImplementationStatus::Partial => coverage.partial.push(name.to_owned()),
                 ImplementationStatus::MetadataOnly => {
@@ -101,7 +93,6 @@ impl PoolCoverage {
     const fn catalog_coverage(&self) -> CatalogCoverage {
         CatalogCoverage {
             declarative: self.declarative.len(),
-            custom: self.custom.len(),
             partial: self.partial.len(),
             metadata_only: self.metadata_only.len(),
         }
@@ -109,7 +100,6 @@ impl PoolCoverage {
 
     const fn total(&self) -> usize {
         self.declarative.len()
-            + self.custom.len()
             + self.partial.len()
             + self.metadata_only.len()
             + self.uncataloged.len()
@@ -135,8 +125,6 @@ fn coverage_for(root: &Path, catalog: &crate::card::CardCatalog, format: Format)
 
 fn write_catalog_coverage(report: &mut String, coverage: CatalogCoverage) {
     writeln!(report, "    declarative    {:>6}", coverage.declarative)
-        .expect("writing to a String cannot fail");
-    writeln!(report, "    custom         {:>6}", coverage.custom)
         .expect("writing to a String cannot fail");
     writeln!(report, "    partial        {:>6}", coverage.partial)
         .expect("writing to a String cannot fail");
@@ -178,7 +166,6 @@ fn write_format_coverage(
                 .expect("writing to a String cannot fail");
             if verbose {
                 write_pool_names(report, "declarative", &coverage.declarative);
-                write_pool_names(report, "custom", &coverage.custom);
                 write_pool_names(report, "partial", &coverage.partial);
                 write_pool_names(report, "metadata-only", &coverage.metadata_only);
                 write_pool_names(report, "uncataloged", &coverage.uncataloged);
@@ -234,75 +221,6 @@ fn repository_report(verbose: bool) -> String {
     )
 }
 
-static CUSTOM_MODE: [AbilityDef; 1] = [AbilityDef::custom_full(
-    "A custom mode.",
-    CardBehavior::Fireball,
-    "The test exercises a custom modal branch.",
-)];
-
-#[test]
-fn complete_definitions_are_split_by_execution_kind() {
-    fn definition(id: u64, name: &str, rules: &CardRules) -> CardDefinition {
-        let rules = *rules;
-        let composition = CardComposition::single(name, rules);
-        CardDefinition {
-            id: CardDefinitionId::new(id),
-            name: name.to_owned(),
-            art: None,
-            debut_set: CardSet::Alpha,
-            printings: Vec::new(),
-            rules,
-            parts: composition.parts,
-            structure: composition.structure,
-            play_options: composition.play_options,
-        }
-    }
-
-    let declarative = definition(
-        10_001,
-        "Declarative",
-        &CardRules::new_creature(ManaCost::default(), &["Test"], 1, 1),
-    );
-    let keyed_custom = definition(
-        10_002,
-        "Keyed custom",
-        &CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::custom_full(
-            "A custom effect.",
-            CardBehavior::Fireball,
-            "The test exercises keyed custom execution.",
-        )),
-    );
-    let card_owned = definition(
-        10_003,
-        "Card-owned",
-        &CardRules::new_sorcery(ManaCost::default()).with_ability(
-            AbilityDef::spell("A card-owned effect.", EffectDef::None)
-                .with_effect_execution(EffectExecutionDef::CardOwned)
-                .with_coverage(AbilityCoverageDef::explained_complete(
-                    "The test exercises card-owned execution.",
-                )),
-        ),
-    );
-
-    assert_eq!(
-        CatalogCoverage::from_definitions([&declarative, &keyed_custom, &card_owned]),
-        CatalogCoverage {
-            declarative: 1,
-            custom: 2,
-            partial: 0,
-            metadata_only: 0,
-        }
-    );
-
-    assert!(ability_uses_custom_execution(&AbilityDef::modal_spell(
-        "Choose one.",
-        &CUSTOM_MODE,
-        1,
-        1,
-        false,
-    )));
-}
-
 #[test]
 fn report_layout_is_derived_from_category_registries() {
     let categories = vec![
@@ -313,7 +231,6 @@ fn report_layout_is_derived_from_category_registries() {
                 FormatCoverage::Sets(SetCoverage {
                     catalog: CatalogCoverage {
                         declarative: 4,
-                        custom: 1,
                         partial: 1,
                         metadata_only: 7,
                     },
@@ -327,7 +244,6 @@ fn report_layout_is_derived_from_category_registries() {
                 Format::PauperCube,
                 FormatCoverage::Cube(PoolCoverage {
                     declarative: vec!["Declarative Card".to_owned()],
-                    custom: vec!["Custom Card".to_owned()],
                     partial: Vec::new(),
                     metadata_only: vec!["Stub Card".to_owned()],
                     uncataloged: Vec::new(),
@@ -338,7 +254,6 @@ fn report_layout_is_derived_from_category_registries() {
     let report = render_report(
         CatalogCoverage {
             declarative: 10,
-            custom: 2,
             partial: 3,
             metadata_only: 8,
         },
@@ -354,28 +269,25 @@ fn report_layout_is_derived_from_category_registries() {
             "\n",
             "Repository catalog definitions\n",
             "    declarative        10\n",
-            "    custom              2\n",
             "    partial             3\n",
             "    metadata-only       8\n",
-            "    total              23\n",
+            "    total              21\n",
             "\n",
             "Standard\n",
             "  Standard: SOM-M13\n",
             "    declarative         4\n",
-            "    custom              1\n",
             "    partial             1\n",
             "    metadata-only       7\n",
             "    blocked             0\n",
-            "    total              13\n",
+            "    total              12\n",
             "\n",
             "Cubes\n",
             "  Cube: The Pauper Cube\n",
             "    declarative         1\n",
-            "    custom              1\n",
             "    partial             0\n",
             "    metadata-only       1\n",
             "    uncataloged         0\n",
-            "    total               3\n",
+            "    total               2\n",
         )
     );
 }

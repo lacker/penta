@@ -44,7 +44,7 @@ fn every_printed_escalate_card_uses_the_first_class_modal_shape() {
         assert_eq!(usize::from(modal.maximum), modal.modes.len());
         assert!(!modal.may_repeat);
         match modal.escalate_cost.expect("checked above") {
-            SpellAdditionalCostDef::PayMana(_) => mana += 1,
+            SpellAdditionalCostDef::PayMana { .. } => mana += 1,
             SpellAdditionalCostDef::Discard { .. } => discard += 1,
             SpellAdditionalCostDef::Tap { .. } => tap += 1,
             other => panic!("unexpected printed Escalate cost: {other:?}"),

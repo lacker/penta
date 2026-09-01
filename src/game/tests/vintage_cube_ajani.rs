@@ -307,7 +307,7 @@ fn the_zero_makes_a_cat_and_nothing_else_without_red() {
 /// The ultimate lets the opponent keep one of each named type and takes the
 /// rest, leaving their lands alone.
 #[test]
-fn the_ultimate_uses_simultaneous_choice_then_standard_sacrifice() {
+fn the_ultimate_chooses_for_each_player_then_uses_standard_sacrifice() {
     let game = ready_game();
     let avenger = game
         .catalog
@@ -315,13 +315,16 @@ fn the_ultimate_uses_simultaneous_choice_then_standard_sacrifice() {
         .expect("Ajani is cataloged")
         .part(CardPartId(1))
         .expect("Ajani's back face is cataloged");
-    let EffectDef::SimultaneousChoose(choice) = avenger.rules.ability_clauses()[2]
+    let EffectDef::ChooseForEachPlayer(choice) = avenger.rules.ability_clauses()[2]
         .declarative_effect()
         .expect("Ajani's ultimate is declarative")
     else {
-        panic!("Ajani's ultimate starts with a simultaneous choice");
+        panic!("Ajani's ultimate starts by choosing for each player");
     };
-    assert_eq!(choice.one_of_each.len(), 4);
+    let PerPlayerSelectionDef::OneOfEach(selectors) = choice.selection else {
+        panic!("Ajani's ultimate chooses one of each permanent type");
+    };
+    assert_eq!(selectors.len(), 4);
     assert_eq!(
         *choice.then,
         EffectDef::Sacrifice {

@@ -20,8 +20,7 @@ fn exact_count_tap_cost_can_include_its_untapped_source() {
         definition_id,
         "Exact-count tap cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &["Cleric"], 1, 1).with_abilities(&ABILITIES);
@@ -103,8 +102,7 @@ fn duplicate_source_counter_costs_are_aggregated_before_an_activation_is_offered
         definition_id,
         "Aggregate counter cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -163,8 +161,7 @@ fn a_counter_only_mana_ability_is_offered_and_pays_its_counter_cost() {
         definition_id,
         "Counter mana cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -226,8 +223,7 @@ fn source_counters_are_removed_before_a_source_sacrifice_cost_regardless_of_prin
         definition_id,
         "Counter and sacrifice cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -299,8 +295,7 @@ fn a_generic_source_sacrifice_waits_for_its_tap_and_counter_costs() {
         definition_id,
         "Generic source sacrifice ordering test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -367,8 +362,7 @@ fn separate_source_sacrifice_costs_require_separate_permanents() {
         definition_id,
         "Distinct sacrifice cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -448,8 +442,7 @@ fn duplicate_source_sacrifice_costs_are_never_offered() {
         definition_id,
         "Duplicate source sacrifice test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

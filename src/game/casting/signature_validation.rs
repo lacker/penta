@@ -9,11 +9,10 @@
 use super::super::ManaPaymentPurpose;
 use super::super::mana_planning::reduce_generic;
 use super::super::{
-    AbilityTargetDef, AlternativeCastKindDef, CardBehavior, CardEffectStatus, CastChoices,
-    CastCostContext, CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game,
-    GameObjectId, ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target,
-    TargetPredicate, TargetSlotDef, TargetSlotId, TriggerContext, add_generic, add_mana_cost,
-    extra_target_cost,
+    AbilityTargetDef, AlternativeCastKindDef, CardEffectStatus, CastChoices, CastCostContext,
+    CastSignature, CastSourceZone, ControlFlow, DeclarativeAbilityDef, Game, GameObjectId,
+    ManaCost, PlayActionKind, PlayOptionDef, PlayRestriction, PlayerId, Target, TargetPredicate,
+    TargetSlotDef, TargetSlotId, TriggerContext, add_mana_cost,
 };
 use crate::game::casting_actions::{CastScale, SpellAdditionalCostRequest};
 
@@ -67,37 +66,49 @@ impl Game {
     ) -> bool {
         let additional_cost_payments =
             Self::additional_cost_payment_counts_for(option, choices.costs());
-        target_defs.len() == choices.targets().len()
-            && target_defs.iter().enumerate().zip(choices.targets()).all(
-                |((index, slot), selection)| {
-                    let count = selection.targets().len();
-                    let legal = Self::without_excluded_source(
-                        slot,
+        choices
+            .targets()
+            .windows(2)
+            .all(|pair| pair[0].slot() < pair[1].slot())
+            && choices
+                .targets()
+                .iter()
+                .all(|selection| usize::from(selection.slot().0) < target_defs.len())
+            && target_defs.iter().enumerate().all(|(index, slot)| {
+                let expected_slot = TargetSlotId::from_index(index);
+                let selection = choices
+                    .targets()
+                    .iter()
+                    .find(|selection| Some(selection.slot()) == expected_slot);
+                let (minimum, maximum) = slot.count_bounds(choices.x(), &additional_cost_payments);
+                let Some(selection) = selection else {
+                    return minimum == 0;
+                };
+                let count = selection.targets().len();
+                let legal = Self::without_excluded_source(
+                    slot,
+                    card_id,
+                    self.ability_targets_matching_with_selections_at(
+                        slot.predicate,
+                        choices.targets(),
+                        player,
                         card_id,
-                        self.ability_targets_matching_with_selections_at(
-                            slot.predicate,
-                            choices.targets(),
-                            player,
-                            card_id,
-                            TriggerContext::empty(),
-                            choices.x(),
-                            &additional_cost_payments,
-                        ),
-                    );
-                    // Read through the same sentinel the enumerator used, so
-                    // a slot counted by X is checked against the X this cast
-                    // actually chose rather than against the sentinel.
-                    let (minimum, maximum) =
-                        slot.count_bounds(choices.x(), &additional_cost_payments);
-                    TargetSlotId::from_index(index) == Some(selection.slot())
-                        && count >= usize::from(minimum)
-                        && count <= usize::from(maximum)
-                        && selection
-                            .targets()
-                            .iter()
-                            .all(|target| legal.contains(target))
-                },
-            )
+                        TriggerContext::empty(),
+                        choices.x(),
+                        &additional_cost_payments,
+                    ),
+                );
+                // Read through the same sentinel the enumerator used, so
+                // a slot counted by X is checked against the X this cast
+                // actually chose rather than against the sentinel.
+                expected_slot == Some(selection.slot())
+                    && count >= usize::from(minimum)
+                    && count <= usize::from(maximum)
+                    && selection
+                        .targets()
+                        .iter()
+                        .all(|target| legal.contains(target))
+            })
     }
 
     /// Whether the chosen targets fill the play option's own declared slots,
@@ -204,8 +215,6 @@ impl Game {
         if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
             return None;
         }
-        let behavior =
-            Self::play_option_behavior(definition, option).unwrap_or(CardBehavior::Unsupported);
         let types = Self::play_option_types(definition, option)?;
         if option.effect_status == CardEffectStatus::MetadataOnly
             && (!types.is_creature()
@@ -281,6 +290,7 @@ impl Game {
             scale: CastScale {
                 x: choices.x(),
                 modes: choices.modes().len(),
+                targets: choices.iter_targets().count(),
                 offer: offer.map(|offer| offer.cost),
             },
         });
@@ -302,6 +312,7 @@ impl Game {
                 scale: CastScale {
                     x: choices.x(),
                     modes: choices.modes().len(),
+                    targets: choices.iter_targets().count(),
                     offer: offer.map(|offer| offer.cost),
                 },
             },
@@ -342,9 +353,6 @@ impl Game {
             };
             let spliced = self.spliced_spell_clauses(player, choices.spliced())?;
             let plan = Self::selected_spell_plan(spell, choices.modes(), &spliced)?;
-            if plan.target_defs.len() != choices.targets().len() {
-                return None;
-            }
             if !self.spell_target_selection_is_valid(
                 option,
                 &plan.target_defs,
@@ -354,23 +362,6 @@ impl Game {
             ) {
                 return None;
             }
-        } else if Self::uses_legacy_behavior_targets(definition, option) {
-            let flat_targets = choices.iter_targets().copied().collect::<Vec<_>>();
-            let has_legacy_shape = if flat_targets.is_empty() {
-                choices.targets().is_empty()
-            } else {
-                matches!(choices.targets(), [selection]
-                    if selection.slot() == TargetSlotId(0)
-                        && selection.targets() == flat_targets)
-            };
-            if !has_legacy_shape
-                || !self
-                    .legal_target_lists(behavior, player, None, card_id)
-                    .contains(&flat_targets)
-            {
-                return None;
-            }
-            cost = add_generic(cost, extra_target_cost(definition, flat_targets.len()));
         } else if !self.declared_slot_selection_is_valid(&declared_slots, choices) {
             return None;
         }

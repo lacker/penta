@@ -643,27 +643,6 @@ fn semantic_spell_mode_selection_rules_cannot_drift_from_presentation() {
 }
 
 #[test]
-fn executable_spell_mode_branches_are_declarative() {
-    let custom_mode = AbilityDef::spell("Custom mode", EffectDef::None)
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::Fireball))
-        .with_coverage(AbilityCoverageDef::explained_complete("test custom branch"));
-    let definition = semantic_modal_definition(
-        vec![custom_mode],
-        Some(ModeSetDef::choose_one(vec![mode(0, Vec::new())])),
-    );
-
-    assert_eq!(
-        error(definition),
-        CatalogError::CustomSpellModeImplementation {
-            definition: CardDefinitionId::new(1),
-            part: CardPartId::PRIMARY,
-            ability: AbilityId(0),
-            mode: ModeId(0),
-        }
-    );
-}
-
-#[test]
 fn semantic_spell_mode_targets_require_matching_positions_and_cardinalities() {
     let valid = semantic_modal_definition(
         vec![semantic_mode(vec![semantic_target(1, 1)])],

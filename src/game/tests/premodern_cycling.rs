@@ -460,8 +460,7 @@ mod channel_is_not_cycling {
             definition_id,
             "Cycling and channel test card",
             CardSet::Magic2014,
-            false,
-            CardBehavior::Unsupported,
+            crate::card::CardRules::unsupported(),
         );
         definition.rules =
             CardRules::new_sorcery(ManaCost::new(2, 0)).with_abilities(&BOTH_ABILITIES);

@@ -142,8 +142,7 @@ fn any_target_damage_can_remove_a_planeswalker() {
         definition_id,
         "Test Planeswalker",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_planeswalker(ManaCost::default(), &["Test"], 3)
         .with_supertype(CardSupertype::Legendary);
@@ -681,8 +680,7 @@ fn simultaneous_deaths_use_the_pre_exit_trigger_listener_snapshot() {
         definition_id,
         "Test death listener",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &[], 1, 1).with_abilities(&ABILITIES);
@@ -728,8 +726,7 @@ fn simultaneous_exits_keep_pre_exit_characteristics_for_trigger_matching() {
         definition_id,
         "Test Mountain exit listener",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &[], 1, 1).with_abilities(&ABILITIES);

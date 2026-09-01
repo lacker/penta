@@ -22,8 +22,7 @@ fn trigger_creature_definition(
         id,
         name,
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_abilities(abilities);
@@ -201,8 +200,7 @@ fn related_damage_recipients_are_relative_to_the_ability_controller() {
         definition,
         "Controller-relative damage watcher",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     aura.rules = CardRules::new_enchantment(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut aura);

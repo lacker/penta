@@ -39,6 +39,38 @@ fn a_multi_player_keep_choice_reconstructs_between_answers() {
     assert_reconstructs(&game, "Divine Reckoning between survivor choices");
 }
 
+/// Balance automatically keeps the smaller hand before the larger hand's
+/// owner chooses. That committed first hand remains private while the second
+/// decision is pending, but the continuation must still reconstruct it from a
+/// hidden-zone hypothesis.
+#[test]
+fn balance_reconstructs_its_private_keep_choice() {
+    let mut game = staged_game();
+    let balance = card(10_000, crate::card::cards::BALANCE, PlayerId::One);
+    game.players[0].hand.extend([
+        balance.clone(),
+        card(10_001, crate::card::cards::MOUNTAIN, PlayerId::One),
+    ]);
+    for offset in 0..3 {
+        game.players[1].hand.push(card(
+            11_000 + offset,
+            crate::card::cards::MOUNTAIN,
+            PlayerId::Two,
+        ));
+    }
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::White, 1);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 1);
+    game.apply(
+        PlayerId::One,
+        cast_action(balance.id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("Balance is cast");
+    resolve_top_of_stack(&mut game);
+
+    assert_eq!(game.decision_player(), Some(PlayerId::Two));
+    assert_reconstructs(&game, "Balance holding the smaller hand's private keep");
+}
+
 /// Liliana's +1 asks both players at once. Between the two answers the engine
 /// holds one seat's committed discard while the other is still choosing, which
 /// is a choice the waiting seat must not be able to read out of its own

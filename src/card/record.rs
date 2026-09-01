@@ -1,9 +1,7 @@
 use super::{
-    AbilityDef, CardArt, CardComposition, CardDefinition, CardPrinting, CardRules, CardSet,
-    DoubleFacedKind,
+    CardArt, CardComposition, CardDefinition, CardPrinting, CardRules, CardSet, DoubleFacedKind,
 };
-use crate::game::CardAbilityResolver;
-use crate::{AbilityId, CardDefinitionId, CardPartId};
+use crate::CardDefinitionId;
 use sha2::{Digest, Sha256};
 
 type CompositionBuilder = fn() -> CardComposition;
@@ -47,43 +45,6 @@ impl PrintingAnchor {
     }
 }
 
-/// Internal runtime metadata attached to one printed ability.
-///
-/// `expected` guards the positional identity: if a card's abilities are
-/// reordered without updating its binding, lookup fails instead of dispatching
-/// the wrong procedure.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub(crate) struct CardAbilityBinding {
-    pub(crate) part: CardPartId,
-    pub(crate) ability: AbilityId,
-    pub(crate) expected: AbilityDef,
-    resolver: &'static CardAbilityResolver,
-}
-
-impl CardAbilityBinding {
-    #[must_use]
-    #[allow(clippy::large_types_passed_by_value)]
-    #[allow(dead_code)] // Card-owned resolution remains an extension boundary.
-    pub(crate) const fn new(
-        part: CardPartId,
-        ability: AbilityId,
-        expected: AbilityDef,
-        resolver: &'static CardAbilityResolver,
-    ) -> Self {
-        Self {
-            part,
-            ability,
-            expected,
-            resolver,
-        }
-    }
-
-    #[must_use]
-    pub(crate) const fn resolver(self) -> &'static CardAbilityResolver {
-        self.resolver
-    }
-}
-
 /// Internal source record from which the runtime catalog is built.
 pub(super) struct CardRecord {
     legacy_id: Option<CardDefinitionId>,
@@ -93,7 +54,6 @@ pub(super) struct CardRecord {
     pub(super) debut_set: CardSet,
     pub(super) rules: CardRules,
     composition: Option<CompositionSource>,
-    pub(crate) ability_bindings: &'static [CardAbilityBinding],
 }
 
 impl CardRecord {
@@ -115,7 +75,6 @@ impl CardRecord {
             debut_set,
             rules,
             composition: None,
-            ability_bindings: &[],
         }
     }
 
@@ -140,7 +99,6 @@ impl CardRecord {
             debut_set,
             rules,
             composition: None,
-            ability_bindings: &[],
         }
     }
 
@@ -163,7 +121,6 @@ impl CardRecord {
             debut_set,
             rules: faces[0].1,
             composition: Some(CompositionSource::DoubleFaced { faces, kind }),
-            ability_bindings: &[],
         }
     }
 
@@ -226,7 +183,6 @@ impl CardRecord {
                 halves,
                 fuse_cost: None,
             }),
-            ability_bindings: &[],
         }
     }
 
@@ -340,18 +296,6 @@ impl CardRecord {
     #[must_use]
     pub(super) const fn with_composition(mut self, builder: CompositionBuilder) -> Self {
         self.composition = Some(CompositionSource::Builder(builder));
-        self
-    }
-
-    /// Attaches card-owned runtime procedures without changing the public
-    /// rules value produced by this record.
-    #[must_use]
-    #[allow(dead_code)] // Card-owned resolution remains an extension boundary.
-    pub(crate) const fn with_ability_bindings(
-        mut self,
-        bindings: &'static [CardAbilityBinding],
-    ) -> Self {
-        self.ability_bindings = bindings;
         self
     }
 

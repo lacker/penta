@@ -3,22 +3,21 @@ use crate::ids::TargetIndex;
 use super::{
     AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityEffectDef, AbilityProcedureDef,
     AbilityTargetDef, ActivatedAbilityDef, ActivationTimingDef, AlternativeCastAbilityDef,
-    AlternativeCastKindDef, AlternativeCastManaCostDef, CardBehavior, ConditionDef,
-    DeckConstructionDef, DeclarativeAbilityDef, EffectDef, EffectExecutionDef,
-    ImplementationStatus, KeywordAbility, ManaCost, ModalSpellDef,
-    OptionalAdditionalCostAbilityDef, PregameAbilityDef, PregameConditionDef, PregameTimingDef,
-    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
-    StaticAbilityDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef,
-    ZoneKind,
+    AlternativeCastKindDef, AlternativeCastManaCostDef, ConditionDef, DeckConstructionDef,
+    DeclarativeAbilityDef, EffectDef, ImplementationStatus, KeywordAbility, ManaCost,
+    ModalSpellDef, OptionalAdditionalCostAbilityDef, PregameAbilityDef, PregameConditionDef,
+    PregameTimingDef, ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef,
+    ReplacementEventDef, SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef,
+    SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef, TriggerEventDef,
+    TriggeredAbilityDef, ValueDef, ZoneKind,
 };
 
 mod rules_text;
 
 /// One printed rules clause and its implementation.
 ///
-/// The category is explicit even when the implementation remains custom; the
-/// engine never infers stack behavior from costs, targets, or effects.
+/// The category is explicit; the engine never infers stack behavior from
+/// costs, targets, or effects.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityDef {
     /// Static text for ordinary clauses and the keyword label for clauses
@@ -608,49 +607,13 @@ impl AbilityDef {
     }
 
     #[must_use]
-    pub const fn custom_full(
-        text: &'static str,
-        behavior: CardBehavior,
-        explanation: &'static str,
-    ) -> Self {
-        Self {
-            text,
-            definition: DeclarativeAbilityDef::Legacy,
-            effect: AbilityEffectDef::declarative(EffectDef::None)
-                .with_execution(EffectExecutionDef::Custom(behavior)),
-            coverage: AbilityCoverageDef::explained_complete(explanation),
-        }
-    }
-
-    #[must_use]
-    pub const fn custom_partial(
-        text: &'static str,
-        behavior: CardBehavior,
-        explanation: &'static str,
-    ) -> Self {
-        Self {
-            text,
-            definition: DeclarativeAbilityDef::Legacy,
-            effect: AbilityEffectDef::declarative(EffectDef::None)
-                .with_execution(EffectExecutionDef::Custom(behavior)),
-            coverage: AbilityCoverageDef::partial(explanation),
-        }
-    }
-
-    #[must_use]
     pub const fn not_implemented(text: &'static str, explanation: &'static str) -> Self {
         Self {
             text,
-            definition: DeclarativeAbilityDef::Legacy,
+            definition: DeclarativeAbilityDef::Unimplemented,
             effect: AbilityEffectDef::declarative(EffectDef::None),
             coverage: AbilityCoverageDef::metadata_only(explanation),
         }
-    }
-
-    #[must_use]
-    pub const fn with_effect_execution(mut self, execution: EffectExecutionDef) -> Self {
-        self.effect.execution = execution;
-        self
     }
 
     #[must_use]
@@ -807,7 +770,7 @@ impl AbilityDef {
             | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::DeckConstruction(_)
-            | DeclarativeAbilityDef::Legacy => {
+            | DeclarativeAbilityDef::Unimplemented => {
                 panic!("only activated and triggered abilities have a selectable procedure")
             }
         }
@@ -817,15 +780,6 @@ impl AbilityDef {
     #[must_use]
     pub const fn is_executable(self) -> bool {
         self.coverage.is_executable()
-    }
-
-    #[must_use]
-    pub const fn custom_behavior(self) -> Option<CardBehavior> {
-        if self.is_executable() {
-            self.effect.custom_behavior()
-        } else {
-            None
-        }
     }
 
     /// The printed "choose one --" of this clause, wherever it prints it.
@@ -915,7 +869,7 @@ impl AbilityDef {
             | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Keyword(_)
             | DeclarativeAbilityDef::DeckConstruction(_)
-            | DeclarativeAbilityDef::Legacy => {}
+            | DeclarativeAbilityDef::Unimplemented => {}
         }
         self
     }

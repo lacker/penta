@@ -72,7 +72,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::Detain { .. } => "Detain",
         EffectDef::Regenerate { .. } => "Regenerate",
         EffectDef::Sacrifice { .. } => "Sacrifice",
-        EffectDef::SimultaneousChoose(_) => "SimultaneousChoose",
+        EffectDef::ChooseForEachPlayer(_) => "ChooseForEachPlayer",
         EffectDef::SacrificeOfChoice { .. } => "SacrificeOfChoice",
         EffectDef::ExileTopOfLibraryToPlay { .. } => "ExileTopOfLibraryToPlay",
         EffectDef::ExileTopAndMayCast { .. } => "ExileTopAndMayCast",

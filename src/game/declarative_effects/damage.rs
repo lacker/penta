@@ -175,10 +175,11 @@ impl Game {
         // cast, so each one takes its own share rather than the same
         // amount as everyone else.
         let divided = matches!(amount, ValueDef::DividedAmongTargets);
+        let recipients = self.effect_recipients(recipient, object, context, scoped);
         let shared = if divided {
             0
         } else {
-            self.effect_value(amount, object, context, scoped)
+            self.resolved_damage_value(amount, recipients.len(), object, context, scoped)
                 .max(0)
                 .try_into()
                 .unwrap_or(u16::MAX)
@@ -187,7 +188,7 @@ impl Game {
             .legal_target()
             .map(|target| scoped.target_slot(target));
         let mut assignments = Vec::new();
-        for target in self.effect_recipients(recipient, object, context, scoped) {
+        for target in recipients {
             let amount = if divided {
                 slot.and_then(|slot| Self::divided_share(object, slot, target))
                     .unwrap_or(0)
@@ -209,5 +210,35 @@ impl Game {
             .into_iter()
             .map(|outcome| outcome.recipient)
             .collect()
+    }
+
+    fn resolved_damage_value(
+        &self,
+        value: ValueDef,
+        recipient_count: usize,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> i32 {
+        match value {
+            ValueDef::ResolvedRecipientCount => i32::try_from(recipient_count).unwrap_or(i32::MAX),
+            ValueDef::Quotient(quotient) => quotient.apply(
+                self.resolved_damage_value(
+                    quotient.numerator,
+                    recipient_count,
+                    object,
+                    context,
+                    scoped,
+                ),
+                self.resolved_damage_value(
+                    quotient.denominator,
+                    recipient_count,
+                    object,
+                    context,
+                    scoped,
+                ),
+            ),
+            _ => self.effect_value(value, object, context, scoped),
+        }
     }
 }

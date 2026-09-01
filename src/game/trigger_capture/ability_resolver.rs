@@ -1,30 +1,23 @@
 impl Game {
     pub(super) fn ability_resolver(
-        origin: AbilityOrigin,
+        _origin: AbilityOrigin,
         ability: &AbilityDef,
     ) -> StackAbilityResolver {
         if let Some(resolver) = StackAbilityResolver::linked_cast_offer(ability) {
             return resolver;
         }
-        if let Some(binding) = crate::card::ability_binding(origin, ability) {
-            return StackAbilityResolver::CardOwned(binding.resolver());
-        }
-        if let Some(behavior) = ability.custom_behavior() {
-            StackAbilityResolver::Custom(behavior)
-        } else {
-            let effect = match ability.declarative_effect() {
-                Some(effect) => effect,
-                None => EffectDef::None,
-            };
-            let scoped = ScopedEffect::primary(effect);
-            match ability.definition {
-                DeclarativeAbilityDef::Triggered(definition)
-                    if definition.resolves_with_illegal_targets =>
-                {
-                    StackAbilityResolver::DeclarativeIgnoringTargetFizzle(scoped)
-                }
-                _ => StackAbilityResolver::Declarative(scoped),
+        let effect = match ability.declarative_effect() {
+            Some(effect) => effect,
+            None => EffectDef::None,
+        };
+        let scoped = ScopedEffect::primary(effect);
+        match ability.definition {
+            DeclarativeAbilityDef::Triggered(definition)
+                if definition.resolves_with_illegal_targets =>
+            {
+                StackAbilityResolver::DeclarativeIgnoringTargetFizzle(scoped)
             }
+            _ => StackAbilityResolver::Declarative(scoped),
         }
     }
 
@@ -59,7 +52,7 @@ impl Game {
                     | DeclarativeAbilityDef::Pregame(_)
                     | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::DeckConstruction(_)
-                    | DeclarativeAbilityDef::Legacy => &[],
+                    | DeclarativeAbilityDef::Unimplemented => &[],
                 };
                 (
                     target_defs,

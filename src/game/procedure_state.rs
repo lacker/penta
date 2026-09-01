@@ -1,6 +1,6 @@
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
 
-use super::{CardBehavior, EffectResolutionContext, ScopedEffect, StackObject};
+use super::{EffectResolutionContext, ScopedEffect, StackObject};
 
 /// A duration-limited replacement for one player's next draw.
 ///
@@ -32,7 +32,6 @@ pub(super) enum PendingProcedure {
         effects: Vec<ScopedEffect>,
         object: Box<StackObject>,
         context: EffectResolutionContext,
-        custom_followup: Option<CardBehavior>,
     },
     ForEachInBinding {
         objects: ObjectSetBindingIndex,

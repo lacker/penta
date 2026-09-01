@@ -317,25 +317,6 @@ impl Game {
         self.granted_graveyard_alternative_cast(instance, owner)
             .copied()
     }
-    pub(super) fn spell_custom_followup(
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-        primary: AbilityId,
-    ) -> Option<CardBehavior> {
-        let crate::card::SpellForm::Part(part_id) = &option.form else {
-            return None;
-        };
-        definition
-            .part(*part_id)?
-            .rules
-            .indexed_abilities()
-            .find_map(|attached| {
-                (attached.id != primary)
-                    .then(|| attached.definition.custom_behavior())
-                    .flatten()
-            })
-    }
-
     pub(super) fn frozen_spell_payload(
         &self,
         definition_id: CardDefinitionId,
@@ -415,17 +396,9 @@ impl Game {
             });
         }
         let (origin, ability) = spell_clause?;
-        let AbilityOrigin::Printed {
-            ability: ability_id,
-            ..
-        } = origin
-        else {
-            unreachable!("a printed spell clause has a printed origin")
-        };
         let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
             unreachable!("spell_ability returns a spell clause")
         };
-        let followup = Self::spell_custom_followup(definition, option, ability_id);
         let spliced = self
             .spliced_clauses_of(signature.spliced())
             .expect("validated splices name cards that print a clause to add");
@@ -443,15 +416,7 @@ impl Game {
             targets: signature.targets().to_vec(),
             context: TriggerContext::empty().into(),
             condition: None,
-            resolver: match (ability.declarative_effect(), followup) {
-                (Some(effect), Some(behavior)) => {
-                    StackAbilityResolver::DeclarativeWithCustomFollowup {
-                        effect: ScopedEffect::primary(effect),
-                        behavior,
-                    }
-                }
-                _ => Self::ability_resolver(origin, &ability),
-            },
+            resolver: Self::ability_resolver(origin, &ability),
             mode_effects: plan.mode_effects,
             resolution_destination: Some(resolution_destination),
             x: signature.x(),

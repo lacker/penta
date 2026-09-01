@@ -25,7 +25,7 @@ pub enum GrantedAbilityValidationError {
     },
     EmptyText,
     MissingImplementationExplanation,
-    LegacyProcedureRequiresCustomExecution,
+    UnsupportedLegacyProcedure,
     HasNoSourceZone,
     ManaAbilityHasTargets,
     /// Replacement abilities mutate prospective events and therefore require
@@ -145,11 +145,11 @@ impl fmt::Display for GrantedAbilityValidationError {
             ),
             Self::EmptyText => formatter.write_str("has empty rules text"),
             Self::MissingImplementationExplanation => formatter.write_str(
-                "has a non-declarative implementation without an explanation",
+                "has incomplete coverage without an explanation",
             ),
-            Self::LegacyProcedureRequiresCustomExecution => formatter.write_str(
-                "uses the legacy rules procedure without a custom effect executor",
-            ),
+            Self::UnsupportedLegacyProcedure => {
+                formatter.write_str("uses an unsupported legacy rules procedure")
+            }
             Self::HasNoSourceZone => formatter.write_str("has no source zone"),
             Self::ManaAbilityHasTargets => formatter.write_str("is a mana ability that declares targets"),
             Self::ReplacementAbilityRequiresReplacementProgram => formatter.write_str(
@@ -318,7 +318,7 @@ pub enum CatalogError {
         part: CardPartId,
         ability: AbilityId,
     },
-    LegacyProcedureRequiresCustomExecution {
+    UnsupportedLegacyProcedure {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
@@ -373,12 +373,6 @@ pub enum CatalogError {
         mode: ModeId,
     },
     NestedModalSpellMode {
-        definition: CardDefinitionId,
-        part: CardPartId,
-        ability: AbilityId,
-        mode: ModeId,
-    },
-    CustomSpellModeImplementation {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,

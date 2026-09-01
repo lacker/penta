@@ -123,8 +123,7 @@ fn cavern_choices_ignore_noncreature_subtypes_on_creature_cards() {
         definition_id,
         "Test equipment creature",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     equipment_creature.rules =
         CardRules::new_artifact_creature(ManaCost::new(1, 0), &["Equipment", "Rabbit"], 1, 1);

@@ -609,7 +609,7 @@ impl Game {
                 | EffectDef::RandomizeObjectOrder(_)
                 | EffectDef::RevealObjects(_)
                 | EffectDef::MoveObjects(_)
-                | EffectDef::SimultaneousChoose(_)
+                | EffectDef::ChooseForEachPlayer(_)
                 | EffectDef::ChooseCardName { .. }
                 | EffectDef::SelectAtRandomFromZone { .. }
                 | EffectDef::PayOr(_)
@@ -870,11 +870,8 @@ impl Game {
         let ability = object.ability.as_ref()?;
         let primary = match ability.resolver {
             StackAbilityResolver::Declarative(effect)
-            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect)
-            | StackAbilityResolver::DeclarativeWithCustomFollowup { effect, .. } => Some(effect),
-            StackAbilityResolver::Custom(_)
-            | StackAbilityResolver::CardOwned(_)
-            | StackAbilityResolver::CastOffer(_) => None,
+            | StackAbilityResolver::DeclarativeIgnoringTargetFizzle(effect) => Some(effect),
+            StackAbilityResolver::CastOffer(_) => None,
         };
         primary
             .into_iter()

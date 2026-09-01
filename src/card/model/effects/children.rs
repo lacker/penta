@@ -192,7 +192,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::Transform { .. }
         | EffectDef::Saddle { .. }
         | EffectDef::Untap { .. } => Vec::new(),
-        EffectDef::SimultaneousChoose(definition) => vec![*definition.then],
+        EffectDef::ChooseForEachPlayer(definition) => vec![*definition.then],
     }
 }
 

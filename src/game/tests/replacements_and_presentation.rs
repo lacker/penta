@@ -108,8 +108,7 @@ fn an_entering_permanents_own_static_ability_can_grant_its_entry_replacement() {
         definition_id,
         "Test self-granted entry replacement",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&[]).with_abilities(&TEST_SELF_GRANTED_ENTRY_ABILITY);
     synchronize_single_part_definition(&mut definition);
@@ -145,8 +144,7 @@ fn an_entering_permanents_own_static_land_types_match_external_replacements() {
         external_id,
         "Test Plains entry restriction",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     external.rules = CardRules::new_enchantment(ManaCost::default())
         .with_abilities(&TEST_PLAINS_ENTER_TAPPED_ABILITY);
@@ -155,8 +153,7 @@ fn an_entering_permanents_own_static_land_types_match_external_replacements() {
         land_id,
         "Test self-typed land",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     land.rules = CardRules::new_land(&[]).with_abilities(&TEST_SELF_PLAINS_ABILITY);
     synchronize_single_part_definition(&mut land);
@@ -195,8 +192,7 @@ fn an_entering_static_effect_does_not_change_existing_replacement_sources_early(
         source_id,
         "Test nonbasic replacement source",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     source.rules =
         CardRules::new_land(&[]).with_abilities(&TEST_OPPONENT_ENCHANTMENTS_ENTER_TAPPED_ABILITY);
@@ -233,8 +229,7 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
         definition_id,
         "Test modal card",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
     definition.parts = vec![
@@ -292,8 +287,7 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
         definition_id,
         "Test modal spell",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
     definition.parts = vec![
@@ -361,8 +355,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
         definition_id,
         "Test Werewolf",
         CardSet::Innistrad,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = front_rules;
     definition.parts = vec![

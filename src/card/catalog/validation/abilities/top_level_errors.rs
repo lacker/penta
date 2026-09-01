@@ -26,8 +26,8 @@ fn top_level_ability_error(
                 ability,
             }
         }
-        GrantedAbilityValidationError::LegacyProcedureRequiresCustomExecution => {
-            CatalogError::LegacyProcedureRequiresCustomExecution {
+        GrantedAbilityValidationError::UnsupportedLegacyProcedure => {
+            CatalogError::UnsupportedLegacyProcedure {
                 definition: definition.id,
                 part,
                 ability,

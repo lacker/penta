@@ -41,10 +41,7 @@ power/toughness values are not otherwise a special exception. Keep every
 allowed extracted component after the header and before the `CardRecord`,
 adjacent to the clause it supports and in printed-clause order.
 
-A complete definition on the frozen legacy custom allowlist puts
-`// Audit: custom — Needs ...` immediately below the header, naming the work
-required to migrate it to declarative execution; card-local helpers follow the
-audit. An incomplete identity uses `blocked`, `partial`, or `metadata-only` as
+An incomplete identity uses `blocked`, `partial`, or `metadata-only` as
 applicable. Blocked header-and-audit pairs stand alone at the identity's
 collector position. Reprints do not repeat the audit. Keep every identity
 header in natural collector order. The header identifies the canonical
@@ -92,13 +89,13 @@ that a file which uses them mirrors its additional-printing registry exactly.
 
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,
-its costs, targets, effect, execution, and coverage. Displayed rules text and
+its costs, targets, effect, and coverage. Displayed rules text and
 aggregate Complete, Partial, or MetadataOnly status derive from those clauses
 rather than from parallel card-level assertions.
 
 Reuse constructors from `card::abilities` and declarative rules primitives
 where they fit. Keep rules text, implementation coverage, and execution tied to
-the same clause. New custom execution is not an available extension boundary.
+the same clause. Card-specific execution is not an extension boundary.
 
 ## Extension boundaries
 
@@ -114,27 +111,14 @@ Use the smallest boundary that truthfully implements the behavior:
   metadata-only. Do not add a direct card-identity branch in generic `Game` or
   state-machine flow.
 
-Custom resolution must not silently change an explicit ability category or let
-a supported activated or triggered non-mana ability bypass the shared stack.
-Existing engine-level special cases are migration inventory rather than
-templates, but they need not be migrated until repetition or nearby work makes
-the better boundary clear and reasonably scoped.
+Resolution must not silently change an explicit ability category or let a
+supported activated or triggered non-mana ability bypass the shared stack.
 
 ## Coverage and partial support
 
-Declarative effects need no custom behavior identity. The remaining legacy
-custom clauses keep their closed effect selectors, independent coverage, and
-explanations beside the clause while they await migration. Their explicit
-allowlist may only shrink. Unsupported cards may exist in
-catalogs and hidden zones, but the engine does not offer play options that
+Executable clauses use declarative effects and carry no separate behavior
+identity. Unsupported cards may exist in catalogs and hidden zones, but the engine does not offer play options that
 would resolve as silent no-ops.
-
-The custom audit is a discoverable migration plan, not a second execution
-switch. Catalog tests derive custom status from every part and modal clause,
-require a matching canonical audit, and reject stale custom audits after the
-last custom execution path is removed. The audit explanation should identify
-the declarative primitive or concrete migration still needed rather than merely
-repeat that the card has custom code.
 
 When complete fidelity is too large for the current increment, implement the
 working portion, mark the remainder accurately, and state the follow-up. A
@@ -159,8 +143,7 @@ Before adding a card test, find the closest existing mechanic test. A second
 card using the same primitive does not need another happy-path dispatch test;
 extend the mechanic test only when the new card contributes a distinct case.
 Do not test a named card merely to assert derived implementation status or audit
-classification. The shrinking legacy custom allowlist is the one exception;
-source audits and generated catalog reports own all other coverage facts.
+classification. Source audits and generated catalog reports own coverage facts.
 
 ## Adding a set or fixed card pool
 

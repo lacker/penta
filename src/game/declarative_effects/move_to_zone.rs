@@ -125,7 +125,6 @@ impl Game {
                 vec![scoped.with_effect(*effect), scoped.with_effect(*then)],
                 object,
                 context,
-                None,
             );
             return;
         }
@@ -140,7 +139,6 @@ impl Game {
                     vec![scoped.with_effect(*effect), scoped.with_effect(*then)],
                     object,
                     context,
-                    None,
                 );
             }
             EffectDef::ChooseCards {

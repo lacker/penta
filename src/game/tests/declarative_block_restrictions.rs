@@ -83,8 +83,7 @@ fn creature_definition(
         id,
         name,
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(ManaCost::default(), &["Test"], 2, 2).with_abilities(abilities);

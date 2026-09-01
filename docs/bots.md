@@ -302,6 +302,16 @@ hidden["decision"] = {
 
 The constructor asks for this only when the current continuation actually
 contains such a hidden choice, and validates the number and range of indexes.
+The same rule applies to a private per-player keep choice committed in APNAP
+order before another player's answer, under a separate key:
+
+```python
+hidden["decision"] = {
+    "playerChoices": {
+        "p1": [0],
+    },
+}
+```
 
 Construction fails closed when the bot-wire epoch, conservative simulation
 fingerprint, or checkpoint `version` differs; when a hypothesized zone has the
@@ -361,8 +371,7 @@ continuation emitted by the hosted formats, including prospective begin-turn
 replacement choices. Stack payloads retain target-slot groupings, divided
 amounts, modes, X, complete lexical resolution context, flashback/copy state,
 text and color changes, and mana-carried effects.
-Card-owned pile callbacks use stable registry keys rather than serialized
-function pointers. Public object IDs remain unchanged, including those needed
+Public object IDs remain unchanged, including those needed
 by suspended continuations, while hypothesized private cards are rebound to
 fresh local IDs.
 
@@ -1024,8 +1033,8 @@ Protocol 26 removes synthetic token and emblem card definitions. Checkpoint form
 therefore tags every frozen object presentation as either a catalog-backed card
 or a semantic locator for creator-owned token or emblem characteristics. The
 locator identifies a card-, token-, or emblem-owned creating ability and its
-nested effect path or indexed custom-created virtual object. A virtual-object
-chain is recursively rooted in a printed/custom card creator; restore rebinds
+nested effect path or indexed created virtual object. A virtual-object chain is
+recursively rooted in a printed card creator; restore rebinds
 that source through the exact catalog and simulation fingerprint to recover
 the token's selected art, complete rules, face structure, and current part, or
 the emblem's name and complete rules. Ability origins likewise distinguish

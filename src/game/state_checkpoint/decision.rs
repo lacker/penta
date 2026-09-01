@@ -11,22 +11,21 @@ use crate::{
 
 use super::super::decision_offers::effect_choice_visibility;
 use super::super::{
-    AbilitySourceRef, ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask,
-    CastOffer, CastOfferCost, CastSourceZone, DecisionContinuation, DecisionKind,
-    DecisionObservation, DecisionOption, DecisionOrderSemantics, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeferredBeginTurnEffect, GameEvent, PendingDecision,
-    PendingTrigger, SacrificeFollowup, ScopedEffect, Target, TriggerPlacementBatch,
+    AbilitySourceRef, ApplicableBeginTurnReplacement, CastOffer, CastOfferCost, CastSourceZone,
+    DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption,
+    DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeferredBeginTurnEffect, GameEvent, PendingDecision, PendingTrigger, SacrificeFollowup,
+    ScopedEffect, Target, TriggerPlacementBatch,
 };
 use super::model::{
     AbilityLocator, AbilitySourceSnapshot, ApplicableBeginTurnReplacementSnapshot,
-    BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot, CounterKindSnapshot,
-    DecisionCardOriginSnapshot, DecisionCardSnapshot, DecisionContinuationSnapshot,
-    DecisionOptionSnapshot, DecisionPreferenceSnapshot, DecisionStateSnapshot,
-    DecisionZoneSnapshot, DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot,
-    DiscardChoiceSnapshot, EffectContinuationSnapshot, PendingTriggerSnapshot,
-    PregameAbilityActionSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
-    TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneMoveCauseSnapshot,
-    ZonePlacementSnapshot,
+    CounterKindSnapshot, DecisionCardOriginSnapshot, DecisionCardSnapshot,
+    DecisionContinuationSnapshot, DecisionOptionSnapshot, DecisionPreferenceSnapshot,
+    DecisionStateSnapshot, DecisionZoneSnapshot, DeferredBeginTurnEffectSnapshot,
+    DetachedCardSnapshot, DiscardChoiceSnapshot, EffectContinuationSnapshot,
+    PendingTriggerSnapshot, PregameAbilityActionSnapshot, ReplacementEffectContextSnapshot,
+    ReplacementEffectLocator, TargetSnapshot, TriggerPlacementBatchSnapshot, TurnKindSnapshot,
+    ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
 mod option;
 use option::parse_option;
@@ -519,7 +518,7 @@ fn continuation_snapshot(
                 chosen: chosen.iter().copied().map(target_snapshot).collect(),
             }
         }
-        DecisionContinuation::SimultaneousChoose {
+        DecisionContinuation::ChooseForEachPlayer {
             definition,
             task,
             players,
@@ -528,10 +527,39 @@ fn continuation_snapshot(
             context,
             ..
         } => {
-            if !matches!(definition.effect, EffectDef::SimultaneousChoose(_)) {
+            let EffectDef::ChooseForEachPlayer(choice) = definition.effect else {
                 return None;
-            }
-            DecisionContinuationSnapshot::SimultaneousChoose {
+            };
+            let public_chosen = if choice.zone == crate::card::ZoneKind::Hand {
+                Vec::new()
+            } else {
+                chosen.iter().map(|id| id.0).collect()
+            };
+            let private_chosen = if choice.zone == crate::card::ZoneKind::Hand {
+                players
+                    .iter()
+                    .map(|player| {
+                        let cards = chosen
+                            .iter()
+                            .copied()
+                            .filter(|id| {
+                                game.players[player.index()]
+                                    .hand
+                                    .iter()
+                                    .any(|card| card.id == *id)
+                            })
+                            .collect::<Vec<_>>();
+                        DiscardChoiceSnapshot {
+                            player: player.index(),
+                            cards: (*player == viewer).then(|| ids(&cards)),
+                            count: cards.len(),
+                        }
+                    })
+                    .collect()
+            } else {
+                Vec::new()
+            };
+            DecisionContinuationSnapshot::ChooseForEachPlayer {
                 continuation: effect_continuation_snapshot(
                     game,
                     viewer,
@@ -542,7 +570,8 @@ fn continuation_snapshot(
                 )?,
                 task: *task,
                 players: players.iter().map(|player| player.index()).collect(),
-                chosen: chosen.iter().map(|id| id.0).collect(),
+                chosen: public_chosen,
+                private_chosen,
             }
         }
         DecisionContinuation::PayOr {
@@ -859,20 +888,6 @@ fn continuation_snapshot(
                 optional: *optional,
             }
         }
-        DecisionContinuation::Balance {
-            controller,
-            phase,
-            task,
-            remaining,
-        } => DecisionContinuationSnapshot::Balance {
-            controller: controller.index(),
-            phase: balance_phase_snapshot(*phase),
-            task: balance_task_snapshot(&game.catalog, viewer, task)?,
-            remaining: remaining
-                .iter()
-                .map(|task| balance_task_snapshot(&game.catalog, viewer, task))
-                .collect::<Option<Vec<_>>>()?,
-        },
         DecisionContinuation::SearchZonesAndExileRest {
             player,
             zones,

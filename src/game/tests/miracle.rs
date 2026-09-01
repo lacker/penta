@@ -373,8 +373,7 @@ fn miracle_offer_names_the_exact_linked_clause_across_same_kind_play_options() {
         definition_id,
         "Two Miracles",
         CardSet::AvacynRestored,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = first_rules;
     definition.parts = vec![

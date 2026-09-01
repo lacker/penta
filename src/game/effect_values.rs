@@ -311,6 +311,7 @@ impl Game {
             // layer has an affected object or a source pile to read.
             ValueDef::DistinctTargets
             | ValueDef::DividedAmongTargets
+            | ValueDef::ResolvedRecipientCount
             | ValueDef::AffectedManaValue
             | ValueDef::AffectedColorCount => 0,
             ValueDef::SourceCastX => self
@@ -612,9 +613,35 @@ impl Game {
                         }
                     });
                 match aggregate.operation {
+                    crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
                     crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
                     crate::card::AggregateOperationDef::Sum => {
                         values.fold(0_i32, i32::saturating_add)
+                    }
+                }
+            }
+            ValueDef::AggregatePlayerObjectCounts(aggregate) => {
+                let counts = self
+                    .effect_players(aggregate.players, object, context, scoped)
+                    .into_iter()
+                    .map(|player| {
+                        i32::try_from(
+                            self.objects_matching_effect_query_for_controller(
+                                aggregate.query,
+                                player,
+                                object,
+                                context,
+                                scoped,
+                            )
+                            .len(),
+                        )
+                        .unwrap_or(i32::MAX)
+                    });
+                match aggregate.operation {
+                    crate::card::AggregateOperationDef::Minimum => counts.min().unwrap_or(0),
+                    crate::card::AggregateOperationDef::Maximum => counts.max().unwrap_or(0),
+                    crate::card::AggregateOperationDef::Sum => {
+                        counts.fold(0_i32, i32::saturating_add)
                     }
                 }
             }
@@ -640,6 +667,10 @@ impl Game {
             ValueDef::Halved(halved) => {
                 halved.apply(self.effect_value(halved.value, object, context, scoped))
             }
+            ValueDef::Quotient(quotient) => quotient.apply(
+                self.effect_value(quotient.numerator, object, context, scoped),
+                self.effect_value(quotient.denominator, object, context, scoped),
+            ),
             ValueDef::Sum(sum) => self
                 .effect_value(sum.left, object, context, scoped)
                 .saturating_add(self.effect_value(sum.right, object, context, scoped)),

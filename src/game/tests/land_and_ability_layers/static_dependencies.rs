@@ -7,8 +7,7 @@ fn static_enchantment(
         id,
         name,
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(abilities);
     synchronize_single_part_definition(&mut definition);

@@ -1,6 +1,5 @@
 use std::borrow::Cow;
 use std::collections::{BTreeMap, VecDeque};
-use std::fmt;
 use std::ops::ControlFlow;
 
 use crate::action::{
@@ -12,9 +11,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityTargetDef,
     AbilityTargetPredicate, ActivatedAbilityDef, ActivationTimingDef, AddManaEffectDef,
     AlternativeCastAbilityDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    BandingQuality, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES, CardBehavior,
-    CardCatalog, CardChoiceSourceDef, CardDefinition, CardEffectStatus, CardPart, CardRules,
-    CardSet, CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext,
+    BandingQuality, BasicLandType, BattlefieldEntryModificationDef, CREATURE_TYPES, CardCatalog,
+    CardChoiceSourceDef, CardDefinition, CardEffectStatus, CardPart, CardRules, CardSet,
+    CardStructure, CardSupertype, CardType, CardTypeSet, CharacteristicContext,
     CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet, ComparisonDef, ConditionDef,
     ControlDurationDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeclarativeAbilityDef,
@@ -58,7 +57,6 @@ mod api;
 mod attachments;
 mod banding;
 mod battlefield;
-mod card_runtime;
 mod cast_context;
 mod casting;
 mod casting_actions;
@@ -163,8 +161,6 @@ pub use observation::{
     StackObservation, ZoneCard, ZoneError,
 };
 
-pub(crate) use card_runtime::{CardAbilityResolver, CardRuntime, ResolvedAbility};
-
 use observation::{LastSeenHand, PublicCard};
 
 use activation_sacrifice::SacrificeQuota;
@@ -191,10 +187,9 @@ use continuous_state::{
     StaticAppliedEffect, StaticEffectTraversal,
 };
 use decision_state::{
-    ApplicableBeginTurnReplacement, BalanceAction, BalancePhase, BalanceTask, CounteredSpellZone,
-    DecisionContinuation, DeferredBeginTurnEffect, DiscardFollowUp, PendingDecision, Pregame,
-    PregameAbilityAction, ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup,
-    SearchFollowUp, ZoneMoveCause,
+    ApplicableBeginTurnReplacement, CounteredSpellZone, DecisionContinuation,
+    DeferredBeginTurnEffect, DiscardFollowUp, PendingDecision, Pregame, PregameAbilityAction,
+    ResolvedEffectPayment, SacrificeDeclined, SacrificeFollowup, SearchFollowUp, ZoneMoveCause,
 };
 use exile_permission::{ExilePlayCost, ExilePlayPermission};
 use mana_state::{
@@ -218,13 +213,13 @@ use trigger_state::{
 #[cfg(test)]
 use lifecycle::backing_cards;
 use mana_planning::{
-    add_generic, add_mana_cost, configured_base_mana_cost, fold_restricted_x, mana_cost_value,
+    add_mana_cost, configured_base_mana_cost, fold_restricted_x, mana_cost_value,
     pay_cost_with_generic_strategy,
 };
 #[cfg(test)]
 use mana_planning::{can_pay, pay_cost};
 use targeting::{
-    combinations, extra_target_cost, flatten_target_selections, mode_id_selections, one_or_none,
+    combinations, flatten_target_selections, mode_id_selections, one_or_none,
     positive_compositions, target_combinations,
 };
 use zones::{public_cards, remove_card};

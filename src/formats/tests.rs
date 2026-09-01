@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use super::{Format, FormatCategory, FormatDefinition};
 use crate::CardDefinitionId;
-use crate::card::{CardBehavior, CardDefinition, CardPrinting, CardSet};
+use crate::card::{CardDefinition, CardPrinting, CardRules, CardSet, CardSupertype};
 
 #[test]
 fn categories_partition_every_format_in_registry_order() {
@@ -43,15 +43,13 @@ fn pool_membership_decides_legality_regardless_of_printing() {
         CardDefinitionId::new(1),
         "Ancestral Recall",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     let outside = CardDefinition::new(
         CardDefinitionId::new(2),
         "Sorrow's Path",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     assert!(Format::VintageCube.allows_card(&inside));
     assert!(!Format::VintageCube.allows_card(&outside));
@@ -126,22 +124,19 @@ fn formats_allow_only_their_sets_but_share_basic_lands() {
         CardDefinitionId::new(1),
         "Old spell",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     let standard_spell = CardDefinition::new(
         CardDefinitionId::new(2),
         "Standard spell",
         CardSet::Innistrad,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     let basic = CardDefinition::new(
         CardDefinitionId::new(3),
         "Plains",
         CardSet::Alpha,
-        true,
-        CardBehavior::Plains,
+        CardRules::new_land(&["Plains"]).with_supertype(CardSupertype::Basic),
     );
 
     assert!(Format::OldSchool9394.allows_card(&old_spell));
@@ -159,8 +154,7 @@ fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
         id,
         "Reprinted spell",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     card.printings
         .push(CardPrinting::new(id, CardSet::Magic2014));

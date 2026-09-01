@@ -6,8 +6,8 @@ use super::{
     DecisionContinuation, DecisionKind, DecisionObservation, DecisionOption, DecisionPreference,
     DecisionVisibility, DecisionZone, DeclarativeAbilityDef, EffectResolutionContext, Game,
     ManaCost, NonbattlefieldAbilityGrant, ObjectCharacteristics, PendingDecision, PlayerId,
-    ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TargetSlotId,
-    TriggerContext, ZoneKind, ZoneMoveCause, ZonePlacement, flatten_target_selections,
+    ResolvedEffectPayment, ScopedEffect, StackObject, Target, TargetSelection, TriggerContext,
+    ZoneKind, ZoneMoveCause, ZonePlacement, flatten_target_selections,
 };
 use crate::card::{
     AbilityDef, AlternativeCastKindDef, ChoiceVisibilityDef, EffectDef, ObjectPredicateDef,

@@ -136,8 +136,7 @@ fn game_with_two_pair_hybrid_convoke_and_generic(
         definition_id,
         "Two-pair hybrid convoke test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(two_pair_hybrid_cost_with_generic(generic))
         .with_abilities(&TRUE_COLORLESS_CONVOKE_ABILITIES);
@@ -493,8 +492,7 @@ fn a_colorless_creature_cannot_convoke_a_true_colorless_symbol() {
         definition_id,
         "True colorless convoke test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_instant(mana_cost!("{C}")).with_abilities(&TRUE_COLORLESS_CONVOKE_ABILITIES);
@@ -587,8 +585,7 @@ fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
         definition_id,
         "Sacrifice mana source collision test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())
         .with_abilities(&SACRIFICE_CREATURE_FOR_TWO_GREEN);
@@ -599,8 +596,7 @@ fn a_mana_source_activates_before_another_planned_activation_sacrifices_it() {
         mana_creature_definition_id,
         "Consumed mana creature test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     mana_creature_definition.rules =
         CardRules::new_creature(ManaCost::default(), &["Construct"], 1, 1)

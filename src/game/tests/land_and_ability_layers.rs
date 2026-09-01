@@ -789,8 +789,7 @@ fn blood_moon_strips_printed_keywords_from_object_predicates() {
         definition_id,
         "Flying Gate",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature_without_mana_cost(&["Gate", "Bird"], 1, 1)
         .with_type(CardType::Land)
@@ -814,7 +813,7 @@ fn blood_moon_strips_printed_keywords_from_object_predicates() {
 }
 
 #[test]
-fn resolved_ability_removal_suppresses_custom_behavior_until_it_expires() {
+fn resolved_ability_removal_suppresses_declarative_abilities_until_it_expires() {
     let mut game = ready_game();
     let ape = CardInstanceId(10_001);
     game.battlefield.extend([
@@ -831,7 +830,6 @@ fn resolved_ability_removal_suppresses_custom_behavior_until_it_expires() {
         ResolvedEffectDurationDef::UntilEndOfTurn,
         20_000,
     );
-    assert_eq!(game.effective_behavior(&game.battlefield[1]), None);
     assert_eq!(game.power(&game.battlefield[1]), Some(1));
     assert_eq!(game.toughness(&game.battlefield[1]), Some(1));
 
@@ -871,8 +869,7 @@ fn static_ability_additions_and_removals_follow_source_timestamps() {
         grant_id,
         "Static ability grant test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     grant.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&GRANT);
     synchronize_single_part_definition(&mut grant);
@@ -880,8 +877,7 @@ fn static_ability_additions_and_removals_follow_source_timestamps() {
         remove_id,
         "Static ability removal test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     remove.rules = CardRules::new_enchantment(ManaCost::new(0, 0)).with_abilities(&REMOVE);
     synchronize_single_part_definition(&mut remove);

@@ -65,7 +65,7 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
     assert!(matches!(
         spell_cost(cards::ANNIHILATING_GLARE),
         SpellAdditionalCostDef::Choice([
-            SpellAdditionalCostDef::PayMana(_),
+            SpellAdditionalCostDef::PayMana { .. },
             SpellAdditionalCostDef::Sacrifice { .. }
         ])
     ));
@@ -80,7 +80,7 @@ fn card_definitions_name_the_game_actions_their_costs_use() {
         spell_cost(cards::FEED_THE_CYCLE),
         SpellAdditionalCostDef::Choice([
             SpellAdditionalCostDef::Forage,
-            SpellAdditionalCostDef::PayMana(_)
+            SpellAdditionalCostDef::PayMana { .. }
         ])
     ));
     assert!(matches!(

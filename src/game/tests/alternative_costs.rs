@@ -502,8 +502,7 @@ fn incomplete_alternative_cast_clauses_do_not_enable_or_transform_their_costs() 
         definition_id,
         "Incomplete Alternatives",
         CardSet::ReturnToRavnica,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_sorcery(ManaCost::new(1, 0)).with_abilities(abilities);
     synchronize_single_part_definition(&mut definition);

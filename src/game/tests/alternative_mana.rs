@@ -229,8 +229,7 @@ fn improvise_cannot_pay_a_colored_symbol() {
         definition_id,
         "Colored improvise test",
         CardSet::AetherRevolt,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_sorcery(mana_cost!("{U}")).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

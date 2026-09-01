@@ -534,8 +534,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
         definition_id,
         "Modal Buyback Test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -621,8 +620,7 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
         definition_id,
         "Overload Buyback Test",
         CardSet::ReturnToRavnica,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);
@@ -710,8 +708,7 @@ fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
         definition_id,
         "Mixed Spend Buyback Test",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

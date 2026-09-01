@@ -858,7 +858,7 @@ fn granted_non_declarative_implementations_require_an_explanation() {
 }
 
 #[test]
-fn executable_legacy_procedures_require_custom_effect_execution() {
+fn executable_legacy_procedures_are_rejected() {
     static LEGACY: AbilityDef = AbilityDef::activated(
         "An ability routed through the legacy procedure.",
         &[],
@@ -874,7 +874,7 @@ fn executable_legacy_procedures_require_custom_effect_execution() {
     set_primary_rules(&mut top_level, &rules);
     assert_eq!(
         error(top_level),
-        CatalogError::LegacyProcedureRequiresCustomExecution {
+        CatalogError::UnsupportedLegacyProcedure {
             definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
@@ -888,7 +888,7 @@ fn executable_legacy_procedures_require_custom_effect_execution() {
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
             grant_path: vec![GrantId::PRIMARY],
-            problem: GrantedAbilityValidationError::LegacyProcedureRequiresCustomExecution,
+            problem: GrantedAbilityValidationError::UnsupportedLegacyProcedure,
         }
     );
 }

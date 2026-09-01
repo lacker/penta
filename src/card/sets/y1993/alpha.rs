@@ -1,22 +1,23 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef,
-    AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt, CardBehavior, CardRules,
-    CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostModificationDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DamagePreventionFollowUpDef, DamageRecipientMatcherDef, DamageSourceGroupDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef,
-    InstalledTriggerDef, KeywordAbility, LikelihoodDef, ManaColor, ManaTypeSetDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OngoingEffectDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementAbilityDef,
-    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RoundingDef, SourceMatchValueDef, TriggerConditionDef,
-    TriggerEventDef, TurnKindDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
+    ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
+    ChooseForEachPlayerDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamagePreventionDef, DamagePreventionFollowUpDef,
+    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
+    LikelihoodDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PerPlayerSelectionDef,
+    PlayerObjectCountAggregateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuotientValueDef,
+    ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SourceMatchValueDef,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 use abilities::{ENCHANT_CREATURE_TARGET, aura_spell, enchant_creature, enchant_land};
@@ -95,18 +96,88 @@ pub(in crate::card::sets) static ARMAGEDDON: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 3 — Balance
-// Audit: custom — Needs a declarative multi-player equalization procedure that resolves lands, hands, and creatures in order without leaking simultaneous choices.
 pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_legacy_id(
     60,
     "Balance",
     CardArt::new("6f9ea46a-411f-40ce-a873-a905180093f4", "Mark Poole"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{1}{W}"))
-    .with_abilities(&[AbilityDef::custom_full(
+    CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "Each player chooses a number of lands they control equal to the number of lands controlled by the player who controls the fewest, then sacrifices the rest. Players discard cards and sacrifice creatures the same way.",
-        CardBehavior::Balance,
-        "The card-local resolver settles lands, then hands, then creatures, recounting before each. Only whoever is over the shared floor chooses, so a phase never has two choosers whose picks could leak to each other.",
-    )]),
+        EffectDef::Sequence(&[
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::EachPlayer,
+                candidates: ObjectPredicateDef::HasType(CardType::Land),
+                zone: ZoneKind::Battlefield,
+                selection: PerPlayerSelectionDef::Count(
+                    ValueDef::AggregatePlayerObjectCounts(&PlayerObjectCountAggregateDef {
+                        players: PlayerSetDef::All,
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        operation: AggregateOperationDef::Minimum,
+                    }),
+                ),
+                visibility: ChoiceVisibilityDef::Public,
+                chosen: ObjectSetBindingIndex::PRIMARY,
+                unchosen: ObjectSetBindingIndex::new(1),
+                then: &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::new(1),
+                    )),
+                },
+            }),
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::EachPlayer,
+                candidates: ObjectPredicateDef::Any,
+                zone: ZoneKind::Hand,
+                selection: PerPlayerSelectionDef::Count(
+                    ValueDef::AggregatePlayerObjectCounts(&PlayerObjectCountAggregateDef {
+                        players: PlayerSetDef::All,
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Hand],
+                            PlayerRelation::You,
+                        ),
+                        operation: AggregateOperationDef::Minimum,
+                    }),
+                ),
+                visibility: ChoiceVisibilityDef::Private,
+                chosen: ObjectSetBindingIndex::PRIMARY,
+                unchosen: ObjectSetBindingIndex::new(1),
+                then: &EffectDef::DiscardCards {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::new(1),
+                    )),
+                },
+            }),
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                player: EffectRecipientDef::EachPlayer,
+                candidates: ObjectPredicateDef::HasType(CardType::Creature),
+                zone: ZoneKind::Battlefield,
+                selection: PerPlayerSelectionDef::Count(
+                    ValueDef::AggregatePlayerObjectCounts(&PlayerObjectCountAggregateDef {
+                        players: PlayerSetDef::All,
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        operation: AggregateOperationDef::Minimum,
+                    }),
+                ),
+                visibility: ChoiceVisibilityDef::Public,
+                chosen: ObjectSetBindingIndex::PRIMARY,
+                unchosen: ObjectSetBindingIndex::new(1),
+                then: &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        ObjectSetBindingIndex::new(1),
+                    )),
+                },
+            }),
+        ]),
+    )),
 );
 
 // LEA 4 — Benalish Hero
@@ -3215,25 +3286,35 @@ pub(in crate::card::sets) static FIRE_ELEMENTAL: CardRecord = CardRecord::new_wi
 );
 
 // LEA 149 — Fireball
-// Audit: custom — Needs declarative variable target count, per-extra-target casting cost, and damage division frozen from the cast target count.
 pub(in crate::card::sets) static FIREBALL: CardRecord = CardRecord::new_with_legacy_id(
     9,
     "Fireball",
     CardArt::new("b7623c00-144b-4a8f-9c6c-f5e9e4f65ece", "Mark Tedin"),
     CardSet::Alpha,
-    CardRules::new_sorcery(mana_cost!("{X}{R}"))
-    .costs_more_per_extra_target(1)
-    .with_abilities(&[
+    CardRules::new_sorcery(mana_cost!("{X}{R}")).with_abilities(&[
         AbilityDef::enforced_when_cast(
             "This spell costs {1} more to cast for each target beyond the first.",
-            "The play option adds the generic cost before the spell is offered, \
-             so an unaffordable spread of targets is never a legal action.",
+            "The spell's semantic additional cost pays {1} a number of times equal to its \
+             target count minus one, so an unaffordable spread is never a legal action.",
         ),
-        AbilityDef::custom_full(
+        AbilityDef::spell_with_targets(
             "Fireball deals X damage divided evenly, rounded down, among any number of targets.",
-            CardBehavior::Fireball,
-            "The card-local selector offers every combination of damage targets, including none, and the resolver divides X by the count it was cast with rather than by the targets that survive.",
-        ),
+            &[AbilityTargetDef::any_number(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Quotient(&QuotientValueDef::new(
+                    ValueDef::ChosenX,
+                    ValueDef::ResolvedRecipientCount,
+                    RoundingDef::Down,
+                )),
+            },
+        )
+        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_mana_times(
+            mana_cost!("{1}"),
+            CostQuantityDef::Subtract(&CostQuantityDef::TargetCount, &CostQuantityDef::Fixed(1)),
+        )),
     ]),
 );
 

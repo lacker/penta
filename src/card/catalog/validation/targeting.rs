@@ -9,10 +9,10 @@ use crate::card::{
     CostModificationDef, DamageEventMatcherDef, DamagePreventionCapacityDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, ScalarChoiceListDef, SpellCostModificationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PerPlayerSelectionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, ScalarChoiceListDef, SpellCostModificationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
 use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 

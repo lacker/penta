@@ -385,6 +385,21 @@ impl AbilityTargetDef {
     /// keeps its plain number.
     pub const UNLIMITED: u8 = u8::MAX;
 
+    /// "Any number of targets," including none.
+    #[must_use]
+    pub const fn any_number(predicate: AbilityTargetPredicate) -> Self {
+        Self {
+            predicate,
+            chooser: TargetChooserDef::Controller,
+            minimum: 0,
+            maximum: Self::UNLIMITED,
+            exact_count: None,
+            divided_total: None,
+            another: false,
+            excludes_source: false,
+        }
+    }
+
     /// A count standing for "the X chosen as this was activated". Like
     /// [`Self::UNLIMITED`] it is a sentinel rather than an `Option`, for the
     /// same reason: no printed card names 254 targets, and every bounded
@@ -570,6 +585,10 @@ fn cast_target_count_value(value: ValueDef, x: u16, payments: &[u16]) -> Option<
         ValueDef::Halved(halved) => {
             Some(halved.apply(cast_target_count_value(halved.value, x, payments)?))
         }
+        ValueDef::Quotient(quotient) => Some(quotient.apply(
+            cast_target_count_value(quotient.numerator, x, payments)?,
+            cast_target_count_value(quotient.denominator, x, payments)?,
+        )),
         _ => None,
     }
 }

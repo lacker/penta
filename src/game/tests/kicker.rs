@@ -107,8 +107,7 @@ fn escape_context_and_kicker_payment_coexist_through_entry() {
         definition_id,
         "Escaped and Kicked",
         CardSet::TherosBeyondDeath,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_creature(mana_cost!("{2}{B}"), &["Giant"], 3, 3).with_abilities(&ABILITIES);

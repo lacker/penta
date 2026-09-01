@@ -433,7 +433,7 @@ fn ring_uses_declarative_format_and_draw_replacement_constructs() {
 }
 
 #[test]
-fn every_non_declarative_clause_explains_its_implementation() {
+fn every_incomplete_clause_explains_its_implementation() {
     let records = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
@@ -442,15 +442,13 @@ fn every_non_declarative_clause_explains_its_implementation() {
         let definition = record.definition();
         for part in &definition.parts {
             for ability in part.rules.ability_clauses() {
-                if ability.effect.execution != EffectExecutionDef::Declarative
-                    || ability.coverage.status != ImplementationStatus::Complete
-                {
+                if ability.coverage.status != ImplementationStatus::Complete {
                     assert!(
                         ability
                             .coverage
                             .explanation
                             .is_some_and(|explanation| !explanation.trim().is_empty()),
-                        "{} has a non-declarative clause without an explanation: {}",
+                        "{} has an incomplete clause without an explanation: {}",
                         record.name,
                         ability.text
                     );
@@ -526,9 +524,6 @@ fn standard_records_are_unique_and_format_legal() {
         assert!(names.insert(record.name));
         assert!(!record.rules.has_supertype(CardSupertype::Basic));
         assert!(Format::IsdM14Standard.allows_set(record.debut_set));
-        if let Some(behavior) = record.rules.special_behavior() {
-            assert_eq!(behavior.rules(), &record.rules);
-        }
     }
 
     assert!(!names.contains("Celestial Purge"));

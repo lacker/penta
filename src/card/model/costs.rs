@@ -18,6 +18,10 @@ pub enum CostQuantityDef {
     ChosenX,
     /// How many modes were selected for the spell being cast.
     ModeCount,
+    /// How many targets the spell names as it is cast. Repeated targets in
+    /// separate slots each count because this is the number of targets, not
+    /// the number of distinct objects or players targeted.
+    TargetCount,
     /// The left quantity minus the right, floored at zero because a cost
     /// cannot ask for a negative quantity.
     Subtract(&'static Self, &'static Self),
@@ -108,7 +112,10 @@ impl CostQuantityDef {
                 };
                 Some(left.saturating_sub(right))
             }
-            Self::ChosenX | Self::ModeCount | Self::ObjectSetValueAtLeast(_) => None,
+            Self::ChosenX
+            | Self::ModeCount
+            | Self::TargetCount
+            | Self::ObjectSetValueAtLeast(_) => None,
         }
     }
 }

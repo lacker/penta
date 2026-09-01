@@ -61,6 +61,10 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::DistinctNamesAmong(query) => static_query_supported(*query),
         ValueDef::Scaled(scaled) => static_power_toughness_value_supported(scaled.value),
         ValueDef::Halved(halved) => static_power_toughness_value_supported(halved.value),
+        ValueDef::Quotient(quotient) => {
+            static_power_toughness_value_supported(quotient.numerator)
+                && static_power_toughness_value_supported(quotient.denominator)
+        }
         ValueDef::IfSourceMatches(branches) => {
             static_object_predicate_supported(branches.object)
                 && static_power_toughness_value_supported(branches.then)
@@ -74,6 +78,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         // static power-and-toughness layer.
         ValueDef::IfCardTypesAmongGraveyards(_)
         | ValueDef::IfAdditionalCostPaid(_)
+        | ValueDef::AggregatePlayerObjectCounts(_)
         | ValueDef::CountMatchingPlayerAttachments(_)
         | ValueDef::CreaturesDiedThisTurn
         | ValueDef::OpponentsWhoLostLifeThisTurn
@@ -111,7 +116,8 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DistinctTargets
-        | ValueDef::DividedAmongTargets => false,
+        | ValueDef::DividedAmongTargets
+        | ValueDef::ResolvedRecipientCount => false,
     }
 }
 
@@ -132,6 +138,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
                 && static_cost_reduction_value_supported(sum.right)
         }
         ValueDef::CreaturesDiedThisTurn
+        | ValueDef::AggregatePlayerObjectCounts(_)
         | ValueDef::CountMatchingPlayerAttachments(_)
         | ValueDef::OpponentsWhoLostLifeThisTurn
         | ValueDef::DistinctNamesAmong(_)
@@ -155,6 +162,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::Negate(_)
         | ValueDef::Scaled(_)
         | ValueDef::Halved(_)
+        | ValueDef::Quotient(_)
         | ValueDef::IfCreatureDiedThisTurn(_)
         | ValueDef::IfControllerLifeAtMost(_)
         | ValueDef::IfCondition(_)
@@ -189,7 +197,8 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::ObjectPower(_)
         | ValueDef::ObjectManaValue(_)
         | ValueDef::DistinctTargets
-        | ValueDef::DividedAmongTargets => false,
+        | ValueDef::DividedAmongTargets
+        | ValueDef::ResolvedRecipientCount => false,
     }
 }
 

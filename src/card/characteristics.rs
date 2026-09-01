@@ -272,8 +272,8 @@ mod tests {
     use super::{CharacteristicContext, CharacteristicError, applicable_part_ids};
     use crate::card::{CardCatalog, cards};
     use crate::{
-        AlternateSpellKind, CardBehavior, CardDefinition, CardDefinitionId, CardPart, CardPartId,
-        CardRules, CardSet, CardStructure, ManaCost, PlayOptionDef, PlayOptionId, SpellForm,
+        AlternateSpellKind, CardDefinition, CardDefinitionId, CardPart, CardPartId, CardRules,
+        CardSet, CardStructure, ManaCost, PlayOptionDef, PlayOptionId, SpellForm,
     };
 
     fn definition(catalog: &CardCatalog, id: CardDefinitionId) -> crate::CardDefinition {
@@ -438,8 +438,7 @@ mod tests {
             CardDefinitionId::new(20_000),
             "Test flip card",
             CardSet::Innistrad,
-            false,
-            CardBehavior::Unsupported,
+            crate::card::CardRules::unsupported(),
         );
         flip.parts = vec![
             CardPart::new(normal, "Normal", creature_rules),
@@ -475,8 +474,7 @@ mod tests {
             CardDefinitionId::new(20_001),
             "Test adventurer",
             CardSet::Innistrad,
-            false,
-            CardBehavior::Unsupported,
+            crate::card::CardRules::unsupported(),
         );
         alternate.parts = vec![
             CardPart::new(main, "Test adventurer", creature_rules),

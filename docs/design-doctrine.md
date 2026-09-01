@@ -19,8 +19,8 @@ The preferred implementation order is:
    and truthful slice, contain the debt, and leave unsupported behavior
    explicitly partial rather than silently approximating it.
 
-The legacy custom-card allowlist is frozen and may only shrink. Do not add a
-new custom resolver or direct card-identity branch to make a card executable.
+Do not add a card-specific resolver or direct card-identity branch to make a
+card executable.
 
 This order is a preference ladder, not a purity gate. Prefer an elegant shared
 abstraction to a hack, a contained hack to a diffuse mess, and a working honest
@@ -34,13 +34,11 @@ need immediate migration merely for architectural purity. Refactor when a
 stable semantic boundary emerges, or when the relevant code is already being
 changed and the cleanup is reasonably in scope.
 
-Independent card implementations should remain independently mergeable unless
+Card implementations should remain independently mergeable unless
 they genuinely share a rules primitive or compatibility boundary. Do not make
 each card change update checked-in global coverage counts, generated lists, or
-tests that merely restate those derived artifacts. The sole named-card coverage
-list is the shrinking legacy custom allowlist, which prevents new custom
-implementations while the remaining ones are migrated. Otherwise keep
-declarations and inline `// Audit:` entries authoritative, and generate
+tests that merely restate those derived artifacts. Keep declarations and inline
+`// Audit:` entries authoritative, and generate
 aggregate or card-by-card coverage reports from them on demand.
 
 ## Engine principles

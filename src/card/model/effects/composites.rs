@@ -58,18 +58,31 @@ pub struct ChooseExactDef {
     pub then: &'static EffectDef,
 }
 
-/// Each affected player chooses one permanent they control for every
-/// predicate in `one_of_each`. Choices are locked in APNAP order before the
-/// chosen and unchosen unions are bound and the nested effect continues.
+/// How each affected player partitions their matching objects while every
+/// player's answer remains pending.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct SimultaneousChooseDef {
+pub enum PerPlayerSelectionDef {
+    /// Choose one distinct matching permanent for every predicate when one
+    /// exists. A permanent already chosen for an earlier predicate is not
+    /// offered again.
+    OneOfEach(&'static [ObjectPredicateDef]),
+    /// Choose exactly the computed number of matching objects. A short
+    /// candidate set contributes every available object.
+    Count(ValueDef),
+}
+
+/// Each affected player partitions matching objects they control on the
+/// battlefield, or own in the named private zone. Choices are locked in APNAP
+/// order before the chosen and unchosen unions are bound and the nested effect
+/// continues.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ChooseForEachPlayerDef {
     pub player: EffectRecipientDef,
     /// The complete universe divided into `chosen` and `unchosen`.
     pub candidates: ObjectPredicateDef,
-    /// One distinct matching permanent is chosen for each predicate when one
-    /// exists. A permanent already chosen for an earlier predicate is not
-    /// offered again.
-    pub one_of_each: &'static [ObjectPredicateDef],
+    pub zone: ZoneKind,
+    pub selection: PerPlayerSelectionDef,
+    pub visibility: ChoiceVisibilityDef,
     pub chosen: ObjectSetBindingIndex,
     pub unchosen: ObjectSetBindingIndex,
     pub then: &'static EffectDef,

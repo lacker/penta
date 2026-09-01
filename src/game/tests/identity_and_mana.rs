@@ -341,8 +341,7 @@ fn declarative_mana_production_drives_generic_mana_sources() {
         definition_id,
         "Test dual land",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_land(&[]).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

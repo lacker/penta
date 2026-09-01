@@ -6,7 +6,7 @@
 use super::*;
 use crate::card::{
     ChoiceVisibilityDef, ChooseDef, EffectPaymentDef, ObjectChoiceBindingDef, PayOrDef,
-    PlayerSetDef, abilities, tokens,
+    PerPlayerSelectionDef, PlayerSetDef, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::poc::{self, cards};

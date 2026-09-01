@@ -1,12 +1,12 @@
 use std::ops::ControlFlow;
 
 use super::{
-    AppliedRuleDef, BalancePhase, BalanceTask, BattlefieldExitCompletion, CardInstance, CardPartId,
-    CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, DeclarativeAbilityDef, DiscardFollowUp, EffectDef,
-    EffectResolutionContext, Game, GameObjectId, ObjectCharacteristics, ObjectPredicateDef,
-    Permanent, PlayerId, SacrificeDeclined, SacrificeFollowup, SacrificedAmountDef, ScopedEffect,
-    StackObject, Step, ZoneKind, ZoneMoveCause, ZonePlacement,
+    AppliedRuleDef, BattlefieldExitCompletion, CardInstance, CardPartId, CommittedTriggerEvent,
+    CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
+    DecisionZone, DeclarativeAbilityDef, DiscardFollowUp, EffectDef, EffectResolutionContext, Game,
+    GameObjectId, ObjectCharacteristics, ObjectPredicateDef, Permanent, PlayerId,
+    SacrificeDeclined, SacrificeFollowup, SacrificedAmountDef, ScopedEffect, StackObject, Step,
+    ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -71,49 +71,6 @@ impl Game {
                 })
             })
             .collect()
-    }
-
-    pub(super) fn queue_balance_task(
-        &mut self,
-        controller: PlayerId,
-        phase: BalancePhase,
-        task: BalanceTask,
-        remaining: Vec<BalanceTask>,
-    ) {
-        let options = task
-            .cards
-            .iter()
-            .enumerate()
-            .map(|(index, (id, presentation))| DecisionOption {
-                id: u32::try_from(index).unwrap_or(u32::MAX),
-                label: self
-                    .presentation_name(*presentation)
-                    .map_or_else(|| "Unknown object".to_owned(), std::borrow::Cow::into_owned),
-                card: Some((*id, *presentation)),
-                members: Vec::new(),
-                ability_text: None,
-                zone: task.zone,
-            })
-            .collect();
-        self.queue_decision(
-            task.player,
-            task.prompt.clone(),
-            if task.zone == DecisionZone::Hand {
-                DecisionVisibility::Private
-            } else {
-                DecisionVisibility::Public
-            },
-            DecisionPreference::LowerCardValue,
-            task.count..=task.count,
-            false,
-            options,
-            DecisionContinuation::Balance {
-                controller,
-                phase,
-                task,
-                remaining,
-            },
-        );
     }
 
     /// Freezes every affected player's choice before any selected cards move.

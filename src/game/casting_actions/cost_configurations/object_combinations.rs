@@ -61,6 +61,7 @@ impl Game {
                         .cast_unsigned(),
                 });
                 match operation {
+                    crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
                     crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
                     crate::card::AggregateOperationDef::Sum => {
                         values.fold(0_u16, u16::saturating_add)

@@ -55,8 +55,7 @@ fn mana_and_tap_elf_equipment_definition() -> CardDefinition {
         MANA_AND_TAP_ELF_EQUIPMENT_ID,
         "Mana and tap-cost Equipment test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())
         .with_subtypes(&["Equipment"])
@@ -70,8 +69,7 @@ fn counter_mana_elf_definition() -> CardDefinition {
         COUNTER_MANA_ELF_ID,
         "Counter mana Elf test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_creature(ManaCost::default(), &["Elf"], 1, 1)
         .with_abilities(&COUNTER_MANA_ELF_ABILITIES);
@@ -84,8 +82,7 @@ fn count_one_source_equipment_definition() -> CardDefinition {
         COUNT_ONE_SOURCE_EQUIPMENT_ID,
         "Count-one source Equipment test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::default())
         .with_subtypes(&["Equipment"])

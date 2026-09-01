@@ -9,11 +9,18 @@ impl Game {
         scale: CastScale,
     ) -> Vec<SpellAdditionalCostPayment> {
         match cost {
-            SpellAdditionalCostDef::PayMana(mana) => vec![SpellAdditionalCostPayment {
-                objects: Vec::new(),
-                mana,
-                life: 0,
-            }],
+            SpellAdditionalCostDef::PayMana { cost, quantity } => {
+                let repetitions = scale
+                    .quantity(quantity)
+                    .expect("object thresholds cannot quantify a mana payment");
+                let mana =
+                    (0..repetitions).fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
+                vec![SpellAdditionalCostPayment {
+                    objects: Vec::new(),
+                    mana,
+                    life: 0,
+                }]
+            }
             SpellAdditionalCostDef::PayLife(quantity) => {
                 let amount = scale
                     .quantity(quantity)
@@ -92,9 +99,13 @@ impl Game {
         if repetitions == 0 {
             return vec![SpellAdditionalCostPayment::free()];
         }
-        if let SpellAdditionalCostDef::PayMana(mana) = cost {
-            let repeated =
-                (0..repetitions).fold(ManaCost::default(), |total, _| add_mana_cost(total, mana));
+        if let SpellAdditionalCostDef::PayMana { cost, quantity } = cost {
+            let total_repetitions = scale
+                .quantity(quantity)
+                .expect("object thresholds cannot quantify a mana payment")
+                .saturating_mul(repetitions);
+            let repeated = (0..total_repetitions)
+                .fold(ManaCost::default(), |total, _| add_mana_cost(total, cost));
             return vec![SpellAdditionalCostPayment {
                 objects: Vec::new(),
                 mana: repeated,

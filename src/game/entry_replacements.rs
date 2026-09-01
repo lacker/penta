@@ -953,6 +953,10 @@ fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -> Option<i3
         ValueDef::Sum(sum) => entry_value(game, permanent, sum.left)?
             .checked_add(entry_value(game, permanent, sum.right)?),
         ValueDef::Halved(halved) => Some(halved.apply(entry_value(game, permanent, halved.value)?)),
+        ValueDef::Quotient(quotient) => Some(quotient.apply(
+            entry_value(game, permanent, quotient.numerator)?,
+            entry_value(game, permanent, quotient.denominator)?,
+        )),
         _ => None,
     }
 }

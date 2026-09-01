@@ -336,8 +336,7 @@ fn ordinary_autopayment_cannot_sacrifice_one_shared_cost_object_twice() {
         source_definition,
         "Shared sacrifice mana source",
         CardSet::FutureSight,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_artifact(mana_cost!("{0}")).with_ability(AbilityDef::activated_mana(

@@ -136,8 +136,7 @@ fn guardian_beast_keeps_an_existing_aura_but_blocks_a_new_one() {
         aura_definition,
         "Enchant permanent test Aura",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_enchantment(ManaCost::default())
         .with_subtypes(&["Aura"])

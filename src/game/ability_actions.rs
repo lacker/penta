@@ -1,12 +1,11 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardBehavior, CardDefinitionId,
-    CardInstance, CardPart, CardStructure, CharacteristicContext, ControlFlow,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectiveAbility, FrozenActivatedAbility, Game,
-    GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
-    ObjectInstance, ObjectRefDef, Permanent, PlayerId, RetiredObject, ScopedEffect,
-    SelectedSpellPlan, StackAbilityPayload, StackObject, StackObjectKind, TargetSelection,
-    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids_ref, mana_cost_value,
-    mode_id_selections,
+    AbilityCostDef, AbilityOrigin, AbilityProcedureDef, Action, CardInstance, CardPart,
+    CardStructure, CharacteristicContext, ControlFlow, DeclarativeAbilityDef, DoubleFacedKind,
+    EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId, ManaCost,
+    ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics, ObjectInstance, ObjectRefDef,
+    Permanent, PlayerId, RetiredObject, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
+    StackObject, StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost,
+    applicable_part_ids_ref, mana_cost_value, mode_id_selections,
 };
 use crate::card::{ActivatedAbilityDef, ObjectPredicateDef, PlayerRelation};
 use crate::ids::ModeId;
@@ -802,11 +801,5 @@ impl Game {
             }
         });
         found
-    }
-
-    pub(super) fn behavior(&self, definition: CardDefinitionId) -> Option<CardBehavior> {
-        self.catalog
-            .get(definition)
-            .and_then(|card| card.rules.special_behavior())
     }
 }

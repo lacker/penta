@@ -86,7 +86,7 @@ impl Game {
                 }
                 SpellAdditionalCostDef::Discard { .. }
                 | SpellAdditionalCostDef::Exile { .. } => {}
-                SpellAdditionalCostDef::PayMana(_)
+                SpellAdditionalCostDef::PayMana { .. }
                 | SpellAdditionalCostDef::PayLife(_)
                 | SpellAdditionalCostDef::Forage
                 | SpellAdditionalCostDef::All(_)

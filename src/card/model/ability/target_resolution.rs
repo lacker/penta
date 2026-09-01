@@ -15,10 +15,6 @@ impl AbilityDef {
             !definition.targets.is_empty(),
             "a target-resolution exception requires a targeted ability",
         );
-        assert!(
-            matches!(self.effect.execution, EffectExecutionDef::Declarative),
-            "the target-resolution exception requires declarative execution",
-        );
         Self {
             definition: DeclarativeAbilityDef::Triggered(
                 definition.resolving_with_illegal_targets(),

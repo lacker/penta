@@ -3,10 +3,9 @@ use std::borrow::Cow;
 use crate::ids::{AbilityId, AdditionalCostId, AlternativeCostId, ModeId};
 
 use super::{
-    AbilityDef, AdditionalCostDef, AlternativeCostDef, CardBehavior, CardSupertype, CardType,
-    CardTypeSet, ColorSet, DeclarativeAbilityDef, FlexibleManaSymbol, ImplementationStatus,
-    KeywordAbility, ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction,
-    PrintedManaCost,
+    AbilityDef, AdditionalCostDef, AlternativeCostDef, CardSupertype, CardType, CardTypeSet,
+    ColorSet, DeclarativeAbilityDef, FlexibleManaSymbol, ImplementationStatus, KeywordAbility,
+    ManaColor, ManaCost, ModeSetDef, ObjectPredicateDef, PlayRestriction, PrintedManaCost,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -126,8 +125,6 @@ pub struct CardRules {
     /// target slot; one that attaches later has no such slot and says it
     /// here instead.
     enchant: Option<ObjectPredicateDef>,
-    /// "This spell costs {1} more to cast for each target beyond the first."
-    additional_generic_per_extra_target: u16,
     /// The printed morph cost, which is what turning this permanent face up
     /// costs. It is read off the physical card rather than off the
     /// permanent's presented rules: a face-down permanent has no abilities,
@@ -194,7 +191,6 @@ impl CardRules {
             play_restriction: PlayRestriction::Normal,
             x_spend_restriction: None,
             enchant: None,
-            additional_generic_per_extra_target: 0,
             morph: None,
         }
     }
@@ -617,13 +613,6 @@ impl CardRules {
     }
 
     #[must_use]
-    pub fn special_behavior(&self) -> Option<CardBehavior> {
-        self.ability_clauses()
-            .iter()
-            .find_map(|ability| ability.custom_behavior())
-    }
-
-    #[must_use]
     pub fn ability_clauses(&self) -> &[AbilityDef] {
         self.abilities.as_slice()
     }
@@ -842,19 +831,6 @@ impl CardRules {
         self.enchant
     }
 
-    /// "This spell costs `amount` more to cast for each target beyond the
-    /// first."
-    #[must_use]
-    pub const fn costs_more_per_extra_target(mut self, amount: u16) -> Self {
-        self.additional_generic_per_extra_target = amount;
-        self
-    }
-
-    #[must_use]
-    pub const fn additional_generic_per_extra_target(&self) -> u16 {
-        self.additional_generic_per_extra_target
-    }
-
     #[must_use]
     pub const fn with_type(mut self, card_type: CardType) -> Self {
         self.card_types = self.card_types.with(card_type);
@@ -895,7 +871,8 @@ impl CardRules {
         })
     }
 
-    pub(in crate::card) const fn unsupported() -> Self {
+    #[must_use]
+    pub const fn unsupported() -> Self {
         Self::base(
             CardTypeSet::single(CardType::Artifact),
             PrintedManaCost::None,

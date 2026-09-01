@@ -54,9 +54,6 @@ mod tests {
                 "{}",
                 card.name
             );
-            if let Some(behavior) = card.rules.special_behavior() {
-                assert_eq!(card.rules, *behavior.rules(), "{}", card.name);
-            }
             let expected_text = card
                 .rules
                 .ability_clauses()

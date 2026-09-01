@@ -610,8 +610,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
         definition_id,
         "Checkpoint Prevention Source",
         CardSet::Magic2014,
-        false,
-        crate::CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(crate::ManaCost::new(0, 0))
         .with_ability(MATCHING_PREVENTION_ABILITY);

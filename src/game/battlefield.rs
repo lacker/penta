@@ -485,7 +485,6 @@ impl Game {
             damage_sources,
         };
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
-        self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
     }
 
     /// Exiles a permanent and reports the object it became in exile, so the
@@ -641,7 +640,6 @@ impl Game {
             damage_sources,
         };
         self.capture_battlefield_triggers_from_snapshot(&listeners, &event);
-        self.capture_custom_source_triggers(&permanent, &snapshot.abilities, &event);
     }
 
     /// Puts a permanent at one end of its owner's library through the shared

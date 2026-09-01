@@ -37,7 +37,7 @@ doing so would make otherwise independent card implementations edit the same
 bookkeeping and would turn parallel work into merge conflicts.
 
 Run `make catalog-report` for current aggregate coverage, including the
-declarative, custom, partial, metadata-only, and uncataloged Vintage Cube
+declarative, partial, metadata-only, and uncataloged Vintage Cube
 totals. Run `make catalog-report CATALOG_REPORT_ARGS=--verbose` to include the
 individual card names in each status.
 

@@ -332,6 +332,7 @@ impl Game {
                 }
             });
         Some(match aggregate.operation {
+            crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),
             crate::card::AggregateOperationDef::Maximum => values.max().unwrap_or(0),
             crate::card::AggregateOperationDef::Sum => values.fold(0_i32, i32::saturating_add),
         })
@@ -369,6 +370,10 @@ impl Game {
             ValueDef::Halved(halved) => {
                 halved.apply(self.static_stat_value(halved.value, source, controller))
             }
+            ValueDef::Quotient(quotient) => quotient.apply(
+                self.static_stat_value(quotient.numerator, source, controller),
+                self.static_stat_value(quotient.denominator, source, controller),
+            ),
             ValueDef::Sum(sum) => self
                 .static_stat_value(sum.left, source, controller)
                 .saturating_add(self.static_stat_value(sum.right, source, controller)),
@@ -713,6 +718,7 @@ impl Game {
         self.permanent_has_executable_keyword(permanent, KeywordAbility::Indestructible)
     }
 
+    #[cfg(test)]
     pub(super) fn has_hexproof(&self, permanent: &Permanent) -> bool {
         self.permanent_has_executable_keyword(permanent, KeywordAbility::Hexproof)
     }

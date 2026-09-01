@@ -515,8 +515,7 @@ fn explicitly_tagged_triggered_mana_ability_resolves_without_the_stack() {
         definition_id,
         "Test triggered mana source",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(ManaCost::new(0, 0)).with_abilities(&ABILITIES);
     synchronize_single_part_definition(&mut definition);

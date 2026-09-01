@@ -7,18 +7,18 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
     CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ClassifyObjectsDef, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostQuantityDef,
-    CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectBindingLabelDef, EffectDef,
-    EffectOutputBindingDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    EmblemCharacteristics, ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef,
-    InstalledTriggerLifetimeDef, ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef,
-    PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SetOperationDef,
-    SimultaneousChooseDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
-    TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePickDef, ZonePlacement, abilities, tokens,
+    ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
+    CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
+    EffectBindingLabelDef, EffectDef, EffectOutputBindingDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
+    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
+    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef,
+    ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PileExileDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
+    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
 use crate::{TargetIndex, mana_cost};
@@ -1795,17 +1795,19 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                         AbilityDef::activated(
                             "−4: Each opponent chooses an artifact, a creature, an enchantment, and a planeswalker from among the nonland permanents they control, then sacrifices the rest.",
                             &const { [AbilityCostDef::Loyalty(-4)] },
-                            EffectDef::SimultaneousChoose(SimultaneousChooseDef {
+                            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                                 player: EffectRecipientDef::Opponent,
                                 candidates: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                                zone: ZoneKind::Battlefield,
                                 // The four roles the ultimate lets each opponent fill. Order is printed
                                 // order, which is also APNAP choice order within one player's selection.
-                                one_of_each: &const { [
+                                selection: PerPlayerSelectionDef::OneOfEach(&const { [
                                     ObjectPredicateDef::HasType(CardType::Artifact),
                                     ObjectPredicateDef::HasType(CardType::Creature),
                                     ObjectPredicateDef::HasType(CardType::Enchantment),
                                     ObjectPredicateDef::HasType(CardType::Planeswalker),
-                                ] },
+                                ] }),
+                                visibility: ChoiceVisibilityDef::Public,
                                 chosen: ObjectSetBindingIndex::PRIMARY,
                                 unchosen: ObjectSetBindingIndex::new(1),
                                 then: &const { EffectDef::Sacrifice {

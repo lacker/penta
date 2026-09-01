@@ -20,11 +20,12 @@ include!("cost_configurations/object_combinations.rs");
 include!("cost_configurations/additional_cost_payments.rs");
 
 /// The chosen quantities a cost can be counted from: the X the spell is cast
-/// for, and how many modes it was cast with.
+/// for, how many modes it was cast with, and how many targets it names.
 #[derive(Clone, Copy)]
 pub(in crate::game) struct CastScale {
     pub(in crate::game) x: u16,
     pub(in crate::game) modes: usize,
+    pub(in crate::game) targets: usize,
     pub(in crate::game) offer: Option<CastOfferCost>,
 }
 
@@ -35,6 +36,9 @@ impl CastScale {
             crate::card::CostQuantityDef::ChosenX => Some(self.x),
             crate::card::CostQuantityDef::ModeCount => {
                 Some(u16::try_from(self.modes).unwrap_or(u16::MAX))
+            }
+            crate::card::CostQuantityDef::TargetCount => {
+                Some(u16::try_from(self.targets).unwrap_or(u16::MAX))
             }
             crate::card::CostQuantityDef::Subtract(left, right) => {
                 Some(self.quantity(*left)?.saturating_sub(self.quantity(*right)?))
@@ -259,7 +263,7 @@ impl Game {
                 .iter()
                 .filter_map(|cost| self.maximum_x_for_spell_additional_cost(*cost, card, player))
                 .max(),
-            SpellAdditionalCostDef::PayMana(_)
+            SpellAdditionalCostDef::PayMana { .. }
             | SpellAdditionalCostDef::PayLife(_)
             | SpellAdditionalCostDef::Sacrifice { .. }
             | SpellAdditionalCostDef::Discard { .. }
@@ -389,7 +393,7 @@ impl Game {
             SpellAdditionalCostDef::Tap { object, .. } => (object, ZoneKind::Battlefield),
             SpellAdditionalCostDef::Discard { object, .. } => (object, ZoneKind::Hand),
             SpellAdditionalCostDef::Exile { object, from, .. } => (object, from),
-            SpellAdditionalCostDef::PayMana(_)
+            SpellAdditionalCostDef::PayMana { .. }
             | SpellAdditionalCostDef::PayLife(_)
             | SpellAdditionalCostDef::Forage
             | SpellAdditionalCostDef::All(_)

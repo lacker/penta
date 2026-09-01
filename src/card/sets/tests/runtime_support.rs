@@ -436,7 +436,7 @@ pub(super) fn shared_resolving_applied_effect(effect: AppliedEffectDef) -> bool 
             | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::SpecialAction(_)
             | DeclarativeAbilityDef::DeckConstruction(_)
-            | DeclarativeAbilityDef::Legacy => false,
+            | DeclarativeAbilityDef::Unimplemented => false,
         },
         // Stack-object rules use `AppliedStackEffect`; every other typed rule
         // is stored on a permanent with this Apply's timestamp and duration.
@@ -685,7 +685,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::RandomizeObjectOrder(_)
                     | EffectDef::RevealObjects(_)
                     | EffectDef::MoveObjects(_)
-                    | EffectDef::SimultaneousChoose(_)
+                    | EffectDef::ChooseForEachPlayer(_)
                     | EffectDef::ChooseCardName { .. }
                     | EffectDef::SelectAtRandomFromZone { .. }
                     | EffectDef::ForEachInBinding { .. }
@@ -979,6 +979,6 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
         DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::DeckConstruction(_) => effect == EffectDef::None,
         DeclarativeAbilityDef::Keyword(keyword) => shared_keyword(keyword),
-        DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Legacy => false,
+        DeclarativeAbilityDef::SpecialAction(_) | DeclarativeAbilityDef::Unimplemented => false,
     }
 }

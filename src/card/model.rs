@@ -23,7 +23,6 @@ mod rules_primitives;
 mod targeting;
 mod token;
 
-pub(super) use super::behavior::CardBehavior;
 pub use ability::*;
 pub use ability_kinds::*;
 pub use characteristics::*;

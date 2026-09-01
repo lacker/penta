@@ -319,7 +319,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::Randomized { .. }
         | EffectDef::Choose(_)
-        | EffectDef::SimultaneousChoose(_)
+        | EffectDef::ChooseForEachPlayer(_)
         | EffectDef::ChooseCardName { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
@@ -701,6 +701,9 @@ fn static_stat_value(value: crate::card::ValueDef) -> bool {
         }
         crate::card::ValueDef::Scaled(scaled) => static_stat_value(scaled.value),
         crate::card::ValueDef::Halved(halved) => static_stat_value(halved.value),
+        crate::card::ValueDef::Quotient(quotient) => {
+            static_stat_value(quotient.numerator) && static_stat_value(quotient.denominator)
+        }
         crate::card::ValueDef::IfSourceMatches(branches) => {
             shared_object_predicate(branches.object)
                 && static_stat_value(branches.then)

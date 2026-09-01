@@ -26,7 +26,6 @@ impl<'de> Deserialize<'de> for CounterKindSnapshot {
     }
 }
 
-mod balance;
 mod continuation;
 mod continuous;
 mod decision_options;
@@ -41,7 +40,6 @@ pub(in crate::game::state_checkpoint) use emptiness::is_zero_u16;
 pub(in crate::game::state_checkpoint) use stack::*;
 pub(in crate::game::state_checkpoint) use triggers::*;
 
-pub(super) use balance::{BalanceActionSnapshot, BalancePhaseSnapshot, BalanceTaskSnapshot};
 pub(super) use continuation::DecisionContinuationSnapshot;
 pub(super) use continuation::PregameAbilityActionSnapshot;
 pub(in crate::game::state_checkpoint) use continuous::*;

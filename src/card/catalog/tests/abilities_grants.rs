@@ -608,16 +608,10 @@ fn replacement_program_grants_count_toward_the_structural_address_space() {
     let replacement_effects =
         Box::leak(vec![ReplacementEffectDef::Perform(&GRANT); 257].into_boxed_slice());
     let abilities = Box::leak(
-        vec![
-            AbilityDef::replacement(
-                "This replacement performs many ability grants.",
-                ReplacementEffectDef::Sequence(replacement_effects),
-            )
-            .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::Unsupported))
-            .with_coverage(AbilityCoverageDef::explained_complete(
-                "This structural-capacity test does not execute the replacement program.",
-            )),
-        ]
+        vec![AbilityDef::replacement(
+            "This replacement performs many ability grants.",
+            ReplacementEffectDef::Sequence(replacement_effects),
+        )]
         .into_boxed_slice(),
     );
     let mut card = definition(1, "Test Card", CardSet::Alpha);
@@ -727,9 +721,8 @@ fn granted_ability_validation_follows_replacement_programs() {
         "Replace an event, then grant an ability.",
         ReplacementEffectDef::Sequence(&PROGRAM),
     )
-    .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::Unsupported))
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "This structural grant-validation test does not execute the replacement program.",
+    .with_coverage(AbilityCoverageDef::metadata_only(
+        "This structural grant-validation fixture does not execute its replacement program.",
     ))];
     let mut card = definition(1, "Test Card", CardSet::Alpha);
     let rules = card.rules.with_abilities(&ABILITIES);

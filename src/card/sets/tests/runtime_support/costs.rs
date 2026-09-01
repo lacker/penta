@@ -236,8 +236,9 @@ pub(in super::super) fn shared_spell_additional_cost(cost: Option<SpellAdditiona
 
 fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
     match cost {
-        SpellAdditionalCostDef::PayMana(_) | SpellAdditionalCostDef::Forage => true,
-        SpellAdditionalCostDef::PayLife(quantity) => shared_scalar_cost_quantity(quantity),
+        SpellAdditionalCostDef::Forage => true,
+        SpellAdditionalCostDef::PayMana { quantity, .. }
+        | SpellAdditionalCostDef::PayLife(quantity) => shared_scalar_cost_quantity(quantity),
         SpellAdditionalCostDef::Sacrifice { object, quantity }
         | SpellAdditionalCostDef::Discard { object, quantity }
         | SpellAdditionalCostDef::ReturnToHand { object, quantity }
@@ -277,7 +278,7 @@ fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
 
 fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
     match cost {
-        SpellAdditionalCostDef::PayMana(_) | SpellAdditionalCostDef::PayLife(_) => true,
+        SpellAdditionalCostDef::PayMana { .. } | SpellAdditionalCostDef::PayLife(_) => true,
         SpellAdditionalCostDef::Sacrifice { quantity, .. }
         | SpellAdditionalCostDef::Discard { quantity, .. }
         | SpellAdditionalCostDef::Exile { quantity, .. }
@@ -286,6 +287,7 @@ fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
             quantity,
             crate::card::CostQuantityDef::ChosenX
                 | crate::card::CostQuantityDef::ModeCount
+                | crate::card::CostQuantityDef::TargetCount
                 | crate::card::CostQuantityDef::Subtract(_, _)
         ),
         SpellAdditionalCostDef::Forage => false,
@@ -303,6 +305,7 @@ fn shared_object_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
         crate::card::CostQuantityDef::Fixed(count) => count >= 1,
         crate::card::CostQuantityDef::ChosenX
         | crate::card::CostQuantityDef::ModeCount
+        | crate::card::CostQuantityDef::TargetCount
         | crate::card::CostQuantityDef::ObjectSetValueAtLeast(_) => true,
         crate::card::CostQuantityDef::Subtract(left, right) => {
             shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
@@ -314,7 +317,8 @@ fn shared_scalar_cost_quantity(quantity: crate::card::CostQuantityDef) -> bool {
     match quantity {
         crate::card::CostQuantityDef::Fixed(_)
         | crate::card::CostQuantityDef::ChosenX
-        | crate::card::CostQuantityDef::ModeCount => true,
+        | crate::card::CostQuantityDef::ModeCount
+        | crate::card::CostQuantityDef::TargetCount => true,
         crate::card::CostQuantityDef::Subtract(left, right) => {
             shared_scalar_cost_quantity(*left) && shared_scalar_cost_quantity(*right)
         }

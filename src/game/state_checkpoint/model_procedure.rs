@@ -36,7 +36,6 @@ pub(super) enum PendingProcedureSnapshot {
         object: Box<DetachedStackSnapshot>,
         ability: AbilityLocator,
         context: EffectResolutionContextSnapshot,
-        custom_followup: Option<AbilityLocator>,
     },
     ForEachInBinding {
         objects: usize,

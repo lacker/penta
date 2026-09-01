@@ -236,25 +236,14 @@ Print the current implementation and inline capability-gap totals with:
 make catalog-report
 ```
 
-The report derives repository-wide declarative, custom, partial, and
-metadata-only definitions from the built-in catalog. Declarative and custom
-partition the complete definitions: custom means at least one clause uses a
-keyed custom implementation or card-owned resolver, while declarative means
-every clause uses shared declarative execution. The report also includes
+The report derives repository-wide declarative, partial, and metadata-only
+definitions from the built-in catalog. Complete definitions use shared
+declarative execution. The report also includes
 blocked cards from inline `// Audit:` rows for each set-based format and
 uncataloged cards for every cube. Pass `CATALOG_REPORT_ARGS=--verbose` to list
 the individual fixed-pool cards in each status. The report output is
 intentionally not checked in: the source declarations remain authoritative, so
 adding a card does not require updating a second copy of the totals or names.
-
-Each complete definition on the frozen legacy custom allowlist also has a canonical
-`// Audit: custom — Needs ...` annotation so declarative migration work remains
-visible while browsing or searching collector-ordered set sources. Execution
-metadata remains authoritative for classification; source-organization tests
-keep the annotations in exact agreement with the derived custom set and reject
-any addition outside the shrinking allowlist. Remove the annotation and its
-allowlist entry when every part and modal clause has moved to declarative
-execution.
 
 ## Performance work
 

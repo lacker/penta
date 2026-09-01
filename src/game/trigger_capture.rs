@@ -9,12 +9,11 @@ use super::{
     BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedTriggerEvent,
     DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
     DeclarativeAbilityDef, EffectDef, EffectRecipientSetDef, EffectResolutionContext,
-    EffectiveAbility, FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId,
-    InstalledTriggerLifetime, KeywordAbility, Mana, ManaSelectionDef, ManaSource,
-    ObjectCharacteristics, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PendingTrigger,
-    Permanent, PlayerId, PlayerRefDef, PlayerRelation, PlayerSetDef, RetiredObject, ScopedEffect,
-    StackAbilityResolver, TapPurposeDef, Target, TriggerCapture, TriggerContext, TriggerEventDef,
-    TriggerEventObject, ZoneKind,
+    FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId, InstalledTriggerLifetime,
+    KeywordAbility, Mana, ManaSelectionDef, ManaSource, ObjectCharacteristics, ObjectPredicateDef,
+    ObjectRefDef, ObjectSetDef, PendingTrigger, Permanent, PlayerId, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, RetiredObject, ScopedEffect, StackAbilityResolver, TapPurposeDef, Target,
+    TriggerCapture, TriggerContext, TriggerEventDef, TriggerEventObject, ZoneKind,
 };
 
 mod exile;
@@ -344,7 +343,7 @@ impl Game {
                     | DeclarativeAbilityDef::Pregame(_)
                     | DeclarativeAbilityDef::Keyword(_)
                     | DeclarativeAbilityDef::DeckConstruction(_)
-                    | DeclarativeAbilityDef::Legacy => return,
+                    | DeclarativeAbilityDef::Unimplemented => return,
                 };
                 // Compatibility procedures execute elsewhere, so admitting
                 // them here would manufacture a duplicate trigger.
@@ -637,82 +636,6 @@ impl Game {
             }
         });
         copies
-    }
-
-    pub(super) fn capture_custom_source_triggers(
-        &mut self,
-        source: &Permanent,
-        abilities: &[EffectiveAbility],
-        event: &CommittedTriggerEvent,
-    ) {
-        let triggers = abilities
-            .iter()
-            .filter_map(|effective| match effective.ability.definition {
-                DeclarativeAbilityDef::Triggered(definition)
-                    if effective.ability.is_executable()
-                        && definition.procedure == AbilityProcedureDef::Legacy
-                        && effective.ability.custom_behavior().is_some()
-                        && definition.source_zones.contains(&ZoneKind::Battlefield)
-                        && self.trigger_event_matches_for_controller(
-                            definition.event,
-                            event,
-                            source.card.id,
-                            Some(source.controller),
-                        ) =>
-                {
-                    Some((
-                        effective.origin,
-                        effective.ability.text,
-                        definition.targets,
-                        effective
-                            .ability
-                            .declarative_effect()
-                            .unwrap_or(EffectDef::None),
-                        Self::ability_resolver(effective.origin, &effective.ability),
-                    ))
-                }
-                DeclarativeAbilityDef::Spell(_)
-                | DeclarativeAbilityDef::ActivatedMana(_)
-                | DeclarativeAbilityDef::TriggeredMana(_)
-                | DeclarativeAbilityDef::Activated(_)
-                | DeclarativeAbilityDef::Triggered(_)
-                | DeclarativeAbilityDef::Static(_)
-                | DeclarativeAbilityDef::Replacement(_)
-                | DeclarativeAbilityDef::AlternativeCast(_)
-                | DeclarativeAbilityDef::OptionalAdditionalCost(_)
-                | DeclarativeAbilityDef::SpecialAction(_)
-                | DeclarativeAbilityDef::Pregame(_)
-                | DeclarativeAbilityDef::Keyword(_)
-                | DeclarativeAbilityDef::DeckConstruction(_)
-                | DeclarativeAbilityDef::Legacy => None,
-            })
-            .collect::<Vec<_>>();
-        for (ability, text, targets, effect, resolver) in triggers {
-            self.capture_trigger(&TriggerCapture {
-                source: AbilitySourceRef {
-                    object: source.card.id,
-                    ability,
-                },
-                presentation: Self::ability_presentation(
-                    ability,
-                    Self::effective_rules_source(source),
-                ),
-                owner: source.card.owner,
-                controller: source.controller,
-                text,
-                target_defs: targets.to_vec(),
-                targets: Vec::new(),
-                effect,
-                resolver,
-                context: event.context().into(),
-                // A legacy custom trigger states its own condition inside its
-                // behavior rather than declaring one here, and prints no
-                // modes.
-                condition: None,
-                modes: None,
-                x: 0,
-            });
-        }
     }
 
     // Long only because every event definition pairs with its committed event.

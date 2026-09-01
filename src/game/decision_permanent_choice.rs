@@ -440,7 +440,7 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
                 || effect_removes_binding(*on_failure, binding)
         }
         EffectDef::Choose(definition) => effect_removes_binding(*definition.then, binding),
-        EffectDef::SimultaneousChoose(definition) => {
+        EffectDef::ChooseForEachPlayer(definition) => {
             effect_removes_binding(*definition.then, binding)
         }
         EffectDef::PayOr(definition) => {

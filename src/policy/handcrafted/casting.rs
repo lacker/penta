@@ -1,13 +1,13 @@
 use super::{
-    CardBehavior, CardTypeSet, CastChoices, DeclarativeSpellProfile, GameObjectId,
-    HandcraftedPolicy, PlayerObservation, Target,
+    CardTypeSet, CastChoices, DeclarativeSpellProfile, GameObjectId, HandcraftedPolicy,
+    PlayerObservation, Target,
 };
 
 impl HandcraftedPolicy {
-    /// Fireball should not spend a card on no target or mark damage that cannot
+    /// Evenly divided damage should not spend a card on no target or mark damage that cannot
     /// kill a creature. The policy has no same-turn combination planner that
     /// could establish a payoff for letting that creature survive.
-    fn fireball_is_wasted(
+    fn evenly_divided_damage_is_wasted(
         observation: &PlayerObservation,
         choices: &CastChoices,
         amount: u16,
@@ -95,30 +95,24 @@ impl HandcraftedPolicy {
     ) -> i32 {
         let definition = Self::hand_definition(observation, card)
             .or_else(|| Self::graveyard_definition(observation, card));
-        let behavior = definition.and_then(|id| self.behavior(id));
         let declarative = definition.and_then(|id| self.declarative_spell_profile(id, choices));
         let kind = definition
             .and_then(|id| self.catalog.get(id))
             .map(|card| card.rules.types());
         let x = choices.x();
-        let target_count = choices.iter_targets().count();
         // Passing scores 0, so anything below it means hold the card instead.
         if x == 0 && definition.is_some_and(|id| self.is_empty_at_zero_x(id, declarative)) {
             return -10_000;
         }
-        let fireball_damage = (behavior == Some(CardBehavior::Fireball)).then(|| {
-            x.checked_div(u16::try_from(target_count).unwrap_or(u16::MAX))
-                .unwrap_or(0)
-        });
-        if fireball_damage
-            .is_some_and(|amount| Self::fireball_is_wasted(observation, choices, amount))
+        let damage = declarative.and_then(|profile| profile.damage);
+        if declarative
+            .is_some_and(|profile| profile.has(DeclarativeSpellProfile::EVENLY_DIVIDED_DAMAGE))
+            && damage.is_some_and(|amount| {
+                Self::evenly_divided_damage_is_wasted(observation, choices, amount)
+            })
         {
             return -10_000;
         }
-        let damage = match behavior {
-            Some(CardBehavior::Fireball) => fireball_damage,
-            _ => declarative.and_then(|profile| profile.damage),
-        };
         let cards_drawn = declarative.and_then(|profile| profile.cards_drawn);
         let counters =
             declarative.is_some_and(|profile| profile.has(DeclarativeSpellProfile::COUNTERS));
@@ -150,19 +144,29 @@ impl HandcraftedPolicy {
                 .count(),
         )
         .unwrap_or(i32::MAX);
-        let base = match behavior {
-            Some(CardBehavior::Fireball) => 7_900 + i32::from(x) * 20,
-            Some(behavior) if behavior.types().is_permanent() => 6_800,
-            _ if extra_turn => 8_300,
-            _ if sweeps_creatures => Self::sweeper_score(observation),
-            _ if declarative.is_some_and(|profile| profile.opponent_creature_sweep) => {
+        let base = match () {
+            () if declarative.is_some_and(|profile| {
+                profile.has(DeclarativeSpellProfile::EVENLY_DIVIDED_DAMAGE)
+            }) =>
+            {
+                7_900 + i32::from(x) * 20
+            }
+            () if extra_turn => 8_300,
+            () if sweeps_creatures => Self::sweeper_score(observation),
+            () if declarative.is_some_and(|profile| {
+                profile.has(DeclarativeSpellProfile::OPPONENT_CREATURE_SWEEP)
+            }) =>
+            {
                 if opponent_creatures == 0 {
                     -10_000
                 } else {
                     7_500 + opponent_creatures * 900
                 }
             }
-            _ if declarative.is_some_and(|profile| profile.opponent_spell_sweep) => {
+            () if declarative.is_some_and(|profile| {
+                profile.has(DeclarativeSpellProfile::OPPONENT_SPELL_SWEEP)
+            }) =>
+            {
                 if opponent_spells == 0 {
                     -10_000
                 } else if opponent_spells == 1 {
@@ -171,18 +175,18 @@ impl HandcraftedPolicy {
                     8_900 + opponent_spells * 2_000
                 }
             }
-            _ if declarative.is_some_and(|profile| {
+            () if declarative.is_some_and(|profile| {
                 profile.cards_drawn_by_each_player.is_some_and(|n| n >= 3)
             }) =>
             {
                 6_600
             }
-            _ if cards_drawn.is_some_and(|amount| amount >= 3) => 9_200,
-            _ if counters => 8_900,
-            _ if removes => 8_400,
-            _ if damage.is_some() => 8_000,
-            None if kind.is_some_and(CardTypeSet::is_permanent) => 6_800,
-            Some(_) | None => 6_200,
+            () if cards_drawn.is_some_and(|amount| amount >= 3) => 9_200,
+            () if counters => 8_900,
+            () if removes => 8_400,
+            () if damage.is_some() => 8_000,
+            () if kind.is_some_and(CardTypeSet::is_permanent) => 6_800,
+            () => 6_200,
         };
         base + target_score
     }

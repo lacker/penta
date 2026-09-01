@@ -30,7 +30,6 @@ impl Game {
                     effects: vec![effect],
                     object: Box::new(follow_up.object.clone()),
                     context,
-                    custom_followup: None,
                 });
         } else {
             self.resolve_effect_def(effect, &follow_up.object, context);

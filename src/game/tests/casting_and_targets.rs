@@ -95,8 +95,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
         definition_id,
         "Structured Bolt",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_instant(ManaCost::new(0, 1));
     synchronize_single_part_definition(&mut definition);
@@ -247,8 +246,7 @@ fn cost_configuration_visitor_preserves_option_order() {
         CardDefinitionId::new(10_201),
         "Ordered Costs",
         CardSet::Alpha,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     let mut option = PlayOptionDef::cast(
         PlayOptionId::DEFAULT,

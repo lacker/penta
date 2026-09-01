@@ -231,8 +231,7 @@ fn channel_pays_a_true_colorless_symbol_when_the_spell_is_applied() {
         definition_id,
         "True colorless Channel test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_artifact(mana_cost!("{C}"));
     synchronize_single_part_definition(&mut definition);
@@ -303,9 +302,9 @@ fn fireball_may_be_cast_with_no_targets_at_all() {
 }
 
 #[test]
-fn fireball_keeps_dividing_by_the_targets_it_was_cast_with() {
-    // A target that vanishes does not make the survivor's share larger: the
-    // division is fixed by how many targets Fireball was aimed at.
+fn fireball_redivides_among_targets_that_are_still_legal() {
+    // Fireball divides as it resolves, so a target that vanishes leaves the
+    // whole total for the survivor.
     let mut game = ready_game();
     let fireball = card(10_000, cards::FIREBALL, PlayerId::One);
     game.players[0].hand.push(fireball.clone());
@@ -331,8 +330,8 @@ fn fireball_keeps_dividing_by_the_targets_it_was_cast_with() {
     pass_priority_pair(&mut game);
 
     assert_eq!(
-        game.players[1].life, 18,
-        "two each, and the fifth point is lost to the rounding"
+        game.players[1].life, 15,
+        "the only legal target receives all five damage"
     );
 }
 
@@ -613,8 +612,7 @@ pub(super) fn game_with_test_fused_split(
         definition_id,
         "First Half // Second Half",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = *first;
     definition.parts = vec![

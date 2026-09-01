@@ -129,7 +129,7 @@ impl Game {
             EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
                 Self::effect_applies_to_source(*definition.then, expected)
             }
-            EffectDef::SimultaneousChoose(choice) => {
+            EffectDef::ChooseForEachPlayer(choice) => {
                 Self::effect_applies_to_source(*choice.then, expected)
             }
             EffectDef::Destroy {

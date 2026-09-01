@@ -644,8 +644,19 @@ fn validate_effect_references(
         EffectDef::BecomeMonarch { player } => {
             validate_player_reference(player, target_count, scope)
         }
-        EffectDef::SimultaneousChoose(choice) => {
+        EffectDef::ChooseForEachPlayer(choice) => {
             validate_recipient_target_references(choice.player, target_count, scope)?;
+            validate_object_predicate_references(choice.candidates, target_count, scope)?;
+            match choice.selection {
+                PerPlayerSelectionDef::OneOfEach(selectors) => {
+                    for selector in selectors {
+                        validate_object_predicate_references(*selector, target_count, scope)?;
+                    }
+                }
+                PerPlayerSelectionDef::Count(amount) => {
+                    validate_value_target_references(amount, target_count, scope)?;
+                }
+            }
             let nested = scope
                 .with_object_set(choice.chosen)?
                 .with_object_set(choice.unchosen)?;

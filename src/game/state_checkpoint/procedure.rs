@@ -73,7 +73,6 @@ pub(super) fn pending_procedure_snapshot(
             effects,
             object,
             context,
-            custom_followup,
         } => {
             if trigger_capture_has_unrebindable_hidden_reference_except(
                 game,
@@ -93,12 +92,6 @@ pub(super) fn pending_procedure_snapshot(
                 .copied()
                 .map(|effect| scoped_effect_snapshot(&definition, effect))
                 .collect::<Option<Vec<ScopedEffectSnapshot>>>()?;
-            let custom_followup = match custom_followup {
-                Some(behavior) => Some(ability_locator(&game.catalog, |candidate| {
-                    candidate.custom_behavior() == Some(*behavior)
-                })?),
-                None => None,
-            };
             PendingProcedureSnapshot::ResolveEffects {
                 effects,
                 object: Box::new(detached_stack_snapshot_allowing(
@@ -109,7 +102,6 @@ pub(super) fn pending_procedure_snapshot(
                 )?),
                 ability,
                 context: effect_resolution_context_snapshot(context),
-                custom_followup,
             }
         }
         super::super::PendingProcedure::ForEachInBinding {
@@ -179,7 +171,6 @@ pub(super) fn parse_pending_procedure(
             object,
             ability,
             context,
-            custom_followup,
         } => {
             let effects = effects
                 .iter()
@@ -189,22 +180,10 @@ pub(super) fn parse_pending_procedure(
                     })
                 })
                 .collect::<Result<Vec<_>, _>>()?;
-            let custom_followup = custom_followup
-                .as_ref()
-                .map(|locator| {
-                    catalog_ability(&game.catalog, locator)
-                        .and_then(crate::card::AbilityDef::custom_behavior)
-                        .ok_or_else(|| {
-                            "pending procedure custom followup is absent from this catalog"
-                                .to_owned()
-                        })
-                })
-                .transpose()?;
             super::super::PendingProcedure::ResolveEffects {
                 effects,
                 object: Box::new(parse_detached_stack(object, game)?),
                 context: parse_effect_resolution_context(context.clone())?,
-                custom_followup,
             }
         }
         PendingProcedureSnapshot::ForEachInBinding {

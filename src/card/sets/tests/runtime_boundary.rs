@@ -518,45 +518,6 @@ fn composite_uncounterability_stays_within_the_shared_runtime_boundary() {
     ));
 }
 
-/// If the catalog contains card-owned execution, every declaration has to
-/// have a binding and every binding has to be declared on its clause. The
-/// invariant remains meaningful when consolidation leaves no such clauses.
-#[test]
-fn card_owned_clauses_and_their_bindings_agree() {
-    let mut declared = Vec::new();
-    let mut bound = Vec::new();
-    for record in SET_MODULES
-        .iter()
-        .flat_map(|module| module.cards.iter().copied())
-    {
-        let definition = record.definition();
-        for part in &definition.parts {
-            for attached in part.rules.indexed_abilities() {
-                if attached.definition.effect.execution == EffectExecutionDef::CardOwned {
-                    declared.push((definition.name.clone(), part.id, attached.id));
-                }
-            }
-        }
-        for binding in record.ability_bindings {
-            bound.push((definition.name.clone(), binding.part, binding.ability));
-            assert_eq!(
-                binding.expected.effect.execution,
-                EffectExecutionDef::CardOwned,
-                "{} {:?} ability {:?} has a card-owned binding but its clause does not say so",
-                definition.name,
-                binding.part,
-                binding.ability,
-            );
-        }
-    }
-    declared.sort();
-    bound.sort();
-    assert_eq!(
-        declared, bound,
-        "every card-owned clause needs a binding and every binding needs its clause to declare it"
-    );
-}
-
 #[test]
 fn fully_declarative_clauses_stay_within_the_shared_runtime_boundary() {
     for record in SET_MODULES
@@ -569,10 +530,9 @@ fn fully_declarative_clauses_stay_within_the_shared_runtime_boundary() {
                 let ability_id = attached.id;
                 let ability = attached.definition;
                 assert!(
-                    !matches!(ability.definition, DeclarativeAbilityDef::Legacy)
-                        || !ability.is_executable()
-                        || ability.custom_behavior().is_some(),
-                    "{} {:?} ability {:?} is legacy text claiming full implementation without an executable behavior: {ability:?}",
+                    !matches!(ability.definition, DeclarativeAbilityDef::Unimplemented)
+                        || !ability.is_executable(),
+                    "{} {:?} ability {:?} has unimplemented structure but claims executable coverage: {ability:?}",
                     definition.name,
                     part.id,
                     ability_id,

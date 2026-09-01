@@ -1,4 +1,4 @@
-use penta::card::{CardBehavior, CardCatalog, CardDefinition, CardPrinting, CardSet};
+use penta::card::{CardCatalog, CardDefinition, CardPrinting, CardRules, CardSet, CardSupertype};
 use penta::deck::{Deck, DeckError};
 use penta::game::{GameResult, WinReason};
 use penta::poc;
@@ -24,30 +24,26 @@ fn catalog() -> CardCatalog {
             CardDefinitionId::new(1),
             "Mountain",
             CardSet::Alpha,
-            true,
-            CardBehavior::Mountain,
+            CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
         ),
         lightning_bolt(CardDefinitionId::new(2)),
         CardDefinition::new(
             CardDefinitionId::new(3),
             "Black Lotus",
             CardSet::Alpha,
-            false,
-            CardBehavior::Unsupported,
+            CardRules::unsupported(),
         ),
         CardDefinition::new(
             CardDefinitionId::new(4),
             "Contract from Below",
             CardSet::Alpha,
-            false,
-            CardBehavior::Unsupported,
+            CardRules::unsupported(),
         ),
         CardDefinition::new(
             CardDefinitionId::new(5),
             "Standard Test Spell",
             CardSet::Innistrad,
-            false,
-            CardBehavior::Unsupported,
+            CardRules::unsupported(),
         ),
     ])
     .unwrap()
@@ -229,8 +225,7 @@ fn deck_validation_uses_reprints_without_splitting_copy_identity() {
         CardDefinitionId::new(1),
         "Mountain",
         CardSet::Alpha,
-        true,
-        CardBehavior::Mountain,
+        CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
     );
     let bolt = lightning_bolt(CardDefinitionId::new(2));
     let catalog = CardCatalog::with_additional_printings(
@@ -844,8 +839,7 @@ fn aura_sequence_attaches_to_its_indexed_semantic_target() {
             MOUNTAIN,
             "Mountain",
             CardSet::Alpha,
-            true,
-            CardBehavior::Mountain,
+            CardRules::new_land(&["Mountain"]).with_supertype(CardSupertype::Basic),
         ),
         creature,
         aura,

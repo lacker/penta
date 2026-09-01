@@ -338,8 +338,8 @@ mod tests {
     use super::{Deck, DeckError};
     use crate::CardDefinitionId;
     use crate::card::{
-        CardBehavior, CardCatalog, CardComposition, CardDefinition, CardRules, CardSet,
-        CardSupertype, ManaCost, cards,
+        CardCatalog, CardComposition, CardDefinition, CardRules, CardSet, CardSupertype, ManaCost,
+        cards,
     };
 
     fn catalog() -> CardCatalog {
@@ -355,8 +355,7 @@ mod tests {
             id,
             "Test Background",
             CardSet::CommanderLegendsBattleForBaldursGate,
-            false,
-            CardBehavior::Unsupported,
+            crate::card::CardRules::unsupported(),
         );
         background.rules = CardRules::new_enchantment(ManaCost::new(0, 0))
             .with_supertype(CardSupertype::Legendary)

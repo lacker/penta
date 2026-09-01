@@ -25,6 +25,23 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Balance and Fireball are declarative, and cards have no alternate execution
+  path.** A per-player choice can now take an explicit computed count in either
+  a public battlefield zone or a private hand. A general player-object-count
+  aggregate supplies the minimum matching count for Balance, letting it settle
+  lands, hands, and creatures in order and recount between them. A target slot
+  can choose any number of distinct targets, semantic mana costs can be
+  multiplied by a target-count expression, and a quotient can divide chosen X by the count of
+  recipients still legal on resolution with explicit rounding, which supplies
+  Fireball's complete semantics. The former behavior-key, card-owned binding,
+  and legacy Balance
+  continuation routes are removed; catalog reports now classify complete cards
+  as declarative without a separate implementation category. Checkpoint format
+  10 adds hidden-hypothesis `playerChoices` hand indexes for a private
+  APNAP-ordered choice committed before another player's answer; the member is
+  additive, protocol 29 and replay version 2 are unchanged, and exact simulation
+  compatibility remains guarded by the fingerprint.
+
 - **Library of Alexandria is declarative.** Its audit line asked for an
   activated-ability restriction that checks for exactly seven cards in hand;
   activation conditions and a hand-size value both already existed, so the
@@ -39,8 +56,7 @@ distinguishes snapshots of the covered source and build inputs.
   variable counter-removal payment whose paid amount feeds the following
   effect. Recall uses the discarded-card group to choose the same number of
   graveyard cards, while Tetravus creates and reassembles only its own linked
-  Tetravites. Their legacy continuations and custom token registry are gone;
-  the remaining custom-card allowlist is Balance and Fireball. The new pending
+  Tetravites. Their legacy continuations and token registry are gone. The new pending
   payment shape is additive checkpoint-format-10 vocabulary, while exact
   simulation compatibility continues to be guarded by the fingerprint.
 
@@ -1284,7 +1300,7 @@ distinguishes snapshots of the covered source and build inputs.
   one mode is executable, and a trigger placed with no mode goes onto the
   stack carrying nothing. Ertai Resurrected is the first card to print it.
 
-- **Declarative simultaneous permanent choices.** A shared choice now asks
+- **Declarative per-player permanent choices.** A shared choice now asks
   affected players in APNAP order to choose matching permanents, binds the
   chosen and unchosen sets after every public choice is frozen, and continues
   into an ordinary nested effect. **Divine Reckoning** applies standard

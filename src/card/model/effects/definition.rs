@@ -854,9 +854,9 @@ pub enum EffectDef {
     },
     /// Several players make non-targeting permanent choices before the
     /// resulting partition is exposed to an ordinary nested effect.
-    SimultaneousChoose(super::SimultaneousChooseDef),
+    ChooseForEachPlayer(super::ChooseForEachPlayerDef),
     /// Each recipient player chooses one permanent they control that matches,
-    /// and sacrifices it. This remains a dedicated simultaneous procedure:
+    /// and sacrifices it. This remains a dedicated multi-player procedure:
     /// every affected player's APNAP-ordered choice is frozen before any
     /// permanent moves, forced-sacrifice prohibitions are applied, and an
     /// optional follow-up can read the sacrificed permanent's last-known

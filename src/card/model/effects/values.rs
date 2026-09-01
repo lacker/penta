@@ -132,6 +132,7 @@ pub enum ObjectValueDef {
 /// Every operation returns zero for an empty collection.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AggregateOperationDef {
+    Minimum,
     Maximum,
     Sum,
 }
@@ -142,6 +143,16 @@ pub enum AggregateOperationDef {
 pub struct ObjectValueAggregateDef {
     pub objects: ObjectSetDef,
     pub select: ObjectValueDef,
+    pub operation: AggregateOperationDef,
+}
+
+/// Count one object query separately for each named player, then aggregate
+/// those counts. The query is evaluated with each player as its controller,
+/// so `PlayerRelation::You` means the player whose count is being measured.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct PlayerObjectCountAggregateDef {
+    pub players: PlayerSetDef,
+    pub query: ObjectQueryDef,
     pub operation: AggregateOperationDef,
 }
 
@@ -335,6 +346,9 @@ pub enum ValueDef {
     /// Resolve an object set, select one scalar characteristic from each
     /// member, and aggregate the collection into one value.
     AggregateObjectValues(&'static ObjectValueAggregateDef),
+    /// Count the same object query once for each named player, then aggregate
+    /// those per-player counts.
+    AggregatePlayerObjectCounts(&'static PlayerObjectCountAggregateDef),
     /// How many objects match, for the "for each" clauses. Held by reference
     /// so that `ValueDef` stays small enough to embed freely.
     CountMatchingObjects(&'static ObjectQueryDef),
@@ -372,6 +386,10 @@ pub enum ValueDef {
     /// visible when a value is divided, so the direction belongs to the
     /// division rather than being a separate step over it.
     Halved(&'static HalvedValueDef),
+    /// One value divided by another, with the printed rounding direction.
+    /// Contextual denominators such as [`Self::ResolvedRecipientCount`] make
+    /// the arithmetic explicit without baking a particular card into it.
+    Quotient(&'static QuotientValueDef),
     /// How many counters of one kind sit on the ability's own source.
     CountersOnSource(CounterKind),
     /// How many counters of one kind sit on an explicitly named object.
@@ -513,6 +531,9 @@ pub enum ValueDef {
     /// How much of a divided total the target being affected takes. Only
     /// meaningful for an effect aimed at a slot the card divides.
     DividedAmongTargets,
+    /// How many recipients remain after legality is checked for the effect
+    /// currently resolving. Zero outside a recipient-aware effect path.
+    ResolvedRecipientCount,
     /// The power of what a target slot points at, for "damage equal to its
     /// power".
     /// The triggering object's power, read with last-known information. A
@@ -600,6 +621,45 @@ pub enum RoundingDef {
 pub struct HalvedValueDef {
     pub value: ValueDef,
     pub rounding: RoundingDef,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct QuotientValueDef {
+    pub numerator: ValueDef,
+    pub denominator: ValueDef,
+    pub rounding: RoundingDef,
+}
+
+impl QuotientValueDef {
+    #[must_use]
+    pub const fn new(numerator: ValueDef, denominator: ValueDef, rounding: RoundingDef) -> Self {
+        Self {
+            numerator,
+            denominator,
+            rounding,
+        }
+    }
+
+    /// Divides with the requested mathematical rounding direction. A zero or
+    /// negative denominator contributes zero rather than manufacturing an
+    /// amount for a context that cannot supply its divisor.
+    #[must_use]
+    pub const fn apply(&self, numerator: i32, denominator: i32) -> i32 {
+        if denominator <= 0 {
+            return 0;
+        }
+        match self.rounding {
+            RoundingDef::Down => numerator.div_euclid(denominator),
+            RoundingDef::Up => {
+                numerator.div_euclid(denominator)
+                    + if numerator.rem_euclid(denominator) == 0 {
+                        0
+                    } else {
+                        1
+                    }
+            }
+        }
+    }
 }
 
 impl HalvedValueDef {

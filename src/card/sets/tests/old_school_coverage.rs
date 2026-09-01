@@ -14,9 +14,6 @@ fn old_school_catalog_and_implementation_audits_are_consistent() {
         name, status, gap, ..
     } in source_audits_for_format(&root, &catalog, Format::OldSchool9394)
     {
-        if status == AuditStatus::Custom {
-            continue;
-        }
         assert!(!gap.is_empty(), "{name} has no capability-gap explanation");
         assert!(
             audited

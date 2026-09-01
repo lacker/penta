@@ -521,9 +521,8 @@ fn checkpoint_round_trips_a_tetravite_owned_by_its_declarative_creator() {
 
     let locator = token_characteristics_locator(&game.catalog, token)
         .expect("the declarative Tetravus creator owns a semantic locator");
-    let creator = catalog_ability(&game.catalog, locator.creator())
+    catalog_ability(&game.catalog, locator.creator())
         .expect("the declarative creator ability reconstructs");
-    assert!(creator.effect.custom_behavior().is_none());
     assert_eq!(
         catalog_token_characteristics(&game.catalog, &locator),
         Some(token),

@@ -101,9 +101,26 @@ impl Game {
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> Vec<Target> {
-        self.objects_matching_query_with_context(
+        self.objects_matching_effect_query_for_controller(
             query,
             object.controller,
+            object,
+            context,
+            scoped,
+        )
+    }
+
+    pub(in crate::game) fn objects_matching_effect_query_for_controller(
+        &self,
+        query: ObjectQueryDef,
+        evaluation_controller: PlayerId,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Vec<Target> {
+        self.objects_matching_query_with_context(
+            query,
+            evaluation_controller,
             object.source.unwrap_or(object.id),
             context.trigger,
             None,

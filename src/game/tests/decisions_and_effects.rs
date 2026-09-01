@@ -95,14 +95,6 @@ fn crusade_declaratively_buffs_every_white_creature() {
     ];
 
     assert_eq!(
-        game.catalog
-            .get(cards::CRUSADE)
-            .unwrap()
-            .rules
-            .special_behavior(),
-        None
-    );
-    assert_eq!(
         (
             game.power(&game.battlefield[1]),
             game.toughness(&game.battlefield[1])
@@ -889,28 +881,28 @@ fn balance_counts_an_animated_land_in_both_phases() {
         ContinuousEffectExpiration::EndOfTurn,
     );
 
-    game.resolve_balance(PlayerId::One);
+    resolve_balance_effect(&mut game);
     let mut prompts = Vec::new();
     while let Some(player) = game.decision_player() {
         let Some(decision) = game.observe(player).decision else {
             break;
         };
         prompts.push((player, decision.prompt.clone()));
-        choose_all_offered(&mut game, player);
+        let action = Action::ChooseDecision {
+            decision: decision.id,
+            options: decision
+                .options
+                .iter()
+                .take(decision.minimum)
+                .map(|option| option.id)
+                .collect(),
+        };
+        game.apply(player, action).unwrap();
     }
 
     assert_eq!(
         prompts,
-        vec![
-            (
-                PlayerId::Two,
-                "Choose 1 land(s) to sacrifice to Balance".into()
-            ),
-            (
-                PlayerId::One,
-                "Choose 1 creature(s) to sacrifice to Balance".into()
-            ),
-        ],
+        vec![(PlayerId::Two, "Choose objects to keep".into())],
         "the Factory kept its controller's land count level, then lost the \
          creature count outright"
     );
@@ -944,9 +936,9 @@ fn balance_requests_public_sacrifices_and_private_discards() {
         .hand
         .push(card(10_005, cards::TERROR, PlayerId::Two));
 
-    game.resolve_balance(PlayerId::One);
+    resolve_balance_effect(&mut game);
     assert_eq!(
-        game.observe(PlayerId::Two).decision.unwrap().visibility,
+        game.observe(PlayerId::One).decision.unwrap().visibility,
         DecisionVisibility::Public
     );
     let decision_player = game.decision_player().unwrap();
@@ -959,10 +951,12 @@ fn balance_requests_public_sacrifices_and_private_discards() {
             options
         } if options.is_empty()
     ));
+    let mut visibilities = Vec::new();
     while let Some(player) = game.decision_player() {
         let Some(decision) = game.observe(player).decision else {
             break;
         };
+        visibilities.push(decision.visibility);
         let action = Action::ChooseDecision {
             decision: decision.id,
             options: decision
@@ -988,6 +982,10 @@ fn balance_requests_public_sacrifices_and_private_discards() {
     });
     assert_eq!(land_counts, [1, 1]);
     assert_eq!(game.players[0].hand.len(), game.players[1].hand.len());
+    assert_eq!(
+        visibilities,
+        vec![DecisionVisibility::Public, DecisionVisibility::Private]
+    );
 }
 
 include!("decisions_and_effects/balance_followups.rs");

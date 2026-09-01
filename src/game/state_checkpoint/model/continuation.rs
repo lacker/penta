@@ -8,14 +8,13 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot,
-    ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, BalancePhaseSnapshot,
-    BalanceTaskSnapshot, CounterKindSnapshot, DeferredBeginTurnEffectSnapshot,
-    DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
-    EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
-    PendingTriggerSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
-    ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot,
-    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot,
-    ZonePlacementSnapshot,
+    ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, CounterKindSnapshot,
+    DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DetachedStackSnapshot,
+    DiscardChoiceSnapshot, DrawReplacementSnapshot, EffectContinuationSnapshot,
+    EffectResolutionContextSnapshot, ManaSnapshot, PendingTriggerSnapshot,
+    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedEffectPaymentSnapshot,
+    ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot,
+    TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -197,11 +196,13 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         remaining: Vec<TargetSnapshot>,
         chosen: Vec<TargetSnapshot>,
     },
-    SimultaneousChoose {
+    ChooseForEachPlayer {
         continuation: EffectContinuationSnapshot,
         task: usize,
         players: Vec<usize>,
         chosen: Vec<u32>,
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        private_chosen: Vec<DiscardChoiceSnapshot>,
     },
     PayOr {
         player: usize,
@@ -335,12 +336,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         remaining: u16,
         /// Which colours may be chosen, in the usual WUBRG flag order.
         choosable: [bool; 5],
-    },
-    Balance {
-        controller: usize,
-        phase: BalancePhaseSnapshot,
-        task: BalanceTaskSnapshot,
-        remaining: Vec<BalanceTaskSnapshot>,
     },
     SearchZonesAndExileRest {
         player: usize,

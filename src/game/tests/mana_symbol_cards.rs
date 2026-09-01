@@ -307,8 +307,7 @@ fn variable_cost_spells_can_choose_x_after_selecting_phyrexian_life() {
         definition_id,
         "Variable Phyrexian cost test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules =
         CardRules::new_instant(mana_cost!("{X}{R/P}")).with_ability(AbilityDef::spell(
@@ -666,8 +665,7 @@ fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
         blue_pain_id,
         "Blue pain source test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     blue_pain.rules = CardRules::new_land(&[]).with_abilities(&BLUE_PAIN_ABILITIES);
     synchronize_single_part_definition(&mut blue_pain);
@@ -797,8 +795,7 @@ fn compleated_reduces_loyalty_for_each_phyrexian_symbol_paid_with_life() {
         definition_id,
         "Multiple Compleated symbols test",
         CardSet::Magic2014,
-        false,
-        CardBehavior::Unsupported,
+        crate::card::CardRules::unsupported(),
     );
     definition.rules = CardRules::new_planeswalker(mana_cost!("{R/P}{R/P}"), &["Test"], 5)
         .with_ability(abilities::compleated("Compleated"));

@@ -1,15 +1,14 @@
 use super::{
-    AbilityDef, AbilityId, AbilityOrigin, AbilityTargetDef, Action, AdditionalCostId,
-    AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardBehavior,
-    CardDefinition, CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet,
-    CastChoices, CastCostContext, CastOffer, CastOfferCost, CastSignature, CastSourceZone,
-    ControlFlow, CostConfiguration, CounterKind, DeclarativeAbilityDef, DividedTotal, Game,
-    GameObjectId, KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, NonbattlefieldAbilityGrant,
+    AbilityDef, AbilityOrigin, AbilityTargetDef, Action, AdditionalCostId,
+    AlternativeCastAbilityDef, AlternativeCastKindDef, AlternativeCostId, CardDefinition,
+    CardDefinitionId, CardEffectStatus, CardPartId, CardType, CardTypeSet, CastChoices,
+    CastCostContext, CastOffer, CastOfferCost, CastSignature, CastSourceZone, ControlFlow,
+    CostConfiguration, CounterKind, DeclarativeAbilityDef, DividedTotal, Game, GameObjectId,
+    KeywordAbility, ManaCost, ManaPaymentPurpose, ModeId, NonbattlefieldAbilityGrant,
     ObjectCharacteristics, OptionalAdditionalCostKindDef, PlayActionKind, PlayOptionDef,
-    PlayOptionId, PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
-    StackAbilityResolver, TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext,
-    add_generic, add_mana_cost, extra_target_cost, mode_id_selections, positive_compositions,
-    target_combinations,
+    PlayRestriction, PlayerId, ScopedEffect, SelectedSpellPlan, StackAbilityPayload,
+    TargetSelection, TargetSlotDef, TargetSlotId, TriggerContext, add_mana_cost,
+    mode_id_selections, positive_compositions, target_combinations,
 };
 
 use crate::card::{AlternateSpellKind, CardStructure, ModeSetDef, SpellForm};
@@ -218,11 +217,6 @@ impl Game {
                 if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
                     continue;
                 }
-                // A declarative card intentionally has no custom behavior.
-                // `Unsupported` is only a local neutral value for the legacy
-                // helpers below; it is not stored as part of that card's rules.
-                let behavior = Self::play_option_behavior(definition, option)
-                    .unwrap_or(CardBehavior::Unsupported);
                 let Some(types) = Self::play_option_types(definition, option) else {
                     continue;
                 };
@@ -355,6 +349,7 @@ impl Game {
                                         scale: CastScale {
                                             x: 0,
                                             modes: modes.len(),
+                                            targets: 0,
                                             offer: offer.map(|offer| offer.cost),
                                         },
                                     },
@@ -397,21 +392,6 @@ impl Game {
                                         x,
                                         offer.map(|offer| offer.cost),
                                     );
-                                    let additional_payments = self.spell_additional_cost_payments(
-                                        SpellAdditionalCostRequest {
-                                            definition,
-                                            option,
-                                            costs: &costs,
-                                            card,
-                                            player,
-                                            modes: &modes,
-                                            scale: CastScale {
-                                                x,
-                                                modes: modes.len(),
-                                                offer: offer.map(|offer| offer.cost),
-                                            },
-                                        },
-                                    );
                                     let library_life = if source_zone == CastSourceZone::LibraryTop
                                     {
                                         self.library_top_life_cost(card, player, option)
@@ -426,13 +406,16 @@ impl Game {
                                     } else if let Some(kicked) =
                                         Self::kicked_target_defs(definition, option, &costs)
                                     {
-                                        self.legal_ability_target_selections(
+                                        sparse_unlimited_target_selections(
                                             kicked,
-                                            player,
-                                            card.id,
-                                            TriggerContext::empty(),
-                                            x,
-                                            &additional_cost_payments,
+                                            self.legal_ability_target_selections(
+                                                kicked,
+                                                player,
+                                                card.id,
+                                                TriggerContext::empty(),
+                                                x,
+                                                &additional_cost_payments,
+                                            ),
                                         )
                                     } else if let Some((_, ability)) =
                                         Self::spell_ability(definition, option)
@@ -449,17 +432,17 @@ impl Game {
                                         ) else {
                                             continue;
                                         };
-                                        self.legal_ability_target_selections(
+                                        sparse_unlimited_target_selections(
                                             &plan.target_defs,
-                                            player,
-                                            card.id,
-                                            TriggerContext::empty(),
-                                            x,
-                                            &additional_cost_payments,
+                                            self.legal_ability_target_selections(
+                                                &plan.target_defs,
+                                                player,
+                                                card.id,
+                                                TriggerContext::empty(),
+                                                x,
+                                                &additional_cost_payments,
+                                            ),
                                         )
-                                    } else if Self::uses_legacy_behavior_targets(definition, option)
-                                    {
-                                        self.legacy_target_selections(behavior, player, card.id)
                                     } else {
                                         self.legal_target_selections(&declared_slots, x)
                                     };
@@ -468,6 +451,25 @@ impl Game {
                                             .iter()
                                             .map(|selection| selection.targets().len())
                                             .sum();
+                                        // Target-count quantities become fixed
+                                        // when the cast's targets are chosen.
+                                        let additional_payments = self
+                                            .spell_additional_cost_payments(
+                                                SpellAdditionalCostRequest {
+                                                    definition,
+                                                    option,
+                                                    costs: &costs,
+                                                    card,
+                                                    player,
+                                                    modes: &modes,
+                                                    scale: CastScale {
+                                                        x,
+                                                        modes: modes.len(),
+                                                        targets: target_count,
+                                                        offer: offer.map(|offer| offer.cost),
+                                                    },
+                                                },
+                                            );
                                         // Increases apply before discounts,
                                         // which is what keeps a discount from
                                         // eating generic mana an increase then
@@ -476,13 +478,7 @@ impl Game {
                                             let cast_life = base_cast_life
                                                 .saturating_add(additional_payment.life);
                                             let increased_cost = add_mana_cost(
-                                                add_mana_cost(
-                                                    add_generic(
-                                                        cost,
-                                                        extra_target_cost(definition, target_count),
-                                                    ),
-                                                    additional_payment.mana,
-                                                ),
+                                                add_mana_cost(cost, additional_payment.mana),
                                                 self.spell_cost_increase(player, card.id, targets),
                                             );
                                             for mana_payment in
@@ -591,19 +587,6 @@ impl Game {
         }
     }
 
-    pub(super) fn play_option_behavior(
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-    ) -> Option<CardBehavior> {
-        let first = match &option.form {
-            crate::card::SpellForm::Part(part) => *part,
-            crate::card::SpellForm::Combined(parts) => *parts.first()?,
-        };
-        definition
-            .part(first)
-            .and_then(|part| part.rules.special_behavior())
-    }
-
     /// The target slots a kicked cast declares. A kicked spell resolves its
     /// own clause, and that clause can name something the unkicked one
     /// cannot: Bloodchief's Thirst reaches past two mana only when kicked.
@@ -681,23 +664,6 @@ impl Game {
             })
     }
 
-    pub(super) fn uses_legacy_behavior_targets(
-        definition: &CardDefinition,
-        option: &PlayOptionDef,
-    ) -> bool {
-        matches!(
-            (&definition.structure, &option.form),
-            (
-                crate::card::CardStructure::Single { main },
-                crate::card::SpellForm::Part(part),
-            ) if main == part
-        ) && definition.play_options.len() == 1
-            && option.id == PlayOptionId::DEFAULT
-            && option.modes.is_none()
-            && option.targets.is_empty()
-            && Self::spell_ability(definition, option).is_none()
-    }
-
     /// How many modes a spell may choose here. "If you control a Wizard as
     /// you cast this spell, you may choose two instead" is read where the
     /// spell is offered, which is what "as you cast" means, and it never
@@ -763,24 +729,6 @@ impl Game {
         slots
     }
 
-    pub(super) fn legacy_target_selections(
-        &self,
-        behavior: CardBehavior,
-        player: PlayerId,
-        source: GameObjectId,
-    ) -> Vec<Vec<TargetSelection>> {
-        self.legal_target_lists(behavior, player, None, source)
-            .into_iter()
-            .map(|targets| {
-                if targets.is_empty() {
-                    Vec::new()
-                } else {
-                    vec![TargetSelection::new(TargetSlotId(0), targets)]
-                }
-            })
-            .collect()
-    }
-
     pub(super) fn legal_target_selections(
         &self,
         slots: &[TargetSlotDef],
@@ -839,6 +787,10 @@ impl Game {
             let mut combined = Vec::new();
             for prefix in &selections {
                 for choice in &choices {
+                    if choice.targets().is_empty() {
+                        combined.push(prefix.clone());
+                        continue;
+                    }
                     let mut selected = prefix.clone();
                     selected.push(choice.clone());
                     combined.push(selected);
@@ -937,6 +889,23 @@ fn names_an_earlier_target(prefix: &[TargetSelection], choice: &TargetSelection)
             .iter()
             .any(|target| choice.targets().contains(target))
     })
+}
+
+/// "Any number" needs no slot at all when its number is zero. Bounded "up to"
+/// slots stay explicit because later linked slots can refer to their position.
+fn sparse_unlimited_target_selections(
+    definitions: &[AbilityTargetDef],
+    mut selections: Vec<Vec<TargetSelection>>,
+) -> Vec<Vec<TargetSelection>> {
+    for targets in &mut selections {
+        targets.retain(|selection| {
+            !selection.targets().is_empty()
+                || definitions
+                    .get(selection.slot().index())
+                    .is_none_or(|definition| definition.maximum != AbilityTargetDef::UNLIMITED)
+        });
+    }
+    selections
 }
 
 include!("casting_actions/selected_clause.rs");

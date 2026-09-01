@@ -1,8 +1,7 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
-    CounteredSpellZone, DamageAssignment, DecisionZone, Game, GameEvent, GameObjectId,
-    ObjectCharacteristics, ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind,
-    ZoneMoveCause, ZonePlacement,
+    DamageAssignment, DecisionZone, Game, GameEvent, GameObjectId, ObjectCharacteristics,
+    ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -23,11 +22,6 @@ impl Game {
                     })
                     .collect();
                 self.deal_damage_simultaneously(assignments);
-            }
-            CardBehavior::Negate | CardBehavior::EssenceScatter => {
-                if let Some(Target::Spell(target)) = object.first_target() {
-                    self.counter_spell_into(target, CounteredSpellZone::Graveyard);
-                }
             }
             CardBehavior::Balance => self.resolve_balance(object.controller),
             _ => {}

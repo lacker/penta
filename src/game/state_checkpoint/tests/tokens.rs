@@ -514,7 +514,7 @@ fn checkpoint_round_trips_a_transformed_incubator_part() {
 fn checkpoint_round_trips_a_tetravite_owned_by_its_declarative_creator() {
     let mut game = crate::game::tests::ready_game();
     game.battlefield.clear();
-    let token = crate::card::tokens::tetravite();
+    let token = crate::card::sets::TETRAVITE;
     game.create_token_from(PlayerId::One, token, Some(GameObjectId(81_007)));
     drain_pending(&mut game);
     let token_id = created_token(&game, token).card.id;

@@ -22,6 +22,7 @@ include!("targeting/references.rs");
 // player, and damage matcher are a boundary of their own.
 include!("targeting/trigger_references.rs");
 include!("targeting/effect_references.rs");
+include!("targeting/trigger_zones.rs");
 
 #[derive(Clone, Copy)]
 enum RecipientExpectation {

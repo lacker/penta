@@ -9,7 +9,8 @@ use crate::card::{
     KeywordAbility, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1615,6 +1616,21 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_
 // ATQ 70† — Tawnos's Weaponry (alternate printing)
 
 // ATQ 71 — Tetravus
+pub(crate) static TETRAVITE: TokenCharacteristics =
+    TokenCharacteristics::artifact_creature(&["Tetravite"], &[], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This token can't be enchanted.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeEnchanted),
+            },
+        )
+        .with_coverage(AbilityCoverageDef::explained_complete(
+            "The shared targetability check refuses the token to an Aura spell, and an Aura that arrives some other way still falls off.",
+        )),
+    ]);
+
 /// Both of Tetravus's assembly triggers fire at the same moment, so its
 /// controller orders them and can answer both in one upkeep.
 const UPKEEP: TriggerEventDef = TriggerEventDef::StepBegins {
@@ -1650,9 +1666,9 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
                         kind: CounterKind::PlusOnePlusOne,
                     },
                 },
-                if_paid: Some(&EffectDef::create_token(tokens::tetravite()).with_count(
-                    ValueDef::PaidAmount,
-                )),
+                if_paid: Some(
+                    &EffectDef::create_token(TETRAVITE).with_count(ValueDef::PaidAmount),
+                ),
                 otherwise: None,
                 visibility: ChoiceVisibilityDef::Public,
                 condition: None,

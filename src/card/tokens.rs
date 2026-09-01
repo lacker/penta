@@ -6,10 +6,9 @@
 //! the handful of token rules standardized by the game itself.
 
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef, TokenCharacteristics,
-    TokenPart, ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AppliedEffectDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ResolvedEffectDurationDef, TokenCharacteristics, TokenPart, ValueDef, ZoneKind,
 };
 use crate::mana_cost;
 use crate::{CardPartId, TargetIndex};
@@ -190,27 +189,6 @@ pub const fn incubator() -> TokenCharacteristics {
         .transforming_into(&INCUBATOR_BACK)
 }
 
-static TETRAVITE_ABILITIES: [AbilityDef; 2] = [
-    abilities::flying(),
-    AbilityDef::static_ability(
-        "This token can't be enchanted.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeEnchanted),
-        },
-    )
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "The shared targetability check refuses the token to an Aura spell, and an Aura that arrives some other way still falls off.",
-    )),
-];
-
-/// Tetravus detaches these, and can exile its own back to rebuild itself.
-#[must_use]
-pub const fn tetravite() -> TokenCharacteristics {
-    TokenCharacteristics::artifact_creature(&["Tetravite"], &[], 1, 1)
-        .with_abilities(&TETRAVITE_ABILITIES)
-}
-
 /// Shared ability for the uncommon 2/2 red Dragon token that pumps itself.
 /// Kept as a rules helper rather than a token identity.
 #[must_use]
@@ -249,7 +227,8 @@ mod tests {
 
     #[test]
     fn dragon_rules_can_retain_both_flying_and_the_pump() {
-        static DRAGON_ABILITIES: [AbilityDef; 2] = [abilities::flying(), dragon_pump()];
+        static DRAGON_ABILITIES: [AbilityDef; 2] =
+            [crate::card::abilities::flying(), dragon_pump()];
         let token =
             TokenCharacteristics::creature(&["Dragon"], &[crate::card::ManaColor::Red], 2, 2)
                 .with_abilities(&DRAGON_ABILITIES);

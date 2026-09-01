@@ -1,14 +1,7 @@
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardBehavior {
     Balance,
-    BloodBaronOfVizkopa,
-    EssenceScatter,
     Fireball,
-    Negate,
-    PillarOfFlame,
-    FellwarStone,
-    ReflectingPool,
-    SphinxsRevelation,
     // Compatibility rules keys retained while CardDefinition::new still
     // accepts CardBehavior instead of CardRules directly.
     Mountain,

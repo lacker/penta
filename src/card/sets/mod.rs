@@ -44,6 +44,9 @@ use crate::card::{AbilityDef, CardBehavior, CardDefinition, CardPrinting, CardRu
 
 static UNSUPPORTED_RULES: CardRules = CardRules::unsupported();
 
+#[cfg(test)]
+pub(crate) use y1994::antiquities::TETRAVITE;
+
 struct SetModule {
     set: CardSet,
     cards: &'static [&'static CardRecord],

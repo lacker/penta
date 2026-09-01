@@ -29,7 +29,7 @@ fn tetravus_trades_counters_for_tetravites_that_remember_which_one_made_them() {
     let tetravites = game
         .battlefield
         .iter()
-        .filter(|permanent| is_token_with(permanent, tokens::tetravite()))
+        .filter(|permanent| is_token_with(permanent, crate::card::sets::TETRAVITE))
         .collect::<Vec<_>>();
     assert_eq!(tetravites.len(), 2, "one Tetravite per counter");
     assert!(
@@ -51,8 +51,11 @@ fn an_aura_cannot_target_a_tetravite() {
     // "This token can't be enchanted" is a targeting restriction, not
     // something the Aura discovers after it has already arrived and attached.
     let mut game = ready_game();
-    game.battlefield
-        .push(token_permanent(10_000, tokens::tetravite(), PlayerId::One));
+    game.battlefield.push(token_permanent(
+        10_000,
+        crate::card::sets::TETRAVITE,
+        PlayerId::One,
+    ));
     game.battlefield
         .push(creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One));
     let aura = card(10_002, cards::VOLCANIC_STRENGTH, PlayerId::One);
@@ -116,7 +119,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
 
     // Two of its own, and one that belongs to a Tetravus that is not here.
     for (id, creator) in [(10_001, 10_000), (10_002, 10_000), (10_003, 10_999)] {
-        let mut token = token_permanent(id, tokens::tetravite(), PlayerId::One);
+        let mut token = token_permanent(id, crate::card::sets::TETRAVITE, PlayerId::One);
         token.created_by = Some(GameObjectId(creator));
         game.battlefield.push(token);
     }
@@ -143,7 +146,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
     let remaining = game
         .battlefield
         .iter()
-        .filter(|permanent| is_token_with(permanent, tokens::tetravite()))
+        .filter(|permanent| is_token_with(permanent, crate::card::sets::TETRAVITE))
         .map(|permanent| permanent.card.id)
         .collect::<Vec<_>>();
     assert_eq!(
@@ -156,7 +159,7 @@ fn tetravus_takes_back_only_the_tetravites_it_made() {
 #[test]
 fn an_aura_cannot_stay_on_a_tetravite() {
     let mut game = ready_game();
-    let token = token_permanent(10_000, tokens::tetravite(), PlayerId::One);
+    let token = token_permanent(10_000, crate::card::sets::TETRAVITE, PlayerId::One);
     let bear = creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One);
     game.battlefield.push(token);
     game.battlefield.push(bear);

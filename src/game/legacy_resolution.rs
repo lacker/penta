@@ -1,8 +1,8 @@
 use super::{
     BalanceAction, BalancePhase, BalanceTask, CardBehavior, CardInstance, CardPartId, CardType,
-    CounteredSpellZone, DamageAssignment, DecisionContinuation, DecisionPreference,
-    DecisionVisibility, DecisionZone, Game, GameEvent, GameObjectId, ObjectCharacteristics,
-    ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind, ZoneMoveCause, ZonePlacement,
+    CounteredSpellZone, DamageAssignment, DecisionZone, Game, GameEvent, GameObjectId,
+    ObjectCharacteristics, ObjectPredicateDef, PlayerId, StackObject, Target, ZoneKind,
+    ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -30,53 +30,8 @@ impl Game {
                 }
             }
             CardBehavior::Balance => self.resolve_balance(object.controller),
-            CardBehavior::Recall => {
-                let player = object.controller;
-                // Discarding is part of the resolution, not a cost, so a
-                // countered Recall costs nothing and the opponent never sees
-                // the discard before deciding whether to counter.
-                let count = usize::from(object.x()).min(self.players[player.index()].hand.len());
-                if count == 0 {
-                    return;
-                }
-                let options = self.card_decision_options(
-                    &self.players[player.index()].hand.clone(),
-                    DecisionZone::Hand,
-                );
-                self.queue_decision(
-                    player,
-                    format!("Discard {count} card(s)"),
-                    DecisionVisibility::Private,
-                    DecisionPreference::LowerCardValue,
-                    count..=count,
-                    false,
-                    options,
-                    DecisionContinuation::RecallDiscard { player },
-                );
-            }
             _ => {}
         }
-    }
-
-    pub(super) fn queue_recall_return(&mut self, player: PlayerId, count: usize) {
-        let options = self.card_decision_options(
-            &self.players[player.index()].graveyard,
-            DecisionZone::Graveyard,
-        );
-        let count = count.min(options.len());
-        if count == 0 {
-            return;
-        }
-        self.queue_decision(
-            player,
-            format!("Return {count} card(s) from your graveyard"),
-            DecisionVisibility::Private,
-            DecisionPreference::HigherCardValue,
-            count..=count,
-            false,
-            options,
-            DecisionContinuation::RecallReturn { player },
-        );
     }
 
     /// Lifts the top `count` cards off a library, fewer if it is short, in

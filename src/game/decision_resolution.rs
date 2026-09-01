@@ -6,9 +6,9 @@ mod triggers;
 use super::decision_search_resolution::SearchResolution;
 use super::{
     BalanceAction, BasicLandType, BasicLandTypeChange, BattlefieldArrival,
-    BattlefieldExitCompletion, CounterKind, DecisionContinuation, DecisionOption, Game, GameEvent,
-    ManaCost, PlayerId, ReplaceableEvent, Target, TargetSelection, ZoneKind, ZoneMoveCause,
-    ZonePlacement, remove_card,
+    BattlefieldExitCompletion, DecisionContinuation, DecisionOption, Game, GameEvent, ManaCost,
+    PlayerId, ReplaceableEvent, Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement,
+    remove_card,
 };
 use crate::card::{BattlefieldEntryChoiceDestinationDef, EffectDef, ReplacementEffectDef};
 
@@ -819,37 +819,6 @@ impl Game {
                 self.apply_draw_replacement(player, replacement, applied);
                 self.pending_procedures.append(&mut later_procedures);
             }
-            DecisionContinuation::RecallDiscard { player } => {
-                let discarded = pending
-                    .observation
-                    .options
-                    .iter()
-                    .filter(|option| options.contains(&option.id))
-                    .filter_map(|option| option.card.map(|(card, _)| card))
-                    .collect::<Vec<_>>();
-                let count = discarded.len();
-                self.discard_cards_with_cause(
-                    player,
-                    &discarded,
-                    ZoneMoveCause::Effect { controller: player },
-                );
-                // "for each card discarded this way" -- and those cards are in
-                // the graveyard now, so Recall can hand any of them straight
-                // back.
-                self.queue_recall_return(player, count);
-            }
-            DecisionContinuation::RecallReturn { player } => {
-                for option in &pending.observation.options {
-                    if options.contains(&option.id)
-                        && let Some((card, _)) = option.card
-                        && let Some(card) =
-                            remove_card(&mut self.players[player.index()].graveyard, card)
-                    {
-                        let (card, _zone_change) = self.zone_change_card(card);
-                        self.players[player.index()].hand.push(card);
-                    }
-                }
-            }
             DecisionContinuation::Balance {
                 controller,
                 phase,
@@ -888,69 +857,6 @@ impl Game {
                             remaining,
                         }),
                     );
-                }
-            }
-            DecisionContinuation::TetravusDetach { source } => {
-                // The counters have to still be there: two upkeep triggers
-                // resolve one after the other, and the assemble trigger can
-                // run first.
-                let Some(permanent) = self
-                    .battlefield
-                    .iter_mut()
-                    .find(|permanent| permanent.card.id == source)
-                else {
-                    return;
-                };
-                let removed = options
-                    .len()
-                    .min(usize::from(permanent.counters(CounterKind::PlusOnePlusOne)));
-                let Ok(removed) = u16::try_from(removed) else {
-                    return;
-                };
-                if removed == 0 {
-                    return;
-                }
-                permanent.remove_counters(CounterKind::PlusOnePlusOne, removed);
-                let controller = permanent.controller;
-                let mut minted = Vec::new();
-                for _ in 0..removed {
-                    minted.push(self.create_token_from(
-                        controller,
-                        crate::card::tokens::tetravite(),
-                        Some(source),
-                    ));
-                }
-                self.capture_tokens_created(controller, &minted);
-            }
-            DecisionContinuation::TetravusAssemble { source } => {
-                let exiled = pending
-                    .observation
-                    .options
-                    .iter()
-                    .filter(|option| options.contains(&option.id))
-                    .filter_map(|option| option.card)
-                    .map(|(card, _)| card)
-                    .collect::<Vec<_>>();
-                let mut returned: u16 = 0;
-                for token in exiled {
-                    // Only tokens this Tetravus still owns count, in case one
-                    // changed hands or left between the offer and the answer.
-                    if self.battlefield.iter().any(|permanent| {
-                        permanent.card.id == token && permanent.created_by == Some(source)
-                    }) {
-                        self.exile_permanent(token);
-                        returned = returned.saturating_add(1);
-                    }
-                }
-                if returned == 0 {
-                    return;
-                }
-                if let Some(permanent) = self
-                    .battlefield
-                    .iter_mut()
-                    .find(|permanent| permanent.card.id == source)
-                {
-                    permanent.add_counters(CounterKind::PlusOnePlusOne, returned);
                 }
             }
             trigger @ (DecisionContinuation::TriggerOrder { .. }

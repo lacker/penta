@@ -144,6 +144,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::LegalTargets(_)
             | ObjectSetDef::SharingNameWith(_)
             | ObjectSetDef::SharingNameWithBinding { .. }
+            | ObjectSetDef::TokensCreatedBy(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         )
         // Both kinds at once is shared for the same reason each half is:
@@ -669,6 +670,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::AddManaEqualTo { .. }
                     | EffectDef::Randomized { .. }
                     | EffectDef::Choose(_)
+                    | EffectDef::ChooseExact(_)
                     | EffectDef::ChooseCardsFromCollection(_)
                     | EffectDef::LookAtObjects(_)
                     | EffectDef::ChooseObjectOrder(_)

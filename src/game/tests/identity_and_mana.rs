@@ -221,8 +221,11 @@ fn ability_events_distinguish_the_stack_object_from_a_source_that_left_play() {
 
 #[test]
 fn recall_charges_two_generic_mana_for_each_x() {
-    let cost = CardBehavior::Recall
-        .mana_cost()
+    let game = ready_game();
+    let cost = game
+        .catalog
+        .get(cards::RECALL)
+        .and_then(|definition| definition.rules.mana_cost())
         .expect("Recall has a printed mana cost");
     assert!(can_pay(
         ManaPool {

@@ -56,6 +56,9 @@ impl Game {
                     });
                 }
             }
+            ResolvedEffectPayment::RemoveAnyNumberOfCounters { object, kind } => {
+                options.extend(self.counter_removal_payment_options(object, kind));
+            }
             ResolvedEffectPayment::MovePermanentMatching {
                 object: predicate,
                 zone,
@@ -103,5 +106,48 @@ impl Game {
             }),
         }
         options
+    }
+
+    fn counter_removal_payment_options(
+        &self,
+        object: GameObjectId,
+        kind: CounterKind,
+    ) -> Vec<DecisionOption> {
+        let Some(permanent) = self
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == object)
+        else {
+            return Vec::new();
+        };
+        let presentation = Self::effective_rules_source(permanent);
+        (1..=permanent.counters(kind))
+            .map(|amount| DecisionOption {
+                id: u32::from(amount),
+                label: format!("Remove {amount} counter(s)"),
+                card: Some((object, presentation)),
+                members: Vec::new(),
+                ability_text: None,
+                zone: DecisionZone::Battlefield,
+            })
+            .collect()
+    }
+
+    fn settle_counter_removal_payment(
+        &mut self,
+        object: GameObjectId,
+        kind: CounterKind,
+        chosen: u32,
+    ) -> Option<u16> {
+        let amount = u16::try_from(chosen).unwrap_or(u16::MAX);
+        let permanent = self
+            .battlefield
+            .iter_mut()
+            .find(|permanent| permanent.card.id == object)?;
+        if amount == 0 || permanent.counters(kind) < amount {
+            return None;
+        }
+        permanent.remove_counters(kind, amount);
+        Some(amount)
     }
 }

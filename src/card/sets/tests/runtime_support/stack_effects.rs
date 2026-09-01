@@ -35,6 +35,12 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
         payment.payer,
         PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
     ) && shared_effect_recipient(EffectRecipientDef::players(payment.payer))
+        && match payment.cost {
+            crate::card::EffectPaymentCostDef::RemoveAnyNumberOfCounters { object, .. } => {
+                shared_effect_recipient(object)
+            }
+            _ => true,
+        }
 }
 
 fn shared_choose(choice: ChooseDef) -> bool {
@@ -136,6 +142,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         EffectDef::Choose(choice) => {
             deferred_decision_allowed
                 && shared_choose(choice)
+                && shared_stack_effect_at_position(*choice.then, true)
+        }
+        EffectDef::ChooseExact(choice) => {
+            deferred_decision_allowed
+                && shared_effect_recipient(EffectRecipientDef::player(choice.chooser))
+                && shared_effect_recipient(EffectRecipientDef::objects(choice.candidates))
+                && choice
+                    .exclude
+                    .is_none_or(|object| shared_effect_recipient(EffectRecipientDef::object(object)))
                 && shared_stack_effect_at_position(*choice.then, true)
         }
         EffectDef::ChooseCounterKind { object, then } => {

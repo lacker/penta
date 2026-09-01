@@ -74,6 +74,7 @@ impl Game {
                     || Self::effect_applies_to_source(*otherwise, expected)
             }
             EffectDef::Choose(ChooseDef { then, .. })
+            | EffectDef::ChooseExact(crate::card::ChooseExactDef { then, .. })
             | EffectDef::ChooseCardName { then, .. }
             | EffectDef::ForEachInBinding { effect: then, .. }
             | EffectDef::SearchZone {

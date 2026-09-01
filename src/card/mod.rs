@@ -43,7 +43,7 @@ pub use model::{
     CardArt, CardChoiceSourceDef, CardComposition, CardDefinition, CardEffectStatus, CardPart,
     CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     CardTypeSet, CastTimingPermissionDef, ChangeStackTargetsDef, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseGroupDef,
+    ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef, ChooseGroupDef,
     ChooseObjectOrderDef, ChooseOneOfEachDef, ClassifyObjectsDef, CollectionInspectionDef,
     ColorChoiceOperationDef, ColorSet, CombineObjectsDef, CompanionConditionDef, ComparisonDef,
     ConditionDef, ConditionValueDef, ConditionalStaticEffectDef, ConditionalValueDef,

@@ -336,12 +336,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// Which colours may be chosen, in the usual WUBRG flag order.
         choosable: [bool; 5],
     },
-    RecallDiscard {
-        player: usize,
-    },
-    RecallReturn {
-        player: usize,
-    },
     Balance {
         controller: usize,
         phase: BalancePhaseSnapshot,
@@ -357,12 +351,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         candidates: Vec<u32>,
         remaining: Vec<usize>,
         votes: Vec<u32>,
-    },
-    TetravusDetach {
-        source: u32,
-    },
-    TetravusAssemble {
-        source: u32,
     },
 }
 

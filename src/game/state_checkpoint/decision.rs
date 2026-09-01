@@ -396,7 +396,9 @@ fn continuation_snapshot(
         } => {
             if !matches!(
                 definition.effect,
-                EffectDef::Choose(_) | EffectDef::ChooseCardsFromCollection(_)
+                EffectDef::Choose(_)
+                    | EffectDef::ChooseExact(_)
+                    | EffectDef::ChooseCardsFromCollection(_)
             ) {
                 return None;
             }
@@ -857,16 +859,6 @@ fn continuation_snapshot(
                 optional: *optional,
             }
         }
-        DecisionContinuation::RecallDiscard { player } => {
-            DecisionContinuationSnapshot::RecallDiscard {
-                player: player.index(),
-            }
-        }
-        DecisionContinuation::RecallReturn { player } => {
-            DecisionContinuationSnapshot::RecallReturn {
-                player: player.index(),
-            }
-        }
         DecisionContinuation::Balance {
             controller,
             phase,
@@ -899,12 +891,6 @@ fn continuation_snapshot(
             remaining: remaining.iter().map(|player| player.index()).collect(),
             votes: ids(votes),
         },
-        DecisionContinuation::TetravusDetach { source } => {
-            DecisionContinuationSnapshot::TetravusDetach { source: source.0 }
-        }
-        DecisionContinuation::TetravusAssemble { source } => {
-            DecisionContinuationSnapshot::TetravusAssemble { source: source.0 }
-        }
         DecisionContinuation::CardNameChoice {
             choices,
             searched,

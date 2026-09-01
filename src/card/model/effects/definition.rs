@@ -136,6 +136,8 @@ pub enum EffectDef {
         chooser: PlayerRefDef,
     },
     Choose(ChooseDef),
+    /// The computed-cardinality counterpart of [`Self::Choose`].
+    ChooseExact(super::ChooseExactDef),
     /// Inspect one collection, make one bounded card choice from it, and
     /// continue with bindings for the chosen cards and everything else.
     ChooseCardsFromCollection(super::ChooseCardsFromCollectionDef),

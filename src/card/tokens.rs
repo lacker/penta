@@ -3,14 +3,13 @@
 //! Ordinary creature and artifact-creature tokens are authored directly with
 //! [`EffectDef::create_creature_token`] and
 //! [`EffectDef::create_artifact_creature_token`]. This module contains only
-//! the handful of token rules standardized by the game itself, plus the one
-//! custom creator that cannot yet express its creation as an [`EffectDef`].
+//! the handful of token rules standardized by the game itself.
 
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardBehavior,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef,
-    TokenCharacteristics, TokenPart, ValueDef, ZoneKind, abilities,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef, TokenCharacteristics,
+    TokenPart, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 use crate::{CardPartId, TargetIndex};
@@ -210,16 +209,6 @@ static TETRAVITE_ABILITIES: [AbilityDef; 2] = [
 pub const fn tetravite() -> TokenCharacteristics {
     TokenCharacteristics::artifact_creature(&["Tetravite"], &[], 1, 1)
         .with_abilities(&TETRAVITE_ABILITIES)
-}
-
-/// Characteristics created by card-local control flow rather than a
-/// declarative [`EffectDef::CreateToken`] node. Both catalog validation and
-/// durable semantic reconstruction consume this creator-owned registry.
-pub(crate) fn custom_created_tokens(behavior: CardBehavior) -> Vec<TokenCharacteristics> {
-    match behavior {
-        CardBehavior::TetravusDetach => vec![tetravite()],
-        _ => Vec::new(),
-    }
 }
 
 /// Shared ability for the uncommon 2/2 red Dragon token that pumps itself.

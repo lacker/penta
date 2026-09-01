@@ -414,15 +414,9 @@ fn collect_direct_ability_contents<'a>(
     emblems: &mut Vec<EmblemCharacteristics>,
 ) {
     collect_program_ability_grants(ability.effect.definition, grants, tokens, emblems);
-    if let Some(behavior) = ability.effect.custom_behavior() {
-        tokens.extend(crate::card::tokens::custom_created_tokens(behavior));
-    }
     if let Some(modal) = ability.modal() {
         for mode in modal.modes {
             collect_program_ability_grants(mode.effect.definition, grants, tokens, emblems);
-            if let Some(behavior) = mode.effect.custom_behavior() {
-                tokens.extend(crate::card::tokens::custom_created_tokens(behavior));
-            }
         }
     }
 }
@@ -917,38 +911,8 @@ include!("abilities/top_level_errors.rs");
 include!("abilities/ability_grants.rs");
 
 #[cfg(test)]
-mod custom_token_tests {
+mod virtual_object_tests {
     use super::*;
-
-    #[test]
-    fn tetravite_enters_the_creator_owned_validation_walk() {
-        let catalog = crate::poc::catalog().expect("the catalog builds");
-        let definition = catalog
-            .get(crate::card::cards::TETRAVUS)
-            .expect("Tetravus is cataloged");
-        let creator = definition
-            .part(CardPartId::PRIMARY)
-            .expect("Tetravus has its primary part")
-            .rules
-            .ability_clauses()
-            .iter()
-            .find(|ability| {
-                ability.effect.custom_behavior() == Some(crate::card::CardBehavior::TetravusDetach)
-            })
-            .expect("Tetravus has its detach creator");
-        let mut grants = Vec::new();
-        let mut tokens = Vec::new();
-        let mut emblems = Vec::new();
-        collect_direct_ability_contents(creator, &mut grants, &mut tokens, &mut emblems);
-
-        assert!(tokens.iter().any(|token| token.semantic_identity()
-            == crate::card::tokens::tetravite().semantic_identity()));
-        let mut validated = CreatedVirtualObjects::default();
-        for token in tokens {
-            validate_created_token(definition, token, &mut validated)
-                .expect("the registered Tetravite receives catalog validation");
-        }
-    }
 
     #[test]
     fn creator_owned_emblems_enter_recursive_validation() {

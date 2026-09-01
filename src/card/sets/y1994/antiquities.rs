@@ -2,15 +2,16 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ConditionDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamagePreventionDef, DamageSourceGroupDef, DiscardSelectionDef,
-    EffectDef, EffectExecutionDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, PayOrDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
-    SumValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef, SumValueDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
 
 /// Each land names the other two, and a name predicate compares the name a
@@ -1614,7 +1615,6 @@ pub(in crate::card::sets) static TAWNOSS_WEAPONRY: CardRecord = CardRecord::new_
 // ATQ 70† — Tawnos's Weaponry (alternate printing)
 
 // ATQ 71 — Tetravus
-// Audit: custom — Needs declarative variable counter-to-token exchange and creator-linked token selection for the reverse exchange.
 /// Both of Tetravus's assembly triggers fire at the same moment, so its
 /// controller orders them and can answer both in one upkeep.
 const UPKEEP: TriggerEventDef = TriggerEventDef::StepBegins {
@@ -1642,21 +1642,50 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may remove any number of +1/+1 counters from this creature. If you do, create that many 1/1 colorless Tetravite artifact creature tokens. They each have flying and \"This token can't be enchanted.\"",
             UPKEEP,
-            EffectDef::None,
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::TetravusDetach))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The upkeep trigger uses the shared stack; a card-local resolver asks how many counters to trade and links each token it creates back to this permanent.",
-        )),
+            EffectDef::PayOr(PayOrDef {
+                payment: EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                    cost: EffectPaymentCostDef::RemoveAnyNumberOfCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                    },
+                },
+                if_paid: Some(&EffectDef::create_token(tokens::tetravite()).with_count(
+                    ValueDef::PaidAmount,
+                )),
+                otherwise: None,
+                visibility: ChoiceVisibilityDef::Public,
+                condition: None,
+            }),
+        ),
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may exile any number of tokens created with this creature. If you do, put that many +1/+1 counters on this creature.",
             UPKEEP,
-            EffectDef::None,
-        )
-        .with_effect_execution(EffectExecutionDef::Custom(CardBehavior::TetravusAssemble))
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The upkeep trigger uses the shared stack; a card-local resolver offers only the tokens this permanent created and returns one counter per token exiled.",
-        )),
+            EffectDef::Choose(crate::card::ChooseDef {
+                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::TokensCreatedBy(ObjectRefDef::Source),
+                exclude: None,
+                minimum: 0,
+                maximum: usize::MAX,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        )),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                    },
+                ]),
+            }),
+        ),
     ]),
 );
 

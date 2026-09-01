@@ -963,6 +963,7 @@ impl Game {
                 | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
+                | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::SharingNameWith(_)
                 | ObjectSetDef::SharingNameWithBinding { .. }

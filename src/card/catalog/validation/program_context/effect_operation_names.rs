@@ -14,6 +14,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::BindOutput { .. } => "BindOutput",
         EffectDef::Randomized { .. } => "Randomized",
         EffectDef::Choose(_)
+        | EffectDef::ChooseExact(_)
         | EffectDef::ChooseCardsFromCollection(_)
         | EffectDef::ChooseCardName { .. } => "Choose",
         EffectDef::LookAtObjects(_) => "LookAtObjects",

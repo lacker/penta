@@ -144,6 +144,11 @@ pub enum ObjectSetDef {
     /// controller relation, this can follow an authored player reference such
     /// as the player chosen in a target slot.
     PermanentsControlledBy(PlayerRefDef),
+    /// Battlefield tokens whose creation instruction came from the exact
+    /// named object. The creator link is durable object identity: two
+    /// same-name permanents keep separate groups, and a token that changes
+    /// controller remains in its creator's group.
+    TokensCreatedBy(ObjectRefDef),
     /// The members of a binding that match a predicate. "Put a creature card
     /// from among them into your hand" names a subset of what a mill just
     /// bound, which neither a plain binding nor a zone query can say: the
@@ -324,6 +329,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
+                | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)
@@ -354,6 +360,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
+                | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::MatchingBinding { .. }
                 | ObjectSetDef::Matching { .. }
                 | ObjectSetDef::PermanentsTargetedBy(_)

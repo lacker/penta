@@ -84,6 +84,15 @@ fn validate_effect_target_shapes(
             }
             validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
         }
+        EffectDef::ChooseExact(choice) => {
+            validate_player_reference_shape(choice.chooser, targets)?;
+            validate_object_set_shape(choice.candidates, targets)?;
+            if let Some(excluded) = choice.exclude {
+                validate_object_reference_shape(excluded, targets)?;
+            }
+            validate_value_shape(choice.amount, targets)?;
+            validate_effect_target_shapes(*choice.then, targets, triggering_object_zone)
+        }
         EffectDef::ChooseCardsFromCollection(choice) => {
             validate_object_collection_shape(choice.source, targets)?;
             validate_player_reference_shape(choice.actor, targets)?;

@@ -57,6 +57,14 @@ pub enum EffectPaymentCostDef {
     /// what is spent is settled by the payer rather than by the card, and
     /// paying nothing is a legal answer.
     ChosenEnergy,
+    /// Remove any positive number of counters of one kind from the named
+    /// object while an effect resolves. The payer chooses the amount and the
+    /// paid branch reads it with [`ValueDef::PaidAmount`]. Declining is the
+    /// zero-counter answer.
+    RemoveAnyNumberOfCounters {
+        object: EffectRecipientDef,
+        kind: super::CounterKind,
+    },
     /// Sacrifice one matching permanent the payer controls, named as part of
     /// the payment. Chain of Vapor asks for a land of their choice.
     SacrificePermanentMatching(ObjectPredicateDef),

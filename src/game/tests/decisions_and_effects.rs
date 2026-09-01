@@ -716,7 +716,11 @@ fn recall_discards_and_returns_as_it_resolves() {
         card(10_000, cards::RECALL, PlayerId::One),
         card(10_001, cards::LIGHTNING_BOLT, PlayerId::One),
         card(10_002, cards::BALANCE, PlayerId::One),
+        card(10_003, cards::SAVANNAH_LIONS, PlayerId::One),
     ]);
+    game.players[0]
+        .graveyard
+        .push(card(10_004, cards::COUNTERSPELL, PlayerId::One));
     game.players[0].mana_pool = ManaPool {
         blue: 1,
         colorless: 4,
@@ -733,7 +737,11 @@ fn recall_discards_and_returns_as_it_resolves() {
         game.observe(PlayerId::One).decision.is_none(),
         "nothing is discarded to cast it, so there is no cost decision"
     );
-    assert_eq!(game.players[0].graveyard.len(), 0);
+    assert_eq!(
+        game.players[0].graveyard.len(),
+        1,
+        "the existing graveyard card is untouched before resolution"
+    );
 
     pass_priority_pair(&mut game);
     let discard = game.observe(PlayerId::One).decision.unwrap();
@@ -767,7 +775,7 @@ fn recall_discards_and_returns_as_it_resolves() {
     };
     game.apply(PlayerId::One, return_action).unwrap();
 
-    assert_eq!(game.players[0].hand.len(), 2);
+    assert_eq!(game.players[0].hand.len(), 3);
     assert_eq!(game.players[0].exile[0].definition, cards::RECALL);
 }
 
@@ -805,10 +813,8 @@ fn recall_x_may_exceed_the_hand_and_discards_what_it_can() {
         &[],
     );
     pass_priority_pair(&mut game);
-    let discard = game.observe(PlayerId::One).decision.unwrap();
-    assert_eq!(discard.minimum, 1, "only one card is there to discard");
-    choose_all_offered(&mut game, PlayerId::One);
-
+    // The only remaining hand card is forced, so the generic discard effect
+    // performs that part without asking a vacuous question.
     let returns = game.observe(PlayerId::One).decision.unwrap();
     assert_eq!(returns.minimum, 1, "and so only one comes back");
     choose_all_offered(&mut game, PlayerId::One);

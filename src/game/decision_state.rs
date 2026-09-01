@@ -56,6 +56,13 @@ pub(super) enum ResolvedEffectPayment {
     ChosenGenericMana,
     /// Energy in an amount the payer chooses.
     ChosenEnergy,
+    /// A positive amount of counters removed from one exact object. The
+    /// object is frozen when the resolving offer is made; settlement checks
+    /// its live counter count again before removing them.
+    RemoveAnyNumberOfCounters {
+        object: GameObjectId,
+        kind: CounterKind,
+    },
     /// One matching permanent, moved to the named zone.
     MovePermanentMatching {
         object: ObjectPredicateDef,
@@ -429,12 +436,6 @@ pub(super) enum DecisionContinuation {
         object: GameObjectId,
         target_lists: Vec<Vec<TargetSelection>>,
     },
-    RecallDiscard {
-        player: PlayerId,
-    },
-    RecallReturn {
-        player: PlayerId,
-    },
     /// Endure N (CR 702.183a): the counters or the Spirit, chosen as the
     /// ability resolves. Neither branch needs the resolving object, so
     /// nothing about it is carried here.
@@ -632,16 +633,6 @@ pub(super) enum DecisionContinuation {
         remaining: Vec<PlayerId>,
         /// One entry per vote cast, in the order they were cast.
         votes: Vec<GameObjectId>,
-    },
-    /// How many +1/+1 counters Tetravus is trading for Tetravites. Every
-    /// option stands for one counter, so the count selected is the answer.
-    TetravusDetach {
-        source: GameObjectId,
-    },
-    /// Which of Tetravus's own Tetravites it is exiling to take the counters
-    /// back. The options are the tokens themselves.
-    TetravusAssemble {
-        source: GameObjectId,
     },
     /// The affected object's controller chooses which currently applicable
     /// replacement effect to apply next.

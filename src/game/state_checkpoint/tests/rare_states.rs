@@ -489,6 +489,109 @@ fn battlefield_entry_payment_freezes_and_authenticates_its_payer_and_cost() {
 }
 
 #[test]
+fn recall_computed_exact_return_choice_reconstructs() {
+    let mut game = ready_game();
+    game.players[0].hand.extend([
+        card(11_200, crate::card::cards::RECALL, PlayerId::One),
+        card(11_201, crate::card::cards::LIGHTNING_BOLT, PlayerId::One),
+        card(11_202, crate::card::cards::BALANCE, PlayerId::One),
+        card(11_203, crate::card::cards::SAVANNAH_LIONS, PlayerId::One),
+    ]);
+    game.players[0].graveyard.push(card(
+        11_204,
+        crate::card::cards::COUNTERSPELL,
+        PlayerId::One,
+    ));
+    fill_mana(&mut game, PlayerId::One, 4);
+
+    game.apply(
+        PlayerId::One,
+        cast_action(GameObjectId(11_200), Vec::new(), Vec::new(), 2),
+    )
+    .expect("Recall casts");
+    resolve_top_of_stack(&mut game);
+    let discard = game.pending_decisions[0].observation.clone();
+    game.choose_decision(
+        PlayerId::One,
+        discard.id,
+        &discard
+            .options
+            .iter()
+            .take(2)
+            .map(|option| option.id)
+            .collect::<Vec<_>>(),
+    );
+
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::ChooseForEffect { definition, .. })
+            if matches!(definition.effect, crate::card::EffectDef::ChooseExact(_))
+    ));
+    assert_reconstructs(&game, "Recall's computed exact graveyard choice");
+}
+
+#[test]
+fn tetravus_counter_exchange_payment_reconstructs() {
+    let mut game = ready_game();
+    game.turn = 2;
+    game.step = crate::Step::Upkeep;
+    let mut tetravus = creature(11_250, crate::card::cards::TETRAVUS, PlayerId::One);
+    tetravus.add_counters(CounterKind::PlusOnePlusOne, 3);
+    game.battlefield.push(tetravus);
+    game.handle_upkeep_triggers();
+
+    for _ in 0..16 {
+        if matches!(
+            game.pending_decisions
+                .first()
+                .map(|pending| &pending.continuation),
+            Some(DecisionContinuation::PayOr {
+                payment: ResolvedEffectPayment::RemoveAnyNumberOfCounters { .. },
+                ..
+            })
+        ) {
+            break;
+        }
+        if game.pending_decisions.is_empty() {
+            let priority = game.priority;
+            game.apply(priority, Action::PassPriority)
+                .expect("priority passes while Tetravus resolves");
+        } else {
+            let decision = game.pending_decisions[0].observation.clone();
+            game.apply(
+                decision.player,
+                Action::ChooseDecision {
+                    decision: decision.id,
+                    options: decision
+                        .options
+                        .iter()
+                        .take(decision.minimum.max(1))
+                        .map(|option| option.id)
+                        .collect(),
+                },
+            )
+            .expect("the intermediate Tetravus choice is answerable");
+        }
+    }
+
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::PayOr {
+            payment: ResolvedEffectPayment::RemoveAnyNumberOfCounters {
+                object: GameObjectId(11_250),
+                kind: CounterKind::PlusOnePlusOne,
+            },
+            ..
+        })
+    ));
+    assert_reconstructs(&game, "Tetravus's variable counter payment");
+}
+
+#[test]
 fn ordinary_pay_or_rejects_payer_and_payment_splices() {
     let mut game = staged_game();
     let mut vault = creature(11_300, crate::card::cards::MANA_VAULT, PlayerId::One);

@@ -385,6 +385,36 @@ fn parse_continuation(
                         effect_choice_visibility(definition.visibility),
                     )
                 }
+                EffectDef::ChooseExact(definition) => {
+                    let (fixed, state) = game
+                        .exact_effect_choice_decision_state(
+                            definition,
+                            &continuation.object,
+                            &continuation.context,
+                            continuation.effect,
+                        )
+                        .ok_or("object-choice authored chooser is not singular")?;
+                    if super::super::decision_permanent_choice::effect_choice_resolves_automatically(
+                        fixed,
+                        state.candidates.len(),
+                    ) {
+                        return Err(
+                            "object-choice checkpoint encodes a choice that would resolve automatically"
+                                .into(),
+                        );
+                    }
+                    let binding = crate::card::ObjectChoiceBindingDef::Objects(definition.binding);
+                    (
+                        state,
+                        binding,
+                        definition.then,
+                        super::super::decision_permanent_choice::effect_choice_prompt(
+                            *definition.then,
+                            binding,
+                        ),
+                        effect_choice_visibility(definition.visibility),
+                    )
+                }
                 EffectDef::ChooseCardsFromCollection(definition) => {
                     let state = game
                         .collection_card_choice_decision_state(
@@ -886,16 +916,6 @@ fn parse_continuation(
                 .transpose()?,
             optional: *optional,
         },
-        DecisionContinuationSnapshot::RecallDiscard { player: owner } => {
-            DecisionContinuation::RecallDiscard {
-                player: player(*owner)?,
-            }
-        }
-        DecisionContinuationSnapshot::RecallReturn { player: owner } => {
-            DecisionContinuation::RecallReturn {
-                player: player(*owner)?,
-            }
-        }
         DecisionContinuationSnapshot::Balance {
             controller,
             phase,
@@ -931,14 +951,6 @@ fn parse_continuation(
                 .collect::<Result<Vec<_>, _>>()?,
             votes: game_ids(votes),
         },
-        DecisionContinuationSnapshot::TetravusDetach { source } => {
-            DecisionContinuation::TetravusDetach { source: GameObjectId(*source) }
-        }
-        DecisionContinuationSnapshot::TetravusAssemble { source } => {
-            DecisionContinuation::TetravusAssemble {
-                source: GameObjectId(*source),
-            }
-        }
         // Prospective battlefield-entry continuations read next door.
         entry => parse_battlefield_entry_continuation(entry, observation, hidden, game)?,
     })

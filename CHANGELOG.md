@@ -33,6 +33,17 @@ distinguishes snapshots of the covered source and build inputs.
   restriction is still read where the ability is announced, so two Libraries
   may both be tapped at seven.
 
+- **Recall and Tetravus no longer need card-specific execution.** Resolving
+  effects can now choose an exact computed number of distinct objects, query
+  battlefield tokens by the exact object that created them, and offer a
+  variable counter-removal payment whose paid amount feeds the following
+  effect. Recall uses the discarded-card group to choose the same number of
+  graveyard cards, while Tetravus creates and reassembles only its own linked
+  Tetravites. Their legacy continuations and custom token registry are gone;
+  the remaining custom-card allowlist is Balance and Fireball. The new pending
+  payment shape is additive checkpoint-format-10 vocabulary, while exact
+  simulation compatibility continues to be guarded by the fingerprint.
+
 - **Leyline of Sanctity has its hexproof.** Its audit line asked for a static
   player-protection effect, which Witchbane Orb was already using: the
   Leyline now grants it the same way, so a spell that names its controller

@@ -66,6 +66,9 @@ impl Game {
             EffectDef::Choose(definition) => {
                 self.queue_effect_choice(definition, object, context, scoped);
             }
+            EffectDef::ChooseExact(definition) => {
+                self.queue_exact_effect_choice(definition, object, context, scoped);
+            }
             EffectDef::ChooseCardsFromCollection(definition) => {
                 self.queue_collection_card_choice(definition, object, context, scoped);
             }

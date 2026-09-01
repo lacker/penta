@@ -9,14 +9,10 @@ pub(in crate::card) const fn rules(behavior: CardBehavior) -> &'static CardRules
         CardBehavior::FellwarStone => &y1994::the_dark::FELLWAR_STONE.rules,
         CardBehavior::ReflectingPool => &y1997::tempest::REFLECTING_POOL.rules,
         CardBehavior::Balance => &y1993::alpha::BALANCE.rules,
-        CardBehavior::Recall => &y1994::legends::RECALL.rules,
         CardBehavior::EssenceScatter => &y2012::magic_2013::ESSENCE_SCATTER.rules,
         CardBehavior::Negate => &y2012::magic_2013::NEGATE.rules,
         CardBehavior::PillarOfFlame => &y2012::avacyn_restored::PILLAR_OF_FLAME.rules,
         CardBehavior::SphinxsRevelation => &y2012::return_to_ravnica::SPHINXS_REVELATION.rules,
-        CardBehavior::TetravusDetach | CardBehavior::TetravusAssemble => {
-            &y1994::antiquities::TETRAVUS.rules
-        }
         CardBehavior::Mountain => &y1993::alpha::MOUNTAIN.rules,
         CardBehavior::Plains => &y1993::alpha::PLAINS.rules,
         CardBehavior::Unsupported => &UNSUPPORTED_RULES,

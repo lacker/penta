@@ -425,6 +425,11 @@ impl HandcraftedPolicy {
                 .or_else(|| Self::target_condition_in(*on_failure)),
             EffectDef::Choose(choice) => Self::target_condition_in_object_set(choice.candidates)
                 .or_else(|| Self::target_condition_in(*choice.then)),
+            EffectDef::ChooseExact(choice) => {
+                Self::target_condition_in_object_set(choice.candidates)
+                    .or_else(|| Self::target_condition_in_value(choice.amount))
+                    .or_else(|| Self::target_condition_in(*choice.then))
+            }
             EffectDef::PayOr(payment) => {
                 let payment_condition = match payment.payment.cost {
                     crate::card::EffectPaymentCostDef::GenericMana(amount) => {
@@ -439,6 +444,7 @@ impl HandcraftedPolicy {
                     | crate::card::EffectPaymentCostDef::DiscardMatching(_)
                     | crate::card::EffectPaymentCostDef::ChosenGenericMana
                     | crate::card::EffectPaymentCostDef::ChosenEnergy
+                    | crate::card::EffectPaymentCostDef::RemoveAnyNumberOfCounters { .. }
                     | crate::card::EffectPaymentCostDef::MovePermanentMatching { .. }
                     | crate::card::EffectPaymentCostDef::SacrificePermanentMatching(_)
                     | crate::card::EffectPaymentCostDef::ObjectManaCostReducedBy { .. }
@@ -502,6 +508,7 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::LinkedExiles
             | crate::card::ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | crate::card::ObjectSetDef::PermanentsControlledBy(_)
+            | crate::card::ObjectSetDef::TokensCreatedBy(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)
             | crate::card::ObjectSetDef::LegalTargets(_)
             | crate::card::ObjectSetDef::SharingNameWith(_)

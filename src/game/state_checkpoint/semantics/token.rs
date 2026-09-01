@@ -3,8 +3,7 @@
 //! Checkpoints never serialize [`crate::CardRules`]: rules contain static
 //! behavior pointers and are only meaningful in the engine artifact that
 //! authored them. A token is instead addressed through its card-, token-, or
-//! emblem-owned creating ability and effect-tree position, or through a custom
-//! creator registry entry. Recursive virtual-object creators remain durably
+//! emblem-owned creating ability and effect-tree position. Recursive virtual-object creators remain durably
 //! rooted in a printed card ability.
 
 use super::catalog_ability;
@@ -63,12 +62,6 @@ pub(in crate::game::state_checkpoint) fn catalog_token_characteristics(
                 | EffectDef::CreateAttachedToken { token, .. } => Some(token),
                 _ => None,
             }
-        }
-        TokenCharacteristicsLocator::Custom { token_index, .. } => {
-            let behavior = creator.effect.custom_behavior()?;
-            crate::card::tokens::custom_created_tokens(behavior)
-                .get(*token_index)
-                .copied()
         }
     }
 }

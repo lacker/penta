@@ -187,6 +187,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::GainControl { .. }
+        | EffectDef::ChooseExact(_)
         | EffectDef::Sequence(_) => shared_static_non_apply_effect(source_zones, effect),
         EffectDef::ConditionalStatic(conditional) => {
             battlefield_only(source_zones)
@@ -256,6 +257,7 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     | ObjectSetDef::LegalAttachmentHosts(_)
                     | ObjectSetDef::SharingNameWith(_)
                     | ObjectSetDef::SharingNameWithBinding { .. }
+                    | ObjectSetDef::TokensCreatedBy(_)
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 )
                 | EffectRecipientSetDef::Players(

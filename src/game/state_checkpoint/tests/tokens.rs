@@ -511,7 +511,7 @@ fn checkpoint_round_trips_a_transformed_incubator_part() {
 }
 
 #[test]
-fn checkpoint_round_trips_a_token_owned_by_a_custom_creator() {
+fn checkpoint_round_trips_a_tetravite_owned_by_its_declarative_creator() {
     let mut game = crate::game::tests::ready_game();
     game.battlefield.clear();
     let token = crate::card::tokens::tetravite();
@@ -520,13 +520,10 @@ fn checkpoint_round_trips_a_token_owned_by_a_custom_creator() {
     let token_id = created_token(&game, token).card.id;
 
     let locator = token_characteristics_locator(&game.catalog, token)
-        .expect("the custom Tetravus creator owns a semantic locator");
+        .expect("the declarative Tetravus creator owns a semantic locator");
     let creator = catalog_ability(&game.catalog, locator.creator())
-        .expect("the custom creator ability reconstructs");
-    assert_eq!(
-        creator.effect.custom_behavior(),
-        Some(crate::card::CardBehavior::TetravusDetach),
-    );
+        .expect("the declarative creator ability reconstructs");
+    assert!(creator.effect.custom_behavior().is_none());
     assert_eq!(
         catalog_token_characteristics(&game.catalog, &locator),
         Some(token),
@@ -537,7 +534,7 @@ fn checkpoint_round_trips_a_token_owned_by_a_custom_creator() {
         .battlefield
         .iter()
         .find(|permanent| permanent.card.id == token_id)
-        .expect("the custom-created Tetravite reconstructs");
+        .expect("the declaratively created Tetravite reconstructs");
     assert_eq!(permanent.card.definition, ObjectKind::Token);
     assert_eq!(permanent.token_characteristics, Some(token));
     assert_eq!(permanent.created_by, Some(GameObjectId(81_007)));

@@ -6,15 +6,9 @@ pub enum CardBehavior {
     Fireball,
     Negate,
     PillarOfFlame,
-    Recall,
     FellwarStone,
     ReflectingPool,
     SphinxsRevelation,
-    /// Tetravus's first upkeep trigger: trade +1/+1 counters for Tetravites.
-    TetravusDetach,
-    /// Tetravus's second upkeep trigger: exile its own Tetravites to take the
-    /// counters back.
-    TetravusAssemble,
     // Compatibility rules keys retained while CardDefinition::new still
     // accepts CardBehavior instead of CardRules directly.
     Mountain,

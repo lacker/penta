@@ -101,20 +101,6 @@ fn collect_from_ability(
             }
         }
     }
-    if let Some(behavior) = ability.effect.custom_behavior() {
-        for (token_index, token) in crate::card::tokens::custom_created_tokens(behavior)
-            .into_iter()
-            .enumerate()
-        {
-            found.tokens.push((
-                token,
-                TokenCharacteristicsLocator::Custom {
-                    creator: Box::new(creator.clone()),
-                    token_index,
-                },
-            ));
-        }
-    }
     for (index, child) in child_abilities(ability).into_iter().enumerate() {
         let mut child_creator = creator.clone();
         match &mut child_creator {

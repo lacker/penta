@@ -516,7 +516,7 @@ fn complete_custom_definitions_have_migration_audits() {
         })
         .map(|definition| definition.name.clone())
         .collect::<BTreeSet<_>>();
-    let legacy_allowlist = ["Balance", "Fireball", "Recall", "Tetravus"]
+    let legacy_allowlist = ["Balance", "Fireball"]
         .into_iter()
         .map(str::to_owned)
         .collect::<BTreeSet<_>>();

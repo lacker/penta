@@ -548,7 +548,8 @@ fn validate_object_set_target_references(
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::SharingNameWith(reference) => {
+        | ObjectSetDef::SharingNameWith(reference)
+        | ObjectSetDef::TokensCreatedBy(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
         ObjectSetDef::Binding(binding)

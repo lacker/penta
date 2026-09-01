@@ -150,6 +150,9 @@ impl Game {
                 let amount = u16::try_from(chosen).unwrap_or(u16::MAX);
                 self.spend_energy(player, amount).then_some(amount)
             }
+            ResolvedEffectPayment::RemoveAnyNumberOfCounters { object, kind } => {
+                self.settle_counter_removal_payment(object, kind, chosen)
+            }
             ResolvedEffectPayment::MovePermanentMatching {
                 object: predicate,
                 zone,
@@ -310,6 +313,11 @@ impl Game {
                     .count(CounterKind::named("energy"))
                     >= 1
             }
+            ResolvedEffectPayment::RemoveAnyNumberOfCounters { object, kind } => self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == object)
+                .is_some_and(|permanent| permanent.counters(kind) > 0),
             // Payable only when the creatures on the board could add up to
             // it at all, so a player who cannot pay is never asked.
             ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total) => {
@@ -438,6 +446,7 @@ impl Game {
             ResolvedEffectPayment::DiscardMatching(_)
             | ResolvedEffectPayment::ChosenGenericMana
             | ResolvedEffectPayment::ChosenEnergy
+            | ResolvedEffectPayment::RemoveAnyNumberOfCounters { .. }
             | ResolvedEffectPayment::MovePermanentMatching { .. }
             | ResolvedEffectPayment::SacrificePermanentMatching(_)
             // Named one creature at a time by its own decision, which is
@@ -483,6 +492,9 @@ impl Game {
             ResolvedEffectPayment::DiscardMatching(_) => "Discard a matching card".to_string(),
             ResolvedEffectPayment::ChosenGenericMana => "Pay {X}".to_string(),
             ResolvedEffectPayment::ChosenEnergy => "Pay energy".to_string(),
+            ResolvedEffectPayment::RemoveAnyNumberOfCounters { .. } => {
+                "Remove counters".to_string()
+            }
             ResolvedEffectPayment::MovePermanentMatching { zone, .. } => {
                 if zone == ZoneKind::Hand {
                     "Return a matching permanent".to_string()

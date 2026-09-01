@@ -186,6 +186,23 @@ fn validate_effect_references(
             };
             validate_effect_references(*choice.then, target_count, nested)
         }
+        EffectDef::ChooseExact(choice) => {
+            validate_player_reference(choice.chooser, target_count, scope)?;
+            validate_recipient_target_references(
+                EffectRecipientDef::objects(choice.candidates),
+                target_count,
+                scope,
+            )?;
+            if let Some(excluded) = choice.exclude {
+                validate_object_reference(excluded, target_count, scope)?;
+            }
+            validate_value_target_references(choice.amount, target_count, scope)?;
+            validate_effect_references(
+                *choice.then,
+                target_count,
+                scope.with_object_set(choice.binding)?,
+            )
+        }
         EffectDef::ChooseCardsFromCollection(choice) => {
             validate_object_collection_references(choice.source, target_count, scope)?;
             validate_player_reference(choice.actor, target_count, scope)?;

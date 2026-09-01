@@ -16,6 +16,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         } => vec![*on_success, *on_failure],
         EffectDef::MillWhileMatching(mill) => vec![*mill.body, *mill.on_match],
         EffectDef::Choose(choice) => vec![*choice.then],
+        EffectDef::ChooseExact(choice) => vec![*choice.then],
         EffectDef::ChooseCardsFromCollection(choice) => vec![*choice.then],
         EffectDef::LookAtObjects(definition) => vec![*definition.then],
         EffectDef::ChooseObjectOrder(definition) => vec![*definition.then],

@@ -2,8 +2,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BandingQuality,
-    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardBehavior, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef,
+    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ChooseExactDef, ColorChoiceOperationDef,
     ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind,
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamagePreventionDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DiscardFollowUpDef,
@@ -11,9 +11,9 @@ use crate::card::{
     InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, ReplacementAbilityDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellResolutionDestinationDef,
+    SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
 use crate::mana_cost;
@@ -1358,18 +1358,47 @@ pub(in crate::card::sets) static PUPPET_MASTER: CardRecord = CardRecord::new(
 );
 
 // LEG 70 — Recall
-// Audit: custom — Needs a declarative resolution procedure that discards X, returns that many cards including those discarded, and exiles the source.
 pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new_with_legacy_id(
     89,
     "Recall",
     CardArt::new("33296718-0625-4422-a65c-b21cf99c52ec", "Brian Snõddy"),
     CardSet::Legends,
-    CardRules::new_sorcery(mana_cost!("{X}{X}{U}"))
-    .with_abilities(&[AbilityDef::custom_full(
-        "Discard X then return a card from your graveyard to your hand for each card discarded this way. Exile Recall.",
-        CardBehavior::Recall,
-        "The card-local resolver discards on resolution and then returns that many so a countered Recall costs nothing and the discarded cards are themselves returnable.",
-    )]),
+    CardRules::new_sorcery(mana_cost!("{X}{X}{U}")).with_abilities(&[
+        AbilityDef::spell(
+            "Discard X cards, then return a card from your graveyard to your hand for each card discarded this way. Exile Recall.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::ChosenX,
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: Some(DiscardFollowUpDef {
+                    counted: ObjectPredicateDef::Any,
+                    bound: Some(ObjectSetBindingIndex::PRIMARY),
+                    effect: &EffectDef::ChooseExact(ChooseExactDef {
+                        binding: ObjectSetBindingIndex::new(1),
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        )),
+                        exclude: None,
+                        amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
+                            ObjectSetBindingIndex::PRIMARY,
+                        )),
+                        visibility: ChoiceVisibilityDef::Private,
+                        then: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ObjectSetBindingIndex::new(1),
+                            )),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    }),
+                }),
+            },
+        )
+        .with_resolution_destination(SpellResolutionDestinationDef::Exile),
+    ]),
 );
 
 // LEG 71 — Relic Bind

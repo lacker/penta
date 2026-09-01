@@ -41,6 +41,23 @@ pub struct ChooseDef {
     pub then: &'static EffectDef,
 }
 
+/// Choose exactly a computed number of non-targeted objects, save them as a
+/// group, then continue the effect.
+///
+/// The runtime lowers this to the ordinary bounded object-choice procedure
+/// after evaluating `amount` once. A short candidate set contributes every
+/// available object, matching Magic's instruction to do as much as possible.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ChooseExactDef {
+    pub binding: ObjectSetBindingIndex,
+    pub chooser: PlayerRefDef,
+    pub candidates: ObjectSetDef,
+    pub exclude: Option<ObjectRefDef>,
+    pub amount: ValueDef,
+    pub visibility: ChoiceVisibilityDef,
+    pub then: &'static EffectDef,
+}
+
 /// Each affected player chooses one permanent they control for every
 /// predicate in `one_of_each`. Choices are locked in APNAP order before the
 /// chosen and unchosen unions are bound and the nested effect continues.

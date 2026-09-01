@@ -33,10 +33,8 @@ pub(in crate::game::state_checkpoint) enum AbilityLocator {
 
 /// A durable path from a card-, token-, or emblem-owned ability to the token
 /// characteristics it creates. Virtual-object creator chains are recursively
-/// rooted in a printed or custom card creator. Declarative creators select an
-/// effect-tree node; custom creators select one entry from the card layer's
-/// creator-owned token registry. No `CardRules` or function pointer crosses
-/// the checkpoint boundary.
+/// rooted in a printed card creator and select a declarative effect-tree node.
+/// No `CardRules` or function pointer crosses the checkpoint boundary.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(
     tag = "source",
@@ -48,16 +46,12 @@ pub(in crate::game::state_checkpoint) enum TokenCharacteristicsLocator {
         creator: Box<AbilityLocator>,
         effect_path: Vec<usize>,
     },
-    Custom {
-        creator: Box<AbilityLocator>,
-        token_index: usize,
-    },
 }
 
 impl TokenCharacteristicsLocator {
     pub(in crate::game::state_checkpoint) fn creator(&self) -> &AbilityLocator {
         match self {
-            Self::EffectPath { creator, .. } | Self::Custom { creator, .. } => creator,
+            Self::EffectPath { creator, .. } => creator,
         }
     }
 }

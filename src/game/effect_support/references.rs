@@ -137,6 +137,22 @@ impl Game {
             }
             Cost::ChosenGenericMana => Resolved::ChosenGenericMana,
             Cost::ChosenEnergy => Resolved::ChosenEnergy,
+            Cost::RemoveAnyNumberOfCounters {
+                object: recipient,
+                kind,
+            } => self
+                .effect_recipients(recipient, object, context, scoped)
+                .into_iter()
+                .find_map(|target| match target {
+                    Target::Permanent(object) => {
+                        Some(Resolved::RemoveAnyNumberOfCounters { object, kind })
+                    }
+                    Target::Player(_) | Target::Card(_) | Target::Spell(_) => None,
+                })
+                .unwrap_or(Resolved::RemoveAnyNumberOfCounters {
+                    object: crate::GameObjectId(0),
+                    kind,
+                }),
             Cost::DiscardMatching(predicate) => Resolved::DiscardMatching(predicate),
         }
     }
@@ -719,6 +735,22 @@ impl Game {
                 self.battlefield
                     .iter()
                     .filter(|permanent| permanent.controller == player)
+                    .map(|permanent| Target::Permanent(permanent.card.id))
+                    .collect()
+            }
+            ObjectSetDef::TokensCreatedBy(reference) => {
+                let Some(creator) = self
+                    .object_reference_target(reference, object, context, scoped)
+                    .and_then(|target| match target {
+                        Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+                        Target::Player(_) => None,
+                    })
+                else {
+                    return Vec::new();
+                };
+                self.battlefield
+                    .iter()
+                    .filter(|permanent| permanent.created_by == Some(creator))
                     .map(|permanent| Target::Permanent(permanent.card.id))
                     .collect()
             }

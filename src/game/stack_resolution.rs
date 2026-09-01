@@ -1,8 +1,7 @@
 use super::{
     BattlefieldExitCompletion, CardBehavior, CardPartId, CardRuntime, CopiableCharacteristics,
-    CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameEvent,
-    GameObjectId, PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
+    CounterKind, DoubleFacedCopiableCharacteristics, EntryCompletion, Game, GameEvent,
+    PendingBattlefieldEntry, PendingProcedure, Permanent, PlayerId, ResolvedAbility,
     StackAbilityResolver, StackObject, StackObjectKind, Target, ZoneKind,
 };
 use crate::SpellResolutionDestinationDef;
@@ -409,7 +408,7 @@ impl Game {
     fn finish_spell_destination(
         &mut self,
         object: &StackObject,
-        behavior: CardBehavior,
+        _behavior: CardBehavior,
         resolved: bool,
     ) {
         let owner = object.card.owner;
@@ -436,8 +435,7 @@ impl Game {
         // of the resolution. In particular, White Sun's Zenith still shuffles
         // its owner's library, and a spell that already exiles itself still
         // gets its destination counters.
-        let flashback_replaces_move = object.cast.as_ref().is_some_and(|cast| cast.via_flashback)
-            || behavior == CardBehavior::Recall;
+        let flashback_replaces_move = object.cast.as_ref().is_some_and(|cast| cast.via_flashback);
         let (mut card, _zone_change) = self.zone_change_card(
             object
                 .card
@@ -619,7 +617,7 @@ impl Game {
                     debug_assert!(false, "custom activated abilities are not cataloged");
                 }
                 StackObjectKind::TriggeredAbility => {
-                    self.resolve_custom_triggered_ability(object, behavior);
+                    Self::resolve_custom_triggered_ability(object, behavior);
                 }
             },
             StackAbilityResolver::CardOwned(resolver) => {
@@ -655,98 +653,8 @@ impl Game {
         true
     }
 
-    /// Tetravus offers one option per +1/+1 counter it carries, so the number
-    /// of options taken is the number of counters traded away.
-    pub(super) fn queue_tetravus_detach(&mut self, controller: PlayerId, source: GameObjectId) {
-        let Some(permanent) = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == source)
-        else {
-            return;
-        };
-        let counters = usize::from(permanent.counters(CounterKind::PlusOnePlusOne));
-        if counters == 0 {
-            return;
-        }
-        let options = (0..counters)
-            .map(|index| DecisionOption {
-                id: u32::try_from(index).unwrap_or(u32::MAX),
-                label: "Trade a +1/+1 counter for a Tetravite".into(),
-                card: None,
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::Battlefield,
-            })
-            .collect();
-        self.queue_decision(
-            controller,
-            "Remove any number of +1/+1 counters from Tetravus",
-            DecisionVisibility::Public,
-            DecisionPreference::Neutral,
-            0..=counters,
-            false,
-            options,
-            DecisionContinuation::TetravusDetach { source },
-        );
-    }
-
-    /// Only the Tetravites this Tetravus made are eligible; a second Tetravus
-    /// keeps its own, and a token that outlived its creator can never come
-    /// back.
-    pub(super) fn queue_tetravus_assemble(&mut self, controller: PlayerId, source: GameObjectId) {
-        let tokens = self
-            .battlefield
-            .iter()
-            .filter(|permanent| permanent.created_by == Some(source))
-            .map(|permanent| (permanent.card.id, Self::effective_rules_source(permanent)))
-            .collect::<Vec<_>>();
-        if tokens.is_empty() {
-            return;
-        }
-        let options = tokens
-            .iter()
-            .enumerate()
-            .map(|(index, (id, presentation))| DecisionOption {
-                id: u32::try_from(index).unwrap_or(u32::MAX),
-                label: self
-                    .presentation_name(*presentation)
-                    .map_or_else(|| "Unknown token".to_owned(), std::borrow::Cow::into_owned),
-                card: Some((*id, *presentation)),
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::Battlefield,
-            })
-            .collect();
-        let total = tokens.len();
-        self.queue_decision(
-            controller,
-            "Exile any number of Tetravites created with Tetravus",
-            DecisionVisibility::Public,
-            DecisionPreference::Neutral,
-            0..=total,
-            false,
-            options,
-            DecisionContinuation::TetravusAssemble { source },
-        );
-    }
-
-    pub(super) fn resolve_custom_triggered_ability(
-        &mut self,
-        object: &StackObject,
-        behavior: CardBehavior,
-    ) {
-        if matches!(
-            behavior,
-            CardBehavior::TetravusDetach | CardBehavior::TetravusAssemble
-        ) {
-            let source = object.source.unwrap_or(object.id);
-            if behavior == CardBehavior::TetravusDetach {
-                self.queue_tetravus_detach(object.controller, source);
-            } else {
-                self.queue_tetravus_assemble(object.controller, source);
-            }
-        }
+    pub(super) fn resolve_custom_triggered_ability(_object: &StackObject, _behavior: CardBehavior) {
+        // No cataloged triggered ability currently needs a custom resolver.
     }
 
     pub(super) fn resolve_custom_spell_followup(_object: &StackObject, _behavior: CardBehavior) {

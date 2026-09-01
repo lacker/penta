@@ -348,6 +348,9 @@ impl HandcraftedPolicy {
             EffectDef::Choose(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
+            EffectDef::ChooseExact(choice) => {
+                Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
+            }
             EffectDef::ChooseCardsFromCollection(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }

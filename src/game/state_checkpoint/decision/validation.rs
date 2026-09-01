@@ -58,6 +58,27 @@ fn resolved_effect_payment(
             super::super::ResolvedEffectPayment::ChosenGenericMana
         }
         EffectPaymentCostDef::ChosenEnergy => super::super::ResolvedEffectPayment::ChosenEnergy,
+        EffectPaymentCostDef::RemoveAnyNumberOfCounters {
+            object: recipient,
+            kind,
+        } => game
+            .effect_recipients(recipient, object, context, scoped)
+            .into_iter()
+            .find_map(|target| match target {
+                crate::Target::Permanent(object) => Some(
+                    super::super::ResolvedEffectPayment::RemoveAnyNumberOfCounters {
+                        object,
+                        kind,
+                    },
+                ),
+                crate::Target::Player(_)
+                | crate::Target::Card(_)
+                | crate::Target::Spell(_) => None,
+            })
+            .unwrap_or(super::super::ResolvedEffectPayment::RemoveAnyNumberOfCounters {
+                object: crate::GameObjectId(0),
+                kind,
+            }),
         EffectPaymentCostDef::SacrificePermanentMatching(predicate) => {
             super::super::ResolvedEffectPayment::SacrificePermanentMatching(predicate)
         }

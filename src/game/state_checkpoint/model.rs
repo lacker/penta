@@ -2,7 +2,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as _};
 
 use crate::{CardDefinitionId, CounterKind};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) struct CounterKindSnapshot(pub(super) CounterKind);
 
 impl Serialize for CounterKindSnapshot {
@@ -708,6 +708,10 @@ pub(super) enum ResolvedEffectPaymentSnapshot {
     /// The same for energy: how much can be paid is read off the payer's
     /// counters rather than written down.
     ChosenEnergy,
+    RemoveAnyNumberOfCounters {
+        object: u32,
+        kind: CounterKindSnapshot,
+    },
     /// Compatibility spelling for the matching-permanent move payment. The
     /// authored effect restores its destination, so the old hand-only tag can
     /// represent the generalized internal cost without changing wire data.

@@ -294,15 +294,11 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
             follow_up: None, ..
         }
         | DecisionContinuation::BasicLandTypeTextChange { .. }
-        | DecisionContinuation::RecallDiscard { .. }
-        | DecisionContinuation::RecallReturn { .. }
         | DecisionContinuation::SpellLibraryEnd { .. }
         | DecisionContinuation::SacrificeOfChoice { followup: None, .. }
         | DecisionContinuation::Balance { .. }
         | DecisionContinuation::SearchZonesAndExileRest { .. }
         | DecisionContinuation::Vote { .. }
-        | DecisionContinuation::TetravusDetach { .. }
-        | DecisionContinuation::TetravusAssemble { .. }
         | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
         | DecisionContinuation::BattlefieldEntryCopy { .. } => {}
     }
@@ -802,6 +798,12 @@ pub(super) fn resolved_effect_payment_snapshot(
         ResolvedEffectPayment::ChosenEnergy => ResolvedEffectPaymentSnapshot::ChosenEnergy,
         ResolvedEffectPayment::ChosenGenericMana => {
             ResolvedEffectPaymentSnapshot::ChosenGenericMana
+        }
+        ResolvedEffectPayment::RemoveAnyNumberOfCounters { object, kind } => {
+            ResolvedEffectPaymentSnapshot::RemoveAnyNumberOfCounters {
+                object: object.0,
+                kind: super::super::model::CounterKindSnapshot(kind),
+            }
         }
         ResolvedEffectPayment::MovePermanentMatching { .. } => {
             ResolvedEffectPaymentSnapshot::ReturnPermanentMatching

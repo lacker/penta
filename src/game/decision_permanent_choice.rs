@@ -1,6 +1,6 @@
 use crate::card::{
-    ChooseDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, ObjectChoiceBindingDef,
-    ObjectSetDef, ZoneKind,
+    ChooseDef, ChooseExactDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
+    ObjectChoiceBindingDef, ObjectSetDef, ZoneKind,
 };
 use crate::{GameObjectId, ObjectSetBindingIndex};
 
@@ -20,6 +20,62 @@ pub(super) struct EffectChoiceDecisionState {
 }
 
 impl Game {
+    /// Evaluates a computed exact cardinality once, then uses the ordinary
+    /// bounded object-choice machinery for the decision and continuation.
+    pub(super) fn queue_exact_effect_choice(
+        &mut self,
+        definition: ChooseExactDef,
+        object: &StackObject,
+        context: EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) {
+        let amount = usize::try_from(
+            self.effect_value(definition.amount, object, &context, scoped)
+                .max(0),
+        )
+        .unwrap_or(usize::MAX);
+        self.queue_effect_choice(
+            Self::fixed_effect_choice(definition, amount),
+            object,
+            context,
+            scoped,
+        );
+    }
+
+    pub(super) const fn fixed_effect_choice(
+        definition: ChooseExactDef,
+        amount: usize,
+    ) -> ChooseDef {
+        ChooseDef {
+            binding: ObjectChoiceBindingDef::Objects(definition.binding),
+            unchosen: None,
+            chooser: definition.chooser,
+            candidates: definition.candidates,
+            exclude: definition.exclude,
+            minimum: amount,
+            maximum: amount,
+            visibility: definition.visibility,
+            then: definition.then,
+        }
+    }
+
+    pub(super) fn exact_effect_choice_decision_state(
+        &self,
+        definition: ChooseExactDef,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> Option<(ChooseDef, EffectChoiceDecisionState)> {
+        let amount = usize::try_from(
+            self.effect_value(definition.amount, object, context, scoped)
+                .max(0),
+        )
+        .unwrap_or(usize::MAX);
+        let fixed = Self::fixed_effect_choice(definition, amount);
+        let state = self.effect_choice_decision_state(fixed, object, context, scoped)?;
+        Some((fixed, state))
+    }
+
     /// Offers one generic bounded, non-targeting object choice and resumes its
     /// nested effect with the selected object or group in the resolution
     /// context. Candidate `Target` values are retained beside the observation
@@ -281,6 +337,24 @@ pub(super) fn effect_choice_prompt(
         return "Choose objects";
     };
     match effect {
+        EffectDef::MoveToZone {
+            object,
+            zone,
+            placement,
+        } if recipient_uses_binding(object, ObjectChoiceBindingDef::Objects(binding)) => {
+            match (zone, placement) {
+                (ZoneKind::Hand, _) => "Put a card into your hand",
+                (ZoneKind::Library, crate::card::ZonePlacement::Top) => {
+                    "Put a card on top of your library"
+                }
+                (ZoneKind::Library, crate::card::ZonePlacement::Bottom) => {
+                    "Put a card on the bottom of your library"
+                }
+                (ZoneKind::Graveyard, _) => "Put a card into your graveyard",
+                (ZoneKind::Exile, _) => "Exile a card",
+                _ => "Choose objects",
+            }
+        }
         EffectDef::MoveObjects(definition)
             if definition.input == ObjectSetDef::Binding(binding) =>
         {

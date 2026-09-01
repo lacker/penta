@@ -70,6 +70,16 @@ pub fn applicable_part_ids(
     definition: &CardDefinition,
     context: &CharacteristicContext,
 ) -> Result<Vec<CardPartId>, CharacteristicError> {
+    applicable_part_ids_ref(definition, context).map(<[CardPartId]>::to_vec)
+}
+
+/// Borrowed form for runtime characteristic queries. Every applicable part is
+/// already stored in either the definition or the context, so engine hot paths
+/// do not need to allocate a temporary vector merely to iterate those IDs.
+pub(crate) fn applicable_part_ids_ref<'a>(
+    definition: &'a CardDefinition,
+    context: &'a CharacteristicContext,
+) -> Result<&'a [CardPartId], CharacteristicError> {
     let parts = if context.uses_canonical_outside_stack_parts() {
         outside_stack_parts(&definition.structure)
     } else {
@@ -106,7 +116,7 @@ pub fn applicable_part_ids(
                         types: part.rules.types(),
                     });
                 }
-                vec![*presented]
+                std::slice::from_ref(presented)
             }
             CharacteristicContext::Library
             | CharacteristicContext::Hand
@@ -123,7 +133,7 @@ pub fn applicable_part_ids(
             definition: definition.id,
         });
     }
-    for part in &parts {
+    for part in parts {
         if !structure_contains(&definition.structure, *part) {
             return Err(CharacteristicError::PartNotInStructure {
                 definition: definition.id,
@@ -140,28 +150,30 @@ pub fn applicable_part_ids(
     Ok(parts)
 }
 
-fn outside_stack_parts(structure: &CardStructure) -> Vec<CardPartId> {
+fn outside_stack_parts(structure: &CardStructure) -> &[CardPartId] {
     match structure {
-        CardStructure::Single { main } | CardStructure::AlternateSpell { main, .. } => vec![*main],
-        CardStructure::Split { parts, .. } => parts.clone(),
+        CardStructure::Single { main } | CardStructure::AlternateSpell { main, .. } => {
+            std::slice::from_ref(main)
+        }
+        CardStructure::Split { parts, .. } => parts,
         // A Room's doors, and only its doors: outside the battlefield a Room
         // card is the combination of the two halves as printed, which is why
         // Walk-In Closet // Forgotten Cellar has mana value 8 in a library.
         // The combined and locked parts describe a permanent's state rather
         // than anything printed, so nothing outside the battlefield uses
         // them.
-        CardStructure::Room { doors, .. } => doors.clone(),
-        CardStructure::Flip { normal, .. } => vec![*normal],
+        CardStructure::Room { doors, .. } => doors,
+        CardStructure::Flip { normal, .. } => std::slice::from_ref(normal),
         CardStructure::DoubleFaced { front, .. } | CardStructure::MeldPart { front, .. } => {
-            vec![*front]
+            std::slice::from_ref(front)
         }
     }
 }
 
-fn spell_form_parts(form: &SpellForm) -> Vec<CardPartId> {
+fn spell_form_parts(form: &SpellForm) -> &[CardPartId] {
     match form {
-        SpellForm::Part(part) => vec![*part],
-        SpellForm::Combined(parts) => parts.clone(),
+        SpellForm::Part(part) => std::slice::from_ref(part),
+        SpellForm::Combined(parts) => parts,
     }
 }
 

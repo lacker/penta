@@ -38,6 +38,8 @@ WEB_WASM_SLOW_SUITES := tests/wasm-pacing-handover-slow.suite.mjs \
 WEB_ROOT_TESTS := $(patsubst web/%,%,$(filter-out web/tests/wasm-game.test.mjs,$(wildcard web/tests/*.test.mjs)))
 WEB_FAST_ROOT_TESTS := $(filter-out tests/rendered-html.test.mjs,$(WEB_ROOT_TESTS))
 WEB_TEST_CONCURRENCY_ARG = $(if $(strip $(WEB_TEST_CONCURRENCY)),--test-concurrency=$(WEB_TEST_CONCURRENCY))
+RUST_INTEGRATION_TESTS := $(basename $(notdir $(wildcard tests/*.rs)))
+RUST_NORMAL_TARGETS := --workspace --lib $(addprefix --test ,$(RUST_INTEGRATION_TESTS))
 
 define run_web_tests
 	cd web && if [ -n "$$TEST_PATTERN" ]; then \
@@ -49,9 +51,9 @@ endef
 
 define run_rust_tests
 	if [ -n "$$RUST_TEST_FILTER" ]; then \
-		cargo test --locked --profile quick-test $(1) "$$RUST_TEST_FILTER" $(2); \
+		cargo test --locked --profile $(if $(strip $(3)),$(3),quick-test) $(1) "$$RUST_TEST_FILTER" -- --quiet $(2); \
 	else \
-		cargo test --locked --profile quick-test $(1) $(2); \
+		cargo test --locked --profile $(if $(strip $(3)),$(3),quick-test) $(1) -- --quiet $(2); \
 	fi
 endef
 
@@ -70,7 +72,7 @@ endef
 	test-web-wasm-contract test-web-wasm-casting test-web-wasm-combat \
 	test-web-wasm-pacing test-web-wasm-state typecheck-web \
 	test-web-render test-slow \
-	check-fast check check-rust check-web check-tooling \
+	check-fast check check-rust check-rust-lint check-rust-tests check-web check-tooling \
 	check-bindings check-bindings-available check-bindings-c check-bindings-python ci
 
 help: ## List the available validation and build targets.
@@ -136,10 +138,10 @@ test-wasm-rust: ## Run native unit tests for the Rust WASM adapter.
 	$(call run_rust_tests,-p penta-wasm --lib,)
 
 test-rust: ## Run normal Rust tests; simulation sweeps stay deferred.
-	$(call run_rust_tests,--workspace --all-targets,)
+	$(call run_rust_tests,$(RUST_NORMAL_TARGETS),)
 
 test-rust-slow: ## Run only ignored Rust simulation sweeps.
-	$(call run_rust_tests,--workspace --all-targets,-- --ignored)
+	$(call run_rust_tests,$(RUST_NORMAL_TARGETS),--ignored,simulation-test)
 
 nightly-sweep: ## Run the deferred Rust sweeps, naming a narrow repro for any failure.
 	./scripts/slow-sweep.sh rust
@@ -148,7 +150,7 @@ nightly-sweep-web: build-wasm ## Run the deferred browser sweeps, naming a narro
 	./scripts/slow-sweep.sh web $(WEB_WASM_SLOW_SUITES)
 
 test-rust-full: ## Run every normal and slow Rust test in one pass.
-	cargo test --locked --profile quick-test --workspace --all-targets -- --include-ignored
+	cargo test --locked --profile simulation-test $(RUST_NORMAL_TARGETS) -- --quiet --include-ignored
 
 # Its own dependency-free crate, so this stays a filesystem walk and finishes
 # in about a second even in a cold worktree. Keep it that way: as an
@@ -167,15 +169,15 @@ catalog-report: ## Print catalog and inline-audit coverage for every format cate
 # it is bounded by the job timeout and says nothing about whether a test got
 # slow. The deferred sweeps are excluded too -- they are the nightly lane's
 # job, and folding them in here is what made this budget meaningless. Roughly
-# two thousand tests share about 1.5s locally and 4s on a public runner, so
-# this leaves most of an order of magnitude of headroom: far outside runner
-# variance, and still tight enough that one accidentally slow test shows up.
+# five thousand tests make runner variance meaningful, so keep output terse and
+# the normal profile lean while retaining a tight enough limit for one
+# accidentally slow test to show up.
 RUST_TEST_BUDGET_SECONDS ?= 30
 
 test-rust-budget: ## Fail when the normal Rust tier runs longer than its budget.
-	cargo test --locked --profile quick-test --workspace --all-targets --no-run
+	cargo test --locked --profile quick-test $(RUST_NORMAL_TARGETS) --no-run
 	@start=$$(date +%s); \
-	cargo test --locked --profile quick-test --workspace --all-targets; \
+	cargo test --locked --profile quick-test $(RUST_NORMAL_TARGETS) -- --quiet; \
 	status=$$?; \
 	elapsed=$$(($$(date +%s) - start)); \
 	echo "Rust tests ran in $${elapsed}s (budget $(RUST_TEST_BUDGET_SECONDS)s)"; \
@@ -276,7 +278,11 @@ test-slow: test-rust-slow test-web-wasm-slow ## Run only simulation-heavy suites
 
 check-fast: fmt-rust lint test-rust test-agent-guidance test-profile-attribution test-magic-references typecheck-web test-web-fast ## Run the broad checkpoint without slow tests or a production web build.
 
-check-rust: fmt-rust lint-rust test-rust-budget ## Run the complete root Rust workspace gate.
+check-rust-lint: fmt-rust lint-rust ## Check Rust formatting and lints.
+
+check-rust-tests: test-rust-budget ## Build and run the budgeted normal Rust tier.
+
+check-rust: check-rust-lint check-rust-tests ## Run the complete root Rust workspace gate.
 
 # `test-web` rather than `test-web-full`: the difference is
 # WEB_WASM_SLOW_SUITES, which play whole games through the WASM/JSON boundary

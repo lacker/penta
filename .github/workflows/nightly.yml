@@ -25,6 +25,7 @@ jobs:
     name: deferred simulation sweeps
     runs-on: ubuntu-24.04
     env:
+      CARGO_INCREMENTAL: "0"
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: sccache
     # Generous on purpose. Nothing waits on this, so a sweep that grows is a
@@ -51,6 +52,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
+      CARGO_INCREMENTAL: "0"
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: sccache
     steps:

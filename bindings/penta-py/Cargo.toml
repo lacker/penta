@@ -14,6 +14,12 @@ publish = false
 name = "penta"
 crate-type = ["cdylib"]
 
+# This crate is intentionally its own workspace, so it does not inherit the
+# root workspace's release profile.
+[profile.release]
+codegen-units = 16
+incremental = true
+
 [dependencies]
 # Renamed because this cdylib is itself the `penta` Python module.
 engine = { package = "penta", path = "../.." }

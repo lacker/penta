@@ -5,7 +5,7 @@ use super::{
     GameEvent, GameObjectId, ManaCost, ManaPaymentPurpose, ManaPlanOptions, ObjectCharacteristics,
     ObjectInstance, ObjectRefDef, Permanent, PlayerId, RetiredObject, ScopedEffect,
     SelectedSpellPlan, StackAbilityPayload, StackObject, StackObjectKind, TargetSelection,
-    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids, mana_cost_value,
+    TriggerContext, ZoneKind, add_mana_cost, applicable_part_ids_ref, mana_cost_value,
     mode_id_selections,
 };
 use crate::card::{ActivatedAbilityDef, ObjectPredicateDef, PlayerRelation};
@@ -796,10 +796,10 @@ impl Game {
         let Some(definition) = self.catalog.get(card.definition) else {
             return ControlFlow::Continue(());
         };
-        let Ok(parts) = applicable_part_ids(definition, context) else {
+        let Ok(parts) = applicable_part_ids_ref(definition, context) else {
             return ControlFlow::Continue(());
         };
-        for part in parts {
+        for part in parts.iter().copied() {
             let Some(part_definition) = definition.part(part) else {
                 continue;
             };

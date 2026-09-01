@@ -84,6 +84,29 @@ impl CatalogEntries {
         self.definitions[index].printings.push(printing);
         Ok(())
     }
+
+    /// Freezes the public definition order once construction and printing
+    /// attachment are complete. Runtime consumers ask for this order often;
+    /// sorting a fresh vector on every observation made that read needlessly
+    /// scale with the complete catalog.
+    fn sort_definitions_by_id(&mut self) {
+        self.definitions
+            .sort_unstable_by_key(|definition| definition.id);
+        self.dense_definition_indices.clear();
+        self.sparse_definition_indices.clear();
+        for (index, definition) in self.definitions.iter().enumerate() {
+            let raw = definition.id.get();
+            if let Ok(dense) = u16::try_from(raw) {
+                let slot = usize::from(dense);
+                if self.dense_definition_indices.len() <= slot {
+                    self.dense_definition_indices.resize(slot + 1, None);
+                }
+                self.dense_definition_indices[slot] = Some(index);
+            } else {
+                self.sparse_definition_indices.insert(definition.id, index);
+            }
+        }
+    }
 }
 
 impl CardCatalog {
@@ -165,6 +188,7 @@ impl CardCatalog {
         for printing in printings {
             entries.attach_printing(printing)?;
         }
+        entries.sort_definitions_by_id();
         Ok(Self {
             entries: Arc::new(entries),
         })
@@ -179,9 +203,7 @@ impl CardCatalog {
     /// stable listing.
     #[must_use]
     pub fn definitions(&self) -> Vec<&CardDefinition> {
-        let mut definitions: Vec<_> = self.entries.definitions.iter().collect();
-        definitions.sort_by_key(|definition| definition.id);
-        definitions
+        self.entries.definitions.iter().collect()
     }
 
     /// Looks up a card definition ID by its case-insensitive canonical name.

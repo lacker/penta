@@ -8,10 +8,10 @@ impl Game {
         let Some(definition) = self.catalog.get(definition) else {
             return false;
         };
-        let Ok(parts) = crate::card::applicable_part_ids(definition, context) else {
+        let Ok(parts) = crate::card::applicable_part_ids_ref(definition, context) else {
             return false;
         };
-        parts.into_iter().any(|part| {
+        parts.iter().copied().any(|part| {
             definition.part(part).is_some_and(|part| {
                 part.rules
                     .ability_clauses()

@@ -43,6 +43,11 @@ require_command shellcheck || infra_linter_problem=true
 require_command actionlint || infra_linter_problem=true
 require_command cc || true
 require_command python3 || true
+if command -v sccache >/dev/null 2>&1; then
+    pass "sccache: $(sccache --version)"
+else
+    printf 'note sccache is optional; install it to cache clean Rust builds\n'
+fi
 
 if command -v rustc >/dev/null 2>&1; then
     required_rust="$(sed -n 's/^channel = "\([^"]*\)".*/\1/p' rust-toolchain.toml)"

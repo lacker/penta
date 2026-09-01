@@ -29,7 +29,7 @@ use crate::card::{
     ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellResolutionDestinationDef,
     TapPurposeDef, TargetPredicate, TargetSlotDef, TokenCharacteristics, TriggerConditionDef,
     TriggerEventDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, abilities, applicable_part_ids,
+    ZonePlacement, abilities, applicable_part_ids_ref,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;

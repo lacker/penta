@@ -4,7 +4,7 @@ use super::{
     EffectRecipientDef, Game, GameObjectId, ManaCost, ModeId, ObjectCharacteristics,
     PlayRestriction, PlayerId, PowerToughnessOperationDef, RetiredObject, SetOperationDef,
     StackObject, StackObjectKind, Step, Target, TargetPredicate, TargetSelection,
-    TriggerEventObject, ValueDef, ZoneKind, applicable_part_ids,
+    TriggerEventObject, ValueDef, ZoneKind, applicable_part_ids_ref,
 };
 
 impl Game {
@@ -219,7 +219,7 @@ impl Game {
         context: &CharacteristicContext,
     ) -> Option<TriggerEventObject> {
         let definition = self.catalog.get(definition)?;
-        let parts = applicable_part_ids(definition, context).ok()?;
+        let parts = applicable_part_ids_ref(definition, context).ok()?;
         let mut types = CardTypeSet::empty();
         let mut colors = [false; 5];
         let mut subtypes = Vec::new();
@@ -228,7 +228,7 @@ impl Game {
         let mut toughness = None;
         let mut supertypes = [false; CardSupertype::COUNT];
         let mut keywords = 0_u64;
-        for part in parts {
+        for part in parts.iter().copied() {
             let part = definition.part(part)?;
             types = types.union(part.rules.types());
             for ability in part.rules.ability_clauses() {

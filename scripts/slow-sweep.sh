@@ -56,7 +56,7 @@ sweep_rust() {
     output_file="$(mktemp)"
 
     # shellcheck disable=SC2086 # selector is a deliberate multi-word argument list.
-    if cargo test --locked --profile quick-test $selector -- --ignored 2>&1 |
+    if cargo test --locked --profile simulation-test $selector -- --ignored 2>&1 |
       tee "$output_file"; then
       rm -f "$output_file"
       continue

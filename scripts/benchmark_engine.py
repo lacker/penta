@@ -467,6 +467,9 @@ def build_tool_versions(source_root: Path) -> Dict[str, str]:
 
 def cargo_build(source_root: Path, *, target_dir: Optional[Path]) -> Path:
     environment = os.environ.copy()
+    # Developer profiles are incremental, but benchmark binaries must be
+    # reproducible release builds rather than products of an edit history.
+    environment["CARGO_INCREMENTAL"] = "0"
     if target_dir is not None:
         environment["CARGO_TARGET_DIR"] = str(target_dir)
     command = [
@@ -823,6 +826,7 @@ def prepare_baseline(
     hyperfine_version = checked_tool_version("hyperfine", repo_root=settings.repo_root)
     facts = machine_facts()
     build_environment = relevant_build_environment()
+    build_environment["CARGO_INCREMENTAL"] = "0"
     with cache_lock(root):
         binary, binary_manifest = ensure_baseline_binary(
             settings,

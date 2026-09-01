@@ -78,6 +78,12 @@ the complete diff and run the narrowest owning-lane check. Consult the
 right target is not evident. Run focused checks while they are useful during
 iteration, then validate the final integrated contents once.
 
+During iteration, start with exactly one filtered owning-lane target. Do not
+run `test-engine`, `test-rust`, `check-*`, or another aggregate when a named
+test or narrow filter covers the behavior being changed. Broaden only when the
+change crosses a contract boundary or the focused target cannot exercise it;
+save full-lane validation and `preflight` for content freeze.
+
 Passing checks attach to covered contents, not commit identity or PR metadata.
 Do not repeat a passing command unless its executable inputs or covered behavior
 changed. Validate each part of a mixed change in its own lane. Native card,

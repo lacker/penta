@@ -25,6 +25,7 @@ pub(crate) use record::CardAbilityBinding;
 
 pub use behavior::CardBehavior;
 pub use catalog::{CardCatalog, CatalogError, EffectSubjectKind, GrantedAbilityValidationError};
+pub(crate) use characteristics::applicable_part_ids_ref;
 pub use characteristics::{CharacteristicContext, CharacteristicError, applicable_part_ids};
 pub use creature_types::{CREATURE_TYPES, creature_type_name};
 pub use model::{

@@ -1,0 +1,5 @@
+[build]
+# sccache is optional locally. The wrapper falls back to rustc when the cache
+# is not installed, while an explicit RUSTC_WRAPPER (as used in CI) overrides
+# this repository default.
+rustc-wrapper = "scripts/rustc-wrapper.sh"

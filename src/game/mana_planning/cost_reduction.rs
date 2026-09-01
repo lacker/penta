@@ -261,10 +261,10 @@ impl Game {
             let context = CharacteristicContext::Stack {
                 form: signature.form().clone(),
             };
-            let Ok(parts) = crate::card::applicable_part_ids(definition, &context) else {
+            let Ok(parts) = crate::card::applicable_part_ids_ref(definition, &context) else {
                 continue;
             };
-            for part in parts {
+            for part in parts.iter().copied() {
                 let Some(rules) = definition.part(part).map(|part| &part.rules) else {
                     continue;
                 };

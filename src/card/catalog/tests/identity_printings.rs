@@ -37,14 +37,31 @@ fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
 
 #[test]
 fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
-    let id = CardDefinitionId::new(1_u64 << 40);
-    let catalog = CardCatalog::new([definition(id.get(), "Sparse Card", CardSet::Alpha)]).unwrap();
+    let sparse = CardDefinitionId::new(1_u64 << 40);
+    let dense = CardDefinitionId::new(2);
+    let catalog = CardCatalog::new([
+        definition(sparse.get(), "Sparse Card", CardSet::Alpha),
+        definition(dense.get(), "Dense Card", CardSet::Alpha),
+    ])
+    .unwrap();
 
     assert_eq!(
-        catalog.get(id).map(|card| card.name.as_str()),
+        catalog.get(sparse).map(|card| card.name.as_str()),
         Some("Sparse Card")
     );
-    assert_eq!(catalog.find_by_name("sparse card"), Some(id));
+    assert_eq!(catalog.find_by_name("sparse card"), Some(sparse));
+    assert_eq!(
+        catalog.get(dense).map(|card| card.name.as_str()),
+        Some("Dense Card")
+    );
+    assert_eq!(
+        catalog
+            .definitions()
+            .into_iter()
+            .map(|definition| definition.id)
+            .collect::<Vec<_>>(),
+        vec![dense, sparse],
+    );
 }
 
 #[test]

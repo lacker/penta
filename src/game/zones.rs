@@ -4,7 +4,7 @@ use super::{
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EntryCompletion, Game, GameEvent,
     GameObjectId, KeywordAbility, ObjectBacking, PendingBattlefieldEntry, Permanent, PlayerId,
     PublicCard, ReplacementEffectDef, ReplacementEventDef, Target, TriggerContext, ZoneCard,
-    ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement, applicable_part_ids,
+    ZoneError, ZoneKind, ZoneMoveCause, ZoneMoveCauseDef, ZonePlacement, applicable_part_ids_ref,
 };
 
 mod exile_events;
@@ -557,8 +557,8 @@ impl Game {
         };
         let replacement_controller = card.owner;
         let definition = self.catalog.get(card.definition)?;
-        let parts = applicable_part_ids(definition, &characteristic_context).ok()?;
-        for part in parts {
+        let parts = applicable_part_ids_ref(definition, &characteristic_context).ok()?;
+        for part in parts.iter().copied() {
             let Some(part) = definition.part(part) else {
                 continue;
             };
@@ -634,7 +634,7 @@ impl Game {
             }
             return None;
         }
-        let front = applicable_part_ids(definition, &CharacteristicContext::Hand)
+        let front = applicable_part_ids_ref(definition, &CharacteristicContext::Hand)
             .ok()
             .and_then(|parts| parts.first().copied())
             .unwrap_or(CardPartId::PRIMARY);

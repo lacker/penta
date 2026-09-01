@@ -46,6 +46,22 @@ make doctor
 checks Rust, Node, pnpm, the WASM target and generator, binding prerequisites,
 ShellCheck, and Actionlint. It is a diagnostic, not a routine preflight.
 
+Cargo uses incremental compilation for local development, test, release, and
+profiling builds. The repository's Rust compiler wrapper also uses `sccache`
+when it is installed and falls back transparently to `rustc` otherwise. The
+wrapper sends incremental calls directly to rustc because sccache cannot cache
+them; it caches non-incremental builds such as CI and explicit
+`CARGO_INCREMENTAL=0 cargo ...` clean builds. Install the optional cache with
+`brew install sccache`; `make doctor` reports whether it is available.
+
+CI deliberately disables incremental compilation: its clean jobs use sccache,
+and rustc outputs compiled with `-C incremental` are not cacheable by sccache.
+Normal tests use the lighter `quick-test` profile. Ignored whole-game sweeps use
+the release-optimized `simulation-test` profile through `make test-rust-slow`.
+The normal Rust lane builds library and integration-test targets; zero-test
+binary and example harnesses stay covered by the separate all-targets Clippy
+job without adding link work to the test job.
+
 ## Validation workflow
 
 Read-only investigation requires no validation. For a change, inspect
@@ -64,16 +80,21 @@ handoff.
 
 Validation has four phases:
 
-1. **Iteration:** run the narrowest filtered test that gives useful feedback
-   while implementing. Do not add a compilation-only warmup; the test compiles
-   what it needs.
+1. **Iteration:** run exactly one narrow filtered owning-lane target that gives
+   useful feedback while implementing. Do not run a full package, workspace,
+   `check-*`, or `preflight` target after each edit when a named test or filter
+   covers the change. Broaden only when the change crosses a contract boundary
+   or the focused target cannot exercise it. Do not add a compilation-only
+   warmup; the test compiles what it needs.
 2. **Integration:** after parallel edits land, the validation owner runs the
    focused owning-lane checks whose covered behavior changed.
 3. **Content freeze:** once code and any rebase conflict resolutions are final,
    run each remaining relevant check once, followed by `make preflight` once
    before an external handoff or push.
 4. **Remote:** let PR CI run the complete Rust, web, tooling, and binding gates.
-   Assign one watcher rather than starting parallel polling loops.
+   Rust lint and Rust tests are separate parallel jobs so Clippy's build is not
+   on the test job's critical path. Assign one watcher rather than starting
+   parallel polling loops.
 
 Passing validation attaches to covered contents, not a commit hash or PR
 metadata. Do not repeat a passing command after a metadata-only rewrite,

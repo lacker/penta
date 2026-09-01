@@ -1,7 +1,7 @@
 use super::{
     AppliedEffectDef, AppliedRuleDef, CharacteristicContext, CounteredSpellZone,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, Game, GameObjectId, StackObject,
-    StackObjectKind, Target, ZoneKind, applicable_part_ids,
+    StackObjectKind, Target, ZoneKind, applicable_part_ids_ref,
 };
 use crate::card::ChooseDef;
 use crate::card::ZonePlacement;
@@ -286,15 +286,13 @@ impl Game {
         let Some(definition) = self.catalog.get(card_definition) else {
             return false;
         };
-        let Ok(parts) = applicable_part_ids(
-            definition,
-            &CharacteristicContext::Stack {
-                form: signature.form().clone(),
-            },
-        ) else {
+        let context = CharacteristicContext::Stack {
+            form: signature.form().clone(),
+        };
+        let Ok(parts) = applicable_part_ids_ref(definition, &context) else {
             return false;
         };
-        parts.into_iter().any(|part| {
+        parts.iter().copied().any(|part| {
             definition.part(part).is_some_and(|part| {
                 part.rules.ability_clauses().iter().any(|ability| {
                     ability.is_executable()

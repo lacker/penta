@@ -77,7 +77,7 @@ resolve_binary() {
     fi
     if ! build_messages="$(
         cd "$repo_root"
-        cargo build --locked "${profile_args[@]}" --bin "$binary_name" \
+        CARGO_INCREMENTAL=0 cargo build --locked "${profile_args[@]}" --bin "$binary_name" \
             --message-format=json-render-diagnostics
     )"; then
         echo "could not build $cargo_profile workload: $binary_name" >&2

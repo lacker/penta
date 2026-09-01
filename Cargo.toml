@@ -5,12 +5,41 @@ members = [".", "wasm", "bindings/penta-ffi", "tools/source-file-sizes"]
 exclude = ["bindings/penta-py"]
 resolver = "3"
 
-# Tests run optimized: the engine's slow tier plays whole games, and an
-# unoptimized build makes that roughly twenty times slower for no added
-# coverage. Debug assertions and overflow checks stay on, so the invariant
-# checks scattered through the rules engine still fire.
+# Keep local edit/rebuild cycles incremental in every standard profile. Clean
+# CI builds disable incremental compilation so sccache can cache complete
+# compiler outputs instead; the two caches optimize different workflows.
+[profile.dev]
+incremental = true
+
+[profile.test]
+incremental = true
+
+[profile.release]
+# Preserve Cargo's non-incremental release partitioning so enabling the local
+# cache does not trade away runtime quality for extra codegen parallelism.
+codegen-units = 16
+incremental = true
+
+# Normal tests need enough optimization to exercise the engine promptly, but
+# optimizing the 100k-symbol test harness as a release binary costs minutes on
+# a clean builder. Many codegen units let rustc use the available cores during
+# that otherwise non-cacheable build. Debug assertions and overflow checks stay
+# on so the rules engine's invariant checks still fire.
 [profile.quick-test]
 inherits = "release"
+opt-level = 1
+codegen-units = 256
+incremental = true
+debug-assertions = true
+overflow-checks = true
+
+# The ignored simulation tier plays whole games and is substantially slower at
+# low optimization levels. It runs outside the per-push gate, so preserve
+# release optimization for those sweeps rather than imposing its build cost on
+# every focused or normal test.
+[profile.simulation-test]
+inherits = "release"
+incremental = true
 debug-assertions = true
 overflow-checks = true
 

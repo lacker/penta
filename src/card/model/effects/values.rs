@@ -40,21 +40,6 @@ pub struct ConditionValueDef {
     pub otherwise: ValueDef,
 }
 
-impl ConditionValueDef {
-    #[must_use]
-    pub const fn new(
-        condition: &'static TriggerConditionDef,
-        then: ValueDef,
-        otherwise: ValueDef,
-    ) -> Self {
-        Self {
-            condition,
-            then,
-            otherwise,
-        }
-    }
-}
-
 /// A value that depends on how many card types a graveyard holds.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct GraveyardTypeConditionDef {

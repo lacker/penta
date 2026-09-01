@@ -66,5 +66,18 @@ macro_rules! mana_cost {
     }};
 }
 
+/// Builds a resolution-time conditional value without exposing the referenced
+/// composite that keeps [`ValueDef`] compact.
+#[macro_export]
+macro_rules! value_if_condition {
+    ($condition:expr, $then:expr, $otherwise:expr) => {
+        $crate::ValueDef::IfCondition(&$crate::card::ConditionValueDef {
+            condition: $condition,
+            then: $then,
+            otherwise: $otherwise,
+        })
+    };
+}
+
 #[cfg(test)]
 mod tests;

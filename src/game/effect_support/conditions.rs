@@ -13,6 +13,15 @@ impl Game {
         source: GameObjectId,
     ) -> bool {
         let objects = self.source_object_set_targets(*condition.objects, source);
+        self.object_set_count_condition_holds(condition, objects, source)
+    }
+
+    fn object_set_count_condition_holds(
+        &self,
+        condition: crate::card::ObjectSetCountConditionDef,
+        objects: Vec<Target>,
+        source: GameObjectId,
+    ) -> bool {
         let count = condition.filter.map_or(objects.len(), |filter| {
             objects
                 .into_iter()
@@ -446,7 +455,14 @@ impl Game {
                 // answering no would be the wrong answer rather than a
                 // deliberate one.
                 TriggerConditionDef::ObjectSetCount(counting) => {
-                    self.source_object_set_count_condition_holds(**counting, source)
+                    object.map_or_else(
+                        || self.source_object_set_count_condition_holds(**counting, source),
+                        |(object, scoped, context)| {
+                            let objects =
+                                self.effect_objects(*counting.objects, object, context, scoped);
+                            self.object_set_count_condition_holds(**counting, objects, source)
+                        },
+                    )
                 }
                 TriggerConditionDef::SourceMatches { object: predicate } => {
                     if let Some(permanent) = self

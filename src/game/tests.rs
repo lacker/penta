@@ -38,6 +38,7 @@ fn protection_keyword(color: ManaColor) -> KeywordAbility {
 }
 
 mod declarative_draw_enchantments;
+mod dka_declarative_cards;
 
 mod ability_resolution;
 mod activation_costs_and_turns;

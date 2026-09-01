@@ -8,19 +8,20 @@ use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, ConditionValueDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef,
+    ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef,
     CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectBindingLabelDef, EffectDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectBindingLabelDef, EffectChoiceDef, EffectDef,
     EffectOutputBindingDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, QuantifierDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef,
-    SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
+    PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, ObjectSetBindingIndex, TargetIndex};
-use crate::mana_cost;
+use crate::{mana_cost, value_if_condition};
 
 static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
 
@@ -323,11 +324,11 @@ pub(in crate::card::sets) static INCREASING_DEVOTION: CardRecord = CardRecord::n
                     "8894949b-f190-461e-996a-cf2b39f08a5d",
                     "Michael C. Hayes",
                 ))
-                .with_count(ValueDef::IfCondition(&ConditionValueDef::new(
+                .with_count(value_if_condition!(
                     &CAST_FROM_GRAVEYARD,
                     ValueDef::Constant(10),
-                    ValueDef::Constant(5),
-                ))),
+                    ValueDef::Constant(5)
+                )),
         ),
         abilities::flashback(mana_cost!("{7}{W}{W}")),
     ]),
@@ -967,11 +968,11 @@ pub(in crate::card::sets) static INCREASING_CONFUSION: CardRecord = CardRecord::
             ))],
             EffectDef::Mill {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::IfCondition(&ConditionValueDef::new(
+                amount: value_if_condition!(
                     &CAST_FROM_GRAVEYARD,
                     ValueDef::Scaled(&ScaledValueDef::new(ValueDef::ChosenX, 2)),
-                    ValueDef::ChosenX,
-                )),
+                    ValueDef::ChosenX
+                ),
             },
         ),
         abilities::flashback(mana_cost!("{X}{U}")),
@@ -1026,35 +1027,35 @@ pub(in crate::card::sets) static NIBLIS_OF_THE_BREATH: CardRecord = CardRecord::
     crate::card::CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Spirit"], 2, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::modal_activated(
+        AbilityDef::activated_with_targets(
             "{U}, {T}: You may tap or untap target creature.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{U}")),
                 AbilityCostDef::TapSource,
             ],
-            &[
-                AbilityDef::spell_with_targets(
-                    "Tap target creature",
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )],
-                    EffectDef::Tap {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
-                ),
-                AbilityDef::spell_with_targets(
-                    "Untap target creature",
-                    &[AbilityTargetDef::exactly_one_permanent(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                    )],
-                    EffectDef::Untap {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
-                ),
-            ],
-            0,
-            1,
-            false,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ChooseEffect {
+                    player: EffectRecipientDef::Controller,
+                    choices: &[
+                        EffectChoiceDef {
+                            label: "Tap the target creature",
+                            effect: EffectDef::Tap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                        EffectChoiceDef {
+                            label: "Untap the target creature",
+                            effect: EffectDef::Untap {
+                                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            },
+                        },
+                    ],
+                },
+            },
         ),
     ]),
 );
@@ -1893,11 +1894,23 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
                                 can_regenerate: true,
                                 then: Some(DestroyFollowUpDef {
                                     binding: ObjectSetBindingIndex::PRIMARY,
-                                    effect: &EffectDef::DealDamage {
-                                        recipient: EffectRecipientDef::ControllerOfTarget(
-                                            TargetIndex::PRIMARY,
+                                    effect: &EffectDef::IfCondition {
+                                        condition: &TriggerConditionDef::ObjectSetCount(
+                                            &ObjectSetCountConditionDef {
+                                                objects: &ObjectSetDef::Binding(
+                                                    ObjectSetBindingIndex::PRIMARY,
+                                                ),
+                                                filter: None,
+                                                comparison: ComparisonDef::GreaterOrEqual,
+                                                amount: 1,
+                                            },
                                         ),
-                                        amount: ValueDef::Constant(3),
+                                        then: &EffectDef::DealDamage {
+                                            recipient: EffectRecipientDef::ControllerOfTarget(
+                                                TargetIndex::PRIMARY,
+                                            ),
+                                            amount: ValueDef::Constant(3),
+                                        },
                                     },
                                 }),
                             },
@@ -2247,11 +2260,11 @@ pub(in crate::card::sets) static INCREASING_VENGEANCE: CardRecord = CardRecord::
             EffectDef::CopyStackObject(&CopyStackObjectDef {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 controller: PlayerRefDef::EffectController,
-                count: ValueDef::IfCondition(&ConditionValueDef::new(
+                count: value_if_condition!(
                     &CAST_FROM_GRAVEYARD,
                     ValueDef::Constant(2),
-                    ValueDef::Constant(1),
-                )),
+                    ValueDef::Constant(1)
+                ),
                 retarget: true,
                 colors: None,
             }),
@@ -2878,11 +2891,11 @@ pub(in crate::card::sets) static INCREASING_SAVAGERY: CardRecord = CardRecord::n
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 kind: CounterKind::PlusOnePlusOne,
-                amount: ValueDef::IfCondition(&ConditionValueDef::new(
+                amount: value_if_condition!(
                     &CAST_FROM_GRAVEYARD,
                     ValueDef::Constant(10),
-                    ValueDef::Constant(5),
-                )),
+                    ValueDef::Constant(5)
+                ),
             },
         ),
         abilities::flashback(mana_cost!("{5}{G}{G}")),

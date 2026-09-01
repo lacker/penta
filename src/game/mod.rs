@@ -207,7 +207,7 @@ use replacement_state::{
 use trigger_state::{
     AbilitySourceRef, BattlefieldTriggerListener, CommittedTriggerEvent, EffectResolutionContext,
     InstalledTrigger, InstalledTriggerLifetime, PendingTrigger, ReplacedDrawContinuation,
-    TriggerCapture, TriggerContext, TriggerEventObject, TriggerPlacementBatch,
+    RuntimeBinding, TriggerCapture, TriggerContext, TriggerEventObject, TriggerPlacementBatch,
 };
 
 #[cfg(test)]

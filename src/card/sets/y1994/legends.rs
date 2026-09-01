@@ -15,7 +15,7 @@ use crate::card::{
     SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 /// "One or more target creatures": the count has no printed ceiling, so the
@@ -850,16 +850,18 @@ pub(in crate::card::sets) static VISIONS: CardRecord = CardRecord::new_with_lega
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        abilities::look_at_top_cards_then(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ValueDef::Constant(5),
-            &EffectDef::May {
+        EffectDef::Sequence(&[
+            abilities::look_at_top_cards(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(5),
+            ),
+            EffectDef::May {
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                 },
             },
-        ),
+        ]),
     )),
 );
 
@@ -1372,9 +1374,9 @@ pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new_with_legac
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: Some(DiscardFollowUpDef {
                     counted: ObjectPredicateDef::Any,
-                    bound: Some(ObjectSetBindingIndex::PRIMARY),
+                    bound: Some(ParentBinding),
                     effect: &EffectDef::ChooseExact(ChooseExactDef {
-                        binding: ObjectSetBindingIndex::new(1),
+                        binding: ParentBinding,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
                             ObjectPredicateDef::Any,
@@ -1383,12 +1385,12 @@ pub(in crate::card::sets) static RECALL: CardRecord = CardRecord::new_with_legac
                         )),
                         exclude: None,
                         amount: ValueDef::CountObjects(&ObjectSetDef::Binding(
-                            ObjectSetBindingIndex::PRIMARY,
+                            ParentBinding,
                         )),
                         visibility: ChoiceVisibilityDef::Private,
                         then: &EffectDef::MoveToZone {
                             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ObjectSetBindingIndex::new(1),
+                                ParentBinding,
                             )),
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,
@@ -1878,11 +1880,11 @@ pub(in crate::card::sets) static CHAINS_OF_MEPHISTOPHELES: CardRecord = CardReco
                     selection: DiscardSelectionDef::RecipientChooses,
                     then: Some(DiscardFollowUpDef {
                         counted: ObjectPredicateDef::Any,
-                        bound: None,
+                        bound: Some(ParentBinding),
                         effect: &EffectDef::IfElseCondition {
                             condition: &TriggerConditionDef::ValueComparison(
                                 &ValueComparisonDef {
-                                    left: ValueDef::MatchedCount,
+                                    left: ValueDef::BoundObjectCount(ParentBinding),
                                     comparison: ComparisonDef::GreaterOrEqual,
                                     right: ValueDef::Constant(1),
                                 },
@@ -2416,7 +2418,7 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_le
                 player: PlayerRelation::Any,
             },
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EventPlayer,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
@@ -2432,7 +2434,7 @@ pub(in crate::card::sets) static THE_ABYSS: CardRecord = CardRecord::new_with_le
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::Destroy {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     can_regenerate: false,
                     then: None,
                 },
@@ -4119,7 +4121,7 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_wi
                         },
                         EffectDef::Choose(ChooseDef {
                             binding: ObjectChoiceBindingDef::OrderedObjects(
-                                ObjectSetBindingIndex::PRIMARY,
+                                ParentBinding,
                             ),
                             unchosen: None,
                             chooser: PlayerRefDef::EffectController,
@@ -4132,8 +4134,8 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_wi
                             visibility: ChoiceVisibilityDef::Private,
                             then: &const {
                                 EffectDef::ForEachInBinding {
-                                    objects: ObjectSetBindingIndex::PRIMARY,
-                                    binding: ObjectBindingIndex::PRIMARY,
+                                    objects: ParentBinding,
+                                    binding: ParentBinding,
                                     effect: &const {
                                         EffectDef::PayOr(PayOrDef::unless(
                                             EffectPaymentDef::life(
@@ -4146,7 +4148,7 @@ pub(in crate::card::sets) static SYLVAN_LIBRARY: CardRecord = CardRecord::new_wi
                                                 EffectDef::MoveToZone {
                                                     object: EffectRecipientDef::object(
                                                         ObjectRefDef::Binding(
-                                                            ObjectBindingIndex::PRIMARY,
+                                                            ParentBinding,
                                                         ),
                                                     ),
                                                     zone: ZoneKind::Library,

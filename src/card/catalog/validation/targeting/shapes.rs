@@ -239,7 +239,7 @@ fn validate_object_set_shape(
             validate_target_projection(target, targets, RecipientExpectation::Object)
         }
         ObjectSetDef::Binding(_)
-        | ObjectSetDef::NamedBinding(_)
+
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles
@@ -663,7 +663,7 @@ fn recipient_may_name_nonbattlefield_object(
                 | ObjectRefDef::ZoneChangeResultOfTriggeringObject,
             )
             | ObjectSetDef::Binding(_)
-            | ObjectSetDef::NamedBinding(_)
+
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
@@ -738,7 +738,7 @@ fn recipient_nonbattlefield_zones_support_flashback(
                 | ObjectRefDef::AdditionalCostObject(_),
             )
             | ObjectSetDef::Binding(_)
-            | ObjectSetDef::NamedBinding(_)
+
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }

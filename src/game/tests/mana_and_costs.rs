@@ -1,4 +1,5 @@
 use super::*;
+use crate::ParentBinding;
 
 #[test]
 fn generic_cost_reduction_counts_matching_cards_outside_the_battlefield() {
@@ -332,7 +333,7 @@ fn optional_life_payment_is_private_and_resumes_the_paid_branch() {
 #[test]
 fn nested_choice_payment_preserves_its_binding_and_outer_sequence_tail() {
     static DESTROY_CHOSEN: EffectDef = EffectDef::Destroy {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
         can_regenerate: false,
         then: None,
     };
@@ -344,7 +345,7 @@ fn nested_choice_payment_preserves_its_binding_and_outer_sequence_tail() {
         &DESTROY_CHOSEN,
     ));
     static CHOOSE_CREATURE: EffectDef = EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+        binding: ObjectChoiceBindingDef::Object(ParentBinding),
         unchosen: None,
         chooser: PlayerRefDef::EffectController,
         candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(

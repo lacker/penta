@@ -2,15 +2,15 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ChangeStackTargetsDef,
     CopyStackObjectDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
-    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, RevealObjectsDef, ScaledValueDef, StackTargetChangeDef,
-    TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef,
+    ObjectValueDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef,
+    ScaledValueDef, StackTargetChangeDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // OTJ 27 — Rustler Rampage
 pub(in crate::card::sets) static RUSTLER_RAMPAGE: CardRecord = CardRecord::new(
@@ -113,7 +113,6 @@ pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::
 // OTJ 82 — Caustic Bronco
 /// The reveal itself: one card off the top, shown to everybody, into your
 /// hand, and then the clause above reads what it cost.
-const BRONCO_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9a268ba-c442-4fe4-90b4-2810c8474f4e"),
     "Caustic Bronco",
@@ -131,33 +130,45 @@ pub(in crate::card::sets) static CAUSTIC_BRONCO: CardRecord = CardRecord::new(
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(1),
-                    BRONCO_CARD,
                     &const {
-                        EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(BRONCO_CARD),
-                            then: &const {
-                                EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(BRONCO_CARD),
-                                    from: Some(ZoneKind::Library),
-                                    zone: ZoneKind::Hand,
-                                    placement: ZonePlacement::Top,
-                                    moved: None,
-                                    then: &EffectDef::IfElseCondition {
-                                        condition: &TriggerConditionDef::SourceMatches {
-                                            object: ObjectPredicateDef::Saddled,
-                                        },
-                                        then: &EffectDef::LoseLife {
-                                            recipient: EffectRecipientDef::Opponent,
-                                            amount: ValueDef::MatchedManaValue,
-                                        },
-                                        otherwise: &EffectDef::LoseLife {
-                                            recipient: EffectRecipientDef::Controller,
-                                            amount: ValueDef::MatchedManaValue,
-                                        },
+                        EffectDef::Sequence(&[
+                            EffectDef::RevealObjects(RevealObjectsDef {
+                                input: ObjectSetDef::Binding(ParentBinding),
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(ParentBinding),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                                moved: Some(ParentBinding),
+                                then: &EffectDef::IfElseCondition {
+                                    condition: &TriggerConditionDef::SourceMatches {
+                                        object: ObjectPredicateDef::Saddled,
                                     },
-                                })
-                            },
-                        })
+                                    then: &EffectDef::LoseLife {
+                                        recipient: EffectRecipientDef::Opponent,
+                                        amount: ValueDef::AggregateObjectValues(
+                                            &ObjectValueAggregateDef {
+                                                objects: ObjectSetDef::Binding(ParentBinding),
+                                                select: ObjectValueDef::ManaValue,
+                                                operation: AggregateOperationDef::Maximum,
+                                            },
+                                        ),
+                                    },
+                                    otherwise: &EffectDef::LoseLife {
+                                        recipient: EffectRecipientDef::Controller,
+                                        amount: ValueDef::AggregateObjectValues(
+                                            &ObjectValueAggregateDef {
+                                                objects: ObjectSetDef::Binding(ParentBinding),
+                                                select: ObjectValueDef::ManaValue,
+                                                operation: AggregateOperationDef::Maximum,
+                                            },
+                                        ),
+                                    },
+                                },
+                            }),
+                        ])
                     },
                 ),
             ),

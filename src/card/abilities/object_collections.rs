@@ -7,32 +7,19 @@
 /// and an explicit collection pipeline instead.
 #[must_use]
 pub const fn look_at_top_cards(player: PlayerRefDef, count: ValueDef) -> EffectDef {
-    look_at_top_cards_then(player, count, &EffectDef::None)
-}
-
-/// Privately look at the top cards, then resume an ordinary declarative
-/// effect. This keeps follow-ups such as Visions' optional shuffle separate
-/// from the information action without exposing a throwaway binding.
-#[must_use]
-pub const fn look_at_top_cards_then(
-    player: PlayerRefDef,
-    count: ValueDef,
-    then: &'static EffectDef,
-) -> EffectDef {
     EffectDef::LookAtObjects(LookAtObjectsDef {
         actor: PlayerRefDef::EffectController,
         source: ObjectCollectionSourceDef::TopCards { player, count },
         visibility: ChoiceVisibilityDef::Private,
-        then,
+        then: &EffectDef::None,
     })
 }
 
-const TOP_CARD_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
-const TOP_CARD_REMAINDER: ObjectSetBindingIndex = ObjectSetBindingIndex::new(6);
-const TOP_CARD_ORDERED_REMAINDER: ObjectSetBindingIndex = ObjectSetBindingIndex::new(7);
+const TOP_CARD_CHOSEN: Binding = Binding!("top_card_chosen");
+const TOP_CARD_REMAINDER: Binding = Binding!("top_card_remainder");
 
 static PUT_ORDERED_REMAINDER_ON_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(TOP_CARD_ORDERED_REMAINDER),
+    input: ObjectSetDef::Binding(ParentBinding),
     from: Some(ZoneKind::Library),
     zone: ZoneKind::Library,
     placement: ZonePlacement::Bottom,
@@ -42,14 +29,14 @@ static PUT_ORDERED_REMAINDER_ON_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveO
 static RANDOMIZE_REMAINDER_FOR_BOTTOM: EffectDef =
     EffectDef::RandomizeObjectOrder(crate::card::RandomizeObjectOrderDef {
         input: ObjectSetDef::Binding(TOP_CARD_REMAINDER),
-        randomized: TOP_CARD_ORDERED_REMAINDER,
+        randomized: ParentBinding,
         then: &PUT_ORDERED_REMAINDER_ON_BOTTOM,
     });
 static PRIVATELY_ORDER_REMAINDER_FOR_BOTTOM: EffectDef =
     EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
         actor: PlayerRefDef::EffectController,
         input: ObjectSetDef::Binding(TOP_CARD_REMAINDER),
-        ordered: TOP_CARD_ORDERED_REMAINDER,
+        ordered: ParentBinding,
         placement: ZonePlacement::Bottom,
         visibility: ChoiceVisibilityDef::Private,
         then: &PUT_ORDERED_REMAINDER_ON_BOTTOM,
@@ -58,45 +45,60 @@ static PUBLICLY_ORDER_REMAINDER_FOR_BOTTOM: EffectDef =
     EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
         actor: PlayerRefDef::EffectController,
         input: ObjectSetDef::Binding(TOP_CARD_REMAINDER),
-        ordered: TOP_CARD_ORDERED_REMAINDER,
+        ordered: ParentBinding,
         placement: ZonePlacement::Bottom,
         visibility: ChoiceVisibilityDef::Public,
         then: &PUT_ORDERED_REMAINDER_ON_BOTTOM,
     });
-static PUT_CHOSEN_IN_HAND_THEN_PRIVATE_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &PRIVATELY_ORDER_REMAINDER_FOR_BOTTOM,
-});
-static PUT_CHOSEN_IN_HAND_THEN_PUBLIC_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &PUBLICLY_ORDER_REMAINDER_FOR_BOTTOM,
-});
-static PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Hand,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &RANDOMIZE_REMAINDER_FOR_BOTTOM,
-});
+static PUT_CHOSEN_IN_HAND_THEN_PRIVATE_BOTTOM: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveObjects(MoveObjectsDef {
+        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+        from: Some(ZoneKind::Library),
+        zone: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        moved: None,
+        then: &EffectDef::None,
+    }),
+    PRIVATELY_ORDER_REMAINDER_FOR_BOTTOM,
+]);
+static PUT_CHOSEN_IN_HAND_THEN_PUBLIC_BOTTOM: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveObjects(MoveObjectsDef {
+        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+        from: Some(ZoneKind::Library),
+        zone: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        moved: None,
+        then: &EffectDef::None,
+    }),
+    PUBLICLY_ORDER_REMAINDER_FOR_BOTTOM,
+]);
+static PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveObjects(MoveObjectsDef {
+        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+        from: Some(ZoneKind::Library),
+        zone: ZoneKind::Hand,
+        placement: ZonePlacement::Top,
+        moved: None,
+        then: &EffectDef::None,
+    }),
+    RANDOMIZE_REMAINDER_FOR_BOTTOM,
+]);
 static REVEAL_CHOSEN_THEN_PUT_IN_HAND_AND_PRIVATE_BOTTOM: EffectDef =
-    EffectDef::RevealObjects(RevealObjectsDef {
-        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-        then: &PUT_CHOSEN_IN_HAND_THEN_PRIVATE_BOTTOM,
-    });
+    EffectDef::Sequence(&[
+        EffectDef::RevealObjects(RevealObjectsDef {
+            input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+            then: &EffectDef::None,
+        }),
+        PUT_CHOSEN_IN_HAND_THEN_PRIVATE_BOTTOM,
+    ]);
 static REVEAL_CHOSEN_THEN_PUT_IN_HAND_AND_RANDOM_BOTTOM: EffectDef =
-    EffectDef::RevealObjects(RevealObjectsDef {
-        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-        then: &PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM,
-    });
+    EffectDef::Sequence(&[
+        EffectDef::RevealObjects(RevealObjectsDef {
+            input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+            then: &EffectDef::None,
+        }),
+        PUT_CHOSEN_IN_HAND_THEN_RANDOM_BOTTOM,
+    ]);
 static PUT_REMAINDER_IN_GRAVEYARD: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
     input: ObjectSetDef::Binding(TOP_CARD_REMAINDER),
     from: Some(ZoneKind::Library),
@@ -106,16 +108,19 @@ static PUT_REMAINDER_IN_GRAVEYARD: EffectDef = EffectDef::MoveObjects(MoveObject
     then: &EffectDef::None,
 });
 static PUT_CHOSEN_IN_HAND_THEN_REST_IN_GRAVEYARD: EffectDef =
-    EffectDef::MoveObjects(MoveObjectsDef {
-        input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
-        from: Some(ZoneKind::Library),
-        zone: ZoneKind::Hand,
-        placement: ZonePlacement::Top,
-        moved: None,
-        then: &PUT_REMAINDER_IN_GRAVEYARD,
-    });
+    EffectDef::Sequence(&[
+        EffectDef::MoveObjects(MoveObjectsDef {
+            input: ObjectSetDef::Binding(TOP_CARD_CHOSEN),
+            from: Some(ZoneKind::Library),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            moved: None,
+            then: &EffectDef::None,
+        }),
+        PUT_REMAINDER_IN_GRAVEYARD,
+    ]);
 static PUT_REORDERED_CARDS_ON_TOP: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(TOP_CARD_ORDERED_REMAINDER),
+    input: ObjectSetDef::Binding(ParentBinding),
     from: Some(ZoneKind::Library),
     zone: ZoneKind::Library,
     placement: ZonePlacement::Top,
@@ -124,8 +129,8 @@ static PUT_REORDERED_CARDS_ON_TOP: EffectDef = EffectDef::MoveObjects(MoveObject
 });
 static REORDER_TOP_CARDS: EffectDef = EffectDef::ChooseObjectOrder(ChooseObjectOrderDef {
     actor: PlayerRefDef::EffectController,
-    input: ObjectSetDef::Binding(TOP_CARD_REMAINDER),
-    ordered: TOP_CARD_ORDERED_REMAINDER,
+    input: ObjectSetDef::Binding(ParentBinding),
+    ordered: ParentBinding,
     placement: ZonePlacement::Top,
     visibility: ChoiceVisibilityDef::Private,
     then: &PUT_REORDERED_CARDS_ON_TOP,
@@ -330,7 +335,7 @@ pub const fn reveal_top_cards_put_matching_in_hand_rest_bottom(
 /// in an order chosen by the effect's controller.
 #[must_use]
 pub const fn look_at_top_cards_and_reorder(player: PlayerRefDef, count: ValueDef) -> EffectDef {
-    bind_top_cards_then(player, count, TOP_CARD_REMAINDER, &REORDER_TOP_CARDS)
+    bind_top_cards_then(player, count, &REORDER_TOP_CARDS)
 }
 
 /// Freeze the top `count` cards of a library for a multi-stage workflow.
@@ -340,14 +345,9 @@ pub const fn look_at_top_cards_and_reorder(player: PlayerRefDef, count: ValueDef
 pub const fn bind_top_cards_then(
     player: PlayerRefDef,
     count: ValueDef,
-    binding: ObjectSetBindingIndex,
     then: &'static EffectDef,
 ) -> EffectDef {
-    bind_objects_then(
-        ObjectCollectionSourceDef::TopCards { player, count },
-        binding,
-        then,
-    )
+    bind_objects_then(ObjectCollectionSourceDef::TopCards { player, count }, then)
 }
 
 /// Freeze the top of a library through and including the first card matching
@@ -358,12 +358,10 @@ pub const fn bind_top_cards_then(
 pub const fn bind_top_cards_through_first_matching_then(
     player: PlayerRefDef,
     object: ObjectPredicateDef,
-    binding: ObjectSetBindingIndex,
     then: &'static EffectDef,
 ) -> EffectDef {
     bind_objects_then(
         ObjectCollectionSourceDef::TopCardsThroughFirstMatching { player, object },
-        binding,
         then,
     )
 }
@@ -372,12 +370,11 @@ pub const fn bind_top_cards_through_first_matching_then(
 #[must_use]
 pub const fn bind_objects_then(
     source: ObjectCollectionSourceDef,
-    binding: ObjectSetBindingIndex,
     then: &'static EffectDef,
 ) -> EffectDef {
     EffectDef::BindObjects(BindObjectsDef {
         source,
-        binding,
+        binding: ParentBinding,
         then,
     })
 }

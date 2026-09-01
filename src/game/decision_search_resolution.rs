@@ -21,7 +21,7 @@ pub(super) struct SearchResolution {
     pub(super) shuffle: bool,
     pub(super) enters_tapped: bool,
     pub(super) attached_player: Option<PlayerId>,
-    pub(super) binding: Option<crate::ids::ObjectSetBindingIndex>,
+    pub(super) binding: Option<super::RuntimeBinding>,
     pub(super) follow_up: Option<Box<SearchFollowUp>>,
 }
 
@@ -51,12 +51,12 @@ impl Game {
         // card never leaves.
         let mut follow_up = follow_up.map(|follow_up| {
             let mut follow_up = *follow_up;
-            if let Some(binding) = binding {
+            if let Some(binding) = binding.as_ref() {
                 let found = selected
                     .iter()
                     .map(|(card, _)| Target::Card(*card))
                     .collect::<Vec<_>>();
-                follow_up.context.bind_object_group(binding, found);
+                follow_up.context.bind_runtime_object_group(binding, found);
             }
             follow_up
         });
@@ -120,10 +120,10 @@ impl Game {
             // "Exile them, then ... you may cast those cards": the cards the
             // follow-up names are the ones now sitting in the destination,
             // which are new objects.
-            if let Some(binding) = binding
+            if let Some(binding) = binding.as_ref()
                 && let Some(follow_up) = follow_up.as_mut()
             {
-                follow_up.context.bind_object_group(binding, moved);
+                follow_up.context.bind_runtime_object_group(binding, moved);
             }
         }
         if shuffle {

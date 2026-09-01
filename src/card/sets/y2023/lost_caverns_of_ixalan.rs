@@ -12,7 +12,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // LCI 14 — Get Lost
@@ -110,7 +110,7 @@ pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRe
                         selection: DiscardSelectionDef::RecipientChooses,
                         then: Some(DiscardFollowUpDef {
                             counted: ObjectPredicateDef::Any,
-                            bound: Some(ObjectSetBindingIndex::PRIMARY),
+                            bound: Some(ParentBinding),
                             effect: &EffectDef::IfCondition {
                                 // Read after the counter has been added, so the connection that makes it
                                 // four is itself the one that pays.
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRe
                                 },
                                 then: &EffectDef::MayCastTargetWithoutPaying {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ObjectSetBindingIndex::PRIMARY,
+                                        ParentBinding,
                                     )),
                                     // What the fourth connection is worth: the card you just threw away, cast
                                     // for nothing. The kind says both halves at once -- no mana, and an
@@ -198,7 +198,7 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
                     // "You may exile" -- a minimum of none, so looking and taking nothing is
                     // a legal answer. The Sculler and the Freebooter both must take one.
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -213,7 +213,7 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
                         then: &EffectDef::Sequence(&[
                             EffectDef::ExileLinkedToSource {
                                 until_source_leaves: true,
-                                object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                                object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                                 face_down: false,
                                 then: None,
                             },
@@ -399,10 +399,9 @@ pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::
                         crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
                             ObjectRefDef::SourceOfTargetedStackObject(TargetIndex::PRIMARY),
                         )),
-                        ObjectSetBindingIndex::PRIMARY,
                         &EffectDef::Apply {
                             recipient: EffectRecipientDef::objects(ObjectSetDef::MatchingBinding {
-                                binding: ObjectSetBindingIndex::PRIMARY,
+                                binding: ParentBinding,
                                 // The rider names three permanent types and not the other two: an
                                 // enchantment or a land whose ability is countered keeps everything it has.
                                 object: ObjectPredicateDef::AnyOf(&[

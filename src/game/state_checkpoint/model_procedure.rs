@@ -38,8 +38,8 @@ pub(super) enum PendingProcedureSnapshot {
         context: EffectResolutionContextSnapshot,
     },
     ForEachInBinding {
-        objects: usize,
-        binding: usize,
+        objects: super::model::BindingSnapshot,
+        binding: super::model::BindingSnapshot,
         next: usize,
         continuation: EffectContinuationSnapshot,
     },

@@ -203,7 +203,7 @@ mod tests {
         BattlefieldEntryModificationDef, CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef,
         MillUntilDef, ObjectPredicateDef, TokenCharacteristics, ValueDef, ZoneKind, ZonePlacement,
     };
-    use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+    use crate::ids::TargetIndex;
 
     static CHILD: EffectDef = EffectDef::None;
     static TOKEN: TokenCharacteristics =
@@ -224,7 +224,7 @@ mod tests {
 
         assert_eq!(
             child_effects(create(Some(CreatedTokensDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: Binding!("objects"),
                 then: &CHILD,
             }))),
             vec![CHILD],
@@ -259,7 +259,7 @@ mod tests {
         };
         let wrapped = EffectDef::WithZoneMoveResult {
             effect: &MOVE,
-            binding: ObjectSetBindingIndex::PRIMARY,
+            binding: Binding!("objects"),
             then: &CHILD,
         };
 
@@ -276,7 +276,7 @@ mod tests {
 
         assert_eq!(
             child_effects(destroy(Some(DestroyFollowUpDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: Binding!("objects"),
                 effect: &CHILD,
             }))),
             vec![CHILD],

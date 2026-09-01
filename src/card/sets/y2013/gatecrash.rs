@@ -19,7 +19,7 @@ use crate::card::{
     SacrificedAmountDef, SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
     TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
@@ -818,7 +818,7 @@ pub(in crate::card::sets) static KEYMASTER_ROGUE: CardRecord = CardRecord::new_w
         abilities::enters_trigger(
             "When this creature enters, return a creature you control to its owner's hand.",
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -834,9 +834,7 @@ pub(in crate::card::sets) static KEYMASTER_ROGUE: CardRecord = CardRecord::new_w
                 // bounce cannot be answered with nothing and cannot be responded to by
                 // protecting the creature it will name.
                 then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },
@@ -3205,9 +3203,7 @@ pub(in crate::card::sets) static DINROVA_HORROR: CardRecord = CardRecord::new_wi
 );
 
 // GTC 156 — Domri Rade
-const DOMRI_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const DOMRI_CREATURE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const DOMRI_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const DOMRI_CREATURE: Binding = Binding!("domri_creature");
 pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new_with_legacy_id(
     157,
     "Domri Rade",
@@ -3222,24 +3218,23 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new_with_l
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(1),
-                    DOMRI_INSPECTED,
                     &const { EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                        input: ObjectSetDef::Binding(DOMRI_INSPECTED),
+                        input: ObjectSetDef::Binding(ParentBinding),
                         object: ObjectPredicateDef::HasType(CardType::Creature),
                         matching: DOMRI_CREATURE,
-                        remainder: ObjectSetBindingIndex::new(2),
+                        remainder: Binding!("domri_noncreature"),
                         then: &EffectDef::IfNoObjects(IfNoObjectsDef {
                             input: ObjectSetDef::Binding(DOMRI_CREATURE),
                             if_empty: &EffectDef::LookAtObjects(LookAtObjectsDef {
                                 actor: PlayerRefDef::EffectController,
                                 source: ObjectCollectionSourceDef::ObjectSet(
-                                    ObjectSetDef::Binding(DOMRI_INSPECTED),
+                                    ObjectSetDef::Binding(ParentBinding),
                                 ),
                                 visibility: ChoiceVisibilityDef::Private,
                                 then: &EffectDef::None,
                             }),
                             otherwise: &EffectDef::Choose(ChooseDef {
-                                binding: ObjectChoiceBindingDef::Objects(DOMRI_CHOSEN),
+                                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                                 unchosen: None,
                                 chooser: PlayerRefDef::EffectController,
                                 candidates: ObjectSetDef::Binding(DOMRI_CREATURE),
@@ -3247,17 +3242,20 @@ pub(in crate::card::sets) static DOMRI_RADE: CardRecord = CardRecord::new_with_l
                                 minimum: 0,
                                 maximum: 1,
                                 visibility: ChoiceVisibilityDef::Private,
-                                then: &EffectDef::RevealObjects(RevealObjectsDef {
-                                    input: ObjectSetDef::Binding(DOMRI_CHOSEN),
-                                    then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                        input: ObjectSetDef::Binding(DOMRI_CHOSEN),
+                                then: &EffectDef::Sequence(&[
+                                    EffectDef::RevealObjects(RevealObjectsDef {
+                                        input: ObjectSetDef::Binding(ParentBinding),
+                                        then: &EffectDef::None,
+                                    }),
+                                    EffectDef::MoveObjects(MoveObjectsDef {
+                                        input: ObjectSetDef::Binding(ParentBinding),
                                         from: Some(ZoneKind::Library),
                                         zone: ZoneKind::Hand,
                                         placement: ZonePlacement::Top,
                                         moved: None,
                                         then: &EffectDef::None,
                                     }),
-                                }),
+                                ]),
                             }),
                         }),
                     }) },

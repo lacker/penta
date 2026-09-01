@@ -12,7 +12,7 @@ use crate::card::{
     PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // TOR 1 — Angel of Retribution
@@ -717,7 +717,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
             },
             &const { TriggerConditionDef::SourceInZone(ZoneKind::Graveyard) },
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -736,7 +736,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                     EffectDef::IfCondition {
                         condition: &const {
                             TriggerConditionDef::BoundObjectMatches {
-                                binding: ObjectBindingIndex::PRIMARY,
+                                binding: ParentBinding,
                                 object: ObjectPredicateDef::Any,
                             }
                         },
@@ -745,7 +745,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
                                 [
                                     EffectDef::MoveToZone {
                                         object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                            ObjectBindingIndex::PRIMARY,
+                                            ParentBinding,
                                         )),
                                         zone: ZoneKind::Exile,
                                         placement: ZonePlacement::Top,

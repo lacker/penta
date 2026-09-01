@@ -23,16 +23,16 @@ use crate::card::{
     CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef, ChooseDef, ChooseGroupDef, ColorSet,
     ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostModificationDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, FreePlayDef,
-    FreePlayDurationDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
+    DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef,
+    KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, PartitionGroupDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef,
+    StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 /// The live number of Swamps controlled by the resolving effect's controller.
@@ -1431,11 +1431,10 @@ pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
 );
 
 // M13 69 — Sphinx of Uthuun
-const SPHINX_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const SPHINX_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const SPHINX_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const SPHINX_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-const SPHINX_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+const SPHINX_FIRST: Binding = Binding!("sphinx_first");
+const SPHINX_SECOND: Binding = Binding!("sphinx_second");
+const SPHINX_CHOSEN: Binding = Binding!("sphinx_chosen");
+const SPHINX_UNCHOSEN: Binding = Binding!("sphinx_unchosen");
 
 pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_with_legacy_id(
     1354,
@@ -1449,12 +1448,14 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(5),
-                SPHINX_INSPECTED,
-                &const { EffectDef::RevealObjects(RevealObjectsDef {
-                    input: ObjectSetDef::Binding(SPHINX_INSPECTED),
-                    then: &const { EffectDef::PartitionGroup(PartitionGroupDef {
+                &const { EffectDef::Sequence(&[
+                    EffectDef::RevealObjects(RevealObjectsDef {
+                        input: ObjectSetDef::Binding(ParentBinding),
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::PartitionGroup(PartitionGroupDef {
                         actor: PlayerRefDef::Opponent,
-                        input: ObjectSetDef::Binding(SPHINX_INSPECTED),
+                        input: ObjectSetDef::Binding(ParentBinding),
                         first: SPHINX_FIRST,
                         second: SPHINX_SECOND,
                         visibility: ChoiceVisibilityDef::Public,
@@ -1465,24 +1466,27 @@ pub(in crate::card::sets) static SPHINX_OF_UTHUUN: CardRecord = CardRecord::new_
                             chosen: SPHINX_CHOSEN,
                             unchosen: SPHINX_UNCHOSEN,
                             visibility: ChoiceVisibilityDef::Public,
-                            then: &const { EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(SPHINX_CHOSEN),
-                                from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Hand,
-                                placement: ZonePlacement::Top,
-                                moved: None,
-                                then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                            then: &const { EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(SPHINX_CHOSEN),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Hand,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
+                                EffectDef::MoveObjects(MoveObjectsDef {
                                     input: ObjectSetDef::Binding(SPHINX_UNCHOSEN),
                                     from: Some(ZoneKind::Library),
                                     zone: ZoneKind::Graveyard,
                                     placement: ZonePlacement::Top,
                                     moved: None,
                                     then: &EffectDef::None,
-                                }) },
-                            }) },
+                                }),
+                            ]) },
                         }) },
-                    }) },
-                }) },
+                    }),
+                ]) },
             ),
         ),
     ]),
@@ -2377,10 +2381,10 @@ pub(in crate::card::sets) static RISE_FROM_THE_GRAVE: CardRecord = CardRecord::n
                     ..crate::card::BattlefieldArrivalDef::DEFAULT
                 },
             },
-            binding: crate::ObjectSetBindingIndex::PRIMARY,
+            binding: crate::ParentBinding,
             then: &EffectDef::Apply {
                 recipient: EffectRecipientDef::binding_zone_change_successors(
-                    crate::ObjectSetBindingIndex::PRIMARY,
+                    crate::ParentBinding,
                 ),
                 // "In addition to its other colors and types", so both leaves add rather
                 // than set.
@@ -3113,7 +3117,7 @@ pub(in crate::card::sets) static MINDCLAW_SHAMAN: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Sorcery),
                 ]),
                 &EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                    objects: ObjectSetDef::One(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                    objects: ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
                     duration: FreePlayDurationDef::WhileResolving,
                     mandatory: false,
                     grants_haste: false,
@@ -4050,7 +4054,7 @@ pub(in crate::card::sets) static ROARING_PRIMADOX: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -4063,9 +4067,7 @@ pub(in crate::card::sets) static ROARING_PRIMADOX: CardRecord = CardRecord::new(
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },
@@ -4324,19 +4326,16 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                         recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(7),
                         selection: DiscardSelectionDef::RecipientChooses,
-                        then: Some(DiscardFollowUpDef {
-                            counted: ObjectPredicateDef::Any,
-                            bound: None,
-                            effect: &EffectDef::SacrificeOfChoice {
-                                player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                                object: ObjectPredicateDef::Any,
-                                count: ValueDef::Constant(7),
-                                then: None,
-                                amount: SacrificedAmountDef::Power,
-                                otherwise: None,
-                                optional: false,
-                            },
-                        }),
+                        then: None,
+                    },
+                    EffectDef::SacrificeOfChoice {
+                        player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                        object: ObjectPredicateDef::Any,
+                        count: ValueDef::Constant(7),
+                        then: None,
+                        amount: SacrificedAmountDef::Power,
+                        otherwise: None,
+                        optional: false,
                     },
                 ]),
             ),
@@ -4474,20 +4473,23 @@ pub(in crate::card::sets) static GEM_OF_BECOMING: CardRecord = CardRecord::new(
             AbilityCostDef::TapSource,
             AbilityCostDef::SacrificeSource,
         ],
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: true,
-            destination: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-            shuffle: false,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: Some(&EffectDef::SearchZone {
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+            EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
@@ -4500,23 +4502,24 @@ pub(in crate::card::sets) static GEM_OF_BECOMING: CardRecord = CardRecord::new(
                 enters_tapped: false,
                 attachment: None,
                 binding: None,
-                then: Some(&EffectDef::SearchZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Library,
-                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-                    minimum: 0,
-                    maximum: ValueDef::Constant(1),
-                    reveal: true,
-                    destination: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                    shuffle: true,
-                    enters_tapped: false,
-                    attachment: None,
-                    binding: None,
-                    then: None,
-                }),
-            }),
-        },
+                then: None,
+            },
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ]),
     )),
 );
 

@@ -22,7 +22,7 @@ use crate::card::{
     PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
 // INV 1 — Alabaster Leech
 // Audit: metadata-only — Card rules have not been implemented.
@@ -557,11 +557,10 @@ pub(in crate::card::sets) static EXCLUDE: CardRecord = CardRecord::new(
 );
 
 // INV 57 — Fact or Fiction
-const FACT_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const FACT_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const FACT_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const FACT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-const FACT_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+const FACT_FIRST: Binding = Binding!("fact_first");
+const FACT_SECOND: Binding = Binding!("fact_second");
+const FACT_CHOSEN: Binding = Binding!("fact_chosen");
+const FACT_UNCHOSEN: Binding = Binding!("fact_unchosen");
 
 pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_with_legacy_id(
     277,
@@ -576,12 +575,14 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(5),
-            FACT_INSPECTED,
-            &const { EffectDef::RevealObjects(RevealObjectsDef {
-                input: ObjectSetDef::Binding(FACT_INSPECTED),
-                then: &const { EffectDef::PartitionGroup(PartitionGroupDef {
+            &const { EffectDef::Sequence(&[
+                EffectDef::RevealObjects(RevealObjectsDef {
+                    input: ObjectSetDef::Binding(ParentBinding),
+                    then: &EffectDef::None,
+                }),
+                EffectDef::PartitionGroup(PartitionGroupDef {
                     actor: PlayerRefDef::Opponent,
-                    input: ObjectSetDef::Binding(FACT_INSPECTED),
+                    input: ObjectSetDef::Binding(ParentBinding),
                     first: FACT_FIRST,
                     second: FACT_SECOND,
                     visibility: ChoiceVisibilityDef::Public,
@@ -592,24 +593,27 @@ pub(in crate::card::sets) static FACT_OR_FICTION: CardRecord = CardRecord::new_w
                         chosen: FACT_CHOSEN,
                         unchosen: FACT_UNCHOSEN,
                         visibility: ChoiceVisibilityDef::Public,
-                        then: &const { EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(FACT_CHOSEN),
-                            from: Some(ZoneKind::Library),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                            moved: None,
-                            then: &const { EffectDef::MoveObjects(MoveObjectsDef {
+                        then: &const { EffectDef::Sequence(&[
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(FACT_CHOSEN),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::MoveObjects(MoveObjectsDef {
                                 input: ObjectSetDef::Binding(FACT_UNCHOSEN),
                                 from: Some(ZoneKind::Library),
                                 zone: ZoneKind::Graveyard,
                                 placement: ZonePlacement::Top,
                                 moved: None,
                                 then: &EffectDef::None,
-                            }) },
-                        }) },
+                            }),
+                        ]) },
                     }) },
-                }) },
-            }) },
+                }),
+            ]) },
         ),
     )),
 );

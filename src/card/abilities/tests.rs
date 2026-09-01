@@ -9,7 +9,7 @@ mod tests {
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, look_at_top_cards,
-        look_at_top_cards_choose_to_hand_rest_bottom, look_at_top_cards_then, overload, pain_land,
+        look_at_top_cards_choose_to_hand_rest_bottom, overload, pain_land,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
         reveal_hand_and_exile_chosen_card,
         reveal_top_cards_put_matching_in_hand_rest_graveyard, shock_land_enters, storm, tap_for,
@@ -24,9 +24,8 @@ mod tests {
         ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
         ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
     };
-    use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
-    use crate::TargetIndex;
     use crate::mana_cost;
+    use crate::{ParentBinding, TargetIndex};
 
     #[test]
     fn rebound_is_one_complete_keyword_clause() {
@@ -45,7 +44,6 @@ mod tests {
 
     #[test]
     fn look_at_top_cards_hides_collection_plumbing_for_pure_looks() {
-        static THEN: EffectDef = EffectDef::Special("after the look");
         let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
 
         let EffectDef::LookAtObjects(look) =
@@ -62,23 +60,15 @@ mod tests {
             },
         );
         assert_eq!(*look.then, EffectDef::None);
-
-        let EffectDef::LookAtObjects(look) =
-            look_at_top_cards_then(player, ValueDef::Constant(5), &THEN)
-        else {
-            panic!("the continuation helper should use the same information action")
-        };
-        assert_eq!(look.then, &THEN);
     }
 
     #[test]
     fn collection_helpers_distinguish_fixed_and_predicate_bounded_sources() {
         static THEN: EffectDef = EffectDef::Special("after binding");
         let player = PlayerRefDef::Target(TargetIndex::PRIMARY);
-        let binding = ObjectSetBindingIndex::PRIMARY;
 
         let EffectDef::BindObjects(fixed) =
-            bind_top_cards_then(player, ValueDef::Constant(4), binding, &THEN)
+            bind_top_cards_then(player, ValueDef::Constant(4), &THEN)
         else {
             panic!("fixed top cards should use the generic binding stage")
         };
@@ -92,7 +82,7 @@ mod tests {
 
         let stop = ObjectPredicateDef::HasType(CardType::Land);
         let EffectDef::BindObjects(bounded) =
-            bind_top_cards_through_first_matching_then(player, stop, binding, &THEN)
+            bind_top_cards_through_first_matching_then(player, stop, &THEN)
         else {
             panic!("a reveal-until source should use the same generic binding stage")
         };
@@ -103,6 +93,7 @@ mod tests {
                 object: stop,
             }
         );
+        assert_eq!(bounded.binding, ParentBinding);
         assert_eq!(bounded.then, &THEN);
     }
 
@@ -186,7 +177,7 @@ mod tests {
             *discard.then,
             EffectDef::DiscardCards {
                 object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
-                    ObjectBindingIndex::PRIMARY,
+                    ParentBinding,
                 )),
             }
         );

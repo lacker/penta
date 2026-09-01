@@ -13,7 +13,7 @@ use crate::card::{
     ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
-use crate::{ObjectSetBindingIndex, TargetIndex};
+use crate::{ParentBinding, TargetIndex};
 
 // LTR 0 — The One Ring
 pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
@@ -213,8 +213,6 @@ static AN_ARMY_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::controlled_by(
     PlayerSetDef::Related(PlayerRelation::You),
 );
 
-static AMASSED_ARMY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
 pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new_with_legacy_id(
     2215,
     "Orcish Bowmasters",
@@ -263,7 +261,7 @@ pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new
                             ),
                     },
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(AMASSED_ARMY),
+                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Query(AN_ARMY_YOU_CONTROL),
@@ -276,12 +274,12 @@ pub(in crate::card::sets) static ORCISH_BOWMASTERS: CardRecord = CardRecord::new
                         // is what keeps an Army that was already something else both things.
                         then: &EffectDef::Sequence(&[
                             EffectDef::AddCounters {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                                 kind: CounterKind::PlusOnePlusOne,
                                 amount: ValueDef::Constant(1),
                             },
                             EffectDef::Apply {
-                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(AMASSED_ARMY)),
+                                recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                                 effect: AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Orc"])),
                                 duration: ResolvedEffectDurationDef::Permanent,
                             },

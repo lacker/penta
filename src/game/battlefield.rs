@@ -12,7 +12,7 @@ use super::{
     ReplacementEventDef, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target,
     TargetSlotId, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
-use crate::ObjectSetBindingIndex;
+use crate::Binding;
 
 impl Game {
     /// Every battlefield permanent whose printed name matches the chosen

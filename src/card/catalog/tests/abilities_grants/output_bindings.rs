@@ -1,8 +1,6 @@
 #[test]
 fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
-    let label = "produced_cards";
-    let produced_label = Box::leak(Box::new(crate::card::EffectBindingLabelDef(label)));
-    let produced_cards = Box::leak(Box::new(ObjectSetDef::NamedBinding(produced_label)));
+    let produced_cards = Box::leak(Box::new(ObjectSetDef::Binding(Binding!("produced_cards"))));
     let count_bound = EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::CountObjects(produced_cards),
@@ -30,7 +28,7 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
         let producer = Box::leak(Box::new(producer));
         let bound = EffectDef::BindOutput {
             effect: producer,
-            binding: crate::card::EffectOutputBindingDef::Objects(label),
+            binding: Binding!("produced_cards"),
         };
         let valid = Box::leak(Box::new([bound, count_bound]));
         super::validate_ability_targets(&[], EffectDef::Sequence(valid))
@@ -39,27 +37,24 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
         let reversed = Box::leak(Box::new([count_bound, bound]));
         assert_eq!(
             super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
-            Err(GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope {
-                label,
+            Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                binding: Binding!("produced_cards"),
             }),
             "the binding is unavailable before its producer publishes it",
         );
     }
 
-    let revealed_label = "revealed_card";
-    let revealed_binding_label =
-        Box::leak(Box::new(crate::card::EffectBindingLabelDef(revealed_label)));
     let consume_reveal = EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
-        amount: ValueDef::CountObjects(Box::leak(Box::new(ObjectSetDef::NamedBinding(
-            revealed_binding_label,
+        amount: ValueDef::CountObjects(Box::leak(Box::new(ObjectSetDef::Binding(
+            Binding!("revealed_card"),
         )))),
     };
     let reveal = EffectDef::BindOutput {
         effect: &EffectDef::RevealAtRandomFromHand {
             player: EffectRecipientDef::Controller,
         },
-        binding: crate::card::EffectOutputBindingDef::Objects(revealed_label),
+        binding: Binding!("revealed_card"),
     };
     let valid = Box::leak(Box::new([reveal, consume_reveal]));
     super::validate_ability_targets(&[], EffectDef::Sequence(valid))
@@ -69,43 +64,44 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
     assert_eq!(
         super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
         Err(
-            GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope {
-                label: revealed_label,
+            GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                binding: Binding!("revealed_card"),
             }
         ),
     );
 }
 
 #[test]
-fn named_effect_output_bindings_are_lexical_and_set_valued() {
-    let label = "cards";
+fn effect_output_bindings_are_lexical_and_set_valued() {
     let mill = EffectDef::BindOutput {
         effect: &EffectDef::Mill {
             player: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),
         },
-        binding: crate::card::EffectOutputBindingDef::Objects(label),
+        binding: Binding!("cards"),
     };
     let duplicate = Box::leak(Box::new([mill, mill]));
     assert_eq!(
         super::validate_ability_targets(&[], EffectDef::Sequence(duplicate)),
-        Err(GrantedAbilityValidationError::NamedBindingAlreadyInScope { label }),
+        Err(GrantedAbilityValidationError::BindingAlreadyDeclared {
+            binding: Binding!("cards"),
+        }),
     );
 
     let reads_own_binding = EffectDef::BindOutput {
         effect: Box::leak(Box::new(EffectDef::Mill {
             player: EffectRecipientDef::Controller,
-            amount: ValueDef::CountObjects(&ObjectSetDef::NamedBinding(
-                &crate::card::EffectBindingLabelDef("cards"),
-            )),
+            amount: ValueDef::CountObjects(Box::leak(Box::new(ObjectSetDef::Binding(
+                Binding!("cards"),
+            )))),
         })),
-        binding: crate::card::EffectOutputBindingDef::Objects("cards"),
+        binding: Binding!("cards"),
     };
     assert_eq!(
         super::validate_ability_targets(&[], reads_own_binding),
         Err(
-            GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope {
-                label: "cards",
+            GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                binding: Binding!("cards"),
             }
         ),
     );
@@ -117,14 +113,14 @@ fn named_effect_output_bindings_are_lexical_and_set_valued() {
     let count_cards = EffectDef::GainLife {
         recipient: EffectRecipientDef::Controller,
         amount: ValueDef::CountObjects(Box::leak(Box::new(
-            ObjectSetDef::NamedBinding(&crate::card::EffectBindingLabelDef("cards")),
+            ObjectSetDef::Binding(Binding!("cards")),
         ))),
     };
     let invalid_escape = Box::leak(Box::new([branch_local, count_cards]));
     assert_eq!(
         super::validate_ability_targets(&[], EffectDef::Sequence(invalid_escape)),
-        Err(GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope {
-            label,
+        Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+            binding: Binding!("cards"),
         }),
         "a binding declared only inside a branch does not escape that branch",
     );
@@ -138,9 +134,74 @@ fn named_effect_output_bindings_are_lexical_and_set_valued() {
     }));
     let explicit_optional_output = EffectDef::BindOutput {
         effect: conditional_mill,
-        binding: crate::card::EffectOutputBindingDef::Objects(label),
+        binding: Binding!("cards"),
     };
     let valid_escape = Box::leak(Box::new([explicit_optional_output, count_cards]));
     super::validate_ability_targets(&[], EffectDef::Sequence(valid_escape))
         .expect("wrapping the branch declares an output visible to later siblings");
+}
+
+#[test]
+fn producer_continuations_require_and_expose_parent_binding() {
+    let consume_parent = Box::leak(Box::new(EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::BoundObjectCount(ParentBinding),
+    }));
+    let valid = EffectDef::Choose(ChooseDef {
+        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+        unchosen: None,
+        chooser: PlayerRefDef::EffectController,
+        candidates: ObjectSetDef::Query(ObjectQueryDef::new(
+            ObjectPredicateDef::Any,
+            &[ZoneKind::Battlefield],
+        )),
+        exclude: None,
+        minimum: 0,
+        maximum: 1,
+        visibility: ChoiceVisibilityDef::Public,
+        then: consume_parent,
+    });
+    super::validate_ability_targets(&[], valid)
+        .expect("a direct continuation may consume its producer through ParentBinding");
+
+    let independent = EffectDef::Choose(ChooseDef {
+        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+        then: &EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+        ..match valid {
+            EffectDef::Choose(definition) => definition,
+            _ => unreachable!(),
+        }
+    });
+    assert!(matches!(
+        super::validate_ability_targets(&[], independent),
+        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "then continuation does not consume its declared binding; use Sequence",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn binding_labels_are_unique_across_sibling_branches() {
+    let output = EffectDef::BindOutput {
+        effect: &EffectDef::Mill {
+            player: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+        binding: Binding!("branch_output"),
+    };
+    let branches = EffectDef::IfElseCondition {
+        condition: &TriggerConditionDef::SourceOnBattlefield,
+        then: Box::leak(Box::new(output)),
+        otherwise: Box::leak(Box::new(output)),
+    };
+    assert_eq!(
+        super::validate_ability_targets(&[], branches),
+        Err(GrantedAbilityValidationError::BindingAlreadyDeclared {
+            binding: Binding!("branch_output"),
+        }),
+    );
 }

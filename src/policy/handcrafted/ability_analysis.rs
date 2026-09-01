@@ -499,7 +499,6 @@ impl HandcraftedPolicy {
             }
             crate::card::ObjectSetDef::One(_)
             | crate::card::ObjectSetDef::Binding(_)
-            | crate::card::ObjectSetDef::NamedBinding(_)
             | crate::card::ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | crate::card::ObjectSetDef::MatchingBinding { .. }
             | crate::card::ObjectSetDef::Matching { .. }

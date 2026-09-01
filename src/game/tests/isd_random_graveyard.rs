@@ -291,19 +291,14 @@ fn random_returns_compose_selection_with_a_zone_move() {
             panic!("{} should select randomly before moving", card.name);
         };
         assert_eq!(source, ZoneKind::Graveyard);
-        assert_eq!(
-            binding,
-            crate::card::EffectOutputBindingDef::Objects("random_graveyard_cards")
-        );
+        assert_eq!(binding, Binding!("random_graveyard_cards"));
         let EffectDef::MoveToZone { object, zone, .. } = *movement else {
             panic!("{} should use an ordinary zone move", card.name);
         };
         assert_eq!(zone, ZoneKind::Hand);
         assert_eq!(
             object,
-            EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
-                &crate::card::EffectBindingLabelDef("random_graveyard_cards"),
-            ))
+            EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("random_graveyard_cards"),))
         );
     }
 }

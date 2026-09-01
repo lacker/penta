@@ -26,10 +26,12 @@ pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        abilities::look_at_top_cards_then(
-            PlayerRefDef::Target(TargetIndex::PRIMARY),
-            ValueDef::Constant(1),
-            &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+        EffectDef::Sequence(&[
+            abilities::look_at_top_cards(
+                PlayerRefDef::Target(TargetIndex::PRIMARY),
+                ValueDef::Constant(1),
+            ),
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
                 "Draw a card at the beginning of the next turn's upkeep.",
                 TriggerEventDef::StepBegins {
                     step: TurnStepDef::Upkeep,
@@ -40,7 +42,7 @@ pub(in crate::card::sets) static MISHRA_S_BAUBLE: CardRecord = CardRecord::new(
                     amount: ValueDef::Constant(1),
                 },
             ))),
-        ),
+        ]),
     )),
 );
 

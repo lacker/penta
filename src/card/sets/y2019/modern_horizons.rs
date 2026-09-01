@@ -12,7 +12,7 @@ use crate::card::{
     SpellAdditionalCostDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 /// "If it's not your turn" gates only the free cast. The printed cost is
@@ -184,13 +184,12 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_
                         PlayerRelation::Opponent,
                     ),
                 )),
-                ObjectSetBindingIndex::PRIMARY,
                 // "For each creature exiled this way" counts what the exile actually took,
                 // so the set is bound before it is emptied and the search reads the count
                 // off that binding rather than off a board the creatures have left.
                 &EffectDef::Sequence(&[
                     EffectDef::MoveToZone {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
                     },
@@ -202,7 +201,7 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_
                             ObjectPredicateDef::Supertype(CardSupertype::Basic),
                         ]),
                         minimum: 0,
-                        maximum: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        maximum: ValueDef::BoundObjectCount(ParentBinding),
                         reveal: false,
                         destination: ZoneKind::Battlefield,
                         placement: ZonePlacement::Top,
@@ -460,7 +459,7 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
                     selection: DiscardSelectionDef::RecipientChooses,
                     then: Some(DiscardFollowUpDef {
                         counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        bound: None,
+                        bound: Some(ParentBinding),
                         effect: &// The draw comes before the tokens are counted, which is what the printed
                             // order says: two cards go, two cards come, and only then does the board
                             // pay you back for the ones that were not lands.
@@ -473,7 +472,7 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
                                     token: PYROMANCER_ELEMENTAL,
                                     copy: None,
                                     controller: None,
-                                    count: ValueDef::MatchedCount,
+                                    count: ValueDef::BoundObjectCount(ParentBinding),
                                     tapped: false,
                                     attacking: false,
                                     counters: None,

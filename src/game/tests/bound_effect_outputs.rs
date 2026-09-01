@@ -13,17 +13,19 @@ fn a_skipped_bound_effect_still_declares_an_empty_output() {
                     amount: ValueDef::Constant(1),
                 },
             },
-            binding: crate::card::EffectOutputBindingDef::Objects("conditional_cards"),
+            binding: Binding!("conditional_cards"),
         }),
         &source,
         EffectResolutionContext::empty(),
     );
 
     assert!(
-        context
-            .named_object_groups()
-            .contains_key("conditional_cards"),
+        context.bindings().contains_key("conditional_cards"),
         "the binder creates its slot before evaluating the condition"
     );
-    assert!(context.named_object_group("conditional_cards").is_empty());
+    assert!(
+        context
+            .object_group(Binding!("conditional_cards"))
+            .is_empty()
+    );
 }

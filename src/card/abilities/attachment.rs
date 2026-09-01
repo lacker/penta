@@ -190,13 +190,13 @@ static SOULBOND_PARTNER: ObjectSetDef = ObjectSetDef::Query(ObjectQueryDef::cont
 ));
 
 static SOULBOND_PAIR: EffectDef = EffectDef::PairWithSource {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
 };
 
 /// The optional pairing choice both halves of soulbond offer. Zero is a legal
 /// number to choose, which is how "you may" is expressed.
 static SOULBOND_CHOICE: EffectDef = EffectDef::Choose(ChooseDef {
-    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+    binding: ObjectChoiceBindingDef::Object(ParentBinding),
     unchosen: None,
     chooser: PlayerRefDef::EffectController,
     candidates: SOULBOND_PARTNER,

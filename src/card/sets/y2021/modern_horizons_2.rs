@@ -17,7 +17,7 @@ use crate::card::{
     SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::{AdditionalCostIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
 // MH2 25 — Prismatic Ending
 pub(in crate::card::sets) static PRISMATIC_ENDING: CardRecord = CardRecord::new_with_legacy_id(
@@ -1284,7 +1284,7 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
                 // What it costs is nothing at all, which is why the creature has to die to
                 // ask.
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -1297,7 +1297,7 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                        objects: ObjectSetDef::Binding(ParentBinding),
                         duration: FreePlayDurationDef::WhileResolving,
                         mandatory: false,
                         grants_haste: false,

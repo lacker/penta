@@ -611,7 +611,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
             if definition.costs.iter().any(|cost| matches!(
                 cost,
                 AbilityCostDef::MoveToZone(movement)
-                    if movement.binding == Some(crate::ObjectBindingIndex::PRIMARY)
+                    if movement.binding == Some(crate::Binding!("object"))
             ))
     );
     validate_ability_program_targets(

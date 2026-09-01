@@ -7,7 +7,7 @@ use crate::card::{
     ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // ALA 9 — Elspeth, Knight-Errant
@@ -135,7 +135,7 @@ pub(in crate::card::sets) static TIDEHOLLOW_SCULLER: CardRecord = CardRecord::ne
                     // bargain: the card is gone only for as long as the body survives.
                     &EffectDef::ExileLinkedToSource {
                         until_source_leaves: false,
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         face_down: false,
                         then: None,
                     },

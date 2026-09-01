@@ -6,7 +6,7 @@ use crate::card::{
     ResolvedEffectDurationDef, ValueDef,
 };
 use crate::game::{DecisionContinuation, DecisionOrderSemantics};
-use crate::{Action, ManaColor, ObjectBindingIndex};
+use crate::{Action, ManaColor};
 use serde_json::json;
 
 mod adversarial;

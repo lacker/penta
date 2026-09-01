@@ -1,4 +1,5 @@
 use super::*;
+use crate::ParentBinding;
 #[test]
 fn nevinyrrals_disk_uses_the_shared_stack_and_destroys_every_named_type() {
     let mut game = ready_game();
@@ -157,10 +158,7 @@ fn derived_object_players_use_last_known_controller_and_owner() {
     let chosen_id = chosen.card.id;
     game.battlefield.push(chosen);
     let mut context = EffectResolutionContext::empty();
-    context.bind_single_object(
-        ObjectBindingIndex::PRIMARY,
-        Some(Target::Permanent(chosen_id)),
-    );
+    context.bind_single_object(Binding!("object"), Some(Target::Permanent(chosen_id)));
     game.move_target_to_zone(
         Target::Permanent(chosen_id),
         ZoneKind::Graveyard,
@@ -189,14 +187,14 @@ fn derived_object_players_use_last_known_controller_and_owner() {
     assert_eq!(
         recipients(
             &game,
-            PlayerRefDef::ControllerOf(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+            PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!("object"))),
         ),
         [Target::Player(PlayerId::One)],
     );
     assert_eq!(
         recipients(
             &game,
-            PlayerRefDef::OwnerOf(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+            PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!("object"))),
         ),
         [Target::Player(PlayerId::Two)],
     );
@@ -771,10 +769,10 @@ fn duress_observes_the_hand_without_asking_when_nothing_can_be_discarded() {
 #[test]
 fn a_thoughtseize_shaped_sequence_loses_life_after_the_generic_hand_choice() {
     static DISCARD_CHOSEN: EffectDef = EffectDef::DiscardCards {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
     };
     static CHOOSE_NONLAND: EffectDef = EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+        binding: ObjectChoiceBindingDef::Object(ParentBinding),
         unchosen: None,
         chooser: PlayerRefDef::EffectController,
         candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(

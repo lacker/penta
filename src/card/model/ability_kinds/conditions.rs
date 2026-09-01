@@ -198,7 +198,7 @@ pub enum TriggerConditionDef {
     /// chose, which nothing else can name: it was not targeted, and by then
     /// it is one card among many in a zone.
     BoundObjectMatches {
-        binding: ObjectBindingIndex,
+        binding: Binding,
         object: ObjectPredicateDef,
     },
     /// Whether what a target slot points at still matches. Read when the

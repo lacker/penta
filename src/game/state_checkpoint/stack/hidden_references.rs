@@ -186,12 +186,8 @@ pub(in crate::game::state_checkpoint) fn resolution_context_referenced_object_id
     }
     ids.extend(
         context
-            .single_objects()
-            .iter()
-            .flatten()
-            .chain(context.object_groups().iter().flatten())
-            .chain(context.named_object_groups().values().flatten())
-            .copied()
+            .bound_targets()
+            .into_iter()
             .filter_map(|target| match target {
                 Target::Player(_) => None,
                 Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),

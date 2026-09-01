@@ -192,7 +192,7 @@ pub enum EffectDef {
     /// reference to a label that was never declared.
     BindOutput {
         effect: &'static EffectDef,
-        binding: super::EffectOutputBindingDef,
+        binding: Binding,
     },
     /// Choose one distinct member for each of several predicates.
     ChooseOneOfEach(super::ChooseOneOfEachDef),
@@ -220,7 +220,7 @@ pub enum EffectDef {
         /// Where the matching cards are saved for the rest of the effect.
         /// Binding them as the name is chosen means the follow-up names a set
         /// rather than re-deriving it from a name it cannot see.
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         then: &'static EffectDef,
     },
     /// Copies one or more named spells or abilities on the stack.
@@ -667,7 +667,7 @@ pub enum EffectDef {
     /// zone-change successor, so it remains correct across a delayed entry.
     WithZoneMoveResult {
         effect: &'static EffectDef,
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         then: &'static EffectDef,
     },
     /// "…then mill a card. If an Insect card was milled this way, … and
@@ -719,8 +719,8 @@ pub enum EffectDef {
     /// that introduced it, so cards moving during earlier iterations do not
     /// change the remaining work.
     ForEachInBinding {
-        objects: ObjectSetBindingIndex,
-        binding: ObjectBindingIndex,
+        objects: Binding,
+        binding: Binding,
         effect: &'static EffectDef,
     },
     /// "Damage can't be prevented this turn." A rule about every prevention
@@ -922,7 +922,7 @@ pub enum EffectDef {
         /// Where the cards this search found are saved, for the follow-up
         /// below to speak about. Scoped to `then` exactly the way every
         /// other binding is scoped to the effect it introduces.
-        binding: Option<ObjectSetBindingIndex>,
+        binding: Option<Binding>,
         /// What happens once the search is answered. Intuition's opponent
         /// chooses among the three that were found, so the choice has to be
         /// inside the search rather than after it: a sequence step following
@@ -984,7 +984,7 @@ pub enum EffectDef {
     /// names it.
     PutOntoBattlefieldThen {
         object: EffectRecipientDef,
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         counters: Option<TokenCountersDef>,
         then: &'static EffectDef,
     },

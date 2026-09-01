@@ -9,25 +9,24 @@ use crate::card::{
     CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
     ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
     CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
-    EffectBindingLabelDef, EffectDef, EffectOutputBindingDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics, ExiledCastPermissionDef,
-    HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, ManaColor, ManaCost,
-    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef,
-    ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PileExileDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
-    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePickDef, ZonePlacement, abilities, tokens,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
+    ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef, PerPlayerSelectionDef,
+    PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SetOperationDef,
+    SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
+    ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
 
 use super::super::y2020::theros_beyond_death::escape;
 
-const DEVOURER_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const DEVOURER_TOP: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const DEVOURER_EXILED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const DEVOURER_TOP: Binding = Binding!("devourer_top");
+const DEVOURER_EXILED: Binding = Binding!("devourer_exiled");
 static DEVOURER_EXILE_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
     input: ObjectSetDef::Binding(DEVOURER_EXILED),
     from: Some(ZoneKind::Library),
@@ -36,19 +35,22 @@ static DEVOURER_EXILE_REST: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
     moved: None,
     then: &EffectDef::None,
 });
-static DEVOURER_PUT_TOP: EffectDef = EffectDef::MoveObjects(MoveObjectsDef {
-    input: ObjectSetDef::Binding(DEVOURER_TOP),
-    from: Some(ZoneKind::Library),
-    zone: ZoneKind::Library,
-    placement: ZonePlacement::Top,
-    moved: None,
-    then: &DEVOURER_EXILE_REST,
-});
+static DEVOURER_PUT_TOP: EffectDef = EffectDef::Sequence(&[
+    EffectDef::MoveObjects(MoveObjectsDef {
+        input: ObjectSetDef::Binding(DEVOURER_TOP),
+        from: Some(ZoneKind::Library),
+        zone: ZoneKind::Library,
+        placement: ZonePlacement::Top,
+        moved: None,
+        then: &EffectDef::None,
+    }),
+    DEVOURER_EXILE_REST,
+]);
 static DEVOURER_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
     binding: ObjectChoiceBindingDef::Objects(DEVOURER_TOP),
     unchosen: Some(DEVOURER_EXILED),
     chooser: PlayerRefDef::EffectController,
-    candidates: ObjectSetDef::Binding(DEVOURER_INSPECTED),
+    candidates: ObjectSetDef::Binding(ParentBinding),
     exclude: None,
     minimum: 0,
     maximum: 1,
@@ -58,7 +60,6 @@ static DEVOURER_CHOOSE: EffectDef = EffectDef::Choose(ChooseDef {
 static DEVOURER_OPENING_LOOK: EffectDef = abilities::bind_top_cards_then(
     PlayerRefDef::EffectController,
     ValueDef::Constant(4),
-    DEVOURER_INSPECTED,
     &DEVOURER_CHOOSE,
 );
 
@@ -433,7 +434,6 @@ pub(in crate::card::sets) static ACCURSED_MARAUDER: CardRecord = CardRecord::new
 );
 
 // MH3 90 — Emperor of Bones
-const EMPEROR_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 
 pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_with_legacy_id(
     2269,
@@ -497,7 +497,7 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                     kind: CounterKind::PlusOnePlusOne,
                 },
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     // "A creature card exiled with this creature": a pile no query can find,
@@ -513,8 +513,8 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::PutOntoBattlefieldThen {
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-                        binding: EMPEROR_ARRIVAL,
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                        binding: ParentBinding,
                         counters: Some(TokenCountersDef {
                             kind: CounterKind::Finality,
                             amount: ValueDef::Constant(1),
@@ -522,7 +522,7 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                         then: &EffectDef::Sequence(&const { [
                             EffectDef::Apply {
                                 recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    EMPEROR_ARRIVAL,
+                                    ParentBinding,
                                 )),
                                 effect: AppliedEffectDef::add_ability(&const {
                                     abilities::haste()
@@ -538,7 +538,7 @@ pub(in crate::card::sets) static EMPEROR_OF_BONES: CardRecord = CardRecord::new_
                                     },
                                     EffectDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            EMPEROR_ARRIVAL,
+                                            ParentBinding,
                                         )),
                                     },
                                 ) },
@@ -1009,8 +1009,6 @@ pub(in crate::card::sets) static NYXBORN_HYDRA: CardRecord = CardRecord::new(
 // MH3 169 — Six
 /// Where the taken land is saved, kept apart from the milled pile so that
 /// "them" and "the one you took" stay two different sets.
-static SIX_TAKEN_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
 pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9246b68-580f-4f53-883d-7900880e4b0d"),
     "Six",
@@ -1032,20 +1030,18 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                             player: EffectRecipientDef::Controller,
                             amount: ValueDef::Constant(3),
                         },
-                        binding: EffectOutputBindingDef::Objects("milled_cards"),
+                        binding: Binding!("milled_cards"),
                     },
                     // A minimum of zero is the "you may": milling three and taking nothing is a
                     // legal answer, and a pile with no land in it never asks.
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(SIX_TAKEN_LAND),
+                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         // "From among them" is what the mill just put there, not what the graveyard
                         // already held -- and only a land among those.
                         candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
-                                "milled_cards",
-                            )),
+                            objects: &ObjectSetDef::Binding(Binding!("milled_cards")),
                             object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
                                 CardType::Land,
                             )),
@@ -1055,7 +1051,7 @@ pub(in crate::card::sets) static SIX: CardRecord = CardRecord::new(
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(SIX_TAKEN_LAND)),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,
                         },
@@ -1808,10 +1804,10 @@ pub(in crate::card::sets) static AJANI_NACATL_PARIAH: CardRecord =
                                     ObjectPredicateDef::HasType(CardType::Planeswalker),
                                 ] }),
                                 visibility: ChoiceVisibilityDef::Public,
-                                chosen: ObjectSetBindingIndex::PRIMARY,
-                                unchosen: ObjectSetBindingIndex::new(1),
+                                chosen: Binding!("ugin_spared_permanents"),
+                                unchosen: Binding!("ugin_sacrificed_permanents"),
                                 then: &const { EffectDef::Sacrifice {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::new(1))),
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!("ugin_sacrificed_permanents"))),
                                 } },
                             }),
                         ),
@@ -2006,9 +2002,8 @@ pub(in crate::card::sets) static ARENA_OF_GLORY: CardRecord = CardRecord::new(
 /// One card off the top, sorted by whether it is a land: the land goes to
 /// the battlefield and anything else goes to the hand, so nothing is left
 /// for the player to decide.
-const NADU_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const NADU_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const NADU_NONLAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const NADU_LAND: Binding = Binding!("nadu_land");
+const NADU_NONLAND: Binding = Binding!("nadu_nonland");
 pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8281df8a-2fde-454a-813c-d9f86bb35d36"),
     "Nadu, Winged Wisdom",
@@ -2046,25 +2041,28 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                             abilities::bind_top_cards_then(
                                 PlayerRefDef::EffectController,
                                 ValueDef::Constant(1),
-                                NADU_INSPECTED,
                                 &const {
-                                    EffectDef::RevealObjects(RevealObjectsDef {
-                                        input: ObjectSetDef::Binding(NADU_INSPECTED),
-                                        then: &const {
-                                            EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                                                input: ObjectSetDef::Binding(NADU_INSPECTED),
+                                    EffectDef::Sequence(&[
+                                        EffectDef::RevealObjects(RevealObjectsDef {
+                                            input: ObjectSetDef::Binding(ParentBinding),
+                                            then: &EffectDef::None,
+                                        }),
+                                        EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                                                input: ObjectSetDef::Binding(ParentBinding),
                                                 object: ObjectPredicateDef::HasType(CardType::Land),
                                                 matching: NADU_LAND,
                                                 remainder: NADU_NONLAND,
                                                 then: &const {
-                                                    EffectDef::MoveObjects(MoveObjectsDef {
-                                                        input: ObjectSetDef::Binding(NADU_LAND),
-                                                        from: Some(ZoneKind::Library),
-                                                        zone: ZoneKind::Battlefield,
-                                                        placement: ZonePlacement::Top,
-                                                        moved: None,
-                                                        then: &EffectDef::MoveObjects(
-                                                            MoveObjectsDef {
+                                                    EffectDef::Sequence(&[
+                                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                                            input: ObjectSetDef::Binding(NADU_LAND),
+                                                            from: Some(ZoneKind::Library),
+                                                            zone: ZoneKind::Battlefield,
+                                                            placement: ZonePlacement::Top,
+                                                            moved: None,
+                                                            then: &EffectDef::None,
+                                                        }),
+                                                        EffectDef::MoveObjects(MoveObjectsDef {
                                                                 input: ObjectSetDef::Binding(
                                                                     NADU_NONLAND,
                                                                 ),
@@ -2073,13 +2071,11 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                                                                 placement: ZonePlacement::Top,
                                                                 moved: None,
                                                                 then: &EffectDef::None,
-                                                            },
-                                                        ),
-                                                    })
+                                                        }),
+                                                    ])
                                                 },
-                                            })
-                                        },
-                                    })
+                                        }),
+                                    ])
                                 },
                             ),
                         )

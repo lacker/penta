@@ -6,7 +6,7 @@ use crate::card::{
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef,
     PlayerRefDef, PlayerRelation, TriggerEventDef, ZoneKind, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // XLN 41 — Territorial Hammerskull
@@ -44,7 +44,7 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
                     &EffectDef::Sequence(&[
                         EffectDef::ExileLinkedToSource {
                             until_source_leaves: true,
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                             face_down: false,
                             then: None,
                         },

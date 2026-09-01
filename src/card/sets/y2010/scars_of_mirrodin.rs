@@ -9,15 +9,15 @@ use crate::card::{
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
     CopyExceptionsDef, CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 /// The fastland cycle: untapped while the board is still small, an expensive
@@ -1707,10 +1707,10 @@ pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: Some(DiscardFollowUpDef {
                     counted: ObjectPredicateDef::HasType(CardType::Land),
-                    bound: None,
+                    bound: Some(ParentBinding),
                     effect: &EffectDef::IfCondition {
                         condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
-                                left: ValueDef::MatchedCount,
+                                left: ValueDef::BoundObjectCount(ParentBinding),
                                 comparison: ComparisonDef::GreaterOrEqual,
                                 right: ValueDef::Constant(1),
                             }),
@@ -2128,21 +2128,21 @@ pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Artifact),
             )],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
-                then: Some(DestroyFollowUpDef {
-                    binding: ObjectSetBindingIndex::PRIMARY,
-                    effect: &EffectDef::Apply {
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+                EffectDef::Apply {
                         recipient: EffectRecipientDef::Source,
                         effect: AppliedEffectDef::modify_power_toughness(
                             ValueDef::TargetManaValue(TargetIndex::PRIMARY),
                             ValueDef::Constant(0),
                         ),
                         duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                    },
-                }),
-            },
+                },
+            ]),
         ),
     ]),
 );
@@ -4258,7 +4258,7 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                 // "You may tap X untapped Myr you control": X is however many the player
                 // picks, none included, so the choice is what settles the size.
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     // Untapped Myr under your control. The Battlesphere is a Myr itself, but
@@ -4280,12 +4280,12 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                     // the Battlesphere grows, and the damage is the same count.
                     then: &EffectDef::Sequence(&[
                         EffectDef::Tap {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         },
                         EffectDef::Apply {
                             recipient: EffectRecipientDef::Source,
                             effect: AppliedEffectDef::modify_power_toughness(
-                                ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                                ValueDef::BoundObjectCount(ParentBinding),
                                 ValueDef::Constant(0),
                             ),
                             duration: ResolvedEffectDurationDef::UntilEndOfTurn,
@@ -4295,7 +4295,7 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
                         // trigger, which carries only the player.
                         EffectDef::DealDamage {
                             recipient: EffectRecipientDef::DefenderOfSource,
-                            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                            amount: ValueDef::BoundObjectCount(ParentBinding),
                         },
                     ]),
                 }),

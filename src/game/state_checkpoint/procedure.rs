@@ -4,9 +4,10 @@ use super::model::{EffectContinuationSnapshot, ScopedEffectSnapshot};
 use super::model_procedure::{DrawReplacementSnapshot, PendingProcedureSnapshot};
 use super::semantics::{catalog_scoped_effect, scoped_effect_snapshot};
 use super::stack::{
-    detached_stack_snapshot_allowing, effect_resolution_context_snapshot,
-    parse_effect_resolution_context, resolution_context_referenced_object_ids,
-    stack_ability_snapshot_allowing, trigger_capture_has_unrebindable_hidden_reference_except,
+    binding_snapshot, detached_stack_snapshot_allowing, effect_resolution_context_snapshot,
+    parse_binding_snapshot, parse_effect_resolution_context,
+    resolution_context_referenced_object_ids, stack_ability_snapshot_allowing,
+    trigger_capture_has_unrebindable_hidden_reference_except,
 };
 use super::*;
 
@@ -112,8 +113,8 @@ pub(super) fn pending_procedure_snapshot(
             object,
             context,
         } => PendingProcedureSnapshot::ForEachInBinding {
-            objects: objects.index(),
-            binding: binding.index(),
+            objects: binding_snapshot(objects),
+            binding: binding_snapshot(binding),
             next: *next,
             continuation: effect_continuation_snapshot(
                 game,
@@ -194,10 +195,8 @@ pub(super) fn parse_pending_procedure(
         } => {
             let continuation = parse_effect_continuation(continuation, game)?;
             super::super::PendingProcedure::ForEachInBinding {
-                objects: crate::ObjectSetBindingIndex::from_index(*objects)
-                    .ok_or("for-each object-set binding is out of range")?,
-                binding: crate::ObjectBindingIndex::from_index(*binding)
-                    .ok_or("for-each object binding is out of range")?,
+                objects: parse_binding_snapshot(objects),
+                binding: parse_binding_snapshot(binding),
                 next: *next,
                 effect: continuation.effect,
                 object: continuation.object,

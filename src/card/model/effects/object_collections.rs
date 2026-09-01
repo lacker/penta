@@ -10,7 +10,7 @@ use super::{
     ChoiceVisibilityDef, EffectDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, ValueDef,
     ZonePlacement,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::Binding;
 
 /// How a collection is materialized before any information, choice, or zone
 /// action occurs.
@@ -58,8 +58,8 @@ pub struct ChooseCardsFromCollectionDef {
     pub object: ObjectPredicateDef,
     pub minimum: usize,
     pub maximum: usize,
-    pub chosen: ObjectSetBindingIndex,
-    pub remainder: ObjectSetBindingIndex,
+    pub chosen: Binding,
+    pub remainder: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -70,17 +70,17 @@ pub struct ChooseCardsFromCollectionDef {
 pub struct RevealAndClassifyCardsDef {
     pub source: ObjectCollectionSourceDef,
     pub object: ObjectPredicateDef,
-    pub matching: ObjectSetBindingIndex,
-    pub remainder: ObjectSetBindingIndex,
+    pub matching: Binding,
+    pub remainder: Binding,
     pub then: &'static EffectDef,
 }
 
-/// Materialize a collection source, freeze its exact identities under a name,
+/// Materialize a collection source, freeze its exact identities in a binding,
 /// and continue. Information and zone changes are separate later stages.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct BindObjectsDef {
     pub source: ObjectCollectionSourceDef,
-    pub binding: ObjectSetBindingIndex,
+    pub binding: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -91,18 +91,18 @@ pub struct BindObjectsDef {
 pub struct ClassifyObjectsDef {
     pub input: ObjectSetDef,
     pub object: ObjectPredicateDef,
-    pub matching: ObjectSetBindingIndex,
-    pub remainder: ObjectSetBindingIndex,
+    pub matching: Binding,
+    pub remainder: Binding,
     pub then: &'static EffectDef,
 }
 
-/// Concatenate named collections in authored order and continue. This closes the
+/// Concatenate bound collections in authored order and continue. This closes the
 /// common partition shape where a choice is made only from the eligible half
 /// but "the rest" includes both declined eligible cards and ineligible ones.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CombineObjectsDef {
     pub inputs: &'static [ObjectSetDef],
-    pub combined: ObjectSetBindingIndex,
+    pub combined: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -123,7 +123,7 @@ pub struct IfNoObjectsDef {
 pub struct ChooseObjectOrderDef {
     pub actor: PlayerRefDef,
     pub input: ObjectSetDef,
-    pub ordered: ObjectSetBindingIndex,
+    pub ordered: Binding,
     pub placement: ZonePlacement,
     pub visibility: ChoiceVisibilityDef,
     pub then: &'static EffectDef,
@@ -133,7 +133,7 @@ pub struct ChooseObjectOrderDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct RandomizeObjectOrderDef {
     pub input: ObjectSetDef,
-    pub randomized: ObjectSetBindingIndex,
+    pub randomized: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -155,7 +155,7 @@ pub struct MoveObjectsDef {
     pub from: Option<super::ZoneKind>,
     pub zone: super::ZoneKind,
     pub placement: ZonePlacement,
-    pub moved: Option<ObjectSetBindingIndex>,
+    pub moved: Option<Binding>,
     pub then: &'static EffectDef,
 }
 
@@ -168,7 +168,7 @@ pub struct PutObjectsOntoBattlefieldFaceDownDef {
     pub controller: PlayerRefDef,
     pub characteristics: FaceDownCharacteristics,
     pub turn_up_for_mana_cost: bool,
-    pub moved: Option<ObjectSetBindingIndex>,
+    pub moved: Option<Binding>,
     pub then: &'static EffectDef,
 }
 
@@ -191,8 +191,8 @@ pub struct LookAtObjectsDef {
 pub struct PartitionGroupDef {
     pub actor: PlayerRefDef,
     pub input: ObjectSetDef,
-    pub first: ObjectSetBindingIndex,
-    pub second: ObjectSetBindingIndex,
+    pub first: Binding,
+    pub second: Binding,
     pub visibility: ChoiceVisibilityDef,
     pub then: &'static EffectDef,
 }
@@ -204,8 +204,8 @@ pub struct ChooseGroupDef {
     pub actor: PlayerRefDef,
     pub first: ObjectSetDef,
     pub second: ObjectSetDef,
-    pub chosen: ObjectSetBindingIndex,
-    pub unchosen: ObjectSetBindingIndex,
+    pub chosen: Binding,
+    pub unchosen: Binding,
     pub visibility: ChoiceVisibilityDef,
     pub then: &'static EffectDef,
 }
@@ -218,8 +218,8 @@ pub struct ChooseOneOfEachDef {
     pub actor: PlayerRefDef,
     pub input: ObjectSetDef,
     pub predicates: &'static [ObjectPredicateDef],
-    pub chosen: ObjectSetBindingIndex,
-    pub remainder: ObjectSetBindingIndex,
+    pub chosen: Binding,
+    pub remainder: Binding,
     pub visibility: ChoiceVisibilityDef,
     pub then: &'static EffectDef,
 }

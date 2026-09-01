@@ -25,7 +25,7 @@ use super::model::{
     SpellResolutionDestinationDef, SuspendAbilityDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 
 /// "If this card is in your opening hand, you may begin the game with it on
 /// the battlefield." The pregame runtime supplies the source card; the move
@@ -569,11 +569,11 @@ static CONNIVE_STEPS: [EffectDef; 2] = [
 
 static CONNIVE_COUNTERS: DiscardFollowUpDef = DiscardFollowUpDef {
     counted: ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-    bound: None,
+    bound: Some(ParentBinding),
     effect: &EffectDef::AddCounters {
         object: EffectRecipientDef::Source,
         kind: CounterKind::PlusOnePlusOne,
-        amount: ValueDef::MatchedCount,
+        amount: ValueDef::BoundObjectCount(ParentBinding),
     },
 };
 
@@ -719,7 +719,7 @@ pub const fn circle_of_protection(
         text,
         costs,
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::new(
@@ -739,7 +739,7 @@ static SHIELD_AGAINST_THE_CHOSEN_SOURCE: EffectDef = EffectDef::PreventDamage {
     prevention: DamagePreventionDef::events(
         DamageEventMatcherDef {
             recipient: DamageRecipientMatcherDef::Recipients(EffectRecipientDef::Controller),
-            ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY))
+            ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ParentBinding))
         },
         1,
     ),
@@ -755,7 +755,7 @@ pub const fn shield_against_a_chosen_source(
     then: &'static EffectDef,
 ) -> EffectDef {
     EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+        binding: ObjectChoiceBindingDef::Object(ParentBinding),
         unchosen: None,
         chooser: PlayerRefDef::EffectController,
         candidates: ObjectSetDef::Query(ObjectQueryDef::new(

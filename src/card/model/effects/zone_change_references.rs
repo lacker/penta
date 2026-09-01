@@ -5,7 +5,7 @@ pub enum ZoneChangeReferenceDef {
     Source,
     AbilityGrantSource,
     ResolvingObject,
-    Binding(ObjectBindingIndex),
+    Binding(Binding),
     AdditionalCostObject(AdditionalCostObjectIndex),
     AttachedToSource,
     Target(TargetIndex),

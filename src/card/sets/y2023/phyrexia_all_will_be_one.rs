@@ -9,7 +9,7 @@ use crate::card::{
     RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::{ObjectSetBindingIndex, mana_cost};
+use crate::{Binding, ParentBinding, mana_cost};
 
 // ONE 28 — Planar Disruption
 // Audit: metadata-only — Card rules have not been implemented.
@@ -184,10 +184,8 @@ pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new
 /// engine is one, so the seven it has are the whole list. The rest go back
 /// underneath in a random order, which is why the look is worth so much
 /// less to the player who did it than the cards it kept.
-const ATRAXA_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const ATRAXA_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const ATRAXA_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const ATRAXA_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const ATRAXA_CHOSEN: Binding = Binding!("atraxa_chosen");
+const ATRAXA_REST: Binding = Binding!("atraxa_rest");
 pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a1f905f-1d55-4d02-9d24-e58070793d3f"),
     "Atraxa, Grand Unifier",
@@ -209,14 +207,15 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(10),
-                    ATRAXA_INSPECTED,
                     &const {
-                        EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
-                            then: &const {
-                                EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
+                        EffectDef::Sequence(&[
+                            EffectDef::RevealObjects(RevealObjectsDef {
+                                input: ObjectSetDef::Binding(ParentBinding),
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::ChooseOneOfEach(ChooseOneOfEachDef {
                                     actor: PlayerRefDef::EffectController,
-                                    input: ObjectSetDef::Binding(ATRAXA_INSPECTED),
+                                    input: ObjectSetDef::Binding(ParentBinding),
                                     predicates: &const {
                                         [
                                             ObjectPredicateDef::HasType(CardType::Artifact),
@@ -232,21 +231,23 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
                                     remainder: ATRAXA_REST,
                                     visibility: ChoiceVisibilityDef::Public,
                                     then: &const {
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Hand,
-                                            placement: ZonePlacement::Top,
-                                            moved: None,
-                                            then: &const {
+                                        EffectDef::Sequence(&[
+                                            EffectDef::MoveObjects(MoveObjectsDef {
+                                                input: ObjectSetDef::Binding(ATRAXA_CHOSEN),
+                                                from: Some(ZoneKind::Library),
+                                                zone: ZoneKind::Hand,
+                                                placement: ZonePlacement::Top,
+                                                moved: None,
+                                                then: &EffectDef::None,
+                                            }),
                                                 EffectDef::RandomizeObjectOrder(
                                                     RandomizeObjectOrderDef {
                                                         input: ObjectSetDef::Binding(ATRAXA_REST),
-                                                        randomized: ATRAXA_RANDOMIZED,
+                                                        randomized: ParentBinding,
                                                         then: &EffectDef::MoveObjects(
                                                             MoveObjectsDef {
                                                                 input: ObjectSetDef::Binding(
-                                                                    ATRAXA_RANDOMIZED,
+                                                                    ParentBinding,
                                                                 ),
                                                                 from: Some(ZoneKind::Library),
                                                                 zone: ZoneKind::Library,
@@ -257,12 +258,10 @@ pub(in crate::card::sets) static ATRAXA_GRAND_UNIFIER: CardRecord = CardRecord::
                                                         ),
                                                     },
                                                 )
-                                            },
-                                        })
+                                        ])
                                     },
-                                })
-                            },
-                        })
+                            }),
+                        ])
                     },
                 ),
             ),

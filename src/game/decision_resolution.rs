@@ -99,7 +99,7 @@ impl Game {
                 context,
                 effect,
             } => self.resolve_card_name_choice(
-                &choices, searched, zone, binding, &object, context, effect, options,
+                &choices, searched, zone, &binding, &object, context, effect, options,
             ),
             DecisionContinuation::ChooseForEachPlayer {
                 definition,

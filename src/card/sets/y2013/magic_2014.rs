@@ -30,7 +30,7 @@ use crate::card::{
     RoundingDef, SacrificedAmountDef, ScaledValueDef, TargetConditionDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 static TAPPED_ZOMBIE: EffectDef =
@@ -2623,9 +2623,7 @@ pub(in crate::card::sets) static HUNT_THE_WEAK: CardRecord = CardRecord::new(
 // M14 180 — Into the Wilds
 /// Only a land may be taken, and taking it is optional. Whatever is not
 /// taken remains on top, so a nonland card is still the next draw.
-const WILDS_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const WILDS_LAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const WILDS_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const WILDS_LAND: Binding = Binding!("wilds_land");
 pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_with_legacy_id(
     2007,
     "Into the Wilds",
@@ -2642,14 +2640,13 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(1),
-            WILDS_INSPECTED,
             &const { EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                input: ObjectSetDef::Binding(WILDS_INSPECTED),
+                input: ObjectSetDef::Binding(ParentBinding),
                 object: ObjectPredicateDef::HasType(CardType::Land),
                 matching: WILDS_LAND,
-                remainder: ObjectSetBindingIndex::new(2),
+                remainder: Binding!("wilderness_remainder"),
                 then: &EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(WILDS_CHOSEN),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Binding(WILDS_LAND),
@@ -2658,7 +2655,7 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Private,
                     then: &EffectDef::MoveObjects(MoveObjectsDef {
-                        input: ObjectSetDef::Binding(WILDS_CHOSEN),
+                        input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Library),
                         zone: ZoneKind::Battlefield,
                         placement: ZonePlacement::Top,

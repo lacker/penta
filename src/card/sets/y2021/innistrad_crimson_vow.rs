@@ -8,7 +8,7 @@ use crate::card::{
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // VOW 55 — Cruel Witness
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                             },
                             EffectDef::Choose(ChooseDef {
-                                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                                 unchosen: None,
                                 chooser: PlayerRefDef::EffectController,
                                 candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -96,15 +96,15 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
                                 maximum: 1,
                                 visibility: ChoiceVisibilityDef::Public,
                                 then: &EffectDef::ForEachInBinding {
-                                    objects: ObjectSetBindingIndex::PRIMARY,
-                                    binding: ObjectBindingIndex::PRIMARY,
+                                    objects: ParentBinding,
+                                    binding: ParentBinding,
                                     // What the Eye does with the card it picked. Written as a walk over the
                                     // chosen set rather than a plain sequence, because "if you do" gates the
                                     // draw as well as the discard: an Eye that looked and took nothing leaves
                                     // the opponent with the hand they had.
                                     effect: &EffectDef::Sequence(&const { [
                                         EffectDef::DiscardCards {
-                                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                                         },
                                         EffectDef::DrawCards {
                                             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

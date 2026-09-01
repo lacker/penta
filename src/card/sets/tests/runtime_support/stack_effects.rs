@@ -442,7 +442,7 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         } => {
             shared_effect_recipient(object)
                 && shared_effect_recipient(EffectRecipientDef::player(player))
-                && shared_stack_effect_at_position(*then, deferred_decision_allowed)
+                && shared_object_collection_continuation(*then, deferred_decision_allowed)
         }
         EffectDef::SearchZone {
             player,

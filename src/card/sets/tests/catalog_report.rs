@@ -298,3 +298,14 @@ fn print_catalog_report() {
         .is_ok_and(|value| value == "1" || value.eq_ignore_ascii_case("true"));
     print!("{}", repository_report(verbose));
 }
+
+#[test]
+fn every_card_definition_satisfies_binding_validation() {
+    let mut failures = Vec::new();
+    for definition in super::super::definitions() {
+        if let Err(error) = crate::CardCatalog::new([definition.clone()]) {
+            failures.push(format!("{}: {error:?}", definition.name));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}

@@ -12,7 +12,7 @@ use crate::card::{
     TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 /// Each land names the other two, and a name predicate compares the name a
@@ -1678,7 +1678,7 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
             "At the beginning of your upkeep, you may exile any number of tokens created with this creature. If you do, put that many +1/+1 counters on this creature.",
             UPKEEP,
             EffectDef::Choose(crate::card::ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::TokensCreatedBy(ObjectRefDef::Source),
@@ -1689,7 +1689,7 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
                 then: &EffectDef::Sequence(&[
                     EffectDef::MoveToZone {
                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ObjectSetBindingIndex::PRIMARY,
+                            ParentBinding,
                         )),
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
@@ -1697,7 +1697,7 @@ pub(in crate::card::sets) static TETRAVUS: CardRecord = CardRecord::new_with_leg
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
                         kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        amount: ValueDef::BoundObjectCount(ParentBinding),
                     },
                 ]),
             }),

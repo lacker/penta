@@ -25,17 +25,17 @@ pub const fn greatest_power_you_control() -> ValueDef {
 }
 
 static DISCARD_CHOSEN_HAND_CARD: EffectDef = EffectDef::DiscardCards {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
 };
 
 static EXILE_CHOSEN_HAND_CARD: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
 };
 
 /// Reveal one player's hand, let the effect controller choose exactly one
-/// matching card, and continue with that card in the primary object binding.
+/// matching card, and continue with that card in `ParentBinding`.
 ///
 /// If no card matches, no choice is offered and `then` does not run. Put any
 /// unconditional later instruction outside this pair, as Thoughtseize does
@@ -51,7 +51,7 @@ pub const fn reveal_hand_and_choose_card(
             player: EffectRecipientDef::player(player),
         },
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -273,10 +273,9 @@ static BRAINSTORM_STEPS: [EffectDef; 2] = [
 
 static BRAINSTORM_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
 
-const END_OF_COMBAT_DESTROY_BINDING: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
 static DESTROY_AT_END_OF_COMBAT: EffectDef = EffectDef::Destroy {
     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-        END_OF_COMBAT_DESTROY_BINDING,
+        ParentBinding,
     )),
     can_regenerate: true,
     then: None,
@@ -301,7 +300,6 @@ static INSTALL_END_OF_COMBAT_DESTROY_TRIGGER: EffectDef =
 pub const fn destroy_triggering_object_at_end_of_combat() -> EffectDef {
     bind_objects_then(
         ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(ObjectRefDef::TriggeringObject)),
-        END_OF_COMBAT_DESTROY_BINDING,
         &INSTALL_END_OF_COMBAT_DESTROY_TRIGGER,
     )
 }

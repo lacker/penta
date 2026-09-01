@@ -8,7 +8,7 @@ use crate::card::{
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef,
     ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
 
 // STX 17 — Elite Spellbinder
@@ -36,7 +36,7 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -54,7 +54,7 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
                         // and the tax outlives it. What the owner keeps is the card itself, one
                         // turn later and two mana worse.
                         then: &EffectDef::ExileGrantingOwnerPlay {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                             surcharge: mana_cost!("{2}"),
                         },
                     }),
@@ -140,11 +140,10 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
 /// nothing left to decide. Exiling it is the payoff rather than the cost --
 /// it is playable for the rest of the turn, which is why the spell is two
 /// cards for two mana as long as the mana holds out.
-const ITERATION_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const ITERATION_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const ITERATION_AFTER_HAND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const ITERATION_BOTTOM: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-const ITERATION_EXILE: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
+const ITERATION_HAND: Binding = Binding!("iteration_hand");
+const ITERATION_AFTER_HAND: Binding = Binding!("iteration_after_hand");
+const ITERATION_BOTTOM: Binding = Binding!("iteration_bottom");
+const ITERATION_EXILE: Binding = Binding!("iteration_exile");
 pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31b770cc-09e7-4c0b-b2a4-462ab4f7200d"),
     "Expressive Iteration",
@@ -167,51 +166,54 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
         abilities::bind_top_cards_then(
             PlayerRefDef::EffectController,
             ValueDef::Constant(3),
-            ITERATION_INSPECTED,
             &const {
                 EffectDef::Choose(ChooseDef {
                     binding: ObjectChoiceBindingDef::Objects(ITERATION_HAND),
                     unchosen: Some(ITERATION_AFTER_HAND),
                     chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Binding(ITERATION_INSPECTED),
+                    candidates: ObjectSetDef::Binding(ParentBinding),
                     exclude: None,
                     minimum: 1,
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Private,
                     then: &const {
-                        EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(ITERATION_HAND),
-                            from: Some(ZoneKind::Library),
-                            zone: ZoneKind::Hand,
-                            placement: ZonePlacement::Top,
-                            moved: None,
-                            then: &const {
-                                EffectDef::Choose(ChooseDef {
-                                    binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
-                                    unchosen: Some(ITERATION_EXILE),
-                                    chooser: PlayerRefDef::EffectController,
-                                    candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
-                                    exclude: None,
-                                    minimum: 1,
-                                    maximum: 1,
-                                    visibility: ChoiceVisibilityDef::Private,
-                                    then: &const {
+                        EffectDef::Sequence(&[
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(ITERATION_HAND),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Hand,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::Choose(ChooseDef {
+                                binding: ObjectChoiceBindingDef::Objects(ITERATION_BOTTOM),
+                                unchosen: Some(ITERATION_EXILE),
+                                chooser: PlayerRefDef::EffectController,
+                                candidates: ObjectSetDef::Binding(ITERATION_AFTER_HAND),
+                                exclude: None,
+                                minimum: 1,
+                                maximum: 1,
+                                visibility: ChoiceVisibilityDef::Private,
+                                then: &const {
+                                    EffectDef::Sequence(&[
                                         EffectDef::MoveObjects(MoveObjectsDef {
                                             input: ObjectSetDef::Binding(ITERATION_BOTTOM),
                                             from: Some(ZoneKind::Library),
                                             zone: ZoneKind::Library,
                                             placement: ZonePlacement::Bottom,
                                             moved: None,
-                                            then: &EffectDef::ExileGrantingControllerPlayThisTurn {
-                                                object: EffectRecipientDef::objects(
-                                                    ObjectSetDef::Binding(ITERATION_EXILE),
-                                                ),
-                                            },
-                                        })
-                                    },
-                                })
-                            },
-                        })
+                                            then: &EffectDef::None,
+                                        }),
+                                        EffectDef::ExileGrantingControllerPlayThisTurn {
+                                            object: EffectRecipientDef::objects(
+                                                ObjectSetDef::Binding(ITERATION_EXILE),
+                                            ),
+                                        },
+                                    ])
+                                },
+                            }),
+                        ])
                     },
                 })
             },

@@ -12,7 +12,7 @@ use crate::card::{
     TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
     ZonePlacement, abilities, tokens,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // NEO 17 — Imperial Oath
@@ -538,8 +538,6 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
 );
 
 // NEO 357 — Fable of the Mirror-Breaker // Reflection of Kiki-Jiki
-const KIKI_COPY: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
 pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("0b696cd1-0d72-4df5-bacc-dc77e62f9a13"),
     "Fable of the Mirror-Breaker // Reflection of Kiki-Jiki",
@@ -570,7 +568,7 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                         2,
                         "II — You may discard up to two cards. If you do, draw that many cards.",
                         EffectDef::Choose(ChooseDef {
-                            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                            binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                             unchosen: None,
                             chooser: PlayerRefDef::EffectController,
                             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -587,11 +585,11 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                             // what is drawn is however many that turned out to be.
                             then: &EffectDef::Sequence(&const { [
                                 EffectDef::DiscardCards {
-                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                                 },
                                 EffectDef::DrawCards {
                                     recipient: EffectRecipientDef::Controller,
-                                    amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                                    amount: ValueDef::BoundObjectCount(ParentBinding),
                                 },
                             ] }),
                         }),
@@ -638,7 +636,7 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                             .with_abilities(&const { [CopyAbilityDef::Ability(&abilities::haste())] }),
                     } })
                     .with_created_tokens(CreatedTokensDef {
-                        binding: KIKI_COPY,
+                        binding: ParentBinding,
                         then: &const {
                             EffectDef::InstallTrigger(InstalledTriggerDef::once(&const {
                                 AbilityDef::triggered(
@@ -649,7 +647,7 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                                     },
                                     EffectDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            KIKI_COPY,
+                                            ParentBinding,
                                         )),
                                     },
                                 )

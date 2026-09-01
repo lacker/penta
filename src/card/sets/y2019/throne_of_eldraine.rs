@@ -14,7 +14,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
 // ELD 5 — Ardenvale Tactician
@@ -751,7 +751,7 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
             shuffle: true,
             enters_tapped: true,
             attachment: None,
-            binding: Some(ObjectSetBindingIndex::PRIMARY),
+            binding: Some(ParentBinding),
             then: Some(&EffectDef::IfCondition {
                 // Counted after the search, so the land that just arrived is one of the
                 // four -- and the Passage itself is not, having sacrificed itself to pay.
@@ -768,9 +768,7 @@ pub(in crate::card::sets) static FABLED_PASSAGE: CardRecord = CardRecord::new(
                 // "Untap that land": the one this search found rather than any land, which
                 // is why the search binds what it took.
                 then: &EffectDef::Untap {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                 },
             }),
         },

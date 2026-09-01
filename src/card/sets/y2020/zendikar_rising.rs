@@ -8,7 +8,7 @@ use crate::card::{
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, TokenStatsDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
-use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // ZNR 9 — Dauntless Unity
 // Audit: metadata-only — Card rules have not been implemented.
@@ -70,25 +70,24 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
                     crate::card::ObjectCollectionSourceDef::ObjectSet(
                         ObjectSetDef::LinkedExiles,
                     ),
-                    ObjectSetBindingIndex::PRIMARY,
                     // One token per exiled card, which is one token: the exile clause is "up to
                     // one target". Binding the pile is also what makes the clause do nothing at
                     // all when nothing was exiled -- the Apparition that entered with no legal
                     // target leaves without paying anybody.
                     &EffectDef::ForEachInBinding {
-                        objects: ObjectSetBindingIndex::PRIMARY,
-                        binding: ObjectBindingIndex::PRIMARY,
+                        objects: ParentBinding,
+                        binding: ParentBinding,
                         // The token is the exiled card's owner's, not the Apparition controller's:
                         // what they get back for the permanent that is not coming back.
                         effect: &EffectDef::create_creature_token(&["Illusion"], &[ManaColor::Blue], 0, 0)
                                 // "Where X is the mana value of the exiled card": both halves read the same
                                 // card, which is the one the leave trigger just bound.
                                 .with_variable_token_stats(&TokenStatsDef {
-                                    power: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-                                    toughness: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                                    power: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
+                                    toughness: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
                                 })
                                 .with_controller(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(
-                                    ObjectBindingIndex::PRIMARY,
+                                    ParentBinding,
                                 ))),
                     },
                 ),

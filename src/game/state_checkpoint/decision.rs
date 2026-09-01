@@ -36,6 +36,7 @@ use super::semantics::{
     catalog_replacement_effect, catalog_scoped_effect, replacement_effect_locator_matches_source,
     replacement_effects, resolved_replacement_effect_locator, scoped_effect_snapshot,
 };
+use super::stack::{binding_snapshot, parse_binding_snapshot};
 use super::stack::{
     detached_stack_snapshot_allowing, effect_resolution_context_snapshot,
     object_reference_requires_hidden_rebinding, parse_detached_stack,
@@ -192,7 +193,7 @@ fn continuation_snapshot(
             shuffle: *shuffle,
             enters_tapped: *enters_tapped,
             attached_player: attached_player.map(PlayerId::index),
-            binding: binding.map(crate::ids::ObjectSetBindingIndex::index),
+            binding: binding.as_ref().map(binding_snapshot),
             follow_up: match follow_up {
                 // A search whose follow-up cannot be relocated is one this
                 // format cannot carry, rather than one written down without
@@ -918,7 +919,7 @@ fn continuation_snapshot(
             choices: choices.clone(),
             searched: searched.index(),
             zone: zone_kind_snapshot(*zone),
-            binding: binding.index(),
+            binding: binding_snapshot(binding),
             continuation: effect_continuation_snapshot(
                 game,
                 viewer,

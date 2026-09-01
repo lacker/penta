@@ -2,7 +2,7 @@ use crate::card::{
     ManaCost, ReplacementAbilityDef, ReplacementEffectDef, SpellAdditionalCostDef, ZoneKind,
     ZonePlacement,
 };
-use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
+use crate::ids::{Binding, CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
     AbilitySourceRef, CounterKind, EffectResolutionContext, FrozenActivatedAbility, Game, Mana,
@@ -108,7 +108,7 @@ pub(super) enum BattlefieldExitCompletion {
     },
     DestroyFollowup {
         candidates: Vec<GameObjectId>,
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         object: Box<StackObject>,
         context: EffectResolutionContext,
         effect: ScopedEffect,
@@ -130,7 +130,7 @@ pub(super) enum BattlefieldExitCompletion {
         source: GameObjectId,
         source_card: ObjectInstance,
         controller: PlayerId,
-        frozen: FrozenActivatedAbility,
+        frozen: Box<FrozenActivatedAbility>,
         targets: Vec<TargetSelection>,
         chosen_permanents: Vec<GameObjectId>,
         remaining_sacrifices: Vec<GameObjectId>,

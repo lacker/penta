@@ -66,7 +66,7 @@ fn validate_battlefield_arrival_target_shapes(
 
 fn validate_zone_move_result_target_shapes(
     effect: &'static EffectDef,
-    binding: ObjectSetBindingIndex,
+    binding: Binding,
     then: &'static EffectDef,
     targets: &[AbilityTargetDef],
     triggering_object_zone: Option<ZoneKind>,

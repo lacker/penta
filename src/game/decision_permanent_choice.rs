@@ -2,7 +2,7 @@ use crate::card::{
     ChooseDef, ChooseExactDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
     ObjectChoiceBindingDef, ObjectSetDef, ZoneKind,
 };
-use crate::{GameObjectId, ObjectSetBindingIndex};
+use crate::{Binding, GameObjectId};
 
 use super::decision_offers::effect_choice_visibility;
 use super::{
@@ -407,8 +407,8 @@ fn recipient_uses_binding(recipient: EffectRecipientDef, binding: ObjectChoiceBi
                 recipient,
             ))),
             ObjectChoiceBindingDef::Object(binding),
-        ) => recipient == binding,
-        (
+        )
+        | (
             EffectRecipientSetDef::Objects(ObjectSetDef::Binding(recipient)),
             ObjectChoiceBindingDef::Objects(binding)
             | ObjectChoiceBindingDef::OrderedObjects(binding),
@@ -477,14 +477,11 @@ pub(super) fn effect_removes_binding(effect: EffectDef, binding: ObjectChoiceBin
     }
 }
 
-pub(super) fn effect_moves_group_to_hand(
-    effect: EffectDef,
-    binding: ObjectSetBindingIndex,
-) -> bool {
+pub(super) fn effect_moves_group_to_hand(effect: EffectDef, binding: Binding) -> bool {
     effect_matches_group_operation(effect, binding, GroupOperation::MoveToHand)
 }
 
-pub(super) fn effect_sacrifices_group(effect: EffectDef, binding: ObjectSetBindingIndex) -> bool {
+pub(super) fn effect_sacrifices_group(effect: EffectDef, binding: Binding) -> bool {
     effect_matches_group_operation(effect, binding, GroupOperation::Sacrifice)
 }
 
@@ -496,7 +493,7 @@ enum GroupOperation {
 
 fn effect_matches_group_operation(
     effect: EffectDef,
-    binding: ObjectSetBindingIndex,
+    binding: Binding,
     operation: GroupOperation,
 ) -> bool {
     let recipient_matches = |recipient: EffectRecipientDef| {
@@ -537,7 +534,7 @@ mod tests {
             binding,
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+            candidates: ObjectSetDef::Binding(Binding!("objects")),
             exclude: None,
             minimum: 2,
             maximum: 2,
@@ -549,15 +546,11 @@ mod tests {
     #[test]
     fn a_required_ordered_pair_still_asks_for_its_order() {
         assert!(effect_choice_resolves_automatically(
-            required_pair(ObjectChoiceBindingDef::Objects(
-                ObjectSetBindingIndex::PRIMARY,
-            )),
+            required_pair(ObjectChoiceBindingDef::Objects(Binding!("objects"),)),
             2,
         ));
         assert!(!effect_choice_resolves_automatically(
-            required_pair(ObjectChoiceBindingDef::OrderedObjects(
-                ObjectSetBindingIndex::PRIMARY,
-            )),
+            required_pair(ObjectChoiceBindingDef::OrderedObjects(Binding!("objects"),)),
             2,
         ));
     }

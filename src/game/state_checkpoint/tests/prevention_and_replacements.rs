@@ -349,7 +349,7 @@ fn sylvan_library_for_each_payment_resumes_after_checkpoint_round_trip() {
         unreachable!();
     };
     assert_eq!(
-        context.object_group(crate::ObjectSetBindingIndex::PRIMARY),
+        context.object_group(crate::ParentBinding),
         expected_order
     );
     let (_, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 4_252);

@@ -64,17 +64,7 @@ fn parse_continuation(
             shuffle: *shuffle,
             enters_tapped: *enters_tapped,
             attached_player: attached_player.map(player).transpose()?,
-            binding: binding
-                .map(|index| {
-                    u8::try_from(index)
-                        .ok()
-                        .filter(|index| {
-                            usize::from(*index) < crate::ids::ObjectSetBindingIndex::COUNT
-                        })
-                        .map(crate::ids::ObjectSetBindingIndex::new)
-                        .ok_or("search binding is out of range")
-                })
-                .transpose()?,
+            binding: binding.as_ref().map(parse_binding_snapshot),
             follow_up: follow_up
                 .as_ref()
                 .map(|snapshot| {
@@ -222,11 +212,7 @@ fn parse_continuation(
                 choices: choices.clone(),
                 searched: player(*searched)?,
                 zone: parse_zone_kind(*zone),
-                binding: u8::try_from(*binding)
-                    .ok()
-                    .filter(|index| usize::from(*index) < crate::ids::ObjectSetBindingIndex::COUNT)
-                    .map(crate::ids::ObjectSetBindingIndex::new)
-                    .ok_or("card-name choice binding is out of range")?,
+                binding: parse_binding_snapshot(binding),
                 object: continuation.object,
                 context: continuation.context,
                 effect: continuation.effect,

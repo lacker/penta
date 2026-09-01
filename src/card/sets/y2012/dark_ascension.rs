@@ -11,17 +11,16 @@ use crate::card::{
     ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef,
     CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectBindingLabelDef, EffectChoiceDef, EffectDef,
-    EffectOutputBindingDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
-    PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
+    SumValueDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{AdditionalCostObjectIndex, ObjectSetBindingIndex, TargetIndex};
-use crate::{mana_cost, value_if_condition};
+use crate::ids::{AdditionalCostObjectIndex, TargetIndex};
+use crate::{ParentBinding, mana_cost, value_if_condition};
 
 static FATEFUL_HOUR: TriggerConditionDef = TriggerConditionDef::ControllerLifeAtMost(5);
 
@@ -1893,12 +1892,12 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
                                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                                 can_regenerate: true,
                                 then: Some(DestroyFollowUpDef {
-                                    binding: ObjectSetBindingIndex::PRIMARY,
+                                    binding: ParentBinding,
                                     effect: &EffectDef::IfCondition {
                                         condition: &TriggerConditionDef::ObjectSetCount(
                                             &ObjectSetCountConditionDef {
                                                 objects: &ObjectSetDef::Binding(
-                                                    ObjectSetBindingIndex::PRIMARY,
+                                                    ParentBinding,
                                                 ),
                                                 filter: None,
                                                 comparison: ComparisonDef::GreaterOrEqual,
@@ -2486,10 +2485,10 @@ pub(in crate::card::sets) static SHATTERED_PERCEPTION: CardRecord = CardRecord::
                 selection: DiscardSelectionDef::RecipientChooses,
                 then: Some(DiscardFollowUpDef {
                     counted: ObjectPredicateDef::Any,
-                    bound: None,
+                    bound: Some(ParentBinding),
                     effect: &EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::MatchedCount,
+                        amount: ValueDef::BoundObjectCount(ParentBinding),
                     },
                 }),
             },
@@ -3878,11 +3877,11 @@ pub(in crate::card::sets) static HAUNTED_FENGRAF: CardRecord = CardRecord::new(
                         object: ObjectPredicateDef::HasType(CardType::Creature),
                         amount: ValueDef::Constant(1),
                     },
-                    binding: EffectOutputBindingDef::Objects("haunted_fengraf_card"),
+                    binding: Binding!("haunted_fengraf_card"),
                 },
                 EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
-                        &EffectBindingLabelDef("haunted_fengraf_card"),
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                        Binding!("haunted_fengraf_card"),
                     )),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,

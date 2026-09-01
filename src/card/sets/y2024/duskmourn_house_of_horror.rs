@@ -17,7 +17,7 @@ use crate::card::{
     SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
     TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // DSK 6 — Enduring Innocence
@@ -69,11 +69,9 @@ pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::ne
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                 },
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 then: &EffectDef::Apply {
-                    recipient: EffectRecipientDef::binding_zone_change_successors(
-                        ObjectSetBindingIndex::PRIMARY,
-                    ),
+                    recipient: EffectRecipientDef::binding_zone_change_successors(ParentBinding),
                     // What it comes back as. Setting the type line rather than adding to it is
                     // what takes the creature away, and the effect lasts as long as the
                     // permanent does -- so the next time it dies the clause below finds an
@@ -219,7 +217,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
                         // The whole graveyard, not only what the mill just put there: the clause
                         // says "from your graveyard" and means it.
                         EffectDef::Choose(ChooseDef {
-                            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                            binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                             unchosen: None,
                             chooser: PlayerRefDef::EffectController,
                             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -241,7 +239,7 @@ pub(in crate::card::sets) static OVERLORD_OF_THE_BALEMURK: CardRecord =
                             maximum: 1,
                             visibility: ChoiceVisibilityDef::Public,
                             then: &EffectDef::MoveToZone {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                                 zone: ZoneKind::Hand,
                                 placement: ZonePlacement::Top,
                             },
@@ -608,10 +606,10 @@ pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with
                     transformed: false,
                     controller: Some(PlayerRelation::You),
                 },
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 then: &EffectDef::Apply {
                     recipient: EffectRecipientDef::binding_zone_change_successors(
-                        ObjectSetBindingIndex::PRIMARY,
+                        ParentBinding,
                     ),
                     // "Each of them is a 1/1 Spirit in addition to its other types." Adding the
                     // subtype rather than setting it is what "in addition" means: a Griselbrand

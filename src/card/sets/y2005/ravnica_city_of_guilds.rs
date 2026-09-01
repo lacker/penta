@@ -3,18 +3,17 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::abilities;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, EffectDef,
-    EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, RevealObjectsDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef, CardArt,
+    CardRules, CardSet, EffectDef, EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef,
+    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
+    RevealObjectsDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // RAV 81 — Dark Confidant
 /// One card off the top, shown to everybody, into your hand. Nothing is
 /// chosen and nothing may be declined: the minimum and the maximum are both
 /// the one card the trigger names.
-const CONFIDANT_CARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
 pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94f7a441-bf2d-46fb-a7b6-9bd6137f86d9"),
     "Dark Confidant",
@@ -34,25 +33,31 @@ pub(in crate::card::sets) static DARK_CONFIDANT: CardRecord = CardRecord::new(
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(1),
-                CONFIDANT_CARD,
                 &const {
-                    EffectDef::RevealObjects(RevealObjectsDef {
-                        input: ObjectSetDef::Binding(CONFIDANT_CARD),
-                        then: &EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(CONFIDANT_CARD),
+                    EffectDef::Sequence(&[
+                        EffectDef::RevealObjects(RevealObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(ParentBinding),
                             from: Some(ZoneKind::Library),
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,
-                            moved: None,
+                            moved: Some(ParentBinding),
                             // "You lose life equal to its mana value." The card is in your hand by the
                             // time this is asked, so what the reveal hands on is the number rather than
                             // the card.
                             then: &EffectDef::LoseLife {
                                 recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::MatchedManaValue,
+                                amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                                    objects: ObjectSetDef::Binding(ParentBinding),
+                                    select: ObjectValueDef::ManaValue,
+                                    operation: AggregateOperationDef::Maximum,
+                                }),
                             },
                         }),
-                    })
+                    ])
                 },
             ),
         ),

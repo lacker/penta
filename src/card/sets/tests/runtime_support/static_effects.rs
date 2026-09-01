@@ -243,7 +243,6 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                         | ObjectRefDef::DamagedObject,
                     )
                     | ObjectSetDef::Binding(_)
-                    | ObjectSetDef::NamedBinding(_)
                     | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                     | ObjectSetDef::MatchingBinding { .. }
                     | ObjectSetDef::Matching { .. }

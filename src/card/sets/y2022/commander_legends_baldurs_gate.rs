@@ -10,7 +10,7 @@ use crate::card::{
     PlayerRefDef, PlayerRelation, SacrificedAmountDef, TokenCharacteristics, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // CLB 11 — Blessed Hippogriff
@@ -157,8 +157,7 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
 /// "Where X is that creature's power": read off the creature that was
 /// sacrificed, from last-known information, since paying is what put it in
 /// the graveyard.
-static SACRIFICED_POWER: ValueDef =
-    ValueDef::ObjectPower(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY));
+static SACRIFICED_POWER: ValueDef = ValueDef::ObjectPower(ObjectRefDef::Binding(ParentBinding));
 
 pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("928036c9-11b8-493e-b9f2-8fbd3487cd19"),
@@ -237,7 +236,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
                 // it is still on the battlefield while the ability is on the stack -- and
                 // naming it is what lets the damage read its power afterwards.
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -251,7 +250,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::Sequence(&[
                         EffectDef::Sacrifice {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         },
                         EffectDef::DealDamage {
                             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -259,7 +258,7 @@ pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRec
                         },
                         EffectDef::IfCondition {
                             condition: &TriggerConditionDef::BoundObjectMatches {
-                                    binding: ObjectBindingIndex::PRIMARY,
+                                    binding: ParentBinding,
                                     object: ObjectPredicateDef::Subtype("Hamster"),
                                 },
                             then: &EffectDef::DrawCards {

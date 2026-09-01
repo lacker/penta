@@ -7,7 +7,7 @@ use crate::card::{
     ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // CHK 193 — Through the Breach
@@ -36,11 +36,11 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
                             placement: ZonePlacement::Top,
                         }
                     },
-                    binding: ObjectSetBindingIndex::PRIMARY,
+                    binding: ParentBinding,
                     then: &const {
                         EffectDef::Apply {
                             recipient: EffectRecipientDef::binding_zone_change_successors(
-                                ObjectSetBindingIndex::PRIMARY,
+                                ParentBinding,
                             ),
                             effect: AppliedEffectDef::Composite(&const {
                                 [

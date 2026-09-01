@@ -4,15 +4,14 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
-    EffectBindingLabelDef, EffectDef, EffectOutputBindingDef, EffectPaymentDef, EffectRecipientDef,
-    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef, InstalledTriggerDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PayOrDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    QuantifierDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // TDM 1 — Ugin, Eye of the Storms
@@ -110,13 +109,13 @@ pub(in crate::card::sets) static UGIN_EYE_OF_THE_STORMS: CardRecord = CardRecord
                     shuffle: true,
                     enters_tapped: false,
                     attachment: None,
-                    binding: Some(ObjectSetBindingIndex::PRIMARY),
+                    binding: Some(ParentBinding),
                     // "Until end of turn, you may cast those cards without paying their mana
                     // costs": the cards the search just exiled, named by what it bound rather
                     // than by anything about exile, since a card that was already there is not
                     // one of them.
                     then: Some(&EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                        objects: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                        objects: ObjectSetDef::Binding(ParentBinding),
                         // "Until end of turn" is printed, so this one outlives its resolution.
                         duration: FreePlayDurationDef::UntilEndOfTurn,
                         mandatory: false,
@@ -211,7 +210,7 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
                     .entering_tapped()
                     .entering_attacking()
                     .with_created_tokens(CreatedTokensDef {
-                        binding: ObjectSetBindingIndex::PRIMARY,
+                        binding: ParentBinding,
                         // The tokens go away at the next end step, and it has to be exactly the
                         // ones this attack made: by then nothing about the board could tell them
                         // apart from the pair the last attack made, or from a Warrior that arrived
@@ -225,7 +224,7 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
                                 },
                                 EffectDef::Sacrifice {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ObjectSetBindingIndex::PRIMARY,
+                                        ParentBinding,
                                     )),
                                 },
                             ))),
@@ -286,7 +285,7 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
             abilities::enters_trigger(
                 "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards.",
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -303,11 +302,11 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                     // fixed number, and what is drawn is however many that turned out to be.
                     then: &EffectDef::Sequence(&[
                         EffectDef::DiscardCards {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                         },
                         EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                            amount: ValueDef::BoundObjectCount(ParentBinding),
                         },
                     ]),
                 }),
@@ -335,11 +334,11 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
                             object: ObjectPredicateDef::Any,
                             amount: ValueDef::Constant(1),
                         },
-                        binding: EffectOutputBindingDef::Objects("random_graveyard_card"),
+                        binding: Binding!("random_graveyard_card"),
                     },
                     EffectDef::ExileGrantingControllerPlayThisTurn {
-                        object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
-                            &EffectBindingLabelDef("random_graveyard_card"),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            Binding!("random_graveyard_card"),
                         )),
                     },
                 ]),
@@ -421,7 +420,7 @@ pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new
                         "Elizabeth Peiró",
                     ))
                     .with_created_tokens(CreatedTokensDef {
-                        binding: ObjectSetBindingIndex::PRIMARY,
+                        binding: ParentBinding,
                         // "You may attach this Equipment to it": the Monk is named rather than
                         // targeted, so the token the trigger just made is the one it moves onto --
                         // and declining leaves the Equipment where it was.
@@ -429,7 +428,7 @@ pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new
                             player: EffectRecipientDef::Controller,
                             effect: &EffectDef::Attach {
                                 object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    ObjectSetBindingIndex::PRIMARY,
+                                    ParentBinding,
                                 )),
                             },
                         },

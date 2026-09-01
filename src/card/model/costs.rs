@@ -3,7 +3,7 @@ use super::{
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
     ValueDef, ZoneKind,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{Binding, TargetIndex};
 
 /// The quantity a semantic cost asks its payer to provide.
 ///
@@ -58,7 +58,7 @@ pub struct MoveToZoneCostDef {
     pub quantity: CostQuantityDef,
     /// Saves the paid objects' successor identities for another cost or the
     /// resolving effect. A single-object binding requires a fixed count of 1.
-    pub binding: Option<ObjectBindingIndex>,
+    pub binding: Option<Binding>,
 }
 
 impl MoveToZoneCostDef {
@@ -94,7 +94,7 @@ impl MoveToZoneCostDef {
     }
 
     #[must_use]
-    pub const fn binding(mut self, binding: ObjectBindingIndex) -> Self {
+    pub const fn binding(mut self, binding: Binding) -> Self {
         self.binding = Some(binding);
         self
     }

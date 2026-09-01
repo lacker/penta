@@ -8,7 +8,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, TokenCountersDef, TriggerEventDef, ValueDef, ZoneKind,
     ZonePlacement, abilities, tokens,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // MOM 3 — Alabaster Host Intercessor
@@ -44,15 +44,12 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_lega
                     &[ZoneKind::Battlefield],
                 ),
             )),
-            ObjectSetBindingIndex::PRIMARY,
             // The creatures are bound before they move, because "X, where X is the
             // number of creatures exiled this way" asks about a set the board no longer
             // holds by the time the token is made.
             &EffectDef::Sequence(&[
                 EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
                 },
@@ -65,7 +62,7 @@ pub(in crate::card::sets) static SUNFALL: CardRecord = CardRecord::new_with_lega
                     ))
                     .with_counters(TokenCountersDef {
                         kind: CounterKind::PlusOnePlusOne,
-                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        amount: ValueDef::BoundObjectCount(ParentBinding),
                     }),
             ]),
         ),

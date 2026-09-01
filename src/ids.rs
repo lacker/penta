@@ -233,95 +233,158 @@ impl AdditionalCostIndex {
     }
 }
 
-/// Positional identity of one object binding retained while an effect
-/// resolves.
+/// Authored identity of one value retained while an effect resolves.
 ///
 /// Unlike a [`TargetIndex`], a binding is not part of the spell or ability's
-/// stack payload: it is populated only while the effect program resolves and
-/// is not subject to targeting restrictions or legality checks.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct ObjectBindingIndex(u8);
+/// target payload: it is populated only by the effect program and is not
+/// subject to targeting restrictions or legality checks. The producer and
+/// consumer determine whether the value is one object or an object set.
+/// A compact reference to either a durable label or the direct lexical
+/// parent's output. Labels are registered here once so the high-fanout effect
+/// model carries only a compact identifier while declarations and diagnostics
+/// retain their authored names.
+#[derive(Clone, Copy, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Binding(u8);
 
-impl ObjectBindingIndex {
-    /// The first object binding in an ordinary single-binding effect.
-    pub const PRIMARY: Self = Self(0);
+const BINDING_LABELS: &[&str] = &[
+    "atraxa_chosen",
+    "atraxa_rest",
+    "balance_creatures_kept",
+    "balance_creatures_sacrificed",
+    "balance_hand_discarded",
+    "balance_hand_kept",
+    "balance_lands_kept",
+    "balance_lands_sacrificed",
+    "branch_output",
+    "cards",
+    "conditional_cards",
+    "consult_kicked_chosen",
+    "consult_kicked_rest",
+    "consult_normal_chosen",
+    "consult_normal_rest",
+    "delver_matching",
+    "delver_other",
+    "devourer_exiled",
+    "devourer_top",
+    "divine_reckoning_chosen",
+    "divine_reckoning_destroyed",
+    "domri_creature",
+    "domri_noncreature",
+    "empty_cards",
+    "exiled_creature",
+    "fact_chosen",
+    "fact_first",
+    "fact_second",
+    "fact_unchosen",
+    "haunted_fengraf_card",
+    "healing_salve_target",
+    "hideaway_hidden",
+    "hideaway_rest",
+    "intuition_chosen",
+    "intuition_unchosen",
+    "iteration_after_hand",
+    "iteration_bottom",
+    "iteration_exile",
+    "iteration_hand",
+    "jace_chosen",
+    "jace_first",
+    "jace_second",
+    "jace_unchosen",
+    "karn_chosen",
+    "karn_rest",
+    "lair_bottom_cards",
+    "lair_delved_cards",
+    "liliana_chosen_pile",
+    "liliana_first_pile",
+    "liliana_second_pile",
+    "liliana_spared_pile",
+    "manifest_dread_graveyard",
+    "manifest_dread_permanent",
+    "milled_card",
+    "milled_cards",
+    "nadu_land",
+    "nadu_nonland",
+    "object",
+    "objects",
+    "objects_2",
+    "optional_card",
+    "oracle_rest",
+    "oracle_top",
+    "outcome_owned_by_you",
+    "produced_cards",
+    "random_graveyard_card",
+    "random_graveyard_cards",
+    "revealed_card",
+    "revealed_cards",
+    "scry_bottom",
+    "scry_ordered_bottom",
+    "scry_ordered_top",
+    "scry_top",
+    "sphinx_chosen",
+    "sphinx_first",
+    "sphinx_second",
+    "sphinx_unchosen",
+    "surveil_graveyard",
+    "surveil_top",
+    "suspended_card",
+    "top_card_chosen",
+    "top_card_remainder",
+    "ugin_sacrificed_permanents",
+    "ugin_spared_permanents",
+    "wilderness_remainder",
+    "wilds_land",
+];
 
-    /// The number of independent object bindings one resolving effect can
-    /// retain.
-    pub(crate) const COUNT: usize = 8;
+#[allow(non_upper_case_globals)]
+pub const ParentBinding: Binding = Binding(u8::MAX);
 
-    /// Creates an authored object binding index within the supported binding
-    /// space.
-    ///
-    /// # Panics
-    ///
-    /// Panics when `index` is not less than eight.
+impl Binding {
+    #[doc(hidden)]
     #[must_use]
-    pub const fn new(index: u8) -> Self {
-        assert!(
-            (index as usize) < Self::COUNT,
-            "object binding index must be less than eight"
-        );
-        Self(index)
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn from_label(label: &'static str) -> Self {
+        assert!(BINDING_LABELS.len() < u8::MAX as usize);
+        let mut index = 0;
+        while index < BINDING_LABELS.len() {
+            if const_str_eq(BINDING_LABELS[index], label) {
+                return Self(index as u8);
+            }
+            index += 1;
+        }
+        panic!("binding label is not registered in ids.rs")
     }
 
     #[must_use]
-    pub const fn index(self) -> usize {
-        self.0 as usize
-    }
-
-    #[must_use]
-    pub fn from_index(index: usize) -> Option<Self> {
-        if index < Self::COUNT {
-            u8::try_from(index).ok().map(Self)
-        } else {
+    pub const fn label(self) -> Option<&'static str> {
+        if self.0 == u8::MAX {
             None
+        } else {
+            Some(BINDING_LABELS[self.0 as usize])
         }
     }
 }
 
-/// Positional identity of one object-set binding retained while an effect
-/// resolves.
-///
-/// Object-set bindings preserve a collection as one typed value rather than
-/// assigning each member an [`ObjectBindingIndex`].
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct ObjectSetBindingIndex(u8);
-
-impl ObjectSetBindingIndex {
-    /// The first object-set binding in an ordinary single-binding effect.
-    pub const PRIMARY: Self = Self(0);
-
-    /// The number of independent object-set bindings one resolving effect can
-    /// retain.
-    pub(crate) const COUNT: usize = 8;
-
-    /// Creates an authored object-set binding index within the supported
-    /// binding space.
-    ///
-    /// # Panics
-    ///
-    /// Panics when `index` is not less than eight.
-    #[must_use]
-    pub const fn new(index: u8) -> Self {
-        assert!(
-            (index as usize) < Self::COUNT,
-            "object-set binding index must be less than eight"
-        );
-        Self(index)
+const fn const_str_eq(left: &str, right: &str) -> bool {
+    let left = left.as_bytes();
+    let right = right.as_bytes();
+    if left.len() != right.len() {
+        return false;
     }
-
-    #[must_use]
-    pub const fn index(self) -> usize {
-        self.0 as usize
+    let mut index = 0;
+    while index < left.len() {
+        if left[index] != right[index] {
+            return false;
+        }
+        index += 1;
     }
+    true
+}
 
-    #[must_use]
-    pub fn from_index(index: usize) -> Option<Self> {
-        if index < Self::COUNT {
-            u8::try_from(index).ok().map(Self)
-        } else {
-            None
+impl fmt::Debug for Binding {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.label() {
+            Some(label) => formatter.debug_tuple("Binding").field(&label).finish(),
+            None => formatter.write_str("ParentBinding"),
         }
     }
 }
@@ -422,7 +485,20 @@ impl fmt::Display for PlayerId {
 
 #[cfg(test)]
 mod tests {
-    use super::{CardDefinitionId, ObjectBindingIndex, ObjectSetBindingIndex};
+    use super::{BINDING_LABELS, Binding, CardDefinitionId};
+
+    #[test]
+    fn binding_label_registry_is_sorted_unique_and_round_trips() {
+        for labels in BINDING_LABELS.windows(2) {
+            assert!(
+                labels[0] < labels[1],
+                "binding labels must be sorted and unique"
+            );
+        }
+        for label in BINDING_LABELS {
+            assert_eq!(Binding::from_label(label).label(), Some(*label));
+        }
+    }
 
     #[test]
     fn card_definition_ids_serde_as_exact_javascript_numbers() {
@@ -440,48 +516,5 @@ mod tests {
             ))
             .is_err()
         );
-    }
-
-    #[test]
-    fn object_binding_indices_use_eight_bounded_slots() {
-        assert_eq!(ObjectBindingIndex::COUNT, 8);
-        assert_eq!(ObjectBindingIndex::PRIMARY.index(), 0);
-
-        for index in 0..ObjectBindingIndex::COUNT {
-            let binding = ObjectBindingIndex::from_index(index).expect("supported binding index");
-            assert_eq!(binding.index(), index);
-            assert_eq!(
-                ObjectBindingIndex::new(u8::try_from(index).expect("binding index fits in u8")),
-                binding
-            );
-        }
-
-        assert_eq!(
-            ObjectBindingIndex::from_index(ObjectBindingIndex::COUNT),
-            None
-        );
-        assert_eq!(ObjectBindingIndex::from_index(usize::MAX), None);
-    }
-
-    #[test]
-    fn object_set_binding_indices_use_eight_bounded_slots() {
-        assert_eq!(ObjectSetBindingIndex::COUNT, 8);
-        assert_eq!(ObjectSetBindingIndex::PRIMARY.index(), 0);
-
-        for index in 0..ObjectSetBindingIndex::COUNT {
-            let binding =
-                ObjectSetBindingIndex::from_index(index).expect("supported binding index");
-            assert_eq!(binding.index(), index);
-            assert_eq!(
-                ObjectSetBindingIndex::new(u8::try_from(index).expect("binding index fits in u8"),),
-                binding
-            );
-        }
-
-        assert_eq!(
-            ObjectSetBindingIndex::from_index(ObjectSetBindingIndex::COUNT),
-            None
-        );
-        assert_eq!(ObjectSetBindingIndex::from_index(usize::MAX), None);
     }
 }

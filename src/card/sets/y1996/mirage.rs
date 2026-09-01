@@ -17,7 +17,7 @@ use crate::card::{
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // MIR 1 — Afterlife
@@ -647,10 +647,6 @@ pub(in crate::card::sets) static ETHER_WELL: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
-/// Where the creature that arrived is saved. What enters is a new object,
-/// so "sacrifice it unless you pay" cannot name the card that was in hand.
-const FLASH_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
 // MIR 66 — Flash
 pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63af3c26-5b1f-46f6-9aa2-036c615bf5ea"),
@@ -665,7 +661,7 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
         // "You may": a minimum of none, so a hand with nothing worth cheating in
         // leaves the spell doing nothing at all.
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -679,10 +675,8 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
             visibility: ChoiceVisibilityDef::Public,
             then: &const {
                 EffectDef::PutOntoBattlefieldThen {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    )),
-                    binding: FLASH_ARRIVAL,
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
+                    binding: ParentBinding,
                     counters: None,
                     // "Its mana cost reduced by {2}", which is a discount on the generic half
                     // and nothing else: the coloured pips are still paid in their colours.
@@ -692,7 +686,7 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
                                 payer: PlayerSetDef::Related(PlayerRelation::You),
                                 cost: EffectPaymentCostDef::ObjectManaCostReducedBy {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        FLASH_ARRIVAL,
+                                        ParentBinding,
                                     )),
                                     generic: 2,
                                 },
@@ -702,7 +696,7 @@ pub(in crate::card::sets) static FLASH: CardRecord = CardRecord::new(
                                 &const {
                                     EffectDef::Sacrifice {
                                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                            FLASH_ARRIVAL,
+                                            ParentBinding,
                                         )),
                                     }
                                 },
@@ -1459,11 +1453,11 @@ pub(in crate::card::sets) static SHALLOW_GRAVE: CardRecord = CardRecord::new_wit
                     placement: ZonePlacement::Top,
                 }
             },
-            binding: ObjectSetBindingIndex::PRIMARY,
+            binding: ParentBinding,
             then: &const {
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::binding_zone_change_successors(
-                        ObjectSetBindingIndex::PRIMARY,
+                        ParentBinding,
                     ),
                     effect: AppliedEffectDef::Composite(&const {
                         [

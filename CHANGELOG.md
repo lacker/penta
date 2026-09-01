@@ -25,6 +25,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Effect bindings are unified and checkpoint format 11 preserves their
+  lexical shape.** Declarative effects now use `Binding!("label")` for every
+  durable singular or object-set value and `ParentBinding` only when a producer
+  passes its result directly into its `then:` child. Binding labels must be
+  unique across the complete expanded declaration, and catalog validation
+  rejects producer continuations that do not read their parent value so those
+  pipelines use `Sequence` instead. Checkpoint format 11 stores labeled values
+  in one typed map and lexical values as `parentObject` or `parentObjects`; it
+  is advertised as `reconstruction.checkpoint.v11`. Replay version 2 and
+  protocol 29 are unchanged.
+
 - **Balance and Fireball are declarative, and cards have no alternate execution
   path.** A per-player choice can now take an explicit computed count in either
   a public battlefield zone or a private hand. A general player-object-count

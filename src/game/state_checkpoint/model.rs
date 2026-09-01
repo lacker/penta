@@ -831,6 +831,28 @@ pub(super) enum TargetSnapshot {
     Spell { object_id: u32 },
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
+pub(super) enum EffectBindingSnapshot {
+    Object { object: Option<TargetSnapshot> },
+    Objects { objects: Vec<TargetSnapshot> },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
+pub(super) enum BindingSnapshot {
+    Binding { label: String },
+    ParentBinding,
+}
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub(super) enum SeatSnapshot {
     #[serde(rename = "p1")]
@@ -849,10 +871,12 @@ pub(super) struct EffectResolutionContextSnapshot {
     pub(super) replaced_draw: Option<ReplacedDrawSnapshot>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) chosen_counter: Option<CounterKindSnapshot>,
-    pub(super) single_objects: [Option<TargetSnapshot>; crate::ObjectBindingIndex::COUNT],
-    pub(super) object_groups: [Vec<TargetSnapshot>; crate::ObjectSetBindingIndex::COUNT],
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) parent_object: Option<TargetSnapshot>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(super) parent_objects: Vec<TargetSnapshot>,
     #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
-    pub(super) named_object_groups: std::collections::BTreeMap<String, Vec<TargetSnapshot>>,
+    pub(super) bindings: std::collections::BTreeMap<String, EffectBindingSnapshot>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -970,9 +994,4 @@ pub(super) enum ZoneMoveCauseSnapshot {
     Effect { controller: usize },
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct ReplacementEffectContextSnapshot {
-    pub(super) source: AbilitySourceSnapshot,
-    pub(super) controller: usize,
-}
+include!("model/replacement_effect_context.rs");

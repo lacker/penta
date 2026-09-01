@@ -14,7 +14,7 @@ use crate::game::tests::card;
 use crate::game::{DecisionContinuation, DecisionKind, PendingDecision};
 use crate::{
     CardPartId, CastChoices, DecisionObservation, DecisionOption, DecisionPreference,
-    DecisionVisibility, DecisionZone, ObjectBindingIndex,
+    DecisionVisibility, DecisionZone,
 };
 use serde_json::json;
 
@@ -214,7 +214,7 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
-    context.bind_single_object(ObjectBindingIndex::PRIMARY, Some(Target::Card(secret)));
+    context.bind_single_object(Binding!("object"), Some(Target::Card(secret)));
     game.pending_decisions.clear();
     game.pending_decisions.push(PendingDecision {
         observation: DecisionObservation {
@@ -240,7 +240,7 @@ fn a_private_effect_choice_is_not_serialized_for_the_other_seat() {
         },
         continuation: DecisionContinuation::ChooseForEffect {
             definition: ScopedEffect::primary(EffectDef::None),
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(Binding!("object")),
             object: Box::new(resolving),
             context,
             candidates: vec![Target::Card(secret)],
@@ -316,7 +316,7 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         is_copy: false,
     };
     let mut context = EffectResolutionContext::empty();
-    context.bind_single_object(ObjectBindingIndex::PRIMARY, Some(Target::Card(secret)));
+    context.bind_single_object(Binding!("object"), Some(Target::Card(secret)));
     game.pending_decisions.clear();
     game.pending_decisions.push(PendingDecision {
         observation: DecisionObservation {
@@ -342,7 +342,7 @@ fn a_public_effect_choice_cannot_retain_an_unexposed_hidden_object_id() {
         },
         continuation: DecisionContinuation::ChooseForEffect {
             definition: ScopedEffect::primary(effect),
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(Binding!("object")),
             object: Box::new(resolving),
             context,
             candidates: vec![Target::Card(secret)],
@@ -437,7 +437,7 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
 
     game.installed_triggers.clear();
     let mut hidden_context = EffectResolutionContext::empty();
-    hidden_context.bind_single_object(ObjectBindingIndex::PRIMARY, Some(Target::Card(secret)));
+    hidden_context.bind_single_object(Binding!("object"), Some(Target::Card(secret)));
     game.pending_triggers.push(crate::game::PendingTrigger {
         id: 0,
         source,

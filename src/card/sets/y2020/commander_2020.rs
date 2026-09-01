@@ -6,7 +6,7 @@ use crate::card::{
     EffectRecipientDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef,
     ObjectSetFilterDef, PlayerRefDef, TriggerEventDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{ObjectBindingIndex, mana_cost};
+use crate::{ParentBinding, mana_cost};
 
 // C20 34 — Ethereal Forager
 pub(in crate::card::sets) static ETHEREAL_FORAGER: CardRecord = CardRecord::new(
@@ -24,7 +24,7 @@ pub(in crate::card::sets) static ETHEREAL_FORAGER: CardRecord = CardRecord::new(
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         candidates: ObjectSetDef::Matching {
@@ -40,7 +40,7 @@ pub(in crate::card::sets) static ETHEREAL_FORAGER: CardRecord = CardRecord::new(
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::MoveToZone {
                             object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                ObjectBindingIndex::PRIMARY,
+                                ParentBinding,
                             )),
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,

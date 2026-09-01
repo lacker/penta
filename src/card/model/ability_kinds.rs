@@ -1,4 +1,4 @@
-use crate::ids::{ModeId, ObjectBindingIndex, TargetIndex};
+use crate::ids::{Binding, ModeId, TargetIndex};
 
 use super::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, BasicLandType, CardSupertype,

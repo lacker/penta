@@ -285,10 +285,10 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
                         ..crate::card::BattlefieldArrivalDef::DEFAULT
                     },
                 },
-                binding: crate::ObjectSetBindingIndex::PRIMARY,
+                binding: crate::ParentBinding,
                 then: &EffectDef::Apply {
                     recipient: EffectRecipientDef::binding_zone_change_successors(
-                        crate::ObjectSetBindingIndex::PRIMARY,
+                        crate::ParentBinding,
                     ),
                     // "It's a Phyrexian in addition to its other types." Added rather than set:
                     // what comes back through the Portal keeps whatever it already was, and is

@@ -1,25 +1,21 @@
 // Recursive continuations share the same catalog obligations as their roots.
 
+use crate::ZonePlacement;
+
 fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
+    let after = |effect| EffectDef::Sequence(Box::leak(Box::new([effect, *child])));
     [
-        EffectDef::Destroy {
+        after(EffectDef::Destroy {
             object: EffectRecipientDef::Source,
             can_regenerate: true,
-            then: Some(crate::card::DestroyFollowUpDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
-                effect: child,
-            }),
-        },
-        EffectDef::Discard {
+            then: None,
+        }),
+        after(EffectDef::Discard {
             recipient: EffectRecipientDef::Controller,
             amount: ValueDef::Constant(1),
             selection: crate::card::DiscardSelectionDef::RecipientChooses,
-            then: Some(crate::card::DiscardFollowUpDef {
-                counted: ObjectPredicateDef::Any,
-                bound: None,
-                effect: child,
-            }),
-        },
+            then: None,
+        }),
         EffectDef::SacrificeOfChoice {
             count: ValueDef::Constant(1),
             player: EffectRecipientDef::Controller,
@@ -29,12 +25,11 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
             otherwise: Some(child),
             optional: true,
         },
-        EffectDef::PutOntoBattlefieldThen {
+        after(EffectDef::MoveToZone {
             object: EffectRecipientDef::Source,
-            binding: ObjectSetBindingIndex::PRIMARY,
-            counters: None,
-            then: child,
-        },
+            zone: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+        }),
     ]
 }
 

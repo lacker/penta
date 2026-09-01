@@ -296,7 +296,7 @@ fn installed_trigger_retains_lexical_bindings_targets_and_target_scope() {
         AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(PlayerRelation::Any)),
     ];
     const TAP_BOUND: EffectDef = EffectDef::Tap {
-        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+        object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("object"))),
     };
     const LOSE_TARGET_TWO: EffectDef = EffectDef::LoseLife {
         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -341,10 +341,7 @@ fn installed_trigger_retains_lexical_bindings_targets_and_target_scope() {
         damaged_object: None,
         cast_from_zone: None,
     });
-    context.bind_single_object(
-        ObjectBindingIndex::PRIMARY,
-        Some(Target::Permanent(bound_id)),
-    );
+    context.bind_single_object(Binding!("object"), Some(Target::Permanent(bound_id)));
     game.resolve_effect_def(
         ScopedEffect {
             effect: INSTALL,

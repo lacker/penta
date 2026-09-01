@@ -16,7 +16,7 @@ use crate::card::{
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // ULG 1 — Angelic Curator
@@ -367,7 +367,7 @@ pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_wi
                     then: None,
                 },
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     // Any lands, not only your own: the printed clause names no controller,
@@ -385,9 +385,7 @@ pub(in crate::card::sets) static FRANTIC_SEARCH: CardRecord = CardRecord::new_wi
                     // printed order and the reason the card is free: the lands it untaps can
                     // pay for the spell it just found.
                     then: &EffectDef::Untap {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ObjectSetBindingIndex::PRIMARY,
-                        )),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     },
                 }),
             ]),

@@ -13,7 +13,7 @@ use crate::card::{
     ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef,
     TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // EOE 2 — Tezzeret, Cruel Captain
 static AN_ARTIFACT_YOU_CONTROL: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -213,36 +213,35 @@ static LANDS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     PlayerRelation::You,
 );
 
-const CONSULT_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const CONSULT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const CONSULT_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const CONSULT_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
 /// One selection differs from the other only in how many it keeps, so the
 /// two are the same workflow twice rather than a count the spell could carry.
-const fn consult_choice(cards: usize) -> EffectDef {
-    EffectDef::Choose(ChooseDef {
-        binding: ObjectChoiceBindingDef::Objects(CONSULT_CHOSEN),
-        unchosen: Some(CONSULT_REST),
-        chooser: PlayerRefDef::EffectController,
-        candidates: ObjectSetDef::Binding(CONSULT_INSPECTED),
-        exclude: None,
-        minimum: cards,
-        maximum: cards,
-        visibility: ChoiceVisibilityDef::Private,
-        then: &const {
-            EffectDef::MoveObjects(MoveObjectsDef {
-                input: ObjectSetDef::Binding(CONSULT_CHOSEN),
-                from: Some(ZoneKind::Library),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                moved: None,
-                then: &const {
+macro_rules! consult_choice {
+    ($cards:expr, $chosen:expr, $rest:expr) => {
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Objects($chosen),
+            unchosen: Some($rest),
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::Binding(ParentBinding),
+            exclude: None,
+            minimum: $cards,
+            maximum: $cards,
+            visibility: ChoiceVisibilityDef::Private,
+            then: &const {
+                EffectDef::Sequence(&[
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding($chosen),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
                     EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
-                        input: ObjectSetDef::Binding(CONSULT_REST),
-                        randomized: CONSULT_RANDOMIZED,
+                        input: ObjectSetDef::Binding($rest),
+                        randomized: ParentBinding,
                         then: &const {
                             EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(CONSULT_RANDOMIZED),
+                                input: ObjectSetDef::Binding(ParentBinding),
                                 from: Some(ZoneKind::Library),
                                 zone: ZoneKind::Library,
                                 placement: ZonePlacement::Bottom,
@@ -250,11 +249,11 @@ const fn consult_choice(cards: usize) -> EffectDef {
                                 then: &EffectDef::None,
                             })
                         },
-                    })
-                },
-            })
-        },
-    })
+                    }),
+                ])
+            },
+        })
+    };
 }
 
 pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecord::new(
@@ -284,14 +283,20 @@ pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecor
                 then: &abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-                    CONSULT_INSPECTED,
-                    &consult_choice(2),
+                    &consult_choice!(
+                        2,
+                        Binding!("consult_kicked_chosen"),
+                        Binding!("consult_kicked_rest")
+                    ),
                 ),
                 otherwise: &abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::CountMatchingObjects(&LANDS_YOU_CONTROL),
-                    CONSULT_INSPECTED,
-                    &consult_choice(1),
+                    &consult_choice!(
+                        1,
+                        Binding!("consult_normal_chosen"),
+                        Binding!("consult_normal_rest")
+                    ),
                 ),
             },
         ),

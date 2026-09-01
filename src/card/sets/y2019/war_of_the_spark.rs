@@ -11,7 +11,7 @@ use crate::card::{
     TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // WAR 54 — Jace, Wielder of Mysteries
@@ -410,7 +410,7 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                         nonland_only: true,
                         matched_in: PlayerRefDef::EffectController,
                         zone: ZoneKind::Library,
-                        binding: ObjectSetBindingIndex::PRIMARY,
+                        binding: ParentBinding,
                         // The name is chosen before the four cards are seen, so the reveal cannot
                         // be used to pick a name that is already there.
                         then: &abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(

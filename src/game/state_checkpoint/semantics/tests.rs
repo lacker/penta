@@ -3,7 +3,6 @@ use crate::card::{
     EffectRecipientDef, ObjectPredicateDef, ResolvedEffectDurationDef, SacrificedAmountDef,
     TokenCharacteristics, ValueDef,
 };
-use crate::{ObjectBindingIndex, ObjectSetBindingIndex};
 
 static GRANTED: AbilityDef = AbilityDef::not_implemented(
     "A nested ability.",
@@ -57,10 +56,8 @@ static SACRIFICE_THEN_AND_OTHERWISE: EffectDef = EffectDef::SacrificeOfChoice {
     optional: true,
 };
 static RETURN_THEN: EffectDef = EffectDef::PutOntoBattlefieldThen {
-    object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(
-        ObjectBindingIndex::PRIMARY,
-    )),
-    binding: ObjectSetBindingIndex::PRIMARY,
+    object: EffectRecipientDef::object(crate::card::ObjectRefDef::Binding(Binding!("object"))),
+    binding: Binding!("objects"),
     counters: None,
     then: &CREATE_TOKEN,
 };

@@ -5,15 +5,15 @@ use crate::card::{
     ReplacementEffectDef, TurnKindDef, ZoneKind, ZonePlacement,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{CardDefinitionId, GameObjectId, ObjectSetBindingIndex, PlayerId};
+use crate::ids::{Binding, CardDefinitionId, GameObjectId, PlayerId};
 
 use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
     CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DrawReplacement,
     EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
     PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger,
-    ReplacementEffectContext, ResolvedEffectDurationDef, SacrificeQuota, SacrificedAmountDef,
-    ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
+    ReplacementEffectContext, ResolvedEffectDurationDef, RuntimeBinding, SacrificeQuota,
+    SacrificedAmountDef, ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
 };
 
 /// What runs once a demanded sacrifice has been chosen and made. The
@@ -82,7 +82,7 @@ pub(super) enum ResolvedEffectPayment {
 #[derive(Clone, Debug)]
 pub(super) struct DiscardFollowUp {
     pub(super) counted: ObjectPredicateDef,
-    pub(super) bound: Option<ObjectSetBindingIndex>,
+    pub(super) bound: Option<Binding>,
     /// The authored discard whose nested follow-up this is. Checkpoints
     /// relocate the parent and recover the counted predicate and binding
     /// from it rather than serializing catalog definitions.
@@ -229,7 +229,7 @@ pub(super) enum DecisionContinuation {
         /// A searched Aura enters attached to this player.
         attached_player: Option<PlayerId>,
         /// Where the cards found are saved for the follow-up below.
-        binding: Option<ObjectSetBindingIndex>,
+        binding: Option<RuntimeBinding>,
         /// What runs once the search is answered, with the found cards
         /// bound. Boxed because most searches have none and the variant
         /// would otherwise carry a stack object for all of them.
@@ -547,7 +547,7 @@ pub(super) enum DecisionContinuation {
         /// Whose cards the name is matched against, and where.
         searched: PlayerId,
         zone: ZoneKind,
-        binding: ObjectSetBindingIndex,
+        binding: RuntimeBinding,
         object: Box<StackObject>,
         context: EffectResolutionContext,
         effect: ScopedEffect,

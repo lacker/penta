@@ -356,14 +356,14 @@ impl fmt::Display for CatalogError {
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} references object binding {binding:?} outside its scope"
             ),
-            Self::AbilityObjectBindingAlreadyInScope {
+            Self::AbilityBindingAlreadyDeclared {
                 definition,
                 part,
                 ability,
                 binding,
             } => write!(
                 formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} binds object slot {binding:?} more than once in the same scope"
+                "ability {ability:?} on part {part:?} of card definition {definition:?} declares binding {binding:?} more than once in one expanded declaration"
             ),
             Self::AbilityObjectSetBindingReferenceOutOfScope {
                 definition,
@@ -373,33 +373,6 @@ impl fmt::Display for CatalogError {
             } => write!(
                 formatter,
                 "ability {ability:?} on part {part:?} of card definition {definition:?} references object-set binding {binding:?} outside its scope"
-            ),
-            Self::AbilityObjectSetBindingAlreadyInScope {
-                definition,
-                part,
-                ability,
-                binding,
-            } => write!(
-                formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} binds object-set slot {binding:?} more than once in the same scope"
-            ),
-            Self::AbilityNamedBindingAlreadyInScope {
-                definition,
-                part,
-                ability,
-                label,
-            } => write!(
-                formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} binds named effect output {label:?} more than once in the same scope"
-            ),
-            Self::AbilityNamedObjectSetBindingReferenceOutOfScope {
-                definition,
-                part,
-                ability,
-                label,
-            } => write!(
-                formatter,
-                "ability {ability:?} on part {part:?} of card definition {definition:?} references named object-set binding {label:?} outside its scope"
             ),
             Self::DuplicateStructurePart { definition, part } => write!(
                 formatter,

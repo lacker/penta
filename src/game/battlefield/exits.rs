@@ -837,7 +837,7 @@ impl Game {
                 source,
                 source_card,
                 controller,
-                frozen,
+                *frozen,
                 targets,
                 chosen_permanents,
                 remaining_sacrifices,
@@ -893,7 +893,7 @@ impl Game {
     fn resume_destroy_followup(
         &mut self,
         candidates: &[GameObjectId],
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         object: &StackObject,
         mut context: EffectResolutionContext,
         effect: ScopedEffect,

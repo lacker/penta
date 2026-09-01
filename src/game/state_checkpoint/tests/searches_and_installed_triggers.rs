@@ -207,7 +207,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
     let source = source_for_locator(first_target, &installed_locator);
     let mut context = EffectResolutionContext::empty();
     context.bind_single_object(
-        ObjectBindingIndex::PRIMARY,
+        Binding!("object"),
         Some(Target::Permanent(first_target)),
     );
     let selections = vec![

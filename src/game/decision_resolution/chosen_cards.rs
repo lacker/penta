@@ -14,7 +14,7 @@ impl Game {
     fn finish_chosen_card_move_result(
         &mut self,
         follow_up: &SearchFollowUp,
-        binding: crate::ObjectSetBindingIndex,
+        binding: crate::Binding,
         then: &'static crate::card::EffectDef,
         moved: Vec<Target>,
     ) {

@@ -20,8 +20,7 @@ use crate::card::{
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
-    MeldRecipeId, ModeId, ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId, TargetIndex,
-    TargetSlotId,
+    MeldRecipeId, ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 fn definition(id: u64, name: &str, set: CardSet) -> CardDefinition {

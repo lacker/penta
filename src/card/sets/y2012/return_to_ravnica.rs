@@ -16,7 +16,7 @@ use crate::card::{
     TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
     abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -1025,12 +1025,10 @@ pub(in crate::card::sets) static ISPERIAS_SKYWATCH: CardRecord = CardRecord::new
 
 // RTR 44 — Jace, Architect of Thought
 // Audit: partial — The -8 cannot search every player's library and grant permission to cast the exiled cards without paying their mana costs.
-const JACE_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const JACE_FIRST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const JACE_SECOND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const JACE_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-const JACE_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
-const JACE_ORDERED_UNCHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
+const JACE_FIRST: Binding = Binding!("jace_first");
+const JACE_SECOND: Binding = Binding!("jace_second");
+const JACE_CHOSEN: Binding = Binding!("jace_chosen");
+const JACE_UNCHOSEN: Binding = Binding!("jace_unchosen");
 pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
     CardRecord::new_with_legacy_id(
         180,
@@ -1070,12 +1068,14 @@ pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
                     abilities::bind_top_cards_then(
                         PlayerRefDef::EffectController,
                         ValueDef::Constant(3),
-                        JACE_INSPECTED,
-                        &const { EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(JACE_INSPECTED),
-                            then: &EffectDef::PartitionGroup(PartitionGroupDef {
+                        &const { EffectDef::Sequence(&[
+                            EffectDef::RevealObjects(RevealObjectsDef {
+                                input: ObjectSetDef::Binding(ParentBinding),
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::PartitionGroup(PartitionGroupDef {
                                 actor: PlayerRefDef::Opponent,
-                                input: ObjectSetDef::Binding(JACE_INSPECTED),
+                                input: ObjectSetDef::Binding(ParentBinding),
                                 first: JACE_FIRST,
                                 second: JACE_SECOND,
                                 visibility: ChoiceVisibilityDef::Public,
@@ -1086,22 +1086,25 @@ pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
                                     chosen: JACE_CHOSEN,
                                     unchosen: JACE_UNCHOSEN,
                                     visibility: ChoiceVisibilityDef::Public,
-                                    then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                        input: ObjectSetDef::Binding(JACE_CHOSEN),
-                                        from: Some(ZoneKind::Library),
-                                        zone: ZoneKind::Hand,
-                                        placement: ZonePlacement::Top,
-                                        moved: None,
-                                        then: &EffectDef::ChooseObjectOrder(
+                                    then: &EffectDef::Sequence(&[
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(JACE_CHOSEN),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Hand,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &EffectDef::None,
+                                        }),
+                                        EffectDef::ChooseObjectOrder(
                                             ChooseObjectOrderDef {
                                                 actor: PlayerRefDef::EffectController,
                                                 input: ObjectSetDef::Binding(JACE_UNCHOSEN),
-                                                ordered: JACE_ORDERED_UNCHOSEN,
+                                                ordered: ParentBinding,
                                                 placement: ZonePlacement::Bottom,
                                                 visibility: ChoiceVisibilityDef::Public,
                                                 then: &EffectDef::MoveObjects(MoveObjectsDef {
                                                     input: ObjectSetDef::Binding(
-                                                        JACE_ORDERED_UNCHOSEN,
+                                                        ParentBinding,
                                                     ),
                                                     from: Some(ZoneKind::Library),
                                                     zone: ZoneKind::Library,
@@ -1111,10 +1114,10 @@ pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
                                                 }),
                                             },
                                         ),
-                                    }),
+                                    ]),
                                 }),
                             }),
-                        }) },
+                        ]) },
                     ),
                 ),
                 AbilityDef::not_implemented(

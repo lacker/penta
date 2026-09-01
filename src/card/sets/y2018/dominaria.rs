@@ -10,16 +10,14 @@ use crate::card::{
     RevealObjectsDef, SpellCastQueryDef, SpellCostConditionDef, TokenCharacteristics,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // DOM 1 — Karn, Scion of Urza
 /// The opponent chooses which of the two you keep, so what Karn draws is
 /// always the worse half -- and the better one waits in exile for his minus.
-const KARN_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const KARN_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const KARN_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const KARN_EXILED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const KARN_CHOSEN: Binding = Binding!("karn_chosen");
+const KARN_REST: Binding = Binding!("karn_rest");
 /// "This token gets +1/+1 for each artifact you control", which counts the
 /// token itself: a lone Construct is a 1/1, and every artifact beside it is
 /// another point in both directions.
@@ -47,48 +45,49 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                 abilities::bind_top_cards_then(
                     PlayerRefDef::EffectController,
                     ValueDef::Constant(2),
-                    KARN_INSPECTED,
                     &const {
-                        EffectDef::RevealObjects(RevealObjectsDef {
-                            input: ObjectSetDef::Binding(KARN_INSPECTED),
-                            then: &const {
+                        EffectDef::Sequence(&[
+                            EffectDef::RevealObjects(RevealObjectsDef {
+                                input: ObjectSetDef::Binding(ParentBinding),
+                                then: &EffectDef::None,
+                            }),
                                 EffectDef::Choose(ChooseDef {
                                     binding: ObjectChoiceBindingDef::Objects(KARN_CHOSEN),
                                     unchosen: Some(KARN_REST),
                                     chooser: PlayerRefDef::Opponent,
-                                    candidates: ObjectSetDef::Binding(KARN_INSPECTED),
+                                    candidates: ObjectSetDef::Binding(ParentBinding),
                                     exclude: None,
                                     minimum: 1,
                                     maximum: 1,
                                     visibility: ChoiceVisibilityDef::Public,
                                     then: &const {
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(KARN_CHOSEN),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Hand,
-                                            placement: ZonePlacement::Top,
-                                            moved: None,
-                                            then: &const {
+                                        EffectDef::Sequence(&[
+                                            EffectDef::MoveObjects(MoveObjectsDef {
+                                                input: ObjectSetDef::Binding(KARN_CHOSEN),
+                                                from: Some(ZoneKind::Library),
+                                                zone: ZoneKind::Hand,
+                                                placement: ZonePlacement::Top,
+                                                moved: None,
+                                                then: &EffectDef::None,
+                                            }),
                                                 EffectDef::MoveObjects(MoveObjectsDef {
                                                     input: ObjectSetDef::Binding(KARN_REST),
                                                     from: Some(ZoneKind::Library),
                                                     zone: ZoneKind::Exile,
                                                     placement: ZonePlacement::Top,
-                                                    moved: Some(KARN_EXILED),
+                                                    moved: Some(ParentBinding),
                                                     then: &EffectDef::AddCounters {
                                                         object: EffectRecipientDef::objects(
-                                                            ObjectSetDef::Binding(KARN_EXILED),
+                                                            ObjectSetDef::Binding(ParentBinding),
                                                         ),
                                                         kind: CounterKind::named("silver"),
                                                         amount: ValueDef::Constant(1),
                                                     },
-                                                })
-                                            },
-                                        })
+                                                }),
+                                        ])
                                     },
-                                })
-                            },
-                        })
+                                }),
+                        ])
                     },
                 ),
             ),
@@ -96,7 +95,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                 "\u{2212}1: Put a card you own with a silver counter on it from exile into your hand.",
                 &[AbilityCostDef::Loyalty(-1)],
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     // "A card you own with a silver counter on it from exile": the counter is
@@ -112,7 +111,7 @@ pub(in crate::card::sets) static KARN_SCION_OF_URZA: CardRecord = CardRecord::ne
                     maximum: 1,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::MoveToZone {
-                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         zone: ZoneKind::Hand,
                         placement: ZonePlacement::Top,
                     },
@@ -170,7 +169,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                         // says whose lands they are -- the same shape Time Spiral's six use, with
                         // "up to" meaning a minimum of none.
                         EffectDef::Choose(ChooseDef {
-                            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                            binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                             unchosen: None,
                             chooser: PlayerRefDef::EffectController,
                             candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -183,7 +182,7 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
                             maximum: 2,
                             visibility: ChoiceVisibilityDef::Public,
                             then: &EffectDef::Untap {
-                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                             },
                         }),
                     ))),

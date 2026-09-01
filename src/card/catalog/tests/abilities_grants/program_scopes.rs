@@ -1,7 +1,7 @@
 #[test]
 #[allow(clippy::items_after_statements, clippy::too_many_lines)]
 fn non_targeting_choice_references_are_lexically_scoped() {
-    let binding = ObjectBindingIndex::PRIMARY;
+    let binding = Binding!("object");
     let chosen = EffectRecipientDef::object(ObjectRefDef::Binding(binding));
     let destroy_chosen: &'static EffectDef = Box::leak(Box::new(EffectDef::Destroy {
         object: chosen,
@@ -44,7 +44,7 @@ fn non_targeting_choice_references_are_lexically_scoped() {
     });
     assert_eq!(
         super::validate_ability_targets(&[], nested_rebinding),
-        Err(GrantedAbilityValidationError::ObjectBindingAlreadyInScope { binding }),
+        Err(GrantedAbilityValidationError::BindingAlreadyDeclared { binding }),
     );
 
     super::validate_ability_targets(
@@ -70,7 +70,7 @@ fn non_targeting_choice_references_are_lexically_scoped() {
         ObjectPredicateDef::HasType(CardType::Creature),
         &[ZoneKind::Battlefield],
         PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Binding(
-            ObjectBindingIndex::PRIMARY,
+            Binding!("object"),
         ))),
     );
     static COUNT_CHOSEN_CONTROLLERS_CREATURES: EffectDef = EffectDef::GainLife {
@@ -102,7 +102,7 @@ fn non_targeting_choice_references_are_lexically_scoped() {
     )
     .expect("a value query can consume a choice inside its continuation");
 
-    let set_binding = ObjectSetBindingIndex::PRIMARY;
+    let set_binding = Binding!("objects");
     let sacrifice_chosen: &'static EffectDef = Box::leak(Box::new(EffectDef::Sacrifice {
         object: EffectRecipientDef::objects(ObjectSetDef::Binding(set_binding)),
     }));
@@ -135,7 +135,7 @@ fn non_targeting_choice_references_are_lexically_scoped() {
     assert_eq!(
         super::validate_ability_targets(&[], choose_set(rebound_set)),
         Err(
-            GrantedAbilityValidationError::ObjectSetBindingAlreadyInScope {
+            GrantedAbilityValidationError::BindingAlreadyDeclared {
                 binding: set_binding,
             }
         ),
@@ -148,12 +148,12 @@ fn non_targeting_choice_references_are_lexically_scoped() {
 fn generic_object_choices_validate_their_cardinality() {
     let cases = [
         (
-            ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+            ObjectChoiceBindingDef::Objects(Binding!("objects")),
             2,
             1,
         ),
         (
-            ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            ObjectChoiceBindingDef::Object(Binding!("object")),
             0,
             2,
         ),
@@ -731,8 +731,8 @@ fn merged_effect_vocabulary_preserves_local_target_bounds() {
                 ObjectPredicateDef::Any,
                 &[ZoneKind::Battlefield],
             )),
-            first: ObjectSetBindingIndex::PRIMARY,
-            second: ObjectSetBindingIndex::new(1),
+            first: Binding!("objects"),
+            second: Binding!("objects_2"),
             visibility: ChoiceVisibilityDef::Public,
             then: &EffectDef::None,
         }),

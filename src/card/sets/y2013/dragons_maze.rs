@@ -14,7 +14,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 static MULTICOLORED: ObjectPredicateDef = ObjectPredicateDef::AnyOf(&[
@@ -2092,7 +2092,7 @@ pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_wi
                 player: PlayerRelation::You,
             },
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -2105,9 +2105,7 @@ pub(in crate::card::sets) static SPECIES_GORGER: CardRecord = CardRecord::new_wi
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },

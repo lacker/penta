@@ -14,7 +14,7 @@ use crate::card::{
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // JUD 1 — Ancestor's Chosen
@@ -659,7 +659,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
                 nonland_only: true,
                 matched_in: PlayerRefDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 // Everything of the named card in the target's hand, revealed first so the
                 // choice is answered honestly and then taken all at once.
                 then: &EffectDef::Sequence(&[
@@ -667,7 +667,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
                         player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     },
                     EffectDef::DiscardCards {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY)),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     },
                 ]),
             },
@@ -1329,7 +1329,7 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 // The graveyard the cards come out of belongs to the targeted player, which
@@ -1352,7 +1352,7 @@ pub(in crate::card::sets) static KROSAN_RECLAMATION: CardRecord = CardRecord::ne
                         [
                             EffectDef::MoveToZone {
                                 object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                    ObjectSetBindingIndex::PRIMARY,
+                                    ParentBinding,
                                 )),
                                 zone: ZoneKind::Library,
                                 placement: ZonePlacement::Top,

@@ -15,14 +15,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, DrawEventMatcherDef, EffectBindingLabelDef, EffectDef,
-    EffectOutputBindingDef, EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CostModificationDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
+    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // TMP 1 — Advance Scout
@@ -682,10 +681,6 @@ pub(in crate::card::sets) static INTERDICT: CardRecord = CardRecord::new(
 );
 
 // TMP 70 — Intuition
-/// The three the search turned up, kept apart from the partition bindings so
-/// that "the rest" is measured against them rather than against itself.
-static INTUITION_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
 pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_legacy_id(
     2084,
     "Intuition",
@@ -711,15 +706,15 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
             shuffle: true,
             enters_tapped: false,
             attachment: None,
-            binding: Some(INTUITION_FOUND),
+            binding: Some(ParentBinding),
             // The opponent picks which of the three is worth giving up, out of the
             // cards the search found rather than out of the library it found them in.
             then: Some(&const {
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
-                    unchosen: Some(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Object(Binding!("intuition_chosen")),
+                    unchosen: Some(Binding!("intuition_unchosen")),
                     chooser: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    candidates: ObjectSetDef::Binding(INTUITION_FOUND),
+                    candidates: ObjectSetDef::Binding(ParentBinding),
                     exclude: None,
                     minimum: 1,
                     maximum: 1,
@@ -732,14 +727,14 @@ pub(in crate::card::sets) static INTUITION: CardRecord = CardRecord::new_with_le
                             [
                                 EffectDef::MoveToZone {
                                     object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                        ObjectBindingIndex::PRIMARY,
+                                        Binding!("intuition_chosen"),
                                     )),
                                     zone: ZoneKind::Hand,
                                     placement: ZonePlacement::Top,
                                 },
                                 EffectDef::MoveToZone {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ObjectSetBindingIndex::PRIMARY,
+                                        Binding!("intuition_unchosen"),
                                     )),
                                     zone: ZoneKind::Graveyard,
                                     placement: ZonePlacement::Top,
@@ -1197,11 +1192,11 @@ pub(in crate::card::sets) static CORPSE_DANCE: CardRecord = CardRecord::new_with
                         placement: ZonePlacement::Top,
                     }
                 },
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 then: &const {
                     EffectDef::Apply {
                         recipient: EffectRecipientDef::binding_zone_change_successors(
-                            ObjectSetBindingIndex::PRIMARY,
+                            ParentBinding,
                         ),
                         effect: AppliedEffectDef::Composite(&const {
                             [
@@ -2893,8 +2888,6 @@ pub(in crate::card::sets) static COLD_STORAGE: CardRecord = CardRecord::new(
 /// worth choosing is one of those -- naming something you do not hold can
 /// only fail -- and the choice is public either way, so nothing is hidden and
 /// nothing achievable is lost.
-static NAMED_CARD: ObjectBindingIndex = ObjectBindingIndex::PRIMARY;
-
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2915,7 +2908,7 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(NAMED_CARD),
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -2932,14 +2925,12 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
                     effect: &EffectDef::RevealAtRandomFromHand {
                         player: EffectRecipientDef::Controller,
                     },
-                    binding: EffectOutputBindingDef::Objects("revealed_card"),
+                    binding: Binding!("revealed_card"),
                 },
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::BoundObjectsShareName {
-                        first: &ObjectSetDef::One(ObjectRefDef::Binding(NAMED_CARD)),
-                        second: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
-                            "revealed_card",
-                        )),
+                        first: &ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
+                        second: &ObjectSetDef::Binding(Binding!("revealed_card")),
                     },
                     then: &EffectDef::DealDamage {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

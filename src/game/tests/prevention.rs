@@ -686,6 +686,7 @@ mod gaseous_form {
 /// these drive.
 mod circle_of_protection {
     use super::*;
+    use crate::ParentBinding;
 
     fn circle_game() -> (Game, GameObjectId) {
         let mut game = ready_game();
@@ -815,9 +816,7 @@ mod circle_of_protection {
                     recipient: DamageRecipientMatcherDef::Recipients(
                         EffectRecipientDef::Controller,
                     ),
-                    ..DamageEventMatcherDef::from(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    ))
+                    ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ParentBinding))
                 },
                 1,
             ),
@@ -832,7 +831,7 @@ mod circle_of_protection {
 
         game.resolve_effect_def(
             ScopedEffect::primary(EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::new(

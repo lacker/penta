@@ -20,40 +20,86 @@ fn validate_object_collection_references(
     }
 }
 
-fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidationError> {
-    match effect {
-        EffectDef::Mill { .. }
-        | EffectDef::MillUntil(_)
-        | EffectDef::SelectAtRandomFromZone { .. }
-        | EffectDef::RevealAtRandomFromHand { .. } => Ok(true),
-        EffectDef::IfCondition { then, .. } => has_bindable_output(*then),
-        EffectDef::IfFormat {
-            then, otherwise, ..
-        }
-        | EffectDef::Randomized {
-            on_success: then,
-            on_failure: otherwise,
-            ..
-        } => Ok(has_bindable_output(*then)? || has_bindable_output(*otherwise)?),
-        EffectDef::None => Ok(false),
-        _ => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "bound effect output",
-            operation: "an effect that does not expose an output",
-        }),
-    }
-}
-
 fn scope_after_immediate_effect(
     effect: EffectDef,
     scope: BindingScope<'_>,
 ) -> Result<BindingScope<'_>, GrantedAbilityValidationError> {
     match effect {
-        EffectDef::BindOutput {
-            binding: crate::card::EffectOutputBindingDef::Objects(label),
-            ..
-        } => scope.with_named_object_set(label),
+        EffectDef::BindOutput { binding, .. } => scope.with_declared_object_set(binding),
         _ => Ok(scope),
     }
+}
+
+fn validate_object_continuation(
+    binding: Binding,
+    effect: EffectDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+    operation: &'static str,
+) -> Result<(), GrantedAbilityValidationError> {
+    let nested = scope.with_object(binding)?;
+    validate_effect_references(effect, target_count, nested)?;
+    let read = if binding == crate::ParentBinding {
+        nested.parent_binding_was_read()
+    } else {
+        nested.binding_was_read(binding)
+    };
+    if !read {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "then continuation does not consume its declared binding; use Sequence",
+            operation,
+        });
+    }
+    Ok(())
+}
+
+fn validate_object_set_continuation(
+    binding: Binding,
+    effect: EffectDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+    operation: &'static str,
+) -> Result<(), GrantedAbilityValidationError> {
+    let nested = scope.with_object_set(binding)?;
+    validate_effect_references(effect, target_count, nested)?;
+    let read = if binding == crate::ParentBinding {
+        nested.parent_binding_was_read()
+    } else {
+        nested.binding_was_read(binding)
+    };
+    if !read {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "then continuation does not consume its declared binding; use Sequence",
+            operation,
+        });
+    }
+    Ok(())
+}
+
+fn validate_card_name_continuation(
+    binding: Binding,
+    effect: EffectDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    if binding != crate::ParentBinding {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "then continuation",
+            operation: "ChooseCardName continuations must use ParentBinding",
+        });
+    }
+    let nested = scope.with_object_set(binding)?;
+    let chosen_name_reads = nested.chosen_name_read_count();
+    validate_effect_references(effect, target_count, nested)?;
+    if !nested.parent_binding_was_read()
+        && nested.chosen_name_read_count() == chosen_name_reads
+    {
+        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "then continuation",
+            operation: "a continuation that does not read ParentBinding or the chosen name; use Sequence",
+        });
+    }
+    Ok(())
 }
 
 #[allow(clippy::too_many_lines)]
@@ -65,8 +111,14 @@ fn validate_effect_references(
     match effect {
         EffectDef::BindOutput { effect, binding } => {
             validate_effect_references(*effect, target_count, scope)?;
-            let crate::card::EffectOutputBindingDef::Objects(_) = binding;
+            if binding == crate::ParentBinding {
+                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "binding",
+                    operation: "BindOutput requires a durable labeled binding",
+                });
+            }
             let _ = has_bindable_output(*effect)?;
+            let _ = scope.declare_binding(binding)?;
             Ok(())
         }
         EffectDef::WithBattlefieldArrival { effect, arrival } => {
@@ -87,7 +139,13 @@ fn validate_effect_references(
             then,
         } => {
             validate_effect_references(*effect, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
+            validate_object_set_continuation(
+                binding,
+                *then,
+                target_count,
+                scope,
+                "WithZoneMoveResult must expose a moved-object binding consumed by their continuation",
+            )
         }
         EffectDef::Sequence(effects) => {
             let mut scope = scope;
@@ -129,8 +187,13 @@ fn validate_effect_references(
             ..
         } => {
             validate_recipient_target_references(object, target_count, scope)?;
-            let nested = scope.with_object_set(follow_up.binding)?;
-            validate_effect_references(*follow_up.effect, target_count, nested)
+            validate_object_set_continuation(
+                follow_up.binding,
+                *follow_up.effect,
+                target_count,
+                scope,
+                "Destroy follow-ups must expose a result binding consumed by their continuation",
+            )
         }
         EffectDef::ChooseCardName {
             chooser,
@@ -143,8 +206,7 @@ fn validate_effect_references(
             validate_player_reference(matched_in, target_count, scope)?;
             // The cards of the chosen name are bound as it is answered, so
             // the follow-up may name that set.
-            let nested = scope.with_object_set(binding)?;
-            validate_effect_references(*then, target_count, nested)
+            validate_card_name_continuation(binding, *then, target_count, scope)
         }
         EffectDef::Choose(choice) => {
             validate_player_reference(choice.chooser, target_count, scope)?;
@@ -168,10 +230,31 @@ fn validate_effect_references(
                     maximum: choice.maximum,
                 });
             }
+            if choice.unchosen.is_none() {
+                return match choice.binding {
+                    crate::card::ObjectChoiceBindingDef::Object(binding) => {
+                        validate_object_continuation(
+                            binding,
+                            *choice.then,
+                            target_count,
+                            scope,
+                            "single-output Choose continuations must expose a result binding consumed by their continuation",
+                        )
+                    }
+                    crate::card::ObjectChoiceBindingDef::Objects(binding)
+                    | crate::card::ObjectChoiceBindingDef::OrderedObjects(binding) => {
+                        validate_object_set_continuation(
+                            binding,
+                            *choice.then,
+                            target_count,
+                            scope,
+                            "single-output Choose continuations must expose a result binding consumed by their continuation",
+                        )
+                    }
+                };
+            }
             let nested = match choice.binding {
-                crate::card::ObjectChoiceBindingDef::Object(binding) => {
-                    scope.with_object(binding)?
-                }
+                crate::card::ObjectChoiceBindingDef::Object(binding) => scope.with_object(binding)?,
                 crate::card::ObjectChoiceBindingDef::Objects(binding)
                 | crate::card::ObjectChoiceBindingDef::OrderedObjects(binding) => {
                     scope.with_object_set(binding)?
@@ -197,10 +280,12 @@ fn validate_effect_references(
                 validate_object_reference(excluded, target_count, scope)?;
             }
             validate_value_target_references(choice.amount, target_count, scope)?;
-            validate_effect_references(
+            validate_object_set_continuation(
+                choice.binding,
                 *choice.then,
                 target_count,
-                scope.with_object_set(choice.binding)?,
+                scope,
+                "ChooseExact continuations must expose a result binding consumed by their continuation",
             )
         }
         EffectDef::ChooseCardsFromCollection(choice) => {
@@ -221,10 +306,12 @@ fn validate_effect_references(
         }
         EffectDef::BindObjects(definition) => {
             validate_object_collection_references(definition.source, target_count, scope)?;
-            validate_effect_references(
+            validate_object_set_continuation(
+                definition.binding,
                 *definition.then,
                 target_count,
-                scope.with_object_set(definition.binding)?,
+                scope,
+                "BindObjects continuations must expose a result binding consumed by their continuation",
             )
         }
         EffectDef::IfNoObjects(definition) => {
@@ -264,10 +351,12 @@ fn validate_effect_references(
                     scope,
                 )?;
             }
-            validate_effect_references(
+            validate_object_set_continuation(
+                definition.combined,
                 *definition.then,
                 target_count,
-                scope.with_object_set(definition.combined)?,
+                scope,
+                "CombineObjects continuations must expose a result binding consumed by their continuation",
             )
         }
         EffectDef::RandomizeObjectOrder(definition) => {
@@ -276,10 +365,12 @@ fn validate_effect_references(
                 target_count,
                 scope,
             )?;
-            validate_effect_references(
+            validate_object_set_continuation(
+                definition.randomized,
                 *definition.then,
                 target_count,
-                scope.with_object_set(definition.randomized)?,
+                scope,
+                "RandomizeObjectOrder continuations must expose a result binding consumed by their continuation",
             )
         }
         EffectDef::RevealObjects(definition) => {
@@ -288,7 +379,14 @@ fn validate_effect_references(
                 target_count,
                 scope,
             )?;
-            validate_effect_references(*definition.then, target_count, scope)
+            if matches!(*definition.then, EffectDef::None) {
+                Ok(())
+            } else {
+                Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "then continuation",
+                    operation: "RevealObjects has no output dependency; use Sequence",
+                })
+            }
         }
         EffectDef::MoveObjects(definition) => {
             validate_recipient_target_references(
@@ -296,11 +394,20 @@ fn validate_effect_references(
                 target_count,
                 scope,
             )?;
-            let nested = match definition.moved {
-                Some(binding) => scope.with_object_set(binding)?,
-                None => scope,
-            };
-            validate_effect_references(*definition.then, target_count, nested)
+            match definition.moved {
+                Some(binding) => validate_object_set_continuation(
+                    binding,
+                    *definition.then,
+                    target_count,
+                    scope,
+                    "MoveObjects continuations must expose a moved-object binding consumed by their continuation",
+                ),
+                None if matches!(*definition.then, EffectDef::None) => Ok(()),
+                None => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "then continuation",
+                    operation: "MoveObjects has no output dependency; use Sequence",
+                }),
+            }
         }
         EffectDef::PutObjectsOntoBattlefieldFaceDown(definition) => {
             validate_recipient_target_references(
@@ -309,11 +416,20 @@ fn validate_effect_references(
                 scope,
             )?;
             validate_player_reference(definition.controller, target_count, scope)?;
-            let nested = match definition.moved {
-                Some(binding) => scope.with_object_set(binding)?,
-                None => scope,
-            };
-            validate_effect_references(*definition.then, target_count, nested)
+            match definition.moved {
+                Some(binding) => validate_object_set_continuation(
+                    binding,
+                    *definition.then,
+                    target_count,
+                    scope,
+                    "face-down move continuations must expose a moved-object binding consumed by their continuation",
+                ),
+                None if matches!(*definition.then, EffectDef::None) => Ok(()),
+                None => Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "then continuation",
+                    operation: "a face-down move has no output dependency; use Sequence",
+                }),
+            }
         }
         EffectDef::ChooseObjectOrder(definition) => {
             validate_player_reference(definition.actor, target_count, scope)?;
@@ -322,16 +438,25 @@ fn validate_effect_references(
                 target_count,
                 scope,
             )?;
-            validate_effect_references(
+            validate_object_set_continuation(
+                definition.ordered,
                 *definition.then,
                 target_count,
-                scope.with_object_set(definition.ordered)?,
+                scope,
+                "ChooseObjectOrder continuations must expose a result binding consumed by their continuation",
             )
         }
         EffectDef::LookAtObjects(definition) => {
             validate_player_reference(definition.actor, target_count, scope)?;
             validate_object_collection_references(definition.source, target_count, scope)?;
-            validate_effect_references(*definition.then, target_count, scope)
+            if matches!(*definition.then, EffectDef::None) {
+                Ok(())
+            } else {
+                Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "then continuation",
+                    operation: "LookAtObjects has no output dependency; use Sequence",
+                })
+            }
         }
         EffectDef::PartitionGroup(definition) => {
             validate_player_reference(definition.actor, target_count, scope)?;
@@ -382,14 +507,14 @@ fn validate_effect_references(
             binding,
             effect,
         } => {
-            if scope.object_sets & (1 << objects.index()) == 0 {
-                return Err(
-                    GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
-                        binding: objects,
-                    },
-                );
-            }
-            validate_effect_references(*effect, target_count, scope.with_object(binding)?)
+            scope.validate_object_set_reference(objects)?;
+            validate_object_continuation(
+                binding,
+                *effect,
+                target_count,
+                scope,
+                "ForEachInBinding must expose a current-object binding consumed by its effect",
+            )
         }
         EffectDef::PayOr(payment) => {
             validate_payment_references(payment.payment, target_count, scope)?;
@@ -550,28 +675,50 @@ fn validate_effect_references(
             validate_recipient_target_references(recipient, target_count, scope)?;
             validate_value_target_references(amount, target_count, scope)?;
             if let Some(follow_up) = then {
-                let nested = match follow_up.bound {
-                    Some(binding) => scope.with_object_set(binding)?,
-                    None => scope,
+                let Some(binding) = follow_up.bound else {
+                    return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                        context: "then continuation",
+                        operation: "Discard continuations must expose a discarded-card binding consumed by their continuation",
+                    });
                 };
-                validate_effect_references(*follow_up.effect, target_count, nested)?;
+                validate_object_set_continuation(
+                    binding,
+                    *follow_up.effect,
+                    target_count,
+                    scope,
+                    "Discard continuations must expose a discarded-card binding consumed by their continuation",
+                )?;
             }
             Ok(())
         }
         EffectDef::CreateToken {
+            token,
+            controller,
             count,
             copy,
             created,
             ..
         } => {
             validate_value_target_references(count, target_count, scope)?;
+            if let Some(controller) = controller {
+                validate_player_reference(controller, target_count, scope)?;
+            }
+            if let Some(stats) = token.variable_stats {
+                validate_value_target_references(stats.power, target_count, scope)?;
+                validate_value_target_references(stats.toughness, target_count, scope)?;
+            }
             if let Some(copy) = copy {
                 validate_recipient_target_references(*copy.object, target_count, scope)?;
             }
             match created {
                 Some(created) => {
-                    let nested = scope.with_object_set(created.binding)?;
-                    validate_effect_references(*created.then, target_count, nested)
+                    validate_object_set_continuation(
+                        created.binding,
+                        *created.then,
+                        target_count,
+                        scope,
+                        "CreateToken continuations must expose a created-token binding consumed by their continuation",
+                    )
                 }
                 None => Ok(()),
             }
@@ -606,7 +753,13 @@ fn validate_effect_references(
             ..
         } => {
             validate_recipient_target_references(object, target_count, scope)?;
-            validate_effect_references(*then, target_count, scope.with_object_set(binding)?)
+            validate_object_set_continuation(
+                binding,
+                *then,
+                target_count,
+                scope,
+                "PutOntoBattlefieldThen must expose an arrival binding consumed by its continuation",
+            )
         }
         EffectDef::SearchZone {
             player,
@@ -635,11 +788,19 @@ fn validate_effect_references(
             // The cards a search found are in scope for its own follow-up,
             // the same way every other binding is scoped to the effect that
             // introduces it.
-            let nested = match binding {
-                Some(binding) => scope.with_object_set(binding)?,
-                None => scope,
+            let Some(binding) = binding else {
+                return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                    context: "then continuation",
+                    operation: "a SearchZone continuation without a result dependency; use Sequence",
+                });
             };
-            validate_effect_references(*then, target_count, nested)
+            validate_object_set_continuation(
+                binding,
+                *then,
+                target_count,
+                scope,
+                "SearchZone continuations must expose a found-card binding consumed by their continuation",
+            )
         }
         EffectDef::BecomeMonarch { player } => {
             validate_player_reference(player, target_count, scope)
@@ -816,7 +977,6 @@ fn validate_effect_references(
         | EffectDef::PutSourceOntoBattlefieldAttacking
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::ReturnLinkedExiles { .. }
-        | EffectDef::MayPlayWithoutPaying { .. }
         | EffectDef::Cascade
         | EffectDef::Proliferate
         | EffectDef::CannotBeForcedToSacrifice
@@ -827,54 +987,10 @@ fn validate_effect_references(
         | EffectDef::CreateAttachedToken { .. }
         | EffectDef::CreateMyriadTokens
         | EffectDef::Special(_) => Ok(()),
-    }
-}
-
-fn validate_replacement_effect_target_references(
-    effect: ReplacementEffectDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    match effect {
-        ReplacementEffectDef::Sequence(effects) => {
-            for effect in effects {
-                validate_replacement_effect_target_references(*effect, target_count, scope)?;
-            }
-            Ok(())
-        }
-        ReplacementEffectDef::Conditional {
-            condition,
-            if_true,
-            if_false,
-        } => {
-            validate_condition(condition, target_count, scope)?;
-            for effect in if_true.iter().chain(if_false.iter()) {
-                validate_replacement_effect_target_references(*effect, target_count, scope)?;
-            }
-            Ok(())
-        }
-        ReplacementEffectDef::PayOr {
-            payment,
-            if_paid,
-            if_declined,
-        } => {
-            validate_payment_references(payment, target_count, scope)?;
-            for effect in if_paid.iter().chain(if_declined.iter()) {
-                validate_replacement_effect_target_references(*effect, target_count, scope)?;
-            }
-            Ok(())
-        }
-        ReplacementEffectDef::Perform(effect) => {
-            validate_effect_references(*effect, target_count, scope)
-        }
-        ReplacementEffectDef::ReplaceEventWithNothing
-        | ReplacementEffectDef::MoveToZone(_)
-        | ReplacementEffectDef::ModifyBattlefieldEntry(_)
-        | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
-        | ReplacementEffectDef::MultiplyEventAmount(_)
-        | ReplacementEffectDef::AddToEventAmount(_)
-        | ReplacementEffectDef::Choose(_)
-        | ReplacementEffectDef::LookAtHand(_)
-        | ReplacementEffectDef::CopyEntering { .. } => Ok(()),
+        EffectDef::MayPlayWithoutPaying(definition) => validate_recipient_target_references(
+            EffectRecipientDef::objects(definition.objects),
+            target_count,
+            scope,
+        ),
     }
 }

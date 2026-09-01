@@ -66,7 +66,7 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// Where the results are saved for the follow-up. Absent from a
         /// payload written before any search had one.
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        binding: Option<usize>,
+        binding: Option<super::BindingSnapshot>,
         /// What the search runs once it is answered, relocated in the
         /// catalog rather than carried as executable state.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -126,7 +126,7 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         choices: Vec<String>,
         searched: usize,
         zone: ZoneKindSnapshot,
-        binding: usize,
+        binding: super::BindingSnapshot,
         continuation: EffectContinuationSnapshot,
     },
     ChainLightning {

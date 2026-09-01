@@ -82,7 +82,7 @@ impl Game {
         choices: &[String],
         searched: PlayerId,
         zone: ZoneKind,
-        binding: crate::ObjectSetBindingIndex,
+        binding: &super::RuntimeBinding,
         object: &StackObject,
         mut context: EffectResolutionContext,
         effect: ScopedEffect,
@@ -99,7 +99,7 @@ impl Game {
         // Bound as the name is chosen: the rest of the effect names a set of
         // cards rather than a name it would have to match again.
         let matched = self.cards_named_in_zone(searched, zone, &name);
-        context.bind_object_group(binding, matched);
+        context.bind_runtime_object_group(binding, matched);
         context.chosen_name = Some(name);
         self.resolve_nested_effect_before_later(effect, object, context);
     }

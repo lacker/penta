@@ -8,7 +8,7 @@ use crate::card::{
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     SpellCostConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // MRD 57 — Barter in Blood
@@ -109,7 +109,7 @@ pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
             // "You may": a minimum of none, so a hand with nothing worth paying leaves
             // the Mox on the battlefield making nothing.
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 // "A nonartifact, nonland card from your hand": the two types it may not
@@ -130,9 +130,7 @@ pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
                 // able to read the card's colours later.
                 then: &EffectDef::ExileLinkedToSource {
                     until_source_leaves: false,
-                    object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
-                    )),
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                     face_down: false,
                     then: None,
                 },

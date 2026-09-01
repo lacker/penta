@@ -19,11 +19,11 @@ pub(in crate::card::catalog) fn validate_ability_targets(
             });
         }
     }
-    let named_bindings = std::cell::RefCell::new(Vec::new());
+    let bindings = BindingRegistry::default();
     validate_effect_references(
         effect,
         targets.len(),
-        BindingScope::empty(&named_bindings),
+        BindingScope::empty(&bindings),
     )?;
     validate_effect_target_shapes(effect, targets, None)
 }
@@ -34,11 +34,11 @@ pub(in crate::card::catalog) fn validate_replacement_ability_targets(
     effect: ReplacementEffectDef,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
-    let named_bindings = std::cell::RefCell::new(Vec::new());
+    let bindings = BindingRegistry::default();
     validate_replacement_effect_target_references(
         effect,
         targets.len(),
-        BindingScope::empty(&named_bindings),
+        BindingScope::empty(&bindings),
     )?;
     validate_replacement_effect_target_shapes(effect, targets)
 }
@@ -50,11 +50,11 @@ pub(super) fn validate_ability_program_targets(
     binds_chosen_cost_card: bool,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
-    let named_bindings = std::cell::RefCell::new(Vec::new());
+    let bindings = BindingRegistry::default();
     let scope = if binds_chosen_cost_card {
-        BindingScope::empty(&named_bindings).with_object(ObjectBindingIndex::PRIMARY)?
+        BindingScope::empty(&bindings).with_object(Binding!("object"))?
     } else {
-        BindingScope::empty(&named_bindings)
+        BindingScope::empty(&bindings)
     };
     validate_program_references(program, targets.len(), scope)?;
     validate_program_target_shapes(program, targets, trigger_event)
@@ -64,11 +64,11 @@ pub(super) fn validate_ability_trigger_event(
     event: TriggerEventDef,
     target_count: usize,
 ) -> Result<(), GrantedAbilityValidationError> {
-    let named_bindings = std::cell::RefCell::new(Vec::new());
+    let bindings = BindingRegistry::default();
     validate_trigger_event_references(
         event,
         target_count,
-        BindingScope::empty(&named_bindings),
+        BindingScope::empty(&bindings),
     )
 }
 
@@ -142,33 +142,158 @@ fn cast_target_count_value_supported(value: ValueDef) -> bool {
     }
 }
 
-type NamedBindingRegistry = std::cell::RefCell<Vec<&'static str>>;
+#[derive(Default)]
+struct BindingRegistry {
+    labels: std::cell::RefCell<Vec<&'static str>>,
+    declared_labels: std::cell::RefCell<Vec<&'static str>>,
+    next_parent: std::cell::Cell<u8>,
+    parent_reads: std::cell::Cell<u64>,
+    binding_reads: std::cell::Cell<u64>,
+    chosen_name_reads: std::cell::Cell<u64>,
+}
 
 #[derive(Clone, Copy)]
 struct BindingScope<'registry> {
-    objects: u8,
-    object_sets: u8,
-    named_object_sets: u64,
-    named_bindings: &'registry NamedBindingRegistry,
+    objects: u64,
+    object_sets: u64,
+    parent_object: Option<u8>,
+    parent_object_set: Option<u8>,
+    bindings: &'registry BindingRegistry,
 }
 
 impl<'registry> BindingScope<'registry> {
-    fn empty(named_bindings: &'registry NamedBindingRegistry) -> Self {
+    fn empty(bindings: &'registry BindingRegistry) -> Self {
         Self {
             objects: 0,
             object_sets: 0,
-            named_object_sets: 0,
-            named_bindings,
+            parent_object: None,
+            parent_object_set: None,
+            bindings,
         }
+    }
+
+    fn binding_bit(
+        self,
+        binding: Binding,
+        create: bool,
+    ) -> Result<Option<u64>, GrantedAbilityValidationError> {
+        let Some(label) = binding.label() else {
+            return Ok(None);
+        };
+        if label.is_empty() {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "an empty binding label",
+            });
+        }
+        if let Some(index) = self
+            .bindings
+            .labels
+            .borrow()
+            .iter()
+            .position(|bound| *bound == label)
+        {
+            return Ok(Some(1_u64 << index));
+        }
+        if !create {
+            return Ok(None);
+        }
+        let mut bindings = self.bindings.labels.borrow_mut();
+        if bindings.len() == u64::BITS as usize {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "more than 64 distinct bindings in one ability",
+            });
+        }
+        let bit = 1_u64 << bindings.len();
+        bindings.push(label);
+        Ok(Some(bit))
+    }
+
+    fn next_parent(self) -> Result<u8, GrantedAbilityValidationError> {
+        let next = self.bindings.next_parent.get();
+        if next == 64 {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "parent binding",
+                operation: "more than 64 nested parent bindings in one ability",
+            });
+        }
+        self.bindings.next_parent.set(next + 1);
+        Ok(next)
+    }
+
+    fn declare_binding(
+        self,
+        binding: Binding,
+    ) -> Result<u64, GrantedAbilityValidationError> {
+        let Some(label) = binding.label() else {
+            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+                context: "binding",
+                operation: "a durable binding cannot use ParentBinding",
+            });
+        };
+        if self.bindings.declared_labels.borrow().contains(&label) {
+            return Err(GrantedAbilityValidationError::BindingAlreadyDeclared {
+                binding,
+            });
+        }
+        let bit = self
+            .binding_bit(binding, true)?
+            .expect("declaring a binding assigns a label bit");
+        self.bindings.declared_labels.borrow_mut().push(label);
+        Ok(bit)
+    }
+
+    fn with_declared_object_set(
+        self,
+        binding: Binding,
+    ) -> Result<Self, GrantedAbilityValidationError> {
+        let bit = self
+            .binding_bit(binding, false)?
+            .expect("the effect output binding was declared while validating the effect");
+        Ok(Self {
+            object_sets: self.object_sets | bit,
+            ..self
+        })
+    }
+
+    fn parent_binding_was_read(self) -> bool {
+        self.parent_object
+            .or(self.parent_object_set)
+            .is_some_and(|binding| self.bindings.parent_reads.get() & (1_u64 << binding) != 0)
+    }
+
+    fn binding_was_read(self, binding: Binding) -> bool {
+        self.binding_bit(binding, false)
+            .ok()
+            .flatten()
+            .is_some_and(|bit| self.bindings.binding_reads.get() & bit != 0)
+    }
+
+    fn chosen_name_read_count(self) -> u64 {
+        self.bindings.chosen_name_reads.get()
+    }
+
+    fn mark_chosen_name_read(self) {
+        self.bindings
+            .chosen_name_reads
+            .set(self.bindings.chosen_name_reads.get() + 1);
     }
 
     fn with_object(
         self,
-        binding: ObjectBindingIndex,
+        binding: Binding,
     ) -> Result<Self, GrantedAbilityValidationError> {
-        let bit = 1 << binding.index();
-        if self.objects & bit != 0 {
-            Err(GrantedAbilityValidationError::ObjectBindingAlreadyInScope { binding })
+        if binding == crate::ParentBinding {
+            return Ok(Self {
+                parent_object: Some(self.next_parent()?),
+                parent_object_set: None,
+                ..self
+            });
+        }
+        let bit = self.declare_binding(binding)?;
+        if (self.objects | self.object_sets) & bit != 0 {
+            Err(GrantedAbilityValidationError::BindingAlreadyDeclared { binding })
         } else {
             Ok(Self {
                 objects: self.objects | bit,
@@ -179,11 +304,18 @@ impl<'registry> BindingScope<'registry> {
 
     fn with_object_set(
         self,
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
     ) -> Result<Self, GrantedAbilityValidationError> {
-        let bit = 1 << binding.index();
-        if self.object_sets & bit != 0 {
-            Err(GrantedAbilityValidationError::ObjectSetBindingAlreadyInScope { binding })
+        if binding == crate::ParentBinding {
+            return Ok(Self {
+                parent_object: None,
+                parent_object_set: Some(self.next_parent()?),
+                ..self
+            });
+        }
+        let bit = self.declare_binding(binding)?;
+        if self.objects & bit != 0 || self.object_sets & bit != 0 {
+            Err(GrantedAbilityValidationError::BindingAlreadyDeclared { binding })
         } else {
             Ok(Self {
                 object_sets: self.object_sets | bit,
@@ -192,78 +324,68 @@ impl<'registry> BindingScope<'registry> {
         }
     }
 
+    fn validate_object_reference(
+        self,
+        binding: Binding,
+    ) -> Result<(), GrantedAbilityValidationError> {
+        if binding == crate::ParentBinding {
+            let Some(parent) = self.parent_object else {
+                return Err(GrantedAbilityValidationError::ObjectBindingReferenceOutOfScope {
+                    binding,
+                });
+            };
+            self.bindings
+                .parent_reads
+                .set(self.bindings.parent_reads.get() | (1_u64 << parent));
+            return Ok(());
+        }
+        if self
+            .binding_bit(binding, false)?
+            .is_some_and(|bit| self.objects & bit != 0)
+        {
+            let bit = self
+                .binding_bit(binding, false)?
+                .expect("the object binding was found in scope");
+            self.bindings
+                .binding_reads
+                .set(self.bindings.binding_reads.get() | bit);
+            Ok(())
+        } else {
+            Err(GrantedAbilityValidationError::ObjectBindingReferenceOutOfScope { binding })
+        }
+    }
+
     fn validate_object_set_reference(
         self,
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
     ) -> Result<(), GrantedAbilityValidationError> {
-        if self.object_sets & (1 << binding.index()) != 0 {
+        if binding == crate::ParentBinding {
+            let Some(parent) = self.parent_object_set else {
+                return Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope {
+                    binding,
+                });
+            };
+            self.bindings
+                .parent_reads
+                .set(self.bindings.parent_reads.get() | (1_u64 << parent));
+            return Ok(());
+        }
+        if self
+            .binding_bit(binding, false)?
+            .is_some_and(|bit| self.object_sets & bit != 0)
+        {
+            let bit = self
+                .binding_bit(binding, false)?
+                .expect("the object-set binding was found in scope");
+            self.bindings
+                .binding_reads
+                .set(self.bindings.binding_reads.get() | bit);
             Ok(())
         } else {
             Err(GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding })
         }
     }
 
-    fn named_binding_bit(
-        self,
-        label: &'static str,
-        create: bool,
-    ) -> Result<Option<u64>, GrantedAbilityValidationError> {
-        if let Some(index) = self
-            .named_bindings
-            .borrow()
-            .iter()
-            .position(|bound| *bound == label)
-        {
-            return Ok(Some(1_u64 << index));
-        }
-        if !create {
-            return Ok(None);
-        }
-        let mut bindings = self.named_bindings.borrow_mut();
-        if bindings.len() == u64::BITS as usize {
-            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "named binding",
-                operation: "more than 64 distinct output labels in one ability",
-            });
-        }
-        let bit = 1_u64 << bindings.len();
-        bindings.push(label);
-        Ok(Some(bit))
-    }
-
-    fn with_named_object_set(
-        mut self,
-        label: &'static str,
-    ) -> Result<Self, GrantedAbilityValidationError> {
-        if label.is_empty() {
-            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "named binding",
-                operation: "an empty output label",
-            });
-        }
-        let bit = self
-            .named_binding_bit(label, true)?
-            .expect("creating a binding assigns a label bit");
-        if self.named_object_sets & bit != 0 {
-            return Err(GrantedAbilityValidationError::NamedBindingAlreadyInScope { label });
-        }
-        self.named_object_sets |= bit;
-        Ok(self)
-    }
-
-    fn validate_named_object_set_reference(
-        self,
-        label: &'static str,
-    ) -> Result<(), GrantedAbilityValidationError> {
-        if self
-            .named_binding_bit(label, false)?
-            .is_some_and(|bit| self.named_object_sets & bit != 0)
-        {
-            Ok(())
-        } else {
-            Err(GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope { label })
-        }
-    }
 }
 
 fn validate_target_index(
@@ -301,13 +423,7 @@ fn validate_object_reference(
         ObjectRefDef::Target(target) | ObjectRefDef::SourceOfTargetedStackObject(target) => {
             validate_target_index(target, target_count)
         }
-        ObjectRefDef::Binding(binding) => {
-            if scope.objects & (1 << binding.index()) != 0 {
-                Ok(())
-            } else {
-                Err(GrantedAbilityValidationError::ObjectBindingReferenceOutOfScope { binding })
-            }
-        }
+        ObjectRefDef::Binding(binding) => scope.validate_object_reference(binding),
         ObjectRefDef::Source
         | ObjectRefDef::CreatingSource
         | ObjectRefDef::ZoneChangeSuccessor(_)
@@ -560,9 +676,6 @@ fn validate_object_set_target_references(
         | ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding)
         | ObjectSetDef::MatchingBinding { binding, .. } => {
             scope.validate_object_set_reference(binding)
-        }
-        ObjectSetDef::NamedBinding(label) => {
-            scope.validate_named_object_set_reference(label.label())
         }
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
@@ -829,85 +942,10 @@ fn validate_object_predicate_references(
         ObjectPredicateDef::HasName(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
-        _ => Ok(()),
-    }
-}
-
-fn validate_resolving_applied_effect(
-    recipient: EffectRecipientDef,
-    effect: AppliedEffectDef,
-) -> Result<(), GrantedAbilityValidationError> {
-    match effect {
-        AppliedEffectDef::Composite(effects) => {
-            if effects.is_empty() {
-                return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
-            }
-            for effect in effects {
-                validate_resolving_applied_effect(recipient, *effect)?;
-            }
+        ObjectPredicateDef::HasChosenName => {
+            scope.mark_chosen_name_read();
             Ok(())
         }
-        AppliedEffectDef::Rule(
-            AppliedRuleDef::CannotPlay(_)
-            | AppliedRuleDef::MayPlayFromGraveyard(_)
-            // A timing permission is aimed at a player the same way a
-            // prohibition is: no object has a casting window of its own.
-            | AppliedRuleDef::MayCastAsThoughItHadFlash(_)
-            // A player's protection is likewise a rule about the player: an
-            // object gets protection as a keyword instead.
-            | AppliedRuleDef::PlayerProtectionFrom(_)
-            | AppliedRuleDef::PlayerRule(_)
-            | AppliedRuleDef::RedirectDamageFromTo { .. },
-        ) => {
-            if matches!(recipient.0, EffectRecipientSetDef::Objects(_)) {
-                Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect)
-            } else {
-                Ok(())
-            }
-        }
-        AppliedEffectDef::Rule(AppliedRuleDef::AttackRestriction(restriction)) => {
-            if restriction
-                .cost
-                .is_some_and(|cost| cost.variable_x || cost.x_multiplier != 0)
-            {
-                return Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect);
-            }
-            let object_recipient = matches!(recipient.0, EffectRecipientSetDef::Objects(_));
-            match restriction.defender {
-                AttackDefenderScopeDef::Any if object_recipient => Ok(()),
-                AttackDefenderScopeDef::AffectedPlayer
-                | AttackDefenderScopeDef::AffectedPlayerOrPlaneswalker
-                    if !object_recipient =>
-                {
-                    Ok(())
-                }
-                _ => Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect),
-            }
-        }
-        AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(restriction)) => {
-            let object_recipient = matches!(
-                recipient.0,
-                EffectRecipientSetDef::Objects(_) | EffectRecipientSetDef::LegalTargets(_)
-            );
-            if restriction
-                .cost
-                .is_some_and(|cost| cost.variable_x || cost.x_multiplier != 0)
-                || !object_recipient
-            {
-                Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect)
-            } else {
-                Ok(())
-            }
-        }
-        AppliedEffectDef::Rule(
-            AppliedRuleDef::CannotBeCountered | AppliedRuleDef::PreventDamage(_),
-        ) => Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect),
-        AppliedEffectDef::Rule(_) | AppliedEffectDef::Characteristic(_) => {
-            if matches!(recipient.0, EffectRecipientSetDef::Players(_)) {
-                Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect)
-            } else {
-                Ok(())
-            }
-        }
+        _ => Ok(()),
     }
 }

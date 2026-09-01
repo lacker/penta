@@ -7,7 +7,7 @@ use crate::card::{
     EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // DST 112 — Darksteel Ingot
@@ -61,18 +61,17 @@ pub(in crate::card::sets) static SERUM_POWDER: CardRecord = CardRecord::new(
                         PlayerRelation::You,
                     ),
                 )),
-                ObjectSetBindingIndex::PRIMARY,
                 &EffectDef::Sequence(&[
                     EffectDef::MoveToZone {
                         object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ObjectSetBindingIndex::PRIMARY,
+                            ParentBinding,
                         )),
                         zone: ZoneKind::Exile,
                         placement: ZonePlacement::Top,
                     },
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
-                        amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                        amount: ValueDef::BoundObjectCount(ParentBinding),
                     },
                 ]),
             ),

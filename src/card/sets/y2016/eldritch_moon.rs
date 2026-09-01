@@ -8,7 +8,7 @@ use crate::card::{
     PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
-use crate::ids::TargetIndex;
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // EMN 13 — Blessed Alliance
@@ -372,10 +372,10 @@ pub(in crate::card::sets) static COLLECTIVE_DEFIANCE: CardRecord = CardRecord::n
                     selection: DiscardSelectionDef::RecipientChooses,
                     then: Some(DiscardFollowUpDef {
                         counted: ObjectPredicateDef::Any,
-                        bound: None,
+                        bound: Some(ParentBinding),
                         effect: &EffectDef::DrawCards {
                             recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::MatchedCount,
+                            amount: ValueDef::BoundObjectCount(ParentBinding),
                         },
                     }),
                 },

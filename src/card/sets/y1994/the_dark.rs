@@ -12,7 +12,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::{ObjectBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 static TARGET_PLAYER: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
@@ -2229,9 +2229,7 @@ pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_
                         recipient: DamageRecipientMatcherDef::Recipients(
                             EffectRecipientDef::Controller,
                         ),
-                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(
-                            ObjectBindingIndex::PRIMARY,
-                        ))
+                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ParentBinding))
                     },
                     1,
                 )

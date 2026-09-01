@@ -9,7 +9,7 @@ use crate::card::{
     PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // PLS 1 — Aura Blast
@@ -1481,7 +1481,7 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_wit
                 player: EffectRecipientDef::Controller,
                 effect: &const {
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         // A card from your own hand, whichever you can spare. The exile is the
@@ -1500,7 +1500,7 @@ pub(in crate::card::sets) static FORSAKEN_CITY: CardRecord = CardRecord::new_wit
                                 [
                                     EffectDef::MoveToZone {
                                         object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                                            ObjectBindingIndex::PRIMARY,
+                                            ParentBinding,
                                         )),
                                         zone: ZoneKind::Exile,
                                         placement: ZonePlacement::Top,

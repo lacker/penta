@@ -20,7 +20,7 @@ use crate::card::{
     SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 /// Threshold: seven or more cards in your own graveyard. The count is of
@@ -1551,7 +1551,6 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                     PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
                 ),
             )),
-            ObjectSetBindingIndex::PRIMARY,
             // Exile the yard, then hunt the library for every copy of what was taken.
             // The library search reads the bound set after the graveyard has emptied,
             // which is why the set is bound rather than queried twice.
@@ -1560,7 +1559,7 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                     [
                         EffectDef::MoveToZone {
                             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ObjectSetBindingIndex::PRIMARY,
+                                ParentBinding,
                             )),
                             zone: ZoneKind::Exile,
                             placement: ZonePlacement::Top,
@@ -1568,7 +1567,7 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                         EffectDef::MoveToZone {
                             object: EffectRecipientDef::objects(
                                 ObjectSetDef::SharingNameWithBinding {
-                                    binding: ObjectSetBindingIndex::PRIMARY,
+                                    binding: ParentBinding,
                                     player: PlayerRefDef::Target(TargetIndex::PRIMARY),
                                     zone: ZoneKind::Library,
                                 },

@@ -1,4 +1,4 @@
-use crate::ids::{AdditionalCostIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{AdditionalCostIndex, Binding, TargetIndex};
 
 use super::super::{
     BasicLandType, ComparisonDef, CounterKind, ManaColor, ObjectPredicateDef, PlayerRelation,
@@ -443,7 +443,7 @@ pub enum ValueDef {
     /// creature exiled this way" counts what the exile actually took, which
     /// the board no longer holds by the time the follow-up runs. Zero
     /// without such a step behind it.
-    BoundObjectCount(ObjectSetBindingIndex),
+    BoundObjectCount(Binding),
     /// What was actually paid for a [`super::EffectPaymentCostDef::ChosenGenericMana`]
     /// payment in this resolution. Zero anywhere else, so a branch that reads
     /// it without a payment behind it does nothing rather than guessing.

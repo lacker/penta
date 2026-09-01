@@ -140,16 +140,13 @@ fn random_selection_is_composed_with_the_exile_operation() {
         panic!("Tersa should select randomly before exiling");
     };
     assert_eq!(source, ZoneKind::Graveyard);
-    assert_eq!(
-        binding,
-        crate::card::EffectOutputBindingDef::Objects("random_graveyard_card")
-    );
+    assert_eq!(binding, Binding!("random_graveyard_card"));
     assert_eq!(
         *exile,
         EffectDef::ExileGrantingControllerPlayThisTurn {
-            object: EffectRecipientDef::objects(ObjectSetDef::NamedBinding(
-                &crate::card::EffectBindingLabelDef("random_graveyard_card"),
-            )),
+            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                "random_graveyard_card"
+            ),)),
         }
     );
 }

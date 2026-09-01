@@ -14,14 +14,17 @@ use crate::card::{
     ReplacementEffectDef, ResolvedEffectDurationDef, ScalarChoiceListDef, SpellCostModificationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
-use crate::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::{Binding, TargetIndex};
 
 include!("targeting/references.rs");
+include!("targeting/resolving_applied_effect.rs");
 // What a trigger event itself may name, split from the references above for
 // the source-size budget: the questions an event asks about its own object,
 // player, and damage matcher are a boundary of their own.
 include!("targeting/trigger_references.rs");
 include!("targeting/effect_references.rs");
+include!("targeting/bindable_outputs.rs");
+include!("targeting/replacement_effect_references.rs");
 include!("targeting/trigger_zones.rs");
 
 #[derive(Clone, Copy)]

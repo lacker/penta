@@ -20,7 +20,7 @@ impl Game {
         destination: ZoneKind,
         placement: ZonePlacement,
         shuffle: bool,
-        binding: Option<crate::ids::ObjectSetBindingIndex>,
+        binding: Option<crate::ids::Binding>,
         follow_up: Option<(StackObject, EffectResolutionContext, ScopedEffect)>,
         enters_tapped: bool,
         attached_player: Option<PlayerId>,
@@ -100,7 +100,7 @@ impl Game {
                 shuffle,
                 enters_tapped,
                 attached_player,
-                binding,
+                binding: binding.map(Into::into),
                 follow_up: follow_up.map(|(object, context, effect)| {
                     Box::new(SearchFollowUp {
                         object,

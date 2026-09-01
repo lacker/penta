@@ -14,8 +14,8 @@ pub enum EffectSubjectKind {
     Player,
 }
 use crate::{
-    AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, GrantId, ModeId,
-    ObjectBindingIndex, ObjectSetBindingIndex, PlayOptionId, TargetIndex, TargetSlotId,
+    AbilityId, AdditionalCostId, AlternativeCostId, Binding, CardDefinitionId, CardPartId, GrantId,
+    ModeId, PlayOptionId, TargetIndex, TargetSlotId,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -111,22 +111,13 @@ pub enum GrantedAbilityValidationError {
         players: PlayerSetDef,
     },
     ObjectBindingReferenceOutOfScope {
-        binding: ObjectBindingIndex,
+        binding: Binding,
     },
-    ObjectBindingAlreadyInScope {
-        binding: ObjectBindingIndex,
+    BindingAlreadyDeclared {
+        binding: Binding,
     },
     ObjectSetBindingReferenceOutOfScope {
-        binding: ObjectSetBindingIndex,
-    },
-    ObjectSetBindingAlreadyInScope {
-        binding: ObjectSetBindingIndex,
-    },
-    NamedBindingAlreadyInScope {
-        label: &'static str,
-    },
-    NamedObjectSetBindingReferenceOutOfScope {
-        label: &'static str,
+        binding: Binding,
     },
     /// Runtime static-effect discovery currently starts from attached printed
     /// or copied clauses. Reject an executable static ability granted by
@@ -243,25 +234,13 @@ impl fmt::Display for GrantedAbilityValidationError {
             Self::ObjectBindingReferenceOutOfScope { binding } => {
                 write!(formatter, "references object binding {binding:?} outside its scope")
             }
-            Self::ObjectBindingAlreadyInScope { binding } => write!(
+            Self::BindingAlreadyDeclared { binding } => write!(
                 formatter,
-                "binds object slot {binding:?}, but that slot is already bound in this scope"
+                "declares binding {binding:?} more than once in one expanded declaration"
             ),
             Self::ObjectSetBindingReferenceOutOfScope { binding } => write!(
                 formatter,
                 "references object-set binding {binding:?} outside its scope"
-            ),
-            Self::ObjectSetBindingAlreadyInScope { binding } => write!(
-                formatter,
-                "binds object-set slot {binding:?}, but that slot is already bound in this scope"
-            ),
-            Self::NamedBindingAlreadyInScope { label } => write!(
-                formatter,
-                "binds named effect output {label:?}, but that label is already bound in this scope"
-            ),
-            Self::NamedObjectSetBindingReferenceOutOfScope { label } => write!(
-                formatter,
-                "references named object-set binding {label:?} outside its scope"
             ),
             Self::ExecutableStaticAbility => formatter.write_str(
                 "is an executable static ability, but granted static abilities are not evaluated yet",
@@ -533,37 +512,19 @@ pub enum CatalogError {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        binding: ObjectBindingIndex,
+        binding: Binding,
     },
-    AbilityObjectBindingAlreadyInScope {
+    AbilityBindingAlreadyDeclared {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        binding: ObjectBindingIndex,
+        binding: Binding,
     },
     AbilityObjectSetBindingReferenceOutOfScope {
         definition: CardDefinitionId,
         part: CardPartId,
         ability: AbilityId,
-        binding: ObjectSetBindingIndex,
-    },
-    AbilityObjectSetBindingAlreadyInScope {
-        definition: CardDefinitionId,
-        part: CardPartId,
-        ability: AbilityId,
-        binding: ObjectSetBindingIndex,
-    },
-    AbilityNamedBindingAlreadyInScope {
-        definition: CardDefinitionId,
-        part: CardPartId,
-        ability: AbilityId,
-        label: &'static str,
-    },
-    AbilityNamedObjectSetBindingReferenceOutOfScope {
-        definition: CardDefinitionId,
-        part: CardPartId,
-        ability: AbilityId,
-        label: &'static str,
+        binding: Binding,
     },
     DuplicateStructurePart {
         definition: CardDefinitionId,

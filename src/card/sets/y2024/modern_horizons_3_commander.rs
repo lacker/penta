@@ -4,12 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, EffectBindingLabelDef, EffectDef, EffectOutputBindingDef,
-    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef,
-    ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, SumValueDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PlayerRefDef, PlayerRelation, SumValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 use super::super::y2020::theros_beyond_death::escape;
@@ -46,8 +46,6 @@ static GOYF_TOUGHNESS_IN_ALL_GRAVEYARDS: SumValueDef = SumValueDef::new(
 // M3C 50 — Barrowgoyf
 /// Where the chosen card is saved, kept apart from the milled pile so that
 /// "them" and "the one you took" are two different sets.
-static BARROWGOYF_TAKEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-
 pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_legacy_id(
     2213,
     "Barrowgoyf",
@@ -81,20 +79,18 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
                             player: EffectRecipientDef::Controller,
                             amount: ValueDef::TriggerEventAmount,
                         },
-                        binding: EffectOutputBindingDef::Objects("milled_cards"),
+                        binding: Binding!("milled_cards"),
                     },
                     // A minimum of zero is the second "you may": milling and taking nothing is
                     // a legal answer, and a pile with no creature in it never asks.
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(BARROWGOYF_TAKEN),
+                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
                         // "From among them" is what the mill just put there, not what the
                         // graveyard already held -- and only a creature card among those.
                         candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::NamedBinding(&EffectBindingLabelDef(
-                                "milled_cards",
-                            )),
+                            objects: &ObjectSetDef::Binding(Binding!("milled_cards")),
                             object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
                                 CardType::Creature,
                             )),
@@ -104,7 +100,7 @@ pub(in crate::card::sets) static BARROWGOYF: CardRecord = CardRecord::new_with_l
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(BARROWGOYF_TAKEN)),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                             zone: ZoneKind::Hand,
                             placement: ZonePlacement::Top,
                         },

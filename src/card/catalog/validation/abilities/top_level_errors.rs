@@ -220,14 +220,6 @@ fn top_level_ability_error(
                 binding: *binding,
             }
         }
-        GrantedAbilityValidationError::ObjectBindingAlreadyInScope { binding } => {
-            CatalogError::AbilityObjectBindingAlreadyInScope {
-                definition: definition.id,
-                part,
-                ability,
-                binding: *binding,
-            }
-        }
         GrantedAbilityValidationError::ObjectSetBindingReferenceOutOfScope { binding } => {
             CatalogError::AbilityObjectSetBindingReferenceOutOfScope {
                 definition: definition.id,
@@ -236,28 +228,12 @@ fn top_level_ability_error(
                 binding: *binding,
             }
         }
-        GrantedAbilityValidationError::ObjectSetBindingAlreadyInScope { binding } => {
-            CatalogError::AbilityObjectSetBindingAlreadyInScope {
+        GrantedAbilityValidationError::BindingAlreadyDeclared { binding } => {
+            CatalogError::AbilityBindingAlreadyDeclared {
                 definition: definition.id,
                 part,
                 ability,
                 binding: *binding,
-            }
-        }
-        GrantedAbilityValidationError::NamedBindingAlreadyInScope { label } => {
-            CatalogError::AbilityNamedBindingAlreadyInScope {
-                definition: definition.id,
-                part,
-                ability,
-                label,
-            }
-        }
-        GrantedAbilityValidationError::NamedObjectSetBindingReferenceOutOfScope { label } => {
-            CatalogError::AbilityNamedObjectSetBindingReferenceOutOfScope {
-                definition: definition.id,
-                part,
-                ability,
-                label,
             }
         }
         GrantedAbilityValidationError::ExecutableStaticAbility => {

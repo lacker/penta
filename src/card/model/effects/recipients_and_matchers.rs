@@ -39,7 +39,7 @@ pub enum ObjectRefDef {
     /// [`Self::Source`], which names its originating game object.
     ResolvingObject,
     /// One object saved by an earlier choice in this resolution.
-    Binding(ObjectBindingIndex),
+    Binding(Binding),
     /// One object paid for the resolving spell's additional costs, by payment
     /// order. This names that exact object incarnation so characteristic
     /// reads can use last-known information after the payment moves it.
@@ -128,12 +128,10 @@ pub enum ObjectSetDef {
     LegalTargets(TargetIndex),
     /// A set of objects saved by an earlier choice or partition in this
     /// resolution.
-    Binding(ObjectSetBindingIndex),
-    /// A set produced by an earlier labeled output binding in this sequence.
-    NamedBinding(&'static EffectBindingLabelDef),
+    Binding(Binding),
     /// The live object created by one zone change of each bound object.
     /// Missing or subsequently moved successors are omitted.
-    ZoneChangeSuccessorsOfBinding(ObjectSetBindingIndex),
+    ZoneChangeSuccessorsOfBinding(Binding),
     /// Cards the named player actually drew this turn that remain in that
     /// player's hand. The identities are rules history rather than a zone
     /// characteristic: a card that began the turn in hand is not included,
@@ -154,7 +152,7 @@ pub enum ObjectSetDef {
     /// bound, which neither a plain binding nor a zone query can say: the
     /// query would reach cards that were already there.
     MatchingBinding {
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         object: ObjectPredicateDef,
     },
     /// The members of any resolved object set that satisfy one more
@@ -192,7 +190,7 @@ pub enum ObjectSetDef {
     /// bound set. "Search that player's library for all cards with the same
     /// name" reads the set the graveyard gave up.
     SharingNameWithBinding {
-        binding: ObjectSetBindingIndex,
+        binding: Binding,
         player: PlayerRefDef,
         zone: ZoneKind,
     },
@@ -271,12 +269,12 @@ impl EffectRecipientDef {
     }
 
     #[must_use]
-    pub const fn binding_zone_change_successor(binding: ObjectBindingIndex) -> Self {
+    pub const fn binding_zone_change_successor(binding: Binding) -> Self {
         Self::zone_change_successor(ZoneChangeReferenceDef::Binding(binding))
     }
 
     #[must_use]
-    pub const fn binding_zone_change_successors(binding: ObjectSetBindingIndex) -> Self {
+    pub const fn binding_zone_change_successors(binding: Binding) -> Self {
         Self::objects(ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding))
     }
 
@@ -325,7 +323,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::Binding(_)
-                | ObjectSetDef::NamedBinding(_)
+
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
@@ -356,7 +354,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(_)
                 | ObjectSetDef::Binding(_)
-                | ObjectSetDef::NamedBinding(_)
+
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
@@ -379,7 +377,7 @@ impl EffectRecipientDef {
     }
 
     #[must_use]
-    pub const fn object_binding(self) -> Option<ObjectBindingIndex> {
+    pub const fn object_binding(self) -> Option<Binding> {
         match self.object_reference() {
             Some(ObjectRefDef::Binding(binding)) => Some(binding),
             Some(

@@ -10,16 +10,16 @@ use super::super::{
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, TargetPredicate, ValueDef, ZoneKind,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::Binding;
 
 /// The context slot populated by an object choice.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ObjectChoiceBindingDef {
-    Object(ObjectBindingIndex),
-    Objects(ObjectSetBindingIndex),
+    Object(Binding),
+    Objects(Binding),
     /// Preserve the chooser's submitted order for a continuation that acts on
     /// the chosen objects one at a time.
-    OrderedObjects(ObjectSetBindingIndex),
+    OrderedObjects(Binding),
 }
 
 /// Choose a bounded number of non-targeted objects, save them in the resolving
@@ -31,7 +31,7 @@ pub struct ChooseDef {
     /// printed clause goes on to say what happens to them. "Put that card
     /// into your hand and the rest into your graveyard" names both halves of
     /// one partition, so both have to be nameable.
-    pub unchosen: Option<ObjectSetBindingIndex>,
+    pub unchosen: Option<Binding>,
     pub chooser: PlayerRefDef,
     pub candidates: ObjectSetDef,
     pub exclude: Option<ObjectRefDef>,
@@ -49,7 +49,7 @@ pub struct ChooseDef {
 /// available object, matching Magic's instruction to do as much as possible.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ChooseExactDef {
-    pub binding: ObjectSetBindingIndex,
+    pub binding: Binding,
     pub chooser: PlayerRefDef,
     pub candidates: ObjectSetDef,
     pub exclude: Option<ObjectRefDef>,
@@ -83,8 +83,8 @@ pub struct ChooseForEachPlayerDef {
     pub zone: ZoneKind,
     pub selection: PerPlayerSelectionDef,
     pub visibility: ChoiceVisibilityDef,
-    pub chosen: ObjectSetBindingIndex,
-    pub unchosen: ObjectSetBindingIndex,
+    pub chosen: Binding,
+    pub unchosen: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -126,29 +126,6 @@ pub struct InstalledTriggerDef {
 
 /// A lexical object-set name for the value produced by one wrapped effect.
 ///
-/// Labels are authored vocabulary rather than runtime storage positions. The
-/// binding exists as an empty set before the wrapped effect resolves; a
-/// produced value replaces that default.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum EffectOutputBindingDef {
-    Objects(&'static str),
-}
-
-/// A thin reference to an authored effect-output label.
-///
-/// Keeping the string behind a sized static object lets high-fanout reference
-/// enums carry one pointer while card declarations still spell out the label
-/// inline instead of assigning storage indices or declaring separate constants.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct EffectBindingLabelDef(pub &'static str);
-
-impl EffectBindingLabelDef {
-    #[must_use]
-    pub const fn label(self) -> &'static str {
-        self.0
-    }
-}
-
 /// A resolving effect that remains outside every zone and offers one
 /// activated ability for a fixed duration.
 ///
@@ -164,7 +141,7 @@ impl EffectBindingLabelDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct OngoingEffectDef {
     pub affected: Option<EffectRecipientDef>,
-    pub binding: Option<ObjectBindingIndex>,
+    pub binding: Option<Binding>,
     pub ability: &'static AbilityDef,
     pub duration: ResolvedEffectDurationDef,
 }
@@ -173,7 +150,7 @@ impl OngoingEffectDef {
     #[must_use]
     pub const fn new(
         affected: EffectRecipientDef,
-        binding: ObjectBindingIndex,
+        binding: Binding,
         ability: &'static AbilityDef,
         duration: ResolvedEffectDurationDef,
     ) -> Self {
@@ -259,12 +236,11 @@ impl BattlefieldArrivalDef {
 
 /// What happens next to the tokens a clause just created.
 ///
-/// This legacy positional binding is scoped to its continuation. New
-/// synchronous producer-to-sibling data flow uses a labeled
-/// [`EffectDef::BindOutput`] step instead.
+/// This lexical binding is scoped to its continuation. Producer-to-sibling
+/// data flow uses a durable labeled [`EffectDef::BindOutput`] step instead.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CreatedTokensDef {
-    pub binding: ObjectSetBindingIndex,
+    pub binding: Binding,
     pub then: &'static EffectDef,
 }
 
@@ -328,7 +304,7 @@ pub enum StackTargetChangeDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct DestroyFollowUpDef {
     /// The destroyed permanents, under the identities they have after moving.
-    pub binding: ObjectSetBindingIndex,
+    pub binding: Binding,
     pub effect: &'static EffectDef,
 }
 
@@ -342,7 +318,7 @@ pub struct DiscardFollowUpDef {
     /// rather than only count them. "You may cast the discarded card" needs
     /// the card itself, and by the time the follow-up runs it is one card in
     /// a graveyard among however many were already there.
-    pub bound: Option<ObjectSetBindingIndex>,
+    pub bound: Option<Binding>,
     pub effect: &'static EffectDef,
 }
 

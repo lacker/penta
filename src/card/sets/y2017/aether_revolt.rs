@@ -9,7 +9,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // AER 51 — Aether Poisoner
@@ -107,7 +107,7 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
                     .entering_tapped()
                     .entering_attacking()
                     .with_created_tokens(CreatedTokensDef {
-                        binding: ObjectSetBindingIndex::PRIMARY,
+                        binding: ParentBinding,
                         // Ragavan is bound as he is made rather than found afterwards: a second
                         // attack the same turn would make another one, and the clause exiles the
                         // Monkey this attack brought.
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
                                 },
                                 EffectDef::MoveToZone {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ObjectSetBindingIndex::PRIMARY,
+                                        ParentBinding,
                                     )),
                                     zone: ZoneKind::Exile,
                                     placement: ZonePlacement::Top,

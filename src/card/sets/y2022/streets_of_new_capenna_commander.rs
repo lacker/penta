@@ -9,14 +9,14 @@ use crate::card::{
     PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     tokens,
 };
-use crate::ids::ObjectBindingIndex;
+use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // NCC 81 — Currency Converter
 /// The card goes back to the graveyard it came from -- its owner's, which is
 /// where a card exiled from a graveyard belongs however it got to exile.
 static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
     zone: ZoneKind::Graveyard,
     placement: ZonePlacement::Top,
 };
@@ -70,7 +70,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
              token.",
             &[AbilityCostDef::TapSource],
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::LinkedExiles,
@@ -82,7 +82,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
                     // The card the cash-out chose, asked about while the choice still names it.
                     // A land pays a Treasure and anything else pays a body.
                     condition: &TriggerConditionDef::BoundObjectMatches {
-                        binding: ObjectBindingIndex::PRIMARY,
+                        binding: ParentBinding,
                         object: ObjectPredicateDef::HasType(CardType::Land),
                     },
                     then: &EffectDef::Sequence(&[

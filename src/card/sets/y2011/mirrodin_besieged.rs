@@ -22,7 +22,7 @@ use crate::card::{
     TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
     abilities,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 /// Battle cry is confined to Mirrodin Besieged in the catalog. Each printed
 /// instance triggers independently and boosts only the other creatures
@@ -301,11 +301,11 @@ pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new
             ),
             can_regenerate: true,
             then: Some(DestroyFollowUpDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 effect: &EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
                         .with_variable_token_stats(&TokenStatsDef {
-                            power: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
-                            toughness: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+                            power: ValueDef::BoundObjectCount(ParentBinding),
+                            toughness: ValueDef::BoundObjectCount(ParentBinding),
                         }),
             }),
         },

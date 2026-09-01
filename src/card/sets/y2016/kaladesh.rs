@@ -8,7 +8,7 @@ use crate::card::{
     ObjectSetDef, PlayerRelation, TargetChooserDef, TriggerEventDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
-use crate::ids::ObjectSetBindingIndex;
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 /// The fastland cycle: untapped while the board is still small, an expensive
@@ -19,7 +19,6 @@ static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
 );
 
 // KLD 60 — Paradoxical Outcome
-const OUTCOME_OWNED_BY_YOU: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
 pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::new_with_legacy_id(
     2242,
     "Paradoxical Outcome",
@@ -57,38 +56,39 @@ pub(in crate::card::sets) static PARADOXICAL_OUTCOME: CardRecord = CardRecord::n
             crate::card::ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::LegalTargets(
                 TargetIndex::PRIMARY,
             )),
-            ObjectSetBindingIndex::PRIMARY,
             &const {
-                abilities::bind_objects_then(
-                    crate::card::ObjectCollectionSourceDef::ObjectSet(
+                EffectDef::BindObjects(crate::card::BindObjectsDef {
+                    source: crate::card::ObjectCollectionSourceDef::ObjectSet(
                         ObjectSetDef::MatchingBinding {
-                            binding: ObjectSetBindingIndex::PRIMARY,
+                            binding: ParentBinding,
                             object: ObjectPredicateDef::OwnedBy(PlayerRelation::You),
                         },
                     ),
-                    OUTCOME_OWNED_BY_YOU,
+                    binding: Binding!("outcome_owned_by_you"),
                     // The draw counts what reached your hand, which is not always what left the
                     // battlefield: a permanent you control but do not own goes back to somebody
                     // else's hand and pays you nothing. The count is taken before the move,
                     // because afterwards the cards have new identities.
-                    &EffectDef::Sequence(
+                    then: &EffectDef::Sequence(
                         &const {
                             [
                                 EffectDef::MoveToZone {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        ObjectSetBindingIndex::PRIMARY,
+                                        ParentBinding,
                                     )),
                                     zone: ZoneKind::Hand,
                                     placement: ZonePlacement::Top,
                                 },
                                 EffectDef::DrawCards {
                                     recipient: EffectRecipientDef::Controller,
-                                    amount: ValueDef::BoundObjectCount(OUTCOME_OWNED_BY_YOU),
+                                    amount: ValueDef::BoundObjectCount(Binding!(
+                                        "outcome_owned_by_you"
+                                    )),
                                 },
                             ]
                         },
                     ),
-                )
+                })
             },
         ),
     )),

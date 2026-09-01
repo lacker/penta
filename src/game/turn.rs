@@ -854,7 +854,7 @@ impl Game {
             context = if let EffectDef::BindOutput { .. } = effect.effect {
                 self.resolve_bound_output_effect(effect, object, context)
             } else {
-                self.resolve_effect_def(effect, object, context.clone());
+                self.resolve_effect_def(effect, object, context.fork_resolution());
                 context
             };
             if !self.pending_decisions.is_empty()

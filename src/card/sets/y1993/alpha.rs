@@ -17,7 +17,7 @@ use crate::card::{
     SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef,
     ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 use abilities::{ENCHANT_CREATURE_TARGET, aura_spell, enchant_creature, enchant_land};
@@ -120,11 +120,11 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                     }),
                 ),
                 visibility: ChoiceVisibilityDef::Public,
-                chosen: ObjectSetBindingIndex::PRIMARY,
-                unchosen: ObjectSetBindingIndex::new(1),
+                chosen: Binding!("balance_lands_kept"),
+                unchosen: Binding!("balance_lands_sacrificed"),
                 then: &EffectDef::Sacrifice {
                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::new(1),
+                        Binding!("balance_lands_sacrificed"),
                     )),
                 },
             }),
@@ -144,11 +144,11 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                     }),
                 ),
                 visibility: ChoiceVisibilityDef::Private,
-                chosen: ObjectSetBindingIndex::PRIMARY,
-                unchosen: ObjectSetBindingIndex::new(1),
+                chosen: Binding!("balance_hand_kept"),
+                unchosen: Binding!("balance_hand_discarded"),
                 then: &EffectDef::DiscardCards {
                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::new(1),
+                        Binding!("balance_hand_discarded"),
                     )),
                 },
             }),
@@ -168,11 +168,11 @@ pub(in crate::card::sets) static BALANCE: CardRecord = CardRecord::new_with_lega
                     }),
                 ),
                 visibility: ChoiceVisibilityDef::Public,
-                chosen: ObjectSetBindingIndex::PRIMARY,
-                unchosen: ObjectSetBindingIndex::new(1),
+                chosen: Binding!("balance_creatures_kept"),
+                unchosen: Binding!("balance_creatures_sacrificed"),
                 then: &EffectDef::Sacrifice {
                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::new(1),
+                        Binding!("balance_creatures_sacrificed"),
                     )),
                 },
             }),
@@ -554,14 +554,14 @@ pub(in crate::card::sets) static GUARDIAN_ANGEL: CardRecord = CardRecord::new(
             },
             EffectDef::CreateOngoingEffect(OngoingEffectDef::new(
                 EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                ObjectBindingIndex::PRIMARY,
+                Binding!("healing_salve_target"),
                 &AbilityDef::activated(
                     "{1}: Prevent the next 1 damage that would be dealt to the affected permanent or player this turn.",
                     &[AbilityCostDef::Mana(mana_cost!("{1}"))],
                     EffectDef::PreventDamage {
                         prevention: DamagePreventionDef::amount(
                             DamageEventMatcherDef::to(EffectRecipientDef::object(ObjectRefDef::Binding(
-                                ObjectBindingIndex::PRIMARY,
+                                Binding!("healing_salve_target"),
                             ))),
                             ValueDef::Constant(1),
                         ),
@@ -886,9 +886,7 @@ pub(in crate::card::sets) static REVERSE_DAMAGE: CardRecord = CardRecord::new_wi
                         recipient: DamageRecipientMatcherDef::Recipients(
                             EffectRecipientDef::Controller,
                         ),
-                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(
-                            ObjectBindingIndex::PRIMARY,
-                        ))
+                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ParentBinding))
                     },
                     1,
                 )
@@ -4480,7 +4478,7 @@ pub(in crate::card::sets) static KUDZU: CardRecord = CardRecord::new(
                         then: None,
                     },
                     EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                        binding: ObjectChoiceBindingDef::Object(ParentBinding),
                         unchosen: None,
                         chooser: PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
                         candidates: ObjectSetDef::LegalAttachmentHosts(ObjectRefDef::Source),
@@ -4489,7 +4487,7 @@ pub(in crate::card::sets) static KUDZU: CardRecord = CardRecord::new(
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Public,
                         then: &EffectDef::Attach {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                         },
                     }),
                 ]),
@@ -5098,7 +5096,7 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new_with_le
                     AbilityCostDef::Mana(mana_cost!("{1}")),
                     AbilityCostDef::TapSource,
                 ], EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Query(ObjectQueryDef::new(
@@ -5115,7 +5113,7 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new_with_le
                             EffectDef::Randomized {
                                 likelihood: LikelihoodDef::new(0.9),
                                 on_success: &EffectDef::Destroy {
-                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
+                                    object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
                                     can_regenerate: true,
                                     then: None,
                                 },

@@ -11,7 +11,7 @@ use crate::card::{
     RandomizeObjectOrderDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ObjectSetBindingIndex, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 /// The ordinary Escape shape: a resolved mana cost, this many other graveyard
@@ -45,10 +45,8 @@ pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
 );
 
 // THB 73 — Thassa's Oracle
-const ORACLE_INSPECTED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const ORACLE_TOP: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const ORACLE_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const ORACLE_RANDOMIZED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
+const ORACLE_TOP: Binding = Binding!("oracle_top");
+const ORACLE_REST: Binding = Binding!("oracle_rest");
 pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_with_legacy_id(
     2212,
     "Thassa's Oracle",
@@ -62,36 +60,40 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_wi
             abilities::bind_top_cards_then(
                 PlayerRefDef::EffectController,
                 ValueDef::DevotionTo(ManaColor::Blue),
-                ORACLE_INSPECTED,
                 &const {
                     EffectDef::Choose(ChooseDef {
                         binding: ObjectChoiceBindingDef::Objects(ORACLE_TOP),
                         unchosen: Some(ORACLE_REST),
                         chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Binding(ORACLE_INSPECTED),
+                        candidates: ObjectSetDef::Binding(ParentBinding),
                         exclude: None,
                         minimum: 0,
                         maximum: 1,
                         visibility: ChoiceVisibilityDef::Private,
                         then: &const {
-                            EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(ORACLE_TOP),
-                                from: Some(ZoneKind::Library),
-                                zone: ZoneKind::Library,
-                                placement: ZonePlacement::Top,
-                                moved: None,
-                                then: &const {
+                            EffectDef::Sequence(&[
+                                EffectDef::MoveObjects(MoveObjectsDef {
+                                    input: ObjectSetDef::Binding(ORACLE_TOP),
+                                    from: Some(ZoneKind::Library),
+                                    zone: ZoneKind::Library,
+                                    placement: ZonePlacement::Top,
+                                    moved: None,
+                                    then: &EffectDef::None,
+                                }),
                                     EffectDef::RandomizeObjectOrder(RandomizeObjectOrderDef {
                                         input: ObjectSetDef::Binding(ORACLE_REST),
-                                        randomized: ORACLE_RANDOMIZED,
+                                        randomized: ParentBinding,
                                         then: &const {
-                                            EffectDef::MoveObjects(MoveObjectsDef {
-                                                input: ObjectSetDef::Binding(ORACLE_RANDOMIZED),
-                                                from: Some(ZoneKind::Library),
-                                                zone: ZoneKind::Library,
-                                                placement: ZonePlacement::Bottom,
-                                                moved: None,
-                                                then: &EffectDef::IfCondition {
+                                            EffectDef::Sequence(&[
+                                                EffectDef::MoveObjects(MoveObjectsDef {
+                                                    input: ObjectSetDef::Binding(ParentBinding),
+                                                    from: Some(ZoneKind::Library),
+                                                    zone: ZoneKind::Library,
+                                                    placement: ZonePlacement::Bottom,
+                                                    moved: None,
+                                                    then: &EffectDef::None,
+                                                }),
+                                                EffectDef::IfCondition {
                                                     // Both sides are read as the trigger resolves,
                                                     // which is what makes an empty library and a
                                                     // single blue permanent enough.
@@ -110,11 +112,10 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_wi
                                                         player: EffectRecipientDef::Controller,
                                                     },
                                                 },
-                                            })
+                                            ])
                                         },
                                     })
-                                },
-                            })
+                            ])
                         },
                     })
                 },

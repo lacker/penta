@@ -100,7 +100,7 @@ impl Game {
     pub(super) fn resolve_zone_move_result(
         &mut self,
         effect: &'static EffectDef,
-        binding: crate::ObjectSetBindingIndex,
+        binding: crate::Binding,
         then: &'static EffectDef,
         object: &StackObject,
         mut context: EffectResolutionContext,

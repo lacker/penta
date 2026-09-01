@@ -11,7 +11,7 @@ use crate::card::{
     ResolvedEffectDurationDef, ScaledValueDef, TargetChooserDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
+use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
 // APC 1 — Angelfire Crusader
 // Audit: metadata-only — Card rules have not been implemented.
@@ -1110,14 +1110,14 @@ pub(in crate::card::sets) static GERRARDS_VERDICT: CardRecord = CardRecord::new_
             selection: DiscardSelectionDef::RecipientChooses,
             then: Some(DiscardFollowUpDef {
                 counted: ObjectPredicateDef::HasType(CardType::Land),
-                bound: None,
+                bound: Some(ParentBinding),
                 // Three life a land, counted among the two cards that actually went. The
                 // discard is the opponent's choice, so the payoff cannot be known until
                 // they have made it.
                 effect: &EffectDef::GainLife {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Scaled(&ScaledValueDef {
-                        value: ValueDef::MatchedCount,
+                        value: ValueDef::BoundObjectCount(ParentBinding),
                         factor: 3,
                     }),
                 },

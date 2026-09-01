@@ -3,7 +3,7 @@ use crate::card::{
     CardDefinition, CardRules, CardSet, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
     SacrificedAmountDef, ValueDef,
 };
-use crate::{CardDefinitionId, CardPartId, ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::{CardDefinitionId, CardPartId};
 
 static NESTED_TOKEN: TokenCharacteristics =
     TokenCharacteristics::creature(&["Test"], &[], 1, 1).with_name("Nested Locator Test");
@@ -29,8 +29,8 @@ static SACRIFICE_OTHERWISE: EffectDef = EffectDef::SacrificeOfChoice {
     optional: true,
 };
 static RETURN_THEN: EffectDef = EffectDef::PutOntoBattlefieldThen {
-    object: EffectRecipientDef::object(ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY)),
-    binding: ObjectSetBindingIndex::PRIMARY,
+    object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!("object"))),
+    binding: Binding!("objects"),
     counters: None,
     then: &CREATE_TOKEN,
 };

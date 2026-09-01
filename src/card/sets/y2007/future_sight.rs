@@ -10,7 +10,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::{ObjectBindingIndex, TargetIndex, mana_cost};
+use crate::{TargetIndex, mana_cost};
 
 // FUT 43 — Reality Strobe
 pub(in crate::card::sets) static REALITY_STROBE: CardRecord = CardRecord::new_with_legacy_id(
@@ -253,17 +253,17 @@ pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::n
                         ZoneKind::Exile,
                         1,
                     )
-                    .binding(ObjectBindingIndex::PRIMARY),
+                    .binding(Binding!("suspended_card")),
                 ),
             ],
             EffectDef::Sequence(&[
                 EffectDef::AddCounters {
-                    object: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+                    object: EffectRecipientDef::binding_zone_change_successor(Binding!("suspended_card")),
                     kind: CounterKind::named("time"),
                     amount: ValueDef::Constant(4),
                 },
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::binding_zone_change_successor(ObjectBindingIndex::PRIMARY),
+                    recipient: EffectRecipientDef::binding_zone_change_successor(Binding!("suspended_card")),
                     effect: AppliedEffectDef::add_ability(&abilities::GRANTED_SUSPEND),
                     duration: ResolvedEffectDurationDef::Permanent,
                 },

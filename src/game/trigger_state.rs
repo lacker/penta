@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 use std::collections::BTreeMap;
+use std::fmt;
+use std::sync::{Arc, RwLock};
 
 use crate::action::{AbilityOrigin, Target};
 use crate::card::{
@@ -7,7 +9,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ZoneKind,
 };
 use crate::casting::TargetSelection;
-use crate::ids::{GameObjectId, ObjectBindingIndex, ObjectSetBindingIndex, PlayerId};
+use crate::ids::{Binding, GameObjectId, PlayerId};
 
 use super::{CastSourceZone, ObjectCharacteristics, StackAbilityResolver};
 
@@ -58,7 +60,7 @@ impl TriggerContext {
 /// kept separate and copyable because it is also captured by abilities before
 /// they ever resolve; bindings belong only to a particular continuation of an
 /// effect program.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub(super) struct EffectResolutionContext {
     pub(super) trigger: TriggerContext,
     pub(super) replaced_draw: Option<ReplacedDrawContinuation>,
@@ -80,17 +82,136 @@ pub(super) struct EffectResolutionContext {
     pub(super) chosen_name: Option<String>,
     /// A counter kind selected by a nested counter-choice effect.
     pub(super) chosen_counter: Option<CounterKind>,
-    single_objects: [Option<Target>; ObjectBindingIndex::COUNT],
-    object_groups: [Vec<Target>; ObjectSetBindingIndex::COUNT],
-    named_bindings: Box<NamedEffectBindings>,
+    parent_object: Shared<Option<Target>>,
+    parent_objects: Shared<Vec<Target>>,
+    bindings: Shared<EffectBindings>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-struct NamedEffectBindings {
-    object_groups: BTreeMap<String, Vec<Target>>,
+pub(super) struct EffectBindings {
+    values: BTreeMap<String, EffectBindingValue>,
+}
+
+struct Shared<T>(Arc<RwLock<T>>);
+
+impl<T> Shared<T> {
+    fn new(value: T) -> Self {
+        Self(Arc::new(RwLock::new(value)))
+    }
+
+    fn with<R>(&self, read: impl FnOnce(&T) -> R) -> R {
+        let bindings = self
+            .0
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        read(&bindings)
+    }
+
+    fn with_mut<R>(&self, write: impl FnOnce(&mut T) -> R) -> R {
+        let mut bindings = self
+            .0
+            .write()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        write(&mut bindings)
+    }
+}
+
+impl<T: Clone> Shared<T> {
+    fn snapshot(&self) -> T {
+        self.with(Clone::clone)
+    }
+}
+
+impl<T> Clone for Shared<T> {
+    fn clone(&self) -> Self {
+        Self(Arc::clone(&self.0))
+    }
+}
+
+impl<T: Default> Default for Shared<T> {
+    fn default() -> Self {
+        Self::new(T::default())
+    }
+}
+
+impl<T: Clone + fmt::Debug> fmt::Debug for Shared<T> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.snapshot().fmt(formatter)
+    }
+}
+
+impl<T: Clone + PartialEq> PartialEq for Shared<T> {
+    fn eq(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0) || self.snapshot() == other.snapshot()
+    }
+}
+
+impl<T: Clone + Eq> Eq for Shared<T> {}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) enum EffectBindingValue {
+    Object(Option<Target>),
+    Objects(Vec<Target>),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) enum RuntimeBinding {
+    Label(String),
+    ParentBinding,
+}
+
+impl From<Binding> for RuntimeBinding {
+    fn from(binding: Binding) -> Self {
+        match binding.label() {
+            Some(label) => Self::Label(label.to_owned()),
+            None => Self::ParentBinding,
+        }
+    }
+}
+
+impl Clone for EffectResolutionContext {
+    fn clone(&self) -> Self {
+        self.clone_with_binding_state(
+            Shared::new(self.parent_object.snapshot()),
+            Shared::new(self.parent_objects.snapshot()),
+            Shared::new(self.bindings.snapshot()),
+        )
+    }
 }
 
 impl EffectResolutionContext {
+    fn clone_with_binding_state(
+        &self,
+        parent_object: Shared<Option<Target>>,
+        parent_objects: Shared<Vec<Target>>,
+        bindings: Shared<EffectBindings>,
+    ) -> Self {
+        Self {
+            trigger: self.trigger,
+            replaced_draw: self.replaced_draw.clone(),
+            paid_amount: self.paid_amount,
+            matched_count: self.matched_count,
+            matched_card_types: self.matched_card_types,
+            matched_mana_value: self.matched_mana_value,
+            chosen_name: self.chosen_name.clone(),
+            chosen_counter: self.chosen_counter,
+            parent_object,
+            parent_objects,
+            bindings,
+        }
+    }
+
+    /// Fork one branch of the same resolution. Labeled bindings and the
+    /// current lexical parent remain shared across sequence suspension, while
+    /// ordinary `Clone` takes an independent snapshot for stored rules state.
+    pub(super) fn fork_resolution(&self) -> Self {
+        self.clone_with_binding_state(
+            self.parent_object.clone(),
+            self.parent_objects.clone(),
+            self.bindings.clone(),
+        )
+    }
+
     pub(super) fn new(trigger: TriggerContext) -> Self {
         Self {
             trigger,
@@ -101,9 +222,9 @@ impl EffectResolutionContext {
             matched_mana_value: None,
             chosen_name: None,
             chosen_counter: None,
-            single_objects: [None; ObjectBindingIndex::COUNT],
-            object_groups: std::array::from_fn(|_| Vec::new()),
-            named_bindings: Box::default(),
+            parent_object: Shared::default(),
+            parent_objects: Shared::default(),
+            bindings: Shared::default(),
         }
     }
 
@@ -112,48 +233,110 @@ impl EffectResolutionContext {
         Self::new(TriggerContext::empty())
     }
 
-    pub(super) const fn single_object(&self, binding: ObjectBindingIndex) -> Option<Target> {
-        self.single_objects[binding.index()]
+    pub(super) fn single_object(&self, binding: Binding) -> Option<Target> {
+        match binding.label() {
+            Some(label) => self.single_object_label(label),
+            None => self.parent_object.snapshot(),
+        }
     }
 
-    pub(super) fn bind_single_object(
+    pub(super) fn single_object_label(&self, label: &str) -> Option<Target> {
+        self.bindings
+            .with(|bindings| match bindings.values.get(label) {
+                Some(EffectBindingValue::Object(object)) => *object,
+                Some(EffectBindingValue::Objects(_)) | None => None,
+            })
+    }
+
+    pub(super) fn bind_single_object(&mut self, binding: Binding, object: Option<Target>) {
+        match binding.label() {
+            Some(label) => self.bind_single_object_label(label, object),
+            None => self.parent_object = Shared::new(object),
+        }
+    }
+
+    pub(super) fn bind_single_object_label(&mut self, label: &str, object: Option<Target>) {
+        self.bindings.with_mut(|bindings| {
+            bindings
+                .values
+                .insert(label.to_owned(), EffectBindingValue::Object(object));
+        });
+    }
+
+    pub(super) fn bind_runtime_single_object(
         &mut self,
-        binding: ObjectBindingIndex,
+        binding: &RuntimeBinding,
         object: Option<Target>,
     ) {
-        self.single_objects[binding.index()] = object;
+        match binding {
+            RuntimeBinding::Label(label) => self.bind_single_object_label(label, object),
+            RuntimeBinding::ParentBinding => self.parent_object = Shared::new(object),
+        }
     }
 
-    pub(super) fn object_group(&self, binding: ObjectSetBindingIndex) -> &[Target] {
-        &self.object_groups[binding.index()]
+    pub(super) fn object_group(&self, binding: Binding) -> Vec<Target> {
+        match binding.label() {
+            Some(label) => self.object_group_label(label),
+            None => self.parent_objects.snapshot(),
+        }
     }
 
-    pub(super) fn bind_object_group(
+    pub(super) fn object_group_label(&self, label: &str) -> Vec<Target> {
+        self.bindings
+            .with(|bindings| match bindings.values.get(label) {
+                Some(EffectBindingValue::Objects(objects)) => objects.clone(),
+                Some(EffectBindingValue::Object(_)) | None => Vec::new(),
+            })
+    }
+
+    pub(super) fn bind_object_group(&mut self, binding: Binding, objects: Vec<Target>) {
+        match binding.label() {
+            Some(label) => self.bind_object_group_label(label, objects),
+            None => self.parent_objects = Shared::new(objects),
+        }
+    }
+
+    pub(super) fn bind_object_group_label(&mut self, label: &str, objects: Vec<Target>) {
+        self.bindings.with_mut(|bindings| {
+            bindings
+                .values
+                .insert(label.to_owned(), EffectBindingValue::Objects(objects));
+        });
+    }
+
+    pub(super) fn runtime_object_group(&self, binding: &RuntimeBinding) -> Vec<Target> {
+        match binding {
+            RuntimeBinding::Label(label) => self.object_group_label(label),
+            RuntimeBinding::ParentBinding => self.parent_objects.snapshot(),
+        }
+    }
+
+    pub(super) fn bind_runtime_object_group(
         &mut self,
-        binding: ObjectSetBindingIndex,
+        binding: &RuntimeBinding,
         objects: Vec<Target>,
     ) {
-        self.object_groups[binding.index()] = objects;
+        match binding {
+            RuntimeBinding::Label(label) => self.bind_object_group_label(label, objects),
+            RuntimeBinding::ParentBinding => self.parent_objects = Shared::new(objects),
+        }
     }
 
-    pub(super) fn declare_named_object_group(&mut self, label: &str) {
-        self.named_bindings
-            .object_groups
-            .entry(label.to_owned())
-            .or_default();
+    pub(super) fn declare_binding_group_label(&mut self, label: &str) {
+        self.bindings.with_mut(|bindings| {
+            bindings
+                .values
+                .entry(label.to_owned())
+                .or_insert_with(|| EffectBindingValue::Objects(Vec::new()));
+        });
     }
 
-    pub(super) fn bind_named_object_group(&mut self, label: &str, objects: Vec<Target>) {
-        self.named_bindings
-            .object_groups
-            .insert(label.to_owned(), objects);
-    }
-
-    pub(super) fn named_object_group(&self, label: &str) -> &[Target] {
-        self.named_bindings
-            .object_groups
-            .get(label)
-            .map_or(&[], Vec::as_slice)
+    pub(super) fn bind_binding_group_label(&mut self, label: &str, objects: Vec<Target>) {
+        self.bindings.with_mut(|bindings| {
+            bindings
+                .values
+                .insert(label.to_owned(), EffectBindingValue::Objects(objects));
+        });
     }
 
     /// Remove object incarnations consumed by a group action from every
@@ -162,39 +345,63 @@ impl EffectResolutionContext {
     /// the stale hidden-zone identities would make unrelated earlier groups
     /// part of every later decision and checkpoint.
     pub(super) fn consume_bound_objects(&mut self, objects: &[Target]) {
-        for binding in &mut self.single_objects {
-            if binding.is_some_and(|object| objects.contains(&object)) {
-                *binding = None;
+        self.bindings.with_mut(|bindings| {
+            for binding in bindings.values.values_mut() {
+                match binding {
+                    EffectBindingValue::Object(object) => {
+                        if object.is_some_and(|object| objects.contains(&object)) {
+                            *object = None;
+                        }
+                    }
+                    EffectBindingValue::Objects(group) => {
+                        group.retain(|object| !objects.contains(object));
+                    }
+                }
             }
-        }
-        for group in &mut self.object_groups {
-            group.retain(|object| !objects.contains(object));
-        }
-        for group in self.named_bindings.object_groups.values_mut() {
-            group.retain(|object| !objects.contains(object));
-        }
+        });
+        self.parent_object.with_mut(|parent| {
+            if parent.is_some_and(|object| objects.contains(&object)) {
+                *parent = None;
+            }
+        });
+        self.parent_objects
+            .with_mut(|parents| parents.retain(|object| !objects.contains(object)));
     }
 
-    pub(super) fn single_objects(&self) -> &[Option<Target>; ObjectBindingIndex::COUNT] {
-        &self.single_objects
+    pub(super) fn bindings(&self) -> BTreeMap<String, EffectBindingValue> {
+        self.bindings.snapshot().values
     }
 
-    pub(super) fn object_groups(&self) -> &[Vec<Target>; ObjectSetBindingIndex::COUNT] {
-        &self.object_groups
+    pub(super) fn parent_object(&self) -> Option<Target> {
+        self.parent_object.snapshot()
     }
 
-    pub(super) fn named_object_groups(&self) -> &BTreeMap<String, Vec<Target>> {
-        &self.named_bindings.object_groups
+    pub(super) fn parent_objects(&self) -> Vec<Target> {
+        self.parent_objects.snapshot()
     }
 
-    pub(super) fn restore_named_bindings(&mut self, object_groups: BTreeMap<String, Vec<Target>>) {
-        *self.named_bindings = NamedEffectBindings { object_groups };
+    pub(super) fn bound_targets(&self) -> Vec<Target> {
+        let mut targets = self
+            .parent_object
+            .snapshot()
+            .iter()
+            .copied()
+            .chain(self.parent_objects.snapshot())
+            .collect::<Vec<_>>();
+        targets.extend(self.bindings.snapshot().values.values().flat_map(
+            |binding| match binding {
+                EffectBindingValue::Object(object) => object.iter().copied().collect::<Vec<_>>(),
+                EffectBindingValue::Objects(objects) => objects.clone(),
+            },
+        ));
+        targets
     }
 
     pub(super) fn from_bindings(
         trigger: TriggerContext,
-        single_objects: [Option<Target>; ObjectBindingIndex::COUNT],
-        object_groups: [Vec<Target>; ObjectSetBindingIndex::COUNT],
+        parent_object: Option<Target>,
+        parent_objects: Vec<Target>,
+        values: BTreeMap<String, EffectBindingValue>,
     ) -> Self {
         Self {
             trigger,
@@ -205,9 +412,9 @@ impl EffectResolutionContext {
             matched_mana_value: None,
             chosen_name: None,
             chosen_counter: None,
-            single_objects,
-            object_groups,
-            named_bindings: Box::default(),
+            parent_object: Shared::new(parent_object),
+            parent_objects: Shared::new(parent_objects),
+            bindings: Shared::new(EffectBindings { values }),
         }
     }
 }
@@ -762,105 +969,4 @@ impl CommittedTriggerEvent {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) struct AbilitySourceRef {
-    pub(super) object: GameObjectId,
-    pub(super) ability: AbilityOrigin,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct PendingTrigger {
-    pub(super) id: u32,
-    pub(super) source: AbilitySourceRef,
-    pub(super) presentation: ObjectCharacteristics,
-    pub(super) owner: PlayerId,
-    pub(super) controller: PlayerId,
-    pub(super) text: &'static str,
-    pub(super) target_defs: Vec<AbilityTargetDef>,
-    pub(super) targets: Vec<TargetSelection>,
-    pub(super) effect: EffectDef,
-    pub(super) resolver: StackAbilityResolver,
-    pub(super) context: EffectResolutionContext,
-    pub(super) condition: Option<&'static TriggerConditionDef>,
-    /// "Choose one --": the modes still to be chosen as this trigger is put
-    /// onto the stack. Cleared once one is, because what the trigger then
-    /// carries is that mode's own effect and targets.
-    pub(super) modes: Option<ModalSpellDef>,
-    pub(super) x: u16,
-}
-
-/// The immutable declaration captured when one event matches one source
-/// ability. The game assigns the ephemeral trigger ID when it accepts this
-/// record into the pending-trigger queue.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct TriggerCapture {
-    pub(super) source: AbilitySourceRef,
-    pub(super) presentation: ObjectCharacteristics,
-    pub(super) owner: PlayerId,
-    pub(super) controller: PlayerId,
-    pub(super) text: &'static str,
-    pub(super) target_defs: Vec<AbilityTargetDef>,
-    pub(super) targets: Vec<TargetSelection>,
-    pub(super) effect: EffectDef,
-    pub(super) resolver: StackAbilityResolver,
-    pub(super) context: EffectResolutionContext,
-    /// The intervening-if condition this trigger reads, checked both when the
-    /// ability would go on the stack and again when it resolves.
-    pub(super) condition: Option<&'static TriggerConditionDef>,
-    /// "Choose one --": the modes still to be chosen as this trigger is put
-    /// onto the stack. Cleared once one is, because what the trigger then
-    /// carries is that mode's own effect and targets.
-    pub(super) modes: Option<ModalSpellDef>,
-    /// The X chosen for the installing ability. Installed triggers retain the
-    /// same resolving context as the effect that created them.
-    pub(super) x: u16,
-}
-
-/// How long a trigger installed outside every zone continues listening.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum InstalledTriggerLifetime {
-    /// Consume the listener on the first matching event, before checking an
-    /// intervening-if condition or putting its ability on the stack.
-    Once,
-    /// Stop listening when this player's frozen future turn begins.
-    UntilTurn { player: PlayerId, turn: u32 },
-    /// Stop listening when the frozen turn it was installed on ends. The
-    /// turn number is the game's own count, so an extra turn ends this the
-    /// same way an ordinary one does.
-    ThisTurn { turn: u32 },
-}
-
-/// A triggered ability installed by a resolved effect. Everything needed to
-/// construct its stack object is frozen here because its source may be gone
-/// by the time an event matches.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct InstalledTrigger {
-    pub(super) id: u32,
-    pub(super) event: TriggerEventDef,
-    pub(super) capture: TriggerCapture,
-    pub(super) lifetime: InstalledTriggerLifetime,
-}
-
-/// One battlefield trigger listener frozen at the start of an atomic event.
-/// A simultaneous zone change can remove the source before another object in
-/// the same event is published, so listener discovery cannot consult the
-/// incrementally-mutated battlefield.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct BattlefieldTriggerListener {
-    pub(super) event: TriggerEventDef,
-    pub(super) uses_stack: bool,
-    /// "This ability triggers only once each turn", carried from the
-    /// printed definition so the capture can count without rediscovering
-    /// which ability it came from.
-    pub(super) trigger_limit: Option<u8>,
-    /// Identifies an effect-installed listener. Battlefield listeners have no
-    /// ID because their source's zone presence determines their lifetime.
-    pub(super) installed: Option<u32>,
-    pub(super) capture: TriggerCapture,
-}
-
-#[derive(Clone, Debug)]
-pub(super) struct TriggerPlacementBatch {
-    pub(super) controller: PlayerId,
-    pub(super) triggers: Vec<PendingTrigger>,
-}
+include!("trigger_state/types.rs");

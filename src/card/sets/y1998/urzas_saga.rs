@@ -19,7 +19,7 @@ use crate::card::{
     SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
-use crate::ids::{ObjectBindingIndex, ObjectSetBindingIndex};
+use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // USG 1 — Absolute Grace
@@ -1067,7 +1067,7 @@ pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_
                 // rather than targeted, and nothing in the clause says who controls them.
                 // A minimum of none is what "up to" means.
                 EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                     unchosen: None,
                     chooser: PlayerRefDef::EffectController,
                     candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -1080,9 +1080,7 @@ pub(in crate::card::sets) static TIME_SPIRAL: CardRecord = CardRecord::new_with_
                     maximum: 6,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::Untap {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                            ObjectSetBindingIndex::PRIMARY,
-                        )),
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     },
                 }),
             ]),
@@ -2326,10 +2324,6 @@ pub(in crate::card::sets) static SHOWER_OF_SPARKS: CardRecord = CardRecord::new(
 );
 
 // USG 218 — Sneak Attack
-/// Where the creature that arrived is saved. What enters is a new object, so
-/// the delayed sacrifice cannot name the card that was in hand.
-const SNEAK_ARRIVAL: ObjectSetBindingIndex = ObjectSetBindingIndex::PRIMARY;
-
 pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d07dc95d-82a8-4a58-8ea2-d4513bd7316d"),
     "Sneak Attack",
@@ -2344,7 +2338,7 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
         // "You may": a minimum of none, so activating it with nothing worth
         // cheating in is legal and does nothing.
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ObjectBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Object(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -2361,16 +2355,16 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
             then: &const {
                 EffectDef::PutOntoBattlefieldThen {
                     object: EffectRecipientDef::object(ObjectRefDef::Binding(
-                        ObjectBindingIndex::PRIMARY,
+                        ParentBinding,
                     )),
-                    binding: SNEAK_ARRIVAL,
+                    binding: ParentBinding,
                     counters: None,
                     then: &const {
                         EffectDef::Sequence(&const {
                             [
                                 EffectDef::Apply {
                                     recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        SNEAK_ARRIVAL,
+                                        ParentBinding,
                                     )),
                                     effect: AppliedEffectDef::add_ability(&const {
                                         abilities::haste()
@@ -2391,7 +2385,7 @@ pub(in crate::card::sets) static SNEAK_ATTACK: CardRecord = CardRecord::new(
                                         },
                                         EffectDef::Sacrifice {
                                             object: EffectRecipientDef::objects(
-                                                ObjectSetDef::Binding(SNEAK_ARRIVAL),
+                                                ObjectSetDef::Binding(ParentBinding),
                                             ),
                                         },
                                     )

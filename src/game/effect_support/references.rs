@@ -684,7 +684,7 @@ impl Game {
 
     fn zone_change_successors_of_binding(
         &self,
-        binding: crate::ObjectSetBindingIndex,
+        binding: crate::Binding,
         context: &EffectResolutionContext,
     ) -> Vec<Target> {
         context
@@ -715,10 +715,7 @@ impl Game {
             ObjectSetDef::LegalTargets(target) => {
                 self.effect_legal_target_objects(target, object, scoped)
             }
-            ObjectSetDef::Binding(binding) => context.object_group(binding).to_vec(),
-            ObjectSetDef::NamedBinding(label) => {
-                context.named_object_group(label.label()).to_vec()
-            }
+            ObjectSetDef::Binding(binding) => context.object_group(binding),
             ObjectSetDef::ZoneChangeSuccessorsOfBinding(binding) => {
                 self.zone_change_successors_of_binding(binding, context)
             }

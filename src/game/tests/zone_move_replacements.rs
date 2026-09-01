@@ -1,5 +1,4 @@
 use super::*;
-use crate::ObjectSetBindingIndex;
 use crate::card::DestroyFollowUpDef;
 
 fn setup_nexus_and_rest_in_peace() -> (Game, GameObjectId, GameObjectId) {
@@ -242,7 +241,7 @@ fn destroy_outcome_followup_waits_for_replacements_and_counts_only_graveyard_mov
         },
         EffectDef::GainLife {
             recipient: EffectRecipientDef::Controller,
-            amount: ValueDef::BoundObjectCount(ObjectSetBindingIndex::PRIMARY),
+            amount: ValueDef::BoundObjectCount(Binding!("objects")),
         },
     ];
     const DESTROY_AND_COUNT: EffectDef = EffectDef::Destroy {
@@ -253,7 +252,7 @@ fn destroy_outcome_followup_waits_for_replacements_and_counts_only_graveyard_mov
         ),
         can_regenerate: true,
         then: Some(DestroyFollowUpDef {
-            binding: ObjectSetBindingIndex::PRIMARY,
+            binding: Binding!("objects"),
             effect: &EffectDef::Sequence(&FOLLOWUP_EFFECTS),
         }),
     };

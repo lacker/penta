@@ -1,9 +1,9 @@
 use super::model::{
-    AppliedStackEffectSnapshot, BasicLandTypeChangeSnapshot, CastSignatureSnapshot,
-    CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot,
-    EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
-    StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
-    TargetSnapshot, TriggerContextSnapshot,
+    AppliedStackEffectSnapshot, BasicLandTypeChangeSnapshot, BindingSnapshot,
+    CastSignatureSnapshot, CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot,
+    EffectBindingSnapshot, EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot,
+    SpellFormSnapshot, StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot,
+    TargetSelectionSnapshot, TargetSnapshot, TriggerContextSnapshot,
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
@@ -26,6 +26,7 @@ use super::{
     usize_field, zone_kind_snapshot,
 };
 use crate::card::{AlternativeCastKindDef, ColorSet, ManaColor};
+use crate::game::trigger_state::{EffectBindingValue, RuntimeBinding};
 
 mod ability_kind;
 use ability_kind::{StackAbilityCondition, stack_ability_condition, stack_payload_matches};
@@ -357,26 +358,44 @@ pub(super) fn effect_resolution_context_snapshot(
         trigger: trigger_context_snapshot(context.trigger),
         replaced_draw: context.replaced_draw.as_ref().map(replaced_draw_snapshot),
         chosen_counter: context.chosen_counter.map(CounterKindSnapshot),
-        single_objects: std::array::from_fn(|index| {
-            context.single_objects()[index].map(target_snapshot)
-        }),
-        object_groups: std::array::from_fn(|index| {
-            context.object_groups()[index]
-                .iter()
-                .copied()
-                .map(target_snapshot)
-                .collect()
-        }),
-        named_object_groups: context
-            .named_object_groups()
+        parent_object: context.parent_object().map(target_snapshot),
+        parent_objects: context
+            .parent_objects()
             .iter()
-            .map(|(label, objects)| {
-                (
-                    label.clone(),
-                    objects.iter().copied().map(target_snapshot).collect(),
-                )
+            .copied()
+            .map(target_snapshot)
+            .collect(),
+        bindings: context
+            .bindings()
+            .iter()
+            .map(|(label, binding)| {
+                let binding = match binding {
+                    EffectBindingValue::Object(object) => EffectBindingSnapshot::Object {
+                        object: object.map(target_snapshot),
+                    },
+                    EffectBindingValue::Objects(objects) => EffectBindingSnapshot::Objects {
+                        objects: objects.iter().copied().map(target_snapshot).collect(),
+                    },
+                };
+                (label.clone(), binding)
             })
             .collect(),
+    }
+}
+
+pub(super) fn binding_snapshot(binding: &RuntimeBinding) -> BindingSnapshot {
+    match binding {
+        RuntimeBinding::Label(label) => BindingSnapshot::Binding {
+            label: label.clone(),
+        },
+        RuntimeBinding::ParentBinding => BindingSnapshot::ParentBinding,
+    }
+}
+
+pub(super) fn parse_binding_snapshot(binding: &BindingSnapshot) -> RuntimeBinding {
+    match binding {
+        BindingSnapshot::Binding { label } => RuntimeBinding::Label(label.clone()),
+        BindingSnapshot::ParentBinding => RuntimeBinding::ParentBinding,
     }
 }
 
@@ -798,16 +817,22 @@ pub(super) fn parse_effect_resolution_context(
 ) -> Result<EffectResolutionContext, String> {
     let mut context = EffectResolutionContext::from_bindings(
         parse_trigger_context(value.trigger)?,
-        value.single_objects.map(|object| object.map(parse_target)),
+        value.parent_object.map(parse_target),
+        value.parent_objects.into_iter().map(parse_target).collect(),
         value
-            .object_groups
-            .map(|objects| objects.into_iter().map(parse_target).collect()),
-    );
-    context.restore_named_bindings(
-        value
-            .named_object_groups
+            .bindings
             .into_iter()
-            .map(|(label, objects)| (label, objects.into_iter().map(parse_target).collect()))
+            .map(|(label, binding)| {
+                let binding = match binding {
+                    EffectBindingSnapshot::Object { object } => {
+                        EffectBindingValue::Object(object.map(parse_target))
+                    }
+                    EffectBindingSnapshot::Objects { objects } => {
+                        EffectBindingValue::Objects(objects.into_iter().map(parse_target).collect())
+                    }
+                };
+                (label, binding)
+            })
             .collect(),
     );
     context.replaced_draw = value.replaced_draw.map(parse_replaced_draw).transpose()?;
@@ -855,62 +880,12 @@ fn seat_index_value(index: usize) -> Result<PlayerId, String> {
     player_from_index(index).ok_or_else(|| "seat index must be 0 or 1".into())
 }
 
-pub(super) fn parse_ability_origin(value: &Value) -> Result<AbilityOrigin, String> {
-    match str_field(value, "kind")? {
-        "printed" => Ok(AbilityOrigin::Printed {
-            definition: card_definition_id_field(value, "definition")?,
-            part: CardPartId(u8_field(value, "partId")?),
-            ability: AbilityId(u8_field(value, "abilityId")?),
-        }),
-        "token" => Ok(AbilityOrigin::Token {
-            part: CardPartId(u8_field(value, "partId")?),
-            ability: AbilityId(u8_field(value, "abilityId")?),
-        }),
-        "emblem" => Ok(AbilityOrigin::Emblem {
-            ability: AbilityId(u8_field(value, "abilityId")?),
-        }),
-        "intrinsicBasicLand" => Ok(AbilityOrigin::IntrinsicBasicLand(
-            match str_field(value, "landType")? {
-                "plains" => BasicLandType::Plains,
-                "island" => BasicLandType::Island,
-                "swamp" => BasicLandType::Swamp,
-                "mountain" => BasicLandType::Mountain,
-                "forest" => BasicLandType::Forest,
-                other => return Err(format!("unknown intrinsic basic land type {other}")),
-            },
-        )),
-        "intrinsicCounter" => {
-            let counter = str_field(value, "counter")?;
-            let kind = super::CounterKind::from_name(counter)
-                .ok_or_else(|| format!("unknown intrinsic counter kind {counter}"))?;
-            Ok(AbilityOrigin::IntrinsicCounter(kind))
-        }
-        "granted" => Ok(AbilityOrigin::Granted {
-            source: GameObjectId(u32_field(value, "source")?),
-            source_definition: card_definition_id_field(value, "sourceDefinition")?,
-            source_part: CardPartId(u8_field(value, "sourcePartId")?),
-            source_ability: AbilityId(u8_field(value, "sourceAbilityId")?),
-            grant: GrantId(u8_field(value, "grantId")?),
-        }),
-        "tokenGranted" => Ok(AbilityOrigin::TokenGranted {
-            source: GameObjectId(u32_field(value, "source")?),
-            source_part: CardPartId(u8_field(value, "sourcePartId")?),
-            source_ability: AbilityId(u8_field(value, "sourceAbilityId")?),
-            grant: GrantId(u8_field(value, "grantId")?),
-        }),
-        "emblemGranted" => Ok(AbilityOrigin::EmblemGranted {
-            source: GameObjectId(u32_field(value, "source")?),
-            source_ability: AbilityId(u8_field(value, "sourceAbilityId")?),
-            grant: GrantId(u8_field(value, "grantId")?),
-        }),
-        other => Err(format!("unknown ability origin kind {other}")),
-    }
-}
+include!("stack/ability_origin.rs");
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{ObjectBindingIndex, ObjectSetBindingIndex};
+    use crate::ParentBinding;
 
     #[test]
     fn effect_resolution_context_round_trips_typed_objects_and_groups() {
@@ -924,22 +899,27 @@ mod tests {
             cast_from_zone: Some(crate::card::ZoneKind::Graveyard),
         };
         let mut context = EffectResolutionContext::new(trigger);
-        context.bind_single_object(
-            ObjectBindingIndex::PRIMARY,
-            Some(Target::Spell(GameObjectId(11))),
-        );
+        context.bind_single_object(Binding!("object"), Some(Target::Spell(GameObjectId(11))));
         context.bind_object_group(
-            ObjectSetBindingIndex::PRIMARY,
+            Binding!("objects"),
             vec![
                 Target::Permanent(GameObjectId(12)),
                 Target::Card(GameObjectId(13)),
                 Target::Player(PlayerId::Two),
             ],
         );
-        context.declare_named_object_group("optional_card");
-        context.bind_named_object_group("revealed_card", vec![Target::Card(GameObjectId(14))]);
-        context.declare_named_object_group("empty_cards");
-        context.bind_named_object_group(
+        context.bind_single_object(ParentBinding, Some(Target::Permanent(GameObjectId(17))));
+        context.bind_object_group(
+            ParentBinding,
+            vec![
+                Target::Card(GameObjectId(18)),
+                Target::Card(GameObjectId(19)),
+            ],
+        );
+        context.declare_binding_group_label("optional_card");
+        context.bind_binding_group_label("revealed_card", vec![Target::Card(GameObjectId(14))]);
+        context.declare_binding_group_label("empty_cards");
+        context.bind_binding_group_label(
             "milled_cards",
             vec![
                 Target::Card(GameObjectId(15)),
@@ -952,27 +932,38 @@ mod tests {
 
         assert_eq!(rebuilt, context);
         assert_eq!(
-            rebuilt.single_object(ObjectBindingIndex::PRIMARY),
+            rebuilt.single_object(ParentBinding),
+            Some(Target::Permanent(GameObjectId(17)))
+        );
+        assert_eq!(
+            rebuilt.object_group(ParentBinding),
+            [
+                Target::Card(GameObjectId(18)),
+                Target::Card(GameObjectId(19))
+            ]
+        );
+        assert_eq!(
+            rebuilt.single_object(Binding!("object")),
             Some(Target::Spell(GameObjectId(11)))
         );
         assert_eq!(
-            rebuilt.object_group(ObjectSetBindingIndex::PRIMARY),
+            rebuilt.object_group(Binding!("objects")),
             [
                 Target::Permanent(GameObjectId(12)),
                 Target::Card(GameObjectId(13)),
                 Target::Player(PlayerId::Two),
             ]
         );
-        assert!(rebuilt.named_object_groups().contains_key("optional_card"));
-        assert!(rebuilt.named_object_group("optional_card").is_empty());
+        assert!(rebuilt.bindings().contains_key("optional_card"));
+        assert!(rebuilt.object_group(Binding!("optional_card")).is_empty());
         assert_eq!(
-            rebuilt.named_object_group("revealed_card"),
+            rebuilt.object_group(Binding!("revealed_card")),
             [Target::Card(GameObjectId(14))]
         );
-        assert!(rebuilt.named_object_groups().contains_key("empty_cards"));
-        assert!(rebuilt.named_object_group("empty_cards").is_empty());
+        assert!(rebuilt.bindings().contains_key("empty_cards"));
+        assert!(rebuilt.object_group(Binding!("empty_cards")).is_empty());
         assert_eq!(
-            rebuilt.named_object_group("milled_cards"),
+            rebuilt.object_group(Binding!("milled_cards")),
             [
                 Target::Card(GameObjectId(15)),
                 Target::Card(GameObjectId(16))
@@ -990,6 +981,9 @@ mod tests {
                 GameObjectId(14),
                 GameObjectId(15),
                 GameObjectId(16),
+                GameObjectId(17),
+                GameObjectId(18),
+                GameObjectId(19),
             ]
         );
     }

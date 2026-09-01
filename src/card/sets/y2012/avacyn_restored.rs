@@ -6,21 +6,21 @@ use crate::card::sets::y1993::alpha;
 use crate::card::sets::y2003::mirrodin as catalog_mrd;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, BindObjectsDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
-    CounterKind, CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectChoiceDef, EffectDef, EffectPaymentDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ManaRestrictionDef,
-    ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ColorChoiceOperationDef, ColorSet,
+    ComparisonDef, ControlDurationDef, CostModificationDef, CounterKind, CreatedTokensDef,
+    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal,
+    EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ManaSpendEffectDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZonePlacement, abilities,
 };
-use crate::{ObjectSetBindingIndex, TargetIndex, mana_cost};
+use crate::{ParentBinding, TargetIndex, mana_cost};
 
 /// Exile and return in one resolution, and the return names your control
 /// rather than the card's owner. The two differ exactly when the creature
@@ -89,44 +89,29 @@ pub(in crate::card::sets) static ANGEL_OF_GLORY_S_RISE: CardRecord = CardRecord:
         abilities::flying(),
         abilities::enters_trigger(
             "When this creature enters, exile all Zombies, then return all Human creature cards from your graveyard to the battlefield.",
-            EffectDef::BindObjects(BindObjectsDef {
-                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                    ObjectQueryDef::matching(
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::Subtype("Zombie"),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                )),
-                binding: ObjectSetBindingIndex::PRIMARY,
-                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
-                    moved: None,
-                    then: &EffectDef::BindObjects(BindObjectsDef {
-                        source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                            ObjectQueryDef::matching(
-                                ObjectPredicateDef::All(&[
-                                    ObjectPredicateDef::HasType(CardType::Creature),
-                                    ObjectPredicateDef::Subtype("Human"),
-                                ]),
-                                &[ZoneKind::Graveyard],
-                                PlayerRelation::You,
-                            ),
-                        )),
-                        binding: ObjectSetBindingIndex::new(1),
-                        then: &EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(1)),
-                            from: Some(ZoneKind::Graveyard),
-                            zone: ZoneKind::Battlefield,
-                            placement: ZonePlacement::Top,
-                            moved: None,
-                            then: &EffectDef::None,
-                        }),
-                    }),
-                }),
-            }),
+                },
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Subtype("Human"),
+                        ]),
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                },
+            ]),
         ),
     ]),
 );
@@ -475,11 +460,11 @@ pub(in crate::card::sets) static DEFY_DEATH: CardRecord = CardRecord::new(
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                 },
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 then: &EffectDef::AddCounters {
                     object: EffectRecipientDef::objects(ObjectSetDef::Matching {
                         objects: &ObjectSetDef::ZoneChangeSuccessorsOfBinding(
-                            ObjectSetBindingIndex::PRIMARY,
+                            ParentBinding,
                         ),
                         object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::Subtype(
                             "Angel",
@@ -546,7 +531,7 @@ pub(in crate::card::sets) static EMANCIPATION_ANGEL: CardRecord = CardRecord::ne
         abilities::enters_trigger(
             "When this creature enters, return a permanent you control to its owner's hand.",
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::PermanentsControlledBy(PlayerRefDef::EffectController),
@@ -554,14 +539,11 @@ pub(in crate::card::sets) static EMANCIPATION_ANGEL: CardRecord = CardRecord::ne
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    moved: None,
-                    then: &EffectDef::None,
-                }),
+                },
             }),
         ),
     ]),
@@ -1103,7 +1085,7 @@ pub(in crate::card::sets) static AMASS_THE_COMPONENTS: CardRecord = CardRecord::
                 amount: ValueDef::Constant(3),
             },
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -1116,7 +1098,7 @@ pub(in crate::card::sets) static AMASS_THE_COMPONENTS: CardRecord = CardRecord::
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Private,
                 then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                    input: ObjectSetDef::Binding(ParentBinding),
                     from: Some(ZoneKind::Hand),
                     zone: ZoneKind::Library,
                     placement: ZonePlacement::Bottom,
@@ -1284,24 +1266,15 @@ pub(in crate::card::sets) static DEVASTATION_TIDE: CardRecord = CardRecord::new(
     CardRules::new_sorcery(mana_cost!("{3}{U}{U}")).with_abilities(&[
         AbilityDef::spell(
             "Return all nonland permanents to their owners' hands.",
-            EffectDef::BindObjects(BindObjectsDef {
-                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                    ObjectQueryDef::matching(
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                )),
-                binding: ObjectSetBindingIndex::PRIMARY,
-                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                    moved: None,
-                    then: &EffectDef::None,
-                }),
-            }),
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
         ),
         abilities::miracle(mana_cost!("{1}{U}")),
     ]),
@@ -1650,7 +1623,7 @@ pub(in crate::card::sets) static HAVENGUL_SKAAB: CardRecord = CardRecord::new(
             "Whenever this creature attacks, return another creature you control to its owner's hand.",
             TriggerEventDef::attacks(ObjectPredicateDef::Source),
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
@@ -1662,14 +1635,11 @@ pub(in crate::card::sets) static HAVENGUL_SKAAB: CardRecord = CardRecord::new(
                 minimum: 1,
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-                    from: Some(ZoneKind::Battlefield),
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-                    moved: None,
-                    then: &EffectDef::None,
-                }),
+                },
             }),
         ),
     ),
@@ -2208,7 +2178,7 @@ pub(in crate::card::sets) static APPETITE_FOR_BRAINS: CardRecord = CardRecord::n
             PlayerRelation::Opponent,
         ))],
         EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+            binding: ObjectChoiceBindingDef::Objects(ParentBinding),
             unchosen: None,
             chooser: PlayerRefDef::EffectController,
             candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -2221,7 +2191,7 @@ pub(in crate::card::sets) static APPETITE_FOR_BRAINS: CardRecord = CardRecord::n
             maximum: 1,
             visibility: ChoiceVisibilityDef::Public,
             then: &EffectDef::MoveObjects(MoveObjectsDef {
-                input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
+                input: ObjectSetDef::Binding(ParentBinding),
                 from: Some(ZoneKind::Hand),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
@@ -2343,7 +2313,7 @@ pub(in crate::card::sets) static CORPSE_TRADERS: CardRecord = CardRecord::new(
                 PlayerRelation::Opponent,
             ))],
             EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ObjectSetBindingIndex::PRIMARY),
+                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
                 unchosen: None,
                 chooser: PlayerRefDef::EffectController,
                 candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
@@ -2357,7 +2327,7 @@ pub(in crate::card::sets) static CORPSE_TRADERS: CardRecord = CardRecord::new(
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::DiscardCards {
                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                        ObjectSetBindingIndex::PRIMARY,
+                        ParentBinding,
                     )),
                 },
             }),
@@ -2582,10 +2552,10 @@ pub(in crate::card::sets) static DREAD_SLAVER: CardRecord = CardRecord::new_with
                         ..crate::card::BattlefieldArrivalDef::DEFAULT
                     },
                 },
-                binding: crate::ObjectSetBindingIndex::PRIMARY,
+                binding: crate::ParentBinding,
                 then: &EffectDef::Apply {
                     recipient: EffectRecipientDef::binding_zone_change_successors(
-                        crate::ObjectSetBindingIndex::PRIMARY,
+                        crate::ParentBinding,
                     ),
                     // "In addition to its other colors and types", so both leaves add rather
                     // than set. The follow-up targets the new permanent through the move's
@@ -2950,19 +2920,18 @@ pub(in crate::card::sets) static MENTAL_AGONY: CardRecord = CardRecord::new(
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Player(PlayerRelation::Any),
         )],
-        EffectDef::Discard {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(2),
-            selection: DiscardSelectionDef::RecipientChooses,
-            then: Some(DiscardFollowUpDef {
-                counted: ObjectPredicateDef::Any,
-                bound: None,
-                effect: &EffectDef::LoseLife {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-            }),
-        },
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ]),
     )),
 );
 
@@ -4000,7 +3969,7 @@ pub(in crate::card::sets) static THATCHER_REVOLT: CardRecord = CardRecord::new(
             .with_abilities(&[abilities::haste()])
             .with_amount(3)
             .with_created_tokens(CreatedTokensDef {
-                binding: ObjectSetBindingIndex::PRIMARY,
+                binding: ParentBinding,
                 then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
                     &AbilityDef::triggered(
                         "At the beginning of the next end step, sacrifice those tokens.",
@@ -4010,7 +3979,7 @@ pub(in crate::card::sets) static THATCHER_REVOLT: CardRecord = CardRecord::new(
                         },
                         EffectDef::Sacrifice {
                             object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                ObjectSetBindingIndex::PRIMARY,
+                                ParentBinding,
                             )),
                         },
                     ),
@@ -4622,22 +4591,25 @@ pub(in crate::card::sets) static LAIR_DELVE: CardRecord = CardRecord::new(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ObjectPredicateDef::HasType(CardType::Land),
             ]),
-            matching: ObjectSetBindingIndex::PRIMARY,
-            remainder: ObjectSetBindingIndex::new(1),
-            then: &EffectDef::MoveObjects(MoveObjectsDef {
-                input: ObjectSetDef::Binding(ObjectSetBindingIndex::PRIMARY),
-                from: Some(ZoneKind::Library),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                moved: None,
-                then: &EffectDef::ChooseObjectOrder(crate::card::ChooseObjectOrderDef {
+            matching: Binding!("lair_delved_cards"),
+            remainder: Binding!("lair_bottom_cards"),
+            then: &EffectDef::Sequence(&[
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(Binding!("lair_delved_cards")),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+                EffectDef::ChooseObjectOrder(crate::card::ChooseObjectOrderDef {
                     actor: PlayerRefDef::EffectController,
-                    input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(1)),
-                    ordered: ObjectSetBindingIndex::new(2),
+                    input: ObjectSetDef::Binding(Binding!("lair_bottom_cards")),
+                    ordered: ParentBinding,
                     placement: ZonePlacement::Bottom,
                     visibility: ChoiceVisibilityDef::Public,
                     then: &EffectDef::MoveObjects(MoveObjectsDef {
-                        input: ObjectSetDef::Binding(ObjectSetBindingIndex::new(2)),
+                        input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Library),
                         zone: ZoneKind::Library,
                         placement: ZonePlacement::Bottom,
@@ -4645,7 +4617,7 @@ pub(in crate::card::sets) static LAIR_DELVE: CardRecord = CardRecord::new(
                         then: &EffectDef::None,
                     }),
                 }),
-            }),
+            ]),
         }),
     )),
 );
@@ -5525,14 +5497,14 @@ pub(in crate::card::sets) static SCROLL_OF_GRISELBRAND: CardRecord = CardRecord:
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
             PlayerRelation::Opponent,
         ))],
-        EffectDef::Discard {
-            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            amount: ValueDef::Constant(1),
-            selection: DiscardSelectionDef::RecipientChooses,
-            then: Some(DiscardFollowUpDef {
-                counted: ObjectPredicateDef::Any,
-                bound: None,
-                effect: &EffectDef::IfCondition {
+        EffectDef::Sequence(&[
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+            EffectDef::IfCondition {
                     condition: &TriggerConditionDef::ObjectCount {
                         query: ObjectQueryDef::matching(
                             ObjectPredicateDef::Subtype("Demon"),
@@ -5546,9 +5518,8 @@ pub(in crate::card::sets) static SCROLL_OF_GRISELBRAND: CardRecord = CardRecord:
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(3),
                     },
-                },
-            }),
-        },
+            },
+        ]),
     )),
 );
 

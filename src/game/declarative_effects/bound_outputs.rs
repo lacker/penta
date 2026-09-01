@@ -14,12 +14,14 @@ impl Game {
         let EffectDef::BindOutput { effect, binding } = scoped.effect else {
             unreachable!("resolve_bound_output_effect called for another effect")
         };
-        let crate::card::EffectOutputBindingDef::Objects(label) = binding;
-        context.declare_named_object_group(label);
+        let Some(label) = binding.label() else {
+            unreachable!("catalog validation rejected a parent binding on BindOutput")
+        };
+        context.declare_binding_group_label(label);
         let (mut context, output) =
             self.resolve_effect_output(scoped.with_effect(*effect), object, context);
         if let Some(ResolvedEffectOutput::Objects(value)) = output {
-            context.bind_named_object_group(label, value);
+            context.bind_binding_group_label(label, value);
         }
         context
     }

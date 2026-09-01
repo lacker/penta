@@ -118,8 +118,8 @@ impl Game {
                 effect,
             } => {
                 self.resolve_for_each_in_binding(
-                    objects,
-                    binding,
+                    objects.into(),
+                    binding.into(),
                     0,
                     scoped.with_effect(*effect),
                     object,
@@ -941,19 +941,19 @@ impl Game {
 
     pub(super) fn resolve_for_each_in_binding(
         &mut self,
-        objects: crate::ObjectSetBindingIndex,
-        binding: crate::ObjectBindingIndex,
+        objects: super::RuntimeBinding,
+        binding: super::RuntimeBinding,
         mut next: usize,
         effect: ScopedEffect,
         object: &StackObject,
         context: EffectResolutionContext,
     ) {
-        let members = context.object_group(objects).to_vec();
+        let members = context.runtime_object_group(&objects);
         let mut later_procedures = std::mem::take(&mut self.pending_procedures);
         while let Some(member) = members.get(next).copied() {
             next += 1;
             let mut iteration = context.clone();
-            iteration.bind_single_object(binding, Some(member));
+            iteration.bind_runtime_single_object(&binding, Some(member));
             self.resolve_effect_def(effect, object, iteration);
             if !self.pending_decisions.is_empty()
                 || !self.pending_events.is_empty()

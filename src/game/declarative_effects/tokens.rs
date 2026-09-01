@@ -368,7 +368,7 @@ impl Game {
     pub(super) fn put_onto_battlefield_then(
         &mut self,
         recipient: crate::card::EffectRecipientDef,
-        binding: crate::ObjectSetBindingIndex,
+        binding: crate::Binding,
         counters: Option<crate::card::TokenCountersDef>,
         then: &'static EffectDef,
         object: &StackObject,

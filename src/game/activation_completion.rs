@@ -26,7 +26,7 @@ impl Game {
                     source,
                     source_card,
                     controller,
-                    frozen,
+                    frozen: Box::new(frozen),
                     targets,
                     chosen_permanents,
                     remaining_sacrifices,

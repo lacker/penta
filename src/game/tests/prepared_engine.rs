@@ -57,6 +57,29 @@ fn prepared_static_summary_matches_reference_inspection() {
 }
 
 #[test]
+fn prepared_graveyard_source_summary_matches_reference_inspection() {
+    let game = ready_game();
+    for definition in game.catalog.definitions() {
+        let card = card(98_150, definition.id, PlayerId::One);
+        let mut reference = false;
+        game.for_each_printed_card_ability(&card, &CharacteristicContext::Graveyard, |effective| {
+            let ability = effective.ability;
+            reference |= ability.is_executable()
+                && matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Static(definition)
+                        if definition.source_zones.contains(&ZoneKind::Graveyard)
+                )
+                && ability.declarative_effect().is_some();
+        });
+        let prepared = game
+            .prepared_supplies_graveyard_static(definition.id)
+            .expect("catalog definitions have prepared graveyard summaries");
+        assert_eq!(prepared, reference, "definition {:?}", definition.id);
+    }
+}
+
+#[test]
 fn live_structural_conditionals_fall_back_at_the_static_ability_root() {
     let game = ready_game();
     let program = game

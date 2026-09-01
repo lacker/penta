@@ -27,7 +27,7 @@ pub(super) fn authored_virtual_objects(catalog: &CardCatalog) -> AuthoredVirtual
         tokens: Vec::new(),
         emblems: Vec::new(),
     };
-    for definition in catalog.definitions() {
+    for definition in catalog.ordered_definitions() {
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let creator = AbilityLocator::Card {

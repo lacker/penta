@@ -65,6 +65,37 @@ fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
 }
 
 #[test]
+fn definitions_reuse_the_precomputed_stable_id_order() {
+    let catalog = CardCatalog::new([
+        definition(3, "Third", CardSet::Alpha),
+        definition(1, "First", CardSet::Alpha),
+        definition(2, "Second", CardSet::Alpha),
+    ])
+    .unwrap();
+    let expected = [
+        CardDefinitionId::new(1),
+        CardDefinitionId::new(2),
+        CardDefinitionId::new(3),
+    ];
+
+    assert_eq!(
+        catalog
+            .definitions()
+            .into_iter()
+            .map(|definition| definition.id)
+            .collect::<Vec<_>>(),
+        expected,
+    );
+    assert_eq!(
+        catalog
+            .ordered_definitions()
+            .map(|definition| definition.id)
+            .collect::<Vec<_>>(),
+        expected,
+    );
+}
+
+#[test]
 fn duplicate_printing_ids_are_rejected() {
     let id = CardDefinitionId::new(1);
     let duplicate = CardPrinting::new(id, CardSet::Alpha);

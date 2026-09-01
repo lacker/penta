@@ -176,7 +176,6 @@ impl CardCatalog {
             }
             entries.insert_definition(definition);
         }
-
         for (definition, printing) in definition_printings {
             if printing.id.definition != definition {
                 return Err(CatalogError::MismatchedPrintingDefinition {
@@ -212,6 +211,22 @@ impl CardCatalog {
     #[must_use]
     pub fn definitions(&self) -> Vec<&CardDefinition> {
         self.entries.definitions.iter().collect()
+    }
+
+    /// Definitions in stable ID order without allocating a temporary listing.
+    pub(crate) fn ordered_definitions(
+        &self,
+    ) -> impl ExactSizeIterator<Item = &CardDefinition> + '_ {
+        self.entries.definitions.iter()
+    }
+
+    /// Definitions in storage order for internal consumers that do not expose
+    /// iteration order. Public catalog views continue to use [`Self::definitions`]
+    /// so their stable ID ordering remains part of the interface.
+    pub(crate) fn unordered_definitions(
+        &self,
+    ) -> impl ExactSizeIterator<Item = &CardDefinition> + '_ {
+        self.entries.definitions.iter()
     }
 
     /// Looks up a card definition ID by its case-insensitive canonical name.

@@ -102,7 +102,7 @@ fn visit_authored_abilities<B>(
     catalog: &CardCatalog,
     visit: &mut impl FnMut(&AbilityDef, &AbilityRoot<'_>, &[usize]) -> ControlFlow<B>,
 ) -> ControlFlow<B> {
-    for definition in catalog.definitions() {
+    for definition in catalog.ordered_definitions() {
         for part in &definition.parts {
             for attached in part.rules.indexed_abilities() {
                 let root = AbilityRoot::Card {

@@ -40,6 +40,11 @@ impl Game {
                     .graveyard
                     .iter()
                     .filter(|card| {
+                        if let Some(supplies) =
+                            self.prepared_supplies_graveyard_static(card.definition)
+                        {
+                            return supplies;
+                        }
                         let mut supplies_graveyard_static = false;
                         self.for_each_printed_card_ability(
                             card,
@@ -77,11 +82,17 @@ impl Game {
         prospective: Option<&Permanent>,
         kind: StaticEffectKind,
         land_type_sources: &[(&Permanent, crate::game::ContinuousEffectTimestamp)],
+        prepared: Option<&crate::prepared_engine::PreparedStaticProgram>,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         let source = input.permanent;
         let source_presentation = Self::effective_rules_source(source);
-        if let Some(program) = self.prepared_static_program(source_presentation) {
+        if let Some(program) = prepared {
+            if input.zone == ZoneKind::Battlefield
+                && self.rules_text_abilities_removed_from_sources(source, land_type_sources)
+            {
+                return ControlFlow::Continue(());
+            }
             return self.visit_prepared_static_source_effects(
                 input,
                 source_presentation,

@@ -25,16 +25,26 @@ pub(crate) enum PreparedEffect {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub(crate) struct PreparedStaticProgram {
     supplies_land_type_effect: bool,
+    has_static_effects: bool,
+    lanes: u8,
     abilities: Box<[PreparedStaticAbility]>,
 }
 
 impl PreparedStaticProgram {
+    pub(crate) fn abilities(&self) -> &[PreparedStaticAbility] {
+        &self.abilities
+    }
+
     pub(crate) const fn supplies_land_type_effect(&self) -> bool {
         self.supplies_land_type_effect
     }
 
-    pub(crate) fn abilities(&self) -> &[PreparedStaticAbility] {
-        &self.abilities
+    pub(crate) const fn supplies(&self, lane: PreparedStaticLane) -> bool {
+        if matches!(lane, PreparedStaticLane::Any) {
+            self.has_static_effects
+        } else {
+            self.lanes & lane.mask() != 0
+        }
     }
 }
 
@@ -104,44 +114,86 @@ impl PreparedStaticLane {
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct PreparedCatalog {
-    dense_static_programs: Vec<Option<Vec<(CardPartId, PreparedStaticProgram)>>>,
-    sparse_static_programs: HashMap<CardDefinitionId, Vec<(CardPartId, PreparedStaticProgram)>>,
+    dense_primary_static_programs: Vec<Option<PreparedStaticProgram>>,
+    sparse_primary_static_programs: HashMap<CardDefinitionId, PreparedStaticProgram>,
+    other_static_programs: HashMap<(CardDefinitionId, CardPartId), PreparedStaticProgram>,
+    dense_graveyard_static_sources: Vec<Option<bool>>,
+    sparse_graveyard_static_sources: HashMap<CardDefinitionId, bool>,
 }
 
 impl PreparedCatalog {
+    fn insert_graveyard_static_source(
+        &mut self,
+        definition: CardDefinitionId,
+        supplies_graveyard_static: bool,
+    ) {
+        if let Ok(index) = u16::try_from(definition.get()) {
+            let index = usize::from(index);
+            if self.dense_graveyard_static_sources.len() <= index {
+                self.dense_graveyard_static_sources.resize(index + 1, None);
+            }
+            self.dense_graveyard_static_sources[index] = Some(supplies_graveyard_static);
+        } else {
+            self.sparse_graveyard_static_sources
+                .insert(definition, supplies_graveyard_static);
+        }
+    }
+
     fn insert_static_program(
         &mut self,
         definition: CardDefinitionId,
         part: CardPartId,
         program: PreparedStaticProgram,
     ) {
-        let parts = if let Ok(index) = u16::try_from(definition.get()) {
+        if part != CardPartId::PRIMARY {
+            self.other_static_programs
+                .insert((definition, part), program);
+            return;
+        }
+        if let Ok(index) = u16::try_from(definition.get()) {
             let index = usize::from(index);
-            if self.dense_static_programs.len() <= index {
-                self.dense_static_programs.resize_with(index + 1, || None);
+            if self.dense_primary_static_programs.len() <= index {
+                self.dense_primary_static_programs
+                    .resize_with(index + 1, || None);
             }
-            self.dense_static_programs[index].get_or_insert_with(Vec::new)
+            self.dense_primary_static_programs[index] = Some(program);
         } else {
-            self.sparse_static_programs.entry(definition).or_default()
-        };
-        parts.push((part, program));
+            self.sparse_primary_static_programs
+                .insert(definition, program);
+        }
     }
 
+    #[inline]
     fn static_program(
         &self,
         definition: CardDefinitionId,
         part: CardPartId,
     ) -> Option<&PreparedStaticProgram> {
-        let parts = if let Ok(index) = u16::try_from(definition.get()) {
-            self.dense_static_programs
+        if part != CardPartId::PRIMARY {
+            return self.other_static_programs.get(&(definition, part));
+        }
+        let program = if let Ok(index) = u16::try_from(definition.get()) {
+            self.dense_primary_static_programs
                 .get(usize::from(index))?
                 .as_ref()?
         } else {
-            self.sparse_static_programs.get(&definition)?
+            self.sparse_primary_static_programs.get(&definition)?
         };
-        parts
-            .iter()
-            .find_map(|(candidate, program)| (*candidate == part).then_some(program))
+        Some(program)
+    }
+
+    #[inline]
+    fn supplies_graveyard_static(&self, definition: CardDefinitionId) -> Option<bool> {
+        if let Ok(index) = u16::try_from(definition.get()) {
+            self.dense_graveyard_static_sources
+                .get(usize::from(index))
+                .copied()
+                .flatten()
+        } else {
+            self.sparse_graveyard_static_sources
+                .get(&definition)
+                .copied()
+        }
     }
 }
 
@@ -167,14 +219,26 @@ impl PreparedEngine {
         self.enabled = enabled;
     }
 
+    #[inline]
     pub(crate) fn static_program(
         &self,
         definition: CardDefinitionId,
         part: CardPartId,
     ) -> Option<&PreparedStaticProgram> {
-        self.enabled
-            .then(|| self.catalog.static_program(definition, part))
-            .flatten()
+        if self.enabled {
+            self.catalog.static_program(definition, part)
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    pub(crate) fn supplies_graveyard_static(&self, definition: CardDefinitionId) -> Option<bool> {
+        if self.enabled {
+            self.catalog.supplies_graveyard_static(definition)
+        } else {
+            None
+        }
     }
 }
 

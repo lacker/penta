@@ -1,6 +1,6 @@
 use super::{Game, ObjectCharacteristics};
-use crate::PlayerId;
 use crate::prepared_engine::{PreparedHost, PreparedStaticProgram};
+use crate::{CardDefinitionId, PlayerId};
 
 impl Game {
     /// Enables or disables every optional prepared path for this game.
@@ -16,6 +16,7 @@ impl Game {
         self.prepared_engine.enabled()
     }
 
+    #[inline]
     pub(super) fn prepared_static_program(
         &self,
         source: ObjectCharacteristics,
@@ -24,6 +25,14 @@ impl Game {
             return None;
         };
         self.prepared_engine.static_program(definition, part)
+    }
+
+    #[inline]
+    pub(super) fn prepared_supplies_graveyard_static(
+        &self,
+        definition: CardDefinitionId,
+    ) -> Option<bool> {
+        self.prepared_engine.supplies_graveyard_static(definition)
     }
 }
 

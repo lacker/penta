@@ -8,14 +8,16 @@ use crate::card::{
     BattlefieldEntryModificationDef, BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef,
     ChooseCardsFromCollectionDef, ChooseGroupDef, ChooseObjectOrderDef, CollectionInspectionDef,
-    ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
-    CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
-    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PartitionGroupDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, TokenStatsDef, TriggerConditionDef,
+    ColorSet, ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CopyExceptionsDef,
+    CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageAssignmentDef,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
+    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, IfNoObjectsDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, PartitionGroupDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef,
+    SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef,
     ZonePlacement, abilities,
 };
@@ -147,21 +149,22 @@ pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Giant", "Soldier"], 2, 5).with_ability(
         AbilityDef::static_ability(
             "This creature has vigilance as long as you control a Gate.",
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::ObjectCount {
-                    query: ObjectQueryDef::matching(
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype("Gate"),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
-                    ),
+                    )),
+                    filter: None,
                     comparison: ComparisonDef::GreaterOrEqual,
                     amount: 1,
                 },
-                then: &EffectDef::StaticApply {
+                then: StaticApplyDef {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
                 },
-            },
+            }),
         ),
     ),
 );
@@ -1775,23 +1778,24 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
         AbilityDef::static_ability(
             "This creature can attack as though it didn't have defender as long as you control a \
              Gate.",
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::ObjectCount {
-                    query: ObjectQueryDef::matching(
+            EffectDef::ConditionalStatic(ConditionalStaticEffectDef {
+                condition: ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::Subtype("Gate"),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
-                    ),
+                    )),
+                    filter: None,
                     comparison: ComparisonDef::GreaterOrEqual,
                     amount: 1,
                 },
                 // A permission rather than an ability removal: the Ogre keeps defender, so
                 // anything reading "a creature with defender" still finds one.
-                then: &EffectDef::StaticApply {
+                then: StaticApplyDef {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::Rule(AppliedRuleDef::MayAttackDespiteDefender),
                 },
-            },
+            }),
         ),
     ]),
 );
@@ -4639,9 +4643,12 @@ pub(in crate::card::sets) static NIVIX_GUILDMAGE: CardRecord = CardRecord::new(
             &[AbilityCostDef::Mana(mana_cost!("{2}{U}{R}"))],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::AnyOf(&[
-                        ObjectPredicateDef::HasType(CardType::Instant),
-                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Spell,
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
                     ]),
                     zones: &[ZoneKind::Stack],
                     controller: Some(PlayerRelation::You),
@@ -4951,13 +4958,30 @@ pub(in crate::card::sets) static RIX_MAADI_GUILDMAGE: CardRecord = CardRecord::n
 );
 
 // RTR 193 — Search Warrant
-// Audit: unsupported — Needs revealing a target player's hand and counting the cards in that player's hand for the life-gain amount.
 pub(in crate::card::sets) static SEARCH_WARRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b"),
     "Search Warrant",
-    crate::card::CardArt::new("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b", "Steven Belledin"),
-    crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b", "Steven Belledin"),
+    CardSet::ReturnToRavnica,
+    CardRules::new_sorcery(mana_cost!("{W}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player reveals their hand. You gain life equal to the number of cards in that player's hand.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::RevealHand {
+                player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::CountObjects(&ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Hand],
+                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                ))),
+            },
+        ]),
+    )),
 );
 
 // RTR 194 — Selesnya Charm
@@ -6120,9 +6144,7 @@ pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
         abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
         AbilityDef::triggered(
             "Whenever this creature is dealt damage, flip a coin. If you lose the flip, sacrifice this creature.",
-            TriggerEventDef::DamageDealt(DamageEventMatcherDef::to(
-                EffectRecipientDef::Source,
-            )),
+            TriggerEventDef::damage_to_source(),
             EffectDef::Randomized {
                 likelihood: crate::card::LikelihoodDef::new(0.5),
                 on_success: &EffectDef::None,
@@ -6136,19 +6158,19 @@ pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
             EffectDef::Randomized {
                 likelihood: crate::card::LikelihoodDef::new(0.5),
                 on_success: &EffectDef::None,
-                on_failure: &EffectDef::Sequence(&[
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::matching_objects(
+                on_failure: &EffectDef::DealDamageSimultaneously(&[
+                    DamageAssignmentDef::from_effect(
+                        EffectRecipientDef::matching_objects(
                             ObjectPredicateDef::HasType(CardType::Creature),
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        amount: ValueDef::Constant(4),
-                    },
-                    EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        amount: ValueDef::Constant(4),
-                    },
+                        ValueDef::Constant(4),
+                    ),
+                    DamageAssignmentDef::from_effect(
+                        EffectRecipientDef::EachPlayer,
+                        ValueDef::Constant(4),
+                    ),
                 ]),
             },
         ),

@@ -9,7 +9,7 @@ use crate::card::{
     CardType, CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef,
     ChooseCardsFromCollectionDef, ChooseGroupDef, ChooseObjectOrderDef, CollectionInspectionDef,
     ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
     DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
     IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
     ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
@@ -849,8 +849,6 @@ pub(in crate::card::sets) static CHRONIC_FLOODING: CardRecord = CardRecord::new(
                 EffectDef::Mill {
                     player: EffectRecipientDef::ControllerOfTriggeringObject,
                     amount: ValueDef::Constant(3),
-                    binding: None,
-                    then: None,
                 },
             ),
         ]),
@@ -1266,8 +1264,6 @@ pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
                 EffectDef::Mill {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::BoundObjectCount(PSYCHIC_SPIRAL_MOVED),
-                    binding: None,
-                    then: None,
                 },
             ]),
         }),
@@ -1609,8 +1605,6 @@ pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::
                 player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
                 object: ObjectPredicateDef::HasType(CardType::Land),
                 matched_zone: ZoneKind::Graveyard,
-                binding: None,
-                then: None,
             }),
         ]),
     )),
@@ -1726,10 +1720,9 @@ pub(in crate::card::sets) static LAUNCH_PARTY: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            SpellAdditionalCostDef::new(
+            SpellAdditionalCostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
-                ZoneKind::Battlefield,
-                1,
+                CostQuantityDef::Fixed(1),
             ),
             EffectDef::Sequence(&[
                 EffectDef::Destroy {

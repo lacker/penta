@@ -824,9 +824,9 @@ pub(in crate::card::sets) static DIVINATION: CardRecord = CardRecord::new_with_l
     "Divination",
     CardArt::new("4a1340f1-85a4-4551-9871-bb00db6d97a8", "Scott Chou"),
     CardSet::DarkAscension,
-    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::prepared_spell(
+    CardRules::new_sorcery(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Draw two cards.",
-        abilities::prepared_draw_cards(ValueDef::Constant(2)),
+        abilities::draw_cards(ValueDef::Constant(2)),
     )),
 );
 

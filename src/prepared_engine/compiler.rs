@@ -2,7 +2,6 @@ use super::{
     PreparedCatalog, PreparedEffect, PreparedStaticAbility, PreparedStaticApplication,
     PreparedStaticComponent, PreparedStaticLane, PreparedStaticProgram,
 };
-use crate::card::EffectExecutorDef;
 use crate::{
     AbilityDef, AbilityOperationDef, AppliedEffectDef, CardCatalog, CharacteristicContext,
     CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, GrantId, TriggerConditionDef,
@@ -40,12 +39,15 @@ pub(crate) fn compile_catalog(catalog: &CardCatalog) -> PreparedCatalog {
     prepared
 }
 
-pub(crate) fn compile_effect(executor: EffectExecutorDef) -> Option<PreparedEffect> {
-    match executor {
-        EffectExecutorDef::DrawCards(ValueDef::Constant(count)) => u16::try_from(count)
+pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
+    match effect {
+        EffectDef::DrawCards {
+            recipient: crate::EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(count),
+        } => u16::try_from(count)
             .ok()
             .map(|count| PreparedEffect::DrawCards { count }),
-        EffectExecutorDef::DrawCards(_) => None,
+        _ => None,
     }
 }
 
@@ -351,20 +353,20 @@ mod tests {
     #[test]
     fn dynamic_draw_collapses_the_whole_prepared_root() {
         assert_eq!(
-            compile_effect(EffectExecutorDef::DrawCards(ValueDef::ChosenX)),
+            compile_effect(abilities::draw_cards(ValueDef::ChosenX)),
             None
         );
     }
 
     #[test]
     fn constant_draw_prepares_to_an_intrinsic() {
-        let prepared = abilities::prepared_draw_cards(ValueDef::Constant(3));
+        let effect = abilities::draw_cards(ValueDef::Constant(3));
         assert_eq!(
-            compile_effect(prepared.executor),
+            compile_effect(effect),
             Some(PreparedEffect::DrawCards { count: 3 })
         );
         assert_eq!(
-            prepared.effect,
+            effect,
             EffectDef::DrawCards {
                 recipient: crate::EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(3),

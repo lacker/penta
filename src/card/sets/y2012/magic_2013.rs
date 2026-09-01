@@ -1378,10 +1378,10 @@ pub(in crate::card::sets) static SCROLL_THIEF: CardRecord = CardRecord::new_with
     ),
     CardSet::Magic2013,
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Rogue"], 1, 3).with_ability(
-        AbilityDef::prepared_triggered(
+        AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, draw a card.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
-            abilities::prepared_draw_cards(ValueDef::Constant(1)),
+            abilities::draw_cards(ValueDef::Constant(1)),
         ),
     ),
 );

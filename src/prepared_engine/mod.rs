@@ -9,6 +9,7 @@ mod compiler;
 mod executor;
 
 use std::collections::HashMap;
+use std::sync::{Arc, LazyLock, Mutex, Weak};
 
 use crate::{
     AbilityId, AppliedEffectDef, CardCatalog, CardDefinitionId, CardPartId, EffectDef,
@@ -200,14 +201,50 @@ impl PreparedCatalog {
 #[derive(Clone, Debug)]
 pub(crate) struct PreparedEngine {
     enabled: bool,
-    catalog: std::sync::Arc<PreparedCatalog>,
+    catalog: Arc<PreparedCatalog>,
+}
+
+struct CachedPreparedCatalog {
+    source: Weak<u8>,
+    compiled: Arc<PreparedCatalog>,
+}
+
+static CATALOG_CACHE: LazyLock<Mutex<HashMap<usize, CachedPreparedCatalog>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
+
+fn cached_catalog(catalog: &CardCatalog) -> Arc<PreparedCatalog> {
+    let (identity, source) = catalog.process_cache_identity();
+    {
+        let cache = CATALOG_CACHE
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if let Some(entry) = cache.get(&identity)
+            && entry.source.ptr_eq(&source)
+        {
+            return entry.compiled.clone();
+        }
+    }
+
+    let compiled = Arc::new(compile_catalog(catalog));
+    let mut cache = CATALOG_CACHE
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
+    cache.retain(|_, entry| entry.source.strong_count() > 0);
+    cache.insert(
+        identity,
+        CachedPreparedCatalog {
+            source,
+            compiled: compiled.clone(),
+        },
+    );
+    compiled
 }
 
 impl PreparedEngine {
     pub(crate) fn compile(catalog: &CardCatalog) -> Self {
         Self {
             enabled: true,
-            catalog: catalog.prepared_catalog(),
+            catalog: cached_catalog(catalog),
         }
     }
 
@@ -252,4 +289,23 @@ pub(crate) fn execute_effect(
     controller: PlayerId,
 ) {
     executor::execute(effect, host, controller);
+}
+
+#[cfg(test)]
+mod cache_tests {
+    use super::*;
+
+    #[test]
+    fn compiled_catalog_outlives_individual_games() {
+        let catalog = crate::card::catalog().expect("built-in catalog is valid");
+        let first = PreparedEngine::compile(&catalog);
+        let compiled = Arc::downgrade(&first.catalog);
+        drop(first);
+
+        let second = PreparedEngine::compile(&catalog);
+        let retained = compiled
+            .upgrade()
+            .expect("the cache retains compiled catalogs between games");
+        assert!(Arc::ptr_eq(&retained, &second.catalog));
+    }
 }

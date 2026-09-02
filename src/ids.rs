@@ -281,7 +281,6 @@ const BINDING_LABELS: &[&str] = &[
     "fact_unchosen",
     "grave_betrayal_card",
     "guild_feud_controller_chosen",
-    "guild_feud_controller_entered",
     "guild_feud_controller_rest",
     "guild_feud_opponent_chosen",
     "guild_feud_opponent_entered",

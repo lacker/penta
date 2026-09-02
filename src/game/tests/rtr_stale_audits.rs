@@ -153,6 +153,67 @@ fn grave_betrayal_returns_each_dead_opposing_creature_at_the_next_end_step() {
 }
 
 #[test]
+fn guild_feud_keeps_both_reveal_workflows_bound_across_sequence_steps() {
+    let mut game = ready_game();
+    game.players[PlayerId::One.index()].library.clear();
+    game.players[PlayerId::One.index()].library.extend([
+        card(81_300, cards::PONDER, PlayerId::One),
+        card(81_301, cards::DIVINE_RECKONING, PlayerId::One),
+        card(81_302, cards::GRIZZLY_BEARS, PlayerId::One),
+    ]);
+    game.players[PlayerId::Two.index()].library.clear();
+    game.players[PlayerId::Two.index()].library.extend([
+        card(81_310, cards::PONDER, PlayerId::Two),
+        card(81_311, cards::DIVINE_RECKONING, PlayerId::Two),
+        card(81_312, cards::SERRA_ANGEL, PlayerId::Two),
+    ]);
+    let feud = spell_with_targets(
+        81_320,
+        cards::GUILD_FEUD,
+        PlayerId::One,
+        vec![Target::Player(PlayerId::Two)],
+        0,
+    );
+
+    game.resolve_effect_def(
+        ScopedEffect::primary(card_effect(&game, cards::GUILD_FEUD)),
+        &feud,
+        TriggerContext::empty(),
+    );
+
+    choose_decision_by_label(&mut game, PlayerId::Two, "Serra Angel");
+    choose_decision_by_label(&mut game, PlayerId::One, "Grizzly Bears");
+    drain_pending(&mut game);
+
+    assert!(
+        game.battlefield.iter().any(|permanent| {
+            permanent.controller == PlayerId::Two && permanent.card.definition == cards::SERRA_ANGEL
+        }),
+        "the opponent's chosen creature entered and survived the fight",
+    );
+    assert!(
+        game.players[PlayerId::One.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.definition == cards::GRIZZLY_BEARS),
+        "the controller's chosen creature entered, fought, and died",
+    );
+    for player in [PlayerId::One, PlayerId::Two] {
+        assert_eq!(
+            game.players[player.index()]
+                .graveyard
+                .iter()
+                .filter(|card| {
+                    matches!(card.definition, cards::PONDER | cards::DIVINE_RECKONING)
+                })
+                .count(),
+            2,
+            "that player's unchosen cards went to their graveyard",
+        );
+    }
+}
+
+#[test]
 fn havoc_festival_statically_stops_life_gain_and_halves_the_active_player() {
     let mut game = ready_game();
     let festival = game

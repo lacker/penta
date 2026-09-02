@@ -21,7 +21,7 @@ use crate::card::{
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
     ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
-use crate::ids::{Binding, ParentBinding, TargetIndex};
+use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -1679,8 +1679,6 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
 );
 
 // RTR 67 — Grave Betrayal
-const GRAVE_BETRAYAL_CARD: Binding = Binding!("grave_betrayal_card");
-
 pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47b38c68-8e72-4afc-bb5e-0b40880fdda9"),
     "Grave Betrayal",
@@ -1697,7 +1695,7 @@ pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
                 source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
                     ObjectRefDef::ZoneChangeResultOfTriggeringObject,
                 )),
-                binding: GRAVE_BETRAYAL_CARD,
+                binding: Binding!("grave_betrayal_card"),
                 then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
                     &AbilityDef::triggered(
                         "At the beginning of the next end step, return that card to the battlefield under your control with an additional +1/+1 counter on it. That creature is a black Zombie in addition to its other colors and types.",
@@ -1709,7 +1707,7 @@ pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
                             effect: &EffectDef::WithBattlefieldArrival {
                                 effect: &EffectDef::MoveToZone {
                                     object: EffectRecipientDef::objects(ObjectSetDef::Binding(
-                                        GRAVE_BETRAYAL_CARD,
+                                        Binding!("grave_betrayal_card"),
                                     )),
                                     zone: ZoneKind::Battlefield,
                                     placement: ZonePlacement::Top,
@@ -2412,14 +2410,6 @@ pub(in crate::card::sets) static GORE_HOUSE_CHAINWALKER: CardRecord =
     );
 
 // RTR 97 — Guild Feud
-const GUILD_FEUD_OPPONENT_CHOSEN: Binding = Binding!("guild_feud_opponent_chosen");
-const GUILD_FEUD_OPPONENT_REST: Binding = Binding!("guild_feud_opponent_rest");
-const GUILD_FEUD_OPPONENT_ENTERED: Binding = Binding!("guild_feud_opponent_entered");
-const GUILD_FEUD_CONTROLLER_CHOSEN: Binding = Binding!("guild_feud_controller_chosen");
-const GUILD_FEUD_CONTROLLER_REST: Binding = Binding!("guild_feud_controller_rest");
-const GUILD_FEUD_CONTROLLER_ENTERED: Binding = Binding!("guild_feud_controller_entered");
-const GUILD_FEUD_OPPONENT_FIGHTER: Binding = Binding!("guild_feud_opponent_fighter");
-
 pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e622878-0aea-4401-873e-d34bf05ee98d"),
     "Guild Feud",
@@ -2445,17 +2435,17 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 minimum: 0,
                 maximum: 1,
-                chosen: GUILD_FEUD_OPPONENT_CHOSEN,
-                remainder: GUILD_FEUD_OPPONENT_REST,
+                chosen: Binding!("guild_feud_opponent_chosen"),
+                remainder: Binding!("guild_feud_opponent_rest"),
                 then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_CHOSEN),
+                    input: ObjectSetDef::Binding(Binding!("guild_feud_opponent_chosen")),
                     from: Some(ZoneKind::Library),
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
-                    moved: Some(GUILD_FEUD_OPPONENT_ENTERED),
+                    moved: Some(Binding!("guild_feud_opponent_entered")),
                     then: &EffectDef::Sequence(&[
                         EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_REST),
+                            input: ObjectSetDef::Binding(Binding!("guild_feud_opponent_rest")),
                             from: Some(ZoneKind::Library),
                             zone: ZoneKind::Graveyard,
                             placement: ZonePlacement::Top,
@@ -2473,19 +2463,21 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                                 object: ObjectPredicateDef::HasType(CardType::Creature),
                                 minimum: 0,
                                 maximum: 1,
-                                chosen: GUILD_FEUD_CONTROLLER_CHOSEN,
-                                remainder: GUILD_FEUD_CONTROLLER_REST,
+                                chosen: Binding!("guild_feud_controller_chosen"),
+                                remainder: Binding!("guild_feud_controller_rest"),
                                 then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(GUILD_FEUD_CONTROLLER_CHOSEN),
+                                    input: ObjectSetDef::Binding(Binding!(
+                                        "guild_feud_controller_chosen"
+                                    )),
                                     from: Some(ZoneKind::Library),
                                     zone: ZoneKind::Battlefield,
                                     placement: ZonePlacement::Top,
-                                    moved: Some(GUILD_FEUD_CONTROLLER_ENTERED),
+                                    moved: Some(ParentBinding),
                                     then: &EffectDef::Sequence(&[
                                         EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(
-                                                GUILD_FEUD_CONTROLLER_REST,
-                                            ),
+                                            input: ObjectSetDef::Binding(Binding!(
+                                                "guild_feud_controller_rest"
+                                            )),
                                             from: Some(ZoneKind::Library),
                                             zone: ZoneKind::Graveyard,
                                             placement: ZonePlacement::Top,
@@ -2493,18 +2485,16 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                                             then: &EffectDef::None,
                                         }),
                                         EffectDef::ForEachInBinding {
-                                            objects: GUILD_FEUD_OPPONENT_ENTERED,
-                                            binding: GUILD_FEUD_OPPONENT_FIGHTER,
+                                            objects: Binding!("guild_feud_opponent_entered"),
+                                            binding: Binding!("guild_feud_opponent_fighter"),
                                             effect: &EffectDef::ForEachInBinding {
-                                                objects: GUILD_FEUD_CONTROLLER_ENTERED,
+                                                objects: ParentBinding,
                                                 binding: ParentBinding,
                                                 effect: &EffectDef::Fight {
-                                                    first: ObjectRefDef::Binding(
-                                                        GUILD_FEUD_OPPONENT_FIGHTER,
-                                                    ),
-                                                    second: ObjectRefDef::Binding(
-                                                        ParentBinding,
-                                                    ),
+                                                    first: ObjectRefDef::Binding(Binding!(
+                                                        "guild_feud_opponent_fighter"
+                                                    )),
+                                                    second: ObjectRefDef::Binding(ParentBinding),
                                                     excess: None,
                                                 },
                                             },
@@ -3288,8 +3278,6 @@ pub(in crate::card::sets) static KOROZDA_MONITOR: CardRecord = CardRecord::new_w
 );
 
 // RTR 130 — Mana Bloom
-const CHARGE_COUNTER: CounterKind = CounterKind::named("charge");
-
 pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7592d88-64e8-4a31-b00a-f65d4b1867fc"),
     "Mana Bloom",
@@ -3300,14 +3288,14 @@ pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
             "This enchantment enters with X charge counters on it.",
             ReplacementEffectDef::ModifyBattlefieldEntry(
                 BattlefieldEntryModificationDef::AddCastXCounters {
-                    kind: CHARGE_COUNTER,
+                    kind: CounterKind::named("charge"),
                 },
             ),
         ),
         AbilityDef::activated_mana(
             "Remove a charge counter from this enchantment: Add one mana of any color. Activate only once each turn.",
             &[AbilityCostDef::RemoveCountersFromSource {
-                kind: CHARGE_COUNTER,
+                kind: CounterKind::named("charge"),
                 amount: 1,
             }],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
@@ -3320,7 +3308,7 @@ pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
                 player: PlayerRelation::You,
             },
             &TriggerConditionDef::SourceCounters {
-                kind: CHARGE_COUNTER,
+                kind: CounterKind::named("charge"),
                 comparison: ComparisonDef::Equal,
                 amount: 0,
             },
@@ -4028,9 +4016,6 @@ pub(in crate::card::sets) static DREG_MANGLER: CardRecord = CardRecord::new_with
 );
 
 // RTR 159 — Epic Experiment
-const EPIC_EXPERIMENT_CASTABLE: Binding = Binding!("epic_experiment_castable");
-const EPIC_EXPERIMENT_EXILED: Binding = Binding!("epic_experiment_exiled");
-
 pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42f0b68a-de4b-4c0c-98ac-a812017f88a7"),
     "Epic Experiment",
@@ -4047,9 +4032,9 @@ pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
                     from: Some(ZoneKind::Library),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
-                    moved: Some(EPIC_EXPERIMENT_EXILED),
+                    moved: Some(Binding!("epic_experiment_exiled")),
                     then: &EffectDef::ClassifyObjects(ClassifyObjectsDef {
-                        input: ObjectSetDef::Binding(EPIC_EXPERIMENT_EXILED),
+                        input: ObjectSetDef::Binding(Binding!("epic_experiment_exiled")),
                         object: ObjectPredicateDef::All(&[
                             ObjectPredicateDef::AnyOf(&[
                                 ObjectPredicateDef::HasType(CardType::Instant),
@@ -4057,17 +4042,21 @@ pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
                             ]),
                             ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
                         ]),
-                        matching: EPIC_EXPERIMENT_CASTABLE,
+                        matching: Binding!("epic_experiment_castable"),
                         remainder: Binding!("epic_experiment_rest"),
                         then: &EffectDef::Sequence(&[
                             EffectDef::MayPlayWithoutPaying(FreePlayDef {
-                                objects: ObjectSetDef::Binding(EPIC_EXPERIMENT_CASTABLE),
+                                objects: ObjectSetDef::Binding(Binding!(
+                                    "epic_experiment_castable"
+                                )),
                                 duration: FreePlayDurationDef::WhileResolving,
                                 mandatory: false,
                                 grants_haste: false,
                             }),
                             EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(EPIC_EXPERIMENT_EXILED),
+                                input: ObjectSetDef::Binding(Binding!(
+                                    "epic_experiment_exiled"
+                                )),
                                 from: Some(ZoneKind::Exile),
                                 zone: ZoneKind::Graveyard,
                                 placement: ZonePlacement::Top,
@@ -4518,8 +4507,6 @@ pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecor
 );
 
 // RTR 175 — Jarad's Orders
-const JARAD_ORDERS_GRAVEYARD: Binding = Binding!("jarad_orders_graveyard");
-
 pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c59171ce-7dc6-4dd9-a124-3c2c3028d93d"),
     "Jarad's Orders",
@@ -4556,10 +4543,12 @@ pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
                         minimum: 1,
                         maximum: 1,
                         chosen: ParentBinding,
-                        remainder: JARAD_ORDERS_GRAVEYARD,
+                        remainder: Binding!("jarad_orders_graveyard"),
                         then: &EffectDef::Sequence(&[
                             EffectDef::MoveObjects(MoveObjectsDef {
-                                input: ObjectSetDef::Binding(JARAD_ORDERS_GRAVEYARD),
+                                input: ObjectSetDef::Binding(Binding!(
+                                    "jarad_orders_graveyard"
+                                )),
                                 from: Some(ZoneKind::Hand),
                                 zone: ZoneKind::Graveyard,
                                 placement: ZonePlacement::Top,
@@ -4708,8 +4697,6 @@ pub(in crate::card::sets) static LYEV_SKYKNIGHT: CardRecord = CardRecord::new_wi
 );
 
 // RTR 180 — Mercurial Chemister
-const MERCURIAL_CHEMISTER_DISCARDED: Binding = Binding!("mercurial_chemister_discarded");
-
 pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("881728ce-4b18-410e-9cdb-4d439ce0b21d"),
     "Mercurial Chemister",
@@ -4740,7 +4727,7 @@ pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::n
                             ZoneKind::Graveyard,
                             1,
                         )
-                        .binding(MERCURIAL_CHEMISTER_DISCARDED),
+                        .binding(Binding!("mercurial_chemister_discarded")),
                     ),
                 ],
                 &[AbilityTargetDef::exactly_one(
@@ -4749,7 +4736,7 @@ pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::n
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::ObjectManaValue(ObjectRefDef::Binding(
-                        MERCURIAL_CHEMISTER_DISCARDED,
+                        Binding!("mercurial_chemister_discarded"),
                     )),
                 },
             ),

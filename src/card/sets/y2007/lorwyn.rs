@@ -19,60 +19,58 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_w
     CardSet::Lorwyn,
     // Four mana of triple blue that is never the wrong card: counter and
     // draw when they act, bounce and draw when they do not.
-    CardRules::new_instant(mana_cost!("{1}{U}{U}{U}")).with_ability(AbilityDef::modal_spell(
-        "Choose two \u{2014}\n\u{2022} Counter target spell.\n\u{2022} Return target permanent \
-         to its owner's hand.\n\u{2022} Tap all creatures your opponents control.\n\u{2022} \
-         Draw a card.",
-        // Two of four, and never the same one twice. Each targeting mode carries
-        // its own slot, so a Command that counters and bounces declares a spell and
-        // a permanent, and one that taps and draws declares nothing at all.
-        &[
-            AbilityDef::counter_target(
-                "Counter target spell.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Spell,
-                        zones: &[ZoneKind::Stack],
-                        controller: None,
-                        owner: None,
+    CardRules::new_instant(mana_cost!("{1}{U}{U}{U}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose two —",
+            // Two of four, and never the same one twice. Each targeting mode carries
+            // its own slot, so a Command that counters and bounces declares a spell and
+            // a permanent, and one that taps and draws declares nothing at all.
+            &[
+                AbilityDef::counter_target(
+                    "Counter target spell.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Spell,
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                    )][0],
+                ),
+                AbilityDef::spell_with_targets(
+                    "Return target permanent to its owner's hand.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                )][0],
-            ),
-            AbilityDef::spell_with_targets(
-                "Return target permanent to its owner's hand.",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::Any,
-                )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            ),
-            // Their creatures, not everyone's: the Command is a Fog you get to keep
-            // the draw off, and tapping your own would defeat the point.
-            AbilityDef::spell(
-                "Tap all creatures your opponents control.",
-                EffectDef::Tap {
-                    object: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Opponent,
-                    ),
-                },
-            ),
-            AbilityDef::spell(
-                "Draw a card.",
-                EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-        ],
-        2,
-        2,
-        false,
-    )),
+                ),
+                // Their creatures, not everyone's: the Command is a Fog you get to keep
+                // the draw off, and tapping your own would defeat the point.
+                AbilityDef::spell(
+                    "Tap all creatures your opponents control.",
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Opponent,
+                        ),
+                    },
+                ),
+                AbilityDef::spell(
+                    "Draw a card.",
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(2, 2, false),
+    ),
 );
 
 // LRW 76 — Mulldrifter

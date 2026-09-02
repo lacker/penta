@@ -3028,30 +3028,42 @@ pub(in crate::card::sets) static BOROS_CHARM: CardRecord = CardRecord::new_with_
     "Boros Charm",
     CardArt::new("d4ddf9cc-40a7-4b4f-bb51-b08171453c9a", "Zoltan Boros"),
     CardSet::Gatecrash,
-    CardRules::new_instant(mana_cost!("{R}{W}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Boros Charm deals 4 damage to target player or planeswalker.\n• Permanents you control gain indestructible until end of turn.\n• Target creature gains double strike until end of turn.",
+    CardRules::new_instant(mana_cost!("{R}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
-            AbilityDef::spell_with_targets("Boros Charm deals 4 damage to target player or planeswalker", &[AbilityTargetDef::exactly_one(
-                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-            )], EffectDef::DealDamage {
+            AbilityDef::spell_with_targets(
+                "Boros Charm deals 4 damage to target player or planeswalker.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                )],
+                EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     amount: ValueDef::Constant(4),
-                }),
+                },
+            ),
             AbilityDef::spell(
-                "Permanents you control gain indestructible until end of turn",
+                "Permanents you control gain indestructible until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Battlefield], PlayerRelation::You),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                     effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
-            AbilityDef::spell_with_targets("Target creature gains double strike until end of turn", &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )], EffectDef::Apply {
+            AbilityDef::spell_with_targets(
+                "Target creature gains double strike until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                }),
+                },
+            ),
         ],
     )),
 );
@@ -3099,52 +3111,52 @@ pub(in crate::card::sets) static CLAN_DEFIANCE: CardRecord = CardRecord::new_wit
     "Clan Defiance",
     CardArt::new("efa05298-9c94-4179-b75a-49ee2ca92920", "Daarken"),
     CardSet::Gatecrash,
-    CardRules::new_sorcery(mana_cost!("{X}{R}{G}")).with_ability(AbilityDef::modal_spell(
-        "Choose one or more —\n• Clan Defiance deals X damage to target creature with flying.\n• Clan Defiance deals X damage to target creature without flying.\n• Clan Defiance deals X damage to target player or planeswalker.",
-        &[
-            AbilityDef::spell_with_targets(
-                "Clan Defiance deals X damage to target creature with flying",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
-                    ]),
-                )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Clan Defiance deals X damage to target creature without flying",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
-                            KeywordAbility::Flying,
-                        )),
-                    ]),
-                )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Clan Defiance deals X damage to target player or planeswalker",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
-                )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::ChosenX,
-                },
-            ),
-        ],
-        1,
-        3,
-        false,
-    )),
+    CardRules::new_sorcery(mana_cost!("{X}{R}{G}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or more —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Clan Defiance deals X damage to target creature with flying.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::ChosenX,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Clan Defiance deals X damage to target creature without flying.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Flying,
+                            )),
+                        ]),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::ChosenX,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Clan Defiance deals X damage to target player or planeswalker.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::ChosenX,
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(1, 3, false),
+    ),
 );
 
 // GTC 152 — Consuming Aberration
@@ -4053,30 +4065,37 @@ pub(in crate::card::sets) static SIMIC_CHARM: CardRecord = CardRecord::new_with_
     "Simic Charm",
     CardArt::new("97c27bdd-77f5-4e93-8f54-93a204fc980a", "Zoltan Boros"),
     CardSet::Gatecrash,
-    CardRules::new_instant(mana_cost!("{G}{U}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Target creature gets +3/+3 until end of turn.\n• Permanents you control gain hexproof until end of turn.\n• Return target creature to its owner's hand.",
+    CardRules::new_instant(mana_cost!("{G}{U}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Target creature gets +3/+3 until end of turn",
+                "Target creature gets +3/+3 until end of turn.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(3),
+                    ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::spell(
-                "Permanents you control gain hexproof until end of turn",
+                "Permanents you control gain hexproof until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::Any, &[ZoneKind::Battlefield], PlayerRelation::You),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                     effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Return target creature to its owner's hand",
+                "Return target creature to its owner's hand.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -4084,7 +4103,7 @@ pub(in crate::card::sets) static SIMIC_CHARM: CardRecord = CardRecord::new_with_
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-},
+                },
             ),
         ],
     )),

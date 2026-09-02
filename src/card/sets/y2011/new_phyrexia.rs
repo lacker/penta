@@ -440,46 +440,46 @@ pub(in crate::card::sets) static REMEMBER_THE_FALLEN: CardRecord = CardRecord::n
     "Remember the Fallen",
     crate::card::CardArt::new("6d9b8325-2a28-4312-b778-40087f8ea778", "Eric Deschamps"),
     crate::card::CardSet::NewPhyrexia,
-    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_spell(
-        "Choose one or both —\n• Return target creature card from your graveyard to your hand.\n• Return target artifact card from your graveyard to your hand.",
-        &[
-            AbilityDef::spell_with_targets(
-                "Return target creature card from your graveyard to your hand.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
+    CardRules::new_sorcery(mana_cost!("{2}{W}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or both —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Return target creature card from your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Return target artifact card from your graveyard to your hand.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Artifact),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Return target artifact card from your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Artifact),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            ),
-        ],
-        1,
-        2,
-        false,
-    )),
+                ),
+            ],
+        )
+        .with_mode_selection(1, 2, false),
+    ),
 );
 
 // NPH 22 — Sensor Splicer

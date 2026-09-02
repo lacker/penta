@@ -486,7 +486,7 @@ fn overload_does_not_silently_discard_selected_modal_effects() {
         },
     )];
     static ABILITIES: [AbilityDef; 2] = [
-        AbilityDef::choose_one_spell("Choose one.", &MODES),
+        AbilityDef::modal_spell("Choose one.", &MODES),
         abilities::overload(
             mana_cost!("{0}"),
             "Draw two cards.",

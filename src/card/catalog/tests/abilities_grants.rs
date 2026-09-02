@@ -766,7 +766,7 @@ fn granted_modal_branches_validate_nested_grants_in_printed_order() {
             },
         ),
     ];
-    static GRANTED_MODAL: AbilityDef = AbilityDef::choose_one_spell("Choose one.", &MODES);
+    static GRANTED_MODAL: AbilityDef = AbilityDef::modal_spell("Choose one.", &MODES);
 
     assert_eq!(
         error(definition_granting(&GRANTED_MODAL)),
@@ -806,7 +806,7 @@ fn granted_modal_capacity_counts_grants_across_all_modes() {
         ]
         .into_boxed_slice(),
     );
-    let granted_modal = Box::leak(Box::new(AbilityDef::choose_one_spell("Choose one.", modes)));
+    let granted_modal = Box::leak(Box::new(AbilityDef::modal_spell("Choose one.", modes)));
 
     assert_eq!(
         error(definition_granting(granted_modal)),

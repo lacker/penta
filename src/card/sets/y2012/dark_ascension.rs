@@ -2652,11 +2652,11 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
     "Crushing Vines",
     CardArt::new("c59b3653-5a50-48f2-bcf1-ab305ef30902", "Scott Chou"),
     CardSet::DarkAscension,
-    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Destroy target creature with flying.\n• Destroy target artifact.",
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Destroy target creature with flying",
+                "Destroy target creature with flying.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -2670,7 +2670,7 @@ pub(in crate::card::sets) static CRUSHING_VINES: CardRecord = CardRecord::new_wi
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Destroy target artifact",
+                "Destroy target artifact.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],

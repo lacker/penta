@@ -121,6 +121,28 @@ fn built_in_records_have_unique_identity() {
 }
 
 #[test]
+fn modal_spells_derive_their_rules_text_from_modes() {
+    for record in SET_MODULES
+        .iter()
+        .flat_map(|module| module.cards.iter().copied())
+    {
+        for ability in record.rules.ability_clauses() {
+            if !matches!(ability.definition, DeclarativeAbilityDef::Spell(_)) {
+                continue;
+            }
+            if ability.modal().is_none() {
+                continue;
+            }
+            assert!(
+                !ability.text.contains("\n•"),
+                "{} stores its printed modes both on the modal wrapper and its branches",
+                record.name,
+            );
+        }
+    }
+}
+
+#[test]
 fn virtual_and_face_down_characteristics_are_not_card_catalog_definitions() {
     let synthetic_names = SET_MODULES
         .iter()

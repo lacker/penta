@@ -510,7 +510,7 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
     CardSet::LordOfTheRings,
     CardRules::new_instant(mana_cost!("{1}{U}{R}")).with_ability(
         AbilityDef::modal_spell(
-            "Choose one. If you control a Wizard as you cast this spell, you may choose two instead.\n• Target player draws two cards.\n• Destroy target artifact.\n• This spell deals 5 damage to target creature.",
+            "Choose one. If you control a Wizard as you cast this spell, you may choose two instead.",
             &[
                 AbilityDef::spell_with_targets(
                     "Target player draws two cards.",
@@ -538,9 +538,6 @@ pub(in crate::card::sets) static FLAME_OF_ANOR: CardRecord = CardRecord::new_wit
                     },
                 ),
             ],
-            1,
-            1,
-            false,
         )
         // The condition is read as the spell is cast, not as it resolves, so a
         // Wizard that dies in response has already done its work.

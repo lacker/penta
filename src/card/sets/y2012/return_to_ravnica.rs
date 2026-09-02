@@ -3253,34 +3253,42 @@ pub(in crate::card::sets) static AZORIUS_CHARM: CardRecord = CardRecord::new_wit
     "Azorius Charm",
     CardArt::new("26adc211-d089-4102-91e5-225bbeb5f382", "Zoltan Boros"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{W}{U}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Creatures you control gain lifelink until end of turn.\n• Draw a card.\n• Put target attacking or blocking creature on top of its owner's library.",
+    CardRules::new_instant(mana_cost!("{W}{U}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell(
-                "Creatures you control gain lifelink until end of turn",
+                "Creatures you control gain lifelink until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                     effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::spell(
-                "Draw a card",
+                "Draw a card.",
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(1),
                 },
             ),
-            AbilityDef::spell_with_targets("Put an attacking or blocking creature on top of its owner's library", &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::AttackingOrBlocking,
-                ]),
-            )], EffectDef::MoveToZone {
+            AbilityDef::spell_with_targets(
+                "Put target attacking or blocking creature on top of its owner's library.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AttackingOrBlocking,
+                    ]),
+                )],
+                EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Library,
                     placement: ZonePlacement::Top,
-}),
+                },
+            ),
         ],
     )),
 );
@@ -3711,28 +3719,39 @@ pub(in crate::card::sets) static GOLGARI_CHARM: CardRecord = CardRecord::new_wit
     "Golgari Charm",
     CardArt::new("48fce388-eefc-4234-8dd9-1260c1ba97eb", "Zoltan Boros"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{B}{G}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• All creatures get -1/-1 until end of turn.\n• Destroy target enchantment.\n• Regenerate each creature you control.",
+    CardRules::new_instant(mana_cost!("{B}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell(
-                "All creatures get -1/-1 until end of turn",
+                "All creatures get -1/-1 until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::Any),
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(-1)),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::destroy_target(
-                "Destroy target enchantment",
+                "Destroy target enchantment.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Enchantment,
                 )),
                 true,
             ),
             AbilityDef::spell(
-                "Regenerate each creature you control",
+                "Regenerate each creature you control.",
                 EffectDef::Regenerate {
-                    object: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You),
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
                 },
             ),
         ],
@@ -3866,44 +3885,48 @@ pub(in crate::card::sets) static IZZET_CHARM: CardRecord = CardRecord::new_with_
     "Izzet Charm",
     CardArt::new("1e3a5af6-5423-442b-a207-364e97a871d8", "Zoltan Boros"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{U}{R}")).with_ability(
-        AbilityDef::choose_one_spell(
-            "Choose one —\n• Counter target noncreature spell unless its controller pays {2}.\n• Izzet Charm deals 2 damage to target creature.\n• Draw two cards, then discard two cards.",
-            &[
-                AbilityDef::spell_with_targets(
-                    "Counter a noncreature spell unless its controller pays {2}",
-                    &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+    CardRules::new_instant(mana_cost!("{U}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Counter target noncreature spell unless its controller pays {2}.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::NoncreatureSpell,
                         zones: &[ZoneKind::Stack],
                         controller: None,
                         owner: None,
-                    })],
-                    abilities::counter_target_unless_paid(ValueDef::Constant(2)),
-                ),
-                AbilityDef::spell_with_targets("Deal 2 damage to a creature", &[AbilityTargetDef::exactly_one_permanent(
+                    },
+                )],
+                abilities::counter_target_unless_paid(ValueDef::Constant(2)),
+            ),
+            AbilityDef::spell_with_targets(
+                "Izzet Charm deals 2 damage to target creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
-                )], EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+            AbilityDef::spell(
+                "Draw two cards, then discard two cards.",
+                EffectDef::Sequence(&[
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
                         amount: ValueDef::Constant(2),
-                    }),
-                AbilityDef::spell(
-                    "Draw two cards, then discard two cards",
-                    EffectDef::Sequence(&[
-                        EffectDef::DrawCards {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(2),
-                        },
-                        EffectDef::Discard {
-                            recipient: EffectRecipientDef::Controller,
-                            amount: ValueDef::Constant(2),
-                            selection: DiscardSelectionDef::RecipientChooses,
-                            then: None,
-                        },
-                    ]),
-                ),
-            ],
-        ),
-    ),
+                    },
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(2),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ]),
+            ),
+        ],
+    )),
 );
 
 // RTR 173 — Izzet Staticaster
@@ -4328,32 +4351,48 @@ pub(in crate::card::sets) static SELESNYA_CHARM: CardRecord = CardRecord::new_wi
     "Selesnya Charm",
     CardArt::new("a9848eab-1d3a-4ab0-adf6-c20858aa3afb", "Zoltan Boros"),
     CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Target creature gets +2/+2 and gains trample until end of turn.\n• Exile target creature with power 5 or greater.\n• Create a 2/2 white Knight creature token with vigilance.",
+    CardRules::new_instant(mana_cost!("{G}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
-            AbilityDef::spell_with_targets("Target creature gets +2/+2 and gains trample until end of turn", &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )], EffectDef::Apply {
+            AbilityDef::spell_with_targets(
+                "Target creature gets +2/+2 and gains trample until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
                         AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                }),
-            AbilityDef::spell_with_targets("Exile a creature with power 5 or greater", &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::PowerAtLeast(5),
-                ]),
-            )], EffectDef::MoveToZone {
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Exile target creature with power 5 or greater.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::PowerAtLeast(5),
+                    ]),
+                )],
+                EffectDef::MoveToZone {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Exile,
                     placement: ZonePlacement::Top,
-}),
+                },
+            ),
             AbilityDef::spell(
-                "Create a 2/2 white Knight creature token with vigilance",
-                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2).with_abilities(&[abilities::vigilance()]).with_art(CardArt::new("67d3d039-248a-4eb8-be5c-12959b458fea", "Matt Stewart")),
+                "Create a 2/2 white Knight creature token with vigilance.",
+                EffectDef::create_creature_token(&["Knight"], &[ManaColor::White], 2, 2)
+                    .with_abilities(&[abilities::vigilance()])
+                    .with_art(CardArt::new(
+                        "67d3d039-248a-4eb8-be5c-12959b458fea",
+                        "Matt Stewart",
+                    )),
             ),
         ],
     )),

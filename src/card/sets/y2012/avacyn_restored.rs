@@ -3995,10 +3995,10 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_
     CardArt::new("5845a5bc-6b7d-4bbb-80b3-a0f877b95553", "Anthony Francisco"),
     CardSet::AvacynRestored,
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Thunderbolt deals 3 damage to target player or planeswalker.\n• Thunderbolt deals 4 damage to target creature with flying.",
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Thunderbolt deals 3 damage to target player or planeswalker",
+                "Thunderbolt deals 3 damage to target player or planeswalker.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
                 )],
@@ -4008,7 +4008,7 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Thunderbolt deals 4 damage to target creature with flying",
+                "Thunderbolt deals 4 damage to target creature with flying.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -4021,9 +4021,6 @@ pub(in crate::card::sets) static THUNDERBOLT: CardRecord = CardRecord::new_with_
                 },
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 
@@ -4724,47 +4721,47 @@ pub(in crate::card::sets) static RAIN_OF_THORNS: CardRecord = CardRecord::new_wi
     "Rain of Thorns",
     CardArt::new("fd1cb530-b9d5-4386-b89e-2acecc8294c8", "Sam Burley"),
     CardSet::AvacynRestored,
-    CardRules::new_sorcery(mana_cost!("{4}{G}{G}")).with_ability(AbilityDef::modal_spell(
-        "Choose one or more —\n• Destroy target artifact.\n• Destroy target enchantment.\n• Destroy target land.",
-        &[
-            AbilityDef::spell_with_targets(
-                "Destroy target artifact",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )],
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
-                    then: None,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Destroy target enchantment",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Enchantment),
-                )],
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
-                    then: None,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Destroy target land",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Land),
-                )],
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
-                    then: None,
-                },
-            ),
-        ],
-        1,
-        3,
-        false,
-    )),
+    CardRules::new_sorcery(mana_cost!("{4}{G}{G}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or more —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Destroy target artifact.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Destroy target enchantment.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Destroy target land.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(1, 3, false),
+    ),
 );
 
 // AVR 191 — Revenge of the Hunted

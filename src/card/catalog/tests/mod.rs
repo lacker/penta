@@ -80,7 +80,7 @@ fn semantic_modal_definition(
 ) -> CardDefinition {
     let semantic_modes = Box::leak(semantic_modes.into_boxed_slice());
     semantic_spell_definition(
-        &AbilityDef::choose_one_spell("Choose one.", semantic_modes),
+        &AbilityDef::modal_spell("Choose one.", semantic_modes),
         presentation_modes,
     )
 }

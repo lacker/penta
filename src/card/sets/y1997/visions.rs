@@ -501,7 +501,7 @@ pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with
     // land mode to strand an opponent's colours, and the phase-out to answer
     // an artifact at instant speed.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Target player mills four cards.\n• Choose a land type and a basic land type. Each land of the first chosen type becomes the second chosen type until end of turn.\n• Target artifact phases out.",
+        "Choose one —",
         // The printed first choice is "a land type", which includes the nonbasic
         // ones. Nothing in this card pool carries a nonbasic land subtype, so the
         // choice offered is over the basic types alone.
@@ -532,9 +532,6 @@ pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with
                 },
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 

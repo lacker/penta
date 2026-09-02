@@ -314,24 +314,41 @@ pub(in crate::card::sets) static FIENDSLAYER_PALADIN: CardRecord = CardRecord::n
 pub(in crate::card::sets) static FORTIFY: CardRecord = CardRecord::new_with_legacy_id(
     1149,
     "Fortify",
-    CardArt::new("1eff4028-d4f9-4822-81d6-9f5e5e6f3011", "Christopher Moeller"),
+    CardArt::new(
+        "1eff4028-d4f9-4822-81d6-9f5e5e6f3011",
+        "Christopher Moeller",
+    ),
     CardSet::Magic2014,
-    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Creatures you control get +2/+0 until end of turn.\n• Creatures you control get +0/+2 until end of turn.",
+    CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell(
                 "Creatures you control get +2/+0 until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You),
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(0)),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
             AbilityDef::spell(
                 "Creatures you control get +0/+2 until end of turn.",
                 EffectDef::Apply {
-                    recipient: EffectRecipientDef::matching_objects(ObjectPredicateDef::HasType(CardType::Creature), &[ZoneKind::Battlefield], PlayerRelation::You),
-                    effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(0), ValueDef::Constant(2)),
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(0),
+                        ValueDef::Constant(2),
+                    ),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),

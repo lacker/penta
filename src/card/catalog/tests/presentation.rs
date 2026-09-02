@@ -440,10 +440,7 @@ fn semantic_spell_modes_require_matching_presentation_mode_ids() {
 
 #[test]
 fn semantic_modal_spell_selection_must_be_possible() {
-    let definition = semantic_spell_definition(
-        &AbilityDef::modal_spell("Choose one.", &[], 1, 1, false),
-        None,
-    );
+    let definition = semantic_spell_definition(&AbilityDef::modal_spell("Choose one —", &[]), None);
 
     assert_eq!(
         error(definition),
@@ -573,7 +570,7 @@ fn unpresentable_modal_targets_use_only_the_semantic_runtime_definition() {
 #[test]
 fn combined_play_options_reject_modal_constituent_parts() {
     static MODES: [AbilityDef; 1] = [AbilityDef::spell("Test mode.", EffectDef::None)];
-    static ABILITIES: [AbilityDef; 1] = [AbilityDef::choose_one_spell("Choose one.", &MODES)];
+    static ABILITIES: [AbilityDef; 1] = [AbilityDef::modal_spell("Choose one.", &MODES)];
     let modal_rules = crate::CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
     let mut definition = split_definition(Some(PlayOptionId(2)));
     definition.rules = modal_rules;

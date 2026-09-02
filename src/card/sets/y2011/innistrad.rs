@@ -2843,8 +2843,8 @@ pub(in crate::card::sets) static GHOULCALLERS_CHANT: CardRecord = CardRecord::ne
     "Ghoulcaller's Chant",
     CardArt::new("2b8c1b10-2155-404a-8f20-eb8f643849d6", "Randy Gallegos"),
     CardSet::Innistrad,
-    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one — Return target creature card from your graveyard to your hand; or return two target Zombie cards from your graveyard to your hand.",
+    CardRules::new_sorcery(mana_cost!("{B}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
                 "Return target creature card from your graveyard to your hand.",

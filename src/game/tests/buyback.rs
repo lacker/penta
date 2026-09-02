@@ -526,7 +526,7 @@ fn modal_spell_freezes_bought_back_hand_destination() {
     ];
     static ABILITIES: [AbilityDef; 2] = [
         abilities::buyback(mana_cost!("{1}")),
-        AbilityDef::choose_one_spell("Choose one.", &MODES),
+        AbilityDef::modal_spell("Choose one.", &MODES),
     ];
 
     let definition_id = CardDefinitionId::new(50_100);

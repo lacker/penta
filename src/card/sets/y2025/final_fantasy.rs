@@ -119,9 +119,8 @@ pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
     CardSet::FinalFantasy,
     // Three damage that answers a recursive creature for good, or the
     // artifact half when there is nothing to throw.
-    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Suplex deals 3 damage to target creature. If that creature would die \
-         this turn, exile it instead.\n• Exile target artifact.",
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
                 "Suplex deals 3 damage to target creature. If that creature would die this turn, exile it \

@@ -68,12 +68,11 @@ pub(in crate::card::sets) static ALABASTER_POTION: CardRecord = CardRecord::new_
     "Alabaster Potion",
     CardArt::new("2806c7f6-8fdd-4e65-9c71-f2e8b0cdede2", "Harold McNeill"),
     CardSet::Legends,
-    CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Target player gains X life.\n• Prevent the next X damage that would \
-         be dealt to any target this turn.",
+    CardRules::new_instant(mana_cost!("{X}{W}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Target player gains X life",
+                "Target player gains X life.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -83,7 +82,7 @@ pub(in crate::card::sets) static ALABASTER_POTION: CardRecord = CardRecord::new_
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Prevent the next X damage that would be dealt to any target this turn",
+                "Prevent the next X damage that would be dealt to any target this turn.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
@@ -1113,11 +1112,11 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
     "Flash Flood",
     CardArt::new("5ae88c06-f28c-4fbc-a28c-5eb203a04722", "Tom Wänerstrand"),
     CardSet::Legends,
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Destroy target red permanent.\n• Return target Mountain to its owner's hand.",
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Destroy target red permanent",
+                "Destroy target red permanent.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Color(ManaColor::Red),
                 )],
@@ -1128,7 +1127,7 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Return target Mountain to its owner's hand",
+                "Return target Mountain to its owner's hand.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
                 )],
@@ -1136,7 +1135,7 @@ pub(in crate::card::sets) static FLASH_FLOOD: CardRecord = CardRecord::new_with_
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-},
+                },
             ),
         ],
     )),
@@ -2621,11 +2620,11 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
     "Active Volcano",
     CardArt::new("ad402e65-6fac-4005-a2d4-592983df0c30", "Justin Hampton"),
     CardSet::Legends,
-    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Destroy target blue permanent.\n• Return target Island to its owner's hand.",
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Destroy target blue permanent",
+                "Destroy target blue permanent.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Color(ManaColor::Blue),
                 )],
@@ -2636,7 +2635,7 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Return target Island to its owner's hand",
+                "Return target Island to its owner's hand.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
                 )],
@@ -2644,7 +2643,7 @@ pub(in crate::card::sets) static ACTIVE_VOLCANO: CardRecord = CardRecord::new_wi
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
-},
+                },
             ),
         ],
     )),

@@ -75,10 +75,8 @@ pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new
     CardSet::PhyrexiaAllWillBeOne,
     // Two mana at instant speed for the one creature a protected threat
     // cannot dodge, as long as it is the only one they have.
-    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Each opponent sacrifices a nontoken creature of their choice.\n• Each \
-         opponent sacrifices a creature token of their choice.\n• Each opponent sacrifices a \
-         planeswalker of their choice.",
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             edict(
                 "Each opponent sacrifices a nontoken creature of their choice.",

@@ -42,69 +42,67 @@ pub(in crate::card::sets) static KOLAGHAN_S_COMMAND: CardRecord = CardRecord::ne
     CardSet::DragonsOfTarkir,
     // Three mana that is two cards on every board: something always comes
     // back, and something of theirs always goes.
-    CardRules::new_instant(mana_cost!("{1}{B}{R}")).with_ability(AbilityDef::modal_spell(
-        "Choose two \u{2014}\n\u{2022} Return target creature card from your graveyard to your \
-         hand.\n\u{2022} Target player discards a card.\n\u{2022} Destroy target artifact.\n\
-         \u{2022} Kolaghan's Command deals 2 damage to any target.",
-        // Two of four, and never the same one twice. Each mode carries its own
-        // slot, so what a Command declares depends on which two it is.
-        &[
-            AbilityDef::spell_with_targets(
-                "Return target creature card from your graveyard to your hand.",
-                // Your own graveyard, and a creature card while it is still a card: what
-                // comes back goes to hand rather than to the battlefield.
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::HasType(CardType::Creature),
-                        zones: &[ZoneKind::Graveyard],
-                        controller: None,
-                        owner: Some(PlayerRelation::You),
+    CardRules::new_instant(mana_cost!("{1}{B}{R}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose two —",
+            // Two of four, and never the same one twice. Each mode carries its own
+            // slot, so what a Command declares depends on which two it is.
+            &[
+                AbilityDef::spell_with_targets(
+                    "Return target creature card from your graveyard to your hand.",
+                    // Your own graveyard, and a creature card while it is still a card: what
+                    // comes back goes to hand rather than to the battlefield.
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Target player discards a card.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Any),
-                )],
-                EffectDef::Discard {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(1),
-                    selection: DiscardSelectionDef::RecipientChooses,
-                    then: None,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Destroy target artifact.",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )],
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
-                    then: None,
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Kolaghan's Command deals 2 damage to any target.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )],
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::Constant(2),
-                },
-            ),
-        ],
-        2,
-        2,
-        false,
-    )),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Target player discards a card.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Player(PlayerRelation::Any),
+                    )],
+                    EffectDef::Discard {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(1),
+                        selection: DiscardSelectionDef::RecipientChooses,
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Destroy target artifact.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Kolaghan's Command deals 2 damage to any target.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::AnyTarget,
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(2, 2, false),
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&ARTFUL_MANEUVER, &KOLAGHAN_S_COMMAND];

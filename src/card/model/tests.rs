@@ -93,9 +93,9 @@ fn ability_cost_list_equality_and_hash_ignore_storage_representation() {
 
 #[test]
 fn modal_spell_semantics_derive_their_presentation_modes() {
-    const RULES: CardRules = CardRules::new_instant(crate::mana_cost!("{0}")).with_ability(
-        AbilityDef::choose_one_spell(
-            "Choose one.",
+    const RULES: CardRules =
+        CardRules::new_instant(crate::mana_cost!("{0}")).with_ability(AbilityDef::modal_spell(
+            "Choose one —",
             &[
                 AbilityDef::counter_target(
                     "Counter target blue spell",
@@ -129,8 +129,7 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
                     EffectDef::None,
                 ),
             ],
-        ),
-    );
+        ));
     let rules = RULES;
     let composition = CardComposition::single("Test Modal Spell", rules);
     let modes = composition.play_options[0]
@@ -183,7 +182,10 @@ fn modal_spell_semantics_derive_their_presentation_modes() {
             then: None,
         })
     );
-    assert_eq!(rules.rules_text(), "Choose one.");
+    assert_eq!(
+        rules.rules_text(),
+        "Choose one —\n• Counter target blue spell\n• Destroy target blue permanent\n• Return target creature card from your graveyard."
+    );
 }
 
 #[test]

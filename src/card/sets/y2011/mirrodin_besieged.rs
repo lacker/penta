@@ -676,19 +676,21 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("bb40de7c-1905-4615-844b-4abc231fb01e", "Daarken"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Counter target artifact spell.\n• Return target artifact to its owner's hand.",
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Counter target artifact spell",
-                &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::Spell,
-                        ObjectPredicateDef::HasType(CardType::Artifact),
-                    ]),
-                    zones: &[ZoneKind::Stack],
-                    controller: None,
-                    owner: None,
-                })],
+                "Counter target artifact spell.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::Spell,
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                        ]),
+                        zones: &[ZoneKind::Stack],
+                        controller: None,
+                        owner: None,
+                    },
+                )],
                 EffectDef::Counter {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                     zone: ZoneKind::Graveyard,
@@ -696,7 +698,7 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Return target artifact to its owner's hand",
+                "Return target artifact to its owner's hand.",
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
@@ -707,9 +709,6 @@ pub(in crate::card::sets) static STEEL_SABOTAGE: CardRecord = CardRecord::new(
                 },
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 
@@ -1635,10 +1634,10 @@ pub(in crate::card::sets) static SLAGSTORM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("9e318b03-2aad-462b-a2a9-8b6bdf0e93d6", "Dan Murayama Scott"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Slagstorm deals 3 damage to each creature.\n• Slagstorm deals 3 damage to each player.",
+        "Choose one —",
         &[
             AbilityDef::spell(
-                "Slagstorm deals 3 damage to each creature",
+                "Slagstorm deals 3 damage to each creature.",
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -1649,16 +1648,13 @@ pub(in crate::card::sets) static SLAGSTORM: CardRecord = CardRecord::new(
                 },
             ),
             AbilityDef::spell(
-                "Slagstorm deals 3 damage to each player",
+                "Slagstorm deals 3 damage to each player.",
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::EachPlayer,
                     amount: ValueDef::Constant(3),
                 },
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 

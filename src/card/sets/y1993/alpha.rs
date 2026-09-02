@@ -7,15 +7,15 @@ use crate::card::{
     ChooseForEachPlayerDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
     CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamagePreventionDef, DamagePreventionFollowUpDef,
-    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef, KeywordAbility,
-    LikelihoodDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef, PerPlayerSelectionDef,
-    PlayerObjectCountAggregateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuotientValueDef,
-    ReplacementAbilityDef, ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef, SourceMatchValueDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageRecipientMatcherDef, DamageSourceGroupDef, DiscardSelectionDef, EffectChoiceDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, HalvedValueDef, InstalledTriggerDef,
+    KeywordAbility, LikelihoodDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef, PayOrDef,
+    PerPlayerSelectionDef, PlayerObjectCountAggregateDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, QuotientValueDef, ReplacementAbilityDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RoundingDef, SourceMatchValueDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
+    TurnKindDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -581,12 +581,11 @@ pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new_wit
     "Healing Salve",
     CardArt::new("e28de37e-84d5-4dc7-b36c-e14da5924729", "Dan Frazier"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Target player gains 3 life.\n• Prevent the next 3 damage that would \
-         be dealt to any target this turn.",
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
-                "Target player gains 3 life",
+                "Target player gains 3 life.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -596,7 +595,7 @@ pub(in crate::card::sets) static HEALING_SALVE: CardRecord = CardRecord::new_wit
                 },
             ),
             AbilityDef::spell_with_targets(
-                "Prevent the next 3 damage that would be dealt to any target this turn",
+                "Prevent the next 3 damage that would be dealt to any target this turn.",
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
@@ -1153,11 +1152,11 @@ pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::
     "Blue Elemental Blast",
     CardArt::new("20d666ef-39bf-4fbf-8201-5f1056539da2", "Richard Thomas"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Counter target red spell.\n• Destroy target red permanent.",
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::counter_target(
-                "Counter target red spell",
+                "Counter target red spell.",
                 &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Spell,
@@ -1169,7 +1168,7 @@ pub(in crate::card::sets) static BLUE_ELEMENTAL_BLAST: CardRecord = CardRecord::
                 }),
             ),
             AbilityDef::destroy_target(
-                "Destroy target red permanent",
+                "Destroy target red permanent.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(ManaColor::Red)),
                 true,
             ),
@@ -1855,45 +1854,41 @@ pub(in crate::card::sets) static TIMETWISTER: CardRecord = CardRecord::new_with_
 );
 
 // LEA 85 — Twiddle
-// Audit: partial — Tap versus untap is locked while casting instead of chosen, or declined, when the spell resolves.
-static TWIDDLE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one_permanent(
-    ObjectPredicateDef::AnyOf(&[
-        ObjectPredicateDef::HasType(CardType::Artifact),
-        ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasType(CardType::Land),
-    ]),
-)];
-
 pub(in crate::card::sets) static TWIDDLE: CardRecord = CardRecord::new_with_legacy_id(
     338,
     "Twiddle",
     CardArt::new("576e811f-26a3-4a7c-bd13-3b1cc3e184eb", "Rob Alexander"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[AbilityDef::choose_one_spell(
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "You may tap or untap target artifact, creature, or land.",
-        &[
-            AbilityDef::spell_with_targets(
-                "Tap target artifact, creature, or land",
-                &TWIDDLE_TARGET,
-                EffectDef::Tap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "Tap versus untap is locked while casting instead of chosen, or declined, when the spell resolves.",
-            )),
-            AbilityDef::spell_with_targets(
-                "Untap target artifact, creature, or land",
-                &TWIDDLE_TARGET,
-                EffectDef::Untap {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "Tap versus untap is locked while casting instead of chosen, or declined, when the spell resolves.",
-            )),
-        ],
-    )]),
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+        )],
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::ChooseEffect {
+                player: EffectRecipientDef::Controller,
+                choices: &[
+                    EffectChoiceDef {
+                        label: "Tap it",
+                        effect: EffectDef::Tap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    },
+                    EffectChoiceDef {
+                        label: "Untap it",
+                        effect: EffectDef::Untap {
+                            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                    },
+                ],
+            },
+        },
+    )),
 );
 
 // LEA 86 — Unsummon
@@ -3681,11 +3676,11 @@ pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::n
     "Red Elemental Blast",
     CardArt::new("776ad9be-3309-4f1d-9f27-6219d9477662", "Richard Thomas"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Counter target blue spell.\n• Destroy target blue permanent.",
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::counter_target(
-                "Counter target blue spell",
+                "Counter target blue spell.",
                 &AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::Spell,
@@ -3697,7 +3692,7 @@ pub(in crate::card::sets) static RED_ELEMENTAL_BLAST: CardRecord = CardRecord::n
                 }),
             ),
             AbilityDef::destroy_target(
-                "Destroy target blue permanent",
+                "Destroy target blue permanent.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(
                     ManaColor::Blue,
                 )),

@@ -368,7 +368,8 @@ fn selected_modal_effects_resolve_distinct_and_deferred_flattened_targets() {
         AbilityDef::spell_with_targets("First mode", &FIRST_TARGETS, FIRST),
         AbilityDef::spell_with_targets("Second mode", &SECOND_TARGETS, SECOND),
     ];
-    const MODAL: AbilityDef = AbilityDef::modal_spell("Choose two.", &MODES, 2, 2, true);
+    const MODAL: AbilityDef =
+        AbilityDef::modal_spell("Choose two.", &MODES).with_mode_selection(2, 2, true);
     let DeclarativeAbilityDef::Spell(spell) = MODAL.definition else {
         panic!("the fixture is a modal spell")
     };

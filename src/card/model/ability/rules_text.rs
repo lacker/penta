@@ -32,19 +32,16 @@ impl AbilityDef {
                 }
                 Cow::Owned(text)
             }
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal))
-                if modal.escalate_cost.is_some() =>
-            {
-                Cow::Owned(format!(
-                    "{}\nChoose one or more —\n{}",
-                    self.text,
-                    modal
-                        .modes
-                        .iter()
-                        .map(|mode| format!("• {}", mode.rules_text()))
-                        .collect::<Vec<_>>()
-                        .join("\n")
-                ))
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal)) => {
+                let mut text = self.text.to_owned();
+                if modal.escalate_cost.is_some() {
+                    text.push_str("\nChoose one or more —");
+                }
+                for mode in modal.modes {
+                    write!(text, "\n• {}", mode.rules_text())
+                        .expect("writing to a string cannot fail");
+                }
+                Cow::Owned(text)
             }
             _ => Cow::Borrowed(self.text),
         }

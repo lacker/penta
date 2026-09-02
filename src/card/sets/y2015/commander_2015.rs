@@ -17,49 +17,47 @@ pub(in crate::card::sets) static MYSTIC_CONFLUENCE: CardRecord = CardRecord::new
     CardSet::Commander2015,
     // Five mana that is never dead: three cards when nothing is happening, a
     // hard counter plus a card when something is.
-    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::modal_spell(
-        "Choose three. You may choose the same mode more than once.\n• Counter target spell \
-         unless its controller pays {3}.\n• Return target creature to its owner's hand.\n• Draw \
-         a card.",
-        // Each mode declares its own target slot, and a mode chosen twice gets two
-        // of them -- which is what "you may choose the same mode more than once"
-        // means for a clause that targets.
-        &[
-            AbilityDef::spell_with_targets(
-                "Counter target spell unless its controller pays {3}.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::Spell,
-                        zones: &[ZoneKind::Stack],
-                        controller: None,
-                        owner: None,
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose three. You may choose the same mode more than once.",
+            // Each mode declares its own target slot, and a mode chosen twice gets two
+            // of them -- which is what "you may choose the same mode more than once"
+            // means for a clause that targets.
+            &[
+                AbilityDef::spell_with_targets(
+                    "Counter target spell unless its controller pays {3}.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::Spell,
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                    )],
+                    abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Return target creature to its owner's hand.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
                     },
-                )],
-                abilities::counter_target_unless_paid(ValueDef::Constant(3)),
-            ),
-            AbilityDef::spell_with_targets(
-                "Return target creature to its owner's hand.",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                )],
-                EffectDef::MoveToZone {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            ),
-            AbilityDef::spell(
-                "Draw a card.",
-                EffectDef::DrawCards {
-                    recipient: EffectRecipientDef::Controller,
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-        ],
-        3,
-        3,
-        true,
-    )),
+                ),
+                AbilityDef::spell(
+                    "Draw a card.",
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(3, 3, true),
+    ),
 );
 
 // C15 26 — Fiery Confluence
@@ -70,51 +68,49 @@ pub(in crate::card::sets) static FIERY_CONFLUENCE: CardRecord = CardRecord::new(
     CardSet::Commander2015,
     // Four mana that is a burn spell, a sweeper, or artifact removal, and
     // usually two of the three at once.
-    CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::modal_spell(
-        "Choose three. You may choose the same mode more than once.\n\u{2022} Fiery Confluence \
-         deals 1 damage to each creature.\n\u{2022} Fiery Confluence deals 2 damage to each \
-         opponent.\n\u{2022} Destroy target artifact.",
-        // Three modes chosen three times between them: six damage to the other
-        // player, three damage to every creature, three artifacts destroyed, or any
-        // mixture of the three.
-        &[
-            AbilityDef::spell(
-                "Fiery Confluence deals 1 damage to each creature.",
-                // "Deals 1 damage to each creature": everything on the battlefield, yours
-                // included, which is what makes the sweeper half a cost as well as an
-                // answer.
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    amount: ValueDef::Constant(1),
-                },
-            ),
-            AbilityDef::spell(
-                "Fiery Confluence deals 2 damage to each opponent.",
-                EffectDef::DealDamage {
-                    recipient: EffectRecipientDef::Opponent,
-                    amount: ValueDef::Constant(2),
-                },
-            ),
-            AbilityDef::spell_with_targets(
-                "Destroy target artifact.",
-                &[AbilityTargetDef::exactly_one_permanent(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                )],
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
-                    then: None,
-                },
-            ),
-        ],
-        3,
-        3,
-        true,
-    )),
+    CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose three. You may choose the same mode more than once.",
+            // Three modes chosen three times between them: six damage to the other
+            // player, three damage to every creature, three artifacts destroyed, or any
+            // mixture of the three.
+            &[
+                AbilityDef::spell(
+                    "Fiery Confluence deals 1 damage to each creature.",
+                    // "Deals 1 damage to each creature": everything on the battlefield, yours
+                    // included, which is what makes the sweeper half a cost as well as an
+                    // answer.
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Any,
+                        ),
+                        amount: ValueDef::Constant(1),
+                    },
+                ),
+                AbilityDef::spell(
+                    "Fiery Confluence deals 2 damage to each opponent.",
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Opponent,
+                        amount: ValueDef::Constant(2),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Destroy target artifact.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                    )],
+                    EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        can_regenerate: true,
+                        then: None,
+                    },
+                ),
+            ],
+        )
+        .with_mode_selection(3, 3, true),
+    ),
 );
 
 // C15 34 — Caller of the Pack

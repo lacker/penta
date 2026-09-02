@@ -20,8 +20,9 @@ mod rules_text;
 /// costs, targets, or effects.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct AbilityDef {
-    /// Static text for ordinary clauses and the keyword label for clauses
-    /// whose full Oracle-style text is rendered from structured metadata.
+    /// Static text for ordinary clauses and the keyword or modal header for
+    /// clauses whose full Oracle-style text is rendered from structured
+    /// metadata.
     /// Use [`Self::rules_text`] when presenting a clause.
     pub text: &'static str,
     pub definition: DeclarativeAbilityDef,
@@ -118,21 +119,35 @@ impl AbilityDef {
             .with_coverage(AbilityCoverageDef::metadata_only(explanation))
     }
 
+    /// A listed modal spell that chooses exactly one mode. `header` is the
+    /// printed text before the list; the complete rules text is rendered from
+    /// it and the ordered mode abilities.
     #[must_use]
-    pub const fn modal_spell(
-        text: &'static str,
-        modes: &'static [AbilityDef],
-        minimum: u8,
-        maximum: u8,
-        may_repeat: bool,
-    ) -> Self {
+    pub const fn modal_spell(header: &'static str, modes: &'static [AbilityDef]) -> Self {
         Self::defined(
-            text,
-            DeclarativeAbilityDef::Spell(SpellAbilityDef::modal_spell(
-                modes, minimum, maximum, may_repeat,
-            )),
+            header,
+            DeclarativeAbilityDef::Spell(SpellAbilityDef::modal_spell(modes, 1, 1, false)),
             EffectDef::None,
         )
+    }
+
+    /// Changes how many modes a modal spell requires and whether one mode can
+    /// be chosen more than once. Ordinary modal spells choose exactly one.
+    ///
+    /// # Panics
+    ///
+    /// Panics for any ability that is not a modal spell.
+    #[must_use]
+    pub const fn with_mode_selection(mut self, minimum: u8, maximum: u8, may_repeat: bool) -> Self {
+        let DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(mut modal)) = self.definition
+        else {
+            panic!("only a modal spell has a mode selection");
+        };
+        modal.minimum = minimum;
+        modal.maximum = maximum;
+        modal.may_repeat = may_repeat;
+        self.definition = DeclarativeAbilityDef::Spell(SpellAbilityDef::Modal(modal));
+        self
     }
 
     /// Escalate: choose one or more modes, paying `escalate_cost` for the
@@ -217,11 +232,6 @@ impl AbilityDef {
             modal.with_conditional_maximum(condition, maximum),
         ));
         self
-    }
-
-    #[must_use]
-    pub const fn choose_one_spell(text: &'static str, modes: &'static [AbilityDef]) -> Self {
-        Self::modal_spell(text, modes, 1, 1, false)
     }
 
     /// Spree (CR 702.172): choose one or more modes and pay the additional

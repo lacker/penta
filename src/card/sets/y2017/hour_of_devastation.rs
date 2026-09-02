@@ -25,9 +25,8 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
     CardSet::HourOfDevastation,
     // Two mana that is never dead: the half a red deck wants is whichever
     // one the board is holding.
-    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one \u{2014}\n\u{2022} Abrade deals 3 damage to target creature.\n\u{2022} \
-         Destroy target artifact.",
+    CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         // One of two, chosen as it is cast: each half carries its own slot, so a
         // board with neither a creature nor an artifact leaves nothing to cast it
         // at.

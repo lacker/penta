@@ -14,6 +14,13 @@ regressions such as 2× or 4×; roughly 20% slower is ordinarily review context,
 not a reason to optimize or block. These examples calibrate judgment rather
 than define thresholds.
 
+The [prepared engine](prepared-engine.md) is the optional optimization layer
+over declarative card definitions. Its guide describes compiler boundaries,
+fallback requirements, differential testing, and how to add another lowering.
+Use the workflow below to establish whether a lowering improves whole-game
+throughput; preparation is not justified merely by moving work into a second
+implementation.
+
 ## Benchmark elapsed time
 
 Use [Hyperfine](https://github.com/sharkdp/hyperfine) on the normal release

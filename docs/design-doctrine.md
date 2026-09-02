@@ -52,8 +52,12 @@ aggregate or card-by-card coverage reports from them on demand.
 - The core engine has no UI, network, async-runtime, or training dependencies.
 - Unsupported behavior remains visible as partial or metadata-only coverage;
   it does not resolve as a silent no-op.
+- Optimization is derived from the semantic model rather than requested by
+  card declarations; the reference implementation remains available wherever
+  an optimized lowering cannot prove support.
 
 These are durable constraints, not a demand that every implementation be
 maximally general. The [card implementation guide](implementing-cards.md)
 applies this doctrine to concrete card work. The [engine architecture](engine.md)
-describes the abstractions that exist today.
+describes the abstractions that exist today, and the
+[prepared-engine guide](prepared-engine.md) defines the optimization boundary.

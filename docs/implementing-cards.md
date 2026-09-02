@@ -97,6 +97,13 @@ Reuse constructors from `card::abilities` and declarative rules primitives
 where they fit. Keep rules text, implementation coverage, and execution tied to
 the same clause. Card-specific execution is not an extension boundary.
 
+Card declarations are oblivious to the
+[prepared engine](prepared-engine.md). Do not add preparation flags, prepared
+executors, optimization hints, or special constructors to a declaration or the
+card schema. Declare the semantic operation in the ordinary model. The
+prepared compiler may recognize that structure and lower it independently;
+unsupported structures continue through the reference implementation.
+
 ## Extension boundaries
 
 Use the smallest boundary that truthfully implements the behavior:

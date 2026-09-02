@@ -6,6 +6,7 @@ Choose the guide that matches the task:
 | --- | --- |
 | understand the project's design priorities | [Design doctrine](design-doctrine.md) |
 | understand the engine's runtime model | [Engine architecture](engine.md) |
+| extend or diagnose prepared execution | [Prepared engine](prepared-engine.md) |
 | add or migrate a card | [Implementing cards](implementing-cards.md) |
 | integrate with the engine or its adapters | [Engine interfaces](interfaces.md) |
 | write or train a bot | [Bot guide](bots.md) |

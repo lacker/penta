@@ -3,6 +3,7 @@
 This document describes the engine's current runtime abstractions and
 invariants. See the [design doctrine](design-doctrine.md) for project
 philosophy, [implementing cards](implementing-cards.md) for extension guidance,
+[prepared execution](prepared-engine.md) for the optional optimization layer,
 [engine interfaces](interfaces.md) for consumer APIs, and
 [formats and scope](formats.md) for current coverage.
 

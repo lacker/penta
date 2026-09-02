@@ -11,6 +11,9 @@ target and `make doctor` reports missing prerequisites.
   printings.
 - `src/game/` owns the rules state machine, including decision, event, mana,
   observation, and test vocabulary.
+- `src/prepared_engine/` owns optional process-local lowerings of the
+  declarative model. See the [prepared-engine guide](prepared-engine.md) before
+  extending its compiler or executor.
 - `decks/<format>/` contains built-in decklists as YAML. `src/decks.rs` embeds
   them so engine and browser builds need no runtime filesystem access.
 - `wasm/` is the small Rust adapter used by the browser.

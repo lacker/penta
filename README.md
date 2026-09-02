@@ -78,6 +78,7 @@ notes are in the [changelog](CHANGELOG.md).
 - [Documentation index](docs/README.md)
 - [Design doctrine](docs/design-doctrine.md)
 - [Engine architecture](docs/engine.md)
+- [Prepared engine](docs/prepared-engine.md)
 - [Implementing cards](docs/implementing-cards.md)
 - [Engine interfaces](docs/interfaces.md)
 - [Formats and current scope](docs/formats.md)

@@ -13,8 +13,8 @@ use crate::card::{
     DamageSourceMatcherDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef,
     EffectChoiceDef, EffectDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
-    PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    ObjectSetPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
+    PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
@@ -1882,9 +1882,11 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
                                                 objects: &ObjectSetDef::Binding(
                                                     ParentBinding,
                                                 ),
-                                                filter: None,
-                                                comparison: ComparisonDef::GreaterOrEqual,
-                                                amount: 1,
+                                                predicate: ObjectSetPredicateDef {
+                                                    filter: None,
+                                                    comparison: ComparisonDef::GreaterOrEqual,
+                                                    amount: 1,
+                                                },
                                             },
                                         ),
                                         then: &EffectDef::DealDamage {

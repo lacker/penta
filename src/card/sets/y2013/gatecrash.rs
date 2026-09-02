@@ -13,17 +13,18 @@ use crate::card::{
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, IfNoObjectsDef, InstalledTriggerDef, KeywordAbility, LookAtObjectsDef,
     ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    QuantifierDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, SacrificedAmountDef, SumValueDef, TriggerConditionDef, TriggerEventDef,
-    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SumValueDef,
+    TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 static MILL_UNTIL_1: MillUntilDef = MillUntilDef {
     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-    object: ObjectPredicateDef::HasType(CardType::Land),
+    until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::HasType(CardType::Land)),
     matched_zone: ZoneKind::Graveyard,
 };
 

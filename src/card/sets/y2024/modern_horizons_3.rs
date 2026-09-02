@@ -280,11 +280,13 @@ pub(in crate::card::sets) static PHELIA_EXUBERANT_SHEPHERD: CardRecord = CardRec
                                 condition: &TriggerConditionDef::ObjectSetCount(
                                     &crate::card::ObjectSetCountConditionDef {
                                         objects: &ObjectSetDef::LinkedExiles,
-                                        filter: Some(ObjectSetFilterDef::Predicate(
-                                            &ObjectPredicateDef::OwnedBy(PlayerRelation::You),
-                                        )),
-                                        comparison: ComparisonDef::GreaterOrEqual,
-                                        amount: 1,
+                                        predicate: crate::card::ObjectSetPredicateDef {
+                                            filter: Some(ObjectSetFilterDef::Predicate(
+                                                &ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                                            )),
+                                            comparison: ComparisonDef::GreaterOrEqual,
+                                            amount: 1,
+                                        },
                                     },
                                 ),
                                 then: &EffectDef::AddCounters {

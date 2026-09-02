@@ -708,7 +708,7 @@ impl Game {
         for target in self.effect_recipients(mill.player, object, &context, scoped) {
             if let Target::Player(player) = target {
                 let (mut moved, _) =
-                    self.mill_until_matching(player, mill.object, mill.matched_zone, source);
+                    self.mill_until_matching(player, mill.until, mill.matched_zone, source);
                 revealed.append(&mut moved);
             }
         }

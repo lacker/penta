@@ -7,8 +7,8 @@
 use super::super::{
     AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardTypeSet,
     ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TargetPredicate, ValueDef, ZoneKind,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, TargetPredicate, ValueDef, ZoneKind,
 };
 use crate::ids::Binding;
 
@@ -330,7 +330,10 @@ pub struct DiscardFollowUpDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct MillUntilDef {
     pub player: EffectRecipientDef,
-    pub object: ObjectPredicateDef,
+    /// Stop once the cards revealed so far satisfy this predicate. The final
+    /// card is the one sent to `matched_zone` when that zone is not the
+    /// graveyard; every earlier card is milled.
+    pub until: ObjectSetPredicateDef,
     pub matched_zone: ZoneKind,
 }
 

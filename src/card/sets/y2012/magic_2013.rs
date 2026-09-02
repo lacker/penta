@@ -26,11 +26,11 @@ use crate::card::{
     DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
     DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef,
     KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef,
-    StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PartitionGroupDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1111,9 +1111,11 @@ pub(in crate::card::sets) static HARBOR_SERPENT: CardRecord = CardRecord::new(
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     )),
-                    filter: None,
-                    comparison: ComparisonDef::Less,
-                    amount: 5,
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::Less,
+                        amount: 5,
+                    },
                 },
                 then: StaticApplyDef {
                     recipient: EffectRecipientDef::Source,
@@ -1221,9 +1223,11 @@ pub(in crate::card::sets) static JACE_S_PHANTASM: CardRecord = CardRecord::new(
                         &[ZoneKind::Graveyard],
                         PlayerRelation::Opponent,
                     )),
-                    filter: None,
-                    comparison: ComparisonDef::GreaterOrEqual,
-                    amount: 10,
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 10,
+                    },
                 },
                 then: StaticApplyDef {
                     recipient: EffectRecipientDef::Source,

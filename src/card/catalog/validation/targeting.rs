@@ -22,6 +22,7 @@ include!("targeting/resolving_applied_effect.rs");
 // the source-size budget: the questions an event asks about its own object,
 // player, and damage matcher are a boundary of their own.
 include!("targeting/trigger_references.rs");
+include!("targeting/effect_predicate_references.rs");
 include!("targeting/effect_references.rs");
 include!("targeting/bindable_outputs.rs");
 include!("targeting/replacement_effect_references.rs");

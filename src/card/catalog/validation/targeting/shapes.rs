@@ -515,7 +515,7 @@ fn validate_trigger_condition_shape(
         TriggerConditionDef::ObjectCount { query, .. } => validate_query_shape(query, targets),
         TriggerConditionDef::ObjectSetCount(condition) => {
             validate_object_set_shape(*condition.objects, targets)?;
-            condition.filter.map_or(Ok(()), |filter| {
+            condition.predicate.filter.map_or(Ok(()), |filter| {
                 validate_object_predicate_shape(filter.predicate(), targets)
             })
         }

@@ -17,6 +17,15 @@ fn validate_object_collection_shape(
     }
 }
 
+fn validate_object_set_predicate_shape(
+    predicate: crate::card::ObjectSetPredicateDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    predicate.filter.map_or(Ok(()), |filter| {
+        validate_object_predicate_shape(filter.predicate(), targets)
+    })
+}
+
 #[allow(clippy::too_many_lines)]
 fn validate_effect_target_shapes(
     effect: EffectDef,
@@ -381,7 +390,8 @@ fn validate_effect_target_shapes(
             validate_value_shape(amount, targets)
         }
         EffectDef::MillUntil(mill) => {
-            validate_recipient_shape(mill.player, targets, RecipientExpectation::Player)
+            validate_recipient_shape(mill.player, targets, RecipientExpectation::Player)?;
+            validate_object_set_predicate_shape(mill.until, targets)
         }
         EffectDef::ExileLinkedToSource { object, then, .. } => {
             validate_recipient_shape(object, targets, RecipientExpectation::Object)?;
@@ -573,7 +583,7 @@ fn validate_effect_target_shapes(
         }
         EffectDef::ConditionalStatic(conditional) => {
             validate_object_set_shape(*conditional.condition.objects, targets)?;
-            if let Some(filter) = conditional.condition.filter {
+            if let Some(filter) = conditional.condition.predicate.filter {
                 validate_object_predicate_shape(filter.predicate(), targets)?;
             }
             validate_applied_effect_shapes(

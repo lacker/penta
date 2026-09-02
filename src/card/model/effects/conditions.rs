@@ -2,8 +2,8 @@
 //! chosen from, and the reusable conditions a clause is gated on.
 
 use super::{
-    AppliedEffectDef, ComparisonDef, EffectRecipientDef, ObjectQueryDef, ObjectSetDef,
-    ObjectSetFilterDef, ZoneKind,
+    AppliedEffectDef, ComparisonDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, ObjectSetFilterDef, ZoneKind,
 };
 
 /// One place an effect may choose an owned card from.
@@ -49,15 +49,38 @@ pub struct ObjectCountConditionDef {
     pub amount: u8,
 }
 
+/// A predicate over an already-resolved group of objects.
+///
+/// This does not name where the group comes from. Producers such as
+/// `MillUntil` supply the growing group they are evaluating, which lets the
+/// same shape express both "until a land" and "until four lands" without
+/// baking either stopping rule into the effect.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct ObjectSetPredicateDef {
+    pub filter: Option<ObjectSetFilterDef>,
+    pub comparison: ComparisonDef,
+    pub amount: u8,
+}
+
 /// How many members of an already-resolved object set must exist. Unlike an
 /// [`ObjectCountConditionDef`], this composes with provenance-based sets such
 /// as cards linked in exile rather than querying zones.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct ObjectSetCountConditionDef {
     pub objects: &'static ObjectSetDef,
-    pub filter: Option<ObjectSetFilterDef>,
-    pub comparison: ComparisonDef,
-    pub amount: u8,
+    pub predicate: ObjectSetPredicateDef,
+}
+
+impl ObjectSetPredicateDef {
+    /// Whether the group contains at least one object matching `object`.
+    #[must_use]
+    pub const fn contains(object: &'static ObjectPredicateDef) -> Self {
+        Self {
+            filter: Some(ObjectSetFilterDef::Predicate(object)),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }
+    }
 }
 
 /// The unconditional operation performed by one static effect.

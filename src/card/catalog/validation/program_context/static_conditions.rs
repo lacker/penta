@@ -9,6 +9,7 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         TriggerConditionDef::ObjectSetCount(condition) => {
             static_object_set_supported(*condition.objects)
                 && condition
+                    .predicate
                     .filter
                     .is_none_or(|filter| static_object_predicate_supported(filter.predicate()))
         }

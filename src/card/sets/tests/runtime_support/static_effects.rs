@@ -199,6 +199,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                 && shared_source_object_set(*conditional.condition.objects)
                 && conditional
                     .condition
+                    .predicate
                     .filter
                     .is_none_or(|filter| shared_object_predicate(filter.predicate()))
                 && shared_static_effect_at(

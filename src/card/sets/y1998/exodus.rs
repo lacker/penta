@@ -6,8 +6,8 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
-    ManaColor, MillUntilDef, ObjectPredicateDef, PlayerRelation, TriggerEventDef, TurnStepDef,
-    ZoneKind, ZonePlacement, abilities,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectSetPredicateDef, PlayerRelation,
+    TriggerEventDef, TurnStepDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1217,7 +1217,9 @@ pub(in crate::card::sets) static OATH_OF_DRUIDS: CardRecord = CardRecord::new(
                 player: EffectRecipientDef::EventPlayer,
                 effect: &EffectDef::MillUntil(&MillUntilDef {
                     player: EffectRecipientDef::EventPlayer,
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::HasType(
+                        CardType::Creature,
+                    )),
                     matched_zone: ZoneKind::Battlefield,
                 }),
             },

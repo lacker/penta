@@ -6,20 +6,19 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
     BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    CastTimingPermissionDef, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseGroupDef,
-    ChooseObjectOrderDef, ClassifyObjectsDef, CollectionInspectionDef, ColorSet, ComparisonDef,
-    ConditionalStaticEffectDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
-    CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageAssignmentDef, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, FreePlayDef, FreePlayDurationDef, HalvedValueDef, IfNoObjectsDef,
-    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
-    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, PartitionGroupDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    CastTimingPermissionDef, ChooseCardsFromCollectionDef, ClassifyObjectsDef,
+    CollectionInspectionDef, ColorSet, ComparisonDef, ConditionalStaticEffectDef,
+    ControlDurationDef, CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind,
+    CreatureTypeSetDef, DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, HalvedValueDef, IfNoObjectsDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef, ObjectCollectionSourceDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    ObjectSetPredicateDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
+    SacrificedAmountDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticApplyDef,
+    TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -156,9 +155,11 @@ pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
-                    filter: None,
-                    comparison: ComparisonDef::GreaterOrEqual,
-                    amount: 1,
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
                 },
                 then: StaticApplyDef {
                     recipient: EffectRecipientDef::Source,
@@ -1604,7 +1605,9 @@ pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::
             },
             EffectDef::MillUntil(&MillUntilDef {
                 player: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
-                object: ObjectPredicateDef::HasType(CardType::Land),
+                until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::HasType(
+                    CardType::Land,
+                )),
                 matched_zone: ZoneKind::Graveyard,
             }),
         ]),
@@ -1841,9 +1844,11 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
-                    filter: None,
-                    comparison: ComparisonDef::GreaterOrEqual,
-                    amount: 1,
+                    predicate: ObjectSetPredicateDef {
+                        filter: None,
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    },
                 },
                 // A permission rather than an ability removal: the Ogre keeps defender, so
                 // anything reading "a creature with defender" still finds one.
@@ -2425,26 +2430,26 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Opponent),
             )],
-            EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
-                source: ObjectCollectionSourceDef::TopCards {
-                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                    count: ValueDef::Constant(3),
-                },
-                actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                inspection: CollectionInspectionDef::Reveal,
-                object: ObjectPredicateDef::HasType(CardType::Creature),
-                minimum: 0,
-                maximum: 1,
-                chosen: Binding!("guild_feud_opponent_chosen"),
-                remainder: Binding!("guild_feud_opponent_rest"),
-                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                    input: ObjectSetDef::Binding(Binding!("guild_feud_opponent_chosen")),
-                    from: Some(ZoneKind::Library),
-                    zone: ZoneKind::Battlefield,
-                    placement: ZonePlacement::Top,
-                    moved: Some(Binding!("guild_feud_opponent_entered")),
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::MoveObjects(MoveObjectsDef {
+            EffectDef::Sequence(&[
+                EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                        count: ValueDef::Constant(3),
+                    },
+                    actor: PlayerRefDef::Target(TargetIndex::PRIMARY),
+                    inspection: CollectionInspectionDef::Reveal,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: Binding!("guild_feud_opponent_chosen"),
+                    remainder: Binding!("guild_feud_opponent_rest"),
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("guild_feud_opponent_chosen")),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        moved: Some(Binding!("guild_feud_opponent_entered")),
+                        then: &EffectDef::MoveObjects(MoveObjectsDef {
                             input: ObjectSetDef::Binding(Binding!("guild_feud_opponent_rest")),
                             from: Some(ZoneKind::Library),
                             zone: ZoneKind::Graveyard,
@@ -2452,60 +2457,56 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                             moved: None,
                             then: &EffectDef::None,
                         }),
-                        EffectDef::ChooseCardsFromCollection(
-                            ChooseCardsFromCollectionDef {
-                                source: ObjectCollectionSourceDef::TopCards {
-                                    player: PlayerRefDef::EffectController,
-                                    count: ValueDef::Constant(3),
-                                },
-                                actor: PlayerRefDef::EffectController,
-                                inspection: CollectionInspectionDef::Reveal,
-                                object: ObjectPredicateDef::HasType(CardType::Creature),
-                                minimum: 0,
-                                maximum: 1,
-                                chosen: Binding!("guild_feud_controller_chosen"),
-                                remainder: Binding!("guild_feud_controller_rest"),
-                                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                    input: ObjectSetDef::Binding(Binding!(
-                                        "guild_feud_controller_chosen"
-                                    )),
-                                    from: Some(ZoneKind::Library),
-                                    zone: ZoneKind::Battlefield,
-                                    placement: ZonePlacement::Top,
-                                    moved: Some(ParentBinding),
-                                    then: &EffectDef::Sequence(&[
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(Binding!(
-                                                "guild_feud_controller_rest"
-                                            )),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Graveyard,
-                                            placement: ZonePlacement::Top,
-                                            moved: None,
-                                            then: &EffectDef::None,
-                                        }),
-                                        EffectDef::ForEachInBinding {
-                                            objects: Binding!("guild_feud_opponent_entered"),
-                                            binding: Binding!("guild_feud_opponent_fighter"),
-                                            effect: &EffectDef::ForEachInBinding {
-                                                objects: ParentBinding,
-                                                binding: ParentBinding,
-                                                effect: &EffectDef::Fight {
-                                                    first: ObjectRefDef::Binding(Binding!(
-                                                        "guild_feud_opponent_fighter"
-                                                    )),
-                                                    second: ObjectRefDef::Binding(ParentBinding),
-                                                    excess: None,
-                                                },
-                                            },
-                                        },
-                                    ]),
-                                }),
-                            },
-                        ),
-                    ]),
+                    }),
                 }),
-            }),
+                EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+                    source: ObjectCollectionSourceDef::TopCards {
+                        player: PlayerRefDef::EffectController,
+                        count: ValueDef::Constant(3),
+                    },
+                    actor: PlayerRefDef::EffectController,
+                    inspection: CollectionInspectionDef::Reveal,
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    minimum: 0,
+                    maximum: 1,
+                    chosen: Binding!("guild_feud_controller_chosen"),
+                    remainder: Binding!("guild_feud_controller_rest"),
+                    then: &EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("guild_feud_controller_chosen")),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                        moved: Some(ParentBinding),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(Binding!(
+                                    "guild_feud_controller_rest"
+                                )),
+                                from: Some(ZoneKind::Library),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::ForEachInBinding {
+                                objects: Binding!("guild_feud_opponent_entered"),
+                                binding: Binding!("guild_feud_opponent_fighter"),
+                                effect: &EffectDef::ForEachInBinding {
+                                    objects: ParentBinding,
+                                    binding: ParentBinding,
+                                    effect: &EffectDef::Fight {
+                                        first: ObjectRefDef::Binding(Binding!(
+                                            "guild_feud_opponent_fighter"
+                                        )),
+                                        second: ObjectRefDef::Binding(ParentBinding),
+                                        excess: None,
+                                    },
+                                },
+                            },
+                        ]),
+                    }),
+                }),
+            ]),
         ),
     ),
 );
@@ -4877,8 +4878,8 @@ pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
     "Rakdos Charm",
     crate::card::CardArt::new("0fcd4394-d22d-4eec-ad73-ffaf10ad60de", "Zoltan Boros"),
     crate::card::CardSet::ReturnToRavnica,
-    CardRules::new_instant(mana_cost!("{B}{R}")).with_ability(AbilityDef::choose_one_spell(
-        "Choose one —\n• Exile target player's graveyard.\n• Destroy target artifact.\n• Each creature deals 1 damage to its controller.",
+    CardRules::new_instant(mana_cost!("{B}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
                 "Exile target player's graveyard.",
@@ -5624,8 +5625,6 @@ pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_
 );
 
 // RTR 210 — Azor's Elocutors
-const FILIBUSTER_COUNTER: CounterKind = CounterKind::named("filibuster");
-
 pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61e82934-546b-4734-a715-b22ace4c5a9b"),
     "Azor's Elocutors",
@@ -5642,12 +5641,12 @@ pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
                 EffectDef::Sequence(&[
                     EffectDef::AddCounters {
                         object: EffectRecipientDef::Source,
-                        kind: FILIBUSTER_COUNTER,
+                        kind: CounterKind::named("filibuster"),
                         amount: ValueDef::Constant(1),
                     },
                     EffectDef::IfCondition {
                         condition: &TriggerConditionDef::SourceCounters {
-                            kind: FILIBUSTER_COUNTER,
+                            kind: CounterKind::named("filibuster"),
                             comparison: ComparisonDef::GreaterOrEqual,
                             amount: 5,
                         },
@@ -5662,7 +5661,7 @@ pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
                 TriggerEventDef::damage_to_player(ObjectPredicateDef::Any, PlayerRelation::You),
                 EffectDef::RemoveCounters {
                     object: EffectRecipientDef::Source,
-                    kind: FILIBUSTER_COUNTER,
+                    kind: CounterKind::named("filibuster"),
                     amount: ValueDef::Constant(1),
                 },
             ),
@@ -6389,7 +6388,7 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
 );
 
 // RTR 240 — Grove of the Guardian
-// Audit: metadata-only — The activation planner cannot yet reserve two chosen
+// Audit: unsupported — The activation planner cannot yet reserve two chosen
 // untapped creatures jointly with the ability's mana payment.
 pub(in crate::card::sets) static GROVE_OF_THE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cf60ca0-e01f-499c-8d04-d59050f38c33"),

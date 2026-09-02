@@ -15,12 +15,13 @@ use crate::card::{
     GraveyardPlayPermissionDef, HalvedValueDef, IfNoObjectsDef, InstalledTriggerDef,
     KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PartitionGroupDef, PayOrDef, PerPlayerSelectionDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PartitionGroupDef, PayOrDef,
+    PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
+    SacrificedAmountDef, SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1942,7 +1943,9 @@ pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::n
                     },
                     EffectDef::MillUntil(&MillUntilDef {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
-                        object: ObjectPredicateDef::Named("Mirror-Mad Phantasm"),
+                        until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Named(
+                            "Mirror-Mad Phantasm",
+                        )),
                         matched_zone: ZoneKind::Battlefield,
                     }),
                 ]),
@@ -6531,7 +6534,9 @@ pub(in crate::card::sets) static TREPANATION_BLADE: CardRecord = CardRecord::new
                     EffectDef::BindOutput {
                         effect: &EffectDef::MillUntil(&MillUntilDef {
                             player: EffectRecipientDef::EventPlayer,
-                            object: ObjectPredicateDef::HasType(CardType::Land),
+                            until: ObjectSetPredicateDef::contains(
+                                &ObjectPredicateDef::HasType(CardType::Land),
+                            ),
                             matched_zone: ZoneKind::Graveyard,
                         }),
                         binding: Binding!("revealed_cards"),

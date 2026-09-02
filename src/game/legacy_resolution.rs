@@ -2,6 +2,7 @@ use super::{
     CardInstance, Game, GameEvent, GameObjectId, ObjectPredicateDef, PlayerId, Target, ZoneKind,
     ZoneMoveCause, ZonePlacement,
 };
+use crate::card::ObjectSetPredicateDef;
 
 impl Game {
     /// Lifts the top `count` cards off a library, fewer if it is short, in
@@ -92,8 +93,9 @@ impl Game {
         }
     }
 
-    /// Take from the top until one matches, publicly reveal every card, and
-    /// move the passed cards plus the match to their printed destinations.
+    /// Take from the top until the growing revealed group satisfies its
+    /// predicate, publicly reveal every card, and move the passed cards plus
+    /// the terminal card to their printed destinations.
     ///
     /// The returned targets are the new identities of cards put into a
     /// graveyard, in reveal order. The count includes the matching card even
@@ -102,22 +104,23 @@ impl Game {
     pub(super) fn mill_until_matching(
         &mut self,
         player: PlayerId,
-        predicate: ObjectPredicateDef,
+        until: ObjectSetPredicateDef,
         matched_zone: ZoneKind,
         source: GameObjectId,
     ) -> (Vec<Target>, u16) {
         let mut revealed = Vec::new();
-        let mut matched_card = None;
-        while let Some(card) = self.players[player.index()].library.pop() {
-            if self.card_object_matches(predicate, &card, ZoneKind::Library, source) {
-                matched_card = Some(card);
+        let mut satisfied = self.revealed_group_satisfies(until, &revealed, source);
+        while !satisfied {
+            let Some(card) = self.players[player.index()].library.pop() else {
                 break;
-            }
+            };
             revealed.push(card);
+            satisfied = self.revealed_group_satisfies(until, &revealed, source);
         }
-        let revealed_count = revealed
-            .len()
-            .saturating_add(usize::from(matched_card.is_some()));
+        let revealed_count = revealed.len();
+        let matched_card = (satisfied && matched_zone != ZoneKind::Graveyard)
+            .then(|| revealed.pop())
+            .flatten();
         self.events
             .extend(revealed.iter().chain(matched_card.iter()).map(|card| {
                 GameEvent::CardRevealed {
@@ -128,15 +131,28 @@ impl Game {
             }));
         // The match keeps its own destination; a library with nothing
         // matching found no match and buries everything it passed.
-        match matched_card {
-            Some(card) if matched_zone == ZoneKind::Graveyard => revealed.push(card),
-            Some(card) => {
-                self.place_revealed_remainder(player, vec![card], matched_zone, ZonePlacement::Top);
-            }
-            None => {}
+        if let Some(card) = matched_card {
+            self.place_revealed_remainder(player, vec![card], matched_zone, ZonePlacement::Top);
         }
         let buried = self.bury_cards_with_ids(player, revealed);
         (buried, u16::try_from(revealed_count).unwrap_or(u16::MAX))
+    }
+
+    fn revealed_group_satisfies(
+        &self,
+        predicate: ObjectSetPredicateDef,
+        cards: &[CardInstance],
+        source: GameObjectId,
+    ) -> bool {
+        let count = predicate.filter.map_or(cards.len(), |filter| {
+            cards
+                .iter()
+                .filter(|card| {
+                    self.card_object_matches(filter.predicate(), card, ZoneKind::Library, source)
+                })
+                .count()
+        });
+        super::effect_support::compare(&count, predicate.comparison, &usize::from(predicate.amount))
     }
 
     pub(super) fn bury_cards(&mut self, player: PlayerId, cards: Vec<CardInstance>) {

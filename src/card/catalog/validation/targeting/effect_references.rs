@@ -1,35 +1,3 @@
-fn validate_object_collection_references(
-    collection: crate::card::ObjectCollectionSourceDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    match collection {
-        crate::card::ObjectCollectionSourceDef::ObjectSet(input) => validate_recipient_target_references(
-            EffectRecipientDef::objects(input),
-            target_count,
-            scope,
-        ),
-        crate::card::ObjectCollectionSourceDef::TopCards { player, count } => {
-            validate_player_reference(player, target_count, scope)?;
-            validate_value_target_references(count, target_count, scope)
-        }
-        crate::card::ObjectCollectionSourceDef::TopCardsThroughFirstMatching { player, object } => {
-            validate_player_reference(player, target_count, scope)?;
-            validate_object_predicate_references(object, target_count, scope)
-        }
-    }
-}
-
-fn scope_after_immediate_effect(
-    effect: EffectDef,
-    scope: BindingScope<'_>,
-) -> Result<BindingScope<'_>, GrantedAbilityValidationError> {
-    match effect {
-        EffectDef::BindOutput { binding, .. } => scope.with_declared_object_set(binding),
-        _ => Ok(scope),
-    }
-}
-
 fn validate_object_continuation(
     binding: Binding,
     effect: EffectDef,
@@ -60,6 +28,7 @@ fn validate_object_set_continuation(
     scope: BindingScope<'_>,
     operation: &'static str,
 ) -> Result<(), GrantedAbilityValidationError> {
+    let may_escape = scope.object_set_may_escape(binding);
     let nested = scope.with_object_set(binding)?;
     validate_effect_references(effect, target_count, nested)?;
     let read = if binding == crate::ParentBinding {
@@ -67,7 +36,7 @@ fn validate_object_set_continuation(
     } else {
         nested.binding_was_read(binding)
     };
-    if !read {
+    if !read && !may_escape {
         return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
             context: "then continuation does not consume its declared binding; use Sequence",
             operation,
@@ -150,8 +119,14 @@ fn validate_effect_references(
         EffectDef::Sequence(effects) => {
             let mut scope = scope;
             for effect in effects {
-                validate_effect_references(*effect, target_count, scope)?;
-                scope = scope_after_immediate_effect(*effect, scope)?;
+                let mut outputs = Vec::new();
+                durable_object_set_outputs(*effect, &mut outputs);
+                validate_effect_references(
+                    *effect,
+                    target_count,
+                    scope.with_escaping_object_sets(&outputs)?,
+                )?;
+                scope = scope_after_sequence_effect(*effect, scope)?;
             }
             Ok(())
         }
@@ -846,7 +821,8 @@ fn validate_effect_references(
             validate_value_target_references(amount, target_count, scope)
         }
         EffectDef::MillUntil(mill) => {
-            validate_recipient_target_references(mill.player, target_count, scope)
+            validate_recipient_target_references(mill.player, target_count, scope)?;
+            validate_object_set_predicate_references(mill.until, target_count, scope)
         }
         EffectDef::AddCounters { object, amount, .. }
         | EffectDef::RemoveCounters { object, amount, .. } => {
@@ -923,7 +899,7 @@ fn validate_effect_references(
                 target_count,
                 scope,
             )?;
-            if let Some(filter) = conditional.condition.filter {
+            if let Some(filter) = conditional.condition.predicate.filter {
                 validate_object_predicate_references(filter.predicate(), target_count, scope)?;
             }
             validate_recipient_target_references(

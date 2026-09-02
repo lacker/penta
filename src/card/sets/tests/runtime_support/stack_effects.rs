@@ -443,7 +443,10 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         }
         EffectDef::MillUntil(mill) => {
             shared_effect_recipient(mill.player)
-                && shared_object_predicate(mill.object)
+                && mill
+                    .until
+                    .filter
+                    .is_none_or(|filter| shared_object_predicate(filter.predicate()))
         }
         // The move binds the permanent it created, so what is left to check
         // is that the card it takes and the composed follow-up are supported.

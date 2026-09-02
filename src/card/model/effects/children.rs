@@ -202,7 +202,8 @@ mod tests {
     use super::*;
     use crate::card::{
         BattlefieldEntryModificationDef, CreatedTokensDef, DestroyFollowUpDef, EffectRecipientDef,
-        MillUntilDef, ObjectPredicateDef, TokenCharacteristics, ValueDef, ZoneKind, ZonePlacement,
+        MillUntilDef, ObjectPredicateDef, ObjectSetPredicateDef, TokenCharacteristics, ValueDef,
+        ZoneKind, ZonePlacement,
     };
     use crate::ids::TargetIndex;
 
@@ -301,7 +302,7 @@ mod tests {
     fn mill_until_is_a_leaf() {
         static MILL: MillUntilDef = MillUntilDef {
             player: EffectRecipientDef::Controller,
-            object: ObjectPredicateDef::Any,
+            until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Any),
             matched_zone: ZoneKind::Graveyard,
         };
         assert!(child_effects(EffectDef::MillUntil(&MILL)).is_empty());

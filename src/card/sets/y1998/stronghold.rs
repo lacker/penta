@@ -12,8 +12,8 @@ use crate::card::{
     AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules,
     CardSet, CardSupertype, CardType, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
     DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
     SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -1848,10 +1848,12 @@ pub(in crate::card::sets) static HERMIT_DRUID: CardRecord = CardRecord::new_with
                 player: EffectRecipientDef::Controller,
                 // Basic lands only, which is why the Druid empties a library that holds
                 // none: what it does not find, it passes over into the graveyard.
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ObjectPredicateDef::HasType(CardType::Land),
-                ]),
+                until: ObjectSetPredicateDef::contains(
+                    &ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                        ObjectPredicateDef::HasType(CardType::Land),
+                    ]),
+                ),
                 matched_zone: ZoneKind::Hand,
             }),
         ),

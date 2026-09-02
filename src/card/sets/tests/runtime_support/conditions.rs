@@ -79,6 +79,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         TriggerConditionDef::ObjectSetCount(condition) => {
             shared_source_object_set(*condition.objects)
                 && condition
+                    .predicate
                     .filter
                     .is_none_or(|filter| shared_object_predicate(filter.predicate()))
         }
@@ -152,6 +153,7 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
     if let TriggerConditionDef::ObjectSetCount(condition) = condition {
         return shared_source_object_set(*condition.objects)
             && condition
+                .predicate
                 .filter
                 .is_none_or(|filter| shared_object_predicate(filter.predicate()));
     }

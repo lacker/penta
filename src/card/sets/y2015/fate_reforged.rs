@@ -4,7 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef,
     ConditionalStaticEffectDef, EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef,
-    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, StaticApplyDef, abilities,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetPredicateDef,
+    StaticApplyDef, abilities,
 };
 use crate::mana_cost;
 
@@ -28,9 +29,11 @@ const fn soulflayer_ability(keyword: KeywordAbility, ability: &'static AbilityDe
                     CardType::Creature,
                 )),
             },
-            filter: Some(ObjectSetFilterDef::HasKeyword(keyword)),
-            comparison: ComparisonDef::GreaterOrEqual,
-            amount: 1,
+            predicate: ObjectSetPredicateDef {
+                filter: Some(ObjectSetFilterDef::HasKeyword(keyword)),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
         },
         then: StaticApplyDef {
             recipient: EffectRecipientDef::Source,

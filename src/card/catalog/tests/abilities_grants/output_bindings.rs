@@ -7,7 +7,9 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
     };
     let mill_until = Box::leak(Box::new(crate::card::MillUntilDef {
         player: EffectRecipientDef::Controller,
-        object: ObjectPredicateDef::HasType(CardType::Land),
+        until: crate::card::ObjectSetPredicateDef::contains(&ObjectPredicateDef::HasType(
+            CardType::Land,
+        )),
         matched_zone: ZoneKind::Graveyard,
     }));
     let producers = [
@@ -69,6 +71,31 @@ fn later_sequence_steps_may_read_explicitly_bound_effect_outputs() {
             }
         ),
     );
+}
+
+#[test]
+fn named_collection_outputs_may_escape_to_later_sequence_steps() {
+    let moved = Binding!("produced_cards");
+    let effects = Box::leak(Box::new([
+        EffectDef::MoveObjects(crate::card::MoveObjectsDef {
+            input: ObjectSetDef::Query(ObjectQueryDef::new(
+                ObjectPredicateDef::Any,
+                &[ZoneKind::Graveyard],
+            )),
+            from: Some(ZoneKind::Graveyard),
+            zone: ZoneKind::Exile,
+            placement: ZonePlacement::Top,
+            moved: Some(moved),
+            then: &EffectDef::None,
+        }),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::BoundObjectCount(moved),
+        },
+    ]));
+
+    super::validate_ability_targets(&[], EffectDef::Sequence(effects))
+        .expect("a named move result remains available to later sequence siblings");
 }
 
 #[test]

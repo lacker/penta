@@ -32,7 +32,8 @@ impl Game {
                 .any(Self::applied_effect_contains_land_type_operation),
             AppliedEffectDef::Characteristic(
                 CharacteristicOperationDef::BasicLandTypes(_)
-                | CharacteristicOperationDef::ChosenBasicLandType,
+                | CharacteristicOperationDef::SetChosenBasicLandType
+                | CharacteristicOperationDef::AddChosenBasicLandType,
             ) => true,
             AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
         }

@@ -678,7 +678,8 @@ impl Game {
             CharacteristicOperationDef::Abilities(
                 AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
             )
-            | CharacteristicOperationDef::ChosenBasicLandType
+            | CharacteristicOperationDef::SetChosenBasicLandType
+            | CharacteristicOperationDef::AddChosenBasicLandType
             | CharacteristicOperationDef::AddChosenCreatureType
             | CharacteristicOperationDef::SetChosenCreatureType
             | CharacteristicOperationDef::Color(_) => return None,

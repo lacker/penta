@@ -129,6 +129,24 @@ pub(in crate::card::sets) static ANGELIC_EDICT: CardRecord = CardRecord::new_wit
 );
 
 // GTC 3 — Angelic Skirmisher
+const fn angelic_skirmisher_choice(
+    label: &'static str,
+    ability: &'static AbilityDef,
+) -> EffectChoiceDef {
+    EffectChoiceDef {
+        label,
+        effect: EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(ability),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    }
+}
+
 pub(in crate::card::sets) static ANGELIC_SKIRMISHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("beb04702-5cb2-4590-b675-9409ba52a395"),
     "Angelic Skirmisher",
@@ -145,44 +163,9 @@ pub(in crate::card::sets) static ANGELIC_SKIRMISHER: CardRecord = CardRecord::ne
             EffectDef::ChooseEffect {
                 player: EffectRecipientDef::Controller,
                 choices: &[
-                    EffectChoiceDef {
-                        label: "First strike",
-                        effect: EffectDef::Apply {
-                            recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                            effect: AppliedEffectDef::add_ability(&const {
-                                abilities::first_strike()
-                            }),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    },
-                    EffectChoiceDef {
-                        label: "Vigilance",
-                        effect: EffectDef::Apply {
-                            recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                            effect: AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    },
-                    EffectChoiceDef {
-                        label: "Lifelink",
-                        effect: EffectDef::Apply {
-                            recipient: EffectRecipientDef::matching_objects(
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                &[ZoneKind::Battlefield],
-                                PlayerRelation::You,
-                            ),
-                            effect: AppliedEffectDef::add_ability(&const { abilities::lifelink() }),
-                            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                        },
-                    },
+                    angelic_skirmisher_choice("First strike", &abilities::first_strike()),
+                    angelic_skirmisher_choice("Vigilance", &abilities::vigilance()),
+                    angelic_skirmisher_choice("Lifelink", &abilities::lifelink()),
                 ],
             },
         ),
@@ -1139,7 +1122,7 @@ pub(in crate::card::sets) static REALMWRIGHT: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),
-                effect: AppliedEffectDef::set_chosen_basic_land_type(),
+                effect: AppliedEffectDef::add_chosen_basic_land_type(),
             },
         ),
     ]),

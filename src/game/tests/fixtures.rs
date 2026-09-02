@@ -320,7 +320,8 @@ pub(in crate::game) fn attach_constant_resolved_characteristics(
             CharacteristicOperationDef::Abilities(
                 AbilityOperationDef::AddActivatedAbilitiesOfLinkedExiles(_),
             ) => panic!("a linked-exile grant is a static shape, not a resolved one"),
-            CharacteristicOperationDef::ChosenBasicLandType
+            CharacteristicOperationDef::SetChosenBasicLandType
+            | CharacteristicOperationDef::AddChosenBasicLandType
             | CharacteristicOperationDef::AddChosenCreatureType
             | CharacteristicOperationDef::SetChosenCreatureType => {
                 panic!("a chosen subtype is read live rather than resolved")

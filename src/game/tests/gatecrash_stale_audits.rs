@@ -47,6 +47,27 @@ fn cast_at(game: &mut Game, spell: CardInstanceId, target: Target) {
     drain_pending(game);
 }
 
+/// Realmwright adds the chosen type rather than applying the replacing form
+/// used by effects that say a land "is" one type.
+#[test]
+fn realmwright_preserves_a_lands_existing_basic_land_types() {
+    let mut game = ready();
+    let mut realmwright = creature(10_000, cards::REALMWRIGHT, PlayerId::One);
+    realmwright.chosen_basic_land_type = Some(BasicLandType::Island);
+    let forest = creature(10_001, cards::FOREST, PlayerId::One);
+    let forest_id = forest.card.id;
+    game.battlefield.extend([realmwright, forest]);
+
+    let forest = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == forest_id)
+        .expect("the Forest remains on the battlefield");
+    let types = game.effective_land_types(forest);
+    assert!(types[BasicLandType::Forest.index()]);
+    assert!(types[BasicLandType::Island.index()]);
+}
+
 /// The pump runs once and then the ability is gone for the turn, however much
 /// green is left.
 #[test]

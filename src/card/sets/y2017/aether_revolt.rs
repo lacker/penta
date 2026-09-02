@@ -13,7 +13,7 @@ use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // AER 51 — Aether Poisoner
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
     "Aether Poisoner",
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
 );
 
 // AER 76 — Aether Chaser
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("290cde84-d97a-4737-aff2-c443a4e43f7d"),
     "Aether Chaser",
@@ -131,7 +131,7 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
 );
 
 // AER 101 — Wrangle
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ea93a49-5a7c-4d15-8548-a57c9460e0f0"),
     "Wrangle",

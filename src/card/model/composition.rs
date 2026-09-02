@@ -143,14 +143,11 @@ impl PlayOptionDef {
     /// `rules`. These remain independent of every alternative cost.
     #[must_use]
     pub fn with_optional_additional_costs(mut self, rules: &CardRules) -> Self {
-        self.additional_costs
-            .extend(rules.indexed_abilities().filter_map(|ability| {
-                ability
-                    .definition
-                    .is_executable()
-                    .then(|| ability.additional_cost())
-                    .flatten()
-            }));
+        self.additional_costs.extend(
+            rules
+                .indexed_abilities()
+                .filter_map(super::rules::AttachedAbilityDef::additional_cost),
+        );
         self
     }
 
@@ -172,10 +169,8 @@ pub struct CardComposition {
 impl CardComposition {
     fn effect_status(rules: &CardRules) -> CardEffectStatus {
         match rules.implementation_status() {
-            ImplementationStatus::MetadataOnly => CardEffectStatus::MetadataOnly,
-            ImplementationStatus::Complete | ImplementationStatus::Partial => {
-                CardEffectStatus::Implemented
-            }
+            ImplementationStatus::Unsupported => CardEffectStatus::Unsupported,
+            ImplementationStatus::Complete => CardEffectStatus::Implemented,
         }
     }
 
@@ -311,7 +306,7 @@ impl CardComposition {
             {
                 CardEffectStatus::Implemented
             } else {
-                CardEffectStatus::MetadataOnly
+                CardEffectStatus::Unsupported
             };
             play_options.push(
                 PlayOptionDef::cast(
@@ -371,10 +366,8 @@ impl CardComposition {
                     .mana_cost()
                     .expect("a Room's door has a printed mana cost"),
                 match rules.implementation_status() {
-                    ImplementationStatus::MetadataOnly => CardEffectStatus::MetadataOnly,
-                    ImplementationStatus::Complete | ImplementationStatus::Partial => {
-                        CardEffectStatus::Implemented
-                    }
+                    ImplementationStatus::Unsupported => CardEffectStatus::Unsupported,
+                    ImplementationStatus::Complete => CardEffectStatus::Implemented,
                 },
             )
         };
@@ -541,17 +534,15 @@ impl CardDefinition {
     #[must_use]
     pub fn companion_condition(&self) -> Option<CompanionConditionDef> {
         self.parts.iter().find_map(|part| {
-            part.rules.ability_clauses().iter().find_map(|ability| {
-                match (ability.is_executable(), ability.definition) {
-                    (
-                        true,
-                        DeclarativeAbilityDef::DeckConstruction(DeckConstructionDef::Companion(
-                            condition,
-                        )),
-                    ) => Some(condition),
+            part.rules
+                .ability_clauses()
+                .iter()
+                .find_map(|ability| match ability.definition {
+                    DeclarativeAbilityDef::DeckConstruction(DeckConstructionDef::Companion(
+                        condition,
+                    )) => Some(condition),
                     _ => None,
-                }
-            })
+                })
         })
     }
 
@@ -600,8 +591,7 @@ impl CardDefinition {
     fn declares_deck_construction(&self, permission: DeckConstructionDef) -> bool {
         self.parts.iter().any(|part| {
             part.rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && ability.definition == DeclarativeAbilityDef::DeckConstruction(permission)
+                ability.definition == DeclarativeAbilityDef::DeckConstruction(permission)
             })
         })
     }
@@ -641,23 +631,7 @@ impl CardDefinition {
         self.play_options.iter().find(|option| option.id == id)
     }
 
-    /// Whether a metadata-only play option still represents the shared,
-    /// executable body of at least one creature part.
-    #[must_use]
-    pub(crate) fn play_option_has_executable_creature_body(&self, option: &PlayOptionDef) -> bool {
-        let part_ids = match &option.form {
-            SpellForm::Part(part) => core::slice::from_ref(part),
-            SpellForm::Combined(parts) => parts.as_slice(),
-        };
-        part_ids.iter().any(|part_id| {
-            self.part(*part_id)
-                .is_some_and(|part| part.rules.has_executable_creature_body())
-        })
-    }
-
-    /// Derives card-level coverage from every ordered clause on every part.
-    /// A mix of complete and unimplemented parts is partial; a card is
-    /// metadata-only only when every represented clause is unimplemented.
+    /// A multi-part card is supported only when every part is supported.
     #[must_use]
     pub fn implementation_status(&self) -> ImplementationStatus {
         let mut statuses = self

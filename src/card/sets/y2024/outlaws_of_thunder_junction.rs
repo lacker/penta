@@ -101,7 +101,7 @@ pub(in crate::card::sets) static DUELIST_OF_THE_MIND: CardRecord = CardRecord::n
 );
 
 // OTJ 61 — Phantom Interference
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHANTOM_INTERFERENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00bf4dd1-5468-4594-9c7b-0737610f19d4"),
     "Phantom Interference",
@@ -379,7 +379,7 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
 );
 
 // OTJ 188 — Voracious Varmint
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VORACIOUS_VARMINT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("99b74fa3-c1d7-4780-977d-f2d6663a529a"),
     "Voracious Varmint",
@@ -467,7 +467,7 @@ pub(in crate::card::sets) static LAVASPUR_BOOTS: CardRecord = CardRecord::new_wi
 );
 
 // OTJ 251 — Abraded Bluffs
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABRADED_BLUFFS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("19e96521-b4ce-4a36-a887-200e05ccc804"),
     "Abraded Bluffs",
@@ -477,7 +477,7 @@ pub(in crate::card::sets) static ABRADED_BLUFFS: CardRecord = CardRecord::new(
 );
 
 // OTJ 253 — Bristling Backwoods
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d61dfeb7-7f6b-4601-8396-2cbb98165489"),
     "Bristling Backwoods",
@@ -487,7 +487,7 @@ pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::n
 );
 
 // OTJ 254 — Conduit Pylons
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ffa48cc-b991-4d47-b7ec-cf678915c758"),
     "Conduit Pylons",
@@ -497,7 +497,7 @@ pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
 );
 
 // OTJ 256 — Eroded Canyon
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770"),
     "Eroded Canyon",

@@ -1,9 +1,6 @@
 impl Game {
     fn aura_player_relation(rules: &CardRules) -> Option<PlayerRelation> {
         rules.ability_clauses().iter().find_map(|ability| {
-            if !ability.is_executable() {
-                return None;
-            }
             let target = Self::immediate_attachment_target(ability.declarative_effect()?)?;
             let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
                 return None;

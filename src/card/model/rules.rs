@@ -106,9 +106,7 @@ pub struct CardRules {
     pub(super) printed_mana_cost: PrintedManaCost,
     pub(super) starting_loyalty: Option<u16>,
     pub(super) creature_stats: Option<CreatureStats>,
-    /// Whether the ordinary creature spell/permanent rules represented by
-    /// `creature_stats` are part of this definition's executable coverage.
-    creature_body_is_executable: bool,
+    supported: bool,
     /// Ordered printed rules clauses. Abilities supplied by the rules, such as
     /// those intrinsic to basic land types, are derived by the game engine.
     abilities: CardAbilityList,
@@ -185,7 +183,7 @@ impl CardRules {
             printed_mana_cost,
             starting_loyalty: None,
             creature_stats: None,
-            creature_body_is_executable: true,
+            supported: true,
             abilities: CardAbilityList::None,
             colors,
             play_restriction: PlayRestriction::Normal,
@@ -268,14 +266,6 @@ impl CardRules {
         rules
     }
 
-    /// Keeps printed creature characteristics as metadata without exposing
-    /// the baseline creature spell or permanent as executable behavior.
-    #[must_use]
-    pub const fn with_metadata_only_creature_body(mut self) -> Self {
-        self.creature_body_is_executable = false;
-        self
-    }
-
     /// Whether this is a Vehicle, which is the one noncreature card type
     /// that prints power and toughness.
     #[must_use]
@@ -301,14 +291,7 @@ impl CardRules {
 
     #[must_use]
     pub const fn has_executable_creature_body(&self) -> bool {
-        self.creature_stats.is_some() && self.creature_body_is_executable
-    }
-
-    /// Whether this printed creature exists only as catalog metadata and must
-    /// not be exposed as a face-up gameplay object.
-    #[must_use]
-    pub const fn has_metadata_only_creature_body(&self) -> bool {
-        self.creature_stats.is_some() && !self.creature_body_is_executable
+        self.supported && self.creature_stats.is_some()
     }
 
     /// Adapts an emblem's ability slice to shared runtime ability machinery
@@ -624,7 +607,7 @@ impl CardRules {
             };
             Some((ability, spell))
         });
-        let (ability, spell) = spell_abilities.next()?;
+        let (_ability, spell) = spell_abilities.next()?;
         let modal = spell.modal()?;
         if spell_abilities.next().is_some() {
             return None;
@@ -636,11 +619,7 @@ impl CardRules {
             .enumerate()
             .map(|(index, mode)| {
                 let id = ModeId::from_index(index)?;
-                mode.mode_presentation(
-                    id,
-                    ability.is_executable(),
-                    modal.mode_additional_mana_cost(id),
-                )
+                mode.mode_presentation(id, true, modal.mode_additional_mana_cost(id))
             })
             .collect::<Option<Vec<_>>>()?;
         Some(ModeSetDef {
@@ -697,24 +676,10 @@ impl CardRules {
 
     #[must_use]
     pub fn implementation_status(&self) -> ImplementationStatus {
-        // Playing a land and casting/using a modeled creature body are shared,
-        // executable rules even when every card-specific clause is deferred.
-        let mut has_full = self.has_type(CardType::Land) || self.has_executable_creature_body();
-        let mut has_partial = false;
-        let mut has_unimplemented = self.has_metadata_only_creature_body();
-        for ability in self.ability_clauses() {
-            match ability.implementation_status() {
-                ImplementationStatus::Complete => has_full = true,
-                ImplementationStatus::Partial => has_partial = true,
-                ImplementationStatus::MetadataOnly => has_unimplemented = true,
-            }
-        }
-        if has_partial || (has_full && has_unimplemented) {
-            ImplementationStatus::Partial
-        } else if has_unimplemented {
-            ImplementationStatus::MetadataOnly
-        } else {
+        if self.supported {
             ImplementationStatus::Complete
+        } else {
+            ImplementationStatus::Unsupported
         }
     }
 
@@ -865,21 +830,16 @@ impl CardRules {
     /// Whether the card declares this keyword and the engine executes it.
     #[must_use]
     pub fn has_executable_keyword(&self, expected: KeywordAbility) -> bool {
-        self.ability_clauses().iter().any(|ability| {
-            ability.is_executable()
-                && matches!(ability.definition, DeclarativeAbilityDef::Keyword(actual) if actual == expected)
-        })
+        self.supported && self.has_keyword(expected)
     }
 
     #[must_use]
     pub const fn unsupported() -> Self {
-        Self::base(
+        let mut rules = Self::base(
             CardTypeSet::single(CardType::Artifact),
             PrintedManaCost::None,
-        )
-        .with_ability(AbilityDef::not_implemented(
-            "Rules text is not implemented.",
-            "The card's printed rules have not been cataloged or implemented.",
-        ))
+        );
+        rules.supported = false;
+        rules
     }
 }

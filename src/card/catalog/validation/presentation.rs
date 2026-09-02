@@ -41,7 +41,7 @@ pub(in crate::card::catalog) fn validate_semantic_spell_presentation(
                     part: *part_id,
                 });
             }
-            any_executable |= ability.is_executable();
+            any_executable |= true;
             semantic_targets.extend_from_slice(spell.targets());
         }
         if any_executable && option.modes.is_some() {
@@ -70,7 +70,7 @@ pub(in crate::card::catalog) fn validate_semantic_spell_presentation(
         unreachable!("the selected ability was checked as a spell")
     };
     let Some(modal) = spell.modal() else {
-        if ability.is_executable() && option.modes.is_some() {
+        if option.modes.is_some() {
             return Err(CatalogError::UnexpectedPresentationSpellModes {
                 definition: definition.id,
                 option: option.id,
@@ -151,11 +151,7 @@ pub(in crate::card::catalog) fn validate_semantic_spell_presentation(
                 semantic: Box::new(semantic_additional_mana_cost),
             });
         }
-        let expected_status = if ability.is_executable() && semantic.is_executable() {
-            CardEffectStatus::Implemented
-        } else {
-            CardEffectStatus::MetadataOnly
-        };
+        let expected_status = CardEffectStatus::Implemented;
         if presentation.effect_status != expected_status {
             return Err(CatalogError::MismatchedSpellModeImplementation {
                 definition: definition.id,

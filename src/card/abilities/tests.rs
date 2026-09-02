@@ -16,7 +16,7 @@ mod tests {
         EQUIP_TARGET, equip,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityPredicateDef,
+        AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
         CollectionInspectionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
@@ -39,7 +39,6 @@ mod tests {
             ability.text,
             "Rebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
         );
-        assert!(ability.is_executable());
     }
 
     #[test]
@@ -495,8 +494,6 @@ mod tests {
         for (mana, text) in cases {
             let ability = tap_for(mana);
             assert_eq!(ability.text, text);
-            assert_eq!(ability.coverage, AbilityCoverageDef::complete());
-            assert!(ability.is_executable());
             assert!(matches!(
                 ability.definition,
                 DeclarativeAbilityDef::ActivatedMana(definition)
@@ -563,32 +560,27 @@ mod tests {
         ));
     }
 
-    /// A card can print a keyword the engine only records. The distinction is
-    /// a property of the coverage model rather than of any particular keyword,
-    /// so the metadata-only case is built here instead of borrowing whichever
-    /// keyword happens to be unimplemented today.
     #[test]
-    fn keyword_presence_is_distinct_from_executable_keyword_support() {
-        static RECORDED_ONLY: AbilityDef = AbilityDef::keyword("Shroud", KeywordAbility::Shroud)
-            .with_coverage(AbilityCoverageDef::metadata_only(
-                "Recorded for this test, not executed.",
-            ));
-        static KEYWORDS: [AbilityDef; 2] = [flying(), RECORDED_ONLY];
+    fn declared_keywords_are_executable() {
+        static SHROUD: AbilityDef = AbilityDef::keyword("Shroud", KeywordAbility::Shroud);
+        static KEYWORDS: [AbilityDef; 2] = [flying(), SHROUD];
         let rules =
             CardRules::new_creature(ManaCost::default(), &[], 1, 1).with_abilities(&KEYWORDS);
 
         assert!(rules.has_keyword(KeywordAbility::Flying));
         assert!(rules.has_executable_keyword(KeywordAbility::Flying));
         assert!(rules.has_keyword(KeywordAbility::Shroud));
-        assert!(!rules.has_executable_keyword(KeywordAbility::Shroud));
+        assert!(rules.has_executable_keyword(KeywordAbility::Shroud));
     }
 
     /// Banding is the widest keyword the engine executes: a declaration rule,
     /// a blocking rule, and a damage-assignment rule in both directions.
     #[test]
     fn banding_is_executable_and_completely_covered() {
-        assert!(banding().is_executable());
-        assert_eq!(banding().coverage, AbilityCoverageDef::complete());
+        assert!(matches!(
+            banding().definition,
+            DeclarativeAbilityDef::Keyword(KeywordAbility::Banding)
+        ));
     }
 
     #[test]
@@ -600,8 +592,6 @@ mod tests {
         ];
 
         for (ability, expected) in cases {
-            assert_eq!(ability.coverage, AbilityCoverageDef::complete());
-            assert!(ability.is_executable());
             assert_eq!(ability.definition, DeclarativeAbilityDef::Keyword(expected));
         }
         assert_eq!(intimidate().text, "Intimidate");

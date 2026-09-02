@@ -12,28 +12,25 @@ use super::super::{
 
 impl Game {
     pub(super) fn is_source_entry_replacement(ability: &AbilityDef) -> bool {
-        ability.is_executable()
-            && matches!(
-                (ability.definition, ability.declarative_replacement()),
-                (
-                    DeclarativeAbilityDef::Replacement(definition),
-                    Some(_),
-                ) if definition.event == ReplacementEventDef::SourceEntersBattlefield
-            )
+        matches!(
+            (ability.definition, ability.declarative_replacement()),
+            (
+                DeclarativeAbilityDef::Replacement(definition),
+                Some(_),
+            ) if definition.event == ReplacementEventDef::SourceEntersBattlefield
+        )
     }
 
     pub(super) fn is_external_entry_replacement(ability: &AbilityDef) -> bool {
-        ability.is_executable()
-            && matches!(
-                ability.definition,
-                DeclarativeAbilityDef::Replacement(definition)
-                    if definition.source_zones.contains(&ZoneKind::Battlefield)
-                        && matches!(
-                            definition.event,
-                            ReplacementEventDef::ObjectEntersBattlefield { .. }
-                        )
-            )
-            && ability.declarative_replacement().is_some()
+        matches!(
+            ability.definition,
+            DeclarativeAbilityDef::Replacement(definition)
+                if definition.source_zones.contains(&ZoneKind::Battlefield)
+                    && matches!(
+                        definition.event,
+                        ReplacementEventDef::ObjectEntersBattlefield { .. }
+                    )
+        ) && ability.declarative_replacement().is_some()
     }
 
     pub(super) fn applied_grant_entry_replacement_possibilities(
@@ -83,8 +80,7 @@ impl Game {
     pub(super) fn static_grant_entry_replacement_possibilities(
         ability: &AbilityDef,
     ) -> (bool, bool) {
-        if ability.is_executable()
-            && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+        if matches!(ability.definition, DeclarativeAbilityDef::Static(_))
             && let Some(effect) = ability.declarative_effect()
         {
             Self::granted_entry_replacement_possibilities(effect)

@@ -241,13 +241,11 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
                 .into_iter()
                 .any(|land_type| record.rules.has_subtype(land_type.subtype()));
             let has_printed_source = record.rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
+                matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
             });
             let has_static_land_type_source =
                 record.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                    matches!(ability.definition, DeclarativeAbilityDef::Static(_))
                         && matches!(
                             ability.declarative_effect(),
                             Some(EffectDef::StaticApply {
@@ -264,8 +262,7 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
             // one is not knowable here, but there is always exactly one.
             let has_chosen_land_type_source =
                 record.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                    matches!(ability.definition, DeclarativeAbilityDef::Static(_))
                         && matches!(
                             ability.declarative_effect(),
                             Some(EffectDef::StaticApply {
@@ -335,10 +332,6 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
             // It prints no mana ability at all: chapter I hands it one, and
             // by chapter III it has sacrificed itself again.
             "Urza's Saga",
-            // Its opening-hand action is executable, but the printed mana
-            // ability remains partial until a mana result can branch on the
-            // luck counter it places.
-            "Gemstone Caverns",
             // Counts ten counters down and trades itself for a 20/20; the
             // mana it costs to do that goes in rather than coming out.
             "Dark Depths",

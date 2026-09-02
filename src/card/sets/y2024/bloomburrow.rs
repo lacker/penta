@@ -265,7 +265,7 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
 );
 
 // BLB 208 — Cindering Cutthroat
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2ea10dd-21ea-4622-be27-79d03a802b85"),
     "Cindering Cutthroat",
@@ -275,7 +275,7 @@ pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::n
 );
 
 // BLB 235 — Tempest Angler
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("850daae4-f0b7-4604-95e7-ad044ec165c3"),
     "Tempest Angler",
@@ -285,7 +285,7 @@ pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
 );
 
 // BLB 254 — Hidden Grotto
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ba8f2e7-8357-4862-97dc-1942d066023a"),
     "Hidden Grotto",

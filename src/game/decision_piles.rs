@@ -282,15 +282,13 @@ impl Game {
             permanent.controller == player
                 && self
                     .find_effective_ability(permanent, |effective| {
-                        effective.ability.is_executable()
-                            && matches!(
-                                effective.ability.definition,
-                                DeclarativeAbilityDef::Static(_)
-                            )
-                            && effective
-                                .ability
-                                .declarative_effect()
-                                .is_some_and(|effect| Self::names_prohibition(effect, prohibition))
+                        matches!(
+                            effective.ability.definition,
+                            DeclarativeAbilityDef::Static(_)
+                        ) && effective
+                            .ability
+                            .declarative_effect()
+                            .is_some_and(|effect| Self::names_prohibition(effect, prohibition))
                     })
                     .is_some()
         })

@@ -41,9 +41,10 @@ power/toughness values are not otherwise a special exception. Keep every
 allowed extracted component after the header and before the `CardRecord`,
 adjacent to the clause it supports and in printed-clause order.
 
-An incomplete identity uses `blocked`, `partial`, or `metadata-only` as
-applicable. Blocked header-and-audit pairs stand alone at the identity's
-collector position. Reprints do not repeat the audit. Keep every identity
+An incomplete identity uses `blocked` when it has no declaration or
+`unsupported` when it has a whole-card `CardRules::unsupported()` declaration.
+Blocked header-and-audit pairs stand alone at the identity's collector
+position. Reprints do not repeat the audit. Keep every identity
 header in natural collector order. The header identifies the canonical
 printing in that module's set even when presentation art intentionally comes
 from another printing.
@@ -89,13 +90,12 @@ that a file which uses them mirrors its additional-printing registry exactly.
 
 Start new and migrated work with the card's ordered `AbilityDef` clauses. Each
 printed clause should carry its explicit timing category and, where applicable,
-its costs, targets, effect, and coverage. Displayed rules text and
-aggregate Complete, Partial, or MetadataOnly status derive from those clauses
-rather than from parallel card-level assertions.
+its costs, targets, and effect. Displayed rules text derives from those clauses;
+implementation status is the whole-card choice `Complete` or `Unsupported`.
 
 Reuse constructors from `card::abilities` and declarative rules primitives
-where they fit. Keep rules text, implementation coverage, and execution tied to
-the same clause. Card-specific execution is not an extension boundary.
+where they fit. Keep rules text and execution tied to the same clause.
+Card-specific execution is not an extension boundary.
 
 Card declarations are oblivious to the
 [prepared engine](prepared-engine.md). Do not add preparation flags, prepared
@@ -114,31 +114,31 @@ Use the smallest boundary that truthfully implements the behavior:
   declarative ability clause. When the required semantic shape is reusable,
   add a shared primitive rather than a card-scoped resolver.
 - If neither the definition nor a reasonably scoped shared primitive can
-  express the complete card, leave the unsupported portion honestly partial or
-  metadata-only. Do not add a direct card-identity branch in generic `Game` or
-  state-machine flow.
+  express the complete card, make the whole card `CardRules::unsupported()`.
+  Do not add a direct card-identity branch in generic `Game` or state-machine
+  flow, and do not expose a working subset of the card.
 
 Resolution must not silently change an explicit ability category or let a
 supported activated or triggered non-mana ability bypass the shared stack.
 
-## Coverage and partial support
+## Coverage
 
 Executable clauses use declarative effects and carry no separate behavior
 identity. Unsupported cards may exist in catalogs and hidden zones, but the engine does not offer play options that
 would resolve as silent no-ops.
 
-When complete fidelity is too large for the current increment, implement the
-working portion, mark the remainder accurately, and state the follow-up. A
-contained special case with focused tests is preferable to scattering partial
-logic through unrelated engine paths.
+When complete fidelity is too large for the current increment, leave the card
+unsupported and state the missing shared capability in its audit comment. A
+reusable primitive may land independently, but the card becomes executable
+only when its complete printed behavior is declarative.
 
 ## Implementation workflow
 
 1. Confirm the printed clauses and the format or card interaction being added.
-2. Represent the clauses, categories, costs, targets, effects, and coverage in
+2. Represent the clauses, categories, costs, targets, and effects in
    the card definition.
 3. Reuse an existing primitive or add a shared primitive according to the
-   preference ladder above; otherwise retain honest incomplete coverage.
+   preference ladder above; otherwise retain a whole-card unsupported declaration.
 4. Test new shared rule behavior once at the narrowest useful boundary. Add a
    card-level test only for text-sensitive composition, a legality boundary,
    or an interaction that could fail while the shared primitive still passes.
@@ -170,9 +170,9 @@ will be implemented later:
    for further variants) plus the corresponding ordered upper comments.
 4. If an identity has only a standalone blocked audit row, either replace that
    row with the reprint comment and printing record, or turn it into a
-   `metadata-only` audit followed by a `CardRecord::new` whose rules are
+   `unsupported` audit followed by a `CardRecord::new` whose rules are
    `CardRules::unsupported()`. Preserve a useful existing capability-gap
-   explanation. When there was no row, add the same metadata-only declaration
+   explanation. When there was no row, add the same unsupported declaration
    with `Card rules have not been implemented.` as its honest initial audit.
 5. Put a new identity in the module for its first English-language paper set
    when possible, otherwise its earliest paper set, and anchor it to that exact

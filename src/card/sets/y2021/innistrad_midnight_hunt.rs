@@ -90,7 +90,7 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
 );
 
 // MID 24 — Homestead Courage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73a9c49f-fcd3-4572-bac7-6eb06fdc0815"),
     "Homestead Courage",
@@ -100,7 +100,7 @@ pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new
 );
 
 // MID 32 — Search Party Captain
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964"),
     "Search Party Captain",
@@ -131,7 +131,7 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
 );
 
 // MID 96 — Diregraf Horde
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("153be768-ddad-44f2-bcdd-c40353c807d7"),
     "Diregraf Horde",
@@ -141,7 +141,7 @@ pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
 );
 
 // MID 100 — Ecstatic Awakener // Awoken Demon
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),
     "Ecstatic Awakener",
@@ -181,7 +181,7 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
 );
 
 // MID 128 — Ardent Elementalist
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f58592f7-1df5-428d-9dde-e6acd9a5d1d5"),
     "Ardent Elementalist",

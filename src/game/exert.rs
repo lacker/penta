@@ -12,7 +12,7 @@
 //! captured here waits for the declaration to finish the way every other
 //! attack trigger does.
 
-// Audit: partial -- "If you gain control of another player's creature until
+// Audit: unsupported -- "If you gain control of another player's creature until
 // end of turn and exert it, it will untap during that player's untap step."
 // An owed skip is stored on the permanent as a count, not against the player
 // who exerted it, so a borrowed creature carries the debt home and misses its
@@ -31,12 +31,11 @@ impl Game {
     /// says it may be exerted in the first place.
     fn can_be_exerted(&self, permanent: &Permanent) -> bool {
         self.find_effective_ability(permanent, |effective| {
-            effective.ability.is_executable()
-                && matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Triggered(triggered)
-                        if matches!(triggered.event, TriggerEventDef::Exerted(_))
-                )
+            matches!(
+                effective.ability.definition,
+                DeclarativeAbilityDef::Triggered(triggered)
+                    if matches!(triggered.event, TriggerEventDef::Exerted(_))
+            )
         })
         .is_some()
     }

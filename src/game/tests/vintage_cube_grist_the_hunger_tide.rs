@@ -35,7 +35,7 @@ fn staged(library: &[CardDefinitionId]) -> (Game, GameObjectId) {
     (game, grist)
 }
 
-fn settle(game: &mut Game) {
+fn settle_wanting(game: &mut Game, wanted: &[GameObjectId]) {
     for _ in 0..32 {
         if let Some(decision) = game
             .pending_decisions
@@ -47,7 +47,18 @@ fn settle(game: &mut Game) {
             let options = decision
                 .options
                 .iter()
-                .find(|option| option.label != "Decline")
+                .find(|option| {
+                    option
+                        .card
+                        .as_ref()
+                        .is_some_and(|(object, _)| wanted.contains(object))
+                })
+                .or_else(|| {
+                    decision
+                        .options
+                        .iter()
+                        .find(|option| option.label != "Decline")
+                })
                 .map(|option| vec![option.id])
                 .unwrap_or_default();
             game.apply(
@@ -73,6 +84,10 @@ fn settle(game: &mut Game) {
     }
     drain_pending(game);
     game.check_state_based_actions();
+}
+
+fn settle(game: &mut Game) {
+    settle_wanting(game, &[]);
 }
 
 /// Activates Grist's printed ability `index` and lets it resolve. `wanted`
@@ -101,7 +116,7 @@ fn activate(game: &mut Game, grist: GameObjectId, index: u8, wanted: &[GameObjec
         })
         .expect("the loyalty ability is offered");
     game.apply(PlayerId::One, action).expect("it is activated");
-    settle(game);
+    settle_wanting(game, wanted);
 }
 
 fn loyalty(game: &Game, grist: GameObjectId) -> u16 {
@@ -214,7 +229,7 @@ fn the_ultimate_drains_for_the_graveyard() {
         .push(card(108_100, cards::ISLAND, PlayerId::One));
     game.players[1].life = 20;
 
-    activate(&mut game, grist, 3, &[]);
+    activate(&mut game, grist, 4, &[]);
 
     assert!(
         game.players[0]
@@ -329,15 +344,8 @@ fn declining_the_sacrifice_destroys_nothing() {
             Action::ActivateAbility {
                 source,
                 ability: AbilityOrigin::Printed { ability, .. },
-                targets,
                 ..
-            } => {
-                *source == grist
-                    && *ability == AbilityId(2)
-                    && targets
-                        .iter()
-                        .any(|selection| selection.targets() == [Target::Permanent(theirs)])
-            }
+            } => *source == grist && *ability == AbilityId(2),
             _ => false,
         })
         .expect("the minus is offered");
@@ -391,13 +399,10 @@ fn declining_the_sacrifice_destroys_nothing() {
     assert_eq!(loyalty(&game, grist), 1, "the loyalty was paid regardless");
 }
 
-/// The deviation this card carries, pinned: the target is named as the minus
-/// is activated rather than by the printed reflexive trigger, so answering
-/// that target counters the whole ability and the creature that would have
-/// been sacrificed is still standing. On the printed card the sacrifice is
-/// offered anyway and only the destruction is lost.
+/// The target belongs to the reflexive trigger, so answering it after the
+/// sacrifice stops the destruction without refunding that sacrifice.
 #[test]
-fn an_answered_target_saves_the_sacrifice_too() {
+fn an_answered_reflexive_target_does_not_save_the_sacrifice() {
     let (mut game, grist) = staged(&[cards::ISLAND]);
     let mine = game
         .put_onto_battlefield(PlayerId::One, cards::SAVANNAH_LIONS)
@@ -414,27 +419,64 @@ fn an_answered_target_saves_the_sacrifice_too() {
             Action::ActivateAbility {
                 source,
                 ability: AbilityOrigin::Printed { ability, .. },
-                targets,
                 ..
-            } => {
-                *source == grist
-                    && *ability == AbilityId(2)
-                    && targets
-                        .iter()
-                        .any(|selection| selection.targets() == [Target::Permanent(theirs)])
-            }
+            } => *source == grist && *ability == AbilityId(2),
             _ => false,
         })
         .expect("the minus is offered");
     game.apply(PlayerId::One, action).expect("it is activated");
+    for _ in 0..16 {
+        let Some(decision) = game
+            .pending_decisions
+            .first()
+            .map(|pending| pending.observation.clone())
+        else {
+            let priority = game.priority;
+            game.apply(priority, Action::PassPriority)
+                .expect("the activated ability advances");
+            continue;
+        };
+        let choice = decision
+            .options
+            .iter()
+            .find(|option| {
+                option
+                    .card
+                    .as_ref()
+                    .is_some_and(|(object, _)| *object == theirs)
+            })
+            .or_else(|| {
+                decision
+                    .options
+                    .iter()
+                    .find(|option| option.label != "Decline")
+            })
+            .expect("the payment or reflexive target is offered");
+        let chose_target = choice
+            .card
+            .as_ref()
+            .is_some_and(|(object, _)| *object == theirs);
+        game.apply(
+            decision.player,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![choice.id],
+            },
+        )
+        .expect("the choice is legal");
+        if chose_target {
+            break;
+        }
+    }
     game.move_permanents_to_graveyard(&[theirs]);
     settle(&mut game);
 
     assert!(
-        game.battlefield
+        !game
+            .battlefield
             .iter()
             .any(|permanent| permanent.card.id == mine),
-        "nothing was sacrificed, because the ability never resolved",
+        "the creature was already sacrificed before the target was answered",
     );
     assert_eq!(loyalty(&game, grist), 1, "the loyalty was still paid");
 }

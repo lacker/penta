@@ -281,8 +281,7 @@ pub(super) const fn implementation_status_name(
 ) -> &'static str {
     match status {
         penta::ImplementationStatus::Complete => "complete",
-        penta::ImplementationStatus::Partial => "partial",
-        penta::ImplementationStatus::MetadataOnly => "metadataOnly",
+        penta::ImplementationStatus::Unsupported => "unsupported",
     }
 }
 

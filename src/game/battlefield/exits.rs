@@ -80,8 +80,7 @@ impl Game {
                 let DeclarativeAbilityDef::Replacement(replacement) = ability.definition else {
                     return;
                 };
-                if !ability.is_executable()
-                    || !replacement.source_zones.contains(&ZoneKind::Battlefield)
+                if !replacement.source_zones.contains(&ZoneKind::Battlefield)
                 {
                     return;
                 }
@@ -115,9 +114,6 @@ impl Game {
             let Some(effect) = ability.declarative_replacement() else {
                 continue;
             };
-            if !ability.is_executable() {
-                continue;
-            }
             replacements.push(FrozenZoneMoveReplacement {
                 source: ongoing.source,
                 controller: ongoing.controller,

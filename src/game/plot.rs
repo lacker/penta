@@ -29,7 +29,7 @@ impl Game {
                     else {
                         return None;
                     };
-                    (ability.is_executable() && alternative.kind == AlternativeCastKindDef::Plot)
+                    (alternative.kind == AlternativeCastKindDef::Plot)
                         .then(|| alternative.mana_cost.resolve(None))
                         .flatten()
                 })

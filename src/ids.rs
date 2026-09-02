@@ -314,6 +314,7 @@ const BINDING_LABELS: &[&str] = &[
     "produced_cards",
     "random_graveyard_card",
     "random_graveyard_cards",
+    "returned",
     "revealed_card",
     "revealed_cards",
     "scry_bottom",

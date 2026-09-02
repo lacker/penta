@@ -117,7 +117,7 @@ pub(in crate::card::sets) static ANGEL_OF_GLORY_S_RISE: CardRecord = CardRecord:
 );
 
 // AVR 2 — Angel of Jubilation
-// Audit: metadata-only — Needs a static prohibition on paying life or sacrificing creatures specifically to cast spells and activate abilities.
+// Audit: unsupported — Needs a static prohibition on paying life or sacrificing creatures specifically to cast spells and activate abilities.
 pub(in crate::card::sets) static ANGEL_OF_JUBILATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16c5dfed-4dee-4e48-a445-89f03d7794e6"),
     "Angel of Jubilation",
@@ -511,7 +511,7 @@ pub(in crate::card::sets) static DEVOUT_CHAPLAIN: CardRecord = CardRecord::new(
 );
 
 // AVR 18 — Divine Deflection
-// Audit: metadata-only — Needs a duration-scoped prevention shield that tracks the amount prevented and redirects exactly that amount to a chosen target.
+// Audit: unsupported — Needs a duration-scoped prevention shield that tracks the amount prevented and redirects exactly that amount to a chosen target.
 pub(in crate::card::sets) static DIVINE_DEFLECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec06e42f-e294-44ef-8fa8-1d1a4c2090d8"),
     "Divine Deflection",
@@ -891,7 +891,7 @@ then: None,
 );
 
 // AVR 33 — Riders of Gavony
-// Audit: metadata-only — Needs protection from creatures of a dynamically chosen creature type.
+// Audit: unsupported — Needs protection from creatures of a dynamically chosen creature type.
 pub(in crate::card::sets) static RIDERS_OF_GAVONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcc1647b-9271-4426-9938-7eb620ad0769"),
     "Riders of Gavony",
@@ -1646,7 +1646,7 @@ pub(in crate::card::sets) static HAVENGUL_SKAAB: CardRecord = CardRecord::new(
 );
 
 // AVR 61 — Infinite Reflection
-// Audit: metadata-only — Needs attachment-derived copy effects for existing creatures and an entry replacement that copies the currently enchanted creature.
+// Audit: unsupported — Needs attachment-derived copy effects for existing creatures and an entry replacement that copies the currently enchanted creature.
 pub(in crate::card::sets) static INFINITE_REFLECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42506c54-e9bf-4d0f-8dd5-8b218668c925"),
     "Infinite Reflection",
@@ -1808,7 +1808,7 @@ pub(in crate::card::sets) static MIST_RAVEN: CardRecord = CardRecord::new_with_l
 );
 
 // AVR 68 — Misthollow Griffin
-// Audit: metadata-only — Needs a cast permission and play-option source zone for casting this card from exile.
+// Audit: unsupported — Needs a cast permission and play-option source zone for casting this card from exile.
 pub(in crate::card::sets) static MISTHOLLOW_GRIFFIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2db4fe28-e580-479b-910f-b719d69468b1"),
     "Misthollow Griffin",
@@ -1944,7 +1944,7 @@ pub(in crate::card::sets) static SCRAPSKIN_DRAKE: CardRecord = CardRecord::new_w
 );
 
 // AVR 74 — Second Guess
-// Audit: metadata-only — Needs a target predicate or casting-history relation for the second spell cast during the current turn.
+// Audit: unsupported — Needs a target predicate or casting-history relation for the second spell cast during the current turn.
 pub(in crate::card::sets) static SECOND_GUESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0d22d093-8e89-4d54-ac04-14c8759de3ea"),
     "Second Guess",
@@ -2049,7 +2049,7 @@ pub(in crate::card::sets) static STERN_MENTOR: CardRecord = CardRecord::new_with
 );
 
 // AVR 78 — Stolen Goods
-// Audit: metadata-only — Exile-until now exists, but its free-cast permission is resolution-scoped; this card needs the matched card castable through end of turn.
+// Audit: unsupported — Exile-until now exists, but its free-cast permission is resolution-scoped; this card needs the matched card castable through end of turn.
 pub(in crate::card::sets) static STOLEN_GOODS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53203dfc-5ad5-4c17-9802-ca2f874d327a"),
     "Stolen Goods",
@@ -2059,7 +2059,7 @@ pub(in crate::card::sets) static STOLEN_GOODS: CardRecord = CardRecord::new(
 );
 
 // AVR 79 — Tamiyo, the Moon Sage
-// Audit: metadata-only — Needs next-untap-step duration, a tapped-creature count, maximum-hand-size modification, and graveyard-entry triggers from every zone.
+// Audit: unsupported — Needs next-untap-step duration, a tapped-creature count, maximum-hand-size modification, and graveyard-entry triggers from every zone.
 pub(in crate::card::sets) static TAMIYO_THE_MOON_SAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9398926-13b9-47b8-b66b-1ab9d06bb704"),
     "Tamiyo, the Moon Sage",
@@ -2521,7 +2521,7 @@ pub(in crate::card::sets) static DEMONLORD_OF_ASHMOUTH: CardRecord = CardRecord:
 );
 
 // AVR 97 — Descent into Madness
-// Audit: metadata-only — Needs each player to choose a counter-derived number of permanents and/or hand cards to exile in one resolving choice.
+// Audit: unsupported — Needs each player to choose a counter-derived number of permanents and/or hand cards to exile in one resolving choice.
 pub(in crate::card::sets) static DESCENT_INTO_MADNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fa016bb7-ad8b-40d5-90db-412a9cf19e4e"),
     "Descent into Madness",
@@ -2647,7 +2647,7 @@ pub(in crate::card::sets) static EVERNIGHT_SHADE: CardRecord = CardRecord::new_w
 );
 
 // AVR 102 — Exquisite Blood
-// Audit: metadata-only — Needs a committed life-loss event that also captures nondamage life loss and its amount.
+// Audit: unsupported — Needs a committed life-loss event that also captures nondamage life loss and its amount.
 pub(in crate::card::sets) static EXQUISITE_BLOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4cd54279-57f5-4cd9-b524-4f094bd2fc36"),
     "Exquisite Blood",
@@ -2688,7 +2688,7 @@ pub(in crate::card::sets) static GHOULFLESH: CardRecord = CardRecord::new(
 );
 
 // AVR 104 — Gloom Surgeon
-// Audit: metadata-only — Needs a combat-damage replacement that prevents the event and exiles exactly that many cards from the top of your library.
+// Audit: unsupported — Needs a combat-damage replacement that prevents the event and exiles exactly that many cards from the top of your library.
 pub(in crate::card::sets) static GLOOM_SURGEON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b00c711-007d-4c85-9dd9-dd9d52f1649d"),
     "Gloom Surgeon",
@@ -2866,7 +2866,7 @@ pub(in crate::card::sets) static HUNTED_GHOUL: CardRecord = CardRecord::new_with
 );
 
 // AVR 111 — Killing Wave
-// Audit: metadata-only — Needs a separate pay-X-life-or-sacrifice choice for the controller of every creature.
+// Audit: unsupported — Needs a separate pay-X-life-or-sacrifice choice for the controller of every creature.
 pub(in crate::card::sets) static KILLING_WAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e40ed6b1-7b92-4ba4-b197-07c3f171a935"),
     "Killing Wave",
@@ -3308,7 +3308,7 @@ pub(in crate::card::sets) static BONFIRE_OF_THE_DAMNED: CardRecord = CardRecord:
 );
 
 // AVR 130 — Burn at the Stake
-// Audit: metadata-only — Needs a spell additional cost that taps any number of chosen untapped creatures and retains that count for a three-times damage value.
+// Audit: unsupported — Needs a spell additional cost that taps any number of chosen untapped creatures and retains that count for a three-times damage value.
 pub(in crate::card::sets) static BURN_AT_THE_STAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d46e9902-81fb-4a3c-9f2f-d3faf031631d"),
     "Burn at the Stake",
@@ -3762,7 +3762,7 @@ pub(in crate::card::sets) static MALICIOUS_INTENT: CardRecord = CardRecord::new_
 );
 
 // AVR 148 — Malignus
-// Audit: metadata-only — Needs a characteristic-defining half-highest-opponent-life value and a damage-prevention prohibition for the source.
+// Audit: unsupported — Needs a characteristic-defining half-highest-opponent-life value and a damage-prevention prohibition for the source.
 pub(in crate::card::sets) static MALIGNUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a6a7000-4a1d-4cd4-a85e-4b7b20d8e543"),
     "Malignus",
@@ -3850,7 +3850,7 @@ pub(in crate::card::sets) static RIOT_RINGLEADER: CardRecord = CardRecord::new_w
 );
 
 // AVR 153 — Rite of Ruin
-// Audit: metadata-only — Needs a chosen ordering of three permanent types and six sequential per-player sacrifice choices with retained mode order.
+// Audit: unsupported — Needs a chosen ordering of three permanent types and six sequential per-player sacrifice choices with retained mode order.
 pub(in crate::card::sets) static RITE_OF_RUIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("89e7fec3-94b5-411e-aeb0-44a64f517986"),
     "Rite of Ruin",
@@ -4046,7 +4046,7 @@ pub(in crate::card::sets) static THUNDEROUS_WRATH: CardRecord = CardRecord::new_
 );
 
 // AVR 161 — Tibalt, the Fiend-Blooded
-// Audit: metadata-only — Needs a target player's hand-size value; its other loyalty effects do not make the whole planeswalker exact without that value.
+// Audit: unsupported — Needs a target player's hand-size value; its other loyalty effects do not make the whole planeswalker exact without that value.
 pub(in crate::card::sets) static TIBALT_THE_FIEND_BLOODED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ddb3936-8f5a-498d-a46c-27eb9546c76c"),
     "Tibalt, the Fiend-Blooded",
@@ -4056,7 +4056,7 @@ pub(in crate::card::sets) static TIBALT_THE_FIEND_BLOODED: CardRecord = CardReco
 );
 
 // AVR 162 — Tyrant of Discord
-// Audit: metadata-only — Needs an opponent's random permanent choice and repeat-until-land sacrifice loop.
+// Audit: unsupported — Needs an opponent's random permanent choice and repeat-until-land sacrifice loop.
 pub(in crate::card::sets) static TYRANT_OF_DISCORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8f7c8ea-e9c1-4d78-972c-15c4014915a0"),
     "Tyrant of Discord",
@@ -4091,7 +4091,7 @@ pub(in crate::card::sets) static UNCANNY_SPEED: CardRecord = CardRecord::new_wit
 );
 
 // AVR 164 — Vexing Devil
-// Audit: metadata-only — Needs an opponent choice on resolution, including which opponent in multiplayer, with a sacrifice branch only when one accepts the damage.
+// Audit: unsupported — Needs an opponent choice on resolution, including which opponent in multiplayer, with a sacrifice branch only when one accepts the damage.
 pub(in crate::card::sets) static VEXING_DEVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbbefd98-4b17-4cc2-9ef9-8807f594cb16"),
     "Vexing Devil",
@@ -4206,7 +4206,7 @@ pub(in crate::card::sets) static ABUNDANT_GROWTH: CardRecord = CardRecord::new_w
 );
 
 // AVR 168 — Blessings of Nature
-// Audit: metadata-only — Divided target shares are currently implemented only for damage; using them for counters resolves every counter amount as zero.
+// Audit: unsupported — Divided target shares are currently implemented only for damage; using them for counters resolves every counter amount as zero.
 pub(in crate::card::sets) static BLESSINGS_OF_NATURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d16453f1-c6ca-4288-ab72-315ed9bb0ab0"),
     "Blessings of Nature",
@@ -4341,7 +4341,7 @@ pub(in crate::card::sets) static CRATERHOOF_BEHEMOTH: CardRecord = CardRecord::n
 );
 
 // AVR 173 — Descendants' Path
-// Audit: metadata-only — Needs a top-card reveal, shared-creature-type test, free-cast permission, and bottom placement when the card is not cast.
+// Audit: unsupported — Needs a top-card reveal, shared-creature-type test, free-cast permission, and bottom placement when the card is not cast.
 pub(in crate::card::sets) static DESCENDANTS_PATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ada93208-5cda-4e2d-b9a7-15345e30b831"),
     "Descendants' Path",
@@ -4433,7 +4433,7 @@ pub(in crate::card::sets) static DRUIDS_REPOSITORY: CardRecord = CardRecord::new
 );
 
 // AVR 177 — Eaten by Spiders
-// Audit: metadata-only — Needs an attachment relation that finds and destroys every Equipment attached to the targeted creature.
+// Audit: unsupported — Needs an attachment relation that finds and destroys every Equipment attached to the targeted creature.
 pub(in crate::card::sets) static EATEN_BY_SPIDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0efea1b1-f212-4b97-98dd-922f85ab191f"),
     "Eaten by Spiders",
@@ -4562,7 +4562,7 @@ pub(in crate::card::sets) static HOWLGEIST: CardRecord = CardRecord::new_with_le
 );
 
 // AVR 183 — Joint Assault
-// Audit: metadata-only — Needs soulbond pairing state and the identity of the creature paired with the target.
+// Audit: unsupported — Needs soulbond pairing state and the identity of the creature paired with the target.
 pub(in crate::card::sets) static JOINT_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6516c7c6-d49b-49c5-8968-563622c2c8c1"),
     "Joint Assault",
@@ -4706,7 +4706,7 @@ pub(in crate::card::sets) static PATHBREAKER_WURM: CardRecord = CardRecord::new_
 );
 
 // AVR 189 — Primal Surge
-// Audit: metadata-only — Needs a repeatable top-card exile procedure with a permanent-card branch and a new optional decision on every iteration.
+// Audit: unsupported — Needs a repeatable top-card exile procedure with a permanent-card branch and a new optional decision on every iteration.
 pub(in crate::card::sets) static PRIMAL_SURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4278f7bd-afff-4a1d-a0bb-bf9ce3ad5a2e"),
     "Primal Surge",
@@ -5063,7 +5063,7 @@ pub(in crate::card::sets) static WANDERING_WOLF: CardRecord = CardRecord::new_wi
 );
 
 // AVR 203 — Wild Defiance
-// Audit: metadata-only — Needs an event for a creature becoming the target of an instant or sorcery spell, carrying that creature as the effect recipient.
+// Audit: unsupported — Needs an event for a creature becoming the target of an instant or sorcery spell, carrying that creature as the effect recipient.
 pub(in crate::card::sets) static WILD_DEFIANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7eaa6be7-2c6f-4442-85d1-ae31ad87fd98"),
     "Wild Defiance",
@@ -5159,7 +5159,7 @@ pub(in crate::card::sets) static YEW_SPIRIT: CardRecord = CardRecord::new_with_l
 );
 
 // AVR 208 — Bruna, Light of Alabaster
-// Audit: metadata-only — Needs a blocking trigger and resolving choices of any number of legal Auras across the battlefield, hand, and graveyard to attach to the source.
+// Audit: unsupported — Needs a blocking trigger and resolving choices of any number of legal Auras across the battlefield, hand, and graveyard to attach to the source.
 pub(in crate::card::sets) static BRUNA_LIGHT_OF_ALABASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1995b46-cd88-470d-89ec-37ffb6596348"),
     "Bruna, Light of Alabaster",
@@ -5169,7 +5169,7 @@ pub(in crate::card::sets) static BRUNA_LIGHT_OF_ALABASTER: CardRecord = CardReco
 );
 
 // AVR 209 — Gisela, Blade of Goldnight
-// Audit: metadata-only — Needs global damage-event replacements that double opposing damage and prevent half of incoming damage with rounding.
+// Audit: unsupported — Needs global damage-event replacements that double opposing damage and prevent half of incoming damage with rounding.
 pub(in crate::card::sets) static GISELA_BLADE_OF_GOLDNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("95a576a5-e873-4f27-93df-d363fc5945d0"),
     "Gisela, Blade of Goldnight",
@@ -5345,7 +5345,7 @@ pub(in crate::card::sets) static CONJURERS_CLOSET: CardRecord = CardRecord::new_
 );
 
 // AVR 215 — Gallows at Willow Hill
-// Audit: metadata-only — Needs a joint mana-and-multi-permanent tap-cost planner so the three chosen Humans cannot be spent for mana while paying the same activation.
+// Audit: unsupported — Needs a joint mana-and-multi-permanent tap-cost planner so the three chosen Humans cannot be spent for mana while paying the same activation.
 pub(in crate::card::sets) static GALLOWS_AT_WILLOW_HILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a840ee7-5728-4b1b-92ac-54612e5397b3"),
     "Gallows at Willow Hill",

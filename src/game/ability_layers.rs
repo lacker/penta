@@ -74,11 +74,10 @@ impl Game {
             Self::apply_ability_layer_operation(&mut abilities, &operation);
         }
         abilities.into_iter().any(|effective| {
-            effective.ability.is_executable()
-                && matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Activated(_)
-                )
+            matches!(
+                effective.ability.definition,
+                DeclarativeAbilityDef::Activated(_)
+            )
         })
     }
 
@@ -486,9 +485,7 @@ impl Game {
             }
         };
         for effective in abilities {
-            if effective.ability.is_executable()
-                && let DeclarativeAbilityDef::Keyword(keyword) = effective.ability.definition
-            {
+            if let DeclarativeAbilityDef::Keyword(keyword) = effective.ability.definition {
                 set(keyword);
             }
         }

@@ -64,7 +64,7 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
 );
 
 // STX 43 — Frost Trickster
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd79c9cc-0a8c-4d88-96e2-cb177134a18d"),
     "Frost Trickster",
@@ -125,7 +125,7 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_w
 );
 
 // STX 90 — Unwilling Ingredient
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30448144-639a-43c7-a408-bd6ed543c231"),
     "Unwilling Ingredient",
@@ -222,7 +222,7 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
 );
 
 // STX 219 — Quandrix Pledgemage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
     "Quandrix Pledgemage",
@@ -277,7 +277,7 @@ pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord
 );
 
 // STX 271 — Quandrix Campus
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUANDRIX_CAMPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f788da28-481b-41fa-a70c-b53db6b0f068"),
     "Quandrix Campus",
@@ -287,7 +287,7 @@ pub(in crate::card::sets) static QUANDRIX_CAMPUS: CardRecord = CardRecord::new(
 );
 
 // STX 275 — Witherbloom Campus
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7346fb2e-754e-47de-b33d-eb089b357ee4"),
     "Witherbloom Campus",

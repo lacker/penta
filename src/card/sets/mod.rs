@@ -1,6 +1,6 @@
 //! Built-in card records grouped by release year and set.
 //! Canonical cards live in one set module; reprints and alternate art point back to it.
-//! Partial and metadata-only entries carry explicit coverage reasons.
+//! Unsupported entries carry explicit audit reasons.
 
 mod y1993;
 mod y1994;

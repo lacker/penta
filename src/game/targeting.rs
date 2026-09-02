@@ -147,8 +147,7 @@ impl Game {
         };
         let mut keywords = 0_u64;
         for ability in rules.ability_clauses() {
-            if ability.is_executable()
-                && let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
+            if let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
                 && let Some(index) = keyword.simple_index()
             {
                 keywords |= 1 << index;
@@ -191,9 +190,7 @@ impl Game {
     ) -> Vec<AppliedEffectDef> {
         let mut applied = Vec::new();
         for ability in definition.rules.ability_clauses() {
-            let (true, DeclarativeAbilityDef::Static(static_definition)) =
-                (ability.is_executable(), ability.definition)
-            else {
+            let DeclarativeAbilityDef::Static(static_definition) = ability.definition else {
                 continue;
             };
             if !static_definition.source_zones.contains(&zone) {
@@ -259,8 +256,7 @@ impl Game {
             let part = definition.part(part)?;
             types = types.union(part.rules.types());
             for ability in part.rules.ability_clauses() {
-                if ability.is_executable()
-                    && let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
+                if let DeclarativeAbilityDef::Keyword(keyword) = ability.definition
                     && let Some(index) = keyword.simple_index()
                 {
                     keywords |= 1 << index;

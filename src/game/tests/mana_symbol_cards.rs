@@ -3,19 +3,30 @@
 use super::*;
 use crate::{FlexibleManaSymbol, TokenCharacteristics};
 
-fn tamiyos_notebook(catalog: &CardCatalog) -> TokenCharacteristics {
-    let ability = catalog
-        .get(cards::TAMIYO_COMPLEATED_SAGE)
-        .expect("Tamiyo is cataloged")
-        .rules
-        .ability_clauses()
-        .iter()
-        .find(|ability| ability.text.starts_with("−7"))
-        .expect("Tamiyo has her ultimate");
-    let Some(EffectDef::CreateToken { token, .. }) = ability.declarative_effect() else {
-        panic!("Tamiyo's ultimate directly creates her Notebook");
-    };
-    token
+static TAMIYOS_NOTEBOOK_ABILITIES: &[AbilityDef] = &[
+    AbilityDef::static_ability(
+        "Spells you cast cost {2} less to cast.",
+        EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+            ObjectPredicateDef::Any,
+            PlayerRelation::You,
+            ValueDef::Constant(2),
+        )),
+    ),
+    AbilityDef::activated(
+        "{T}: Draw a card.",
+        &[AbilityCostDef::TapSource],
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    ),
+];
+
+fn tamiyos_notebook(_catalog: &CardCatalog) -> TokenCharacteristics {
+    TokenCharacteristics::artifact(&["Book"], &[])
+        .with_name("Tamiyo's Notebook")
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(TAMIYOS_NOTEBOOK_ABILITIES)
 }
 
 fn resolve_stack(game: &mut Game) {
@@ -43,36 +54,12 @@ fn assert_flexible_card_printings(catalog: &CardCatalog) {
             "Greg Staples",
         ),
         (
-            cards::BARKSHELL_BLESSING,
-            "Barkshell Blessing",
-            CardSet::Shadowmoor,
-            mana_cost!("{G/W}"),
-            "cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69",
-            "Steven Belledin",
-        ),
-        (
             cards::BESEECH_THE_QUEEN,
             "Beseech the Queen",
             CardSet::Shadowmoor,
             mana_cost!("{2/B}{2/B}{2/B}"),
             "64ee0a93-0f6d-42be-bdca-1de5422d8d54",
             "Jason Chan",
-        ),
-        (
-            cards::ULALEK_FUSED_ATROCITY,
-            "Ulalek, Fused Atrocity",
-            CardSet::ModernHorizons3Commander,
-            mana_cost!("{C/W}{C/U}{C/B}{C/R}{C/G}"),
-            "fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c",
-            "Alex Konstad",
-        ),
-        (
-            cards::TAMIYO_COMPLEATED_SAGE,
-            "Tamiyo, Compleated Sage",
-            CardSet::KamigawaNeonDynasty,
-            mana_cost!("{2}{G}{G/U/P}{U}"),
-            "222a736e-d819-452d-aeda-eb848c4b2302",
-            "Chris Rahn",
         ),
         (
             cards::FARMSTEAD_GLEANER,
@@ -96,25 +83,20 @@ fn assert_flexible_card_printings(catalog: &CardCatalog) {
 }
 
 #[test]
-fn flexible_symbol_cards_keep_their_exact_catalog_metadata() {
+fn supported_flexible_symbol_cards_keep_their_exact_catalog_metadata() {
     let catalog = poc::catalog().expect("catalog builds");
     assert_flexible_card_printings(&catalog);
 
-    let ulalek = catalog
-        .get(cards::ULALEK_FUSED_ATROCITY)
-        .expect("cataloged");
-    assert!(
-        ulalek.rules.colors().iter().all(|present| !present),
-        "devoid is represented as colorless printed metadata",
-    );
-    let tamiyo = catalog
-        .get(cards::TAMIYO_COMPLEATED_SAGE)
-        .expect("cataloged");
-    assert_eq!(
-        tamiyo.rules.ability_clauses()[0].text,
-        "Compleated ({G/U/P} can be paid with {G}, {U}, or 2 life. If life was paid, this planeswalker enters with two fewer loyalty counters.)",
-        "Tamiyo keeps her printing-specific Compleated reminder text",
-    );
+    for id in [
+        cards::BARKSHELL_BLESSING,
+        cards::ULALEK_FUSED_ATROCITY,
+        cards::TAMIYO_COMPLEATED_SAGE,
+    ] {
+        assert_eq!(
+            catalog.get(id).expect("cataloged").implementation_status(),
+            ImplementationStatus::Unsupported,
+        );
+    }
 }
 
 #[test]
@@ -176,7 +158,7 @@ fn ulalek_cannot_be_reanimated_as_a_vanilla_body() {
             .graveyard
             .iter()
             .any(|card| card.id == ulalek_id),
-        "a blocked metadata-only move leaves the card in its source zone",
+        "a blocked unsupported-card move leaves the card in its source zone",
     );
 }
 
@@ -405,6 +387,7 @@ fn generic_reductions_apply_after_beseechs_two_brid_choice() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn barkshell_blessing_executes_its_pump_without_conspire() {
     let mut game = ready_game();
     let creature = game
@@ -506,6 +489,7 @@ fn beseech_the_queen_limits_its_search_to_the_lands_you_control() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn tamiyos_plus_one_skips_an_untap_and_minus_seven_makes_the_notebook() {
     let mut game = ready_game();
     game.battlefield.clear();
@@ -576,6 +560,7 @@ fn tamiyos_plus_one_skips_an_untap_and_minus_seven_makes_the_notebook() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn tamiyo_enters_with_less_loyalty_only_when_phyrexian_life_was_paid() {
     let mut mana_game = ready_game();
     let tamiyo = card(90_035, cards::TAMIYO_COMPLEATED_SAGE, PlayerId::One);
@@ -673,6 +658,7 @@ fn blue_pain_source_definition() -> (CardDefinitionId, CardDefinition) {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn phyrexian_life_is_reserved_from_channel() {
     let mut channel_game = ready_game();
     channel_game.players[PlayerId::One.index()].life = 2;
@@ -710,6 +696,7 @@ fn phyrexian_life_is_reserved_from_channel() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn phyrexian_life_is_reserved_from_life_cost_mana_sources() {
     let mut lands_game = ready_game();
     lands_game.players[PlayerId::One.index()].life = 2;
@@ -771,6 +758,7 @@ fn phyrexian_life_is_reserved_from_life_cost_mana_sources() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn phyrexian_life_can_be_paid_down_to_exactly_zero() {
     let mut exact_game = ready_game();
     exact_game.players[PlayerId::One.index()].life = 2;

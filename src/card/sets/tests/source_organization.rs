@@ -35,8 +35,7 @@ enum PrintingKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum AuditStatus {
-    Partial,
-    MetadataOnly,
+    Unsupported,
     Blocked,
 }
 
@@ -518,7 +517,7 @@ fn validate_source_annotations(lines: &[&str], path: &Path) {
         if line.starts_with(AUDIT_PREFIX) {
             assert!(
                 parse_audit(line).is_some(),
-                "{}:{}: expected exact `// Audit: blocked|partial|metadata-only — GAP` comment",
+                "{}:{}: expected exact `// Audit: blocked|unsupported — GAP` comment",
                 path.display(),
                 index + 1
             );
@@ -721,8 +720,7 @@ fn parse_audit(line: &str) -> Option<(AuditStatus, &str)> {
     }
     let status = match status {
         "blocked" => AuditStatus::Blocked,
-        "partial" => AuditStatus::Partial,
-        "metadata-only" => AuditStatus::MetadataOnly,
+        "unsupported" => AuditStatus::Unsupported,
         _ => return None,
     };
     Some((status, gap))

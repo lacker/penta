@@ -3,20 +3,19 @@ use super::{
     validate_replacement_ability_targets, validate_semantic_spell_presentation,
 };
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityEffectDef, AbilityTargetDef,
-    AbilityTargetPredicate, ActivatedAbilityDef, AdditionalCostDef, AlternateSpellKind,
-    AlternativeCastKindDef, AlternativeCostDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryModificationDef, CardDefinition, CardEffectStatus, CardPart, CardPrinting,
-    CardPrintingId, CardSet, CardStructure, CardType, ChoiceVisibilityDef, ChooseDef,
-    DamageEventMatcherDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaCost, ModeDef, ModeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, PrintedManaCost, ReplacementAbilityDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SpellForm,
-    TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind,
-    ZoneMoveCauseDef,
+    AbilityCostDef, AbilityDef, AbilityEffectDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivatedAbilityDef, AdditionalCostDef, AlternateSpellKind, AlternativeCastKindDef,
+    AlternativeCostDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
+    CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardSet,
+    CardStructure, CardType, ChoiceVisibilityDef, ChooseDef, DamageEventMatcherDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, DoubleFacedKind,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaCost, ModeDef, ModeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, PrintedManaCost, ReplacementAbilityDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SpellForm, TargetChooserDef,
+    TargetConditionDef, TargetPredicate, TargetSlotDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, TurnKindDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardDefinitionId, CardPartId, Format, GrantId,
@@ -49,7 +48,7 @@ fn mode(id: u8, targets: Vec<TargetSlotDef>) -> ModeDef {
         label: "test mode".into(),
         additional_mana_cost: None,
         targets,
-        effect_status: CardEffectStatus::MetadataOnly,
+        effect_status: CardEffectStatus::Unsupported,
     }
 }
 
@@ -144,6 +143,13 @@ fn set_primary_rules(card: &mut CardDefinition, rules: &crate::CardRules) {
         .find(|part| part.id == primary)
         .expect("the test definition has a primary part")
         .rules = *rules;
+    let status = match rules.implementation_status() {
+        crate::ImplementationStatus::Complete => CardEffectStatus::Implemented,
+        crate::ImplementationStatus::Unsupported => CardEffectStatus::Unsupported,
+    };
+    for option in &mut card.play_options {
+        option.effect_status = status;
+    }
 }
 
 fn definition_granting(granted: &'static AbilityDef) -> CardDefinition {

@@ -16,7 +16,7 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // TOR 1 — Angel of Retribution
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGEL_OF_RETRIBUTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f3215ba-e492-4cfd-aa16-0da4818eed1b"),
     "Angel of Retribution",
@@ -26,7 +26,7 @@ pub(in crate::card::sets) static ANGEL_OF_RETRIBUTION: CardRecord = CardRecord::
 );
 
 // TOR 2 — Aven Trooper
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AVEN_TROOPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("79c8f774-6d4f-4fd0-85c0-26ef713e6b89"),
     "Aven Trooper",
@@ -36,7 +36,7 @@ pub(in crate::card::sets) static AVEN_TROOPER: CardRecord = CardRecord::new(
 );
 
 // TOR 3 — Cleansing Meditation
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLEANSING_MEDITATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd6609ef-71af-4775-affc-34153700c556"),
     "Cleansing Meditation",
@@ -46,7 +46,7 @@ pub(in crate::card::sets) static CLEANSING_MEDITATION: CardRecord = CardRecord::
 );
 
 // TOR 4 — Equal Treatment
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EQUAL_TREATMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("310cb525-9299-471e-b310-392353b25472"),
     "Equal Treatment",
@@ -59,7 +59,7 @@ pub(in crate::card::sets) static EQUAL_TREATMENT: CardRecord = CardRecord::new(
 );
 
 // TOR 5 — Floating Shield
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOATING_SHIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4dbda39b-a998-4ad9-95df-72ed9556c390"),
     "Floating Shield",
@@ -69,7 +69,7 @@ pub(in crate::card::sets) static FLOATING_SHIELD: CardRecord = CardRecord::new(
 );
 
 // TOR 6 — Frantic Purification
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRANTIC_PURIFICATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04f156d1-2655-42aa-a785-d8eb15cb5422"),
     "Frantic Purification",
@@ -79,7 +79,7 @@ pub(in crate::card::sets) static FRANTIC_PURIFICATION: CardRecord = CardRecord::
 );
 
 // TOR 7 — Hypochondria
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYPOCHONDRIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3467c940-dae4-4667-bec8-524dbce13283"),
     "Hypochondria",
@@ -92,7 +92,7 @@ pub(in crate::card::sets) static HYPOCHONDRIA: CardRecord = CardRecord::new(
 );
 
 // TOR 8 — Major Teroh
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAJOR_TEROH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3229ca5a-5340-48b8-bd46-b0b924c8faf7"),
     "Major Teroh",
@@ -102,7 +102,7 @@ pub(in crate::card::sets) static MAJOR_TEROH: CardRecord = CardRecord::new(
 );
 
 // TOR 9 — Militant Monk
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MILITANT_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("886a3cfd-7f83-480a-bb22-eec67ad35e4f"),
     "Militant Monk",
@@ -112,7 +112,7 @@ pub(in crate::card::sets) static MILITANT_MONK: CardRecord = CardRecord::new(
 );
 
 // TOR 10 — Morningtide
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORNINGTIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a62e17a7-3602-45af-bdb6-fa5f2a9f1155"),
     "Morningtide",
@@ -122,7 +122,7 @@ pub(in crate::card::sets) static MORNINGTIDE: CardRecord = CardRecord::new(
 );
 
 // TOR 11 — Mystic Familiar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_FAMILIAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b235567a-424e-48da-a94b-c6674a73b3fa"),
     "Mystic Familiar",
@@ -135,7 +135,7 @@ pub(in crate::card::sets) static MYSTIC_FAMILIAR: CardRecord = CardRecord::new(
 );
 
 // TOR 12 — Pay No Heed
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PAY_NO_HEED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9520a1be-db77-4f31-a67d-6309a3ddc566"),
     "Pay No Heed",
@@ -145,7 +145,7 @@ pub(in crate::card::sets) static PAY_NO_HEED: CardRecord = CardRecord::new(
 );
 
 // TOR 13 — Possessed Nomad
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POSSESSED_NOMAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d9dfae5-63f6-401a-9dec-afe838190824"),
     "Possessed Nomad",
@@ -155,7 +155,7 @@ pub(in crate::card::sets) static POSSESSED_NOMAD: CardRecord = CardRecord::new(
 );
 
 // TOR 14 — Reborn Hero
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REBORN_HERO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4acbc7f-c86e-4285-a66d-d7b03fe44377"),
     "Reborn Hero",
@@ -165,7 +165,7 @@ pub(in crate::card::sets) static REBORN_HERO: CardRecord = CardRecord::new(
 );
 
 // TOR 15 — Spirit Flare
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIRIT_FLARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efdbe7c6-99ad-4c73-bffe-7bbdc6965854"),
     "Spirit Flare",
@@ -175,7 +175,7 @@ pub(in crate::card::sets) static SPIRIT_FLARE: CardRecord = CardRecord::new(
 );
 
 // TOR 16 — Stern Judge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STERN_JUDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("436044d7-981c-4273-a0b4-6dd455608c47"),
     "Stern Judge",
@@ -185,7 +185,7 @@ pub(in crate::card::sets) static STERN_JUDGE: CardRecord = CardRecord::new(
 );
 
 // TOR 17 — Strength of Isolation
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRENGTH_OF_ISOLATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7676e6fb-030d-40aa-a914-27ab6d7d5fc5"),
     "Strength of Isolation",
@@ -195,7 +195,7 @@ pub(in crate::card::sets) static STRENGTH_OF_ISOLATION: CardRecord = CardRecord:
 );
 
 // TOR 18 — Teroh's Faithful
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEROH_S_FAITHFUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bff8cf45-c84f-49d7-ad3d-b5e046286cb3"),
     "Teroh's Faithful",
@@ -205,7 +205,7 @@ pub(in crate::card::sets) static TEROH_S_FAITHFUL: CardRecord = CardRecord::new(
 );
 
 // TOR 19 — Teroh's Vanguard
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEROH_S_VANGUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a39f909-7114-4482-8302-b2a56ca9f556"),
     "Teroh's Vanguard",
@@ -218,7 +218,7 @@ pub(in crate::card::sets) static TEROH_S_VANGUARD: CardRecord = CardRecord::new(
 );
 
 // TOR 20 — Transcendence
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANSCENDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("84e8bee2-9e3d-493c-a937-645bf3dcf0db"),
     "Transcendence",
@@ -228,7 +228,7 @@ pub(in crate::card::sets) static TRANSCENDENCE: CardRecord = CardRecord::new(
 );
 
 // TOR 21 — Vengeful Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENGEFUL_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("48bfe8b2-cc98-4430-b576-085163bdf0b6"),
     "Vengeful Dreams",
@@ -238,7 +238,7 @@ pub(in crate::card::sets) static VENGEFUL_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 22 — Alter Reality
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALTER_REALITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64cd68be-6e6a-4577-8465-a892463b6d6c"),
     "Alter Reality",
@@ -248,7 +248,7 @@ pub(in crate::card::sets) static ALTER_REALITY: CardRecord = CardRecord::new(
 );
 
 // TOR 23 — Ambassador Laquatus
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AMBASSADOR_LAQUATUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("887cac61-2001-4bd1-aeeb-20149ebc5856"),
     "Ambassador Laquatus",
@@ -258,7 +258,7 @@ pub(in crate::card::sets) static AMBASSADOR_LAQUATUS: CardRecord = CardRecord::n
 );
 
 // TOR 24 — Aquamoeba
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AQUAMOEBA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1243552a-ca57-42ce-817e-d6268fc673e0"),
     "Aquamoeba",
@@ -268,7 +268,7 @@ pub(in crate::card::sets) static AQUAMOEBA: CardRecord = CardRecord::new(
 );
 
 // TOR 25 — Balshan Collaborator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALSHAN_COLLABORATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e23ebd3b-59bf-4f3d-b320-9283871c4540"),
     "Balshan Collaborator",
@@ -278,7 +278,7 @@ pub(in crate::card::sets) static BALSHAN_COLLABORATOR: CardRecord = CardRecord::
 );
 
 // TOR 26 — Breakthrough
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BREAKTHROUGH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a59a2cea-3b65-43da-bc6e-0e3c82f25b3c"),
     "Breakthrough",
@@ -288,7 +288,7 @@ pub(in crate::card::sets) static BREAKTHROUGH: CardRecord = CardRecord::new(
 );
 
 // TOR 27 — Cephalid Aristocrat
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_ARISTOCRAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd9ca63d-7e77-48f3-abdc-2d2f9cb3a0d9"),
     "Cephalid Aristocrat",
@@ -298,7 +298,7 @@ pub(in crate::card::sets) static CEPHALID_ARISTOCRAT: CardRecord = CardRecord::n
 );
 
 // TOR 28 — Cephalid Illusionist
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_ILLUSIONIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dceb8cf5-b31a-400e-aea5-ad0c3552d697"),
     "Cephalid Illusionist",
@@ -308,7 +308,7 @@ pub(in crate::card::sets) static CEPHALID_ILLUSIONIST: CardRecord = CardRecord::
 );
 
 // TOR 29 — Cephalid Sage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_SAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("434e2ece-7b00-4ad1-9c35-cca16fbb002b"),
     "Cephalid Sage",
@@ -318,7 +318,7 @@ pub(in crate::card::sets) static CEPHALID_SAGE: CardRecord = CardRecord::new(
 );
 
 // TOR 30 — Cephalid Snitch
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_SNITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33d989b2-0198-4e5b-8aad-ee939191dd28"),
     "Cephalid Snitch",
@@ -328,7 +328,7 @@ pub(in crate::card::sets) static CEPHALID_SNITCH: CardRecord = CardRecord::new(
 );
 
 // TOR 31 — Cephalid Vandal
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CEPHALID_VANDAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2500976f-a329-4a51-bcc1-cafe39bc3ccf"),
     "Cephalid Vandal",
@@ -341,7 +341,7 @@ pub(in crate::card::sets) static CEPHALID_VANDAL: CardRecord = CardRecord::new(
 );
 
 // TOR 32 — Churning Eddy
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHURNING_EDDY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd28bc8e-842f-4788-92a0-3019e3c2385f"),
     "Churning Eddy",
@@ -351,7 +351,7 @@ pub(in crate::card::sets) static CHURNING_EDDY: CardRecord = CardRecord::new(
 );
 
 // TOR 33 — Circular Logic
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CIRCULAR_LOGIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd9198d6-201d-4175-8f70-eef92d7d5bb5"),
     "Circular Logic",
@@ -361,7 +361,7 @@ pub(in crate::card::sets) static CIRCULAR_LOGIC: CardRecord = CardRecord::new(
 );
 
 // TOR 34 — Compulsion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COMPULSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d1f56e8-55cb-4b81-9946-9f0f813e3d4a"),
     "Compulsion",
@@ -374,7 +374,7 @@ pub(in crate::card::sets) static COMPULSION: CardRecord = CardRecord::new(
 );
 
 // TOR 35 — Coral Net
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CORAL_NET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abe9cf1e-d398-41e0-8b11-afe1015e4fd9"),
     "Coral Net",
@@ -386,7 +386,7 @@ pub(in crate::card::sets) static CORAL_NET: CardRecord = CardRecord::new(
 // TOR 36 — Deep Analysis (reprint)
 
 // TOR 37 — False Memories
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FALSE_MEMORIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a45ea90-03af-446e-9df3-ef64e9613f2c"),
     "False Memories",
@@ -396,7 +396,7 @@ pub(in crate::card::sets) static FALSE_MEMORIES: CardRecord = CardRecord::new(
 );
 
 // TOR 38 — Ghostly Wings
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58fb2705-82e7-49d9-b8cc-f98f652dd6c1"),
     "Ghostly Wings",
@@ -406,7 +406,7 @@ pub(in crate::card::sets) static GHOSTLY_WINGS: CardRecord = CardRecord::new(
 );
 
 // TOR 39 — Hydromorph Guardian
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYDROMORPH_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40e4ace0-421d-4e8e-ab85-8f74757e99c7"),
     "Hydromorph Guardian",
@@ -416,7 +416,7 @@ pub(in crate::card::sets) static HYDROMORPH_GUARDIAN: CardRecord = CardRecord::n
 );
 
 // TOR 40 — Hydromorph Gull
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYDROMORPH_GULL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06b1c8fc-e09b-479b-ac15-f659acb2f50f"),
     "Hydromorph Gull",
@@ -426,7 +426,7 @@ pub(in crate::card::sets) static HYDROMORPH_GULL: CardRecord = CardRecord::new(
 );
 
 // TOR 41 — Liquify
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIQUIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12fadf25-0995-440d-a3e6-7964ed86cff6"),
     "Liquify",
@@ -436,7 +436,7 @@ pub(in crate::card::sets) static LIQUIFY: CardRecord = CardRecord::new(
 );
 
 // TOR 42 — Llawan, Cephalid Empress
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLAWAN_CEPHALID_EMPRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9821970-a5da-4045-93d8-f58c9e5797c1"),
     "Llawan, Cephalid Empress",
@@ -446,7 +446,7 @@ pub(in crate::card::sets) static LLAWAN_CEPHALID_EMPRESS: CardRecord = CardRecor
 );
 
 // TOR 43 — Obsessive Search
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OBSESSIVE_SEARCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("79977d84-7a20-47ef-930f-0ce7a5eff88e"),
     "Obsessive Search",
@@ -456,7 +456,7 @@ pub(in crate::card::sets) static OBSESSIVE_SEARCH: CardRecord = CardRecord::new(
 );
 
 // TOR 44 — Plagiarize
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGIARIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("333bbcba-19a7-4307-abe7-7cffa3569e4d"),
     "Plagiarize",
@@ -466,7 +466,7 @@ pub(in crate::card::sets) static PLAGIARIZE: CardRecord = CardRecord::new(
 );
 
 // TOR 45 — Possessed Aven
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POSSESSED_AVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("997c56c7-c625-4209-b4b6-d274dee2db48"),
     "Possessed Aven",
@@ -476,7 +476,7 @@ pub(in crate::card::sets) static POSSESSED_AVEN: CardRecord = CardRecord::new(
 );
 
 // TOR 46 — Retraced Image
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETRACED_IMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c62fa778-ce44-4a3e-958a-91dfe5398944"),
     "Retraced Image",
@@ -486,7 +486,7 @@ pub(in crate::card::sets) static RETRACED_IMAGE: CardRecord = CardRecord::new(
 );
 
 // TOR 47 — Skywing Aven
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91a20b6b-43e6-4feb-9792-909332e1a846"),
     "Skywing Aven",
@@ -496,7 +496,7 @@ pub(in crate::card::sets) static SKYWING_AVEN: CardRecord = CardRecord::new(
 );
 
 // TOR 48 — Stupefying Touch
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STUPEFYING_TOUCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f817379-9c0b-4e43-a345-492516ccb6e1"),
     "Stupefying Touch",
@@ -506,7 +506,7 @@ pub(in crate::card::sets) static STUPEFYING_TOUCH: CardRecord = CardRecord::new(
 );
 
 // TOR 49 — Turbulent Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TURBULENT_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d879226b-8ee3-4a48-b03a-d183594dc586"),
     "Turbulent Dreams",
@@ -516,7 +516,7 @@ pub(in crate::card::sets) static TURBULENT_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 50 — Boneshard Slasher
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONESHARD_SLASHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27201370-32cc-4b90-890d-8c3f5362ad70"),
     "Boneshard Slasher",
@@ -559,7 +559,7 @@ pub(in crate::card::sets) static CABAL_RITUAL: CardRecord = CardRecord::new(
 );
 
 // TOR 52 — Cabal Surgeon
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_SURGEON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29ce55a2-d838-48ab-862e-d419b0cda3c9"),
     "Cabal Surgeon",
@@ -569,7 +569,7 @@ pub(in crate::card::sets) static CABAL_SURGEON: CardRecord = CardRecord::new(
 );
 
 // TOR 53 — Cabal Torturer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_TORTURER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ebcf8dd7-f45c-4ac2-9507-fa175fe89887"),
     "Cabal Torturer",
@@ -579,7 +579,7 @@ pub(in crate::card::sets) static CABAL_TORTURER: CardRecord = CardRecord::new(
 );
 
 // TOR 54 — Carrion Rats
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRION_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2efa2579-c048-4506-babc-ec1c29bb99a8"),
     "Carrion Rats",
@@ -592,7 +592,7 @@ pub(in crate::card::sets) static CARRION_RATS: CardRecord = CardRecord::new(
 );
 
 // TOR 55 — Carrion Wurm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRION_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37c2b228-94c0-4e84-ad6d-80b170bb6c0c"),
     "Carrion Wurm",
@@ -602,7 +602,7 @@ pub(in crate::card::sets) static CARRION_WURM: CardRecord = CardRecord::new(
 );
 
 // TOR 56 — Chainer, Dementia Master
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAINER_DEMENTIA_MASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40342b11-1005-4ccc-bef4-9ea4c640b048"),
     "Chainer, Dementia Master",
@@ -612,7 +612,7 @@ pub(in crate::card::sets) static CHAINER_DEMENTIA_MASTER: CardRecord = CardRecor
 );
 
 // TOR 57 — Chainer's Edict
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAINER_S_EDICT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("014af391-3b4a-4aab-a3e9-f60e61016985"),
     "Chainer's Edict",
@@ -622,7 +622,7 @@ pub(in crate::card::sets) static CHAINER_S_EDICT: CardRecord = CardRecord::new(
 );
 
 // TOR 58 — Crippling Fatigue
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRIPPLING_FATIGUE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bb53a87-ba48-4c77-b284-3be321c8836e"),
     "Crippling Fatigue",
@@ -632,7 +632,7 @@ pub(in crate::card::sets) static CRIPPLING_FATIGUE: CardRecord = CardRecord::new
 );
 
 // TOR 59 — Dawn of the Dead
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAWN_OF_THE_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("baabadd3-3fc1-4c9a-ad3b-c79d60fb3390"),
     "Dawn of the Dead",
@@ -642,7 +642,7 @@ pub(in crate::card::sets) static DAWN_OF_THE_DEAD: CardRecord = CardRecord::new(
 );
 
 // TOR 60 — Faceless Butcher
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FACELESS_BUTCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4073be21-c54a-4eee-9109-f3adfe757c4e"),
     "Faceless Butcher",
@@ -652,7 +652,7 @@ pub(in crate::card::sets) static FACELESS_BUTCHER: CardRecord = CardRecord::new(
 );
 
 // TOR 61 — Gloomdrifter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLOOMDRIFTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("baaf8c24-3f5e-4ea5-941b-40ad1299af39"),
     "Gloomdrifter",
@@ -662,7 +662,7 @@ pub(in crate::card::sets) static GLOOMDRIFTER: CardRecord = CardRecord::new(
 );
 
 // TOR 62 — Gravegouger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAVEGOUGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("acfcd559-374e-4e6f-9333-2e5c855abff5"),
     "Gravegouger",
@@ -672,7 +672,7 @@ pub(in crate::card::sets) static GRAVEGOUGER: CardRecord = CardRecord::new(
 );
 
 // TOR 63 — Grotesque Hybrid
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GROTESQUE_HYBRID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b063c3a-267f-4f22-be51-0a14880afc24"),
     "Grotesque Hybrid",
@@ -682,7 +682,7 @@ pub(in crate::card::sets) static GROTESQUE_HYBRID: CardRecord = CardRecord::new(
 );
 
 // TOR 64 — Hypnox
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HYPNOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e0e53a1-11d5-4975-b698-8b5d72d241f0"),
     "Hypnox",
@@ -767,7 +767,7 @@ pub(in crate::card::sets) static ICHORID: CardRecord = CardRecord::new(
 );
 
 // TOR 66 — Insidious Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSIDIOUS_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8a29622-23a6-42c7-8e56-690613572c94"),
     "Insidious Dreams",
@@ -777,7 +777,7 @@ pub(in crate::card::sets) static INSIDIOUS_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 67 — Laquatus's Champion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAQUATUS_S_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f995525-7e82-45fc-8e55-76607487151a"),
     "Laquatus's Champion",
@@ -787,7 +787,7 @@ pub(in crate::card::sets) static LAQUATUS_S_CHAMPION: CardRecord = CardRecord::n
 );
 
 // TOR 68 — Last Laugh
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LAST_LAUGH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d4c05f2a-b844-42b3-af91-65694b4211dd"),
     "Last Laugh",
@@ -797,7 +797,7 @@ pub(in crate::card::sets) static LAST_LAUGH: CardRecord = CardRecord::new(
 );
 
 // TOR 69 — Mesmeric Fiend
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MESMERIC_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6edd4ea-c587-4d93-a675-4cdec3e0b1ca"),
     "Mesmeric Fiend",
@@ -807,7 +807,7 @@ pub(in crate::card::sets) static MESMERIC_FIEND: CardRecord = CardRecord::new(
 );
 
 // TOR 70 — Mind Sludge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_SLUDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("34bf3c19-f148-4542-8505-604191fd5a02"),
     "Mind Sludge",
@@ -817,7 +817,7 @@ pub(in crate::card::sets) static MIND_SLUDGE: CardRecord = CardRecord::new(
 );
 
 // TOR 71 — Mortal Combat
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORTAL_COMBAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21146226-ff05-40d5-bc4e-42f2263104b1"),
     "Mortal Combat",
@@ -827,7 +827,7 @@ pub(in crate::card::sets) static MORTAL_COMBAT: CardRecord = CardRecord::new(
 );
 
 // TOR 72 — Mortiphobia
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MORTIPHOBIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7b93caa-0f43-43ac-84e9-99f6bcbf9e81"),
     "Mortiphobia",
@@ -842,7 +842,7 @@ pub(in crate::card::sets) static MORTIPHOBIA: CardRecord = CardRecord::new(
 // TOR 73 — Mutilate (reprint)
 
 // TOR 74 — Nantuko Shade
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_SHADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ed9dc9c-b92b-4305-8c54-1a63f750f8d1"),
     "Nantuko Shade",
@@ -852,7 +852,7 @@ pub(in crate::card::sets) static NANTUKO_SHADE: CardRecord = CardRecord::new(
 );
 
 // TOR 75 — Organ Grinder
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORGAN_GRINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6233d4c3-9407-41b0-92a9-5f90dfd6a584"),
     "Organ Grinder",
@@ -862,7 +862,7 @@ pub(in crate::card::sets) static ORGAN_GRINDER: CardRecord = CardRecord::new(
 );
 
 // TOR 76 — Psychotic Haze
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PSYCHOTIC_HAZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d3f6cd2-0138-40e7-a975-3f7c68db0d93"),
     "Psychotic Haze",
@@ -875,7 +875,7 @@ pub(in crate::card::sets) static PSYCHOTIC_HAZE: CardRecord = CardRecord::new(
 );
 
 // TOR 77 — Putrid Imp
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUTRID_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b9e6c5c-4bc4-4f41-8c2c-f5b8c97c53c5"),
     "Putrid Imp",
@@ -885,7 +885,7 @@ pub(in crate::card::sets) static PUTRID_IMP: CardRecord = CardRecord::new(
 );
 
 // TOR 78 — Rancid Earth
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RANCID_EARTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23d07a96-85ba-4714-94a5-4a8125954f58"),
     "Rancid Earth",
@@ -895,7 +895,7 @@ pub(in crate::card::sets) static RANCID_EARTH: CardRecord = CardRecord::new(
 );
 
 // TOR 79 — Restless Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESTLESS_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63795680-5310-4c99-92c1-70e453391de9"),
     "Restless Dreams",
@@ -907,7 +907,7 @@ pub(in crate::card::sets) static RESTLESS_DREAMS: CardRecord = CardRecord::new(
 // TOR 80 — Sengir Vampire (reprint)
 
 // TOR 81 — Shade's Form
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHADE_S_FORM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("449baad3-9a4a-4f5f-9e9f-02cc97ab71e6"),
     "Shade's Form",
@@ -917,7 +917,7 @@ pub(in crate::card::sets) static SHADE_S_FORM: CardRecord = CardRecord::new(
 );
 
 // TOR 82 — Shambling Swarm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHAMBLING_SWARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5b93715-985f-4719-a3c3-044c2a150e96"),
     "Shambling Swarm",
@@ -927,7 +927,7 @@ pub(in crate::card::sets) static SHAMBLING_SWARM: CardRecord = CardRecord::new(
 );
 
 // TOR 83 — Sickening Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SICKENING_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9396ac77-9f53-46bd-b126-02441a0f5594"),
     "Sickening Dreams",
@@ -937,7 +937,7 @@ pub(in crate::card::sets) static SICKENING_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 84 — Slithery Stalker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SLITHERY_STALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c875bb6-55bb-41cc-8825-8011581ff001"),
     "Slithery Stalker",
@@ -947,7 +947,7 @@ pub(in crate::card::sets) static SLITHERY_STALKER: CardRecord = CardRecord::new(
 );
 
 // TOR 85 — Soul Scourge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_SCOURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4aa7d91b-cfbb-4da0-97fa-3c0a15f1dbb9"),
     "Soul Scourge",
@@ -957,7 +957,7 @@ pub(in crate::card::sets) static SOUL_SCOURGE: CardRecord = CardRecord::new(
 );
 
 // TOR 86 — Strength of Lunacy
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRENGTH_OF_LUNACY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afda26e7-4fdd-45e1-bcd1-f0abf91979aa"),
     "Strength of Lunacy",
@@ -967,7 +967,7 @@ pub(in crate::card::sets) static STRENGTH_OF_LUNACY: CardRecord = CardRecord::ne
 );
 
 // TOR 87 — Unhinge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNHINGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b89deafd-cb7c-4da7-ab9b-8f795554a705"),
     "Unhinge",
@@ -977,7 +977,7 @@ pub(in crate::card::sets) static UNHINGE: CardRecord = CardRecord::new(
 );
 
 // TOR 88 — Waste Away
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WASTE_AWAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("78e859c2-3457-4c4c-9b1c-0db647dcf259"),
     "Waste Away",
@@ -987,7 +987,7 @@ pub(in crate::card::sets) static WASTE_AWAY: CardRecord = CardRecord::new(
 );
 
 // TOR 89 — Zombie Trailblazer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZOMBIE_TRAILBLAZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82e4675f-ebec-483f-a111-b505629760fd"),
     "Zombie Trailblazer",
@@ -997,7 +997,7 @@ pub(in crate::card::sets) static ZOMBIE_TRAILBLAZER: CardRecord = CardRecord::ne
 );
 
 // TOR 90 — Accelerate
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACCELERATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a28dd88-db90-4f02-8aa9-39051d2c4763"),
     "Accelerate",
@@ -1007,7 +1007,7 @@ pub(in crate::card::sets) static ACCELERATE: CardRecord = CardRecord::new(
 );
 
 // TOR 91 — Balthor the Stout
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e81ecdc5-d2c7-4292-9b59-fd6bf3ba29d5"),
     "Balthor the Stout",
@@ -1017,7 +1017,7 @@ pub(in crate::card::sets) static BALTHOR_THE_STOUT: CardRecord = CardRecord::new
 );
 
 // TOR 92 — Barbarian Outcast
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBARIAN_OUTCAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9d67b5c-ab20-456e-8ff5-7521be8273b2"),
     "Barbarian Outcast",
@@ -1027,7 +1027,7 @@ pub(in crate::card::sets) static BARBARIAN_OUTCAST: CardRecord = CardRecord::new
 );
 
 // TOR 93 — Crackling Club
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRACKLING_CLUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0810f7e3-03ff-4c46-a88f-2f8144540780"),
     "Crackling Club",
@@ -1037,7 +1037,7 @@ pub(in crate::card::sets) static CRACKLING_CLUB: CardRecord = CardRecord::new(
 );
 
 // TOR 94 — Crazed Firecat
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRAZED_FIRECAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ef809de-ff64-4832-95dd-2ebda5942df8"),
     "Crazed Firecat",
@@ -1047,7 +1047,7 @@ pub(in crate::card::sets) static CRAZED_FIRECAT: CardRecord = CardRecord::new(
 );
 
 // TOR 95 — Devastating Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEVASTATING_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9fffeed0-a5ea-47ac-a7a4-0cc3bb1d408a"),
     "Devastating Dreams",
@@ -1057,7 +1057,7 @@ pub(in crate::card::sets) static DEVASTATING_DREAMS: CardRecord = CardRecord::ne
 );
 
 // TOR 96 — Enslaved Dwarf
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENSLAVED_DWARF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da5003a6-211e-43d3-9a3c-756496357163"),
     "Enslaved Dwarf",
@@ -1067,7 +1067,7 @@ pub(in crate::card::sets) static ENSLAVED_DWARF: CardRecord = CardRecord::new(
 );
 
 // TOR 97 — Fiery Temper
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIERY_TEMPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("918e46b7-cbca-4acf-8e83-94b5fcadcc49"),
     "Fiery Temper",
@@ -1077,7 +1077,7 @@ pub(in crate::card::sets) static FIERY_TEMPER: CardRecord = CardRecord::new(
 );
 
 // TOR 98 — Flaming Gambit
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMING_GAMBIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb7fd9b7-c394-4ab3-b945-b4aab694eb6a"),
     "Flaming Gambit",
@@ -1087,7 +1087,7 @@ pub(in crate::card::sets) static FLAMING_GAMBIT: CardRecord = CardRecord::new(
 );
 
 // TOR 99 — Flash of Defiance
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLASH_OF_DEFIANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e550776-b806-4f66-8aab-e6a5dac6d5cc"),
     "Flash of Defiance",
@@ -1129,7 +1129,7 @@ pub(in crate::card::sets) static GRIM_LAVAMANCER: CardRecord = CardRecord::new_w
 );
 
 // TOR 101 — Hell-Bent Raider
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELL_BENT_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f41ac1c-2603-4234-8963-cd47bb894024"),
     "Hell-Bent Raider",
@@ -1139,7 +1139,7 @@ pub(in crate::card::sets) static HELL_BENT_RAIDER: CardRecord = CardRecord::new(
 );
 
 // TOR 102 — Kamahl's Sledge
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KAMAHL_S_SLEDGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38c55518-7bdf-4a42-ae30-cd6525557a59"),
     "Kamahl's Sledge",
@@ -1149,7 +1149,7 @@ pub(in crate::card::sets) static KAMAHL_S_SLEDGE: CardRecord = CardRecord::new(
 );
 
 // TOR 103 — Longhorn Firebeast
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LONGHORN_FIREBEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf0dcf33-8d3f-429c-8ad8-a65d07d7c790"),
     "Longhorn Firebeast",
@@ -1159,7 +1159,7 @@ pub(in crate::card::sets) static LONGHORN_FIREBEAST: CardRecord = CardRecord::ne
 );
 
 // TOR 104 — Overmaster
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVERMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afd2e0f0-8a8e-4021-bd24-aff1a3212345"),
     "Overmaster",
@@ -1169,7 +1169,7 @@ pub(in crate::card::sets) static OVERMASTER: CardRecord = CardRecord::new(
 );
 
 // TOR 105 — Pardic Arsonist
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARDIC_ARSONIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c2538fa-2eb7-47ca-a1cf-e5546e26e584"),
     "Pardic Arsonist",
@@ -1179,7 +1179,7 @@ pub(in crate::card::sets) static PARDIC_ARSONIST: CardRecord = CardRecord::new(
 );
 
 // TOR 106 — Pardic Collaborator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARDIC_COLLABORATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9a60f33-1d1a-4c7c-9eb2-d9fc0d56b127"),
     "Pardic Collaborator",
@@ -1189,7 +1189,7 @@ pub(in crate::card::sets) static PARDIC_COLLABORATOR: CardRecord = CardRecord::n
 );
 
 // TOR 107 — Pardic Lancer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARDIC_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f487a6a7-066a-49bb-ab76-d79fc4300c29"),
     "Pardic Lancer",
@@ -1199,7 +1199,7 @@ pub(in crate::card::sets) static PARDIC_LANCER: CardRecord = CardRecord::new(
 );
 
 // TOR 108 — Petradon
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRADON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75ac6311-8516-4db2-8c1f-626f0db0d36f"),
     "Petradon",
@@ -1209,7 +1209,7 @@ pub(in crate::card::sets) static PETRADON: CardRecord = CardRecord::new(
 );
 
 // TOR 109 — Petravark
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRAVARK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ffc98d09-439e-426b-8403-4a3e12167336"),
     "Petravark",
@@ -1219,7 +1219,7 @@ pub(in crate::card::sets) static PETRAVARK: CardRecord = CardRecord::new(
 );
 
 // TOR 110 — Pitchstone Wall
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PITCHSTONE_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bfea263-6ff0-41be-9755-03bcdebfb255"),
     "Pitchstone Wall",
@@ -1229,7 +1229,7 @@ pub(in crate::card::sets) static PITCHSTONE_WALL: CardRecord = CardRecord::new(
 );
 
 // TOR 111 — Possessed Barbarian
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POSSESSED_BARBARIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57e79610-8cfe-4711-bc71-8c25d68036da"),
     "Possessed Barbarian",
@@ -1239,7 +1239,7 @@ pub(in crate::card::sets) static POSSESSED_BARBARIAN: CardRecord = CardRecord::n
 );
 
 // TOR 112 — Pyromania
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PYROMANIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a5af4e9-a2b6-43c7-8ff4-e761fbf693a7"),
     "Pyromania",
@@ -1252,7 +1252,7 @@ pub(in crate::card::sets) static PYROMANIA: CardRecord = CardRecord::new(
 );
 
 // TOR 113 — Radiate
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RADIATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2562c25a-999e-4fb5-a595-f376c8abf1ff"),
     "Radiate",
@@ -1262,7 +1262,7 @@ pub(in crate::card::sets) static RADIATE: CardRecord = CardRecord::new(
 );
 
 // TOR 114 — Skullscorch
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULLSCORCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("88f1343c-77bf-4f44-8226-fdfb2c2c7015"),
     "Skullscorch",
@@ -1272,7 +1272,7 @@ pub(in crate::card::sets) static SKULLSCORCH: CardRecord = CardRecord::new(
 );
 
 // TOR 115 — Sonic Seizure
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SONIC_SEIZURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98eb9371-aa20-4790-baf8-a1ad95de39de"),
     "Sonic Seizure",
@@ -1282,7 +1282,7 @@ pub(in crate::card::sets) static SONIC_SEIZURE: CardRecord = CardRecord::new(
 );
 
 // TOR 116 — Temporary Insanity
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPORARY_INSANITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("415d0678-539f-4c19-8a6e-b43e747a97de"),
     "Temporary Insanity",
@@ -1292,7 +1292,7 @@ pub(in crate::card::sets) static TEMPORARY_INSANITY: CardRecord = CardRecord::ne
 );
 
 // TOR 117 — Violent Eruption
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIOLENT_ERUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ff19c870-331d-4703-a92d-c5b1d4289338"),
     "Violent Eruption",
@@ -1302,7 +1302,7 @@ pub(in crate::card::sets) static VIOLENT_ERUPTION: CardRecord = CardRecord::new(
 );
 
 // TOR 118 — Acorn Harvest
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACORN_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("32987720-cc0c-416b-b79b-217d3b37542d"),
     "Acorn Harvest",
@@ -1315,7 +1315,7 @@ pub(in crate::card::sets) static ACORN_HARVEST: CardRecord = CardRecord::new(
 );
 
 // TOR 119 — Anurid Scavenger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANURID_SCAVENGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21a21190-3c05-40fe-9310-493ed0f9e42e"),
     "Anurid Scavenger",
@@ -1325,7 +1325,7 @@ pub(in crate::card::sets) static ANURID_SCAVENGER: CardRecord = CardRecord::new(
 );
 
 // TOR 120 — Arrogant Wurm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARROGANT_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11b849c7-c91d-4c67-a357-f7d17f9b187a"),
     "Arrogant Wurm",
@@ -1335,7 +1335,7 @@ pub(in crate::card::sets) static ARROGANT_WURM: CardRecord = CardRecord::new(
 );
 
 // TOR 121 — Basking Rootwalla
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASKING_ROOTWALLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a67768a-6cd9-4163-b941-752f29c87a8d"),
     "Basking Rootwalla",
@@ -1345,7 +1345,7 @@ pub(in crate::card::sets) static BASKING_ROOTWALLA: CardRecord = CardRecord::new
 );
 
 // TOR 122 — Centaur Chieftain
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CENTAUR_CHIEFTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8fa0a57-e7eb-454e-9527-3db702b54935"),
     "Centaur Chieftain",
@@ -1355,7 +1355,7 @@ pub(in crate::card::sets) static CENTAUR_CHIEFTAIN: CardRecord = CardRecord::new
 );
 
 // TOR 123 — Centaur Veteran
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CENTAUR_VETERAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a83903c1-40fe-47a5-8bcc-2f0877c58225"),
     "Centaur Veteran",
@@ -1365,7 +1365,7 @@ pub(in crate::card::sets) static CENTAUR_VETERAN: CardRecord = CardRecord::new(
 );
 
 // TOR 124 — Dwell on the Past
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWELL_ON_THE_PAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77ac905a-839b-4fb5-8c17-7fd6c2c0c492"),
     "Dwell on the Past",
@@ -1375,7 +1375,7 @@ pub(in crate::card::sets) static DWELL_ON_THE_PAST: CardRecord = CardRecord::new
 );
 
 // TOR 125 — Far Wanderings
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAR_WANDERINGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd3a735a-5f51-41af-99d1-92296cec7b22"),
     "Far Wanderings",
@@ -1385,7 +1385,7 @@ pub(in crate::card::sets) static FAR_WANDERINGS: CardRecord = CardRecord::new(
 );
 
 // TOR 126 — Gurzigost
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GURZIGOST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4e672c6-6ddc-4dd2-b4c7-5083d7566e87"),
     "Gurzigost",
@@ -1395,7 +1395,7 @@ pub(in crate::card::sets) static GURZIGOST: CardRecord = CardRecord::new(
 );
 
 // TOR 127 — Insist
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("48e1f72d-ef5e-4cea-a0ee-645570a36104"),
     "Insist",
@@ -1405,7 +1405,7 @@ pub(in crate::card::sets) static INSIST: CardRecord = CardRecord::new(
 );
 
 // TOR 128 — Invigorating Falls
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INVIGORATING_FALLS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ec74e797-390e-4ebd-a53b-098ef3edd7d1"),
     "Invigorating Falls",
@@ -1415,7 +1415,7 @@ pub(in crate::card::sets) static INVIGORATING_FALLS: CardRecord = CardRecord::ne
 );
 
 // TOR 129 — Krosan Constrictor
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_CONSTRICTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f24b3479-18c3-4c43-b8d1-8b4a25d271a7"),
     "Krosan Constrictor",
@@ -1425,7 +1425,7 @@ pub(in crate::card::sets) static KROSAN_CONSTRICTOR: CardRecord = CardRecord::ne
 );
 
 // TOR 130 — Krosan Restorer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_RESTORER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06f9f54d-b8c7-407d-bc25-dad4db833208"),
     "Krosan Restorer",
@@ -1435,7 +1435,7 @@ pub(in crate::card::sets) static KROSAN_RESTORER: CardRecord = CardRecord::new(
 );
 
 // TOR 131 — Nantuko Blightcutter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_BLIGHTCUTTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42a6f1b6-e1ed-497a-b50e-1bfa257c18c0"),
     "Nantuko Blightcutter",
@@ -1445,7 +1445,7 @@ pub(in crate::card::sets) static NANTUKO_BLIGHTCUTTER: CardRecord = CardRecord::
 );
 
 // TOR 132 — Nantuko Calmer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_CALMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c76b1198-feff-437c-9d4c-94785144c98f"),
     "Nantuko Calmer",
@@ -1455,7 +1455,7 @@ pub(in crate::card::sets) static NANTUKO_CALMER: CardRecord = CardRecord::new(
 );
 
 // TOR 133 — Nantuko Cultivator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NANTUKO_CULTIVATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d258fe7-7906-43ca-8ebd-344aa81cb85b"),
     "Nantuko Cultivator",
@@ -1465,7 +1465,7 @@ pub(in crate::card::sets) static NANTUKO_CULTIVATOR: CardRecord = CardRecord::ne
 );
 
 // TOR 134 — Narcissism
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NARCISSISM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eea658dd-7567-4b93-88a4-08b4ffb3dad7"),
     "Narcissism",
@@ -1478,7 +1478,7 @@ pub(in crate::card::sets) static NARCISSISM: CardRecord = CardRecord::new(
 );
 
 // TOR 135 — Nostalgic Dreams
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOSTALGIC_DREAMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("70f1e794-a32e-4f91-acbb-7e60dad4cf53"),
     "Nostalgic Dreams",
@@ -1488,7 +1488,7 @@ pub(in crate::card::sets) static NOSTALGIC_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 136 — Parallel Evolution
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARALLEL_EVOLUTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73cce010-a8e7-477b-9179-bbad38aa6438"),
     "Parallel Evolution",
@@ -1498,7 +1498,7 @@ pub(in crate::card::sets) static PARALLEL_EVOLUTION: CardRecord = CardRecord::ne
 );
 
 // TOR 137 — Possessed Centaur
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POSSESSED_CENTAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("608e11b2-9636-48a0-8705-f5ce3bc98117"),
     "Possessed Centaur",
@@ -1511,7 +1511,7 @@ pub(in crate::card::sets) static POSSESSED_CENTAUR: CardRecord = CardRecord::new
 );
 
 // TOR 138 — Seton's Scout
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SETON_S_SCOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("732bf7bb-5326-4742-8311-96ddbfe14b38"),
     "Seton's Scout",
@@ -1521,7 +1521,7 @@ pub(in crate::card::sets) static SETON_S_SCOUT: CardRecord = CardRecord::new(
 );
 
 // TOR 139 — Cabal Coffers
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_COFFERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2b934c78-258e-4b1e-9783-ec9f734e8776"),
     "Cabal Coffers",
@@ -1531,7 +1531,7 @@ pub(in crate::card::sets) static CABAL_COFFERS: CardRecord = CardRecord::new(
 );
 
 // TOR 140 — Tainted Field
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_FIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75b5f0aa-1570-4064-ad20-aac7be8b2c9c"),
     "Tainted Field",
@@ -1541,7 +1541,7 @@ pub(in crate::card::sets) static TAINTED_FIELD: CardRecord = CardRecord::new(
 );
 
 // TOR 141 — Tainted Isle
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b462e121-015c-49c4-838a-ab788f213322"),
     "Tainted Isle",
@@ -1551,7 +1551,7 @@ pub(in crate::card::sets) static TAINTED_ISLE: CardRecord = CardRecord::new(
 );
 
 // TOR 142 — Tainted Peak
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_PEAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4dcaaabe-e1d7-4047-9960-79178af3d903"),
     "Tainted Peak",
@@ -1561,7 +1561,7 @@ pub(in crate::card::sets) static TAINTED_PEAK: CardRecord = CardRecord::new(
 );
 
 // TOR 143 — Tainted Wood
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAINTED_WOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a20a35cc-69e5-42b8-b28c-ae5147451150"),
     "Tainted Wood",

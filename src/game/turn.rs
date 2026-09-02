@@ -155,8 +155,9 @@ impl Game {
     /// of the game (Screaming Nemesis). A prohibition rather than a
     /// replacement: the life never arrives, so nothing watching for a gain
     /// sees one.
-    pub(super) const fn cannot_gain_life(&self, player: PlayerId) -> bool {
+    pub(super) fn cannot_gain_life(&self, player: PlayerId) -> bool {
         self.cannot_gain_life[player.index()]
+            || self.player_rule_applies(player, AppliedRuleDef::CannotGainLife)
     }
 
     pub(super) fn life_total_cannot_change(&self, player: PlayerId) -> bool {
@@ -207,14 +208,12 @@ impl Game {
                 else {
                     return;
                 };
-                if ability.is_executable()
-                    && self.player_relation_matches(
-                        player,
-                        relation,
-                        permanent.controller,
-                        TriggerContext::empty(),
-                    )
-                {
+                if self.player_relation_matches(
+                    player,
+                    relation,
+                    permanent.controller,
+                    TriggerContext::empty(),
+                ) {
                     multiplier = multiplier.saturating_mul(u16::from(factor));
                 }
             });
@@ -665,8 +664,9 @@ impl Game {
     }
 
     pub(super) fn cleanup(&mut self) {
-        if self.players[self.active_player.index()].hand.len() > 7
-            && !self.player_has_no_maximum_hand_size(self.active_player)
+        if self
+            .maximum_hand_size(self.active_player)
+            .is_some_and(|maximum| self.players[self.active_player.index()].hand.len() > maximum)
         {
             self.cleanup_pending = true;
         } else {

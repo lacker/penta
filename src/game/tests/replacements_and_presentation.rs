@@ -249,7 +249,7 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
             front_rules
                 .mana_cost()
                 .expect("the front has a printed mana cost"),
-            CardEffectStatus::MetadataOnly,
+            CardEffectStatus::Unsupported,
         ),
         PlayOptionDef::play_land(
             land_option,
@@ -307,7 +307,7 @@ fn a_modal_spell_resolves_by_its_locked_part_instead_of_the_canonical_front() {
             front_rules
                 .mana_cost()
                 .expect("the front has a printed mana cost"),
-            CardEffectStatus::MetadataOnly,
+            CardEffectStatus::Unsupported,
         ),
         PlayOptionDef::cast(
             creature_option,
@@ -374,7 +374,7 @@ fn changing_a_permanents_presented_face_keeps_its_object_identity() {
         front_rules
             .mana_cost()
             .expect("the front has a printed mana cost"),
-        CardEffectStatus::MetadataOnly,
+        CardEffectStatus::Unsupported,
     )];
 
     let mut game = ready_game();
@@ -554,8 +554,8 @@ fn baseline_and_supported_split_card_play_options_are_offered() {
         })
         .collect::<Vec<_>>();
 
-    // Izzet Charm is only partial, and the play gate follows the modes that
-    // do work: its loot mode needs no target and is castable on an empty board.
+    // Izzet Charm is complete; its loot mode needs no target and is castable
+    // on an empty board.
     // Doom Blade has no creature to target. Turn // Burn is now executable;
     // its separately castable forms contribute two legal play options here.
     assert_eq!(

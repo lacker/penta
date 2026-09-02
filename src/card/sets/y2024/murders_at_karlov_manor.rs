@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, CostModificationDef,
-    CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
-    SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, abilities, tokens,
+    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorSet, ComparisonDef,
+    CostModificationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, PlayerSetDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -27,7 +27,7 @@ const fn surveil_land(types: &'static [&'static str]) -> CardRules {
 }
 
 // MKM 29 — Novice Inspector
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOVICE_INSPECTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ad38866-fc5f-4f62-89c1-afc0f50765aa"),
     "Novice Inspector",
@@ -74,7 +74,7 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
 );
 
 // MKM 105 — Snarling Gorehound
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93ab3e11-8584-406f-b9ae-9e1df4396cbc"),
     "Snarling Gorehound",
@@ -84,7 +84,7 @@ pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::ne
 );
 
 // MKM 174 — Rubblebelt Maverick
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b"),
     "Rubblebelt Maverick",
@@ -94,7 +94,7 @@ pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::n
 );
 
 // MKM 197 — Dog Walker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6e0adb7-a030-4dcc-9284-cd91c7598a22"),
     "Dog Walker",
@@ -104,7 +104,6 @@ pub(in crate::card::sets) static DOG_WALKER: CardRecord = CardRecord::new(
 );
 
 // MKM 217 — Leyline of the Guildpact
-// Audit: partial — The opening-hand action is declarative; its global color and basic-land-type layers remain unsupported.
 pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf6e59be-f959-4f4a-8c2d-b7c441e88135"),
     "Leyline of the Guildpact",
@@ -112,7 +111,40 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardReco
     CardSet::MurdersAtKarlovManor,
     CardRules::new_enchantment(mana_cost!("{G/W}{G/U}{B/G}{R/G}")).with_abilities(&[
         abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
-        AbilityDef::not_implemented("Each nonland permanent you control is all colors.\nLands you control are every basic land type in addition to their other types.", "Needs global characteristic layers that add all colors to nonlands and every basic land type to lands."),
+        AbilityDef::static_ability(
+            "Each nonland permanent you control is all colors.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_colors(ColorSet::from_colors(&[
+                    ManaColor::White,
+                    ManaColor::Blue,
+                    ManaColor::Black,
+                    ManaColor::Red,
+                    ManaColor::Green,
+                ])),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Lands you control are every basic land type in addition to their other types.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_basic_land_types(&[
+                    BasicLandType::Plains,
+                    BasicLandType::Island,
+                    BasicLandType::Swamp,
+                    BasicLandType::Mountain,
+                    BasicLandType::Forest,
+                ]),
+            },
+        ),
     ]),
 );
 
@@ -154,7 +186,7 @@ pub(in crate::card::sets) static COMMERCIAL_DISTRICT: CardRecord = CardRecord::n
 );
 
 // MKM 261 — Escape Tunnel
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ESCAPE_TUNNEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93ddde4f-d35e-4128-8f43-d0eadbd715de"),
     "Escape Tunnel",
@@ -279,7 +311,9 @@ pub(in crate::card::sets) static PROFT_S_EIDETIC_MEMORY: CardRecord = CardRecord
                 "You have no maximum hand size.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::NoMaximumHandSize,
+                    )),
                 },
             ),
             AbilityDef::triggered_if_with_targets(

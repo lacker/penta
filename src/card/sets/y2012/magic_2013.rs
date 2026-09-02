@@ -348,7 +348,7 @@ pub(in crate::card::sets) static ERASE: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 14 — Faith's Reward
-// Audit: metadata-only — Needs turn-history provenance for permanent cards put into your graveyard from the battlefield and a simultaneous mass return.
+// Audit: unsupported — Needs turn-history provenance for permanent cards put into your graveyard from the battlefield and a simultaneous mass return.
 pub(in crate::card::sets) static FAITH_S_REWARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("799ed076-4724-47bb-94a0-11b42a9826eb"),
     "Faith's Reward",
@@ -506,7 +506,7 @@ then: None,
 );
 
 // M13 23 — Odric, Master Tactician
-// Audit: metadata-only — AttackDeclared can match the four-creature threshold, but combat has no procedure that lets the attacking player choose every block assignment.
+// Audit: unsupported — AttackDeclared can match the four-creature threshold, but combat has no procedure that lets the attacking player choose every block assignment.
 pub(in crate::card::sets) static ODRIC_MASTER_TACTICIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb1552a8-27b4-4a95-9022-6fdd59aca28f"),
     "Odric, Master Tactician",
@@ -1418,7 +1418,7 @@ pub(in crate::card::sets) static SLEEP: CardRecord = CardRecord::new_with_legacy
 );
 
 // M13 68 — Spelltwine
-// Audit: metadata-only — Needs a card-copy effect for the two exiled instant or sorcery cards and mandatory free casting of both copies; CopyStackObject only copies spells already on the stack.
+// Audit: unsupported — Needs a card-copy effect for the two exiled instant or sorcery cards and mandatory free casting of both copies; CopyStackObject only copies spells already on the stack.
 pub(in crate::card::sets) static SPELLTWINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e4d2f5ab-c6be-4661-843c-51b4977a9bea"),
     "Spelltwine",
@@ -1622,7 +1622,7 @@ pub(in crate::card::sets) static VEDALKEN_ENTRANCER: CardRecord = CardRecord::ne
 );
 
 // M13 77 — Void Stalker
-// Audit: metadata-only — CombineObjects and MoveObjects can move source and target together, but ShuffleLibrary cannot project and deduplicate the moved cards' owners.
+// Audit: unsupported — CombineObjects and MoveObjects can move source and target together, but ShuffleLibrary cannot project and deduplicate the moved cards' owners.
 pub(in crate::card::sets) static VOID_STALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7fc30e31-4796-4e98-992c-a56cd51ad3c9"),
     "Void Stalker",
@@ -2318,7 +2318,7 @@ pub(in crate::card::sets) static NEFAROX_OVERLORD_OF_GRIXIS: CardRecord = CardRe
 // M13 104 — Phylactery Lich (reprint)
 
 // M13 105 — Public Execution
-// Audit: metadata-only — A target-relative creature sweep cannot exclude the destroyed target when destruction is prevented or replaced.
+// Audit: unsupported — A target-relative creature sweep cannot exclude the destroyed target when destruction is prevented or replaced.
 pub(in crate::card::sets) static PUBLIC_EXECUTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("48188942-d0ba-4503-bd75-c7a5329bb7c8"),
     "Public Execution",
@@ -2469,7 +2469,7 @@ pub(in crate::card::sets) static VAMPIRE_NIGHTHAWK: CardRecord = CardRecord::new
 );
 
 // M13 113 — Vampire Nocturnus
-// Audit: metadata-only — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot inspect the top card's color for the Vampire mass bonus and flying grant.
+// Audit: unsupported — PlaysWithTopOfLibraryRevealed exists, but static conditions cannot inspect the top card's color for the Vampire mass bonus and flying grant.
 pub(in crate::card::sets) static VAMPIRE_NOCTURNUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3194ae81-90fb-49e9-90de-9d161e296770"),
     "Vampire Nocturnus",
@@ -2660,7 +2660,7 @@ pub(in crate::card::sets) static CANYON_MINOTAUR: CardRecord = CardRecord::new_w
 );
 
 // M13 123 — Chandra, the Firebrand
-// Audit: metadata-only — InstalledTriggerDef cannot combine “once” with expiration at end of turn for the next-spell copy permission.
+// Audit: unsupported — InstalledTriggerDef cannot combine “once” with expiration at end of turn for the next-spell copy permission.
 pub(in crate::card::sets) static CHANDRA_THE_FIREBRAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("efb37556-186f-4660-8b75-c52ef16a6d8f"),
     "Chandra, the Firebrand",
@@ -3322,7 +3322,7 @@ pub(in crate::card::sets) static TRUMPET_BLAST: CardRecord = CardRecord::new_wit
 );
 
 // M13 153 — Turn to Slag
-// Audit: metadata-only — Attachment queries cannot select Equipment attached to an arbitrary target object.
+// Audit: unsupported — Attachment queries cannot select Equipment attached to an arbitrary target object.
 pub(in crate::card::sets) static TURN_TO_SLAG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66fd5b49-b4f2-40da-94d5-6d6fc69506f6"),
     "Turn to Slag",
@@ -5027,7 +5027,9 @@ pub(in crate::card::sets) static RELIQUARY_TOWER: CardRecord = CardRecord::new_w
             "You have no maximum hand size.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                    crate::card::PlayerRuleDef::NoMaximumHandSize,
+                )),
             },
         ),
         AbilityDef::activated_mana(

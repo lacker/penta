@@ -10,7 +10,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // KHM 46 — Behold the Multiverse
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEHOLD_THE_MULTIVERSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27855a38-a682-4f97-ad22-ac625e86faec"),
     "Behold the Multiverse",
@@ -20,7 +20,7 @@ pub(in crate::card::sets) static BEHOLD_THE_MULTIVERSE: CardRecord = CardRecord:
 );
 
 // KHM 117 — Village Rites
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VILLAGE_RITES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c0f60a6-b5c8-4704-8b61-94e8fc463e5d"),
     "Village Rites",
@@ -154,7 +154,7 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
 );
 
 // KHM 157 — Tuskeri Firewalker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a54d0170-a375-4e65-b98d-3e94a3aeef90"),
     "Tuskeri Firewalker",
@@ -167,7 +167,7 @@ pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::ne
 );
 
 // KHM 192 — Sarulf's Packmate
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6061113e-7dd8-4739-b4dd-55bb7f9e39a2"),
     "Sarulf's Packmate",
@@ -177,7 +177,7 @@ pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new
 );
 
 // KHM 194 — Snakeskin Veil
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e692c208-c171-4964-9207-43c2cbc62845"),
     "Snakeskin Veil",

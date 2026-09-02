@@ -61,9 +61,6 @@ impl Game {
                 let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
                     return;
                 };
-                if !ability.is_executable() {
-                    return;
-                }
                 let ReplacementEventDef::WouldBeginTurn {
                     player: relation,
                     kind: matching_kind,

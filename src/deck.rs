@@ -388,18 +388,6 @@ mod tests {
         main
     }
 
-    /// Minsc & Boo is a planeswalker, so nothing but the printed sentence
-    /// makes them a legal commander.
-    #[test]
-    fn a_card_that_says_so_can_be_your_commander() {
-        let catalog = catalog();
-        let minsc = catalog
-            .get(cards::MINSC_BOO_TIMELESS_HEROES)
-            .expect("cataloged");
-
-        assert!(minsc.may_be_commander(), "the card says it can");
-    }
-
     /// The ordinary permission is the type line, and a creature without the
     /// supertype has neither.
     #[test]
@@ -421,14 +409,14 @@ mod tests {
     }
 
     #[test]
-    fn a_hundred_singleton_cards_led_by_minsc_are_legal() {
+    fn a_hundred_singleton_cards_led_by_emry_are_legal() {
         let catalog = catalog();
         let deck = Deck {
-            main: ninety_nine(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES]),
+            main: ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH]),
             sideboard: Vec::new(),
         };
 
-        deck.validate_as_commander_deck(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES])
+        deck.validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect("ninety-nine distinct cards and a legal leader");
     }
 
@@ -450,15 +438,15 @@ mod tests {
     #[test]
     fn the_commander_may_not_also_be_one_of_the_ninety_nine() {
         let catalog = catalog();
-        let mut main = ninety_nine(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES]);
-        main[0] = cards::MINSC_BOO_TIMELESS_HEROES;
+        let mut main = ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH]);
+        main[0] = cards::EMRY_LURKER_OF_THE_LOCH;
         let deck = Deck {
             main,
             sideboard: Vec::new(),
         };
 
         let error = deck
-            .validate_as_commander_deck(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES])
+            .validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect_err("the leader is not also in the deck");
 
         assert!(matches!(error, DeckError::CommanderInDeck(_)));
@@ -471,7 +459,7 @@ mod tests {
         let catalog = catalog();
         let mut main = ninety_nine(
             &catalog,
-            &[cards::MINSC_BOO_TIMELESS_HEROES, cards::GRIZZLY_BEARS],
+            &[cards::EMRY_LURKER_OF_THE_LOCH, cards::GRIZZLY_BEARS],
         );
         main[0] = cards::GRIZZLY_BEARS;
         main[1] = cards::GRIZZLY_BEARS;
@@ -481,7 +469,7 @@ mod tests {
         };
 
         let error = deck
-            .validate_as_commander_deck(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES])
+            .validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect_err("two of something is not singleton");
 
         assert!(matches!(error, DeckError::TooManyCopies { count: 2, .. }));
@@ -490,7 +478,7 @@ mod tests {
     #[test]
     fn basic_lands_are_exempt_from_singleton() {
         let catalog = catalog();
-        let mut main = ninety_nine(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES, cards::FOREST]);
+        let mut main = ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH, cards::FOREST]);
         main[0] = cards::FOREST;
         main[1] = cards::FOREST;
         let deck = Deck {
@@ -498,14 +486,14 @@ mod tests {
             sideboard: Vec::new(),
         };
 
-        deck.validate_as_commander_deck(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES])
+        deck.validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect("any number of basics is legal");
     }
 
     #[test]
     fn ninety_eight_cards_are_not_a_deck() {
         let catalog = catalog();
-        let mut main = ninety_nine(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES]);
+        let mut main = ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH]);
         main.pop();
         let deck = Deck {
             main,
@@ -513,7 +501,7 @@ mod tests {
         };
 
         let error = deck
-            .validate_as_commander_deck(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES])
+            .validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH])
             .expect_err("a hundred counts the commander");
 
         assert!(matches!(
@@ -546,12 +534,12 @@ mod tests {
                 .expect("Gut chose a Background and this is one");
         }
 
-        /// Minsc & Boo may lead, but they print no Background clause, so nothing
+        /// Emry may lead, but they print no Background clause, so nothing
         /// leads beside them.
         #[test]
         fn a_commander_that_chose_nothing_leads_alone() {
             let (catalog, background) = catalog_with_a_background();
-            let mut main = ninety_nine(&catalog, &[cards::MINSC_BOO_TIMELESS_HEROES, background]);
+            let mut main = ninety_nine(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH, background]);
             main.pop();
             let deck = Deck {
                 main,
@@ -559,10 +547,7 @@ mod tests {
             };
 
             let error = deck
-                .validate_as_commander_deck(
-                    &catalog,
-                    &[cards::MINSC_BOO_TIMELESS_HEROES, background],
-                )
+                .validate_as_commander_deck(&catalog, &[cards::EMRY_LURKER_OF_THE_LOCH, background])
                 .expect_err("they never chose a Background");
 
             assert!(matches!(error, DeckError::CommandersDoNotPair { .. }));
@@ -631,7 +616,7 @@ mod tests {
                     &[
                         cards::GUT_TRUE_SOUL_ZEALOT,
                         background,
-                        cards::MINSC_BOO_TIMELESS_HEROES
+                        cards::EMRY_LURKER_OF_THE_LOCH
                     ],
                 )
                 .expect_err("three is more than any pairing allows"),

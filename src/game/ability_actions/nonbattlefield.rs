@@ -18,8 +18,7 @@ impl Game {
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                     return;
                 };
-                if !ability.is_executable()
-                    || definition.procedure != AbilityProcedureDef::Shared
+                if definition.procedure != AbilityProcedureDef::Shared
                     || !definition.source_zones.contains(&ZoneKind::Exile)
                     || !self.activation_timing_allows(player, definition.timing)
                     || definition.condition.is_some_and(|condition| {
@@ -148,8 +147,7 @@ impl Game {
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                     return;
                 };
-                if !ability.is_executable()
-                    || definition.procedure != AbilityProcedureDef::Shared
+                if definition.procedure != AbilityProcedureDef::Shared
                     || !definition.source_zones.contains(&ZoneKind::Hand)
                     || !self.activation_timing_allows(player, definition.timing)
                 {
@@ -239,8 +237,7 @@ impl Game {
                     let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                         return;
                     };
-                    if !ability.is_executable()
-                        || definition.procedure != AbilityProcedureDef::Shared
+                    if definition.procedure != AbilityProcedureDef::Shared
                         || !definition.source_zones.contains(&ZoneKind::Graveyard)
                         || !self.activation_timing_allows(player, definition.timing)
                     {

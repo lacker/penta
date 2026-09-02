@@ -536,9 +536,9 @@ fn inline_token_presentation_uses_its_own_name_art_and_rules() {
 
 #[test]
 fn inline_emblem_presentation_uses_its_own_name_and_rules() {
-    static EMBLEM_ABILITIES: [penta::AbilityDef; 1] = [penta::AbilityDef::not_implemented(
+    static EMBLEM_ABILITIES: [penta::AbilityDef; 1] = [penta::AbilityDef::static_ability(
         "Test emblem rule.",
-        "WASM fixture",
+        penta::EffectDef::None,
     )];
     static EMBLEM: penta::EmblemCharacteristics =
         penta::EmblemCharacteristics::new("Test emblem", &EMBLEM_ABILITIES);
@@ -556,7 +556,7 @@ fn inline_emblem_presentation_uses_its_own_name_and_rules() {
     assert_eq!(presentation.rules_text, "Test emblem rule.");
     assert_eq!(
         presentation.implementation_status,
-        penta::ImplementationStatus::MetadataOnly
+        penta::ImplementationStatus::Complete
     );
     assert_eq!((presentation.power, presentation.toughness), (None, None));
 }
@@ -590,7 +590,7 @@ fn stack_presentation_preserves_legacy_composite_kinds_and_land_membership() {
 }
 
 #[test]
-fn visible_card_coverage_comes_from_ability_implementations() {
+fn visible_card_status_comes_from_whole_card_support() {
     let game = WebGame::new(
         "Briksza Naya Midrange",
         "Greer G/R Aggro",

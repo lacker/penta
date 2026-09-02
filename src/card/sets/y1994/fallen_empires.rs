@@ -46,7 +46,7 @@ pub(in crate::card::sets) static COMBAT_MEDIC: CardRecord = CardRecord::new_with
 // FEM 1d — Combat Medic (alternate printing)
 
 // FEM 2 — Farrel's Mantle
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever enchanted creature attacks and isn't blocked, its controller may have it deal damage equal to its power plus 2 to another target creature. If that player does, the attacking…”.
 pub(in crate::card::sets) static FARREL_S_MANTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af092da3-8713-4a59-86d3-827b942d6456"),
     "Farrel's Mantle",
@@ -99,7 +99,7 @@ pub(in crate::card::sets) static FARRELS_ZEALOT: CardRecord = CardRecord::new_wi
 // FEM 3c — Farrel's Zealot (alternate printing)
 
 // FEM 4 — Farrelite Priest
-// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
+// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{1}: Add {W}. If this ability has been activated four or more times this turn, sacrifice this creature at the beginning of the next end step”.
 pub(in crate::card::sets) static FARRELITE_PRIEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e11bf79b-a951-4d0c-acdf-d8ba5290a648"),
     "Farrelite Priest",
@@ -109,7 +109,7 @@ pub(in crate::card::sets) static FARRELITE_PRIEST: CardRecord = CardRecord::new(
 );
 
 // FEM 5 — Hand of Justice
-// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “{T}, Tap three untapped white creatures you control: Destroy target creature”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “{T}, Tap three untapped white creatures you control: Destroy target creature”.
 pub(in crate::card::sets) static HAND_OF_JUSTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a899b2d-825c-4929-a769-f4df70bf6a17"),
     "Hand of Justice",
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static HAND_OF_JUSTICE: CardRecord = CardRecord::new(
 );
 
 // FEM 6 — Heroism
-// Audit: metadata-only — Needs a per-creature optional payment offered to the opposing controller, repeated for each attacking red creature; preventing one creature's combat damage is already expressible.
+// Audit: unsupported — Needs a per-creature optional payment offered to the opposing controller, repeated for each attacking red creature; preventing one creature's combat damage is already expressible.
 pub(in crate::card::sets) static HEROISM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08ee87a0-a7eb-4472-9045-85d11e8a1501"),
     "Heroism",
@@ -487,7 +487,7 @@ pub(in crate::card::sets) static DEEP_SPAWN: CardRecord = CardRecord::new_with_l
 );
 
 // FEM 18a — High Tide
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “Until end of turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Until end of turn, whenever a player taps an Island for mana, that player adds an additional {U}”.
 pub(in crate::card::sets) static HIGH_TIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4686bbb9-517f-4cce-aa7a-5db41e22c02b"),
     "High Tide",
@@ -609,7 +609,7 @@ pub(in crate::card::sets) static HOMARID_SHAMAN: CardRecord = CardRecord::new_wi
 );
 
 // FEM 21 — Homarid Spawning Bed
-// Audit: metadata-only — Needs Camarid token creation whose count is the sacrificed creature's mana value.
+// Audit: unsupported — Needs Camarid token creation whose count is the sacrificed creature's mana value.
 pub(in crate::card::sets) static HOMARID_SPAWNING_BED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2cbb62fc-3cd9-41a6-804a-4ff9a766897f"),
     "Homarid Spawning Bed",
@@ -656,7 +656,7 @@ pub(in crate::card::sets) static HOMARID_WARRIOR: CardRecord = CardRecord::new_w
 // FEM 23b — Merseine (alternate printing)
 
 // FEM 23c — Merseine
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERSEINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2dd197f8-ced0-461a-9672-2720a7b70803"),
     "Merseine",
@@ -687,7 +687,7 @@ pub(in crate::card::sets) static RIVER_MERFOLK: CardRecord = CardRecord::new_wit
 );
 
 // FEM 25 — Seasinger
-// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature whose controller controls an Island for as long as you control this creature and this creature remains tapped”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Gain control of target creature whose controller controls an Island for as long as you control this creature and this creature remains tapped”.
 pub(in crate::card::sets) static SEASINGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5266aa1-e2ea-46b9-91ab-b94a7bb7e9f9"),
     "Seasinger",
@@ -724,7 +724,7 @@ pub(in crate::card::sets) static SVYELUNITE_PRIEST: CardRecord = CardRecord::new
 );
 
 // FEM 27a — Tidal Flats
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{U}{U}: For each attacking creature without flying, its controller may pay {1}. If that player doesn't, creatures you control blocking that creature gain first strike until end of turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{U}{U}: For each attacking creature without flying, its controller may pay {1}. If that player doesn't, creatures you control blocking that creature gain first strike until end of turn”.
 pub(in crate::card::sets) static TIDAL_FLATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e820f3f-434e-4d09-91b9-0ebd6966b393"),
     "Tidal Flats",
@@ -738,7 +738,7 @@ pub(in crate::card::sets) static TIDAL_FLATS: CardRecord = CardRecord::new(
 // FEM 27c — Tidal Flats (alternate printing)
 
 // FEM 28 — Tidal Influence
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “As long as there are exactly three tide counters on this enchantment, all blue creatures get +2/+0”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “As long as there are exactly three tide counters on this enchantment, all blue creatures get +2/+0”.
 pub(in crate::card::sets) static TIDAL_INFLUENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2192c7b-ef6f-4ff6-9017-b1a125340517"),
     "Tidal Influence",
@@ -830,7 +830,7 @@ pub(in crate::card::sets) static VODALIAN_SOLDIERS: CardRecord = CardRecord::new
 // FEM 31d — Vodalian Soldiers (alternate printing)
 
 // FEM 32 — Vodalian War Machine
-// Audit: metadata-only — Needs the permanents tapped to pay this card's own costs recorded for the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its abilities”. Tapping another creature as a cost and attacking despite defender are both available.
+// Audit: unsupported — Needs the permanents tapped to pay this card's own costs recorded for the turn, for “When this creature dies, destroy all Merfolk tapped this turn to pay for its abilities”. Tapping another creature as a cost and attacking despite defender are both available.
 pub(in crate::card::sets) static VODALIAN_WAR_MACHINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd962ff0-4aa6-453e-931e-bd36fc034273"),
     "Vodalian War Machine",
@@ -943,7 +943,7 @@ pub(in crate::card::sets) static DERELOR: CardRecord = CardRecord::new_with_lega
 );
 
 // FEM 37 — Ebon Praetor
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only…”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only…”.
 pub(in crate::card::sets) static EBON_PRAETOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40451f7a-692a-422d-99d3-d93a4d9315e0"),
     "Ebon Praetor",
@@ -984,7 +984,7 @@ pub(in crate::card::sets) static HYMN_TO_TOURACH: CardRecord = CardRecord::new_w
 // FEM 39a — Initiates of the Ebon Hand (alternate printing)
 
 // FEM 39b — Initiates of the Ebon Hand
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INITIATES_OF_THE_EBON_HAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("03c7dc01-46d0-42be-a1a9-48f69c846d12"),
     "Initiates of the Ebon Hand",
@@ -1117,7 +1117,7 @@ pub(in crate::card::sets) static ORDER_OF_THE_EBON_HAND: CardRecord =
 // FEM 42c — Order of the Ebon Hand (alternate printing)
 
 // FEM 43 — Soul Exchange
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “As an additional cost to cast this spell, exile a creature you control”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “As an additional cost to cast this spell, exile a creature you control”.
 pub(in crate::card::sets) static SOUL_EXCHANGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f73597d-f453-4d37-b2ef-c54ef683a884"),
     "Soul Exchange",
@@ -1198,7 +1198,7 @@ pub(in crate::card::sets) static THRULL_RETAINER: CardRecord = CardRecord::new_w
 );
 
 // FEM 46 — Thrull Wizard
-// Audit: metadata-only — Needs an unless-payment offering a choice between two mana costs. Reading a spell's color is available.
+// Audit: unsupported — Needs an unless-payment offering a choice between two mana costs. Reading a spell's color is available.
 pub(in crate::card::sets) static THRULL_WIZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c4e732fb-cbef-4fd8-b704-e4d513a6cf2d"),
     "Thrull Wizard",
@@ -1208,7 +1208,7 @@ pub(in crate::card::sets) static THRULL_WIZARD: CardRecord = CardRecord::new(
 );
 
 // FEM 47 — Tourach's Chant
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to that player unless they put a -1/-1 counter on a creature they control”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Forest onto the battlefield, this enchantment deals 3 damage to that player unless they put a -1/-1 counter on a creature they control”.
 pub(in crate::card::sets) static TOURACH_S_CHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06883fd2-eccd-47c6-8c34-10d95e923685"),
     "Tourach's Chant",
@@ -1221,7 +1221,7 @@ pub(in crate::card::sets) static TOURACH_S_CHANT: CardRecord = CardRecord::new(
 );
 
 // FEM 48 — Tourach's Gate
-// Audit: metadata-only — Needs the clause's conditional recipient set or dynamic modifier value for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped”.
+// Audit: unsupported — Needs the clause's conditional recipient set or dynamic modifier value for “Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped”.
 pub(in crate::card::sets) static TOURACH_S_GATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d77f6401-a9fb-449c-b511-6fb837055bb4"),
     "Tourach's Gate",
@@ -1256,7 +1256,7 @@ pub(in crate::card::sets) static BRASSCLAW_ORCS: CardRecord = CardRecord::new_wi
 // FEM 49d — Brassclaw Orcs (alternate printing)
 
 // FEM 50 — Dwarven Armorer
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{R}, {T}, Discard a card: Put a +0/+1 counter or a +1/+0 counter on target creature”.
 pub(in crate::card::sets) static DWARVEN_ARMORER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d50bf06-97ab-4874-a484-9289f41dc98e"),
     "Dwarven Armorer",
@@ -1266,7 +1266,7 @@ pub(in crate::card::sets) static DWARVEN_ARMORER: CardRecord = CardRecord::new(
 );
 
 // FEM 51 — Dwarven Catapult
-// Audit: metadata-only — Needs damage divided evenly with downward rounding across a dynamically counted opponent creature set.
+// Audit: unsupported — Needs damage divided evenly with downward rounding across a dynamically counted opponent creature set.
 pub(in crate::card::sets) static DWARVEN_CATAPULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c1c6932-638a-4df7-bf9b-8d921f7484d9"),
     "Dwarven Catapult",
@@ -1361,7 +1361,7 @@ pub(in crate::card::sets) static GOBLIN_CHIRURGEON: CardRecord = CardRecord::new
 // FEM 54c — Goblin Chirurgeon (alternate printing)
 
 // FEM 55 — Goblin Flotilla
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “At the beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes blocked by a creature this combat, that creature gains first strike until end of turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of each combat, unless you pay {R}, whenever this creature blocks or becomes blocked by a creature this combat, that creature gains first strike until end of turn”.
 pub(in crate::card::sets) static GOBLIN_FLOTILLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("87024efe-4a74-49fe-a43a-480bed0a650a"),
     "Goblin Flotilla",
@@ -1475,7 +1475,7 @@ pub(in crate::card::sets) static GOBLIN_WAR_DRUMS: CardRecord = CardRecord::new_
 // FEM 58d — Goblin War Drums (alternate printing)
 
 // FEM 59 — Goblin Warrens
-// Audit: metadata-only — Needs an activated cost that selects and sacrifices two Goblins; only one chosen permanent can currently be sacrificed as a cost.
+// Audit: unsupported — Needs an activated cost that selects and sacrifices two Goblins; only one chosen permanent can currently be sacrificed as a cost.
 pub(in crate::card::sets) static GOBLIN_WARRENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbec4aa5-3319-43dc-8347-5633edbd7018"),
     "Goblin Warrens",
@@ -1622,7 +1622,7 @@ pub(in crate::card::sets) static ORGG: CardRecord = CardRecord::new_with_legacy_
 );
 
 // FEM 64 — Raiding Party
-// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control. For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “Sacrifice an Orc: Each player may tap any number of untapped white creatures they control. For each creature tapped this way, that player chooses up to two Plains. Then destroy all…”.
 pub(in crate::card::sets) static RAIDING_PARTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("907a3396-706b-4ca2-9973-bca758986032"),
     "Raiding Party",
@@ -1855,7 +1855,7 @@ pub(in crate::card::sets) static FUNGAL_BLOOM: CardRecord = CardRecord::new_with
 );
 
 // FEM 71a — Night Soil
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “{1}, Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature token”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{1}, Exile two creature cards from a single graveyard: Create a 1/1 green Saproling creature token”.
 pub(in crate::card::sets) static NIGHT_SOIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4cda6d18-d4b1-4b8a-a72e-f90115adf4c3"),
     "Night Soil",
@@ -2044,7 +2044,7 @@ pub(in crate::card::sets) static THALLID_DEVOURER: CardRecord = CardRecord::new_
 );
 
 // FEM 76 — Thelon's Chant
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that player unless the player puts a -1/-1 counter on a creature they control”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Whenever a player puts a Swamp onto the battlefield, this enchantment deals 3 damage to that player unless the player puts a -1/-1 counter on a creature they control”.
 pub(in crate::card::sets) static THELON_S_CHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d970195-0a09-4cb4-a2c0-c16fcab5c859"),
     "Thelon's Chant",
@@ -2054,7 +2054,7 @@ pub(in crate::card::sets) static THELON_S_CHANT: CardRecord = CardRecord::new(
 );
 
 // FEM 77 — Thelon's Curse
-// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {U} for each creature chosen this way. If the player does, untap…”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the beginning of each player's upkeep, that player may choose any number of tapped blue creatures they control and pay {U} for each creature chosen this way. If the player does, untap…”.
 pub(in crate::card::sets) static THELON_S_CURSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b868846-cc3c-4756-a5dd-2335bb380567"),
     "Thelon's Curse",
@@ -2100,7 +2100,7 @@ pub(in crate::card::sets) static THELONITE_DRUID: CardRecord = CardRecord::new_w
 );
 
 // FEM 79 — Thelonite Monk
-// Audit: metadata-only — Needs its permanent-duration target-land characteristic effect and green-creature sacrifice cost authored and tested.
+// Audit: unsupported — Needs its permanent-duration target-land characteristic effect and green-creature sacrifice cost authored and tested.
 pub(in crate::card::sets) static THELONITE_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5400ff25-c70e-4095-a228-190601b86043"),
     "Thelonite Monk",
@@ -2177,7 +2177,7 @@ pub(in crate::card::sets) static AEOLIPILE: CardRecord = CardRecord::new_with_le
 );
 
 // FEM 82 — Balm of Restoration
-// Audit: metadata-only — Needs modal activated abilities: modes are chosen only while casting a spell, so an activated ability has no mode selection to freeze. Both of its modes are available.
+// Audit: unsupported — Needs modal activated abilities: modes are chosen only while casting a spell, so an activated ability has no mode selection to freeze. Both of its modes are available.
 pub(in crate::card::sets) static BALM_OF_RESTORATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f95de4a-7fae-42bc-9660-39ea7685ca02"),
     "Balm of Restoration",
@@ -2190,7 +2190,7 @@ pub(in crate::card::sets) static BALM_OF_RESTORATION: CardRecord = CardRecord::n
 );
 
 // FEM 83 — Conch Horn
-// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “{1}, {T}, Sacrifice this artifact: Draw two cards, then put a card from your hand on top of your library”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “{1}, {T}, Sacrifice this artifact: Draw two cards, then put a card from your hand on top of your library”.
 pub(in crate::card::sets) static CONCH_HORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("860a9ba3-e4c4-4af9-bdfe-1ada39289fd5"),
     "Conch Horn",
@@ -2200,7 +2200,7 @@ pub(in crate::card::sets) static CONCH_HORN: CardRecord = CardRecord::new(
 );
 
 // FEM 84 — Delif's Cone
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}, Sacrifice this artifact: This turn, when target creature you control attacks and isn't blocked, you may gain life equal to its power. If you do, it assigns no combat damage this turn”.
 pub(in crate::card::sets) static DELIF_S_CONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("262b8788-c5a0-4c8e-9d58-b769b1b0a2ff"),
     "Delif's Cone",
@@ -2210,7 +2210,7 @@ pub(in crate::card::sets) static DELIF_S_CONE: CardRecord = CardRecord::new(
 );
 
 // FEM 85 — Delif's Cube
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{2}, {T}: This turn, when target creature you control attacks and isn't blocked, it assigns no combat damage this turn and you put a cube counter on this artifact”.
 pub(in crate::card::sets) static DELIF_S_CUBE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14749600-9eca-4122-b04f-30ddda091b74"),
     "Delif's Cube",
@@ -2625,7 +2625,7 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new_wit
 );
 
 // FEM 99 — Rainbow Vale
-// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: Add one mana of any color. An opponent gains control of this land at the beginning of the next end step”.
 pub(in crate::card::sets) static RAINBOW_VALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c1b138e1-f8fc-435c-9aed-98004768479c"),
     "Rainbow Vale",

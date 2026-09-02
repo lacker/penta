@@ -37,21 +37,12 @@ fn isd_m14_catalog_and_implementation_audits_are_consistent() {
                     definition.name
                 );
             }
-            ImplementationStatus::Partial => {
+            ImplementationStatus::Unsupported => {
                 cataloged_incomplete.insert(key.clone());
                 assert_eq!(
                     audited.get(&key).map(|entry| entry.1),
-                    Some(AuditStatus::Partial),
-                    "partial card {} needs a matching audit entry",
-                    definition.name
-                );
-            }
-            ImplementationStatus::MetadataOnly => {
-                cataloged_incomplete.insert(key.clone());
-                assert_eq!(
-                    audited.get(&key).map(|entry| entry.1),
-                    Some(AuditStatus::MetadataOnly),
-                    "metadata-only card {} needs a matching audit entry",
+                    Some(AuditStatus::Unsupported),
+                    "unsupported card {} needs a matching audit entry",
                     definition.name
                 );
             }

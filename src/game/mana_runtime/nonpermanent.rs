@@ -11,8 +11,7 @@ impl Game {
         ability: &AbilityDef,
         zone: ZoneKind,
     ) -> Vec<ManaAbilityActivation> {
-        if !ability.is_executable()
-            || definition.procedure != AbilityProcedureDef::Shared
+        if definition.procedure != AbilityProcedureDef::Shared
             || !definition.source_zones.contains(&zone)
             || !self.activation_timing_allows(controller, definition.timing)
             || definition.activation_limit.is_some()

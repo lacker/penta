@@ -154,7 +154,7 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
 );
 
 // ORI 62 — Jhessian Thief
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33b8553d-d326-4280-bc3a-2fffdd377cd2"),
     "Jhessian Thief",
@@ -164,7 +164,7 @@ pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
 );
 
 // ORI 171 — Conclave Naturalists
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3759fc28-9adb-41ed-851c-566a3a424e09"),
     "Conclave Naturalists",

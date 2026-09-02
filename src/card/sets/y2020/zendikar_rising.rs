@@ -11,7 +11,7 @@ use crate::card::{
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
 // ZNR 9 — Dauntless Unity
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUNTLESS_UNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b12a4d17-68e6-4133-99fd-e501e24e6c6b"),
     "Dauntless Unity",
@@ -207,7 +207,7 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
 );
 
 // ZNR 185 — Gnarlid Colony
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
     "Gnarlid Colony",

@@ -358,6 +358,7 @@ fn a_spell_reconstructs_with_its_retired_additional_cost_object() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn a_phyrexian_life_payment_reconstructs_and_is_not_copied() {
     let mut game = ready_game();
     let tamiyo = card(
@@ -516,6 +517,7 @@ fn simultaneous_triggers_waiting_to_be_ordered_reconstruct() {
 /// neither a characteristic nor an effect on a stack, and the permanent that
 /// carries it has to come back reading the same way.
 #[test]
+#[ignore = "card is unsupported"]
 fn an_indefinite_text_change_reconstructs_while_choosing_and_after() {
     let mut game = staged_game();
     let land_id = GameObjectId(12_000);

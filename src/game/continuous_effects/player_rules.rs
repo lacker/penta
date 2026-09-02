@@ -62,16 +62,13 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                    || !self.ability_survives_resolved_operations(
-                        source,
-                        Self::authored_ability_origin(source_presentation, attached.id),
-                    )
-                {
+                if !matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) || !self.ability_survives_resolved_operations(
+                    source,
+                    Self::authored_ability_origin(source_presentation, attached.id),
+                ) {
                     continue;
                 }
                 let Some(effect) = attached.definition.declarative_effect() else {
@@ -240,12 +237,10 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
+                if !matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) {
                     continue;
                 }
                 if !self.ability_survives_resolved_operations(
@@ -299,12 +294,10 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
+                if !matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) {
                     continue;
                 }
                 if !self.ability_survives_resolved_operations(
@@ -447,8 +440,39 @@ impl Game {
     ) -> bool {
         self.player_static_rule_applies(
             affected_player,
-            AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+            AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                crate::card::PlayerRuleDef::NoMaximumHandSize,
+            )),
         )
+    }
+
+    /// The player's current maximum hand size, after all live modifiers.
+    /// `None` represents an effect that removes the maximum entirely.
+    pub(in crate::game) fn maximum_hand_size(&self, affected_player: PlayerId) -> Option<usize> {
+        if self.player_has_no_maximum_hand_size(affected_player) {
+            return None;
+        }
+        let mut maximum = 7_i32;
+        self.visit_player_static_rules(affected_player, |rule| {
+            if let AppliedRuleDef::PlayerRule(
+                crate::card::PlayerRuleDef::MaximumHandSizeModifier(amount),
+            ) = rule
+            {
+                maximum = maximum.saturating_add(i32::from(amount));
+            }
+        });
+        for resolved in self.resolved_player_rules.iter().filter(|resolved| {
+            resolved.affected_player == affected_player
+                && self.continuous_effect_expiration_is_active(
+                    resolved.expiration,
+                    resolved.source.object,
+                )
+        }) {
+            if let crate::card::PlayerRuleDef::MaximumHandSizeModifier(amount) = resolved.rule {
+                maximum = maximum.saturating_add(i32::from(amount));
+            }
+        }
+        Some(maximum.max(0).cast_unsigned() as usize)
     }
 
     /// How many lands beyond the ordinary one this player may play this
@@ -512,12 +536,10 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
+                if !matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) {
                     continue;
                 }
                 if !self.ability_survives_resolved_operations(

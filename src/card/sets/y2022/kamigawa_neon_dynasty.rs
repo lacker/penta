@@ -2,21 +2,20 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CopyAbilityDef, CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CostModificationDef,
-    CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyAbilityDef, CopyExceptionsDef,
+    CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // NEO 17 — Imperial Oath
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d6750dd-2303-493b-885d-1bfb5787b16c"),
     "Imperial Oath",
@@ -263,7 +262,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
 );
 
 // NEO 63 — Mirrorshell Crab
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0394c8df-2e8a-4477-93b7-569934d7b936"),
     "Mirrorshell Crab",
@@ -273,7 +272,7 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
 );
 
 // NEO 67 — Moon-Circuit Hacker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75c43923-7280-4ccb-810b-e8c38dd8a26f"),
     "Moon-Circuit Hacker",
@@ -283,7 +282,7 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
 );
 
 // NEO 91 — Clawing Torment
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("621fce96-5933-4e2b-98ec-2589940e24cb"),
     "Clawing Torment",
@@ -293,7 +292,7 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
 );
 
 // NEO 117 — Okiba Reckoner Raid // Nezumi Road Captain
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f0582b4-d951-4450-b158-4a34109e48cd"),
     "Okiba Reckoner Raid",
@@ -306,7 +305,7 @@ pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::n
 );
 
 // NEO 148 — Ironhoof Boar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73abe574-6fb8-4809-9c18-0cf989f986f5"),
     "Ironhoof Boar",
@@ -348,7 +347,7 @@ pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new_wi
 );
 
 // NEO 189 — Greater Tanuki
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27"),
     "Greater Tanuki",
@@ -358,7 +357,7 @@ pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
 );
 
 // NEO 211 — Tamiyo's Safekeeping
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd4b7ee2-de65-4288-872d-486065a4f226"),
     "Tamiyo's Safekeeping",
@@ -396,80 +395,17 @@ pub(in crate::card::sets) static HINATA_DAWN_CROWNED: CardRecord = CardRecord::n
 );
 
 // NEO 238 — Tamiyo, Compleated Sage
-// Audit: partial — Compleated and +1 are executable; −7 creates a Notebook whose cost reduction does not yet reduce announced X, and −X needs variable loyalty costs plus arbitrary graveyard-card copy tokens using last-known information.
+// Audit: unsupported — Needs variable loyalty costs and arbitrary graveyard-card copy tokens using last-known information.
 pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("222a736e-d819-452d-aeda-eb848c4b2302"),
     "Tamiyo, Compleated Sage",
     CardArt::new("222a736e-d819-452d-aeda-eb848c4b2302", "Chris Rahn"),
     CardSet::KamigawaNeonDynasty,
-    CardRules::new_planeswalker(mana_cost!("{2}{G}{G/U/P}{U}"), &["Tamiyo"], 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            abilities::compleated(
-                "Compleated ({G/U/P} can be paid with {G}, {U}, or 2 life. If life was paid, this planeswalker enters with two fewer loyalty counters.)",
-            ),
-            AbilityDef::activated_with_targets(
-                "+1: Tap up to one target artifact or creature. It doesn't untap during its controller's next untap step.",
-                &[AbilityCostDef::Loyalty(1)],
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: None,
-                        owner: None,
-                    },
-                    1,
-                )],
-                EffectDef::Sequence(&[
-                    EffectDef::Tap {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
-                    EffectDef::SkipNextUntapSteps {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        count: 1,
-                    },
-                ]),
-            ),
-            AbilityDef::not_implemented(
-                "−X: Exile target nonland permanent card with mana value X from your graveyard. Create a token that's a copy of that card.",
-                "The engine supports only fixed loyalty costs and cannot create a token from the last-known characteristics of an arbitrary targeted graveyard card.",
-            ),
-            AbilityDef::activated(
-                "−7: Create Tamiyo's Notebook, a legendary colorless Book artifact token with \"Spells you cast cost {2} less to cast\" and \"{T}: Draw a card.\"",
-                &[AbilityCostDef::Loyalty(-7)],
-                EffectDef::create_token(TokenCharacteristics::artifact(&["Book"], &[])
-                    .with_name("Tamiyo's Notebook")
-                    .with_supertype(CardSupertype::Legendary)
-                    .with_abilities(&[
-                        AbilityDef::static_ability(
-                            "Spells you cast cost {2} less to cast.",
-                            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
-                                ObjectPredicateDef::Any,
-                                PlayerRelation::You,
-                                ValueDef::Constant(2),
-                            )),
-                        )
-                        .with_coverage(AbilityCoverageDef::partial(
-                            "The generic reduction applies to printed generic mana but does not yet reduce a spell's announced X payment.",
-                        )),
-                        AbilityDef::activated(
-                            "{T}: Draw a card.",
-                            &[AbilityCostDef::TapSource],
-                            EffectDef::DrawCards {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: ValueDef::Constant(1),
-                            },
-                        ),
-                    ])),
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // NEO 248 — Iron Apprentice
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13d6d9fc-509b-42db-8ac1-85066eb6e9c4"),
     "Iron Apprentice",

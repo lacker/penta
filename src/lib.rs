@@ -38,10 +38,10 @@ pub use action::{
     AbilityOrigin, Action, ActionError, AttackDefender, CombatDamageAssignment, ManaColor, Target,
 };
 pub use card::{
-    AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityDef, AbilityEffectDef,
-    AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef,
-    AbilityTargetDef, AbilityTargetPredicate, ActivatedAbilityDef, AddManaEffectDef,
-    AdditionalCostDef, AlternateSpellKind, AlternativeCastAbilityDef, AlternativeCastKindDef,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityEffectDef, AbilityOperationDef,
+    AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
+    AbilityTargetPredicate, ActivatedAbilityDef, AddManaEffectDef, AdditionalCostDef,
+    AlternateSpellKind, AlternativeCastAbilityDef, AlternativeCastKindDef,
     AlternativeCastManaCostDef, AlternativeCostDef, AppliedEffectDef, AppliedRuleDef,
     AttachedAbilityDef, AttackDeclarationRangeDef, AttackDefenderKindDef, AttackEventMatcherDef,
     BasicLandType, BattlefieldEntryChoiceDestinationDef, BattlefieldEntryModificationDef,

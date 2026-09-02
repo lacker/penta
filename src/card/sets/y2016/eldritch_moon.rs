@@ -192,7 +192,7 @@ pub(in crate::card::sets) static PROVIDENCE: CardRecord = CardRecord::new(
 );
 
 // EMN 55 — Displace
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISPLACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8ab850c5-6f5e-41b7-ab52-094579caca12"),
     "Displace",
@@ -456,7 +456,7 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
 );
 
 // EMN 160 — Grapple with the Past
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d44a77a6-e8a1-4706-886f-8ab3af56b342"),
     "Grapple with the Past",

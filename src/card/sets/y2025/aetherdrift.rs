@@ -29,7 +29,7 @@ pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_leg
 );
 
 // DFT 79 — Chitin Gravestalker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("903b4141-04a3-44c4-9d3e-aa2a773d9883"),
     "Chitin Gravestalker",
@@ -39,7 +39,7 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
 );
 
 // DFT 88 — Grim Bauble
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
     "Grim Bauble",
@@ -138,7 +138,7 @@ pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DFT 258 — Night Market
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8c1dce3-6136-4294-9d2b-5ef8527d733b"),
     "Night Market",

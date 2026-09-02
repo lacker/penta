@@ -36,9 +36,6 @@ impl Game {
                 continue;
             };
             for ability in rules.ability_clauses() {
-                if !ability.is_executable() {
-                    continue;
-                }
                 let Some(EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
                     spell,
                     caster,
@@ -81,7 +78,6 @@ impl Game {
             .rules
             .ability_clauses()
             .iter()
-            .filter(|ability| ability.is_executable())
             .filter_map(|ability| match ability.declarative_effect()? {
                 EffectDef::ReduceGenericCostBy(value) => Some(value),
                 _ => None,
@@ -112,9 +108,6 @@ impl Game {
                 continue;
             };
             for ability in rules.ability_clauses() {
-                if !ability.is_executable() {
-                    continue;
-                }
                 let Some(EffectDef::ModifyCost(modification)) = ability.declarative_effect() else {
                     continue;
                 };
@@ -192,9 +185,6 @@ impl Game {
                 continue;
             };
             for ability in rules.ability_clauses() {
-                if !ability.is_executable() {
-                    continue;
-                }
                 let Some(EffectDef::ModifyCost(modification)) = ability.declarative_effect() else {
                     continue;
                 };
@@ -272,8 +262,7 @@ impl Game {
                     let DeclarativeAbilityDef::Static(static_definition) = ability.definition else {
                         continue;
                     };
-                    if !ability.is_executable()
-                        || !static_definition.source_zones.contains(&ZoneKind::Stack)
+                    if !static_definition.source_zones.contains(&ZoneKind::Stack)
                     {
                         continue;
                     }
@@ -384,9 +373,6 @@ impl Game {
                 continue;
             };
             for ability in rules.ability_clauses() {
-                if !ability.is_executable() {
-                    continue;
-                }
                 match ability.declarative_effect() {
                     Some(EffectDef::ModifyCost(CostModificationDef::AbilityIncrease {
                         permanent: matcher,
@@ -433,11 +419,7 @@ impl Game {
                 continue;
             };
             for ability in rules.ability_clauses() {
-                let Some(effect) = ability
-                    .is_executable()
-                    .then(|| ability.declarative_effect())
-                    .flatten()
-                else {
+                let Some(effect) = ability.declarative_effect() else {
                     continue;
                 };
                 match effect {

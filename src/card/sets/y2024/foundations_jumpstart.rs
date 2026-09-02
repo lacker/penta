@@ -13,7 +13,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // J25 19 — Scholar of Combustion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCHOLAR_OF_COMBUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23660e44-8546-438d-a2c4-e1cef6e50855"),
     "Scholar of Combustion",
@@ -81,7 +81,7 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
 );
 
 // J25 28 — Shardless Outlander
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fccb51a4-cb78-4437-b9ab-cc77736af561"),
     "Shardless Outlander",
@@ -188,7 +188,7 @@ pub(in crate::card::sets) static IVORA_INSATIABLE_HEIR: CardRecord = CardRecord:
 // J25 114 — Dark Confidant (reprint)
 
 // J25 212 — Inspiring Overseer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35d9da1d-8678-4252-b0f8-9960795642f0"),
     "Inspiring Overseer",
@@ -198,7 +198,7 @@ pub(in crate::card::sets) static INSPIRING_OVERSEER: CardRecord = CardRecord::ne
 );
 
 // J25 343 — Pestermite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PESTERMITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f252ae53-443c-4a27-b8f0-639a9a2b8598"),
     "Pestermite",
@@ -247,7 +247,7 @@ pub(in crate::card::sets) static REMAND: CardRecord = CardRecord::new(
 );
 
 // J25 641 — Bushwhack
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("712a0640-d9c8-46fc-b38b-bf20a40fa902"),
     "Bushwhack",
@@ -257,7 +257,7 @@ pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
 );
 
 // J25 684 — Llanowar Visionary
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("880c9523-717e-4903-a09e-d6c47614383d"),
     "Llanowar Visionary",
@@ -267,7 +267,7 @@ pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::ne
 );
 
 // J25 753 — Guardian Idol
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6a62a73-b7db-47ec-9b68-65dd7c1a06a5"),
     "Guardian Idol",

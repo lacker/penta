@@ -109,7 +109,7 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
 );
 
 // MH2 36 — Unbounded Potential
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9955a344-dcd8-404d-9757-f62ed158ba22"),
     "Unbounded Potential",
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::n
 );
 
 // MH2 46 — Hard Evidence
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("501599d6-1072-4124-b05d-01f96de153f3"),
     "Hard Evidence",
@@ -462,7 +462,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
 );
 
 // MH2 91 — Loathsome Curator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOATHSOME_CURATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("11a59a6f-6ef0-4acc-8358-a4e2cebdb7d5"),
     "Loathsome Curator",
@@ -472,7 +472,7 @@ pub(in crate::card::sets) static LOATHSOME_CURATOR: CardRecord = CardRecord::new
 );
 
 // MH2 95 — Nested Shambler
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NESTED_SHAMBLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9851f290-f502-49f8-9b48-67f7966d4e34"),
     "Nested Shambler",
@@ -482,7 +482,7 @@ pub(in crate::card::sets) static NESTED_SHAMBLER: CardRecord = CardRecord::new(
 );
 
 // MH2 107 — Vermin Gorger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VERMIN_GORGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3166b10-5bc3-4db6-bb5b-81045d98e446"),
     "Vermin Gorger",
@@ -736,7 +736,7 @@ pub(in crate::card::sets) static UNHOLY_HEAT: CardRecord = CardRecord::new_with_
 );
 
 // MH2 147 — Abundant Harvest
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("16782095-0b7f-4489-8a97-b74f8efef352"),
     "Abundant Harvest",
@@ -746,7 +746,7 @@ pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
 );
 
 // MH2 149 — Bannerhide Krushok
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1271251b-7d79-4cb4-80bb-98574aa63249"),
     "Bannerhide Krushok",
@@ -803,7 +803,7 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
 );
 
 // MH2 181 — Urban Daggertooth
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ab83a39-d90d-403e-b74d-fe99c8b2aacd"),
     "Urban Daggertooth",
@@ -813,7 +813,7 @@ pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new
 );
 
 // MH2 188 — Captured by Lagacs
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ce1c2a8-688b-4f63-8d58-e325efc6052a"),
     "Captured by Lagacs",
@@ -823,7 +823,6 @@ pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::ne
 );
 
 // MH2 202 — Grist, the Hunger Tide
-// Audit: partial — The minus names its destruction target on activation instead of through a reflexive trigger, so an answered target counters the sacrifice too.
 pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8eadbeaf-f01c-4c85-8eaf-6a569a1bdf64"),
     "Grist, the Hunger Tide",
@@ -891,20 +890,9 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                     limit: 512,
                 }),
             ),
-            // The target is declared as the ability is activated rather than when
-            // the sacrifice is actually made, which is the one place this differs
-            // from the printed reflexive trigger: a board with nothing to destroy
-            // does not offer the ability at all. It follows that an answer to the
-            // target counters the whole ability, so the creature that would have
-            // paid for it survives; the printed card still offers the sacrifice and
-            // loses only the destruction.
-            AbilityDef::activated_with_targets(
-                "\u{2212}2: You may sacrifice a creature. When you do, destroy target creature or \
-                 planeswalker.",
+            AbilityDef::activated(
+                "\u{2212}2: You may sacrifice a creature.",
                 &[AbilityCostDef::Loyalty(-2)],
-                &[AbilityTargetDef::exactly_one_permanent(
-                    A_CREATURE_OR_PLANESWALKER,
-                )],
                 EffectDef::PayOr(PayOrDef::optional(
                     EffectPaymentDef {
                         payer: PlayerSetDef::Related(PlayerRelation::You),
@@ -912,12 +900,20 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                                 CardType::Creature,
                             )),
                     },
-                    &EffectDef::Destroy {
-                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
-                        then: None,
-                    },
+                    &EffectDef::None,
                 )),
+            ),
+            AbilityDef::triggered_with_targets(
+                "When you do, destroy target creature or planeswalker.",
+                TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
+                &[AbilityTargetDef::exactly_one_permanent(
+                    A_CREATURE_OR_PLANESWALKER,
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
             ),
             AbilityDef::activated(
                 "\u{2212}5: Each opponent loses life equal to the number of creature cards in your \
@@ -1232,7 +1228,7 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
 );
 
 // MH2 421 — Goblin Anarchomancer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("633a3423-501d-4b22-95a6-743233be521e"),
     "Goblin Anarchomancer",

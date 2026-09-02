@@ -35,7 +35,7 @@ pub(in crate::card::sets) const fn escape(
 }
 
 // THB 20 — Heliod's Pilgrim
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ea54b97-9182-4d46-9d70-3cc7f9b18ada"),
     "Heliod's Pilgrim",
@@ -125,7 +125,7 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_wi
 );
 
 // THB 99 — Gray Merchant of Asphodel
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b06078ce-f534-4e16-9a70-d51620a33eb2"),
     "Gray Merchant of Asphodel",
@@ -135,7 +135,7 @@ pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRec
 );
 
 // THB 105 — Mire Triton
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRE_TRITON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f8427d3-4d9e-48c9-838b-239fd1357d95"),
     "Mire Triton",
@@ -145,7 +145,7 @@ pub(in crate::card::sets) static MIRE_TRITON: CardRecord = CardRecord::new(
 );
 
 // THB 120 — Underworld Charger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERWORLD_CHARGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9"),
     "Underworld Charger",
@@ -155,7 +155,7 @@ pub(in crate::card::sets) static UNDERWORLD_CHARGER: CardRecord = CardRecord::ne
 );
 
 // THB 128 — Blood Aspirant
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_ASPIRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d4f3fa3-ba1f-48dc-a56b-738936f1bf86"),
     "Blood Aspirant",
@@ -203,7 +203,7 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
 );
 
 // THB 163 — Underworld Rage-Hound
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a04eef82-fd53-41f4-9c7e-28b9ac039032"),
     "Underworld Rage-Hound",

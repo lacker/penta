@@ -367,9 +367,6 @@ impl Game {
         for permanent in &self.battlefield {
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
-                if !ability.is_executable() {
-                    return;
-                }
                 let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
                     return;
                 };
@@ -454,7 +451,7 @@ impl Game {
     /// by paths that go straight to the arrival, which is where "if this
     /// would be put into a graveyard from anywhere" was going unread.
     ///
-    /// Audit: partial -- the move is read as a rules move, so a clause that
+    /// Audit: unsupported -- the move is read as a rules move, so a clause that
     /// asks *whose* effect moved the card ([`ZoneMoveCauseDef::EffectControlledBy`])
     /// is not answered here. Nothing in the catalog writes one of those about
     /// a graveyard move it makes from the stack or the library.
@@ -640,7 +637,6 @@ impl Game {
                 if event_from.is_none_or(|expected| expected == from)
                     && event_to == to
                     && cause_matches
-                    && ability.is_executable()
                     && replacement.source_zones.contains(&from)
                     && let Some(effect) = ability.declarative_replacement()
                     && Self::replacement_move_destination(effect).is_some()
@@ -664,12 +660,10 @@ impl Game {
             .catalog
             .get(card.definition)
             .expect("a card in hand remains cataloged");
-        if definition.rules.has_metadata_only_creature_body() && arrival.face_down.is_none() {
-            // Catalog-only bodies may still exist in hidden-zone fixtures and
-            // may be manifested as the ordinary face-down 2/2, but no game
-            // effect can turn their printed metadata into a face-up vanilla
-            // permanent. Restore the card because the attempted move did not
-            // happen.
+        if !definition.rules.implementation_status().is_complete() && arrival.face_down.is_none() {
+            // Unsupported cards may still exist in hidden-zone fixtures, but
+            // no game effect can turn them into face-up gameplay objects.
+            // Restore the card because the attempted move did not happen.
             let owner = card.owner;
             match from {
                 ZoneKind::Library => self.players[owner.index()].library.push(card),

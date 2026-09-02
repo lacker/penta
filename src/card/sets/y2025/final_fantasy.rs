@@ -102,7 +102,7 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
 );
 
 // FIN 114 — Resentful Revelation
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
     "Resentful Revelation",

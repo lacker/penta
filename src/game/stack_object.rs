@@ -101,8 +101,7 @@ impl StackAbilityResolver {
     fn linked_cast_offer(ability: &AbilityDef) -> Option<Self> {
         match ability.definition {
             DeclarativeAbilityDef::AlternativeCast(alternative)
-                if ability.is_executable()
-                    && alternative.kind == AlternativeCastKindDef::Miracle =>
+                if alternative.kind == AlternativeCastKindDef::Miracle =>
             {
                 Some(Self::CastOffer(alternative.kind))
             }

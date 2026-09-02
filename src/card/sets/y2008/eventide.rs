@@ -35,7 +35,7 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
 );
 
 // EVE 41 — Raven's Crime
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ced5797-5de0-43ca-9dc9-e48912333a70"),
     "Raven's Crime",
@@ -45,7 +45,7 @@ pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
 );
 
 // EVE 119 — Desecrator Hag
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DESECRATOR_HAG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("74d2e092-c805-447c-b784-1896b69524e0"),
     "Desecrator Hag",

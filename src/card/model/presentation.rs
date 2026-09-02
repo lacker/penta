@@ -668,10 +668,10 @@ impl AbilityDef {
             label: self.text.into(),
             additional_mana_cost,
             targets,
-            effect_status: if outer_is_executable && self.is_executable() {
+            effect_status: if outer_is_executable {
                 CardEffectStatus::Implemented
             } else {
-                CardEffectStatus::MetadataOnly
+                CardEffectStatus::Unsupported
             },
         })
     }

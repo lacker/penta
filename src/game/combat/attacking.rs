@@ -127,12 +127,10 @@ impl Game {
     fn attack_restrictions_met(&self, permanent: &Permanent) -> bool {
         let mut allowed = true;
         let _ = self.visit_effective_abilities(permanent, |effective| {
-            if effective.ability.is_executable()
-                && matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Static(_)
-                )
-                && let Some(effect) = effective.ability.declarative_effect()
+            if matches!(
+                effective.ability.definition,
+                DeclarativeAbilityDef::Static(_)
+            ) && let Some(effect) = effective.ability.declarative_effect()
                 && match effect {
                     EffectDef::CannotAttackUnless(query) => !self.any_battlefield_object_matches(
                         query,

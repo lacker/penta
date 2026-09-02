@@ -45,9 +45,6 @@ impl Game {
         }
         self.for_each_effective_ability(permanent, |effective| {
             let ability = effective.ability;
-            if !ability.is_executable() {
-                return;
-            }
             let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
                 return;
             };
@@ -431,9 +428,6 @@ impl Game {
         }
         let mut colors = Vec::new();
         self.for_each_effective_ability(permanent, |effective| {
-            if !effective.ability.is_executable() {
-                return;
-            }
             let DeclarativeAbilityDef::ActivatedMana(definition) = effective.ability.definition
             else {
                 return;

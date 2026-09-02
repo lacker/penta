@@ -44,8 +44,8 @@ mod tests {
         for raw_id in 1..=128 {
             let card = catalog.get(CardDefinitionId::new(raw_id)).unwrap();
             let expected_status =
-                if card.implementation_status() == crate::ImplementationStatus::MetadataOnly {
-                    CardEffectStatus::MetadataOnly
+                if card.implementation_status() == crate::ImplementationStatus::Unsupported {
+                    CardEffectStatus::Unsupported
                 } else {
                     CardEffectStatus::Implemented
                 };

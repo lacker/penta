@@ -1322,7 +1322,7 @@ pub(in crate::card::sets) static CACKLING_COUNTERPART: CardRecord = CardRecord::
 );
 
 // ISD 47 — Civilized Scholar // Homicidal Brute
-// Audit: metadata-only — Needs a discard choice linked to a creature-card test, conditional untap, and transform continuation.
+// Audit: unsupported — Needs a discard choice linked to a creature-card test, conditional untap, and transform continuation.
 pub(in crate::card::sets) static CIVILIZED_SCHOLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7bf864db-4754-433d-9d77-6695f78f6c09"),
     "Civilized Scholar",
@@ -2360,7 +2360,7 @@ pub(in crate::card::sets) static THINK_TWICE: CardRecord = CardRecord::new_with_
 );
 
 // ISD 84 — Undead Alchemist
-// Audit: metadata-only — Needs a combat-damage replacement that mills instead, plus a linked library-to-graveyard creature-card trigger.
+// Audit: unsupported — Needs a combat-damage replacement that mills instead, plus a linked library-to-graveyard creature-card trigger.
 pub(in crate::card::sets) static UNDEAD_ALCHEMIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("717f4592-6c81-43ac-8975-f6d5d6710310"),
     "Undead Alchemist",
@@ -3389,7 +3389,7 @@ pub(in crate::card::sets) static TYPHOID_RATS: CardRecord = CardRecord::new_with
 );
 
 // ISD 121 — Unbreathing Horde
-// Audit: metadata-only — Needs a dynamic enters-with-counters count and a damage replacement that removes a counter instead.
+// Audit: unsupported — Needs a dynamic enters-with-counters count and a damage replacement that removes a counter instead.
 pub(in crate::card::sets) static UNBREATHING_HORDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a91ea47-0c06-4333-a309-ac360c5cc9bd"),
     "Unbreathing Horde",
@@ -4747,7 +4747,7 @@ pub(in crate::card::sets) static BRAMBLECRUSH: CardRecord = CardRecord::new_with
 );
 
 // ISD 173 — Caravan Vigil
-// Audit: metadata-only — Needs the searched card's destination to branch on morbid while preserving the hidden-zone search choice.
+// Audit: unsupported — Needs the searched card's destination to branch on morbid while preserving the hidden-zone search choice.
 pub(in crate::card::sets) static CARAVAN_VIGIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a8dfb98-a975-41bf-8aac-c0001c9ddaa7"),
     "Caravan Vigil",
@@ -4757,7 +4757,7 @@ pub(in crate::card::sets) static CARAVAN_VIGIL: CardRecord = CardRecord::new(
 );
 
 // ISD 174 — Creeping Renaissance
-// Audit: metadata-only — Needs a permanent-card-type choice and a graveyard sweep keyed to the chosen type.
+// Audit: unsupported — Needs a permanent-card-type choice and a graveyard sweep keyed to the chosen type.
 pub(in crate::card::sets) static CREEPING_RENAISSANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b965069d-8513-41ab-98f6-3fbd46c19e2d"),
     "Creeping Renaissance",
@@ -4897,7 +4897,7 @@ pub(in crate::card::sets) static ELDER_OF_LAURELS: CardRecord = CardRecord::new_
 );
 
 // ISD 178 — Essence of the Wild
-// Audit: metadata-only — Needs a battlefield entry replacement that copies the source's copiable values onto other creatures.
+// Audit: unsupported — Needs a battlefield entry replacement that copies the source's copiable values onto other creatures.
 pub(in crate::card::sets) static ESSENCE_OF_THE_WILD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dec48cba-1b5d-44e7-9e25-16922dedb67d"),
     "Essence of the Wild",
@@ -5132,7 +5132,7 @@ pub(in crate::card::sets) static GATSTAF_SHEPHERD: CardRecord = CardRecord::new_
 );
 
 // ISD 183 — Gnaw to the Bone
-// Audit: metadata-only — Needs multiplying the number of creature cards in your graveyard by two for a life-gain amount.
+// Audit: unsupported — Needs multiplying the number of creature cards in your graveyard by two for a life-gain amount.
 pub(in crate::card::sets) static GNAW_TO_THE_BONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("416148c8-13d3-46d3-ac93-6eb7cbab2881"),
     "Gnaw to the Bone",
@@ -5468,7 +5468,7 @@ pub(in crate::card::sets) static MAYOR_OF_AVABRUCK: CardRecord = CardRecord::new
 );
 
 // ISD 194 — Moldgraf Monstrosity
-// Audit: metadata-only — Needs deterministic random selection of two creature cards from your graveyard after exiling the source.
+// Audit: unsupported — Needs deterministic random selection of two creature cards from your graveyard after exiling the source.
 pub(in crate::card::sets) static MOLDGRAF_MONSTROSITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f387c86a-702f-4f86-bcb9-d2bfa46fd211"),
     "Moldgraf Monstrosity",
@@ -5478,7 +5478,7 @@ pub(in crate::card::sets) static MOLDGRAF_MONSTROSITY: CardRecord = CardRecord::
 );
 
 // ISD 195 — Moonmist
-// Audit: metadata-only — Needs transforming all Human double-faced permanents and selectively preventing combat damage from non-Werewolves and non-Wolves.
+// Audit: unsupported — Needs transforming all Human double-faced permanents and selectively preventing combat damage from non-Werewolves and non-Wolves.
 pub(in crate::card::sets) static MOONMIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57153c3f-9e55-418c-b67b-36901f29f9c1"),
     "Moonmist",
@@ -5527,7 +5527,7 @@ pub(in crate::card::sets) static ORCHARD_SPIRIT: CardRecord = CardRecord::new_wi
 );
 
 // ISD 199 — Parallel Lives
-// Audit: metadata-only — Needs a token-creation replacement event that doubles the number of tokens an effect would create.
+// Audit: unsupported — Needs a token-creation replacement event that doubles the number of tokens an effect would create.
 pub(in crate::card::sets) static PARALLEL_LIVES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("01033dae-fec1-41f2-b7f2-cc6a43331790"),
     "Parallel Lives",
@@ -5720,7 +5720,7 @@ pub(in crate::card::sets) static TRAVEL_PREPARATIONS: CardRecord = CardRecord::n
 );
 
 // ISD 207 — Tree of Redemption
-// Audit: metadata-only — Needs exchanging the controller's life total with the source's current toughness.
+// Audit: unsupported — Needs exchanging the controller's life total with the source's current toughness.
 pub(in crate::card::sets) static TREE_OF_REDEMPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c6110bba-5c2d-4183-9dd0-d85a4cc42753"),
     "Tree of Redemption",
@@ -5941,7 +5941,7 @@ pub(in crate::card::sets) static GEIST_OF_SAINT_TRAFT: CardRecord = CardRecord::
 );
 
 // ISD 214 — Grimgrin, Corpse-Born
-// Audit: metadata-only — Needs an attack target restricted to the defending player's creatures and a linked destroy-then-counter continuation.
+// Audit: unsupported — Needs an attack target restricted to the defending player's creatures and a linked destroy-then-counter continuation.
 pub(in crate::card::sets) static GRIMGRIN_CORPSE_BORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8648734-ed6c-471f-91a1-6b710bbaf370"),
     "Grimgrin, Corpse-Born",
@@ -6041,7 +6041,7 @@ pub(in crate::card::sets) static BUTCHERS_CLEAVER: CardRecord = CardRecord::new_
 );
 
 // ISD 218 — Cellar Door
-// Audit: metadata-only — Needs moving the bottom library card and branching on that moved card's creature type.
+// Audit: unsupported — Needs moving the bottom library card and branching on that moved card's creature type.
 pub(in crate::card::sets) static CELLAR_DOOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("97bdfb00-7773-4af6-895c-c90088a96b07"),
     "Cellar Door",
@@ -6075,7 +6075,7 @@ pub(in crate::card::sets) static COBBLED_WINGS: CardRecord = CardRecord::new_wit
 );
 
 // ISD 220 — Creepy Doll
-// Audit: metadata-only — Needs a recorded coin flip after combat damage to a creature and a conditional destroy branch.
+// Audit: unsupported — Needs a recorded coin flip after combat damage to a creature and a conditional destroy branch.
 pub(in crate::card::sets) static CREEPY_DOLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("762a598b-8753-47ec-9dd6-2c3d8882fda6"),
     "Creepy Doll",
@@ -6186,7 +6186,7 @@ pub(in crate::card::sets) static GHOULCALLERS_BELL: CardRecord = CardRecord::new
 );
 
 // ISD 225 — Graveyard Shovel
-// Audit: metadata-only — Needs the targeted player to choose one card from their graveyard and a creature-card test after exile.
+// Audit: unsupported — Needs the targeted player to choose one card from their graveyard and a creature-card test after exile.
 pub(in crate::card::sets) static GRAVEYARD_SHOVEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a4b8888-a10c-48b1-ba19-c041e5667b29"),
     "Graveyard Shovel",
@@ -6268,7 +6268,7 @@ pub(in crate::card::sets) static GRIMOIRE_OF_THE_DEAD: CardRecord = CardRecord::
 );
 
 // ISD 227 — Inquisitor's Flail
-// Audit: metadata-only — Needs combat-damage replacement effects tied to an equipped creature.
+// Audit: unsupported — Needs combat-damage replacement effects tied to an equipped creature.
 pub(in crate::card::sets) static INQUISITOR_S_FLAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3014f59d-9012-473a-8bb1-8085c6e91632"),
     "Inquisitor's Flail",

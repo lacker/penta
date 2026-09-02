@@ -8,7 +8,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // HOU 48 — Striped Riverwinder
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a"),
     "Striped Riverwinder",
@@ -57,7 +57,7 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
 );
 
 // HOU 92 — Firebrand Archer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6ddc6b73-298b-4afa-990a-63706e77dd9f"),
     "Firebrand Archer",
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
 );
 
 // HOU 138 — Bloodwater Entity
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("474d0a04-b640-4d1d-b538-2d946c1ff913"),
     "Bloodwater Entity",

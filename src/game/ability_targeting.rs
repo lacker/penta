@@ -742,14 +742,11 @@ impl Game {
         zone: ZoneKind,
         source: GameObjectId,
     ) -> bool {
-        if self
-            .catalog
-            .get(card.definition)
-            .is_some_and(|definition| definition.rules.has_metadata_only_creature_body())
-        {
-            // A catalog-only creature still exposes exact printed metadata to
-            // catalog consumers, but no gameplay effect may select it and
-            // turn that metadata into an executable vanilla permanent.
+        if self.catalog.get(card.definition).is_some_and(|definition| {
+            definition.rules.implementation_status() == crate::ImplementationStatus::Unsupported
+        }) {
+            // Unsupported cards cannot become gameplay objects through a
+            // shared selection or movement effect.
             return false;
         }
         // Reveal-until removes the prospective card from the library before

@@ -137,8 +137,7 @@ impl Game {
         let DeclarativeAbilityDef::Activated(definition) = effective.ability.definition else {
             return;
         };
-        if !effective.ability.is_executable()
-            || definition.procedure != AbilityProcedureDef::Shared
+        if definition.procedure != AbilityProcedureDef::Shared
             || !definition.source_zones.contains(&ZoneKind::Graveyard)
         {
             return;
@@ -290,8 +289,7 @@ impl Game {
         let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
             return false;
         };
-        if !ongoing.ability.is_executable()
-            || definition.procedure != AbilityProcedureDef::Shared
+        if definition.procedure != AbilityProcedureDef::Shared
             || definition.source_zones != [ZoneKind::Command]
         {
             return false;
@@ -365,8 +363,7 @@ impl Game {
             let DeclarativeAbilityDef::Activated(definition) = effective.ability.definition else {
                 return;
             };
-            if !effective.ability.is_executable()
-                || definition.procedure != AbilityProcedureDef::Shared
+            if definition.procedure != AbilityProcedureDef::Shared
                 || !definition.source_zones.contains(&ZoneKind::Hand)
             {
                 return;
@@ -580,12 +577,11 @@ impl Game {
             .find_effective_ability(source_permanent, |effective| effective.origin == ability)
             .map(|effective| effective.ability);
         let declarative = selected_ability.filter(|ability| {
-            ability.is_executable()
-                && matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::Activated(definition)
-                        if definition.procedure == AbilityProcedureDef::Shared
-                )
+            matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Activated(definition)
+                    if definition.procedure == AbilityProcedureDef::Shared
+            )
         });
         if let Some(ability_def) = declarative {
             let DeclarativeAbilityDef::Activated(definition) = ability_def.definition else {

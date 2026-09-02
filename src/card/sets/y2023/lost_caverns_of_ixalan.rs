@@ -56,7 +56,7 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_leg
 );
 
 // LCI 24 — Miner's Guidewing
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9048cd9d-df3f-4705-a5f4-e5b09760c631"),
     "Miner's Guidewing",
@@ -66,7 +66,7 @@ pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new
 );
 
 // LCI 30 — Petrify
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbc5f28f-6361-455f-ac82-260a70e59316"),
     "Petrify",
@@ -244,7 +244,7 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
 );
 
 // LCI 128 — Tithing Blade // Consuming Sepulcher
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbaa9a2d-e9fd-4746-a26c-f99ae731f024"),
     "Tithing Blade",

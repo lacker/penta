@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // SOS 12 — Elite Interceptor
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2970683e-e69c-42cb-a067-34abd56fb42b"),
     "Elite Interceptor",
@@ -19,7 +19,7 @@ pub(in crate::card::sets) static ELITE_INTERCEPTOR: CardRecord = CardRecord::new
 );
 
 // SOS 42 — Deluge Virtuoso
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DELUGE_VIRTUOSO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e3b16ed-8727-48fd-8b1f-c0cbd329385e"),
     "Deluge Virtuoso",
@@ -29,7 +29,7 @@ pub(in crate::card::sets) static DELUGE_VIRTUOSO: CardRecord = CardRecord::new(
 );
 
 // SOS 68 — Spellbook Seeker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPELLBOOK_SEEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc44eaa4-59a4-419e-b1d1-d92f354ff588"),
     "Spellbook Seeker",
@@ -70,7 +70,7 @@ pub(in crate::card::sets) static VICIOUS_RIVALRY: CardRecord = CardRecord::new(
 );
 
 // SOS 242 — Visionary's Dance
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("846a0e79-a530-429e-8f7f-4b87f1b0156e"),
     "Visionary's Dance",
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new
 );
 
 // SOS 255 — Fields of Strife
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3dc7a4c3-c356-4fba-bea0-e8788da3eb57"),
     "Fields of Strife",
@@ -93,7 +93,7 @@ pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
 );
 
 // SOS 256 — Forum of Amity
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORUM_OF_AMITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1de6c6cc-0c55-4997-8623-d7f796bd9ab8"),
     "Forum of Amity",
@@ -103,7 +103,7 @@ pub(in crate::card::sets) static FORUM_OF_AMITY: CardRecord = CardRecord::new(
 );
 
 // SOS 258 — Paradox Gardens
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbc3447e-1329-4ea1-b4ca-b321b0ffec8f"),
     "Paradox Gardens",
@@ -113,7 +113,7 @@ pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
 );
 
 // SOS 262 — Spectacle Summit
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTACLE_SUMMIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0a66f7b-eab4-45da-8895-c2c2c7eb05f8"),
     "Spectacle Summit",
@@ -123,7 +123,7 @@ pub(in crate::card::sets) static SPECTACLE_SUMMIT: CardRecord = CardRecord::new(
 );
 
 // SOS 266 — Titan's Grave
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TITAN_S_GRAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9ab41c8-3ee2-4676-9b8b-20c34d9f5f21"),
     "Titan's Grave",

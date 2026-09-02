@@ -150,9 +150,6 @@ impl Game {
         let mut captures = Vec::new();
         for attached in part.rules.indexed_abilities() {
             let ability = attached.definition;
-            if !ability.is_executable() {
-                continue;
-            }
             let DeclarativeAbilityDef::Triggered(triggered) = ability.definition else {
                 continue;
             };

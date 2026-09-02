@@ -285,6 +285,7 @@ fn an_attached_permanent_that_loses_aura_unattaches_but_stays_on_the_battlefield
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn elbrus_unattaches_then_transforms_after_the_equipped_creature_hits_a_player() {
     let (mut game, elbrus, host) =
         attached_board(cards::ELBRUS_THE_BINDING_BLADE, cards::GRIZZLY_BEARS);

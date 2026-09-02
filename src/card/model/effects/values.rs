@@ -126,6 +126,7 @@ pub enum ObjectValueDef {
     ManaValue,
     Power,
     Toughness,
+    Counters(CounterKind),
 }
 
 /// How a projected collection of object values becomes one effect value.

@@ -63,8 +63,7 @@ impl Game {
                         else {
                             return;
                         };
-                        if !ability.is_executable()
-                            || definition.procedure != AbilityProcedureDef::Shared
+                        if definition.procedure != AbilityProcedureDef::Shared
                             || !definition.source_zones.contains(&ZoneKind::Exile)
                         {
                             return;

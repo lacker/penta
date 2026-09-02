@@ -218,9 +218,6 @@ impl Game {
             i16::try_from(amount.clamp(i32::from(i16::MIN), i32::from(i16::MAX))).ok()
         };
         for ability in definition.rules.ability_clauses() {
-            if !ability.is_executable() {
-                continue;
-            }
             let Some(crate::card::EffectDef::StaticApply {
                 effect:
                     AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(
@@ -328,6 +325,9 @@ impl Game {
                     }
                     crate::card::ObjectValueDef::Toughness => {
                         self.current_or_last_known_toughness(id).map(i32::from)
+                    }
+                    crate::card::ObjectValueDef::Counters(kind) => {
+                        Some(i32::from(self.current_or_last_known_counters(id, kind)))
                     }
                 }
             });
@@ -764,13 +764,11 @@ impl Game {
     fn landwalk_can_be_blocked(&self, land_type: BasicLandType) -> bool {
         self.battlefield.iter().any(|permanent| {
             self.find_effective_ability(permanent, |effective| {
-                effective.ability.is_executable()
-                    && matches!(
-                        effective.ability.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                    && effective.ability.declarative_effect()
-                        == Some(EffectDef::LandwalkCanBeBlocked(land_type))
+                matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) && effective.ability.declarative_effect()
+                    == Some(EffectDef::LandwalkCanBeBlocked(land_type))
             })
             .is_some()
         })
@@ -782,11 +780,10 @@ impl Game {
         expected: KeywordAbility,
     ) -> bool {
         self.find_effective_ability(permanent, |effective| {
-            effective.ability.is_executable()
-                && matches!(
-                    effective.ability.definition,
-                    DeclarativeAbilityDef::Keyword(actual) if actual == expected
-                )
+            matches!(
+                effective.ability.definition,
+                DeclarativeAbilityDef::Keyword(actual) if actual == expected
+            )
         })
         .is_some()
     }

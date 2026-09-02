@@ -64,7 +64,7 @@ pub(in crate::card::sets) static LORAN_OF_THE_THIRD_PATH: CardRecord = CardRecor
 );
 
 // BRO 72 — Weakstone's Subjugation
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ef93ac79-8575-40f8-a222-63c2ffb30f60"),
     "Weakstone's Subjugation",
@@ -74,7 +74,7 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
 );
 
 // BRO 98 — Gixian Infiltrator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c94a3317-7d1f-4f29-8353-180f1ab48d18"),
     "Gixian Infiltrator",
@@ -84,7 +84,7 @@ pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::ne
 );
 
 // BRO 164 — Scrapwork Mutt
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCRAPWORK_MUTT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4742800a-4872-4c2d-b884-01e0ba16950c"),
     "Scrapwork Mutt",
@@ -306,7 +306,7 @@ pub(in crate::card::sets) static PORTAL_TO_PHYREXIA: CardRecord = CardRecord::ne
 );
 
 // BRO 266 — Tocasia's Dig Site
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOCASIA_S_DIG_SITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23d4b90c-95b1-4828-bc08-7067da0d5364"),
     "Tocasia's Dig Site",

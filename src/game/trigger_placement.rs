@@ -218,12 +218,7 @@ impl Game {
             .modes
             .take()
             .expect("asked only for a modal trigger");
-        let offered = modal
-            .modes
-            .iter()
-            .enumerate()
-            .filter(|(_, mode)| mode.is_executable())
-            .collect::<Vec<_>>();
+        let offered = modal.modes.iter().enumerate().collect::<Vec<_>>();
         // "Choose up to one" makes declining an answer in its own right, so
         // a lone executable mode is still a question worth asking.
         let required = usize::from(modal.minimum.min(1));

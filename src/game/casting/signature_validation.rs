@@ -215,11 +215,8 @@ impl Game {
         if offer.is_none() && !self.play_timing_allows(player, option.restriction) {
             return None;
         }
-        let types = Self::play_option_types(definition, option)?;
-        if option.effect_status == CardEffectStatus::MetadataOnly
-            && (!types.is_creature()
-                || !definition.play_option_has_executable_creature_body(option))
-        {
+        let _types = Self::play_option_types(definition, option)?;
+        if option.effect_status == CardEffectStatus::Unsupported {
             return None;
         }
 

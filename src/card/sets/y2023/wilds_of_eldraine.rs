@@ -15,7 +15,7 @@ use crate::ids::TargetIndex;
 use crate::{CardPartId, PlayOptionId, mana_cost};
 
 // WOE 62 — Mocking Sprite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e595014d-4ff4-4561-b7f2-a9bd56300b01"),
     "Mocking Sprite",
@@ -25,7 +25,7 @@ pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
 );
 
 // WOE 83 — Candy Grapple
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("190d97bc-dbef-496d-9bd1-b785bdf8a964"),
     "Candy Grapple",
@@ -35,7 +35,7 @@ pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
 );
 
 // WOE 116 — Voracious Vermin
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8059be65-3c73-49bb-a3b6-c346ce2f9fa4"),
     "Voracious Vermin",
@@ -45,7 +45,7 @@ pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
 );
 
 // WOE 131 — Gnawing Crescendo
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("254fc64a-9734-44a6-8869-ab03512f1a99"),
     "Gnawing Crescendo",
@@ -219,7 +219,7 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
 );
 
 // WOE 243 — Candy Trail
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a860925-d912-49e5-9ddc-41ab26916bb3"),
     "Candy Trail",

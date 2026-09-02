@@ -220,10 +220,7 @@ impl Game {
                 let Some(types) = Self::play_option_types(definition, option) else {
                     continue;
                 };
-                if option.effect_status == CardEffectStatus::MetadataOnly
-                    && (!types.is_creature()
-                        || !definition.play_option_has_executable_creature_body(option))
-                {
+                if option.effect_status == CardEffectStatus::Unsupported {
                     continue;
                 }
                 // An offer made during a resolution is answered then or not
@@ -646,11 +643,10 @@ impl Game {
         part.rules
             .indexed_abilities()
             .find(|attached| {
-                attached.definition.is_executable()
-                    && matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Spell(_)
-                    )
+                matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Spell(_)
+                )
             })
             .map(|attached| {
                 (

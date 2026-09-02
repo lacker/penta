@@ -23,7 +23,7 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 // SNC 26 — Raffine's Informant
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e64ff87-2099-4360-94f6-164277b7b514"),
     "Raffine's Informant",
@@ -66,7 +66,7 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_w
 );
 
 // SNC 66 — Witness Protection
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2be6f2c-8ad0-402d-a7ca-9fe817e83b72"),
     "Witness Protection",
@@ -76,7 +76,7 @@ pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::ne
 );
 
 // SNC 114 — Mayhem Patrol
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50162cdd-ba30-48df-93ff-197c7f4a2913"),
     "Mayhem Patrol",
@@ -86,7 +86,7 @@ pub(in crate::card::sets) static MAYHEM_PATROL: CardRecord = CardRecord::new(
 );
 
 // SNC 131 — Witty Roastmaster
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITTY_ROASTMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71d13f19-482b-4a2e-9692-b7d7caf2f9f5"),
     "Witty Roastmaster",
@@ -96,7 +96,7 @@ pub(in crate::card::sets) static WITTY_ROASTMASTER: CardRecord = CardRecord::new
 );
 
 // SNC 151 — Jewel Thief
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("736e498e-1245-40c1-96a4-c9bcfd1cfe1f"),
     "Jewel Thief",
@@ -106,7 +106,7 @@ pub(in crate::card::sets) static JEWEL_THIEF: CardRecord = CardRecord::new(
 );
 
 // SNC 168 — Body Dropper
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fcb6d47-dccb-4b69-aed4-7a6215857606"),
     "Body Dropper",

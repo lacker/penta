@@ -238,7 +238,10 @@ impl Game {
         if self.cleanup_pending {
             if player == self.active_player {
                 let state = &self.players[player.index()];
-                let count = state.hand.len().saturating_sub(7);
+                let count = state
+                    .hand
+                    .len()
+                    .saturating_sub(self.maximum_hand_size(player).unwrap_or(usize::MAX));
                 actions.extend(
                     combinations(
                         &state.hand.iter().map(|card| card.id).collect::<Vec<_>>(),

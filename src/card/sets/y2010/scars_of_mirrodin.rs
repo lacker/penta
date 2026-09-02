@@ -241,7 +241,7 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
 );
 
 // SOM 7 — Fulgent Distraction
-// Audit: metadata-only — Needs one resolution to find and unattach every Equipment attached to each of two targeted creatures after tapping them.
+// Audit: unsupported — Needs one resolution to find and unattach every Equipment attached to each of two targeted creatures after tapping them.
 pub(in crate::card::sets) static FULGENT_DISTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c33a8cf1-e413-4633-b348-2ef594a945a5"),
     "Fulgent Distraction",
@@ -382,7 +382,7 @@ pub(in crate::card::sets) static KEMBA_S_SKYGUARD: CardRecord = CardRecord::new(
 );
 
 // SOM 14 — Leonin Arbiter
-// Audit: metadata-only — Needs a player search prohibition with an any-player {2} special-action payment that suspends only that player's restriction until end of turn.
+// Audit: unsupported — Needs a player search prohibition with an any-player {2} special-action payment that suspends only that player's restriction until end of turn.
 pub(in crate::card::sets) static LEONIN_ARBITER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b0453cd-62ab-41ba-8d9c-9d6d25dc9a56"),
     "Leonin Arbiter",
@@ -425,7 +425,7 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
 );
 
 // SOM 17 — Razor Hippogriff
-// Audit: metadata-only — Target mana value has last-known information, but zone moves cannot condition a following effect on whether the artifact was actually returned to hand, as required by “If you do.”
+// Audit: unsupported — Target mana value has last-known information, but zone moves cannot condition a following effect on whether the artifact was actually returned to hand, as required by “If you do.”
 pub(in crate::card::sets) static RAZOR_HIPPOGRIFF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab"),
     "Razor Hippogriff",
@@ -519,7 +519,7 @@ pub(in crate::card::sets) static SEIZE_THE_INITIATIVE: CardRecord = CardRecord::
 );
 
 // SOM 21 — Soul Parry
-// Audit: metadata-only — Damage prevention cannot currently use the one-or-two members of a target slot as the complete set of damage sources it prevents.
+// Audit: unsupported — Damage prevention cannot currently use the one-or-two members of a target slot as the complete set of damage sources it prevents.
 pub(in crate::card::sets) static SOUL_PARRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e241ea47-cbbe-4241-94f9-315cc7cfd79b"),
     "Soul Parry",
@@ -757,7 +757,7 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
 );
 
 // SOM 33 — Grand Architect
-// Audit: metadata-only — Needs an activation cost that taps another chosen untapped blue creature and produces {C}{C} restricted to artifact spells and artifact abilities.
+// Audit: unsupported — Needs an activation cost that taps another chosen untapped blue creature and produces {C}{C} restricted to artifact spells and artifact abilities.
 pub(in crate::card::sets) static GRAND_ARCHITECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c59599de-c781-4c26-a159-cbf0cd72d361"),
     "Grand Architect",
@@ -921,7 +921,7 @@ pub(in crate::card::sets) static RIDDLESMITH: CardRecord = CardRecord::new(
 );
 
 // SOM 41 — Scrapdiver Serpent
-// Audit: metadata-only — Blocking restrictions cannot currently ask whether the source's defending player controls an artifact.
+// Audit: unsupported — Blocking restrictions cannot currently ask whether the source's defending player controls an artifact.
 pub(in crate::card::sets) static SCRAPDIVER_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c6b5db0-7d2c-4337-b1c4-9e1219f603c7"),
     "Scrapdiver Serpent",
@@ -951,7 +951,7 @@ pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new
 );
 
 // SOM 43 — Shape Anew
-// Audit: metadata-only — Needs a target-controller procedure that sacrifices the artifact, reveals through that player's library to the first artifact, puts it onto the battlefield, and shuffles every other revealed card back.
+// Audit: unsupported — Needs a target-controller procedure that sacrifices the artifact, reveals through that player's library to the first artifact, puts it onto the battlefield, and shuffles every other revealed card back.
 pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3d5462e-f60c-4550-b29e-4d9f9cd72385"),
     "Shape Anew",
@@ -1008,7 +1008,7 @@ pub(in crate::card::sets) static STEADY_PROGRESS: CardRecord = CardRecord::new(
 );
 
 // SOM 46 — Stoic Rebuttal
-// Audit: metadata-only — Self spell-cost reductions support constant and object-count amounts, but cannot conditionally reduce this spell by exactly {1} only while metalcraft is true.
+// Audit: unsupported — Self spell-cost reductions support constant and object-count amounts, but cannot conditionally reduce this spell by exactly {1} only while metalcraft is true.
 pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2805239-f30a-4eca-a10b-41673daaa287"),
     "Stoic Rebuttal",
@@ -1378,7 +1378,7 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
 );
 
 // SOM 61 — Exsanguinate
-// Audit: metadata-only — Needs multiplayer life-drain accounting that gains exactly the total life actually lost by all opponents, including replacements and opponents unable to lose the full X.
+// Audit: unsupported — Needs multiplayer life-drain accounting that gains exactly the total life actually lost by all opponents, including replacements and opponents unable to lose the full X.
 pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0878b541-a730-49db-b062-5a01656e269d"),
     "Exsanguinate",
@@ -1388,7 +1388,7 @@ pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
 );
 
 // SOM 62 — Flesh Allergy
-// Audit: metadata-only — Needs a value for the number of creatures that died this turn, read after paying the creature-sacrifice additional cost and destroying the target.
+// Audit: unsupported — Needs a value for the number of creatures that died this turn, read after paying the creature-sacrifice additional cost and destroying the target.
 pub(in crate::card::sets) static FLESH_ALLERGY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c729525-b954-42dd-9877-f4360d99b961"),
     "Flesh Allergy",
@@ -1582,7 +1582,7 @@ pub(in crate::card::sets) static INSTILL_INFECTION: CardRecord = CardRecord::new
 );
 
 // SOM 69 — Memoricide
-// Audit: metadata-only — Needs one chosen nonland card name to drive a privacy-correct search across another player's graveyard, hand, and library and exile any number of matching cards.
+// Audit: unsupported — Needs one chosen nonland card name to drive a privacy-correct search across another player's graveyard, hand, and library and exile any number of matching cards.
 pub(in crate::card::sets) static MEMORICIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9d74bae-0b96-4a78-b805-a0b764d0716c"),
     "Memoricide",
@@ -1621,7 +1621,7 @@ pub(in crate::card::sets) static NECROGEN_SCUDDER: CardRecord = CardRecord::new(
 );
 
 // SOM 72 — Necrotic Ooze
-// Audit: metadata-only — Static ability grants cannot aggregate every activated ability of every creature card in all graveyards.
+// Audit: unsupported — Static ability grants cannot aggregate every activated ability of every creature card in all graveyards.
 pub(in crate::card::sets) static NECROTIC_OOZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8af2c79f-a151-4628-90fe-c0ff7ccd9c2c"),
     "Necrotic Ooze",
@@ -1631,7 +1631,7 @@ pub(in crate::card::sets) static NECROTIC_OOZE: CardRecord = CardRecord::new(
 );
 
 // SOM 73 — Painful Quandary
-// Audit: metadata-only — Needs an opponent-cast trigger whose event player chooses between discarding a card and losing 5 life, with the loss forced when discard is impossible.
+// Audit: unsupported — Needs an opponent-cast trigger whose event player chooses between discarding a card and losing 5 life, with the loss forced when discard is impossible.
 pub(in crate::card::sets) static PAINFUL_QUANDARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b"),
     "Painful Quandary",
@@ -1960,7 +1960,7 @@ pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new
 );
 
 // SOM 86 — Cerebral Eruption
-// Audit: metadata-only — Needs a top-card reveal continuation that branches on land, otherwise deals the revealed card's mana value to the opponent and every creature they control, and returns the source spell on the land branch.
+// Audit: unsupported — Needs a top-card reveal continuation that branches on land, otherwise deals the revealed card's mana value to the opponent and every creature they control, and returns the source spell on the land branch.
 pub(in crate::card::sets) static CEREBRAL_ERUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77161159-ee2c-485d-8674-d8590ccc62e1"),
     "Cerebral Eruption",
@@ -2313,7 +2313,7 @@ pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
 );
 
 // SOM 98 — Molten Psyche
-// Audit: metadata-only — Needs each player to shuffle a separately remembered hand into their library, draw that many, and a metalcraft branch that reads each opponent's cards-drawn-this-turn count.
+// Audit: unsupported — Needs each player to shuffle a separately remembered hand into their library, draw that many, and a metalcraft branch that reads each opponent's cards-drawn-this-turn count.
 pub(in crate::card::sets) static MOLTEN_PSYCHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57e2382d-1f27-40d1-b809-c188c19ebc72"),
     "Molten Psyche",
@@ -2323,7 +2323,7 @@ pub(in crate::card::sets) static MOLTEN_PSYCHE: CardRecord = CardRecord::new(
 );
 
 // SOM 99 — Ogre Geargrabber
-// Audit: metadata-only — Needs an attack trigger that temporarily steals an opposing Equipment, attaches it to the source, and automatically unattaches it when that temporary control effect ends.
+// Audit: unsupported — Needs an attack trigger that temporarily steals an opposing Equipment, attaches it to the source, and automatically unattaches it when that temporary control effect ends.
 pub(in crate::card::sets) static OGRE_GEARGRABBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0f6e2c3-0e0d-47ff-9d92-afc86a8c8aac"),
     "Ogre Geargrabber",
@@ -2408,7 +2408,7 @@ pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
 );
 
 // SOM 105 — Tunnel Ignus
-// Audit: metadata-only — Trigger conditions cannot ask whether the event player already had another land enter under their control earlier this turn.
+// Audit: unsupported — Trigger conditions cannot ask whether the event player already had another land enter under their control earlier this turn.
 pub(in crate::card::sets) static TUNNEL_IGNUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c3016e6b-32b2-4fa7-91c0-ec8fbe345760"),
     "Tunnel Ignus",
@@ -2770,7 +2770,7 @@ pub(in crate::card::sets) static EZURI_S_BRIGADE: CardRecord = CardRecord::new(
 );
 
 // SOM 122 — Genesis Wave
-// Audit: metadata-only — Needs a chosen-X top-of-library reveal procedure that lets its controller choose any number of permanent cards with mana value at most X, moves those to the battlefield, and puts every other revealed card into the graveyard.
+// Audit: unsupported — Needs a chosen-X top-of-library reveal procedure that lets its controller choose any number of permanent cards with mana value at most X, moves those to the battlefield, and puts every other revealed card into the graveyard.
 pub(in crate::card::sets) static GENESIS_WAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c920236f-c3d7-421c-b021-103996da790e"),
     "Genesis Wave",
@@ -2780,7 +2780,7 @@ pub(in crate::card::sets) static GENESIS_WAVE: CardRecord = CardRecord::new(
 );
 
 // SOM 123 — Liege of the Tangle
-// Audit: metadata-only — Needs any-number land targeting plus a persistent counter-defined animation: each chosen land gets eight awakening counters and remains an 8/8 Elemental in addition to its other types even after the Liege leaves.
+// Audit: unsupported — Needs any-number land targeting plus a persistent counter-defined animation: each chosen land gets eight awakening counters and remains an 8/8 Elemental in addition to its other types even after the Liege leaves.
 pub(in crate::card::sets) static LIEGE_OF_THE_TANGLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7fc5b67-f521-4ba4-a10f-103e8b6af688"),
     "Liege of the Tangle",
@@ -2896,7 +2896,7 @@ pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
 );
 
 // SOM 128 — Tangle Angler
-// Audit: metadata-only — Applied rules can require a creature to block every attacker, but cannot require one targeted creature to block this specific source this turn if able.
+// Audit: unsupported — Applied rules can require a creature to block every attacker, but cannot require one targeted creature to block this specific source this turn if able.
 pub(in crate::card::sets) static TANGLE_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b678bd68-e866-4081-95f9-2bd93a84d400"),
     "Tangle Angler",
@@ -3000,7 +3000,7 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
 );
 
 // SOM 133 — Wing Puncture
-// Audit: metadata-only — Damage effects use the resolving spell as their source; this needs the first targeted creature to deal damage equal to its power to the second targeted flying creature.
+// Audit: unsupported — Damage effects use the resolving spell as their source; this needs the first targeted creature to deal damage equal to its power to the second targeted flying creature.
 pub(in crate::card::sets) static WING_PUNCTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05a5188b-9ae3-4ca0-8289-b8a266a9073b"),
     "Wing Puncture",
@@ -3122,7 +3122,7 @@ pub(in crate::card::sets) static ARGENTUM_ARMOR: CardRecord = CardRecord::new(
 );
 
 // SOM 138 — Auriok Replica
-// Audit: metadata-only — Needs a source choice made during resolution and a prevention shield limited to damage that chosen source would deal to you this turn.
+// Audit: unsupported — Needs a source choice made during resolution and a prevention shield limited to damage that chosen source would deal to you this turn.
 pub(in crate::card::sets) static AURIOK_REPLICA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02745a0a-9872-4c30-a25d-61695c5fa9cc"),
     "Auriok Replica",
@@ -3241,7 +3241,7 @@ pub(in crate::card::sets) static CHROME_STEED: CardRecord = CardRecord::new(
 );
 
 // SOM 143 — Clone Shell
-// Audit: metadata-only — Needs a linked face-down imprint procedure that chooses a creature from the top four cards, bottoms the rest in a chosen order, and conditionally reveals and returns the linked card when the source dies.
+// Audit: unsupported — Needs a linked face-down imprint procedure that chooses a creature from the top four cards, bottoms the rest in a chosen order, and conditionally reveals and returns the linked card when the source dies.
 pub(in crate::card::sets) static CLONE_SHELL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc386c6c-c27e-4673-96eb-1d004fd71993"),
     "Clone Shell",
@@ -3785,7 +3785,7 @@ pub(in crate::card::sets) static GOLEM_S_HEART: CardRecord = CardRecord::new(
 );
 
 // SOM 162 — Grafted Exoskeleton
-// Audit: metadata-only — Needs an Equipment trigger that captures the creature it just became unattached from and makes that former bearer sacrifice itself.
+// Audit: unsupported — Needs an Equipment trigger that captures the creature it just became unattached from and makes that former bearer sacrifice itself.
 pub(in crate::card::sets) static GRAFTED_EXOSKELETON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9aa64374-0693-47c9-8b69-56def3817b14"),
     "Grafted Exoskeleton",
@@ -3937,7 +3937,7 @@ pub(in crate::card::sets) static ICHORCLAW_MYR: CardRecord = CardRecord::new(
 );
 
 // SOM 167 — Infiltration Lens
-// Audit: metadata-only — Needs one trigger for each creature that blocks the attached creature; the attachment-aware combat trigger currently combines the blocks and becomes-blocked directions.
+// Audit: unsupported — Needs one trigger for each creature that blocks the attached creature; the attachment-aware combat trigger currently combines the blocks and becomes-blocked directions.
 pub(in crate::card::sets) static INFILTRATION_LENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1baa10da-2733-4657-a1ea-74eb5a5a82b1"),
     "Infiltration Lens",
@@ -4121,7 +4121,7 @@ pub(in crate::card::sets) static MEMNITE: CardRecord = CardRecord::new(
 );
 
 // SOM 175 — Mimic Vat
-// Audit: metadata-only — Needs linked optional imprint replacement across repeated creature deaths, moving the previously imprinted card back, then copying the current linked card and scheduling the token's exile at the next end step.
+// Audit: unsupported — Needs linked optional imprint replacement across repeated creature deaths, moving the previously imprinted card back, then copying the current linked card and scheduling the token's exile at the next end step.
 pub(in crate::card::sets) static MIMIC_VAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("736fff86-2417-4a77-b8eb-be2d1d142a9f"),
     "Mimic Vat",
@@ -4131,7 +4131,7 @@ pub(in crate::card::sets) static MIMIC_VAT: CardRecord = CardRecord::new(
 );
 
 // SOM 176 — Mindslaver
-// Audit: metadata-only — The engine has no continuous effect that lets one player make every game choice for another player during that player's next turn.
+// Audit: unsupported — The engine has no continuous effect that lets one player make every game choice for another player during that player's next turn.
 pub(in crate::card::sets) static MINDSLAVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98fb1eaa-2871-491a-a4f5-3e358778ba40"),
     "Mindslaver",
@@ -4370,7 +4370,7 @@ pub(in crate::card::sets) static MYR_PROPAGATOR: CardRecord = CardRecord::new(
 );
 
 // SOM 183 — Myr Reservoir
-// Audit: metadata-only — Restricted mana cannot currently combine “cast a Myr spell” with “activate an ability of a Myr source” in one produced-mana permission while retaining the source subtype check.
+// Audit: unsupported — Restricted mana cannot currently combine “cast a Myr spell” with “activate an ability of a Myr source” in one produced-mana permission while retaining the source subtype check.
 pub(in crate::card::sets) static MYR_RESERVOIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("60678391-44b2-4525-94dc-ffc5a433b79b"),
     "Myr Reservoir",
@@ -4511,7 +4511,7 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
 );
 
 // SOM 188 — Nim Deathmantle
-// Audit: metadata-only — Needs a death trigger that remembers another nontoken creature card, accepts an optional {4}, returns that exact card, and attaches the source Equipment to it within the same continuation.
+// Audit: unsupported — Needs a death trigger that remembers another nontoken creature card, accepts an optional {4}, returns that exact card, and attaches the source Equipment to it within the same continuation.
 pub(in crate::card::sets) static NIM_DEATHMANTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f638bd96-8424-461f-87bf-4b7a7153fd35"),
     "Nim Deathmantle",
@@ -4627,7 +4627,7 @@ pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
 );
 
 // SOM 193 — Platinum Emperion
-// Audit: metadata-only — Applied rules can stop life gain, but there is no rule that prevents every increase, loss, payment, exchange, and set operation from changing your life total.
+// Audit: unsupported — Applied rules can stop life gain, but there is no rule that prevents every increase, loss, payment, exchange, and set operation from changing your life total.
 pub(in crate::card::sets) static PLATINUM_EMPERION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7919474-db2b-441a-b368-9e430ddf70ab"),
     "Platinum Emperion",
@@ -4637,7 +4637,7 @@ pub(in crate::card::sets) static PLATINUM_EMPERION: CardRecord = CardRecord::new
 );
 
 // SOM 194 — Precursor Golem
-// Audit: metadata-only — Needs a target-lock trigger that copies an instant or sorcery once for every other targetable Golem, retargeting each copy to exactly one different Golem.
+// Audit: unsupported — Needs a target-lock trigger that copies an instant or sorcery once for every other targetable Golem, retargeting each copy to exactly one different Golem.
 pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c4625ad-1c83-4095-a5a2-0fc9fa4dd5f2"),
     "Precursor Golem",
@@ -4647,7 +4647,7 @@ pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 195 — Prototype Portal
-// Audit: metadata-only — Needs linked face-up imprint from hand, a value that reads the linked card's mana value as an activation cost, and token-copy creation from that linked exiled card.
+// Audit: unsupported — Needs linked face-up imprint from hand, a value that reads the linked card's mana value as an activation cost, and token-copy creation from that linked exiled card.
 pub(in crate::card::sets) static PROTOTYPE_PORTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10b264aa-303b-4982-a653-9573d39c28de"),
     "Prototype Portal",
@@ -4668,7 +4668,7 @@ pub(in crate::card::sets) static RAZORFIELD_THRESHER: CardRecord = CardRecord::n
 );
 
 // SOM 198 — Rust Tick
-// Audit: metadata-only — Source-tapped duration exists, but the tap-or-untap resolution must add the untap prohibition only if its tap branch actually changed the targeted artifact from untapped to tapped.
+// Audit: unsupported — Source-tapped duration exists, but the tap-or-untap resolution must add the untap prohibition only if its tap branch actually changed the targeted artifact from untapped to tapped.
 pub(in crate::card::sets) static RUST_TICK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d638741-1cfe-4496-8d7e-7849a82dcb24"),
     "Rust Tick",
@@ -4722,7 +4722,7 @@ pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 201 — Semblance Anvil
-// Audit: metadata-only — Needs linked face-up imprint from hand and a spell-cost reduction whose predicate is computed from every card type of the linked exiled card.
+// Audit: unsupported — Needs linked face-up imprint from hand and a spell-cost reduction whose predicate is computed from every card type of the linked exiled card.
 pub(in crate::card::sets) static SEMBLANCE_ANVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0380b46d-1660-404d-9d11-705d8809ea46"),
     "Semblance Anvil",
@@ -4827,7 +4827,7 @@ pub(in crate::card::sets) static STEEL_HELLKITE: CardRecord = CardRecord::new(
 );
 
 // SOM 206 — Strata Scythe
-// Audit: metadata-only — Needs linked basic-land imprint from the library and a dynamic count of all battlefield lands sharing the linked card's name to scale the attached creature's power and toughness.
+// Audit: unsupported — Needs linked basic-land imprint from the library and a dynamic count of all battlefield lands sharing the linked card's name to scale the attached creature's power and toughness.
 pub(in crate::card::sets) static STRATA_SCYTHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f2cb906-3748-4675-89b3-bde2f9a8444a"),
     "Strata Scythe",
@@ -5342,7 +5342,9 @@ pub(in crate::card::sets) static VENSER_S_JOURNAL: CardRecord = CardRecord::new(
             "You have no maximum hand size.",
             EffectDef::StaticApply {
                 recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::You)),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                    crate::card::PlayerRuleDef::NoMaximumHandSize,
+                )),
             },
         ),
         AbilityDef::triggered(

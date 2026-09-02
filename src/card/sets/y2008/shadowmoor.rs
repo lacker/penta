@@ -2,10 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCoverageDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardType,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -102,31 +101,13 @@ pub(in crate::card::sets) static MANAMORPHOSE: CardRecord = CardRecord::new_with
 );
 
 // SHM 224 — Barkshell Blessing
-// Audit: partial — Conspire's creature-tapping cost and spell-copy trigger are not modeled; the targeted +2/+2 effect is executable.
+// Audit: unsupported — Conspire's creature-tapping cast cost and spell-copy trigger are not modeled.
 pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69"),
     "Barkshell Blessing",
     CardArt::new("cd273ef2-4aed-4c7e-8c97-fe8b1af9ce69", "Steven Belledin"),
     CardSet::Shadowmoor,
-    CardRules::new_instant(mana_cost!("{G/W}")).with_ability(
-        AbilityDef::spell_with_targets(
-            "Target creature gets +2/+2 until end of turn.\nConspire (As you cast this spell, you may tap two untapped creatures you control that share a color with it. When you do, copy it and you may choose a new target for the copy.)",
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::modify_power_toughness(
-                    ValueDef::Constant(2),
-                    ValueDef::Constant(2),
-                ),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The targeted +2/+2 effect is executable. Conspire's creature-tapping cast cost and spell-copy trigger are not modeled.",
-        )),
-    ),
+    CardRules::unsupported(),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

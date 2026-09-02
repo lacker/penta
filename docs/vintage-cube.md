@@ -18,7 +18,7 @@ no card Scryfall knows and were left out; the module records which.
   playable pool first and play fixed lists from it.
 - Every pool identity is cataloged. Cards from previously unmodeled preferred
   representative sets have printed-set modules, and unsupported rules remain
-  metadata-only.
+  whole-card unsupported.
 
 ## Format profile
 
@@ -37,7 +37,7 @@ doing so would make otherwise independent card implementations edit the same
 bookkeeping and would turn parallel work into merge conflicts.
 
 Run `make catalog-report` for current aggregate coverage, including the
-declarative, partial, metadata-only, and uncataloged Vintage Cube
+declarative, unsupported, and uncataloged Vintage Cube
 totals. Run `make catalog-report CATALOG_REPORT_ARGS=--verbose` to include the
 individual card names in each status.
 

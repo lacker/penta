@@ -266,14 +266,12 @@ parts, topology, and play options. Other structured cards attach a
 composition automatically.
 
 An `AbilityDef` owns one rules-text clause together with its explicit timing
-category, costs, targets, structured effect, and coverage.
+category, costs, targets, and structured effect.
 The displayed card text is the clauses' text joined in printed order with
 newlines, so presentation and execution do not duplicate Oracle text. Clause
 IDs are assigned from that order when definitions are attached to a card part.
-Coverage is independent of the effect shape: a clause can be Complete,
-Partial, or MetadataOnly, with an explanation for every gap.
-Card coverage is derived from all clauses and the executable land/creature
-baseline rather than stored as a second card-level assertion.
+A `CardRules` definition is either complete and wholly declarative or is a
+whole-card `Unsupported` sentinel with no executable clauses or creature body.
 
 A set module's `ADDITIONAL_PRINTINGS` registry points back to those canonical
 records for reprints or additional variants in that set. The resulting

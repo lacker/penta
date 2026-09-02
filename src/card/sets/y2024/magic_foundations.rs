@@ -11,7 +11,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // FDN 18 — Inspiring Paladin
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRING_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0763be06-25b2-4d6b-ab33-a1af85aeb443"),
     "Inspiring Paladin",
@@ -21,7 +21,7 @@ pub(in crate::card::sets) static INSPIRING_PALADIN: CardRecord = CardRecord::new
 );
 
 // FDN 114 — Treetop Snarespinner
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("88e68fa3-159d-49a6-8ac6-afc9bd6f1718"),
     "Treetop Snarespinner",
@@ -56,7 +56,7 @@ pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
 );
 
 // FDN 195 — Fanatical Firebrand
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e5565de-028c-4799-a9f6-4dcd685639eb"),
     "Fanatical Firebrand",
@@ -66,7 +66,7 @@ pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::n
 );
 
 // FDN 200 — Goblin Surprise
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SURPRISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("527dd5d4-5f72-40bb-8a9d-1f5ac3f81e2e"),
     "Goblin Surprise",
@@ -159,7 +159,7 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
 );
 
 // FDN 528 — Undying Malice
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8eb38041-043a-4b18-9d9a-f1283684e8f1"),
     "Undying Malice",
@@ -169,7 +169,7 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
 );
 
 // FDN 596 — Shipwreck Dowser
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59d38ef7-5017-4ea3-b97f-a8fe12d03e98"),
     "Shipwreck Dowser",

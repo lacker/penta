@@ -22,7 +22,7 @@ const fn fetch_land(text: &'static str, land_types: &'static [BasicLandType]) ->
 }
 
 // ZEN 14 — Journey to Nowhere
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JOURNEY_TO_NOWHERE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("09cfe585-8a55-4b27-89e0-dfb6946fe1f3"),
     "Journey to Nowhere",
@@ -32,7 +32,7 @@ pub(in crate::card::sets) static JOURNEY_TO_NOWHERE: CardRecord = CardRecord::ne
 );
 
 // ZEN 23 — Kor Skyfisher
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KOR_SKYFISHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bb2e9465-f5ba-4c7b-9f03-d40dc8394acd"),
     "Kor Skyfisher",
@@ -42,7 +42,7 @@ pub(in crate::card::sets) static KOR_SKYFISHER: CardRecord = CardRecord::new(
 );
 
 // ZEN 48 — Into the Roil
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INTO_THE_ROIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5dba9972-dd8b-407b-9374-a8f0ed1a96db"),
     "Into the Roil",
@@ -127,7 +127,7 @@ pub(in crate::card::sets) static BLOODGHAST: CardRecord = CardRecord::new(
 );
 
 // ZEN 87 — Disfigure
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DISFIGURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3842ad2-a449-4963-8c96-276554125757"),
     "Disfigure",
@@ -169,7 +169,7 @@ pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
 );
 
 // ZEN 115 — Vampire Lacerator
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VAMPIRE_LACERATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114eca6c-76de-4b87-8174-78e2d17ad0e3"),
     "Vampire Lacerator",
@@ -206,7 +206,7 @@ pub(in crate::card::sets) static BURST_LIGHTNING: CardRecord = CardRecord::new(
 );
 
 // ZEN 125 — Goblin Bushwhacker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_BUSHWHACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4085a5bf-a71b-4c73-9b39-0dcc328fe11b"),
     "Goblin Bushwhacker",
@@ -250,7 +250,7 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
 );
 
 // ZEN 193 — Vines of Vastwood
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8bd8b10-de86-4bb6-b49f-6ccb5297c81c"),
     "Vines of Vastwood",
@@ -394,7 +394,7 @@ pub(in crate::card::sets) static SCALDING_TARN: CardRecord = CardRecord::new_wit
 );
 
 // ZEN 226 — Teetering Peaks
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEETERING_PEAKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e56aca36-bb51-45e3-9ef9-9f9f2aa1e088"),
     "Teetering Peaks",

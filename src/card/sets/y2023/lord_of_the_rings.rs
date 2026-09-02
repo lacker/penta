@@ -319,7 +319,7 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
 );
 
 // LTR 137 — Improvised Club
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8397d13-eeaf-4b4e-b3cd-9a9ac231873a"),
     "Improvised Club",
@@ -372,7 +372,7 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
 );
 
 // LTR 142 — Rally at the Hornburg
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee7292f7-1c7e-449c-9c52-7584d6a14c2c"),
     "Rally at the Hornburg",

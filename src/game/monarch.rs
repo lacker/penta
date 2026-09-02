@@ -5,7 +5,7 @@
 //! whoever deals combat damage to the current monarch, and cards can ask
 //! about it. Nobody is the monarch until something says so.
 //!
-//! Audit: partial — CR 720.4 and 720.5 are two inherent *triggered*
+//! Audit: unsupported — CR 720.4 and 720.5 are two inherent *triggered*
 //! abilities with no source, controlled by whoever was the monarch when they
 //! triggered. Both are carried out here as rules the moment they apply, and
 //! a trigger needs a permanent or an emblem to hang on. Nothing in a

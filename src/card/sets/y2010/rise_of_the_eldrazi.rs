@@ -105,7 +105,7 @@ pub(in crate::card::sets) static OUST: CardRecord = CardRecord::new(
 );
 
 // ROE 61 — Domestication
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOMESTICATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e1f15831-8dfd-4232-875c-efa6744c9a12"),
     "Domestication",
@@ -144,7 +144,7 @@ pub(in crate::card::sets) static INQUISITION_OF_KOZILEK: CardRecord = CardRecord
 );
 
 // ROE 130 — Vendetta
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VENDETTA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67ced38e-0f33-4bda-8e18-09f6ac03a3d7"),
     "Vendetta",
@@ -174,7 +174,7 @@ pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_
 );
 
 // ROE 161 — Raid Bombardment
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c2d1a48-efde-4134-95f0-b23f6cf85259"),
     "Raid Bombardment",

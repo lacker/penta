@@ -89,7 +89,7 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 // 7ED 13★ — Disenchant (alternate printing)
 
 // 7ED 14 — Eager Cadet
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EAGER_CADET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1e1ce2f-d8af-4fd0-975e-9d910d12b883"),
     "Eager Cadet",
@@ -142,7 +142,7 @@ pub(in crate::card::sets) static EAGER_CADET: CardRecord = CardRecord::new(
 // 7ED 24 — Knight Errant (alternate printing)
 
 // 7ED 24★ — Knight Errant
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KNIGHT_ERRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c31b4b4-18fc-4a6e-8d74-fd5340964320"),
     "Knight Errant",
@@ -202,7 +202,7 @@ pub(in crate::card::sets) static KNIGHT_ERRANT: CardRecord = CardRecord::new(
 // 7ED 37 — Sacred Nectar (alternate printing)
 
 // 7ED 37★ — Sacred Nectar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SACRED_NECTAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("484d1b31-5363-49ef-9b13-2005568636c1"),
     "Sacred Nectar",
@@ -258,7 +258,7 @@ pub(in crate::card::sets) static SACRED_NECTAR: CardRecord = CardRecord::new(
 // 7ED 49 — Starlight (alternate printing)
 
 // 7ED 49★ — Starlight
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARLIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f6992524-6921-473b-8301-cb63fe502600"),
     "Starlight",
@@ -316,7 +316,7 @@ pub(in crate::card::sets) static STARLIGHT: CardRecord = CardRecord::new(
 // 7ED 61★ — Archivist (alternate printing)
 
 // 7ED 62 — Baleful Stare
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALEFUL_STARE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49fb46c8-30ae-4457-a726-6fe1ddd183d5"),
     "Baleful Stare",
@@ -384,7 +384,7 @@ pub(in crate::card::sets) static BALEFUL_STARE: CardRecord = CardRecord::new(
 // 7ED 76★ — Force Spike (alternate printing)
 
 // 7ED 77 — Giant Octopus
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_OCTOPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4528edca-cc36-4f63-9615-24ca315d672c"),
     "Giant Octopus",
@@ -526,7 +526,7 @@ pub(in crate::card::sets) static GIANT_OCTOPUS: CardRecord = CardRecord::new(
 // 7ED 110 — Vizzerdrix (alternate printing)
 
 // 7ED 110★ — Vizzerdrix
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIZZERDRIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("25711022-7270-4335-a48b-9f2b8275ceeb"),
     "Vizzerdrix",
@@ -596,7 +596,7 @@ pub(in crate::card::sets) static VIZZERDRIX: CardRecord = CardRecord::new(
 // 7ED 125★ — Crypt Rats (alternate printing)
 
 // 7ED 126 — Dakmor Lancer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d012ddf-abe1-4de9-89cb-78d82afb9e7b"),
     "Dakmor Lancer",
@@ -854,7 +854,7 @@ pub(in crate::card::sets) static DAKMOR_LANCER: CardRecord = CardRecord::new(
 // 7ED 185 — Goblin Chariot (alternate printing)
 
 // 7ED 185★ — Goblin Chariot
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_CHARIOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ca11a7e-17f8-419f-9ba8-1bcaa3860f8b"),
     "Goblin Chariot",
@@ -1016,7 +1016,7 @@ pub(in crate::card::sets) static GOBLIN_CHARIOT: CardRecord = CardRecord::new(
 // 7ED 223★ — Sudden Impact (alternate printing)
 
 // 7ED 224 — Trained Orgg
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRAINED_ORGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("425540b0-c826-4814-b0df-032264b1c237"),
     "Trained Orgg",
@@ -1177,7 +1177,7 @@ pub(in crate::card::sets) static TRAINED_ORGG: CardRecord = CardRecord::new(
 // 7ED 261 — Pride of Lions (alternate printing)
 
 // 7ED 261★ — Pride of Lions
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIDE_OF_LIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5006984-8e3d-4f13-b12e-1fbecd134bb3"),
     "Pride of Lions",

@@ -8,7 +8,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // DIS 10 — Guardian of the Guildpact
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e"),
     "Guardian of the Guildpact",
@@ -18,7 +18,7 @@ pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRec
 );
 
 // DIS 99 — Utopia Sprawl
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5047e271-fbf1-402c-9eb9-0806e5988f76"),
     "Utopia Sprawl",
@@ -46,7 +46,7 @@ pub(in crate::card::sets) static AZORIUS_FIRST_WING: CardRecord = CardRecord::ne
 );
 
 // DIS 107 — Coiling Oracle
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c7b0fa1-bfc2-4b15-80ea-47e41a17aa2c"),
     "Coiling Oracle",
@@ -56,7 +56,7 @@ pub(in crate::card::sets) static COILING_ORACLE: CardRecord = CardRecord::new(
 );
 
 // DIS 178 — Rakdos Carnarium
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAKDOS_CARNARIUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("34f146f3-6541-4d2a-96e3-a3cd680c0a1e"),
     "Rakdos Carnarium",
@@ -66,7 +66,7 @@ pub(in crate::card::sets) static RAKDOS_CARNARIUM: CardRecord = CardRecord::new(
 );
 
 // DIS 180 — Simic Growth Chamber
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("407d0a0c-a6be-4bd5-8355-1715698c6bde"),
     "Simic Growth Chamber",

@@ -11,7 +11,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // M20 3 — Ancestral Blade
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ba18114-af6c-48cd-82c9-eb6541d566bf"),
     "Ancestral Blade",
@@ -21,7 +21,7 @@ pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
 );
 
 // M20 34 — Raise the Alarm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4be510c8-fc01-4374-ac04-7968d24480fe"),
     "Raise the Alarm",
@@ -31,7 +31,7 @@ pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
 );
 
 // M20 54 — Cloudkin Seer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2111753-a930-403f-9d94-a86dfcb069da"),
     "Cloudkin Seer",
@@ -44,16 +44,13 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
 );
 
 // M20 148 — Leyline of Combustion
-// Audit: partial — The opening-hand action is declarative; the grouped becomes-target trigger is not represented by the current trigger event.
+// Audit: unsupported — Needs one grouped trigger for a spell or ability targeting the player and/or any controlled permanents.
 pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff"),
     "Leyline of Combustion",
     CardArt::new("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff", "Noah Bradley"),
     CardSet::Magic2020,
-    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
-        AbilityDef::not_implemented("Whenever you and/or at least one permanent you control becomes the target of a spell or ability an opponent controls, this enchantment deals 2 damage to that player.", "Needs one grouped trigger for a spell or ability targeting the player and/or any controlled permanents."),
-    ]),
+    CardRules::unsupported(),
 );
 
 // M20 169 — Elvish Reclaimer
@@ -125,16 +122,13 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
 );
 
 // M20 179 — Leyline of Abundance
-// Audit: partial — The opening-hand action is declarative; the mana-tap trigger and mass counter activation require additional shared predicates.
+// Audit: unsupported — Needs a creature-tapped-for-mana event plus its additional-mana replacement.
 pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c68e8342-78d2-4826-a287-64c371b97d19"),
     "Leyline of Abundance",
     CardArt::new("c68e8342-78d2-4826-a287-64c371b97d19", "Noah Bradley"),
     CardSet::Magic2020,
-    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
-        AbilityDef::not_implemented("Whenever you tap a creature for mana, add an additional {G}.\n{6}{G}{G}: Put a +1/+1 counter on each creature you control.", "Needs a creature-tapped-for-mana event plus a declarative all-creatures counter activation."),
-    ]),
+    CardRules::unsupported(),
 );
 
 // M20 230 — Manifold Key
@@ -226,7 +220,7 @@ pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new
 );
 
 // M20 297 — Wildfire Elemental
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("272e317c-55c4-43b2-91aa-3e0009cfd7d5"),
     "Wildfire Elemental",

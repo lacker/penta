@@ -22,8 +22,7 @@ impl Game {
                 .rules
                 .indexed_abilities()
                 .find_map(|attached| {
-                    (attached.definition.is_executable()
-                        && matches!(
+                    (matches!(
                             attached.definition.definition,
                             DeclarativeAbilityDef::Keyword(crate::card::KeywordAbility::Rebound)
                         ))
@@ -75,7 +74,6 @@ impl Game {
         alternative: AlternativeCostId,
     ) -> Option<(AbilityOrigin, AbilityDef, AlternativeCastKindDef)> {
         Self::alternative_cast_clause(definition, option, alternative)
-            .filter(|(_, ability, _)| ability.is_executable())
     }
 
     pub(super) fn optional_additional_cost_clause(
@@ -98,8 +96,7 @@ impl Game {
                     else {
                         return None;
                     };
-                    (attached.additional_cost_id() == Some(additional)
-                        && attached.definition.is_executable())
+                    (attached.additional_cost_id() == Some(additional))
                     .then_some((
                         AbilityOrigin::Printed {
                             definition: definition.id,
@@ -265,9 +262,6 @@ impl Game {
     ) -> Option<(AbilityDef, AlternativeCastAbilityDef, ManaCost)> {
         let resolve = |grant: &NonbattlefieldAbilityGrant| {
             (grant.object == card).then_some(())?;
-            if !grant.ability.is_executable() {
-                return None;
-            }
             let DeclarativeAbilityDef::AlternativeCast(alternative) = grant.ability.definition
             else {
                 return None;

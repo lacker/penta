@@ -10,7 +10,7 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // XLN 41 — Territorial Hammerskull
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
     "Territorial Hammerskull",
@@ -74,7 +74,7 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
 );
 
 // XLN 194 — Jade Guardian
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aca83e48-6e32-477f-8714-6103e77c06df"),
     "Jade Guardian",

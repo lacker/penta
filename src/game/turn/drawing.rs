@@ -219,7 +219,6 @@ impl Game {
                     ..TriggerContext::empty()
                 };
                 if applied.contains(&source)
-                    || !ability.is_executable()
                     || !definition.source_zones.contains(&ZoneKind::Battlefield)
                     || (during_own_draw_step
                         && (self.step != Step::Draw || self.active_player != player))
@@ -398,12 +397,11 @@ impl Game {
         let definition = self.catalog.get(definition)?;
         definition.parts.iter().find_map(|part| {
             part.rules.indexed_abilities().find_map(|attached| {
-                (attached.definition.is_executable()
-                    && matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::AlternativeCast(alternative)
-                            if alternative.kind == AlternativeCastKindDef::Miracle
-                    ))
+                (matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::AlternativeCast(alternative)
+                        if alternative.kind == AlternativeCastKindDef::Miracle
+                ))
                 .then_some((
                     AbilityOrigin::Printed {
                         definition: definition.id,
@@ -571,8 +569,7 @@ impl Game {
                     event_player: Some(player),
                     ..TriggerContext::empty()
                 };
-                if !ability.is_executable()
-                    || !definition.source_zones.contains(&ZoneKind::Battlefield)
+                if !definition.source_zones.contains(&ZoneKind::Battlefield)
                     || (during_own_draw_step
                         && (self.step != Step::Draw || self.active_player != player))
                     // "Except the first one they draw in each of their draw

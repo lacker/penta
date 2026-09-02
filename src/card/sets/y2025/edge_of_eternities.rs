@@ -195,7 +195,7 @@ pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new
 );
 
 // EOE 18 — Focus Fire
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de"),
     "Focus Fire",
@@ -304,7 +304,7 @@ pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecor
 );
 
 // EOE 52 — Cryogen Relic
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7bfb33b6-e2bf-498f-8c58-ae21a840cf75"),
     "Cryogen Relic",
@@ -314,7 +314,7 @@ pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
 );
 
 // EOE 53 — Cryoshatter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYOSHATTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b62b1e2-9e43-4a66-a647-7e5de2871f2a"),
     "Cryoshatter",
@@ -324,7 +324,7 @@ pub(in crate::card::sets) static CRYOSHATTER: CardRecord = CardRecord::new(
 );
 
 // EOE 66 — Mechanozoa
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MECHANOZOA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0cb8d8ce-329a-4a97-b3d8-796703ebcb37"),
     "Mechanozoa",
@@ -377,7 +377,7 @@ pub(in crate::card::sets) static QUANTUM_RIDDLER: CardRecord = CardRecord::new(
 );
 
 // EOE 77 — Starbreach Whale
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a1a0476-7145-4493-97e5-4fc05c85e476"),
     "Starbreach Whale",
@@ -387,7 +387,7 @@ pub(in crate::card::sets) static STARBREACH_WHALE: CardRecord = CardRecord::new(
 );
 
 // EOE 152 — Plasma Bolt
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLASMA_BOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1a1834b-76c2-4496-b8c5-18b69ab34c4c"),
     "Plasma Bolt",
@@ -432,7 +432,7 @@ pub(in crate::card::sets) static OUROBOROID: CardRecord = CardRecord::new(
 );
 
 // EOE 244 — Pinnacle Kill-Ship
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PINNACLE_KILL_SHIP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf784de8-5ae2-4c07-92bb-a5b7f593b773"),
     "Pinnacle Kill-Ship",

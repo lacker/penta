@@ -601,13 +601,12 @@ mod tests {
     }
 
     /// A registered Premodern list has to be legal in the format it is
-    /// registered under, and no card in it may be metadata-only -- publishing
+    /// registered under, and every card in it must be complete -- publishing
     /// a deck whose cards the engine cannot carry out would offer legal
     /// actions it then fails to perform.
     #[test]
     fn the_registered_premodern_deck_is_legal_and_fully_playable() {
         let catalog = crate::card::catalog().expect("catalog builds");
-        let mut partial = BTreeSet::new();
         for build in [
             super::premodern::rg_goblins as fn() -> crate::Deck,
             super::premodern::sligh,
@@ -630,28 +629,14 @@ mod tests {
 
             for definition in deck.main.iter().copied() {
                 let card = catalog.get(definition).expect("every card is cataloged");
-                assert_ne!(
-                    card.rules.implementation_status(),
-                    crate::ImplementationStatus::MetadataOnly,
-                    "{} is in a registered main deck and does nothing at all",
+                assert_eq!(
+                    card.implementation_status(),
+                    crate::ImplementationStatus::Complete,
+                    "{} is in a registered main deck but is unsupported",
                     card.name,
                 );
-                if card.rules.implementation_status() == crate::ImplementationStatus::Partial {
-                    partial.insert(card.name.clone());
-                }
             }
         }
-
-        // A partial card is allowed in a registered deck only when its main
-        // function resolves and the gap is a rider. Naming them here is what
-        // stops the list growing quietly: a new partial fails this until
-        // somebody decides it is acceptable and says so. Nothing registered is
-        // partial today, and an empty set is the strongest form of that.
-        assert_eq!(
-            partial,
-            BTreeSet::new(),
-            "the partial cards in registered decks are not the expected ones",
-        );
     }
 
     #[test]

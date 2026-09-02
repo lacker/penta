@@ -1,4 +1,5 @@
 use super::*;
+use crate::CardEffectStatus;
 use crate::ControlDurationDef;
 use crate::card::child_effects;
 
@@ -455,26 +456,33 @@ fn ring_uses_declarative_format_and_draw_replacement_constructs() {
 }
 
 #[test]
-fn every_incomplete_clause_explains_its_implementation() {
+fn unsupported_cards_expose_no_executable_clauses() {
     let records = SET_MODULES
         .iter()
         .flat_map(|module| module.cards.iter().copied())
         .collect::<Vec<_>>();
     for record in records {
         let definition = record.definition();
-        for part in &definition.parts {
-            for ability in part.rules.ability_clauses() {
-                if ability.coverage.status != ImplementationStatus::Complete {
-                    assert!(
-                        ability
-                            .coverage
-                            .explanation
-                            .is_some_and(|explanation| !explanation.trim().is_empty()),
-                        "{} has an incomplete clause without an explanation: {}",
-                        record.name,
-                        ability.text
-                    );
-                }
+        if definition.implementation_status() == ImplementationStatus::Unsupported {
+            assert!(
+                definition
+                    .play_options
+                    .iter()
+                    .all(|option| option.effect_status == CardEffectStatus::Unsupported),
+                "{} is unsupported but exposes an implemented play option",
+                record.name
+            );
+            for part in &definition.parts {
+                assert!(
+                    part.rules.implementation_status() == ImplementationStatus::Unsupported,
+                    "{} mixes declarative and unsupported parts",
+                    record.name
+                );
+                assert!(
+                    part.rules.ability_clauses().is_empty(),
+                    "{} is unsupported but exposes executable clauses",
+                    record.name
+                );
             }
         }
     }

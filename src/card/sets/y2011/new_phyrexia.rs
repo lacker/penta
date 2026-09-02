@@ -21,7 +21,7 @@ use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
 
 // NPH 1 — Karn Liberated
-// Audit: metadata-only — Needs a restart-game procedure that preserves the non-Aura permanent cards linked in exile and puts them onto the restarted battlefield.
+// Audit: unsupported — Needs a restart-game procedure that preserves the non-Aura permanent cards linked in exile and puts them onto the restarted battlefield.
 pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9287151-95df-4f5a-b32a-4b0aea825452"),
     "Karn Liberated",
@@ -31,7 +31,7 @@ pub(in crate::card::sets) static KARN_LIBERATED: CardRecord = CardRecord::new(
 );
 
 // NPH 2 — Apostle's Blessing
-// Audit: metadata-only — Needs one resolution choice whose alternatives are protection from artifacts or protection from a dynamically chosen color; the color-choice effect cannot express the artifact branch.
+// Audit: unsupported — Needs one resolution choice whose alternatives are protection from artifacts or protection from a dynamically chosen color; the color-choice effect cannot express the artifact branch.
 pub(in crate::card::sets) static APOSTLE_S_BLESSING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f7c3571-925d-486e-80dd-bac47aa48283"),
     "Apostle's Blessing",
@@ -41,7 +41,7 @@ pub(in crate::card::sets) static APOSTLE_S_BLESSING: CardRecord = CardRecord::ne
 );
 
 // NPH 3 — Auriok Survivors
-// Audit: metadata-only — MoveToZone can force an arriving Equipment to attach, but it cannot bind that successor into a second, independently optional attach choice after the optional return succeeds.
+// Audit: unsupported — MoveToZone can force an arriving Equipment to attach, but it cannot bind that successor into a second, independently optional attach choice after the optional return succeeds.
 pub(in crate::card::sets) static AURIOK_SURVIVORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("deffb601-6a53-4d88-a6af-686ce97eb4f0"),
     "Auriok Survivors",
@@ -69,7 +69,7 @@ pub(in crate::card::sets) static BLADE_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 5 — Cathedral Membrane
-// Audit: metadata-only — Needs a dies-during-combat event plus last-known access to every creature the source blocked; the blocker relation alone cannot gate the death trigger.
+// Audit: unsupported — Needs a dies-during-combat event plus last-known access to every creature the source blocked; the blocker relation alone cannot gate the death trigger.
 pub(in crate::card::sets) static CATHEDRAL_MEMBRANE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("07592731-68be-4218-bb2c-c2523c5a27f1"),
     "Cathedral Membrane",
@@ -153,7 +153,7 @@ pub(in crate::card::sets) static DISPATCH: CardRecord = CardRecord::new(
 );
 
 // NPH 8 — Due Respect
-// Audit: metadata-only — Needs a turn-scoped global battlefield-entry replacement that makes every permanent enter tapped; temporary effects cannot currently install entry replacements.
+// Audit: unsupported — Needs a turn-scoped global battlefield-entry replacement that makes every permanent enter tapped; temporary effects cannot currently install entry replacements.
 pub(in crate::card::sets) static DUE_RESPECT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7159850-964b-4f12-957f-614eb0570544"),
     "Due Respect",
@@ -207,7 +207,7 @@ pub(in crate::card::sets) static ELESH_NORN_GRAND_CENOBITE: CardRecord = CardRec
 );
 
 // NPH 10 — Exclusion Ritual
-// Audit: metadata-only — Needs a cast prohibition whose name predicate is read from the permanent card linked in exile rather than from a chosen name or the source's own name.
+// Audit: unsupported — Needs a cast prohibition whose name predicate is read from the permanent card linked in exile rather than from a chosen name or the source's own name.
 pub(in crate::card::sets) static EXCLUSION_RITUAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e3b826a-7349-45ae-89bf-675fea7ce8e3"),
     "Exclusion Ritual",
@@ -370,7 +370,7 @@ pub(in crate::card::sets) static NORN_S_ANNEX: CardRecord = CardRecord::new(
 );
 
 // NPH 18 — Phyrexian Unlife
-// Audit: metadata-only — Needs suppression of the state-based loss at 0 life plus a conditional damage replacement that gives damage infect only while that player's life is nonpositive.
+// Audit: unsupported — Needs suppression of the state-based loss at 0 life plus a conditional damage replacement that gives damage infect only while that player's life is nonpositive.
 pub(in crate::card::sets) static PHYREXIAN_UNLIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4a1e16a-39f0-47ab-aba8-73e82ba9ab18"),
     "Phyrexian Unlife",
@@ -664,7 +664,7 @@ pub(in crate::card::sets) static BLIGHTED_AGENT: CardRecord = CardRecord::new(
 );
 
 // NPH 30 — Chained Throatseeker
-// Audit: metadata-only — Needs an attack restriction that reads poison counters on each prospective defending player; attack predicates cannot currently inspect player counters.
+// Audit: unsupported — Needs an attack restriction that reads poison counters on each prospective defending player; attack predicates cannot currently inspect player counters.
 pub(in crate::card::sets) static CHAINED_THROATSEEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a7bb447-c2b0-429e-bf82-02d6a966fe73"),
     "Chained Throatseeker",
@@ -723,7 +723,7 @@ pub(in crate::card::sets) static CHANCELLOR_OF_THE_SPIRES: CardRecord = CardReco
 );
 
 // NPH 32 — Corrupted Resolve
-// Audit: metadata-only — Needs a counterspell condition that reads poison counters on the targeted spell's controller; spell predicates cannot currently inspect controller counters.
+// Audit: unsupported — Needs a counterspell condition that reads poison counters on the targeted spell's controller; spell predicates cannot currently inspect controller counters.
 pub(in crate::card::sets) static CORRUPTED_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("28432161-023b-4a98-b92a-55dc6d936cd1"),
     "Corrupted Resolve",
@@ -862,7 +862,6 @@ pub(in crate::card::sets) static IMPALER_SHRIKE: CardRecord = CardRecord::new(
 );
 
 // NPH 37 — Jin-Gitaxias, Core Augur
-// Audit: partial — Needs a numeric maximum-hand-size modifier; the player-rule vocabulary only supports removing the maximum entirely.
 pub(in crate::card::sets) static JIN_GITAXIAS_CORE_AUGUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd46fc9f-5b92-44d7-8940-2f39b0962b8f"),
     "Jin-Gitaxias, Core Augur",
@@ -883,9 +882,14 @@ pub(in crate::card::sets) static JIN_GITAXIAS_CORE_AUGUR: CardRecord = CardRecor
                     amount: ValueDef::Constant(7),
                 },
             ),
-            AbilityDef::not_implemented(
+            AbilityDef::static_ability(
                 "Each opponent's maximum hand size is reduced by seven.",
-                "Needs a numeric maximum-hand-size modifier.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Opponent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::MaximumHandSizeModifier(-7),
+                    )),
+                },
             ),
         ]),
 );
@@ -1098,7 +1102,7 @@ pub(in crate::card::sets) static PSYCHIC_BARRIER: CardRecord = CardRecord::new(
 );
 
 // NPH 44 — Psychic Surgery
-// Audit: metadata-only — Needs a library-shuffled trigger event plus an optional exile stage and an arrangement stage over the unchosen cards of another player's library.
+// Audit: unsupported — Needs a library-shuffled trigger event plus an optional exile stage and an arrangement stage over the unchosen cards of another player's library.
 pub(in crate::card::sets) static PSYCHIC_SURGERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51ea9a6d-d6ca-48cb-adac-958ad0e7440c"),
     "Psychic Surgery",
@@ -1208,7 +1212,7 @@ pub(in crate::card::sets) static WING_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 51 — Xenograft
-// Audit: metadata-only — Needs a persistent creature-type choice made as this enters and a continuous type effect that consumes that stored choice.
+// Audit: unsupported — Needs a persistent creature-type choice made as this enters and a continuous type effect that consumes that stored choice.
 pub(in crate::card::sets) static XENOGRAFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f52f08e1-b234-42e4-8f1f-485a4f6edb3b"),
     "Xenograft",
@@ -1748,7 +1752,7 @@ pub(in crate::card::sets) static PITH_DRILLER: CardRecord = CardRecord::new(
 );
 
 // NPH 70 — Postmortem Lunge
-// Audit: metadata-only — Chosen-X targeting and an arrival haste effect are supported, but MoveToZone cannot bind the returned successor into a one-shot delayed exile at the beginning of the next end step.
+// Audit: unsupported — Chosen-X targeting and an arrival haste effect are supported, but MoveToZone cannot bind the returned successor into a one-shot delayed exile at the beginning of the next end step.
 pub(in crate::card::sets) static POSTMORTEM_LUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5f8b46e-1ad3-4c6e-aa63-376f2d222d46"),
     "Postmortem Lunge",
@@ -1758,7 +1762,7 @@ pub(in crate::card::sets) static POSTMORTEM_LUNGE: CardRecord = CardRecord::new(
 );
 
 // NPH 71 — Praetor's Grasp
-// Audit: metadata-only — SearchZone cannot compose its hidden-library choice with face-down exile; the face-down linked-exile and durable exile-play permissions are separate operations and cannot grant this spell's controller private access to the searched successor.
+// Audit: unsupported — SearchZone cannot compose its hidden-library choice with face-down exile; the face-down linked-exile and durable exile-play permissions are separate operations and cannot grant this spell's controller private access to the searched successor.
 pub(in crate::card::sets) static PRAETOR_S_GRASP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9588be49-d9b5-4491-a5a0-10bcadc9f8b3"),
     "Praetor's Grasp",
@@ -1839,7 +1843,7 @@ pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardReco
 );
 
 // NPH 74 — Surgical Extraction
-// Audit: metadata-only — SharingNameWithBinding can find every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
+// Audit: unsupported — SharingNameWithBinding can find every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
 pub(in crate::card::sets) static SURGICAL_EXTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114834d8-4da5-48b9-9ac7-5e3e4b7ddf2d"),
     "Surgical Extraction",
@@ -1968,7 +1972,7 @@ pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
 );
 
 // NPH 80 — Bludgeon Brawl
-// Audit: metadata-only — Needs per-object dynamic equip abilities whose equip cost and granted power bonus both read each affected artifact's mana value.
+// Audit: unsupported — Needs per-object dynamic equip abilities whose equip cost and granted power bonus both read each affected artifact's mana value.
 pub(in crate::card::sets) static BLUDGEON_BRAWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a30fa96d-64d1-423e-a62e-d43453ea838d"),
     "Bludgeon Brawl",
@@ -2122,7 +2126,7 @@ pub(in crate::card::sets) static GUT_SHOT: CardRecord = CardRecord::new(
 );
 
 // NPH 87 — Invader Parasite
-// Audit: metadata-only — Needs a later land-entry trigger to compare the entering land's name with the land card linked in exile by the enters ability.
+// Audit: unsupported — Needs a later land-entry trigger to compare the entering land's name with the land card linked in exile by the enters ability.
 pub(in crate::card::sets) static INVADER_PARASITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("89a8c53f-2cb0-41ea-8391-c32667f17c30"),
     "Invader Parasite",
@@ -2197,7 +2201,7 @@ pub(in crate::card::sets) static PRIEST_OF_URABRASK: CardRecord = CardRecord::ne
 );
 
 // NPH 91 — Rage Extractor
-// Audit: metadata-only — Needs a spell predicate that detects Phyrexian mana symbols in the triggering spell's printed mana cost.
+// Audit: unsupported — Needs a spell predicate that detects Phyrexian mana symbols in the triggering spell's printed mana cost.
 pub(in crate::card::sets) static RAGE_EXTRACTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d8cebc2c-a46b-4459-b62b-7fce1a744b11"),
     "Rage Extractor",
@@ -2654,7 +2658,7 @@ pub(in crate::card::sets) static DEATH_HOOD_COBRA: CardRecord = CardRecord::new(
 );
 
 // NPH 109 — Fresh Meat
-// Audit: metadata-only — Needs controller-scoped creature-death history; CreaturesDiedThisTurn is global and would count creatures put into other players' graveyards.
+// Audit: unsupported — Needs controller-scoped creature-death history; CreaturesDiedThisTurn is global and would count creatures put into other players' graveyards.
 pub(in crate::card::sets) static FRESH_MEAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("000ce65b-5347-4a88-81af-be9053e4d3f3"),
     "Fresh Meat",
@@ -2784,7 +2788,7 @@ pub(in crate::card::sets) static MAUL_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 115 — Melira, Sylvok Outcast
-// Audit: metadata-only — Needs player poison-counter placement prevention, creature -1/-1-counter placement prevention, and a continuous removal of infect from creatures opponents control.
+// Audit: unsupported — Needs player poison-counter placement prevention, creature -1/-1-counter placement prevention, and a continuous removal of infect from creatures opponents control.
 pub(in crate::card::sets) static MELIRA_SYLVOK_OUTCAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e83851a1-e4e8-49ec-af5c-4efe86fa51ad"),
     "Melira, Sylvok Outcast",
@@ -2816,7 +2820,7 @@ pub(in crate::card::sets) static MUTAGENIC_GROWTH: CardRecord = CardRecord::new(
 );
 
 // NPH 117 — Mycosynth Fiend
-// Audit: metadata-only — Needs a continuous power/toughness value that reads poison counters across opponents; player-counter values are not supported in static effects.
+// Audit: unsupported — Needs a continuous power/toughness value that reads poison counters across opponents; player-counter values are not supported in static effects.
 pub(in crate::card::sets) static MYCOSYNTH_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdcd1b8e-9f1f-48a3-b7a1-43a32cc03bb1"),
     "Mycosynth Fiend",
@@ -2894,7 +2898,7 @@ pub(in crate::card::sets) static ROTTED_HYSTRIX: CardRecord = CardRecord::new(
 );
 
 // NPH 121 — Spinebiter
-// Audit: metadata-only — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
+// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
 pub(in crate::card::sets) static SPINEBITER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfc79ac6-ffc6-4506-9dea-e20176f960ea"),
     "Spinebiter",
@@ -2941,7 +2945,7 @@ pub(in crate::card::sets) static TRIUMPH_OF_THE_HORDES: CardRecord = CardRecord:
 );
 
 // NPH 124 — Viridian Betrayers
-// Audit: metadata-only — Player-counter comparisons work for resolving and intervening-if conditions, but the static-condition runtime rejects PlayerCounters because its live layer walk has no supported player-counter value path.
+// Audit: unsupported — Player-counter comparisons work for resolving and intervening-if conditions, but the static-condition runtime rejects PlayerCounters because its live layer walk has no supported player-counter value path.
 pub(in crate::card::sets) static VIRIDIAN_BETRAYERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc6ea52f-4b24-45ff-99e1-4d0e1bd42875"),
     "Viridian Betrayers",
@@ -3009,7 +3013,7 @@ pub(in crate::card::sets) static VITAL_SPLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 127 — Vorinclex, Voice of Hunger
-// Audit: metadata-only — Needs a mana trigger that reproduces the exact type of mana the triggering land produced plus a turn-based rule that skips that land's controller's next untap of it.
+// Audit: unsupported — Needs a mana trigger that reproduces the exact type of mana the triggering land produced plus a turn-based rule that skips that land's controller's next untap of it.
 pub(in crate::card::sets) static VORINCLEX_VOICE_OF_HUNGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0806adab-6a08-411b-b249-e1c58ade354b"),
     "Vorinclex, Voice of Hunger",
@@ -3120,7 +3124,7 @@ pub(in crate::card::sets) static BLINDING_SOULEATER: CardRecord = CardRecord::ne
 );
 
 // NPH 132 — Caged Sun
-// Audit: metadata-only — Needs one persistent color choice consumed by both a creature-color continuous effect and a land-mana trigger that reproduces the chosen color.
+// Audit: unsupported — Needs one persistent color choice consumed by both a creature-color continuous effect and a land-mana trigger that reproduces the chosen color.
 pub(in crate::card::sets) static CAGED_SUN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("506597cc-48f9-4098-a229-2b3b3c0de944"),
     "Caged Sun",
@@ -3271,7 +3275,7 @@ pub(in crate::card::sets) static GREMLIN_MINE: CardRecord = CardRecord::new(
 );
 
 // NPH 137 — Hex Parasite
-// Audit: metadata-only — Counter-count predicates and fixed-kind removal exist, but this needs a variable payment tied to an independently chosen number, a choice across arbitrary counter kinds, and a pump based on the number actually removed.
+// Audit: unsupported — Counter-count predicates and fixed-kind removal exist, but this needs a variable payment tied to an independently chosen number, a choice across arbitrary counter kinds, and a pump based on the number actually removed.
 pub(in crate::card::sets) static HEX_PARASITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43502078-5349-4e29-8e7d-277654a9a71e"),
     "Hex Parasite",
@@ -3407,7 +3411,7 @@ pub(in crate::card::sets) static LASHWRITHE: CardRecord = CardRecord::new(
 );
 
 // NPH 144 — Mindcrank
-// Audit: metadata-only — Needs a life-loss trigger event carrying the exact amount lost for both damage and non-damage life loss.
+// Audit: unsupported — Needs a life-loss trigger event carrying the exact amount lost for both damage and non-damage life loss.
 pub(in crate::card::sets) static MINDCRANK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d13a5ae0-d76a-4430-98c1-47a19e615e2c"),
     "Mindcrank",
@@ -3438,7 +3442,7 @@ pub(in crate::card::sets) static MYCOSYNTH_WELLSPRING: CardRecord = CardRecord::
 );
 
 // NPH 146 — Myr Superion
-// Audit: metadata-only — Needs casting-payment legality that restricts accepted mana by the producing permanent's creature type; mana restrictions currently constrain spend purpose instead.
+// Audit: unsupported — Needs casting-payment legality that restricts accepted mana by the producing permanent's creature type; mana restrictions currently constrain spend purpose instead.
 pub(in crate::card::sets) static MYR_SUPERION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("290c6036-02a3-43fa-b0d4-af3818794c3c"),
     "Myr Superion",
@@ -3478,7 +3482,7 @@ pub(in crate::card::sets) static NECROPOUNCER: CardRecord = CardRecord::new(
 );
 
 // NPH 148 — Omen Machine
-// Audit: metadata-only — Needs a draw prohibition plus a draw-step replacement that branches on the exiled top card's type and grants a resolution-time free-cast permission.
+// Audit: unsupported — Needs a draw prohibition plus a draw-step replacement that branches on the exiled top card's type and grants a resolution-time free-cast permission.
 pub(in crate::card::sets) static OMEN_MACHINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ff4e35f-2a82-4d3c-86c5-ae05a5abc4d7"),
     "Omen Machine",
@@ -3508,7 +3512,7 @@ pub(in crate::card::sets) static PESTILENT_SOULEATER: CardRecord = CardRecord::n
 // NPH 150 — Phyrexian Hulk (reprint)
 
 // NPH 151 — Pristine Talisman
-// Audit: metadata-only — Shared mana-ability execution cannot sequence the printed life gain after adding mana.
+// Audit: unsupported — Shared mana-ability execution cannot sequence the printed life gain after adding mana.
 pub(in crate::card::sets) static PRISTINE_TALISMAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e30e622d-1e82-4954-8f7d-ee256d5606bf"),
     "Pristine Talisman",
@@ -3755,7 +3759,7 @@ pub(in crate::card::sets) static SICKLESLICER: CardRecord = CardRecord::new(
 );
 
 // NPH 158 — Soul Conduit
-// Audit: metadata-only — Needs a simultaneous exchange operation that sets two targeted players' life totals to each other's captured values.
+// Audit: unsupported — Needs a simultaneous exchange operation that sets two targeted players' life totals to each other's captured values.
 pub(in crate::card::sets) static SOUL_CONDUIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa7e4989-cba7-4e0c-bb9d-140af6c006c3"),
     "Soul Conduit",
@@ -3887,7 +3891,7 @@ pub(in crate::card::sets) static SWORD_OF_WAR_AND_PEACE: CardRecord = CardRecord
 );
 
 // NPH 162 — Torpor Orb
-// Audit: metadata-only — Needs a player rule that suppresses triggered abilities caused by creatures entering the battlefield without suppressing other entry events.
+// Audit: unsupported — Needs a player rule that suppresses triggered abilities caused by creatures entering the battlefield without suppressing other entry events.
 pub(in crate::card::sets) static TORPOR_ORB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("953610f6-ea96-4e71-969f-50ecac09c091"),
     "Torpor Orb",
@@ -3915,7 +3919,7 @@ pub(in crate::card::sets) static TRESPASSING_SOULEATER: CardRecord = CardRecord:
 );
 
 // NPH 164 — Unwinding Clock
-// Audit: metadata-only — Needs a turn-based untap rule that untaps the controller's artifacts during each other player's untap step.
+// Audit: unsupported — Needs a turn-based untap rule that untaps the controller's artifacts during each other player's untap step.
 pub(in crate::card::sets) static UNWINDING_CLOCK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("495d520b-7560-4ecb-ae62-143eeec5682f"),
     "Unwinding Clock",

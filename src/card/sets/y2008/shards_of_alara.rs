@@ -86,7 +86,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
 );
 
 // ALA 104 — Hissing Iguanar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HISSING_IGUANAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c"),
     "Hissing Iguanar",
@@ -96,7 +96,7 @@ pub(in crate::card::sets) static HISSING_IGUANAR: CardRecord = CardRecord::new(
 );
 
 // ALA 156 — Blightning
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c05e8a2-b7d0-4f24-b2ae-8e4db30e5842"),
     "Blightning",
@@ -106,7 +106,7 @@ pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
 );
 
 // ALA 158 — Branching Bolt
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7468876-f401-4a75-81c0-bed09cdda3e1"),
     "Branching Bolt",

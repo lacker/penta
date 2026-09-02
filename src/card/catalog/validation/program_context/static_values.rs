@@ -18,7 +18,10 @@ fn static_source_value_supported(value: ValueDef) -> bool {
 fn static_object_value_aggregate_supported(aggregate: ObjectValueAggregateDef) -> bool {
     matches!(
         aggregate.select,
-        ObjectValueDef::ManaValue | ObjectValueDef::Power | ObjectValueDef::Toughness
+        ObjectValueDef::ManaValue
+            | ObjectValueDef::Power
+            | ObjectValueDef::Toughness
+            | ObjectValueDef::Counters(_)
     ) && static_object_set_supported(aggregate.objects)
 }
 

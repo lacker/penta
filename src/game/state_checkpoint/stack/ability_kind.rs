@@ -19,9 +19,7 @@ pub(super) fn stack_ability_condition(
         (
             StackObjectKind::TriggeredAbility,
             DeclarativeAbilityDef::AlternativeCast(alternative),
-        ) if definition.is_executable()
-            && alternative.kind == crate::card::AlternativeCastKindDef::Miracle =>
-        {
+        ) if alternative.kind == crate::card::AlternativeCastKindDef::Miracle => {
             StackAbilityCondition::Supported(None)
         }
         _ => StackAbilityCondition::Unsupported,
@@ -41,8 +39,7 @@ pub(super) fn stack_payload_matches(
             return payload.text == Some(candidate.text) && payload.condition.is_none();
         }
         DeclarativeAbilityDef::AlternativeCast(alternative)
-            if candidate.is_executable()
-                && alternative.kind == crate::card::AlternativeCastKindDef::Miracle =>
+            if alternative.kind == crate::card::AlternativeCastKindDef::Miracle =>
         {
             None
         }

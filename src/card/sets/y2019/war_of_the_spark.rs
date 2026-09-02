@@ -258,7 +258,7 @@ pub(in crate::card::sets) static DREADHORDE_ARCANIST: CardRecord = CardRecord::n
 );
 
 // WAR 130 — Grim Initiate
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_INITIATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29b6ec9d-3861-48bf-a198-dc7efba5d89c"),
     "Grim Initiate",
@@ -519,7 +519,7 @@ pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::n
 );
 
 // WAR 222 — Tenth District Legionnaire
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44f3090b-917b-4122-b522-27c30dca8e69"),
     "Tenth District Legionnaire",

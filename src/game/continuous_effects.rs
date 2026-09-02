@@ -456,8 +456,7 @@ impl Game {
             && self.effective_rules(permanent).is_some_and(|rules| {
                 (rules.enchant().is_some() && permanent.became_aura)
                     || rules.ability_clauses().iter().any(|ability| {
-                        ability.is_executable()
-                            && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
+                        matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
                             && ability
                                 .declarative_effect()
                                 .and_then(Self::immediate_attachment_target)
@@ -675,20 +674,18 @@ impl Game {
     pub(super) fn does_not_untap_during_untap_step(&self, permanent: &Permanent) -> bool {
         if self
             .find_effective_ability(permanent, |effective| {
-                effective.ability.is_executable()
-                    && matches!(
-                        effective.ability.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                    && effective
-                        .ability
-                        .declarative_effect()
-                        .is_some_and(|effect| {
-                            Self::static_effect_contains_applied_effect(
-                                effect,
-                                AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-                            )
-                        })
+                matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) && effective
+                    .ability
+                    .declarative_effect()
+                    .is_some_and(|effect| {
+                        Self::static_effect_contains_applied_effect(
+                            effect,
+                            AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                        )
+                    })
             })
             .is_some()
         {
@@ -707,20 +704,18 @@ impl Game {
     pub(super) fn may_choose_not_to_untap(&self, permanent: &Permanent) -> bool {
         if self
             .find_effective_ability(permanent, |effective| {
-                effective.ability.is_executable()
-                    && matches!(
-                        effective.ability.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                    && effective
-                        .ability
-                        .declarative_effect()
-                        .is_some_and(|effect| {
-                            Self::static_effect_contains_applied_effect(
-                                effect,
-                                AppliedEffectDef::Rule(AppliedRuleDef::MayChooseNotToUntap),
-                            )
-                        })
+                matches!(
+                    effective.ability.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) && effective
+                    .ability
+                    .declarative_effect()
+                    .is_some_and(|effect| {
+                        Self::static_effect_contains_applied_effect(
+                            effect,
+                            AppliedEffectDef::Rule(AppliedRuleDef::MayChooseNotToUntap),
+                        )
+                    })
             })
             .is_some()
         {

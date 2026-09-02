@@ -318,6 +318,7 @@ fn vraskas_ultimate_makes_three_assassins() {
 
 #[test]
 #[allow(clippy::too_many_lines)]
+#[ignore = "card is unsupported"]
 fn jace_lets_an_opponent_split_the_top_three_and_takes_the_pile_he_likes() {
     let mut game = ready_game();
     let mut jace = creature(10_000, cards::JACE_ARCHITECT_OF_THOUGHT, PlayerId::One);
@@ -460,6 +461,7 @@ fn jace_lets_an_opponent_split_the_top_three_and_takes_the_pile_he_likes() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn jaces_first_ability_taxes_attackers_until_his_controller_comes_back_around() {
     let mut game = ready_game();
     let mut jace = creature(10_000, cards::JACE_ARCHITECT_OF_THOUGHT, PlayerId::One);

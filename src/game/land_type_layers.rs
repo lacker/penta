@@ -159,8 +159,7 @@ impl Game {
                         .map(|ability| ability.definition),
                 )
                 .any(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                    matches!(ability.definition, DeclarativeAbilityDef::Static(_))
                         && ability
                             .declarative_effect()
                             .is_some_and(Self::effect_contains_land_type_operation)
@@ -271,8 +270,7 @@ impl Game {
                     .map(|ability| ability.definition),
             )
             .filter(|ability| {
-                ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                matches!(ability.definition, DeclarativeAbilityDef::Static(_))
                     && ability.declarative_effect().is_some()
             })
         {
@@ -906,7 +904,7 @@ impl Game {
     /// (CR 205.1b): an Enduring Innocence that comes back as an enchantment
     /// is no longer a Sheep Glimmer, because it is no longer a creature.
     ///
-    /// Audit: partial -- creature types only. The other kinds of subtype are
+    /// Audit: unsupported -- creature types only. The other kinds of subtype are
     /// carried on cards whose type line the engine never takes that type
     /// away from, so nothing in the catalog can tell the difference yet.
     fn drop_subtypes_without_their_card_type(

@@ -35,7 +35,8 @@ impl Game {
             .catalog
             .get(permanent.card.definition.card_definition()?)?
             .rules
-            .has_metadata_only_creature_body()
+            .implementation_status()
+            == crate::ImplementationStatus::Unsupported
         {
             return None;
         }

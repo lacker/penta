@@ -41,7 +41,7 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
 );
 
 // AFR 42 — You Hear Something on Watch
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76e939ab-9d0c-4685-805c-c8bc4e6af163"),
     "You Hear Something on Watch",
@@ -51,7 +51,7 @@ pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardR
 );
 
 // AFR 198 — Owlbear
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OWLBEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12b19309-a7f6-44da-b856-d12da11156e8"),
     "Owlbear",

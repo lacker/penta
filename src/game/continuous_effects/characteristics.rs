@@ -11,8 +11,7 @@ impl Game {
     ) -> AbilityOrigin {
         let mut activated_index = 0;
         self.find_effective_ability(permanent, |effective| {
-            if !effective.ability.is_executable()
-                || !matches!(
+            if !matches!(
                     effective.ability.definition,
                     DeclarativeAbilityDef::Activated(_)
                 )
@@ -265,9 +264,6 @@ impl Game {
         source_is_spell: bool,
     ) -> bool {
         self.find_effective_ability(permanent, |effective| {
-            if !effective.ability.is_executable() {
-                return false;
-            }
             let DeclarativeAbilityDef::Keyword(KeywordAbility::ProtectionFrom(predicate)) =
                 effective.ability.definition
             else {
@@ -462,8 +458,7 @@ impl Game {
         };
         definition.parts.iter().any(|part| {
             part.rules.ability_clauses().iter().any(|ability| {
-                ability.is_executable()
-                    && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
+                matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
                     && ability
                         .declarative_effect()
                         .is_some_and(Self::effect_attaches)
@@ -516,7 +511,11 @@ impl Game {
     /// The expansion a game object's card was first printed in. A token has
     /// no printing, so it belongs to no expansion.
     pub(super) fn object_debut_set(&self, object: GameObjectId) -> Option<CardSet> {
-        let definition = self.object_definition(object)?;
+        // Expansion-name effects use the object's current copiable name. A
+        // permanent that copied an Antiquities card is treated as that name,
+        // while the physical card underneath no longer supplies the answer.
+        let name = self.object_card_name(object)?;
+        let definition = self.catalog.find_by_name(name.as_ref())?;
         self.catalog.get(definition).map(|card| card.debut_set)
     }
 

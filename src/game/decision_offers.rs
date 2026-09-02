@@ -781,9 +781,7 @@ impl Game {
         else {
             return;
         };
-        if !ability_definition.is_executable()
-            || alternative.kind != AlternativeCastKindDef::Miracle
-        {
+        if alternative.kind != AlternativeCastKindDef::Miracle {
             return;
         }
         let name = self

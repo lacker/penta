@@ -1,7 +1,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt,
     CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
     ChooseForEachPlayerDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
@@ -371,7 +371,7 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_WHITE: CardRecord = CardRe
 );
 
 // LEA 14 — Consecrate Land
-// Audit: metadata-only — Needs this compound indestructibility and attachment-legality effect for “Enchanted land has indestructible and can't be enchanted by other Auras”.
+// Audit: unsupported — Needs this compound indestructibility and attachment-legality effect for “Enchanted land has indestructible and can't be enchanted by other Auras”.
 pub(in crate::card::sets) static CONSECRATE_LAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d2379f78-c03f-447f-b3c9-10a918d556e9"),
     "Consecrate Land",
@@ -798,7 +798,7 @@ pub(in crate::card::sets) static PEARLED_UNICORN: CardRecord = CardRecord::new_w
 );
 
 // LEA 31 — Personal Incarnation
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “{0}: The next 1 damage that would be dealt to this creature this turn is dealt to its owner instead. Only this creatures owner may activate this ability”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{0}: The next 1 damage that would be dealt to this creature this turn is dealt to its owner instead. Only this creatures owner may activate this ability”.
 pub(in crate::card::sets) static PERSONAL_INCARNATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("caf9cef4-0f2d-478a-b119-fe1967687f74"),
     "Personal Incarnation",
@@ -1309,7 +1309,7 @@ pub(in crate::card::sets) static CREATURE_BOND: CardRecord = CardRecord::new_wit
 );
 
 // LEA 56 — Drain Power
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “Target player activates a mana ability of each land they control. Then that player loses all unspent mana and you add the mana lost this way”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Target player activates a mana ability of each land they control. Then that player loses all unspent mana and you add the mana lost this way”.
 pub(in crate::card::sets) static DRAIN_POWER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ea3830c5-cc66-453e-9e53-0636e00ee0ee"),
     "Drain Power",
@@ -1450,27 +1450,13 @@ pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new_
 );
 
 // LEA 63 — Magical Hack
-// Audit: partial — Text changing rewrites land type lines and intrinsic mana only, not landwalk, predicates, other rules text, or spell text.
+// Audit: unsupported — Needs full rules-text basic-land-type rewriting across spells, abilities, predicates, and landwalk.
 pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new_with_legacy_id(
     250,
     "Magical Hack",
     CardArt::new("2bd4202c-0477-45aa-82fd-83c85d6d4bef", "Julie Baroh"),
     CardSet::Alpha,
-    CardRules::new_instant(mana_cost!("{U}")).with_ability(
-        AbilityDef::spell_with_targets("Change the text of target spell or permanent by replacing all instances of one basic land type with another. (For example, you may change \"swampwalk\" to \"plainswalk.\" This effect lasts indefinitely.)", &[AbilityTargetDef::exactly_one(
-            AbilityTargetPredicate::Object {
-                object: ObjectPredicateDef::Any,
-                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
-                controller: None,
-                owner: None,
-            },
-        )], EffectDef::ChangeTextBasicLandType {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            })
-        .with_coverage(AbilityCoverageDef::partial(
-            "Spell and permanent targets are supported, but only basic land types on permanent type lines and their intrinsic mana abilities are rewritten; landwalk, predicates, and other rules-text occurrences are not.",
-        )),
-    ),
+    CardRules::unsupported(),
 );
 
 // LEA 64 — Mahamoti Djinn
@@ -1543,7 +1529,7 @@ pub(in crate::card::sets) static PHANTASMAL_FORCES: CardRecord = CardRecord::new
 );
 
 // LEA 68 — Phantasmal Terrain
-// Audit: metadata-only — Needs a persistent dynamic characteristic choice and predicates that consume it for “Enchanted land is the chosen type”.
+// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that consume it for “Enchanted land is the chosen type”.
 pub(in crate::card::sets) static PHANTASMAL_TERRAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c371aa1-1619-41e3-8364-7bc9b8cf5d14"),
     "Phantasmal Terrain",
@@ -1596,7 +1582,7 @@ pub(in crate::card::sets) static PIRATE_SHIP: CardRecord = CardRecord::new_with_
 );
 
 // LEA 71 — Power Leak
-// Audit: metadata-only — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted enchantment's controller, that player may pay any amount of mana. This Aura deals 2 damage to that player. Prevent X of that damage, where X…”.
+// Audit: unsupported — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted enchantment's controller, that player may pay any amount of mana. This Aura deals 2 damage to that player. Prevent X of that damage, where X…”.
 pub(in crate::card::sets) static POWER_LEAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccc982b6-35b2-4e33-ace2-86cb79123e4f"),
     "Power Leak",
@@ -1606,7 +1592,7 @@ pub(in crate::card::sets) static POWER_LEAK: CardRecord = CardRecord::new(
 );
 
 // LEA 72 — Power Sink
-// Audit: metadata-only — Needs counter-unless-X resolution whose failed-payment branch taps mana lands and empties that player's mana pool.
+// Audit: unsupported — Needs counter-unless-X resolution whose failed-payment branch taps mana lands and empties that player's mana pool.
 pub(in crate::card::sets) static POWER_SINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b342dd3-09b9-4108-bf12-a65d4cef4eb9"),
     "Power Sink",
@@ -1706,7 +1692,7 @@ pub(in crate::card::sets) static SEA_SERPENT: CardRecord = CardRecord::new_with_
 );
 
 // LEA 77 — Siren's Call
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “At the beginning of the next end step, destroy all non-Wall creatures that player controls that didn't attack this turn. Ignore this effect for each creature the player didn't control…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of the next end step, destroy all non-Wall creatures that player controls that didn't attack this turn. Ignore this effect for each creature the player didn't control…”.
 pub(in crate::card::sets) static SIREN_S_CALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d992b336-3b6e-43e1-8662-d85664349b44"),
     "Siren's Call",
@@ -1716,7 +1702,7 @@ pub(in crate::card::sets) static SIREN_S_CALL: CardRecord = CardRecord::new(
 );
 
 // LEA 78 — Sleight of Mind
-// Audit: metadata-only — Needs copiable-value or rules-text mutation support for “Change the text of target spell or permanent by replacing all instances of one color word with another”.
+// Audit: unsupported — Needs copiable-value or rules-text mutation support for “Change the text of target spell or permanent by replacing all instances of one color word with another”.
 pub(in crate::card::sets) static SLEIGHT_OF_MIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d427790c-e322-446e-8d7d-a6b48ad41a42"),
     "Sleight of Mind",
@@ -1726,7 +1712,6 @@ pub(in crate::card::sets) static SLEIGHT_OF_MIND: CardRecord = CardRecord::new(
 );
 
 // LEA 79 — Spell Blast
-// Audit: partial — A target spell's chosen X is omitted from its stack mana value.
 pub(in crate::card::sets) static SPELL_BLAST: CardRecord = CardRecord::new_with_legacy_id(
     337,
     "Spell Blast",
@@ -1746,10 +1731,7 @@ ObjectPredicateDef::ManaValueEqualTo(
                 controller: None,
                 owner: None,
             }),
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "A target spell's chosen X is omitted from its stack mana value.",
-        )),
+        ),
     ]),
 );
 
@@ -1950,7 +1932,7 @@ pub(in crate::card::sets) static VESUVAN_DOPPELGANGER: CardRecord = CardRecord::
 );
 
 // LEA 88 — Volcanic Eruption
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “Destroy X target Mountains. Volcanic Eruption deals damage to each creature and each player equal to the number of Mountains put into a graveyard this way”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “Destroy X target Mountains. Volcanic Eruption deals damage to each creature and each player equal to the number of Mountains put into a graveyard this way”.
 pub(in crate::card::sets) static VOLCANIC_ERUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a80582b1-09db-45f8-b362-0e5207a5a8e6"),
     "Volcanic Eruption",
@@ -2137,7 +2119,7 @@ pub(in crate::card::sets) static BOG_WRAITH: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 96 — Contract from Below
-// Audit: metadata-only — Needs ante-zone and deck-construction handling for “Discard your hand, ante the top card of your library, then draw seven cards”.
+// Audit: unsupported — Needs ante-zone and deck-construction handling for “Discard your hand, ante the top card of your library, then draw seven cards”.
 pub(in crate::card::sets) static CONTRACT_FROM_BELOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9853b0ce-4763-4877-9741-f9145a3659c6"),
     "Contract from Below",
@@ -2182,7 +2164,7 @@ pub(in crate::card::sets) static DARK_RITUAL: CardRecord = CardRecord::new_with_
 );
 
 // LEA 99 — Darkpact
-// Audit: metadata-only — Needs an ante zone plus a permanent ownership exchange between a chosen ante card and the top card of a library.
+// Audit: unsupported — Needs an ante zone plus a permanent ownership exchange between a chosen ante card and the top card of a library.
 pub(in crate::card::sets) static DARKPACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e78db688-93a2-47f5-9aa5-9158a72cd973"),
     "Darkpact",
@@ -2239,7 +2221,7 @@ pub(in crate::card::sets) static DEATHLACE: CardRecord = CardRecord::new_with_le
 );
 
 // LEA 102 — Demonic Attorney
-// Audit: metadata-only — Needs the ante procedure and its associated deck-construction handling for “Each player antes the top card of their library”.
+// Audit: unsupported — Needs the ante procedure and its associated deck-construction handling for “Each player antes the top card of their library”.
 pub(in crate::card::sets) static DEMONIC_ATTORNEY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd891fc6-d9d6-494e-ae65-8bea8f44b575"),
     "Demonic Attorney",
@@ -2249,7 +2231,7 @@ pub(in crate::card::sets) static DEMONIC_ATTORNEY: CardRecord = CardRecord::new(
 );
 
 // LEA 103 — Demonic Hordes
-// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “At the beginning of your upkeep, unless you pay {B}{B}{B}, tap this creature and sacrifice a land of an opponent's choice”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “At the beginning of your upkeep, unless you pay {B}{B}{B}, tap this creature and sacrifice a land of an opponent's choice”.
 pub(in crate::card::sets) static DEMONIC_HORDES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6c9bb8b1-fb79-4b99-ba09-c6e6c860de50"),
     "Demonic Hordes",
@@ -2346,7 +2328,6 @@ pub(in crate::card::sets) static EVIL_PRESENCE: CardRecord = CardRecord::new_wit
 );
 
 // LEA 108 — Fear
-// Audit: partial — The blocking restriction is stored directly rather than as a removable granted ability.
 pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new_with_legacy_id(
     346,
     "Fear",
@@ -2367,10 +2348,7 @@ pub(in crate::card::sets) static FEAR: CardRecord = CardRecord::new_with_legacy_
                         ])),
                     )),
                 },
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The blocking restriction is stored directly rather than as a removable granted ability.",
-            )),
+            ),
         ]),
 );
 
@@ -2476,7 +2454,7 @@ pub(in crate::card::sets) static HYPNOTIC_SPECTER: CardRecord = CardRecord::new_
 );
 
 // LEA 113 — Lich
-// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “Whenever you're dealt damage, sacrifice that many nontoken permanents. If you can't, you lose the game”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “Whenever you're dealt damage, sacrifice that many nontoken permanents. If you can't, you lose the game”.
 pub(in crate::card::sets) static LICH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4250caec-0e37-41be-9ec4-8938deb5f0d0"),
     "Lich",
@@ -2486,7 +2464,7 @@ pub(in crate::card::sets) static LICH: CardRecord = CardRecord::new(
 );
 
 // LEA 114 — Lord of the Pit
-// Audit: metadata-only — Needs a mandatory creature-sacrifice choice with an explicit no-legal-sacrifice damage branch during upkeep.
+// Audit: unsupported — Needs a mandatory creature-sacrifice choice with an explicit no-legal-sacrifice damage branch during upkeep.
 pub(in crate::card::sets) static LORD_OF_THE_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2926777a-4f6e-4965-ba83-22cf7df02602"),
     "Lord of the Pit",
@@ -2553,7 +2531,7 @@ pub(in crate::card::sets) static NETHER_SHADOW: CardRecord = CardRecord::new(
 );
 
 // LEA 117 — Nettling Imp
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{T}: Choose target non-Wall creature the active player has controlled continuously since the beginning of the turn. That creature attacks this turn if able. Destroy it at the beginning…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}: Choose target non-Wall creature the active player has controlled continuously since the beginning of the turn. That creature attacks this turn if able. Destroy it at the beginning…”.
 pub(in crate::card::sets) static NETTLING_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8105973c-a94d-444c-ba20-ab0fa978bee8"),
     "Nettling Imp",
@@ -2752,7 +2730,7 @@ pub(in crate::card::sets) static ROYAL_ASSASSIN: CardRecord = CardRecord::new_wi
 );
 
 // LEA 124 — Sacrifice
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “Add an amount of {B} equal to the sacrificed creature's mana value”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “Add an amount of {B} equal to the sacrificed creature's mana value”.
 pub(in crate::card::sets) static SACRIFICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12164aee-6a27-4246-8d15-2d6dd20d92e9"),
     "Sacrifice",
@@ -3017,7 +2995,7 @@ pub(in crate::card::sets) static WILL_O_THE_WISP: CardRecord = CardRecord::new_w
 );
 
 // LEA 136 — Word of Command
-// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “Look at target opponent's hand and choose a card from it. You control that player until Word of Command finishes resolving. The player plays that card if able. While doing so, the player…”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “Look at target opponent's hand and choose a card from it. You control that player until Word of Command finishes resolving. The player plays that card if able. While doing so, the player…”.
 pub(in crate::card::sets) static WORD_OF_COMMAND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("96c21429-98d3-416b-be00-6aa9c4c5a006"),
     "Word of Command",
@@ -3107,7 +3085,7 @@ pub(in crate::card::sets) static CHAOSLACE: CardRecord = CardRecord::new_with_le
 );
 
 // LEA 140 — Disintegrate
-// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Disintegrate deals X damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead”.
+// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “Disintegrate deals X damage to any target. If it's a creature, it can't be regenerated this turn, and if it would die this turn, exile it instead”.
 pub(in crate::card::sets) static DISINTEGRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8712c49e-f171-4669-bed9-87575a37af11"),
     "Disintegrate",
@@ -3220,7 +3198,7 @@ pub(in crate::card::sets) static EARTH_ELEMENTAL: CardRecord = CardRecord::new_w
 );
 
 // LEA 145 — Earthbind
-// Audit: metadata-only — Needs an Aura-entry condition on the attached creature plus a persistent removal of flying created during resolution.
+// Audit: unsupported — Needs an Aura-entry condition on the attached creature plus a persistent removal of flying created during resolution.
 pub(in crate::card::sets) static EARTHBIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6d492b7-b0b3-420e-8d00-6dacb11de77e"),
     "Earthbind",
@@ -3260,7 +3238,7 @@ pub(in crate::card::sets) static EARTHQUAKE: CardRecord = CardRecord::new_with_l
 );
 
 // LEA 147 — False Orders
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Remove target creature defending player controls from combat. Creatures it was blocking that had become blocked by only that creature this combat become unblocked. You may have it block…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Remove target creature defending player controls from combat. Creatures it was blocking that had become blocked by only that creature this combat become unblocked. You may have it block…”.
 pub(in crate::card::sets) static FALSE_ORDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7eb71ac4-796d-4011-9002-1129bc09c284"),
     "False Orders",
@@ -3651,7 +3629,7 @@ pub(in crate::card::sets) static ORCISH_ORIFLAMME: CardRecord = CardRecord::new_
 );
 
 // LEA 167 — Power Surge
-// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is the number of untapped lands they controlled at the beginning of this turn”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “At the beginning of each player's upkeep, this enchantment deals X damage to that player, where X is the number of untapped lands they controlled at the beginning of this turn”.
 pub(in crate::card::sets) static POWER_SURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("62858604-ca5a-4f69-a045-a7515ebfabf2"),
     "Power Surge",
@@ -3661,7 +3639,7 @@ pub(in crate::card::sets) static POWER_SURGE: CardRecord = CardRecord::new(
 );
 
 // LEA 168 — Raging River
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Whenever one or more creatures you control attack, each defending player divides all creatures without flying they control into a "left" pile and a "right" pile. Then, for each attacking…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Whenever one or more creatures you control attack, each defending player divides all creatures without flying they control into a "left" pile and a "right" pile. Then, for each attacking…”.
 pub(in crate::card::sets) static RAGING_RIVER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61e4f56d-1f4f-49f2-8534-0d09196a3327"),
     "Raging River",
@@ -3714,7 +3692,7 @@ pub(in crate::card::sets) static ROC_OF_KHER_RIDGES: CardRecord = CardRecord::ne
 
 // The chosen presentation art is its Beta printing; the definition debuted in Alpha.
 // LEA 171 — Rock Hydra
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “For each 1 damage that would be dealt to this creature, if it has a +1/+1 counter on it, remove a +1/+1 counter from it and prevent that 1 damage”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “For each 1 damage that would be dealt to this creature, if it has a +1/+1 counter on it, remove a +1/+1 counter from it and prevent that 1 damage”.
 pub(in crate::card::sets) static ROCK_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("410ac9e6-fbc1-4cc8-84db-84e2eb1bab97"),
     "Rock Hydra",
@@ -4112,7 +4090,7 @@ pub(in crate::card::sets) static BIRDS_OF_PARADISE: CardRecord = CardRecord::new
 );
 
 // LEA 187 — Camouflage
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “This turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking…”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “This turn, instead of declaring blockers, each defending player chooses any number of creatures they control and divides them into a number of piles equal to the number of attacking…”.
 pub(in crate::card::sets) static CAMOUFLAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3838c2a3-7fab-4976-9c1b-2891aee24e52"),
     "Camouflage",
@@ -4671,7 +4649,7 @@ pub(in crate::card::sets) static LURE: CardRecord = CardRecord::new_with_legacy_
 );
 
 // LEA 212 — Natural Selection
-// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “Look at the top three cards of target player's library, then put them back in any order. You may have that player shuffle”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “Look at the top three cards of target player's library, then put them back in any order. You may have that player shuffle”.
 pub(in crate::card::sets) static NATURAL_SELECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8917dc8-01c0-4e72-9310-c4d501775411"),
     "Natural Selection",
@@ -5122,15 +5100,12 @@ pub(in crate::card::sets) static CHAOS_ORB: CardRecord = CardRecord::new_with_le
                         ]),
                     },
                 }),
-            )
-            .with_coverage(AbilityCoverageDef::explained_complete(
-                "For reproducible headless 93/94 play, the physical flip is represented by one seeded random trial with a 0.9 success likelihood.",
-            )),
+            ),
         ]),
 );
 
 // LEA 236 — Clockwork Beast
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than seven. Activate only during your upkeep”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{X}, {T}: Put up to X +1/+0 counters on this creature. This ability can't cause the total number of +1/+0 counters on this creature to be greater than seven. Activate only during your upkeep”.
 pub(in crate::card::sets) static CLOCKWORK_BEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27f916a2-0ace-44b5-99dc-72979af34db9"),
     "Clockwork Beast",
@@ -5203,7 +5178,7 @@ pub(in crate::card::sets) static CRYSTAL_ROD: CardRecord = CardRecord::new_with_
 );
 
 // LEA 240 — Cyclopean Tomb
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “{2}, {T}: Put a mire counter on target non-Swamp land. That land is a Swamp for as long as it has a mire counter on it. Activate only during your upkeep”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{2}, {T}: Put a mire counter on target non-Swamp land. That land is a Swamp for as long as it has a mire counter on it. Activate only during your upkeep”.
 pub(in crate::card::sets) static CYCLOPEAN_TOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("894c5cf2-8ae2-427a-bcbc-67df0bdfee9d"),
     "Cyclopean Tomb",
@@ -5256,7 +5231,7 @@ pub(in crate::card::sets) static DISRUPTING_SCEPTER: CardRecord = CardRecord::ne
 );
 
 // LEA 243 — Forcefield
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “{1}: The next time an unblocked creature of your choice would deal combat damage to you this turn, prevent all but 1 of that damage”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{1}: The next time an unblocked creature of your choice would deal combat damage to you this turn, prevent all but 1 of that damage”.
 pub(in crate::card::sets) static FORCEFIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f2004c1-8efe-407f-bf48-27b807422eea"),
     "Forcefield",
@@ -5404,7 +5379,7 @@ pub(in crate::card::sets) static ICY_MANIPULATOR: CardRecord = CardRecord::new_w
 );
 
 // LEA 249 — Illusionary Mask
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “{X}: You may choose a creature card in your hand whose mana cost could be paid by some amount of, or all of, the mana you spent on {X}. If you do, you may cast that card face down as a…”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “{X}: You may choose a creature card in your hand whose mana cost could be paid by some amount of, or all of, the mana you spent on {X}. If you do, you may cast that card face down as a…”.
 pub(in crate::card::sets) static ILLUSIONARY_MASK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("62ef2f37-b8ad-47ad-89ca-d6abcb7ff21b"),
     "Illusionary Mask",
@@ -5458,7 +5433,7 @@ pub(in crate::card::sets) static IVORY_CUP: CardRecord = CardRecord::new_with_le
 );
 
 // LEA 252 — Jade Monolith
-// Audit: metadata-only — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “{1}: The next time a source of your choice would deal damage to target creature this turn, that source deals that damage to you instead”.
+// Audit: unsupported — Needs a shield keyed to a source chosen as the ability resolves; prevention shields attach to a recipient and spend on the next damage from any source, not from one named source for “{1}: The next time a source of your choice would deal damage to target creature this turn, that source deals that damage to you instead”.
 pub(in crate::card::sets) static JADE_MONOLITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a77e0f1-449d-4a7d-9fa0-ba7598f7a73a"),
     "Jade Monolith",
@@ -5572,7 +5547,7 @@ pub(in crate::card::sets) static KORMUS_BELL: CardRecord = CardRecord::new_with_
 );
 
 // LEA 257 — Library of Leng
-// Audit: metadata-only — Needs ordered-library inspection, selection, and visibility handling for “If an effect causes you to discard a card, discard it, but you may put it on top of your library instead of into your graveyard”.
+// Audit: unsupported — Needs ordered-library inspection, selection, and visibility handling for “If an effect causes you to discard a card, discard it, but you may put it on top of your library instead of into your graveyard”.
 pub(in crate::card::sets) static LIBRARY_OF_LENG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2340edcb-8cd5-4ccd-99e2-b9a29f72c495"),
     "Library of Leng",
@@ -5826,7 +5801,7 @@ pub(in crate::card::sets) static SOUL_NET: CardRecord = CardRecord::new_with_leg
 );
 
 // LEA 271 — Sunglasses of Urza
-// Audit: metadata-only — Needs cost/mana provenance or dynamic payment support for “You may spend white mana as though it were red mana”.
+// Audit: unsupported — Needs cost/mana provenance or dynamic payment support for “You may spend white mana as though it were red mana”.
 pub(in crate::card::sets) static SUNGLASSES_OF_URZA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0d433a4-76c0-4f27-836d-4c0c13a511fb"),
     "Sunglasses of Urza",

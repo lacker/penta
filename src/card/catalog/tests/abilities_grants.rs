@@ -273,10 +273,6 @@ fn nonbattlefield_ability_grants_are_executable_flashback_until_cleanup() {
     static FLYING: AbilityDef = abilities::flying();
     static FLASHBACK: AbilityDef = abilities::flashback_for_card_mana_cost();
     static MIRACLE: AbilityDef = abilities::miracle(ManaCost::new(0, 0));
-    static INCOMPLETE_FLASHBACK: AbilityDef = abilities::flashback_for_card_mana_cost()
-        .with_coverage(AbilityCoverageDef::metadata_only(
-            "This fixture verifies that non-executable grants are rejected.",
-        ));
     static GRAVEYARD_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
         AbilityTargetPredicate::Object {
             object: ObjectPredicateDef::Any,
@@ -323,7 +319,7 @@ fn nonbattlefield_ability_grants_are_executable_flashback_until_cleanup() {
     )
     .expect("mass flashback grants use the same supported hidden-zone reader");
 
-    for ability in [&FLYING, &MIRACLE, &INCOMPLETE_FLASHBACK] {
+    for ability in [&FLYING, &MIRACLE] {
         assert_eq!(
             validate_ability_targets(
                 &GRAVEYARD_TARGET,
@@ -465,7 +461,7 @@ fn payment_target_sets_must_resolve_to_one_player() {
 fn ability_ids_follow_clause_order_within_each_card_part() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::spell("first", EffectDef::None),
-        AbilityDef::not_implemented("second", "Only positional identity matters here."),
+        AbilityDef::static_ability("second", EffectDef::None),
     ];
     let mut card = definition(1, "Test Card", CardSet::Alpha);
     let rules = card.rules.with_abilities(&ABILITIES);
@@ -518,10 +514,7 @@ fn positional_ability_ids_reject_more_than_their_address_space() {
 
 #[test]
 fn grant_ids_reject_more_than_their_structural_address_space() {
-    static GRANTED: AbilityDef = AbilityDef::not_implemented(
-        "A granted ability.",
-        "The test only needs a reusable definition.",
-    );
+    static GRANTED: AbilityDef = AbilityDef::static_ability("A granted ability.", EffectDef::None);
     let effects = Box::leak(
         vec![
             EffectDef::StaticApply {
@@ -556,10 +549,7 @@ fn grant_ids_reject_more_than_their_structural_address_space() {
 
 #[test]
 fn delayed_grants_count_toward_the_structural_address_space() {
-    static GRANTED: AbilityDef = AbilityDef::not_implemented(
-        "A granted ability.",
-        "The test only needs a reusable definition.",
-    );
+    static GRANTED: AbilityDef = AbilityDef::static_ability("A granted ability.", EffectDef::None);
     static GRANT: EffectDef = EffectDef::StaticApply {
         recipient: EffectRecipientDef::Source,
         effect: AppliedEffectDef::add_ability(&GRANTED),
@@ -598,10 +588,7 @@ fn delayed_grants_count_toward_the_structural_address_space() {
 
 #[test]
 fn replacement_program_grants_count_toward_the_structural_address_space() {
-    static GRANTED: AbilityDef = AbilityDef::not_implemented(
-        "A granted ability.",
-        "The test only needs a reusable definition.",
-    );
+    static GRANTED: AbilityDef = AbilityDef::static_ability("A granted ability.", EffectDef::None);
     static GRANT: EffectDef = EffectDef::StaticApply {
         recipient: EffectRecipientDef::Source,
         effect: AppliedEffectDef::add_ability(&GRANTED),
@@ -707,7 +694,7 @@ fn granted_ability_validation_follows_sacrifice_continuations() {
 }
 
 #[test]
-fn granted_ability_validation_follows_replacement_programs() {
+fn unsupported_replacement_programs_fail_before_nested_grants() {
     static INVALID: AbilityDef = AbilityDef::spell("", EffectDef::None);
     static GRANT: EffectDef = EffectDef::Apply {
         recipient: EffectRecipientDef::Source,
@@ -721,32 +708,27 @@ fn granted_ability_validation_follows_replacement_programs() {
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::replacement(
         "Replace an event, then grant an ability.",
         ReplacementEffectDef::Sequence(&PROGRAM),
-    )
-    .with_coverage(AbilityCoverageDef::metadata_only(
-        "This structural grant-validation fixture does not execute its replacement program.",
-    ))];
+    )];
     let mut card = definition(1, "Test Card", CardSet::Alpha);
     let rules = card.rules.with_abilities(&ABILITIES);
     set_primary_rules(&mut card, &rules);
 
     assert_eq!(
         error(card),
-        CatalogError::InvalidGrantedAbility {
+        CatalogError::UnsupportedReplacementProgram {
             definition: CardDefinitionId::new(1),
             part: CardPartId::PRIMARY,
             ability: AbilityId::PRIMARY,
-            grant_path: vec![GrantId::PRIMARY],
-            problem: GrantedAbilityValidationError::EmptyText,
+            event: ReplacementEventDef::SourceEntersBattlefield,
+            operation: "Perform",
         }
     );
 }
 
 #[test]
 fn granted_modal_branches_validate_nested_grants_in_printed_order() {
-    static VALID: AbilityDef = AbilityDef::not_implemented(
-        "A valid granted ability.",
-        "Only nested validation matters in this fixture.",
-    );
+    static VALID: AbilityDef =
+        AbilityDef::activated("A valid granted ability.", &[], EffectDef::None);
     static INVALID: AbilityDef = AbilityDef::spell("", EffectDef::None);
     static MODES: [AbilityDef; 2] = [
         AbilityDef::spell(
@@ -782,10 +764,8 @@ fn granted_modal_branches_validate_nested_grants_in_printed_order() {
 
 #[test]
 fn granted_modal_capacity_counts_grants_across_all_modes() {
-    static TERMINAL: AbilityDef = AbilityDef::not_implemented(
-        "A terminal granted ability.",
-        "The terminal ability is intentionally not executable.",
-    );
+    static TERMINAL: AbilityDef =
+        AbilityDef::static_ability("A terminal granted ability.", EffectDef::None);
     let grants = |count| {
         Box::leak(
             vec![

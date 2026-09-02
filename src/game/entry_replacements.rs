@@ -573,9 +573,6 @@ impl Game {
                 let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
                     return ControlFlow::Continue(());
                 };
-                if !ability.is_executable() {
-                    return ControlFlow::Continue(());
-                }
                 let Some(effect) = ability.declarative_replacement() else {
                     return ControlFlow::Continue(());
                 };
@@ -648,9 +645,7 @@ impl Game {
                     let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
                         return ControlFlow::Continue(());
                     };
-                    if !ability.is_executable()
-                        || !definition.source_zones.contains(&ZoneKind::Battlefield)
-                    {
+                    if !definition.source_zones.contains(&ZoneKind::Battlefield) {
                         return ControlFlow::Continue(());
                     }
                     let ReplacementEventDef::ObjectEntersBattlefield {

@@ -806,10 +806,7 @@ fn authored_target_count_fits_the_positional_index_space() {
 
 #[test]
 fn nested_grant_capacity_is_validated_per_granted_definition() {
-    static TERMINAL: AbilityDef = AbilityDef::not_implemented(
-        "A terminal granted ability.",
-        "The terminal ability is intentionally not executable.",
-    );
+    static TERMINAL: AbilityDef = AbilityDef::static_ability("A terminal granted ability.", EffectDef::None);
     let effects = Box::leak(
         vec![
             EffectDef::Apply {
@@ -840,33 +837,12 @@ fn nested_grant_capacity_is_validated_per_granted_definition() {
 }
 
 #[test]
-fn granted_non_declarative_implementations_require_an_explanation() {
-    static GRANTED: AbilityDef =
-        AbilityDef::activated("An incompletely implemented ability.", &[], EffectDef::None)
-            .with_coverage(AbilityCoverageDef::metadata_only(""));
-
-    assert_eq!(
-        error(definition_granting(&GRANTED)),
-        CatalogError::InvalidGrantedAbility {
-            definition: CardDefinitionId::new(1),
-            part: CardPartId::PRIMARY,
-            ability: AbilityId::PRIMARY,
-            grant_path: vec![GrantId::PRIMARY],
-            problem: GrantedAbilityValidationError::MissingImplementationExplanation,
-        }
-    );
-}
-
-#[test]
 fn executable_legacy_procedures_are_rejected() {
     static LEGACY: AbilityDef = AbilityDef::activated(
         "An ability routed through the legacy procedure.",
         &[],
         EffectDef::None,
     )
-    .with_coverage(AbilityCoverageDef::explained_complete(
-        "The test supplies the required legacy-procedure explanation.",
-    ))
     .with_legacy_procedure();
 
     let mut top_level = definition(1, "Test Card", CardSet::Alpha);

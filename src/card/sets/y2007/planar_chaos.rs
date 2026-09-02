@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, BasicLandType, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef, AppliedEffectDef,
+    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef,
+    ObjectValueDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -29,7 +30,7 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_l
 );
 
 // PLC 31 — Sunlance
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46144ca5-aa81-4314-a1e5-1716f8565d70"),
     "Sunlance",
@@ -39,16 +40,37 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
 );
 
 // PLC 128 — Fungal Behemoth
-// Audit: partial — Suspend X and the exile trigger are executable; the characteristic-defining aggregate +1/+1 counter value is not yet modeled.
 pub(in crate::card::sets) static FUNGAL_BEHEMOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53c1910b-9475-4551-b9a0-4b24511a6f98"),
     "Fungal Behemoth",
     CardArt::new("53c1910b-9475-4551-b9a0-4b24511a6f98", "Mark Tedin"),
     CardSet::PlanarChaos,
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Fungus"], 0, 0).with_abilities(&[
-        AbilityDef::not_implemented(
+        AbilityDef::static_ability(
             "Fungal Behemoth's power and toughness are each equal to the number of +1/+1 counters on creatures you control.",
-            "Needs a characteristic-defining aggregate of counters across matching permanents.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        select: ObjectValueDef::Counters(CounterKind::PlusOnePlusOne),
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                    ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                        select: ObjectValueDef::Counters(CounterKind::PlusOnePlusOne),
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                ),
+            },
         ),
         abilities::suspend_x(
             "Suspend X—{X}{G}{G}. X can't be 0.",

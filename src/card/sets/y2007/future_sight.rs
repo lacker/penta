@@ -135,7 +135,7 @@ pub(in crate::card::sets) static NARCOMOEBA: CardRecord = CardRecord::new(
 );
 
 // FUT 76 — Shimian Specter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMIAN_SPECTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6faa406-aa7a-49ce-a42e-00e98f3fb74e"),
     "Shimian Specter",

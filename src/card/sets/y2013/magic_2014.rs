@@ -44,7 +44,7 @@ static TAPPED_ZOMBIE: EffectDef =
 // M14 1 — Ajani, Caller of the Pride (reprint)
 
 // M14 2 — Ajani's Chosen
-// Audit: metadata-only — CreateToken cannot continue by conditionally attaching the triggering Aura to the newly created token.
+// Audit: unsupported — CreateToken cannot continue by conditionally attaching the triggering Aura to the newly created token.
 pub(in crate::card::sets) static AJANI_S_CHOSEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("583bfbc1-638b-4de5-b865-0b00a69dd073"),
     "Ajani's Chosen",
@@ -54,7 +54,7 @@ pub(in crate::card::sets) static AJANI_S_CHOSEN: CardRecord = CardRecord::new(
 );
 
 // M14 3 — Angelic Accord
-// Audit: metadata-only — Trigger conditions cannot track life gained during the turn or compare that total with four.
+// Audit: unsupported — Trigger conditions cannot track life gained during the turn or compare that total with four.
 pub(in crate::card::sets) static ANGELIC_ACCORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("03f26bc2-53d7-4448-8021-de35aa82fcc6"),
     "Angelic Accord",
@@ -119,7 +119,7 @@ pub(in crate::card::sets) static AURAMANCER: CardRecord = CardRecord::new_with_l
 );
 
 // M14 7 — Banisher Priest
-// Audit: metadata-only — Linked exile cannot express Banisher Priest's one-shot duration, which must do nothing if the source left before the enter trigger resolved.
+// Audit: unsupported — Linked exile cannot express Banisher Priest's one-shot duration, which must do nothing if the source left before the enter trigger resolved.
 pub(in crate::card::sets) static BANISHER_PRIEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06823bf8-2fca-49e1-ba40-9b61c9ae55b3"),
     "Banisher Priest",
@@ -289,7 +289,7 @@ pub(in crate::card::sets) static DAWNSTRIKE_PALADIN: CardRecord = CardRecord::ne
 );
 
 // M14 16 — Devout Invocation
-// Audit: metadata-only — Spell costs cannot tap a freely chosen number of creatures and carry that paid count into token creation.
+// Audit: unsupported — Spell costs cannot tap a freely chosen number of creatures and carry that paid count into token creation.
 pub(in crate::card::sets) static DEVOUT_INVOCATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a286954-fb40-4440-9f0e-a28367c6823c"),
     "Devout Invocation",
@@ -301,7 +301,7 @@ pub(in crate::card::sets) static DEVOUT_INVOCATION: CardRecord = CardRecord::new
 // M14 17 — Divine Favor (reprint)
 
 // M14 18 — Fiendslayer Paladin
-// Audit: metadata-only — Targeting restrictions cannot filter opposing spell sources by black or red color while leaving abilities unaffected.
+// Audit: unsupported — Targeting restrictions cannot filter opposing spell sources by black or red color while leaving abilities unaffected.
 pub(in crate::card::sets) static FIENDSLAYER_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5cfb0f4a-e273-4ffb-91cd-dd1a7b6f6a8f"),
     "Fiendslayer Paladin",
@@ -431,7 +431,7 @@ pub(in crate::card::sets) static INDESTRUCTIBILITY: CardRecord = CardRecord::new
 );
 
 // M14 24 — Master of Diversion
-// Audit: metadata-only — Attack triggers cannot restrict a target to the creature controlled by that attack's defending player.
+// Audit: unsupported — Attack triggers cannot restrict a target to the creature controlled by that attack's defending player.
 pub(in crate::card::sets) static MASTER_OF_DIVERSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2bec89b3-640e-4093-a6e9-5639610769b9"),
     "Master of Diversion",
@@ -443,7 +443,7 @@ pub(in crate::card::sets) static MASTER_OF_DIVERSION: CardRecord = CardRecord::n
 // M14 25 — Pacifism (reprint)
 
 // M14 26 — Path of Bravery
-// Audit: metadata-only — Continuous effects cannot compare current and starting life, and attack events cannot aggregate one combat's attackers into one trigger amount.
+// Audit: unsupported — Continuous effects cannot compare current and starting life, and attack events cannot aggregate one combat's attackers into one trigger amount.
 pub(in crate::card::sets) static PATH_OF_BRAVERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5222e200-df1b-46c6-a194-c341e8c1d516"),
     "Path of Bravery",
@@ -667,7 +667,7 @@ pub(in crate::card::sets) static ARMORED_CANCRIX: CardRecord = CardRecord::new_w
 // M14 47 — Clone (reprint)
 
 // M14 48 — Colossal Whale
-// Audit: metadata-only — Islandwalk and defending-player targeting are unsupported, and linked exile cannot express the required one-shot duration if the source leaves early.
+// Audit: unsupported — Islandwalk and defending-player targeting are unsupported, and linked exile cannot express the required one-shot duration if the source leaves early.
 pub(in crate::card::sets) static COLOSSAL_WHALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20968c42-d63b-4b2a-ae47-f986f3c35fdc"),
     "Colossal Whale",
@@ -686,7 +686,7 @@ pub(in crate::card::sets) static CORAL_MERFOLK: CardRecord = CardRecord::new_wit
 );
 
 // M14 50 — Dismiss into Dream
-// Audit: metadata-only — Static effects cannot add a creature subtype, and no trigger event observes a permanent becoming a target.
+// Audit: unsupported — Static effects cannot add a creature subtype, and no trigger event observes a permanent becoming a target.
 pub(in crate::card::sets) static DISMISS_INTO_DREAM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af4cd7fe-639c-45a5-97af-9529904e3975"),
     "Dismiss into Dream",
@@ -719,7 +719,7 @@ pub(in crate::card::sets) static DISPERSE: CardRecord = CardRecord::new_with_leg
 // M14 53 — Domestication (reprint)
 
 // M14 54 — Elite Arcanist
-// Audit: metadata-only — Imprint cannot retain a chosen hand card for a later X cost, spell copy, and free-cast permission.
+// Audit: unsupported — Imprint cannot retain a chosen hand card for a later X cost, spell copy, and free-cast permission.
 pub(in crate::card::sets) static ELITE_ARCANIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("99b225fe-c07d-4d8a-bf2b-c1777bd29061"),
     "Elite Arcanist",
@@ -805,7 +805,7 @@ pub(in crate::card::sets) static GLIMPSE_THE_FUTURE: CardRecord = CardRecord::ne
 );
 
 // M14 59 — Illusionary Armor
-// Audit: metadata-only — No trigger event observes the enchanted creature becoming a target.
+// Audit: unsupported — No trigger event observes the enchanted creature becoming a target.
 pub(in crate::card::sets) static ILLUSIONARY_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d09346ff-6e63-499b-9265-c15a7b2cdece"),
     "Illusionary Armor",
@@ -817,7 +817,7 @@ pub(in crate::card::sets) static ILLUSIONARY_ARMOR: CardRecord = CardRecord::new
 // M14 60 — Jace, Memory Adept (reprint)
 
 // M14 61 — Jace's Mindseeker
-// Audit: metadata-only — Mill cannot retain the exact milled batch for a filtered optional free-cast choice.
+// Audit: unsupported — Mill cannot retain the exact milled batch for a filtered optional free-cast choice.
 pub(in crate::card::sets) static JACE_S_MINDSEEKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f67852a6-ae75-44e7-9e2d-d458c7b9d869"),
     "Jace's Mindseeker",
@@ -931,7 +931,7 @@ pub(in crate::card::sets) static SEACOAST_DRAKE: CardRecord = CardRecord::new_wi
 // M14 72 — Spell Blast (reprint)
 
 // M14 73 — Tidebinder Mage
-// Audit: metadata-only — Effect durations cannot end when the source changes controller while remaining on the battlefield.
+// Audit: unsupported — Effect durations cannot end when the source changes controller while remaining on the battlefield.
 pub(in crate::card::sets) static TIDEBINDER_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e032d1dd-6efc-4f6c-ad3b-30fe74845edf"),
     "Tidebinder Mage",
@@ -1054,7 +1054,7 @@ pub(in crate::card::sets) static WALL_OF_FROST: CardRecord = CardRecord::new_wit
 );
 
 // M14 79 — Warden of Evos Isle
-// Audit: metadata-only — Generic-cost reduction cannot be filtered to creature spells with effective flying.
+// Audit: unsupported — Generic-cost reduction cannot be filtered to creature spells with effective flying.
 pub(in crate::card::sets) static WARDEN_OF_EVOS_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2316d281-21a4-460d-9062-f0737249484e"),
     "Warden of Evos Isle",
@@ -1157,7 +1157,7 @@ pub(in crate::card::sets) static ACCURSED_SPIRIT: CardRecord = CardRecord::new_w
 // M14 84 — Altar's Reap (reprint)
 
 // M14 85 — Artificer's Hex
-// Audit: metadata-only — Conditions and recipients cannot follow an Aura to an Equipment and then to the creature that Equipment is attached to.
+// Audit: unsupported — Conditions and recipients cannot follow an Aura to an Equipment and then to the creature that Equipment is attached to.
 pub(in crate::card::sets) static ARTIFICER_S_HEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a5cd9a1-da2e-44ef-9f2e-352dc9f92c50"),
     "Artificer's Hex",
@@ -1223,7 +1223,7 @@ pub(in crate::card::sets) static BLOOD_BAIRN: CardRecord = CardRecord::new_with_
 );
 
 // M14 88 — Bogbrew Witch
-// Audit: metadata-only — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
+// Audit: unsupported — SearchZone cannot match either exact printed name or make the selected permanent enter tapped.
 pub(in crate::card::sets) static BOGBREW_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7559cf3e-7fad-4bcf-8551-045f9150e014"),
     "Bogbrew Witch",
@@ -1358,7 +1358,7 @@ pub(in crate::card::sets) static DOOM_BLADE: CardRecord = CardRecord::new_with_l
 // M14 97 — Duress (reprint)
 
 // M14 98 — Festering Newt
-// Audit: metadata-only — Object predicates cannot test for a different exact card name to choose between two effect amounts.
+// Audit: unsupported — Object predicates cannot test for a different exact card name to choose between two effect amounts.
 pub(in crate::card::sets) static FESTERING_NEWT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eaee5261-416c-41e9-9ad7-bf7bd169aa08"),
     "Festering Newt",
@@ -1401,7 +1401,7 @@ pub(in crate::card::sets) static GNAWING_ZOMBIE: CardRecord = CardRecord::new_wi
 );
 
 // M14 100 — Grim Return
-// Audit: metadata-only — Graveyard target predicates cannot inspect whether a card moved there from the battlefield this turn.
+// Audit: unsupported — Graveyard target predicates cannot inspect whether a card moved there from the battlefield this turn.
 pub(in crate::card::sets) static GRIM_RETURN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15b69f74-3b54-4db4-abf3-b71db8cc9562"),
     "Grim Return",
@@ -1567,7 +1567,7 @@ pub(in crate::card::sets) static QUAG_SICKNESS: CardRecord = CardRecord::new_wit
 );
 
 // M14 111 — Rise of the Dark Realms
-// Audit: metadata-only — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
+// Audit: unsupported — MoveToZone cannot sweep matching cards from every graveyard into one player's control.
 pub(in crate::card::sets) static RISE_OF_THE_DARK_REALMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("073f81e8-8c0c-4430-bd3e-95ed3625340f"),
     "Rise of the Dark Realms",
@@ -1600,7 +1600,7 @@ pub(in crate::card::sets) static SANGUINE_BOND: CardRecord = CardRecord::new_wit
 // M14 113 — Sengir Vampire (reprint)
 
 // M14 114 — Shadowborn Apostle
-// Audit: metadata-only — Deck construction has no any-number exception, and activated costs cannot choose and sacrifice six matching permanents as one payment.
+// Audit: unsupported — Deck construction has no any-number exception, and activated costs cannot choose and sacrifice six matching permanents as one payment.
 pub(in crate::card::sets) static SHADOWBORN_APOSTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("202c2323-6589-457a-af51-5528a98e7b30"),
     "Shadowborn Apostle",
@@ -1712,7 +1712,7 @@ pub(in crate::card::sets) static SYPHON_SLIVER: CardRecord = CardRecord::new_wit
 );
 
 // M14 118 — Tenacious Dead
-// Audit: metadata-only — The effect vocabulary cannot make the returned source enter tapped after a death trigger.
+// Audit: unsupported — The effect vocabulary cannot make the returned source enter tapped after a death trigger.
 pub(in crate::card::sets) static TENACIOUS_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b96fed2-0be9-4181-94ae-10f031e2aeb2"),
     "Tenacious Dead",
@@ -1801,7 +1801,7 @@ pub(in crate::card::sets) static XATHRID_NECROMANCER: CardRecord = CardRecord::n
 );
 
 // M14 124 — Academy Raider
-// Audit: metadata-only — The optional discard cost needs a continuation that draws only when a card was actually discarded.
+// Audit: unsupported — The optional discard cost needs a continuation that draws only when a card was actually discarded.
 pub(in crate::card::sets) static ACADEMY_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6652ed29-ee90-4abc-a6cf-6b18a6cbae86"),
     "Academy Raider",
@@ -1957,7 +1957,7 @@ pub(in crate::card::sets) static BURNING_EARTH: CardRecord = CardRecord::new_wit
 // M14 131 — Canyon Minotaur (reprint)
 
 // M14 132 — Chandra, Pyromaster
-// Audit: metadata-only — Planeswalker support lacks a turn-long cannot-block effect, top-card exile/play permission, and the ultimate's repeatable spell-copy procedure.
+// Audit: unsupported — Planeswalker support lacks a turn-long cannot-block effect, top-card exile/play permission, and the ultimate's repeatable spell-copy procedure.
 pub(in crate::card::sets) static CHANDRA_PYROMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53ce8381-4cbb-4bf9-bdac-3b2375a46340"),
     "Chandra, Pyromaster",
@@ -1996,7 +1996,7 @@ pub(in crate::card::sets) static CHANDRAS_OUTRAGE: CardRecord = CardRecord::new_
 );
 
 // M14 134 — Chandra's Phoenix
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHANDRA_S_PHOENIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7c319cd-74ed-4ad8-ac0f-efb932bf5813"),
     "Chandra's Phoenix",
@@ -2177,7 +2177,7 @@ pub(in crate::card::sets) static LIGHTNING_TALONS: CardRecord = CardRecord::new_
 );
 
 // M14 145 — Marauding Maulhorn
-// Audit: metadata-only — Attack requirements cannot be conditional on controlling a permanent with a different exact name.
+// Audit: unsupported — Attack requirements cannot be conditional on controlling a permanent with a different exact name.
 pub(in crate::card::sets) static MARAUDING_MAULHORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7d5e3dc-f307-4f91-a5ee-e7c5d03d8102"),
     "Marauding Maulhorn",
@@ -2216,7 +2216,7 @@ pub(in crate::card::sets) static MINDSPARKER: CardRecord = CardRecord::new_with_
 );
 
 // M14 147 — Molten Birth
-// Audit: metadata-only — There is no coin-flip decision or result-conditioned self-return effect.
+// Audit: unsupported — There is no coin-flip decision or result-conditioned self-return effect.
 pub(in crate::card::sets) static MOLTEN_BIRTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0cd182be-1604-47e1-858f-3c304fd0ee63"),
     "Molten Birth",
@@ -2548,7 +2548,7 @@ pub(in crate::card::sets) static ENLARGE: CardRecord = CardRecord::new_with_lega
 // M14 171 — Fog (reprint)
 
 // M14 172 — Garruk, Caller of Beasts
-// Audit: metadata-only — The planeswalker modes need filtered multi-card top selection, a hand-to-battlefield choice, and an emblem carrying an optional creature tutor trigger.
+// Audit: unsupported — The planeswalker modes need filtered multi-card top selection, a hand-to-battlefield choice, and an emblem carrying an optional creature tutor trigger.
 pub(in crate::card::sets) static GARRUK_CALLER_OF_BEASTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d61f670e-8e4c-493f-bef0-c4c7b0bcd288"),
     "Garruk, Caller of Beasts",
@@ -2558,7 +2558,7 @@ pub(in crate::card::sets) static GARRUK_CALLER_OF_BEASTS: CardRecord = CardRecor
 );
 
 // M14 173 — Garruk's Horde
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GARRUK_S_HORDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3313f4ea-1275-4835-b4ff-73d3601c04e1"),
     "Garruk's Horde",
@@ -2628,7 +2628,7 @@ pub(in crate::card::sets) static HOWL_OF_THE_NIGHT_PACK: CardRecord =
     );
 
 // M14 179 — Hunt the Weak
-// Audit: metadata-only — DealDamage can only attribute damage to the resolving spell, not to each fighting creature.
+// Audit: unsupported — DealDamage can only attribute damage to the resolving spell, not to each fighting creature.
 pub(in crate::card::sets) static HUNT_THE_WEAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f7a6df7-acfc-4047-b119-505f4277225c"),
     "Hunt the Weak",
@@ -2686,7 +2686,7 @@ pub(in crate::card::sets) static INTO_THE_WILDS: CardRecord = CardRecord::new_wi
 );
 
 // M14 181 — Kalonian Hydra
-// Audit: metadata-only — Counter effects cannot double each creature's existing +1/+1 counter count.
+// Audit: unsupported — Counter effects cannot double each creature's existing +1/+1 counter count.
 pub(in crate::card::sets) static KALONIAN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("438bd3c1-98f2-4fcc-8521-995c6c5c1a79"),
     "Kalonian Hydra",
@@ -2926,7 +2926,7 @@ pub(in crate::card::sets) static RUMBLING_BALOTH: CardRecord = CardRecord::new_w
 );
 
 // M14 194 — Savage Summoning
-// Audit: metadata-only — No continuation can tag the next creature spell with flash, uncounterability, and an entry counter while also making this spell uncounterable.
+// Audit: unsupported — No continuation can tag the next creature spell with flash, uncounterability, and an entry counter while also making this spell uncounterable.
 pub(in crate::card::sets) static SAVAGE_SUMMONING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5346ed7-2e17-4d8c-9c4b-b5efdd26380d"),
     "Savage Summoning",
@@ -3033,7 +3033,7 @@ pub(in crate::card::sets) static TROLLHIDE: CardRecord = CardRecord::new_with_le
 );
 
 // M14 198 — Vastwood Hydra
-// Audit: metadata-only — Entry replacements cannot add chosen-X counters, and counter distribution cannot read the dead source's last-known counter count.
+// Audit: unsupported — Entry replacements cannot add chosen-X counters, and counter distribution cannot read the dead source's last-known counter count.
 pub(in crate::card::sets) static VASTWOOD_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e635174-7f7d-4c04-a6aa-8674da6863ff"),
     "Vastwood Hydra",
@@ -3045,7 +3045,7 @@ pub(in crate::card::sets) static VASTWOOD_HYDRA: CardRecord = CardRecord::new(
 // M14 199 — Verdant Haven (reprint)
 
 // M14 200 — Voracious Wurm
-// Audit: metadata-only — Entry replacements cannot derive a counter amount from life gained during the turn.
+// Audit: unsupported — Entry replacements cannot derive a counter amount from life gained during the turn.
 pub(in crate::card::sets) static VORACIOUS_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da15100b-2934-438c-9917-84ad8bdc4181"),
     "Voracious Wurm",
@@ -3077,7 +3077,7 @@ pub(in crate::card::sets) static WINDSTORM: CardRecord = CardRecord::new_with_le
 );
 
 // M14 202 — Witchstalker
-// Audit: metadata-only — A non-intervening spell-cast trigger cannot capture “during your turn” without incorrectly rechecking that restriction on resolution.
+// Audit: unsupported — A non-intervening spell-cast trigger cannot capture “during your turn” without incorrectly rechecking that restriction on resolution.
 pub(in crate::card::sets) static WITCHSTALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5a5ce47d-ea4f-4e15-adb6-5bb66981ed24"),
     "Witchstalker",
@@ -3157,7 +3157,7 @@ pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new_
 );
 
 // M14 205 — Bubbling Cauldron
-// Audit: metadata-only — Costs cannot select an exact named sacrifice, and effects cannot total life actually lost by all opponents for the linked gain.
+// Audit: unsupported — Costs cannot select an exact named sacrifice, and effects cannot total life actually lost by all opponents for the linked gain.
 pub(in crate::card::sets) static BUBBLING_CAULDRON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9af87c24-a534-462b-968b-dccf6ac63299"),
     "Bubbling Cauldron",
@@ -3188,7 +3188,7 @@ pub(in crate::card::sets) static DARKSTEEL_FORGE: CardRecord = CardRecord::new_w
 // M14 207 — Darksteel Ingot (reprint)
 
 // M14 208 — Door of Destinies
-// Audit: metadata-only — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
+// Audit: unsupported — Predicates cannot consume a stored creature-type choice for both spell triggers and a counter-scaled continuous bonus.
 pub(in crate::card::sets) static DOOR_OF_DESTINIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d4ab817e-11d4-4444-b9e1-322624501619"),
     "Door of Destinies",
@@ -3227,7 +3227,7 @@ pub(in crate::card::sets) static FIRESHRIEKER: CardRecord = CardRecord::new_with
 );
 
 // M14 211 — Guardian of the Ages
-// Audit: metadata-only — Attack events cannot match attacks at you or your planeswalker, and abilities cannot permanently remove defender from the source after that trigger.
+// Audit: unsupported — Attack events cannot match attacks at you or your planeswalker, and abilities cannot permanently remove defender from the source after that trigger.
 pub(in crate::card::sets) static GUARDIAN_OF_THE_AGES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c825c138-97de-44b9-8aec-70608ae035b6"),
     "Guardian of the Ages",
@@ -3290,7 +3290,7 @@ pub(in crate::card::sets) static HAUNTED_PLATE_MAIL: CardRecord = CardRecord::ne
 // M14 213 — Millstone (reprint)
 
 // M14 214 — Pyromancer's Gauntlet
-// Audit: metadata-only — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
+// Audit: unsupported — Damage replacement cannot filter red instant, sorcery, or planeswalker sources and add a fixed amount to the event.
 pub(in crate::card::sets) static PYROMANCER_S_GAUNTLET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bde6763-2102-4adb-8048-fc9fe921205b"),
     "Pyromancer's Gauntlet",
@@ -3335,7 +3335,7 @@ pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new_with
 );
 
 // M14 216 — Ring of Three Wishes
-// Audit: metadata-only — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
+// Audit: unsupported — CounterKind has no wish counter, so the entry counters and removal cost cannot share the printed counter identity.
 pub(in crate::card::sets) static RING_OF_THREE_WISHES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("219ab03a-2b3b-4eef-8a42-2cbe793d2f33"),
     "Ring of Three Wishes",

@@ -202,6 +202,7 @@ fn arena_taps_the_remaining_legal_target_but_does_not_fight_alone() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn grothama_grants_each_other_creature_its_own_optional_attack_fight() {
     let mut game = ready_game();
     game.battlefield.clear();
@@ -286,6 +287,7 @@ fn unnatural_aggression_exiles_the_opposing_creature_that_dies_in_the_fight() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn the_last_agni_kai_adds_the_exact_excess_from_the_simultaneous_fight() {
     let mut game = ready_game();
     let mine = game
@@ -320,6 +322,7 @@ fn the_last_agni_kai_adds_the_exact_excess_from_the_simultaneous_fight() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn rhinos_rampage_applies_its_power_bonus_before_the_fight() {
     let mut game = ready_game();
     let mine = game

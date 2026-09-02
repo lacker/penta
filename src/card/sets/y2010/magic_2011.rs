@@ -34,7 +34,7 @@ pub(in crate::card::sets) static LEYLINE_OF_SANCTITY: CardRecord = CardRecord::n
 );
 
 // M11 30 — Silence
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1559d660-8a9d-422b-95d3-710a046583dd"),
     "Silence",
@@ -64,7 +64,7 @@ pub(in crate::card::sets) static LEYLINE_OF_ANTICIPATION: CardRecord = CardRecor
 );
 
 // M11 66 — Merfolk Spy
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERFOLK_SPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5ae05cc-116b-4268-ba78-709aeff36ab1"),
     "Merfolk Spy",
@@ -95,7 +95,7 @@ pub(in crate::card::sets) static PREORDAIN: CardRecord = CardRecord::new_with_le
 );
 
 // M11 74 — Stormtide Leviathan
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STORMTIDE_LEVIATHAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e7f3fb6-93ce-4bc9-8efd-11af5a46218f"),
     "Stormtide Leviathan",
@@ -125,7 +125,7 @@ pub(in crate::card::sets) static LILIANA_S_SPECTER: CardRecord = CardRecord::new
 );
 
 // M11 110 — Phylactery Lich
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d088983-92c1-4f4d-8abf-dd20347495b5"),
     "Phylactery Lich",
@@ -135,7 +135,6 @@ pub(in crate::card::sets) static PHYLACTERY_LICH: CardRecord = CardRecord::new(
 );
 
 // M11 148 — Leyline of Punishment
-// Audit: partial — The opening-hand action is declarative; the permanent global life-gain and damage-prevention prohibitions need static player rules.
 pub(in crate::card::sets) static LEYLINE_OF_PUNISHMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("51a2eec5-f892-4466-b6c6-960626ba5640"),
     "Leyline of Punishment",
@@ -143,12 +142,23 @@ pub(in crate::card::sets) static LEYLINE_OF_PUNISHMENT: CardRecord = CardRecord:
     CardSet::Magic2011,
     CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
         abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
-        AbilityDef::not_implemented("Players can't gain life.\nDamage can't be prevented.", "Needs permanent static rules applying both prohibitions to the whole game."),
+        AbilityDef::static_ability(
+            "Players can't gain life. Damage can't be prevented.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+                    AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::DamageCannotBePrevented,
+                    )),
+                ]),
+            },
+        ),
     ]),
 );
 
 // M11 177 — Garruk's Packleader
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dfaef299-7879-4f52-8ee4-701ed150b930"),
     "Garruk's Packleader",
@@ -158,7 +168,6 @@ pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::n
 );
 
 // M11 183 — Leyline of Vitality
-// Audit: partial — The opening-hand action is declarative; its global toughness boost and optional creature-entry life trigger remain unsupported.
 pub(in crate::card::sets) static LEYLINE_OF_VITALITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f5318113-9dfb-492c-9151-de90951d881e"),
     "Leyline of Vitality",
@@ -166,7 +175,38 @@ pub(in crate::card::sets) static LEYLINE_OF_VITALITY: CardRecord = CardRecord::n
     CardSet::Magic2011,
     CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
         abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
-        AbilityDef::not_implemented("Creatures you control get +0/+1.\nWhenever a creature you control enters, you may gain 1 life.", "Needs the global static boost plus an optional trigger over other creatures entering."),
+        AbilityDef::static_ability(
+            "Creatures you control get +0/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    crate::card::PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a creature you control enters, you may gain 1 life.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(crate::card::PlayerRelation::You),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
     ]),
 );
 

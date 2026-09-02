@@ -169,8 +169,7 @@ fn mana_cost_json(cost: crate::ManaCost) -> Value {
 const fn implementation_status_name(status: ImplementationStatus) -> &'static str {
     match status {
         ImplementationStatus::Complete => "complete",
-        ImplementationStatus::Partial => "partial",
-        ImplementationStatus::MetadataOnly => "metadataOnly",
+        ImplementationStatus::Unsupported => "unsupported",
     }
 }
 

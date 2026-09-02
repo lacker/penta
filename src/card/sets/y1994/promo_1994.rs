@@ -58,7 +58,7 @@ pub(in crate::card::sets) static ARENA: CardRecord = CardRecord::new(
 );
 
 // P94 2 — Sewers of Estark
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all combat damage that would be dealt this combat by it and each creature it's blocking”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Choose target creature. If it's attacking, it can't be blocked this turn. If it's blocking, prevent all combat damage that would be dealt this combat by it and each creature it's blocking”.
 pub(in crate::card::sets) static SEWERS_OF_ESTARK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b0da11d4-3603-4f59-8f61-7204bf04e165"),
     "Sewers of Estark",

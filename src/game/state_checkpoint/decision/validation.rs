@@ -280,7 +280,7 @@ fn parse_may_cast_alternative_continuation(
     let DeclarativeAbilityDef::AlternativeCast(alternative) = ability_definition.definition else {
         return Err("alternative-cast offer ability is not an alternative-cast clause".into());
     };
-    if !ability_definition.is_executable() || alternative.kind != AlternativeCastKindDef::Miracle {
+    if alternative.kind != AlternativeCastKindDef::Miracle {
         return Err("checkpoint alternative-cast offers currently support only Miracle".into());
     }
     let name = game
@@ -365,8 +365,7 @@ fn parse_may_cast_granted_continuation(
     let DeclarativeAbilityDef::AlternativeCast(alternative) = ability.definition else {
         return Err("checkpoint granted-cast offer ability is not an alternative-cast clause".into());
     };
-    if !ability.is_executable()
-        || !matches!(
+    if !matches!(
             alternative.kind,
             AlternativeCastKindDef::WithoutPayingManaCost | AlternativeCastKindDef::Rebound
         )

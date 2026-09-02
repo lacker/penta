@@ -24,7 +24,7 @@ test("The Deck exposes colored costs and control rules to the browser", async ()
   game.free();
 });
 
-test("card coverage comes from ability definitions rather than play gates", async () => {
+test("card status exposes only complete or unsupported definitions", async () => {
   await initializeWasm();
 
   const game = new WebGame(

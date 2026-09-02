@@ -31,8 +31,7 @@ impl Game {
                 let DeclarativeAbilityDef::Pregame(definition) = ability.definition else {
                     return;
                 };
-                if !ability.is_executable()
-                    || ability.declarative_effect().is_none()
+                if ability.declarative_effect().is_none()
                     || definition.timing != timing
                     || (definition.condition == PregameConditionDef::NotStartingPlayer
                         && player == PlayerId::One)

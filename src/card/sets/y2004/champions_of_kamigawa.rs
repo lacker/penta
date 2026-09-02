@@ -77,7 +77,7 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
 );
 
 // CHK 239 — Sakura-Tribe Elder
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91c7707a-bae0-4196-bf26-d276f57b7369"),
     "Sakura-Tribe Elder",

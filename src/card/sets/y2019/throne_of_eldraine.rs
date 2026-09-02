@@ -18,7 +18,7 @@ use crate::ids::ParentBinding;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
 // ELD 5 — Ardenvale Tactician
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd6ccd0b-5279-431f-b65a-7fdbdffd1a90"),
     "Ardenvale Tactician",
@@ -28,7 +28,7 @@ pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::n
 );
 
 // ELD 11 — Faerie Guidemother
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAERIE_GUIDEMOTHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8bbece8-9620-44d9-b991-350fe952538a"),
     "Faerie Guidemother",
@@ -360,7 +360,7 @@ pub(in crate::card::sets) static EMBERETH_SHIELDBREAKER: CardRecord =
     .with_composition(embereth_shieldbreaker_composition);
 
 // ELD 137 — Rimrock Knight
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIMROCK_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3d13d84-01e4-4429-93db-e5afff811527"),
     "Rimrock Knight",
@@ -559,7 +559,7 @@ pub(in crate::card::sets) static OKO_THIEF_OF_CROWNS: CardRecord = CardRecord::n
 );
 
 // ELD 219 — Gingerbrute
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GINGERBRUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f55fe038-c903-4d92-b689-72dd6d041a91"),
     "Gingerbrute",
@@ -590,7 +590,7 @@ pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new
 );
 
 // ELD 247 — Mystic Sanctuary
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("170e792c-80d5-4775-ad95-37614574ab84"),
     "Mystic Sanctuary",
@@ -600,7 +600,7 @@ pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
 );
 
 // ELD 249 — Witch's Cottage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITCH_S_COTTAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b87891cd-b457-4dff-8d18-a7eaf6748fc6"),
     "Witch's Cottage",

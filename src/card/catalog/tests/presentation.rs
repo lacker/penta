@@ -75,7 +75,7 @@ fn spell_forms_must_reference_defined_structural_parts() {
         "Left // Right",
         SpellForm::Combined(Vec::new()),
         ManaCost::default(),
-        CardEffectStatus::MetadataOnly,
+        CardEffectStatus::Unsupported,
     ));
     assert_eq!(
         error(empty),
@@ -102,7 +102,7 @@ fn fused_option_must_exist_and_match_all_split_parts_in_printed_order() {
         "Right // Left",
         SpellForm::Combined(vec![CardPartId(1), CardPartId::PRIMARY]),
         ManaCost::default(),
-        CardEffectStatus::MetadataOnly,
+        CardEffectStatus::Unsupported,
     ));
     assert!(matches!(
         error(reversed),
@@ -120,7 +120,7 @@ fn fused_option_must_exist_and_match_all_split_parts_in_printed_order() {
         "Left // Right",
         SpellForm::Combined(vec![CardPartId::PRIMARY, CardPartId(1)]),
         ManaCost::default(),
-        CardEffectStatus::MetadataOnly,
+        CardEffectStatus::Unsupported,
     ));
     assert_eq!(
         error(undeclared),
@@ -303,50 +303,6 @@ fn alternative_cast_ability_requires_its_derived_cost_projection() {
             expected_mana_cost: flashback_cost,
             actual_mana_cost: ManaCost::default(),
         }))
-    );
-}
-
-#[test]
-fn incomplete_alternative_cast_ability_remains_non_executable_catalog_metadata() {
-    let alternative = AlternativeCostId(1);
-    let abilities = Box::leak(
-        vec![
-            AbilityDef::spell("Draw a card.", EffectDef::None),
-            AbilityDef::alternative_cast(
-                ManaCost::default(),
-                AlternativeCastKindDef::Overload,
-                Some("Draw a card for each opponent."),
-                EffectDef::None,
-            )
-            .with_coverage(AbilityCoverageDef::metadata_only(
-                "Test-only incomplete overload.",
-            )),
-        ]
-        .into_boxed_slice(),
-    );
-    let mut definition = definition(1, "Test Card", CardSet::Alpha);
-    definition.play_options[0]
-        .alternative_costs
-        .push(AlternativeCostDef {
-            id: alternative,
-            label: "Overload".into(),
-            mana_cost: ManaCost::default(),
-        });
-    let rules = crate::CardRules::new_instant(ManaCost::default()).with_abilities(abilities);
-    set_primary_rules(&mut definition, &rules);
-
-    let catalog = CardCatalog::new([definition]).expect("incomplete clauses stay cataloged");
-    let stored = catalog.get(CardDefinitionId::new(1)).unwrap();
-    assert_eq!(
-        stored.implementation_status(),
-        crate::ImplementationStatus::Partial,
-    );
-    assert!(
-        !stored.parts[0]
-            .rules
-            .ability(AbilityId(1))
-            .unwrap()
-            .is_executable(),
     );
 }
 
@@ -580,7 +536,7 @@ fn combined_play_options_reject_modal_constituent_parts() {
         "Left // Right",
         SpellForm::Combined(vec![CardPartId::PRIMARY, CardPartId(1)]),
         ManaCost::default(),
-        CardEffectStatus::MetadataOnly,
+        CardEffectStatus::Unsupported,
     );
 
     assert_eq!(
@@ -767,8 +723,8 @@ fn semantic_spell_mode_presentation_matches_branch_order_and_predicates() {
 }
 
 #[test]
-fn metadata_only_presentation_modes_do_not_require_semantic_modes() {
-    let mut card = definition(1, "Metadata-Only Modal Spell", CardSet::Alpha);
+fn unsupported_presentation_modes_do_not_require_semantic_modes() {
+    let mut card = definition(1, "Unsupported Modal Spell", CardSet::Alpha);
     card.play_options[0].modes = Some(ModeSetDef::choose_one(vec![
         mode(0, vec![target(0, 1, 1)]),
         mode(1, Vec::new()),

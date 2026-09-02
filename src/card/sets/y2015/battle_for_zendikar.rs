@@ -10,7 +10,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // BFZ 58 — Eldrazi Skyspawner
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c9c1a10-446e-492a-95cc-a459dc6c08a0"),
     "Eldrazi Skyspawner",
@@ -20,7 +20,7 @@ pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::ne
 );
 
 // BFZ 106 — Carrier Thrall
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd2ab895-9225-4eba-90c3-4023db4f8b70"),
     "Carrier Thrall",

@@ -90,27 +90,24 @@ mod tests {
     }
 
     #[test]
-    fn emblem_presentation_uses_shared_rules_coverage_semantics() {
+    fn emblem_presentation_uses_shared_declarative_rules() {
         static ABILITIES: [AbilityDef; 2] = [
             AbilityDef::activated(
                 "Complete emblem ability.",
                 &[],
                 crate::card::EffectDef::None,
             ),
-            AbilityDef::not_implemented(
-                "Unimplemented emblem ability.",
-                "Exercises aggregate presentation coverage.",
-            ),
+            AbilityDef::activated("Second emblem ability.", &[], crate::card::EffectDef::None),
         ];
         let emblem = EmblemCharacteristics::new("Test emblem", &ABILITIES);
 
         assert_eq!(
             emblem.rules_text(),
-            "Complete emblem ability.\nUnimplemented emblem ability."
+            "Complete emblem ability.\nSecond emblem ability."
         );
         assert_eq!(
             emblem.implementation_status(),
-            ImplementationStatus::Partial
+            ImplementationStatus::Complete
         );
     }
 }

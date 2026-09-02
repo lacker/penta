@@ -260,7 +260,6 @@ impl Game {
                 object: predicate,
                 ability,
             } = permission
-                && ability.is_executable()
                 && self.trigger_object_matches(predicate, &object, source.object, false)
             {
                 found = Some(ability);
@@ -531,9 +530,7 @@ impl Game {
             let DeclarativeAbilityDef::Static(definition) = ability.definition else {
                 continue;
             };
-            if !ability.is_executable()
-                || required_source_zone.is_some_and(|zone| !definition.source_zones.contains(&zone))
-            {
+            if required_source_zone.is_some_and(|zone| !definition.source_zones.contains(&zone)) {
                 continue;
             }
             let Some(effect) = ability.declarative_effect() else {

@@ -452,7 +452,7 @@ mod tests {
             creature_rules
                 .mana_cost()
                 .expect("the test creature has a printed mana cost"),
-            crate::CardEffectStatus::MetadataOnly,
+            crate::CardEffectStatus::Unsupported,
         )];
 
         assert_eq!(
@@ -493,7 +493,7 @@ mod tests {
                 creature_rules
                     .mana_cost()
                     .expect("the test creature has a printed mana cost"),
-                crate::CardEffectStatus::MetadataOnly,
+                crate::CardEffectStatus::Unsupported,
             ),
             PlayOptionDef::cast(
                 PlayOptionId(1),
@@ -502,7 +502,7 @@ mod tests {
                 adventure_rules
                     .mana_cost()
                     .expect("the test adventure has a printed mana cost"),
-                crate::CardEffectStatus::MetadataOnly,
+                crate::CardEffectStatus::Unsupported,
             ),
         ];
 

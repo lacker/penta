@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // EMA 6 — Coalition Honor Guard
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COALITION_HONOR_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5b7be3e-b4af-46d4-bcc6-b44c651f2012"),
     "Coalition Honor Guard",
@@ -19,7 +19,7 @@ pub(in crate::card::sets) static COALITION_HONOR_GUARD: CardRecord = CardRecord:
 );
 
 // EMA 45 — Deep Analysis
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEP_ANALYSIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("01e3c2e9-d8df-4a7a-be86-7be8c6254fa2"),
     "Deep Analysis",
@@ -29,7 +29,7 @@ pub(in crate::card::sets) static DEEP_ANALYSIS: CardRecord = CardRecord::new(
 );
 
 // EMA 119 — Beetleback Chief
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BEETLEBACK_CHIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1e3ccf3d-583c-46b4-b51e-ae1b0628d506"),
     "Beetleback Chief",
@@ -39,7 +39,7 @@ pub(in crate::card::sets) static BEETLEBACK_CHIEF: CardRecord = CardRecord::new(
 );
 
 // EMA 139 — Mogg War Marshal
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOGG_WAR_MARSHAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b9e0bdb-b615-447a-b80d-d7244c25c56e"),
     "Mogg War Marshal",
@@ -49,7 +49,7 @@ pub(in crate::card::sets) static MOGG_WAR_MARSHAL: CardRecord = CardRecord::new(
 );
 
 // EMA 191 — Werebear
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WEREBEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("964cf7e3-932d-432f-8ad4-9bd651aada96"),
     "Werebear",

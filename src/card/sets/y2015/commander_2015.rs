@@ -124,7 +124,7 @@ pub(in crate::card::sets) static CALLER_OF_THE_PACK: CardRecord = CardRecord::ne
 );
 
 // C15 69 — Faith's Fetters
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b8ffba3-44a9-41ce-a5a1-37413346db2f"),
     "Faith's Fetters",
@@ -134,7 +134,7 @@ pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
 );
 
 // C15 99 — Ninja of the Deep Hours
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NINJA_OF_THE_DEEP_HOURS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("367a67c7-54db-4336-b55a-3fa27625172a"),
     "Ninja of the Deep Hours",

@@ -1,15 +1,14 @@
 use crate::ids::TargetIndex;
 
 use super::{
-    AbilityCostDef, AbilityCostList, AbilityCoverageDef, AbilityEffectDef, AbilityProcedureDef,
-    AbilityTargetDef, ActivatedAbilityDef, ActivationTimingDef, AlternativeCastAbilityDef,
-    AlternativeCastKindDef, AlternativeCastManaCostDef, ConditionDef, DeckConstructionDef,
-    DeclarativeAbilityDef, EffectDef, ImplementationStatus, KeywordAbility, ManaCost,
-    ModalSpellDef, OptionalAdditionalCostAbilityDef, PregameAbilityDef, PregameConditionDef,
-    PregameTimingDef, ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef,
-    ReplacementEventDef, SpecialActionDef, SpellAbilityDef, SpellAdditionalCostDef,
-    SpellResolutionDestinationDef, StaticAbilityDef, TriggerConditionDef, TriggerEventDef,
-    TriggeredAbilityDef, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityCostList, AbilityEffectDef, AbilityProcedureDef, AbilityTargetDef,
+    ActivatedAbilityDef, ActivationTimingDef, AlternativeCastAbilityDef, AlternativeCastKindDef,
+    AlternativeCastManaCostDef, ConditionDef, DeckConstructionDef, DeclarativeAbilityDef,
+    EffectDef, KeywordAbility, ManaCost, ModalSpellDef, OptionalAdditionalCostAbilityDef,
+    PregameAbilityDef, PregameConditionDef, PregameTimingDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, SpecialActionDef,
+    SpellAbilityDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticAbilityDef,
+    TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, ValueDef, ZoneKind,
 };
 
 mod rules_text;
@@ -27,7 +26,6 @@ pub struct AbilityDef {
     pub text: &'static str,
     pub definition: DeclarativeAbilityDef,
     pub effect: AbilityEffectDef,
-    pub coverage: AbilityCoverageDef,
 }
 
 impl AbilityDef {
@@ -111,12 +109,6 @@ impl AbilityDef {
             core::slice::from_ref(target),
             EffectDef::destroy_target(TargetIndex::PRIMARY, can_regenerate),
         )
-    }
-
-    #[must_use]
-    pub const fn unimplemented_spell(text: &'static str, explanation: &'static str) -> Self {
-        Self::spell(text, EffectDef::None)
-            .with_coverage(AbilityCoverageDef::metadata_only(explanation))
     }
 
     /// A listed modal spell that chooses exactly one mode. `header` is the
@@ -485,12 +477,11 @@ impl AbilityDef {
     /// pay for it, an extra cost per target. There is nothing to execute when
     /// the spell resolves, because the play option has already applied it.
     #[must_use]
-    pub const fn enforced_when_cast(text: &'static str, explanation: &'static str) -> Self {
+    pub const fn enforced_when_cast(text: &'static str, _explanation: &'static str) -> Self {
         Self {
             text,
             definition: DeclarativeAbilityDef::Static(StaticAbilityDef::new()),
             effect: AbilityEffectDef::declarative(EffectDef::None),
-            coverage: AbilityCoverageDef::explained_complete(explanation),
         }
     }
 
@@ -509,13 +500,12 @@ impl AbilityDef {
     pub const fn deck_construction(
         text: &'static str,
         permission: DeckConstructionDef,
-        explanation: &'static str,
+        _explanation: &'static str,
     ) -> Self {
         Self {
             text,
             definition: DeclarativeAbilityDef::DeckConstruction(permission),
             effect: AbilityEffectDef::declarative(EffectDef::None),
-            coverage: AbilityCoverageDef::explained_complete(explanation),
         }
     }
 
@@ -545,7 +535,6 @@ impl AbilityDef {
             text,
             definition: DeclarativeAbilityDef::Replacement(definition),
             effect: AbilityEffectDef::replacement_program(effect),
-            coverage: AbilityCoverageDef::complete(),
         }
     }
 
@@ -612,24 +601,7 @@ impl AbilityDef {
             text,
             definition,
             effect: AbilityEffectDef::declarative(effect),
-            coverage: AbilityCoverageDef::complete(),
         }
-    }
-
-    #[must_use]
-    pub const fn not_implemented(text: &'static str, explanation: &'static str) -> Self {
-        Self {
-            text,
-            definition: DeclarativeAbilityDef::Unimplemented,
-            effect: AbilityEffectDef::declarative(EffectDef::None),
-            coverage: AbilityCoverageDef::metadata_only(explanation),
-        }
-    }
-
-    #[must_use]
-    pub const fn with_coverage(mut self, coverage: AbilityCoverageDef) -> Self {
-        self.coverage = coverage;
-        self
     }
 
     /// Narrows when an activated ability may be activated, for a printed
@@ -779,17 +751,11 @@ impl AbilityDef {
             | DeclarativeAbilityDef::SpecialAction(_)
             | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Keyword(_)
-            | DeclarativeAbilityDef::DeckConstruction(_)
-            | DeclarativeAbilityDef::Unimplemented => {
+            | DeclarativeAbilityDef::DeckConstruction(_) => {
                 panic!("only activated and triggered abilities have a selectable procedure")
             }
         }
         self
-    }
-
-    #[must_use]
-    pub const fn is_executable(self) -> bool {
-        self.coverage.is_executable()
     }
 
     /// The printed "choose one --" of this clause, wherever it prints it.
@@ -837,20 +803,12 @@ impl AbilityDef {
 
     #[must_use]
     pub const fn declarative_effect(self) -> Option<EffectDef> {
-        if self.is_executable() {
-            self.effect.declarative_definition()
-        } else {
-            None
-        }
+        self.effect.declarative_definition()
     }
 
     #[must_use]
     pub const fn declarative_replacement(self) -> Option<ReplacementEffectDef> {
-        if self.is_executable() {
-            self.effect.declarative_replacement()
-        } else {
-            None
-        }
+        self.effect.declarative_replacement()
     }
 
     #[must_use]
@@ -878,8 +836,7 @@ impl AbilityDef {
             | DeclarativeAbilityDef::OptionalAdditionalCost(_)
             | DeclarativeAbilityDef::Pregame(_)
             | DeclarativeAbilityDef::Keyword(_)
-            | DeclarativeAbilityDef::DeckConstruction(_)
-            | DeclarativeAbilityDef::Unimplemented => {}
+            | DeclarativeAbilityDef::DeckConstruction(_) => {}
         }
         self
     }
@@ -892,36 +849,6 @@ impl AbilityDef {
                 | DeclarativeAbilityDef::Activated(_)
                 | DeclarativeAbilityDef::Triggered(_)
         )
-    }
-
-    fn own_implementation_status(self) -> ImplementationStatus {
-        self.coverage.status
-    }
-
-    pub(super) fn implementation_status(self) -> ImplementationStatus {
-        let own = self.own_implementation_status();
-        let DeclarativeAbilityDef::Spell(spell) = self.definition else {
-            return own;
-        };
-        let Some(modal) = spell.modal() else {
-            return own;
-        };
-        if !self.is_executable() {
-            return own;
-        }
-        let mut statuses = modal
-            .modes
-            .iter()
-            .copied()
-            .map(AbilityDef::own_implementation_status);
-        let modes = statuses.next().map_or(own, |first| {
-            statuses.fold(first, ImplementationStatus::combine)
-        });
-        if self.effect.declarative_definition() == Some(EffectDef::None) {
-            modes
-        } else {
-            own.combine(modes)
-        }
     }
 }
 include!("ability/pregame_actions.rs");

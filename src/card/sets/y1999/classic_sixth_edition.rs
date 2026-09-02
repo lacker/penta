@@ -93,7 +93,7 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 // 6ED 34 — Pearl Dragon (reprint)
 
 // 6ED 35 — Regal Unicorn
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REGAL_UNICORN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("daa1fb8c-12fa-4e9c-979f-55e89356acaf"),
     "Regal Unicorn",

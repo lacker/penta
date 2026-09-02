@@ -133,9 +133,9 @@ fn their_sacrifice_is_not_yours() {
 }
 
 /// "Those abilities trigger whenever you sacrifice a Clue for any reason,
-/// not just to activate a Clue's activated ability." Crabomination's emerge
-/// wants an artifact sacrificed, and a Clue is one: the Tracker grows for a
-/// Clue it never got to draw with.
+/// not just to activate a Clue's activated ability." Kuldotha Rebirth wants
+/// an artifact sacrificed, and a Clue is one: the Tracker grows for a Clue it
+/// never got to draw with.
 #[test]
 fn a_clue_sacrificed_to_something_else_grows_it_too() {
     let (mut game, tracker) = staged();
@@ -145,28 +145,25 @@ fn a_clue_sacrificed_to_something_else_grows_it_too() {
     let clue = clues(&game)[0];
     assert_eq!(counters(&game, tracker), 0, "nothing sacrificed yet");
 
-    let crab = game
-        .build_zone(PlayerId::One, &[cards::CRABOMINATION])
+    let rebirth = game
+        .build_zone(PlayerId::One, &[cards::KULDOTHA_REBIRTH])
         .expect("cataloged")
         .into_iter()
         .next()
         .expect("one card");
-    let crab_id = crab.id;
-    game.players[0].hand.push(crab);
-    // A Clue's mana value is nought, so emerge is reduced by nothing: the
-    // whole {5}{B}{B} is still owed.
-    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 2);
-    game.add_unrestricted_mana(PlayerId::One, ManaColor::Colorless, 5);
+    let rebirth_id = rebirth.id;
+    game.players[0].hand.push(rebirth);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Red, 1);
 
-    let emerge = game
+    let cast = game
         .legal_actions(PlayerId::One)
         .into_iter()
         .find(|action| {
             matches!(action, Action::CastSpell { card, sacrifices, .. }
-                if *card == crab_id && sacrifices.contains(&clue))
+                if *card == rebirth_id && sacrifices.contains(&clue))
         })
-        .expect("the Clue is an artifact, and emerge eats artifacts");
-    game.apply(PlayerId::One, emerge).expect("it is cast");
+        .expect("the Clue is an artifact, and Kuldotha Rebirth eats artifacts");
+    game.apply(PlayerId::One, cast).expect("it is cast");
     drain_pending(&mut game);
 
     assert!(

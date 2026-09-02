@@ -89,7 +89,7 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
 );
 
 // C13 279 — Boros Garrison
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOROS_GARRISON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7dfe3f03-078f-44fb-89cd-efa3ebfaf637"),
     "Boros Garrison",

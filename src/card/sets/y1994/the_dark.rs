@@ -32,7 +32,7 @@ static ENCHANTED_LAND_IS_A_BASIC_MOUNTAIN: TriggerConditionDef =
 static FROM_YOUR_HAND: [CardChoiceSourceDef; 1] = [CardChoiceSourceDef::Zone(ZoneKind::Hand)];
 
 // DRK 1 — Angry Mob
-// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “During your turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “During your turn, Angry Mob's power and toughness are each equal to 2 plus the number of Swamps your opponents control. During turns other than yours, Angry Mob's power and toughness are…”.
 pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e14db1c-0a05-47d2-9f27-df881f7f37ab"),
     "Angry Mob",
@@ -42,7 +42,7 @@ pub(in crate::card::sets) static ANGRY_MOB: CardRecord = CardRecord::new(
 );
 
 // DRK 2 — Blood of the Martyr
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “Until end of turn, if damage would be dealt to any creature, you may have that damage dealt to you instead”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “Until end of turn, if damage would be dealt to any creature, you may have that damage dealt to you instead”.
 pub(in crate::card::sets) static BLOOD_OF_THE_MARTYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22d4761d-acf2-4cb3-86a8-a3f30420a92e"),
     "Blood of the Martyr",
@@ -52,7 +52,7 @@ pub(in crate::card::sets) static BLOOD_OF_THE_MARTYR: CardRecord = CardRecord::n
 );
 
 // DRK 3 — Brainwash
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Enchanted creature can't attack unless its controller pays {3}”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Enchanted creature can't attack unless its controller pays {3}”.
 pub(in crate::card::sets) static BRAINWASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6da4fb5a-0d24-4bee-b3f5-535ba9fe6850"),
     "Brainwash",
@@ -62,7 +62,7 @@ pub(in crate::card::sets) static BRAINWASH: CardRecord = CardRecord::new(
 );
 
 // DRK 4 — Cleansing
-// Audit: metadata-only — Needs linked sacrifice/destruction accounting for “For each land, destroy that land unless any player pays 1 life”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “For each land, destroy that land unless any player pays 1 life”.
 pub(in crate::card::sets) static CLEANSING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc1973a3-1410-4c6d-9b09-bd9d18646a1e"),
     "Cleansing",
@@ -133,7 +133,7 @@ pub(in crate::card::sets) static EXORCIST: CardRecord = CardRecord::new_with_leg
 );
 
 // DRK 7 — Fasting
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “If you would begin your draw step, you may skip that step instead. If you do, you gain 2 life”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “If you would begin your draw step, you may skip that step instead. If you do, you gain 2 life”.
 pub(in crate::card::sets) static FASTING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8da35f9f-e72c-4154-a212-7de98f84ad7d"),
     "Fasting",
@@ -174,7 +174,7 @@ pub(in crate::card::sets) static FESTIVAL: CardRecord = CardRecord::new_with_leg
 );
 
 // DRK 9 — Fire and Brimstone
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “Fire and Brimstone deals 4 damage to target player who attacked this turn and 4 damage to you”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “Fire and Brimstone deals 4 damage to target player who attacked this turn and 4 damage to you”.
 pub(in crate::card::sets) static FIRE_AND_BRIMSTONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5208dbb-63d2-4789-8ef9-f82499a43b3a"),
     "Fire and Brimstone",
@@ -222,7 +222,7 @@ pub(in crate::card::sets) static KNIGHTS_OF_THORN: CardRecord = CardRecord::new_
 );
 
 // DRK 12 — Martyr's Cry
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “Exile all white creatures. For each creature exiled this way, its controller draws a card”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “Exile all white creatures. For each creature exiled this way, its controller draws a card”.
 pub(in crate::card::sets) static MARTYR_S_CRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2c9f463-d1cc-4f11-aad2-d4a4520aa978"),
     "Martyr's Cry",
@@ -295,7 +295,7 @@ pub(in crate::card::sets) static PIKEMEN: CardRecord = CardRecord::new_with_lega
 );
 
 // DRK 16 — Preacher
-// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{T}: For as long as this creature remains tapped, gain control of target creature of an opponent's choice they control”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{T}: For as long as this creature remains tapped, gain control of target creature of an opponent's choice they control”.
 pub(in crate::card::sets) static PREACHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1e03d335-d259-4ab4-814f-9333cfd3afc9"),
     "Preacher",
@@ -424,7 +424,7 @@ pub(in crate::card::sets) static APPRENTICE_WIZARD: CardRecord = CardRecord::new
 );
 
 // DRK 22 — Dance of Many
-// Audit: metadata-only — Needs copiable-value or rules-text mutation support for “When this enchantment enters, create a token that's a copy of target nontoken creature”.
+// Audit: unsupported — Needs copiable-value or rules-text mutation support for “When this enchantment enters, create a token that's a copy of target nontoken creature”.
 pub(in crate::card::sets) static DANCE_OF_MANY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13453abe-3f05-4956-8493-382d7d2af699"),
     "Dance of Many",
@@ -434,7 +434,7 @@ pub(in crate::card::sets) static DANCE_OF_MANY: CardRecord = CardRecord::new(
 );
 
 // DRK 23 — Deep Water
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “{U}: Until end of turn, if you tap a land you control for mana, it produces {U} instead of any other type”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “{U}: Until end of turn, if you tap a land you control for mana, it produces {U} instead of any other type”.
 pub(in crate::card::sets) static DEEP_WATER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9dd6a230-6bc0-499c-b7fd-4aaa2569f98f"),
     "Deep Water",
@@ -493,7 +493,7 @@ pub(in crate::card::sets) static ELECTRIC_EEL: CardRecord = CardRecord::new_with
 );
 
 // DRK 26 — Erosion
-// Audit: metadata-only — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted land's controller, destroy that land unless that player pays {1} or 1 life”.
+// Audit: unsupported — Needs an upkeep trigger whose event player is derived from the attached permanent's current controller for “At the beginning of the upkeep of enchanted land's controller, destroy that land unless that player pays {1} or 1 life”.
 pub(in crate::card::sets) static EROSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f4b6507-89ee-482e-aafd-8e05ada8f1ce"),
     "Erosion",
@@ -598,7 +598,7 @@ pub(in crate::card::sets) static GIANT_SHARK: CardRecord = CardRecord::new_with_
 );
 
 // DRK 30 — Leviathan
-// Audit: metadata-only — Needs a persistent tap/untap restriction or event relation for “This creature enters tapped and doesn't untap during your untap step”.
+// Audit: unsupported — Needs a persistent tap/untap restriction or event relation for “This creature enters tapped and doesn't untap during your untap step”.
 pub(in crate::card::sets) static LEVIATHAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b638d9be-c533-45c3-92f9-fabf56edc2df"),
     "Leviathan",
@@ -608,7 +608,7 @@ pub(in crate::card::sets) static LEVIATHAN: CardRecord = CardRecord::new(
 );
 
 // DRK 31 — Mana Vortex
-// Audit: metadata-only — Needs linked sacrifice/destruction accounting for “At the beginning of each player's upkeep, that player sacrifices a land of their choice”.
+// Audit: unsupported — Needs linked sacrifice/destruction accounting for “At the beginning of each player's upkeep, that player sacrifices a land of their choice”.
 pub(in crate::card::sets) static MANA_VORTEX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f857a00a-82e0-4227-86ee-1f9c7ca232ae"),
     "Mana Vortex",
@@ -643,7 +643,7 @@ pub(in crate::card::sets) static MERFOLK_ASSASSIN: CardRecord = CardRecord::new_
 );
 
 // DRK 33 — Mind Bomb
-// Audit: metadata-only — Needs an ordered choice for each player to discard up to three cards and damage derived from each actual discard count.
+// Audit: unsupported — Needs an ordered choice for each player to discard up to three cards and damage derived from each actual discard count.
 pub(in crate::card::sets) static MIND_BOMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ee810a5-f0f9-4b73-8194-3d1344784050"),
     "Mind Bomb",
@@ -653,7 +653,7 @@ pub(in crate::card::sets) static MIND_BOMB: CardRecord = CardRecord::new(
 );
 
 // DRK 34 — Psychic Allergy
-// Audit: metadata-only — Needs a persistent dynamic characteristic choice and predicates that consume it for “At the beginning of each opponent's upkeep, this enchantment deals X damage to that player, where X is the number of nontoken permanents of the chosen color they control”.
+// Audit: unsupported — Needs a persistent dynamic characteristic choice and predicates that consume it for “At the beginning of each opponent's upkeep, this enchantment deals X damage to that player, where X is the number of nontoken permanents of the chosen color they control”.
 pub(in crate::card::sets) static PSYCHIC_ALLERGY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fec3275e-4491-43a8-9f23-d7b48177c103"),
     "Psychic Allergy",
@@ -832,7 +832,7 @@ pub(in crate::card::sets) static ASHES_TO_ASHES: CardRecord = CardRecord::new_wi
 );
 
 // DRK 40 — Banshee
-// Audit: metadata-only — Needs damage-history/source tracking or card-specific damage processing for “{X}, {T}: This creature deals half X damage, rounded down, to any target, and half X damage, rounded up, to you”.
+// Audit: unsupported — Needs damage-history/source tracking or card-specific damage processing for “{X}, {T}: This creature deals half X damage, rounded down, to any target, and half X damage, rounded up, to you”.
 pub(in crate::card::sets) static BANSHEE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66eaa7d6-48b2-4b35-a834-790edd679e0e"),
     "Banshee",
@@ -908,7 +908,7 @@ pub(in crate::card::sets) static CURSE_ARTIFACT: CardRecord = CardRecord::new_wi
 );
 
 // DRK 44 — Eater of the Dead
-// Audit: metadata-only — Needs a zone-object query and identity-preserving continuation for “{0}: If this creature is tapped, exile target creature card from a graveyard and untap this creature”.
+// Audit: unsupported — Needs a zone-object query and identity-preserving continuation for “{0}: If this creature is tapped, exile target creature card from a graveyard and untap this creature”.
 pub(in crate::card::sets) static EATER_OF_THE_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d89fe2be-bb7e-4bae-9b1f-9f0d58f20ceb"),
     "Eater of the Dead",
@@ -918,7 +918,7 @@ pub(in crate::card::sets) static EATER_OF_THE_DEAD: CardRecord = CardRecord::new
 );
 
 // DRK 45 — Frankenstein's Monster
-// Audit: metadata-only — Needs a duration-scoped replacement/prevention effect for “As this creature enters, exile X creature cards from your graveyard. If you can't, put this creature into its owner's graveyard instead of onto the battlefield. For each creature card…”.
+// Audit: unsupported — Needs a duration-scoped replacement/prevention effect for “As this creature enters, exile X creature cards from your graveyard. If you can't, put this creature into its owner's graveyard instead of onto the battlefield. For each creature card…”.
 pub(in crate::card::sets) static FRANKENSTEIN_S_MONSTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f99894d-5ece-44f1-acce-474494ae2084"),
     "Frankenstein's Monster",
@@ -1039,7 +1039,7 @@ pub(in crate::card::sets) static MURK_DWELLERS: CardRecord = CardRecord::new_wit
 );
 
 // DRK 50 — Nameless Race
-// Audit: metadata-only — Needs a characteristic-layer effect or dynamic value for “Nameless Race's power and toughness are each equal to the life paid as it entered”.
+// Audit: unsupported — Needs a characteristic-layer effect or dynamic value for “Nameless Race's power and toughness are each equal to the life paid as it entered”.
 pub(in crate::card::sets) static NAMELESS_RACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("348a467a-4661-4fdb-af1d-9171a1a930d9"),
     "Nameless Race",
@@ -1086,7 +1086,7 @@ pub(in crate::card::sets) static RAG_MAN: CardRecord = CardRecord::new_with_lega
 );
 
 // DRK 52 — Season of the Witch
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “At the beginning of the end step, destroy all untapped creatures that didn't attack this turn, except for creatures that couldn't attack”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “At the beginning of the end step, destroy all untapped creatures that didn't attack this turn, except for creatures that couldn't attack”.
 pub(in crate::card::sets) static SEASON_OF_THE_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("06900a71-34ca-48c6-94ac-fca744356829"),
     "Season of the Witch",
@@ -1096,7 +1096,7 @@ pub(in crate::card::sets) static SEASON_OF_THE_WITCH: CardRecord = CardRecord::n
 );
 
 // DRK 53 — The Fallen
-// Audit: metadata-only — Needs per-source damage history spanning the whole game for “each opponent and planeswalker it has dealt damage to this game”.
+// Audit: unsupported — Needs per-source damage history spanning the whole game for “each opponent and planeswalker it has dealt damage to this game”.
 pub(in crate::card::sets) static THE_FALLEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4a176e1-b22b-4f36-ba7b-c506cb4e1bed"),
     "The Fallen",
@@ -1150,7 +1150,7 @@ pub(in crate::card::sets) static WORD_OF_BINDING: CardRecord = CardRecord::new_w
 );
 
 // DRK 56 — Worms of the Earth
-// Audit: metadata-only — Needs an any-player upkeep choice between sacrificing two lands and taking damage, followed by conditional self-destruction.
+// Audit: unsupported — Needs an any-player upkeep choice between sacrificing two lands and taking damage, followed by conditional self-destruction.
 pub(in crate::card::sets) static WORMS_OF_THE_EARTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65a97821-ca5b-46fb-af08-86de81d0daac"),
     "Worms of the Earth",
@@ -1590,7 +1590,7 @@ pub(in crate::card::sets) static INFERNO: CardRecord = CardRecord::new_with_lega
 );
 
 // DRK 72 — Mana Clash
-// Audit: metadata-only — Needs a deterministic recorded coin-flip choice and both result branches for “You and target opponent each flip a coin. Mana Clash deals 1 damage to each player whose coin comes up tails. Repeat this process until both players' coins come up heads on the same flip”.
+// Audit: unsupported — Needs a deterministic recorded coin-flip choice and both result branches for “You and target opponent each flip a coin. Mana Clash deals 1 damage to each player whose coin comes up tails. Repeat this process until both players' coins come up heads on the same flip”.
 pub(in crate::card::sets) static MANA_CLASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72955141-d990-459f-adbe-7d3d0f5f6c95"),
     "Mana Clash",
@@ -1754,7 +1754,7 @@ pub(in crate::card::sets) static LAND_LEECHES: CardRecord = CardRecord::new_with
 );
 
 // DRK 80 — Lurker
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “This creature can't be the target of spells unless it attacked or blocked this turn”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “This creature can't be the target of spells unless it attacked or blocked this turn”.
 pub(in crate::card::sets) static LURKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b39eb671-e17e-4c5a-8913-1e3be7faedfb"),
     "Lurker",
@@ -1854,7 +1854,7 @@ pub(in crate::card::sets) static SAVAEN_ELVES: CardRecord = CardRecord::new_with
 );
 
 // DRK 85 — Scarwood Bandits
-// Audit: metadata-only — Needs duration-aware control-changing continuous effects for “{2}{G}, {T}: Unless an opponent pays {2}, gain control of target artifact for as long as this creature remains on the battlefield”.
+// Audit: unsupported — Needs duration-aware control-changing continuous effects for “{2}{G}, {T}: Unless an opponent pays {2}, gain control of target artifact for as long as this creature remains on the battlefield”.
 pub(in crate::card::sets) static SCARWOOD_BANDITS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46b762a7-a774-4cb4-8ecf-dd6486a066c3"),
     "Scarwood Bandits",
@@ -2038,7 +2038,7 @@ pub(in crate::card::sets) static VENOM: CardRecord = CardRecord::new_with_legacy
 );
 
 // DRK 91 — Whippoorwill
-// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{G}{G}, {T}: Target creature can't be regenerated this turn. Damage that would be dealt to that creature this turn can't be prevented or dealt instead to another permanent or player.…”.
+// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{G}{G}, {T}: Target creature can't be regenerated this turn. Damage that would be dealt to that creature this turn can't be prevented or dealt instead to another permanent or player.…”.
 pub(in crate::card::sets) static WHIPPOORWILL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e56146bf-5db0-4bef-83bb-efa5ebec6684"),
     "Whippoorwill",
@@ -2233,7 +2233,7 @@ pub(in crate::card::sets) static DARK_SPHERE: CardRecord = CardRecord::new_with_
                     },
                     1,
                 )
-                .with_coverage(DamageCoverageDef::HalfRoundedDown),
+                .with_damage_coverage(DamageCoverageDef::HalfRoundedDown),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -2296,7 +2296,7 @@ pub(in crate::card::sets) static FOUNTAIN_OF_YOUTH: CardRecord = CardRecord::new
 // DRK 103† — Fountain of Youth (alternate printing)
 
 // DRK 104 — Living Armor
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “{T}, Sacrifice this artifact: Put X +0/+1 counters on target creature, where X is that creature's mana value”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “{T}, Sacrifice this artifact: Put X +0/+1 counters on target creature, where X is that creature's mana value”.
 pub(in crate::card::sets) static LIVING_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c31a957-ad1e-40cc-b3c4-2f4caa492b77"),
     "Living Armor",
@@ -2306,7 +2306,7 @@ pub(in crate::card::sets) static LIVING_ARMOR: CardRecord = CardRecord::new(
 );
 
 // DRK 105 — Necropolis
-// Audit: metadata-only — Needs card-specific counter state and counter-consuming effects for “Exile a creature card from your graveyard: Put X +0/+1 counters on this creature, where X is the exiled card's mana value”.
+// Audit: unsupported — Needs card-specific counter state and counter-consuming effects for “Exile a creature card from your graveyard: Put X +0/+1 counters on this creature, where X is the exiled card's mana value”.
 pub(in crate::card::sets) static NECROPOLIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("893e8e9c-983e-4db1-8d93-10637025a559"),
     "Necropolis",
@@ -2355,7 +2355,7 @@ pub(in crate::card::sets) static REFLECTING_MIRROR: CardRecord = CardRecord::new
 );
 
 // DRK 107 — Runesword
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{3}, {T}: Target attacking creature gets +2/+0 until end of turn. When that creature leaves the battlefield this turn, sacrifice this artifact. If the creature deals damage to a creature…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{3}, {T}: Target attacking creature gets +2/+0 until end of turn. When that creature leaves the battlefield this turn, sacrifice this artifact. If the creature deals damage to a creature…”.
 pub(in crate::card::sets) static RUNESWORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("741dbcf2-3372-45a8-b66f-d2ae12b4aac6"),
     "Runesword",
@@ -2439,7 +2439,7 @@ pub(in crate::card::sets) static STANDING_STONES: CardRecord = CardRecord::new_w
 );
 
 // DRK 111 — Stone Calendar
-// Audit: metadata-only — Needs a battlefield-wide static spell-cost reduction; the available generic cost reducer applies only to the source card in hand.
+// Audit: unsupported — Needs a battlefield-wide static spell-cost reduction; the available generic cost reducer applies only to the source card in hand.
 pub(in crate::card::sets) static STONE_CALENDAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a49ba1a5-33b1-40f2-9780-26139ed829d7"),
     "Stone Calendar",
@@ -2495,7 +2495,7 @@ pub(in crate::card::sets) static TOWER_OF_COIREALL: CardRecord = CardRecord::new
 );
 
 // DRK 114 — Wand of Ith
-// Audit: metadata-only — Needs seeded random selection with replay-visible provenance for “{3}, {T}: Target player reveals a card at random from their hand. If it's a land card, that player discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
+// Audit: unsupported — Needs seeded random selection with replay-visible provenance for “{3}, {T}: Target player reveals a card at random from their hand. If it's a land card, that player discards it unless they pay 1 life. If it isn't a land card, the player discards it…”.
 pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("80c9070a-8c70-480e-a476-e00f8e2c71b9"),
     "Wand of Ith",
@@ -2505,7 +2505,7 @@ pub(in crate::card::sets) static WAND_OF_ITH: CardRecord = CardRecord::new(
 );
 
 // DRK 115 — War Barge
-// Audit: metadata-only — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{3}: Target creature gains islandwalk until end of turn. When this artifact leaves the battlefield this turn, destroy that creature. A creature destroyed this way can't be regenerated”.
+// Audit: unsupported — Needs a duration-scoped prohibition on creating or applying regeneration shields for “{3}: Target creature gains islandwalk until end of turn. When this artifact leaves the battlefield this turn, destroy that creature. A creature destroyed this way can't be regenerated”.
 pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9023c078-4169-498b-8626-a4862e0631f8"),
     "War Barge",
@@ -2515,7 +2515,7 @@ pub(in crate::card::sets) static WAR_BARGE: CardRecord = CardRecord::new(
 );
 
 // DRK 116 — City of Shadows
-// Audit: metadata-only — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
+// Audit: unsupported — Needs the mana-ability runtime to pay this ability's mana activation cost for “{T}: Add {C} for each storage counter on this land”.
 pub(in crate::card::sets) static CITY_OF_SHADOWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76e5ee8a-34e5-4a2e-a04e-9fcdc7e53dda"),
     "City of Shadows",
@@ -2623,7 +2623,7 @@ then: None,
 );
 
 // DRK 119 — Sorrow's Path
-// Audit: metadata-only — Needs a combat declaration or damage-assignment constraint for “{T}: Choose two target blocking creatures controlled by the same opponent. If each of those creatures could block all creatures that the other is blocking, remove both of them from…”.
+// Audit: unsupported — Needs a combat declaration or damage-assignment constraint for “{T}: Choose two target blocking creatures controlled by the same opponent. If each of those creatures could block all creatures that the other is blocking, remove both of them from…”.
 pub(in crate::card::sets) static SORROW_S_PATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f75946b-1690-43cc-993c-d4e451a1a41c"),
     "Sorrow's Path",

@@ -110,6 +110,17 @@ impl Game {
             })
     }
 
+    fn static_damage_cannot_be_prevented(&self) -> bool {
+        [crate::game::PlayerId::One, crate::game::PlayerId::Two]
+            .into_iter()
+            .any(|player| {
+                self.player_rule_applies(
+                    player,
+                    AppliedRuleDef::PlayerRule(crate::card::PlayerRuleDef::DamageCannotBePrevented),
+                )
+            })
+    }
+
     /// Apply resolved prevention in creation order. Consumable promises are
     /// spent before unlimited prevention, matching the engine's historical
     /// Reverse Damage-before-Safe Passage behavior. A matching event promise

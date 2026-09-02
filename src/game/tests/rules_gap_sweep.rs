@@ -1,4 +1,4 @@
-//! Partial coverage left behind after its shared rules primitive arrived.
+//! Stale rules-gap audits retired after shared rules primitives arrived.
 
 use super::*;
 

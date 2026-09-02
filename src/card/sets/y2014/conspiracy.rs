@@ -30,7 +30,7 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
 );
 
 // CNS 18 — Custodi Squire
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
     "Custodi Squire",

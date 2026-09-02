@@ -10,7 +10,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // THS 16 — Gods Willing
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GODS_WILLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abafabb3-b2e7-4d78-b4b7-d8f701d3ee8b"),
     "Gods Willing",

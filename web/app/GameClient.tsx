@@ -3390,11 +3390,9 @@ function GameCard({
     card.enteredThisTurn ? "Played this turn." : null,
   ].filter(Boolean);
   const implementationCoverage =
-    card.implementationStatus === "partial"
-      ? "Partial support: some printed rules are not active."
-      : card.implementationStatus === "metadataOnly"
-        ? "Metadata only: printed rules are cataloged but not active."
-        : null;
+    card.implementationStatus === "unsupported"
+      ? "Unsupported: this card is not active in gameplay."
+      : null;
   const atomicTypeClasses = [
     "artifact",
     "creature",

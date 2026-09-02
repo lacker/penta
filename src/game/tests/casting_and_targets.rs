@@ -127,7 +127,7 @@ fn cast_validation_rejects_unrecognized_structured_choices() {
                 label: "Not implemented".into(),
                 additional_mana_cost: None,
                 targets: Vec::new(),
-                effect_status: CardEffectStatus::MetadataOnly,
+                effect_status: CardEffectStatus::Unsupported,
             },
             ModeDef {
                 id: second_implemented_mode,
@@ -634,7 +634,7 @@ fn flexible_mana_plan_reserves_the_only_green_source_for_a_multicolor_spell() {
 }
 
 #[test]
-fn metadata_only_flash_creatures_keep_their_printed_cast_timing() {
+fn flash_creatures_keep_their_printed_cast_timing() {
     let mut game = ready_game();
     game.catalog = crate::card::catalog().unwrap();
     game.step = Step::End;

@@ -292,6 +292,17 @@ pub enum PlayerRuleDef {
     /// lose life, and a nonzero life payment cannot be made, but damage can
     /// still be dealt when another rule says it cannot be prevented.
     LifeTotalCannotChange,
+    /// The affected player has no maximum hand size, so the cleanup step
+    /// never asks them to discard.
+    NoMaximumHandSize,
+    /// Add this signed amount to the affected player's maximum hand size.
+    /// Multiple effects are cumulative and the resulting maximum cannot be
+    /// less than zero.
+    MaximumHandSizeModifier(i16),
+    /// No damage event may be prevented while this rule applies. The rule is
+    /// player-shaped only so a global static clause can use the ordinary
+    /// player-recipient walk; its effect is game-wide.
+    DamageCannotBePrevented,
 }
 
 /// A continuous rule modification applied to one object or player.
@@ -361,7 +372,7 @@ pub enum AppliedRuleDef {
     },
     /// "You may spend mana as though it were mana of any color to activate
     /// abilities of creatures you control." A player rule, found the same way
-    /// [`Self::NoMaximumHandSize`] is found, whose scope is part of what it
+    /// [`PlayerRuleDef::NoMaximumHandSize`] is found, whose scope is part of what it
     /// says: it reaches the activation costs of creatures that player
     /// controls and nothing else. The two other printed permissions this
     /// engine knows of -- North Star's and Grumgully's -- speak about spells
@@ -369,7 +380,7 @@ pub enum AppliedRuleDef {
     /// widening this one.
     MaySpendManaAsAnyColorForCreatureAbilities,
     /// "You may look at the top card of your library any time." A player
-    /// rule found the same way [`Self::NoMaximumHandSize`] is found, and
+    /// rule found the same way [`PlayerRuleDef::NoMaximumHandSize`] is found, and
     /// separate from [`Self::MayPlayFromTopOfLibrary`] because the printed
     /// cards keep them separate: Oracle of Mul Daya lets you look without
     /// letting you cast, and a permission to play is not by itself a
@@ -407,10 +418,6 @@ pub enum AppliedRuleDef {
     /// fires and no draw replacement is spent on it. Two such rules leave
     /// the smaller bound standing.
     CannotDrawMoreThanEachTurn(u8),
-    /// The affected player has no maximum hand size, so the cleanup step
-    /// never asks them to discard. A player rule rather than an object one:
-    /// it is found by walking the battlefield for statics naming that player.
-    NoMaximumHandSize,
     /// The affected player reveals each card they draw. This is a continuous
     /// rule rather than a trigger: the reveal happens as the draw completes,
     /// before either player receives priority.

@@ -432,8 +432,7 @@ impl Game {
         let abilities = self.effective_abilities(permanent);
         let mut keywords = Vec::new();
         for effective in &abilities {
-            if effective.ability.is_executable()
-                && let DeclarativeAbilityDef::Keyword(ability) = effective.ability.definition
+            if let DeclarativeAbilityDef::Keyword(ability) = effective.ability.definition
                 && !keywords.contains(&ability)
             {
                 keywords.push(ability);

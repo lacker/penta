@@ -2,9 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCoverageDef, AbilityDef, AppliedEffectDef, AttackEventMatcherDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectRefDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -45,57 +44,17 @@ pub(in crate::card::sets) static SPELLSEEKER: CardRecord = CardRecord::new_with_
 );
 
 // BBD 71 — Grothama, All-Devouring
-// Audit: partial — The attack-triggered fights are implemented; the leaves-the-battlefield ability needs per-recipient damage amounts grouped by each source's controller.
+// Audit: unsupported — Needs per-recipient damage history grouped by each source's controller.
 pub(in crate::card::sets) static GROTHAMA_ALL_DEVOURING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab8935b1-ec87-4330-9952-9ef8cd344531"),
     "Grothama, All-Devouring",
     CardArt::new("ab8935b1-ec87-4330-9952-9ef8cd344531", "Mark Behm"),
     CardSet::Battlebond,
-    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Wurm"], 10, 8)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            AbilityDef::static_ability(
-                "Other creatures have \"Whenever this creature attacks, you may have it fight Grothama, All-Devouring.\"",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::matching_objects(
-                        ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
-                        ]),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Any,
-                    ),
-                    effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
-                        "Whenever this creature attacks, you may have it fight Grothama, All-Devouring.",
-                        TriggerEventDef::Attacks(AttackEventMatcherDef::any(ObjectPredicateDef::Source)),
-                        EffectDef::May {
-                            player: EffectRecipientDef::Controller,
-                            effect: &EffectDef::Fight {
-                                first: ObjectRefDef::Source,
-                                second: ObjectRefDef::AbilityGrantSource,
-                                excess: None,
-                            },
-                        },
-                    )),
-                },
-            ),
-            AbilityDef::triggered(
-                "When Grothama leaves the battlefield, each player draws cards equal to the amount of damage dealt to Grothama this turn by sources they controlled.",
-                TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Source,
-                    Some(ZoneKind::Battlefield),
-                    None,
-                ),
-                EffectDef::Special("draw per player from damage dealt to the departed source"),
-            )
-            .with_coverage(AbilityCoverageDef::metadata_only(
-                "Needs per-recipient damage amounts grouped by each source's controller.",
-            )),
-        ]),
+    CardRules::unsupported(),
 );
 
 // BBD 209 — Pulse of Murasa
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PULSE_OF_MURASA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c0c8057f-b45b-4f67-90cd-c808b5e9cbfa"),
     "Pulse of Murasa",

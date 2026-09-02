@@ -30,12 +30,10 @@ impl Game {
                 continue;
             }
             for attached in rules.indexed_abilities() {
-                if !attached.definition.is_executable()
-                    || !matches!(
-                        attached.definition.definition,
-                        DeclarativeAbilityDef::Static(_)
-                    )
-                {
+                if !matches!(
+                    attached.definition.definition,
+                    DeclarativeAbilityDef::Static(_)
+                ) {
                     continue;
                 }
                 if !self.ability_survives_resolved_operations(

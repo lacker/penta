@@ -146,8 +146,7 @@ impl Game {
             let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
                 return;
             };
-            if !ability.is_executable()
-                || definition.event != TriggerEventDef::Cycled
+            if definition.event != TriggerEventDef::Cycled
                 || definition.procedure != AbilityProcedureDef::Shared
             {
                 return;
@@ -226,10 +225,7 @@ impl Game {
                 } => from.is_none_or(|zone| cast_from.zone() == zone),
                 _ => false,
             };
-            if !ability.is_executable()
-                || !watches_this_cast
-                || definition.procedure != AbilityProcedureDef::Shared
-            {
+            if !watches_this_cast || definition.procedure != AbilityProcedureDef::Shared {
                 return;
             }
             listeners.push(BattlefieldTriggerListener {
@@ -321,9 +317,6 @@ impl Game {
         for permanent in self.battlefield.iter().chain(self.emblems.iter()) {
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
-                if !ability.is_executable() {
-                    return;
-                }
                 let (definition, uses_stack) = match ability.definition {
                     DeclarativeAbilityDef::TriggeredMana(definition) => {
                         if ability.declarative_effect().is_none() {
@@ -342,8 +335,7 @@ impl Game {
                     | DeclarativeAbilityDef::SpecialAction(_)
                     | DeclarativeAbilityDef::Pregame(_)
                     | DeclarativeAbilityDef::Keyword(_)
-                    | DeclarativeAbilityDef::DeckConstruction(_)
-                    | DeclarativeAbilityDef::Unimplemented => return,
+                    | DeclarativeAbilityDef::DeckConstruction(_) => return,
                 };
                 // Compatibility procedures execute elsewhere, so admitting
                 // them here would manufacture a duplicate trigger.

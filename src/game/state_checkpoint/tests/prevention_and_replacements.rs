@@ -431,7 +431,7 @@ fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
     ];
     let play_rule = AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
         PlayActionMatcherDef::CastSpell,
-        ObjectPredicateDef::NoncreatureSpell,
+        ObjectPredicateDef::Any,
     )));
     let play_locator = ability_locator(&game.catalog, |ability| {
         semantics::applied_effects(ability).contains(&play_rule)
@@ -447,7 +447,7 @@ fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
             expiration: ContinuousEffectExpiration::EndOfTurn,
             restriction: PlayRestrictionDef::new(
                 PlayActionMatcherDef::CastSpell,
-                ObjectPredicateDef::NoncreatureSpell,
+                ObjectPredicateDef::Any,
             ),
         });
 
@@ -499,7 +499,7 @@ fn inconsistent_resolved_play_restrictions_fail_checkpoint_export_closed() {
         .expect("the restriction source enters");
     let definition = AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
         PlayActionMatcherDef::CastSpell,
-        ObjectPredicateDef::NoncreatureSpell,
+        ObjectPredicateDef::Any,
     )));
     let locator = ability_locator(&game.catalog, |ability| {
         semantics::applied_effects(ability).contains(&definition)
@@ -534,7 +534,7 @@ fn resolved_play_restriction_source_splices_fail_closed_on_import_and_export() {
         .expect("the restriction source enters");
     let restriction = PlayRestrictionDef::new(
         PlayActionMatcherDef::CastSpell,
-        ObjectPredicateDef::NoncreatureSpell,
+        ObjectPredicateDef::Any,
     );
     let definition = AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(restriction));
     let locator = ability_locator(&game.catalog, |ability| {

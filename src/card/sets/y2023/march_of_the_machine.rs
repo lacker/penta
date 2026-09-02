@@ -12,7 +12,7 @@ use crate::ids::ParentBinding;
 use crate::mana_cost;
 
 // MOM 3 — Alabaster Host Intercessor
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALABASTER_HOST_INTERCESSOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("165357cc-ec74-490f-aec3-7048bb43c8f9"),
     "Alabaster Host Intercessor",
@@ -108,7 +108,7 @@ pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new
 );
 
 // MOM 66 — Meeting of Minds
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("508b8650-c283-4e54-abdc-32ec2fb1ee34"),
     "Meeting of Minds",
@@ -118,7 +118,7 @@ pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
 );
 
 // MOM 73 — Preening Champion
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44178ece-af31-4a94-88bc-c9ce43bb4573"),
     "Preening Champion",
@@ -128,7 +128,7 @@ pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new
 );
 
 // MOM 173 — Wrenn's Resolve
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a47999c-12d5-4e1a-a9c1-40a1757007f1"),
     "Wrenn's Resolve",
@@ -210,7 +210,7 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
 );
 
 // MOM 328 — Zephyr Winder
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ZEPHYR_WINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14456a8e-016c-4407-8410-c490db3f5ea9"),
     "Zephyr Winder",

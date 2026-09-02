@@ -7,20 +7,18 @@ use crate::card::sets::y2010::scars_of_mirrodin::{
     ARTIFACTS_YOU_CONTROL, METALCRAFT, metalcraft_value,
 };
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityOperationDef, AbilityTargetDef,
-    AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef,
-    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, CastTimingPermissionDef, CharacteristicOperationDef,
-    ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind,
-    CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef,
-    DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostDef,
-    SpellResolutionDestinationDef, TargetChooserDef, TokenStatsDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CastTimingPermissionDef,
+    CharacteristicOperationDef, ComparisonDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    ScaledValueDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, TargetChooserDef,
+    TokenStatsDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -133,7 +131,7 @@ pub(in crate::card::sets) static CHOKING_FUMES: CardRecord = CardRecord::new(
 // MBS 5 — Divine Offering (reprint)
 
 // MBS 6 — Frantic Salvage
-// Audit: metadata-only — Needs an ordered multi-target graveyard move so the controller can choose the relative order of any number of artifact cards placed on top of the library before drawing.
+// Audit: unsupported — Needs an ordered multi-target graveyard move so the controller can choose the relative order of any number of artifact cards placed on top of the library before drawing.
 pub(in crate::card::sets) static FRANTIC_SALVAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aff909bc-0bda-4e8a-b7a3-ebc963552246"),
     "Frantic Salvage",
@@ -177,32 +175,17 @@ pub(in crate::card::sets) static GORE_VASSAL: CardRecord = CardRecord::new(
 );
 
 // MBS 8 — Hero of Bladehold
-// Audit: partial — The attack trigger creates tapped attackers against the defending player; token creation cannot offer a defending player or planeswalker choice for each token.
+// Audit: unsupported — Needs a defending player or planeswalker choice for each attacking token.
 pub(in crate::card::sets) static HERO_OF_BLADEHOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8829efa0-498a-43ca-91aa-f9caeeafe298"),
     "Hero of Bladehold",
     crate::card::CardArt::new("8a3853ec-e307-46e0-96d7-0706b5c45c5e", "Austin Hsu"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 3, 4).with_abilities(
-        &[
-            battle_cry(),
-            AbilityDef::triggered(
-                "Whenever this creature attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.",
-                TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
-                    .with_amount(2)
-                    .entering_tapped()
-                    .entering_attacking(),
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "The tokens attack the defending player; the effect cannot offer a separate defending player or planeswalker choice for each token.",
-            )),
-        ],
-    ),
+    CardRules::unsupported(),
 );
 
 // MBS 9 — Kemba's Legion
-// Audit: metadata-only — Attached Equipment can be queried, but AppliedRuleDef::MayBlockAdditionalCreatures accepts only a fixed u8 rather than a ValueDef that can count those attachments.
+// Audit: unsupported — Attached Equipment can be queried, but AppliedRuleDef::MayBlockAdditionalCreatures accepts only a fixed u8 rather than a ValueDef that can count those attachments.
 pub(in crate::card::sets) static KEMBA_S_LEGION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30731756-81a8-480b-938f-48c1d0cb95d7"),
     "Kemba's Legion",
@@ -482,7 +465,7 @@ pub(in crate::card::sets) static CRYPTOPLASM: CardRecord = CardRecord::new(
 );
 
 // MBS 24 — Distant Memories
-// Audit: metadata-only — Needs a searched card exiled and linked to the spell, followed by an opponent-controlled yes/no choice that either returns that exact card or causes three cards to be drawn.
+// Audit: unsupported — Needs a searched card exiled and linked to the spell, followed by an opponent-controlled yes/no choice that either returns that exact card or causes three cards to be drawn.
 pub(in crate::card::sets) static DISTANT_MEMORIES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("158da0aa-8317-498b-89ed-2f84317fe256"),
     "Distant Memories",
@@ -547,7 +530,7 @@ pub(in crate::card::sets) static MIRRAN_SPY: CardRecord = CardRecord::new(
 );
 
 // MBS 27 — Mitotic Manipulation
-// Audit: metadata-only — Needs a top-seven selection predicate that compares each revealed card's name with every permanent on the battlefield, then orders the remainder on the library bottom.
+// Audit: unsupported — Needs a top-seven selection predicate that compares each revealed card's name with every permanent on the battlefield, then orders the remainder on the library bottom.
 pub(in crate::card::sets) static MITOTIC_MANIPULATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2abd4521-62c8-4b2f-a406-a8ddfa8f475a"),
     "Mitotic Manipulation",
@@ -767,7 +750,7 @@ pub(in crate::card::sets) static TURN_THE_TIDE: CardRecord = CardRecord::new(
 );
 
 // MBS 36 — Vedalken Anatomist
-// Audit: metadata-only — Needs an in-resolution choice to tap or untap the already-targeted creature after placing its -1/-1 counter.
+// Audit: unsupported — Needs an in-resolution choice to tap or untap the already-targeted creature after placing its -1/-1 counter.
 pub(in crate::card::sets) static VEDALKEN_ANATOMIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0c13bb9b-c4e9-4b82-852a-dbd5602b1aa9"),
     "Vedalken Anatomist",
@@ -926,7 +909,7 @@ pub(in crate::card::sets) static GO_FOR_THE_THROAT: CardRecord = CardRecord::new
 );
 
 // MBS 44 — Gruesome Encore
-// Audit: metadata-only — Needs a graveyard target put onto the battlefield under a different controller with both a leave-battlefield exile replacement and a delayed end-step exile linked to that new object.
+// Audit: unsupported — Needs a graveyard target put onto the battlefield under a different controller with both a leave-battlefield exile replacement and a delayed end-step exile linked to that new object.
 pub(in crate::card::sets) static GRUESOME_ENCORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f7f31fb-af96-4c8c-80fa-219ebd7c3d4d"),
     "Gruesome Encore",
@@ -1240,7 +1223,7 @@ pub(in crate::card::sets) static SPREAD_THE_SICKNESS: CardRecord = CardRecord::n
 );
 
 // MBS 57 — Virulent Wound
-// Audit: metadata-only — Needs a turn-scoped delayed death trigger bound to the targeted creature so its last known controller receives a poison counter if it dies after resolution.
+// Audit: unsupported — Needs a turn-scoped delayed death trigger bound to the targeted creature so its last known controller receives a poison counter if it dies after resolution.
 pub(in crate::card::sets) static VIRULENT_WOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ae09e1a-c257-45e9-88c8-7b1a7a6d714b"),
     "Virulent Wound",
@@ -1358,7 +1341,7 @@ pub(in crate::card::sets) static CRUSH: CardRecord = CardRecord::new(
 );
 
 // MBS 62 — Galvanoth
-// Audit: metadata-only — Needs a private top-card inspection followed by an optional reveal and a cast of that exact instant or sorcery without paying its mana cost.
+// Audit: unsupported — Needs a private top-card inspection followed by an optional reveal and a cast of that exact instant or sorcery without paying its mana cost.
 pub(in crate::card::sets) static GALVANOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc1a696b-642a-419f-bd43-09af39a9401b"),
     "Galvanoth",
@@ -1797,7 +1780,7 @@ pub(in crate::card::sets) static LEAD_THE_STAMPEDE: CardRecord = CardRecord::new
 );
 
 // MBS 83 — Melira's Keepers
-// Audit: metadata-only — Needs a continuous rule preventing every kind of counter from being placed on this permanent, including replacement and cost paths.
+// Audit: unsupported — Needs a continuous rule preventing every kind of counter from being placed on this permanent, including replacement and cost paths.
 pub(in crate::card::sets) static MELIRA_S_KEEPERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9a935b4-347c-46d9-a7c5-8c5079948959"),
     "Melira's Keepers",
@@ -1829,7 +1812,7 @@ pub(in crate::card::sets) static MIRRAN_METTLE: CardRecord = CardRecord::new(
 );
 
 // MBS 85 — Phyrexian Hydra
-// Audit: metadata-only — Needs a damage replacement that prevents the event and converts its exact prevented amount into that many -1/-1 counters on this creature.
+// Audit: unsupported — Needs a damage replacement that prevents the event and converts its exact prevented amount into that many -1/-1 counters on this creature.
 pub(in crate::card::sets) static PHYREXIAN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb135aa1-9f46-4d60-a1a4-97aa0e852ced"),
     "Phyrexian Hydra",
@@ -1888,7 +1871,6 @@ pub(in crate::card::sets) static PLAGUEMAW_BEAST: CardRecord = CardRecord::new(
 );
 
 // MBS 88 — Praetor's Counsel
-// Audit: partial — Returning the graveyard and exiling the spell are executable; resolved player effects cannot persist “no maximum hand size” for the rest of the game.
 pub(in crate::card::sets) static PRAETOR_S_COUNSEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b67c8bea-d4c9-4759-8a37-10546b234472"),
     "Praetor's Counsel",
@@ -1897,19 +1879,25 @@ pub(in crate::card::sets) static PRAETOR_S_COUNSEL: CardRecord = CardRecord::new
     CardRules::new_sorcery(mana_cost!("{5}{G}{G}{G}"))
         .with_ability(AbilityDef::spell(
             "Return all cards from your graveyard to your hand. Exile this spell. You have no maximum hand size for the rest of the game.",
-            EffectDef::MoveToZone {
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::Any,
-                    &[ZoneKind::Graveyard],
-                    PlayerRelation::You,
-                ),
-                zone: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-            },
+            EffectDef::Sequence(&[
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Graveyard],
+                        PlayerRelation::You,
+                    ),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Controller,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                        crate::card::PlayerRuleDef::NoMaximumHandSize,
+                    )),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
         )
-        .with_coverage(AbilityCoverageDef::partial(
-            "The rest-of-game no-maximum-hand-size player effect is not implemented.",
-        ))
         .with_resolution_destination(SpellResolutionDestinationDef::Exile)),
 );
 
@@ -2233,7 +2221,7 @@ pub(in crate::card::sets) static BONEHOARD: CardRecord = CardRecord::new(
 );
 
 // MBS 101 — Brass Squire
-// Audit: metadata-only — Needs a two-target attachment operation that attaches the targeted Equipment, rather than the ability's source, to the targeted creature.
+// Audit: unsupported — Needs a two-target attachment operation that attaches the targeted Equipment, rather than the ability's source, to the targeted creature.
 pub(in crate::card::sets) static BRASS_SQUIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37928b90-ab31-4c73-99b2-fe31feb2afea"),
     "Brass Squire",
@@ -2443,7 +2431,7 @@ pub(in crate::card::sets) static ICHOR_WELLSPRING: CardRecord = CardRecord::new(
 );
 
 // MBS 111 — Knowledge Pool
-// Audit: metadata-only — Needs linked mass exile of the top three cards of every library, spell-cast interception, and a choice among nonland cards exiled by this specific permanent to cast without paying mana.
+// Audit: unsupported — Needs linked mass exile of the top three cards of every library, spell-cast interception, and a choice among nonland cards exiled by this specific permanent to cast without paying mana.
 pub(in crate::card::sets) static KNOWLEDGE_POOL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("393454c2-b256-4a6e-9bc2-56a47cab5073"),
     "Knowledge Pool",
@@ -2559,7 +2547,7 @@ pub(in crate::card::sets) static MYR_SIRE: CardRecord = CardRecord::new(
 );
 
 // MBS 117 — Myr Turbine
-// Audit: metadata-only — Needs one activation cost that selects and taps exactly five distinct other untapped Myr; activated abilities with more than one object-selecting cost are not offered by the planner.
+// Audit: unsupported — Needs one activation cost that selects and taps exactly five distinct other untapped Myr; activated abilities with more than one object-selecting cost are not offered by the planner.
 pub(in crate::card::sets) static MYR_TURBINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71a76840-47f7-4e1e-b68b-00cb7da98cdf"),
     "Myr Turbine",
@@ -2647,44 +2635,13 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
 );
 
 // MBS 122 — Phyrexian Revoker
-// Audit: partial — The chosen-name restriction covers every nonmana activation and battlefield mana abilities; player-facing restrictions cannot yet suppress mana abilities of sources outside the battlefield.
+// Audit: unsupported — Needs chosen-name suppression for mana abilities of sources outside the battlefield.
 pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c7bec21-61b0-4e72-848b-82f38e1910e0"),
     "Phyrexian Revoker",
     crate::card::CardArt::new("7c7bec21-61b0-4e72-848b-82f38e1910e0", "Kev Walker"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Horror"], 2, 1)
-        .with_abilities(&[
-            AbilityDef::replacement(
-                "As this creature enters, choose a nonland card name.",
-                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-                    BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
-                )),
-            ),
-            AbilityDef::static_ability(
-                "Activated abilities of sources with the chosen name can't be activated.",
-                EffectDef::Sequence(&[
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::matching_objects(
-                            ObjectPredicateDef::HasChosenName,
-                            &[ZoneKind::Battlefield],
-                            PlayerRelation::Any,
-                        ),
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
-                    },
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::EachPlayer,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
-                            PlayActionMatcherDef::ActivateNonManaAbility,
-                            ObjectPredicateDef::HasChosenName,
-                        ))),
-                    },
-                ]),
-            )
-            .with_coverage(AbilityCoverageDef::partial(
-                "Mana abilities of sources outside the battlefield remain activatable; chosen-name restrictions cover every nonmana activation, while the permanent-facing prohibition also covers battlefield mana abilities.",
-            )),
-        ]),
+    CardRules::unsupported(),
 );
 
 // MBS 123 — Pierce Strider

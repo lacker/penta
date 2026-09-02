@@ -11,7 +11,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // 5DN 27 — Condescend
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8303b80-e29a-46b8-90b0-c0cfe551b435"),
     "Condescend",
@@ -21,7 +21,7 @@ pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
 );
 
 // 5DN 36 — Serum Visions
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERUM_VISIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77e241f0-4cdc-4e37-b5b1-6f47f385d381"),
     "Serum Visions",
@@ -117,7 +117,7 @@ pub(in crate::card::sets) static ETERNAL_WITNESS: CardRecord = CardRecord::new_w
 );
 
 // 5DN 110 — Clock of Omens
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOCK_OF_OMENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0ffce71b-eb60-4649-a62b-a1b4acaa9d2d"),
     "Clock of Omens",

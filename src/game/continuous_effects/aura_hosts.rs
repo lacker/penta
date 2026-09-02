@@ -90,7 +90,7 @@ impl Game {
         if let Some(object) = rules.enchant() {
             return self.trigger_object_matches(
                 object,
-                &self.trigger_event_object(host),
+                &self.targeting_event_object(host),
                 aura.card.id,
                 false,
             );
@@ -127,7 +127,7 @@ impl Game {
                         })
                         && self.trigger_object_matches(
                             object,
-                            &self.trigger_event_object(host),
+                            &self.targeting_event_object(host),
                             aura.card.id,
                             false,
                         )

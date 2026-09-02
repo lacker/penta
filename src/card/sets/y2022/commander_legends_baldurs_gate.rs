@@ -3,18 +3,15 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind,
-    DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, SacrificedAmountDef, TokenCharacteristics, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, DeckConstructionDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, SacrificedAmountDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, abilities,
 };
-use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // CLB 11 — Blessed Hippogriff
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4590e53-ca8d-4896-a8cf-6af1e4bc456f"),
     "Blessed Hippogriff",
@@ -24,7 +21,7 @@ pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::ne
 );
 
 // CLB 22 — Greatsword of Tyr
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("50088a60-642b-47ed-a289-ef0b617b688f"),
     "Greatsword of Tyr",
@@ -34,7 +31,7 @@ pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new
 );
 
 // CLB 99 — Sword Coast Serpent
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bbfb7ae-9a32-428d-903c-99d0d8669b8d"),
     "Sword Coast Serpent",
@@ -44,7 +41,7 @@ pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::n
 );
 
 // CLB 106 — Young Blue Dragon
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("56b0f66b-dca9-4a01-9394-20a513c2b225"),
     "Young Blue Dragon",
@@ -54,7 +51,7 @@ pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new
 );
 
 // CLB 113 — Arms of Hadar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db1fd431-8f6d-4ca5-bc0c-53881c500da1"),
     "Arms of Hadar",
@@ -64,7 +61,7 @@ pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(
 );
 
 // CLB 119 — Cast Down
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("116ce944-6871-4f51-a889-d9c4a5d7cff2"),
     "Cast Down",
@@ -74,7 +71,7 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
 );
 
 // CLB 130 — Guildsworn Prowler
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7efb10f-c760-431c-8ac6-904965d850dc"),
     "Guildsworn Prowler",
@@ -143,7 +140,7 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
 );
 
 // CLB 263 — You Meet in a Tavern
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("593aa59a-4025-4df8-9f27-188fc7712fde"),
     "You Meet in a Tavern",
@@ -153,130 +150,13 @@ pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::
 );
 
 // CLB 285 — Minsc & Boo, Timeless Heroes
-// Audit: partial — The minus names its damage target on activation instead of through a reflexive trigger, so an answered target counters the sacrifice too.
-/// "Where X is that creature's power": read off the creature that was
-/// sacrificed, from last-known information, since paying is what put it in
-/// the graveyard.
-static SACRIFICED_POWER: ValueDef = ValueDef::ObjectPower(ObjectRefDef::Binding(ParentBinding));
-
+// Audit: unsupported — Needs a sacrifice-scoped reflexive trigger that chooses its damage target after the sacrifice.
 pub(in crate::card::sets) static MINSC_BOO_TIMELESS_HEROES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("928036c9-11b8-493e-b9f2-8fbd3487cd19"),
     "Minsc & Boo, Timeless Heroes",
     CardArt::new("928036c9-11b8-493e-b9f2-8fbd3487cd19", "Andreas Zafiratos"),
     CardSet::CommanderLegendsBattleForBaldursGate,
-    // Four mana that leaves a hamster behind every turn, and the hamster is
-    // both the thing the plus grows and the thing the minus throws.
-    CardRules::new_planeswalker(mana_cost!("{2}{R}{G}"), &["Minsc"], 3)
-        .with_supertype(CardSupertype::Legendary)
-        .with_abilities(&[
-            AbilityDef::triggered(
-                "When Minsc & Boo enters and at the beginning of your upkeep, you may create Boo, a \
-                 legendary 1/1 red Hamster creature token with trample and haste.",
-                // One ability with two events rather than two abilities: the card prints
-                // one, and Boo arrives once per event either way.
-                TriggerEventDef::AnyOf(&[
-                    TriggerEventDef::zone_changed(
-                        ObjectPredicateDef::Source,
-                        None,
-                        Some(ZoneKind::Battlefield),
-                    ),
-                    TriggerEventDef::StepBegins {
-                        step: TurnStepDef::Upkeep,
-                        player: PlayerRelation::You,
-                    },
-                ]),
-                EffectDef::May {
-                    player: EffectRecipientDef::Controller,
-                    effect: &EffectDef::create_token(TokenCharacteristics::creature(&["Hamster"], &[ManaColor::Red], 1, 1)
-                            .with_name("Boo")
-                            .with_supertype(CardSupertype::Legendary)
-                            .with_abilities(&[abilities::trample(), abilities::haste()])),
-                },
-            ),
-            AbilityDef::activated_with_targets(
-                "+1: Put three +1/+1 counters on up to one target creature with trample or haste.",
-                &[AbilityCostDef::Loyalty(1)],
-                &[AbilityTargetDef::up_to(
-                    AbilityTargetPredicate::Object {
-                        object: ObjectPredicateDef::All(&[
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::AnyOf(&[
-                                ObjectPredicateDef::HasKeyword(KeywordAbility::Trample),
-                                ObjectPredicateDef::HasKeyword(KeywordAbility::Haste),
-                            ]),
-                        ]),
-                        zones: &[ZoneKind::Battlefield],
-                        controller: None,
-                        owner: None,
-                    },
-                    1,
-                )],
-                EffectDef::AddCounters {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    kind: CounterKind::PlusOnePlusOne,
-                    amount: ValueDef::Constant(3),
-                },
-            ),
-            // The target is declared as the ability is activated rather than when
-            // the sacrifice is actually made, which is the one place this differs
-            // from the printed reflexive trigger -- the same deviation Inti and
-            // Guide of Souls carry. A board with nothing to throw does not offer
-            // the ability at all. It follows that an answer to the target counters
-            // the whole ability rather than only the reflexive trigger, so the
-            // creature that would have been thrown survives; the printed card has
-            // already sacrificed it by then and loses only the damage and the cards.
-            AbilityDef::activated_with_targets(
-                "\u{2212}2: Sacrifice a creature. When you do, Minsc & Boo deals X damage to any target, \
-                 where X is that creature's power. If the sacrificed creature was a Hamster, draw X cards.",
-                &[AbilityCostDef::Loyalty(-2)],
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::AnyTarget,
-                )],
-                // The creature is named as the ability resolves rather than as a cost, so
-                // it is still on the battlefield while the ability is on the stack -- and
-                // naming it is what lets the damage read its power afterwards.
-                EffectDef::Choose(ChooseDef {
-                    binding: ObjectChoiceBindingDef::Object(ParentBinding),
-                    unchosen: None,
-                    chooser: PlayerRefDef::EffectController,
-                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::You,
-                    )),
-                    exclude: None,
-                    minimum: 1,
-                    maximum: 1,
-                    visibility: ChoiceVisibilityDef::Public,
-                    then: &EffectDef::Sequence(&[
-                        EffectDef::Sacrifice {
-                            object: EffectRecipientDef::object(ObjectRefDef::Binding(ParentBinding)),
-                        },
-                        EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: SACRIFICED_POWER,
-                        },
-                        EffectDef::IfCondition {
-                            condition: &TriggerConditionDef::BoundObjectMatches {
-                                    binding: ParentBinding,
-                                    object: ObjectPredicateDef::Subtype("Hamster"),
-                                },
-                            then: &EffectDef::DrawCards {
-                                recipient: EffectRecipientDef::Controller,
-                                amount: SACRIFICED_POWER,
-                            },
-                        },
-                    ]),
-                }),
-            ),
-            AbilityDef::deck_construction(
-                "Minsc & Boo, Timeless Heroes can be your commander.",
-                DeckConstructionDef::MayBeCommander,
-                "The whole sentence is a deck-construction permission: a planeswalker \
-                 may lead a Commander deck, which the deck layer checks and the game \
-                 never revisits.",
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // CLB 560 — Displacer Kitten
@@ -366,7 +246,7 @@ pub(in crate::card::sets) static DELAYED_BLAST_FIREBALL: CardRecord =
     );
 
 // CLB 748 — Dauthi Horror
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_HORROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5a8bb3a-3a84-442f-8e31-8af2f04408ab"),
     "Dauthi Horror",
@@ -376,7 +256,7 @@ pub(in crate::card::sets) static DAUTHI_HORROR: CardRecord = CardRecord::new(
 );
 
 // CLB 897 — Izzet Boilerworks
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IZZET_BOILERWORKS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("666f455e-3a3d-475d-b67a-a1fdd74820eb"),
     "Izzet Boilerworks",

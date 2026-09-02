@@ -12,7 +12,7 @@ use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // VOW 55 — Cruel Witness
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5bf2c686-efb0-46c7-b34e-c77987914b96"),
     "Cruel Witness",
@@ -22,7 +22,7 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
 );
 
 // VOW 95 — Blood Fountain
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd03651e-ada0-41dc-8722-0eba476943e3"),
     "Blood Fountain",
@@ -122,7 +122,7 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
 );
 
 // VOW 174 — Reckless Impulse
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546"),
     "Reckless Impulse",
@@ -159,7 +159,7 @@ pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
 );
 
 // VOW 189 — Bramble Wurm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f16f137-4ceb-469c-a381-e575d58f456b"),
     "Bramble Wurm",

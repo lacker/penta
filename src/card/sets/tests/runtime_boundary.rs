@@ -529,14 +529,6 @@ fn fully_declarative_clauses_stay_within_the_shared_runtime_boundary() {
             for attached in part.rules.indexed_abilities() {
                 let ability_id = attached.id;
                 let ability = attached.definition;
-                assert!(
-                    !matches!(ability.definition, DeclarativeAbilityDef::Unimplemented)
-                        || !ability.is_executable(),
-                    "{} {:?} ability {:?} has unimplemented structure but claims executable coverage: {ability:?}",
-                    definition.name,
-                    part.id,
-                    ability_id,
-                );
                 if ability.declarative_effect().is_some()
                     || ability.declarative_replacement().is_some()
                 {

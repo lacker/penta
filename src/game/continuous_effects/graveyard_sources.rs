@@ -51,8 +51,7 @@ impl Game {
                             &CharacteristicContext::Graveyard,
                             |effective| {
                                 let ability = effective.ability;
-                                supplies_graveyard_static |= ability.is_executable()
-                                    && matches!(
+                                supplies_graveyard_static |= matches!(
                                         ability.definition,
                                         DeclarativeAbilityDef::Static(definition)
                                             if definition.source_zones.contains(&ZoneKind::Graveyard)
@@ -119,8 +118,7 @@ impl Game {
                 ability.definition,
                 DeclarativeAbilityDef::Static(definition)
                     if definition.source_zones.contains(&input.zone)
-            ) && ability.is_executable()
-                && ability.declarative_effect().is_some()
+            ) && ability.declarative_effect().is_some()
         });
         if !supplies_static_effect {
             return ControlFlow::Continue(());
@@ -135,7 +133,7 @@ impl Game {
             let DeclarativeAbilityDef::Static(definition) = ability.definition else {
                 continue;
             };
-            if !ability.is_executable() || !definition.source_zones.contains(&input.zone) {
+            if !definition.source_zones.contains(&input.zone) {
                 continue;
             }
             let origin = Self::authored_ability_origin(source_presentation, attached.id);

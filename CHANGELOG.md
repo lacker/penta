@@ -54,6 +54,15 @@ distinguishes snapshots of the covered source and build inputs.
   what `preferOption` steers an automated policy to, and the new
   `legendRule` decision continuation is additive in checkpoint format 11.
 
+- **Card support is now all-or-nothing.** The clause-level `partial` and
+  `metadataOnly` states, `AbilityCoverageDef`, `with_coverage()`, and
+  `not_implemented()` are removed. A card is either a complete declarative
+  definition or a whole-card `CardRules::unsupported()` declaration, and the
+  runtime never exposes a supported creature body or play option from an
+  unsupported card. Catalog JSON now emits `implementationStatus` as
+  `complete` or `unsupported`; this closed-enum change moves the bot wire to
+  protocol 30.
+
 - **Effect bindings are unified and checkpoint format 11 preserves their
   lexical shape.** Declarative effects now use `Binding!("label")` for every
   durable singular or object-set value and `ParentBinding` only when a producer

@@ -9,7 +9,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // AKH 75 — Vizier of Tumbling Sands
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce4ff0f5-abee-4f3e-89ae-1b7ee771ec68"),
     "Vizier of Tumbling Sands",
@@ -19,7 +19,7 @@ pub(in crate::card::sets) static VIZIER_OF_TUMBLING_SANDS: CardRecord = CardReco
 );
 
 // AKH 81 — Bone Picker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONE_PICKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bdc6a825-43f7-40a4-95f0-335dc538b6cd"),
     "Bone Picker",
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static GLORYBRINGER: CardRecord = CardRecord::new(
 );
 
 // AKH 241 — Cradle of the Accursed
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRADLE_OF_THE_ACCURSED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41713e82-c3d3-4c2f-b075-f684cbd68ce8"),
     "Cradle of the Accursed",

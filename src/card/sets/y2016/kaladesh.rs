@@ -162,7 +162,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
     );
 
 // KLD 138 — Thriving Grubs
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbc3184a-eeda-4f22-92de-257c20cff6e2"),
     "Thriving Grubs",
@@ -172,7 +172,7 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
 );
 
 // KLD 212 — Filigree Familiar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cc9ecfd-6cf0-4488-a14a-afec1bc0d253"),
     "Filigree Familiar",
@@ -182,7 +182,7 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
 );
 
 // KLD 230 — Renegade Freighter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a10e2c3-0132-4eb2-94f0-5915caca2a17"),
     "Renegade Freighter",

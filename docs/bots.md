@@ -6,7 +6,7 @@ historical Standard windows, and two cubes. This guide is for writing a program
 that plays it: from Python, C, C++, or Rust, against the included bots or
 against itself.
 
-This guide describes the current development wire contract, **protocol 29**,
+This guide describes the current development wire contract, **protocol 30**,
 which retains protocol 22's open-world model. Ignore JSON object members your bot does not use;
 the epoch changes only when an existing field or tag is removed, renamed,
 retyped, or reinterpreted. Additive fields and different legal actions expressed
@@ -414,7 +414,7 @@ world it can search.
 
 | field | meaning |
 | --- | --- |
-| `protocolVersion` | the breaking bot-wire epoch; protocol 29 objects are open-world, but an epoch mismatch requires migration |
+| `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
 | `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v11`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
@@ -644,7 +644,7 @@ Flares watching an activation that produces white and blue therefore expose
 four actions: white/white, white/blue, blue/white, and blue/blue; the two mixed
 actions have the same aggregate `triggeredMana` but different
 `triggeredManaChoices`. An activation that causes no such choice omits both
-keys. These optional open-world members do not move protocol 29.
+keys. These optional open-world members do not move protocol 30.
 
 Targets are tagged objects: a player is `{type: "player", seat}`, a card or
 permanent has an `objectId`, and a spell has its stack `objectId`. Legacy
@@ -824,8 +824,9 @@ observation, action, and decision JSON shapes are unchanged, so this does not
 bump protocol 20. Consumers must not assume definition 606 remains the maximum
 ID.
 
-Cards and parts expose `implementationStatus` as `complete`, `partial`, or
-`metadataOnly`; the old execution gate is not public coverage metadata.
+Protocol 30 makes card implementation support all-or-nothing. Cards and parts
+expose `implementationStatus` as `complete` or `unsupported`; an unsupported
+card has no executable play option, creature body, or individual rules clause.
 Definition, part, play-option, mode, and cost IDs join directly. Target-slot
 IDs are positional within the list that declares them; concrete casts flatten
 base targets and each selected mode occurrence into new consecutive runtime
@@ -1348,10 +1349,10 @@ import time, requests
 
 # Local while building; the public deployment when you are ready.
 SERVER = "http://localhost:3000"
-# This bot consumes the protocol-29 indexed-action vocabulary and no optional
+# This bot consumes the protocol-30 indexed-action vocabulary and no optional
 # facilities. Do not echo capabilities from the server unless you implement them.
 COMPATIBILITY = {
-    "protocolVersion": 29,
+    "protocolVersion": 30,
     "capabilities": [],
     "requiredCapabilities": [],
     # Trained bots may require the exact server artifact they target:

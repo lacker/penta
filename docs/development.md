@@ -239,9 +239,9 @@ Print the current implementation and inline capability-gap totals with:
 make catalog-report
 ```
 
-The report derives repository-wide declarative, partial, and metadata-only
-definitions from the built-in catalog. Complete definitions use shared
-declarative execution. The report also includes
+The report derives repository-wide declarative and unsupported definitions
+from the built-in catalog. Complete definitions use shared declarative
+execution. The report also includes
 blocked cards from inline `// Audit:` rows for each set-based format and
 uncataloged cards for every cube. Pass `CATALOG_REPORT_ARGS=--verbose` to list
 the individual fixed-pool cards in each status. The report output is

@@ -156,7 +156,7 @@ pub(in crate::card::sets) static DESCENDANT_OF_STORMS: CardRecord = CardRecord::
 );
 
 // TDM 12 — Fortress Kin-Guard
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORTRESS_KIN_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b647a018-1d70-43a1-a265-928bcd863689"),
     "Fortress Kin-Guard",
@@ -166,7 +166,7 @@ pub(in crate::card::sets) static FORTRESS_KIN_GUARD: CardRecord = CardRecord::ne
 );
 
 // TDM 21 — Riling Dawnbreaker
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RILING_DAWNBREAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("312f7072-3bf8-449f-bfb7-93727ef26c66"),
     "Riling Dawnbreaker",
@@ -176,7 +176,7 @@ pub(in crate::card::sets) static RILING_DAWNBREAKER: CardRecord = CardRecord::ne
 );
 
 // TDM 23 — Salt Road Packbeast
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98d548c9-42bc-4155-8211-0aea801c3724"),
     "Salt Road Packbeast",
@@ -247,7 +247,7 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
 );
 
 // TDM 119 — Seize Opportunity
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7818d28-b9a5-4341-9adc-666070b8878d"),
     "Seize Opportunity",
@@ -260,7 +260,7 @@ pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new
 );
 
 // TDM 120 — Shock Brigade
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOCK_BRIGADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66940466-8e9d-4a85-bfb0-e92189b7a121"),
     "Shock Brigade",
@@ -347,7 +347,7 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
 );
 
 // TDM 134 — Ainok Wayfarer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AINOK_WAYFARER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57695a9b-8f72-4ccc-a946-5d5037b09b8f"),
     "Ainok Wayfarer",
@@ -357,7 +357,7 @@ pub(in crate::card::sets) static AINOK_WAYFARER: CardRecord = CardRecord::new(
 );
 
 // TDM 137 — Champion of Dusan
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c51dcdab-38ee-4804-8859-09adc353c182"),
     "Champion of Dusan",
@@ -367,7 +367,7 @@ pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new
 );
 
 // TDM 157 — Sagu Wildling
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAGU_WILDLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b72ee8f9-5e79-4f77-ae7e-e4c274f78187"),
     "Sagu Wildling",

@@ -3,20 +3,18 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseGroupDef,
-    ChooseObjectOrderDef, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ColorSet, ComparisonDef, ControlDurationDef, CostModificationDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PartitionGroupDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RevealObjectsDef,
-    SacrificedAmountDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SpellResolutionDestinationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
-use crate::ids::{Binding, ParentBinding, TargetIndex};
+use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -136,7 +134,7 @@ then: None,
 );
 
 // RTR 2 — Armory Guard
-// Audit: metadata-only — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
+// Audit: unsupported — Needs a continuous Gate-control condition that grants vigilance only while a Gate remains under your control.
 pub(in crate::card::sets) static ARMORY_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c03498c1-b7f7-41fb-8e2a-1c087d4e9990"),
     "Armory Guard",
@@ -424,7 +422,7 @@ pub(in crate::card::sets) static MARTIAL_LAW: CardRecord = CardRecord::new_with_
 );
 
 // RTR 15 — Palisade Giant
-// Audit: metadata-only — Needs a damage-redirection replacement covering you and every other permanent you control.
+// Audit: unsupported — Needs a damage-redirection replacement covering you and every other permanent you control.
 pub(in crate::card::sets) static PALISADE_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fdfd37ca-e4c9-4674-a75f-15d8ebcce72b"),
     "Palisade Giant",
@@ -536,7 +534,7 @@ pub(in crate::card::sets) static ROOTBORN_DEFENSES: CardRecord = CardRecord::new
 );
 
 // RTR 20 — Security Blockade
-// Audit: metadata-only — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
+// Audit: unsupported — Needs a turn-long “prevent the next 1 damage” shield granted as a land activation.
 pub(in crate::card::sets) static SECURITY_BLOCKADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6250b31-8592-48b2-a877-3637c9ee7d49"),
     "Security Blockade",
@@ -582,7 +580,7 @@ pub(in crate::card::sets) static SELLER_OF_SONGBIRDS: CardRecord = CardRecord::n
 );
 
 // RTR 23 — Soul Tithe
-// Audit: metadata-only — Needs an upkeep payer derived from the enchanted permanent and an unless-payment amount equal to that permanent's mana value.
+// Audit: unsupported — Needs an upkeep payer derived from the enchanted permanent and an unless-payment amount equal to that permanent's mana value.
 pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77e546ce-f498-4136-9015-bb262c301716"),
     "Soul Tithe",
@@ -592,7 +590,7 @@ pub(in crate::card::sets) static SOUL_TITHE: CardRecord = CardRecord::new(
 );
 
 // RTR 24 — Sphere of Safety
-// Audit: metadata-only — Needs a per-attacker combat tax whose amount dynamically counts enchantments you control.
+// Audit: unsupported — Needs a per-attacker combat tax whose amount dynamically counts enchantments you control.
 pub(in crate::card::sets) static SPHERE_OF_SAFETY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce3bd0d8-7e44-4cf2-9012-8ff0bc39417f"),
     "Sphere of Safety",
@@ -759,7 +757,7 @@ pub(in crate::card::sets) static CANCEL: CardRecord = CardRecord::new_with_legac
 );
 
 // RTR 32 — Chronic Flooding
-// Audit: metadata-only — Needs a trigger for the attached land becoming tapped and the attached land's controller as the mill recipient.
+// Audit: unsupported — Needs a trigger for the attached land becoming tapped and the attached land's controller as the mill recipient.
 pub(in crate::card::sets) static CHRONIC_FLOODING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a757425-3cf2-4aca-b415-5ec2d5f753fe"),
     "Chronic Flooding",
@@ -769,7 +767,7 @@ pub(in crate::card::sets) static CHRONIC_FLOODING: CardRecord = CardRecord::new(
 );
 
 // RTR 33 — Conjured Currency
-// Audit: metadata-only — Needs an exchange-of-control procedure involving the source and a targeted permanent you neither own nor control.
+// Audit: unsupported — Needs an exchange-of-control procedure involving the source and a targeted permanent you neither own nor control.
 pub(in crate::card::sets) static CONJURED_CURRENCY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7c2ea6e-7d29-4526-b135-9bbb1eed9d4a"),
     "Conjured Currency",
@@ -933,7 +931,7 @@ pub(in crate::card::sets) static DOWNSIZE: CardRecord = CardRecord::new_with_leg
 );
 
 // RTR 39 — Faerie Impostor
-// Audit: metadata-only — Needs an ETB unless-payment whose cost returns another chosen creature you control to its owner's hand.
+// Audit: unsupported — Needs an ETB unless-payment whose cost returns another chosen creature you control to its owner's hand.
 pub(in crate::card::sets) static FAERIE_IMPOSTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7dfddc9d-85f6-4b37-9973-14c69f6818ec"),
     "Faerie Impostor",
@@ -1024,107 +1022,14 @@ pub(in crate::card::sets) static ISPERIAS_SKYWATCH: CardRecord = CardRecord::new
 );
 
 // RTR 44 — Jace, Architect of Thought
-// Audit: partial — The -8 cannot search every player's library and grant permission to cast the exiled cards without paying their mana costs.
-const JACE_FIRST: Binding = Binding!("jace_first");
-const JACE_SECOND: Binding = Binding!("jace_second");
-const JACE_CHOSEN: Binding = Binding!("jace_chosen");
-const JACE_UNCHOSEN: Binding = Binding!("jace_unchosen");
+// Audit: unsupported — Needs controller-driven searches of every player's library followed by grouped free casts.
 pub(in crate::card::sets) static JACE_ARCHITECT_OF_THOUGHT: CardRecord =
     CardRecord::new_with_legacy_id(
         180,
         "Jace, Architect of Thought",
         CardArt::new("d4df3a38-678e-42dc-a3fd-d1d399368f07", "Jaime Jones"),
         CardSet::ReturnToRavnica,
-        CardRules::new_planeswalker(mana_cost!("{2}{U}{U}"), &["Jace"], 4)
-            .with_supertype(CardSupertype::Legendary)
-            .with_abilities(&[
-                AbilityDef::activated(
-                    "+1: Until your next turn, whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
-                    &[AbilityCostDef::Loyalty(1)],
-                    EffectDef::InstallTrigger(InstalledTriggerDef::until_next_turn(
-                        // The ability Jace's first one leaves behind. It belongs to no permanent,
-                        // so "an opponent" is read against the player who installed it.
-                        &const { AbilityDef::triggered(
-                            "Whenever a creature an opponent controls attacks, it gets -1/-0 until end of turn.",
-                            TriggerEventDef::attacks(ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
-                            ])),
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::TriggeringObject,
-                                effect: AppliedEffectDef::modify_power_toughness(
-                                    ValueDef::Constant(-1),
-                                    ValueDef::Constant(0),
-                                ),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        ) },
-                        PlayerRefDef::EffectController,
-                    )),
-                ),
-                AbilityDef::activated(
-                    "−2: Reveal the top three cards of your library. An opponent separates those cards into two piles. Put one pile into your hand and the other on the bottom of your library in any order.",
-                    &[AbilityCostDef::Loyalty(-2)],
-                    abilities::bind_top_cards_then(
-                        PlayerRefDef::EffectController,
-                        ValueDef::Constant(3),
-                        &const { EffectDef::Sequence(&[
-                            EffectDef::RevealObjects(RevealObjectsDef {
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                then: &EffectDef::None,
-                            }),
-                            EffectDef::PartitionGroup(PartitionGroupDef {
-                                actor: PlayerRefDef::Opponent,
-                                input: ObjectSetDef::Binding(ParentBinding),
-                                first: JACE_FIRST,
-                                second: JACE_SECOND,
-                                visibility: ChoiceVisibilityDef::Public,
-                                then: &EffectDef::ChooseGroup(ChooseGroupDef {
-                                    actor: PlayerRefDef::EffectController,
-                                    first: ObjectSetDef::Binding(JACE_FIRST),
-                                    second: ObjectSetDef::Binding(JACE_SECOND),
-                                    chosen: JACE_CHOSEN,
-                                    unchosen: JACE_UNCHOSEN,
-                                    visibility: ChoiceVisibilityDef::Public,
-                                    then: &EffectDef::Sequence(&[
-                                        EffectDef::MoveObjects(MoveObjectsDef {
-                                            input: ObjectSetDef::Binding(JACE_CHOSEN),
-                                            from: Some(ZoneKind::Library),
-                                            zone: ZoneKind::Hand,
-                                            placement: ZonePlacement::Top,
-                                            moved: None,
-                                            then: &EffectDef::None,
-                                        }),
-                                        EffectDef::ChooseObjectOrder(
-                                            ChooseObjectOrderDef {
-                                                actor: PlayerRefDef::EffectController,
-                                                input: ObjectSetDef::Binding(JACE_UNCHOSEN),
-                                                ordered: ParentBinding,
-                                                placement: ZonePlacement::Bottom,
-                                                visibility: ChoiceVisibilityDef::Public,
-                                                then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                                    input: ObjectSetDef::Binding(
-                                                        ParentBinding,
-                                                    ),
-                                                    from: Some(ZoneKind::Library),
-                                                    zone: ZoneKind::Library,
-                                                    placement: ZonePlacement::Bottom,
-                                                    moved: None,
-                                                    then: &EffectDef::None,
-                                                }),
-                                            },
-                                        ),
-                                    ]),
-                                }),
-                            }),
-                        ]) },
-                    ),
-                ),
-                AbilityDef::not_implemented(
-                    "−8: For each player, search that player's library for a nonland card and exile it, then that player shuffles. You may cast those cards without paying their mana costs.",
-                    "Casting an exiled card without paying its mana cost is not an available alternative cost.",
-                ),
-            ]),
+        CardRules::unsupported(),
     );
 
 // RTR 45 — Mizzium Skin
@@ -1200,7 +1105,7 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new_
 );
 
 // RTR 47 — Psychic Spiral
-// Audit: metadata-only — Needs to preserve the number of graveyard cards shuffled into the library for the later mill amount.
+// Audit: unsupported — Needs to preserve the number of graveyard cards shuffled into the library for the later mill amount.
 pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59b09c16-f611-4c90-a990-e22bf46bd0e2"),
     "Psychic Spiral",
@@ -1228,7 +1133,7 @@ pub(in crate::card::sets) static RUNEWING: CardRecord = CardRecord::new_with_leg
 );
 
 // RTR 49 — Search the City
-// Audit: metadata-only — Needs source-linked top-card exile, name matching against those and the conditional extra-turn continuation.
+// Audit: unsupported — Needs source-linked top-card exile, name matching against those and the conditional extra-turn continuation.
 pub(in crate::card::sets) static SEARCH_THE_CITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cd77575-fedc-45b1-a53b-dfed0f34c875"),
     "Search the City",
@@ -1273,7 +1178,7 @@ pub(in crate::card::sets) static SOULSWORN_SPIRIT: CardRecord = CardRecord::new_
 );
 
 // RTR 52 — Sphinx of the Chimes
-// Audit: metadata-only — Needs choosing two same-named nonland cards from hand as a single activation cost.
+// Audit: unsupported — Needs choosing two same-named nonland cards from hand as a single activation cost.
 pub(in crate::card::sets) static SPHINX_OF_THE_CHIMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31a0cae5-925f-4d00-a4da-1db8bae5511b"),
     "Sphinx of the Chimes",
@@ -1450,7 +1355,7 @@ pub(in crate::card::sets) static DAGGERDROME_IMP: CardRecord = CardRecord::new_w
 );
 
 // RTR 61 — Dark Revenant
-// Audit: metadata-only — A dies trigger cannot address the card after it becomes a new graveyard object to move it onto its owner's library.
+// Audit: unsupported — A dies trigger cannot address the card after it becomes a new graveyard object to move it onto its owner's library.
 pub(in crate::card::sets) static DARK_REVENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2167cc6d-ddb5-4f13-8905-a0c5123b852a"),
     "Dark Revenant",
@@ -1515,7 +1420,7 @@ pub(in crate::card::sets) static DESECRATION_DEMON: CardRecord = CardRecord::new
 );
 
 // RTR 64 — Destroy the Evidence
-// Audit: metadata-only — Needs revealing and milling cards from a targeted land's controller until a land card is revealed.
+// Audit: unsupported — Needs revealing and milling cards from a targeted land's controller until a land card is revealed.
 pub(in crate::card::sets) static DESTROY_THE_EVIDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bca53097-108d-457e-831c-e3d6cb499a41"),
     "Destroy the Evidence",
@@ -1592,7 +1497,7 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
 );
 
 // RTR 67 — Grave Betrayal
-// Audit: metadata-only — Needs a delayed next-end-step return linked to each dead creature plus persistent color and Zombie type changes.
+// Audit: unsupported — Needs a delayed next-end-step return linked to each dead creature plus persistent color and Zombie type changes.
 pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47b38c68-8e72-4afc-bb5e-0b40880fdda9"),
     "Grave Betrayal",
@@ -1623,7 +1528,7 @@ pub(in crate::card::sets) static GRIM_ROUSTABOUT: CardRecord = CardRecord::new_w
 );
 
 // RTR 69 — Launch Party
-// Audit: metadata-only — Needs choosing and sacrificing a creature as an additional spell-casting cost.
+// Audit: unsupported — Needs choosing and sacrificing a creature as an additional spell-casting cost.
 pub(in crate::card::sets) static LAUNCH_PARTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("53f29821-902e-41bc-97a2-6fc7a710cbdb"),
     "Launch Party",
@@ -1690,7 +1595,7 @@ pub(in crate::card::sets) static OGRE_JAILBREAKER: CardRecord = CardRecord::new_
 );
 
 // RTR 73 — Pack Rat
-// Audit: metadata-only — Needs dynamic Rat-count power and toughness and creation of a copiable token copy of the source.
+// Audit: unsupported — Needs dynamic Rat-count power and toughness and creation of a copiable token copy of the source.
 pub(in crate::card::sets) static PACK_RAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("170693f5-13db-4191-99b1-e527ffb5b88e"),
     "Pack Rat",
@@ -1824,7 +1729,7 @@ pub(in crate::card::sets) static STAB_WOUND: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 79 — Tavern Swindler
-// Audit: metadata-only — Coin flips and their replay-visible random outcomes are unavailable.
+// Audit: unsupported — Coin flips and their replay-visible random outcomes are unavailable.
 pub(in crate::card::sets) static TAVERN_SWINDLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47240ed3-f256-45fb-ab38-7b07e672d2ed"),
     "Tavern Swindler",
@@ -1933,7 +1838,7 @@ pub(in crate::card::sets) static ZANIKEV_LOCUST: CardRecord = CardRecord::new_wi
 );
 
 // RTR 85 — Annihilating Fire
-// Audit: metadata-only — Needs a damage-linked, turn-long replacement that exiles a creature if it dies after being dealt this damage.
+// Audit: unsupported — Needs a damage-linked, turn-long replacement that exiles a creature if it dies after being dealt this damage.
 pub(in crate::card::sets) static ANNIHILATING_FIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae12fd10-c13e-4777-a233-96204ec75ac1"),
     "Annihilating Fire",
@@ -1943,7 +1848,7 @@ pub(in crate::card::sets) static ANNIHILATING_FIRE: CardRecord = CardRecord::new
 );
 
 // RTR 86 — Ash Zealot
-// Audit: metadata-only — Needs a spell-cast trigger predicate that identifies spells cast specifically from a graveyard.
+// Audit: unsupported — Needs a spell-cast trigger predicate that identifies spells cast specifically from a graveyard.
 pub(in crate::card::sets) static ASH_ZEALOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1f61b1a3-4b3b-4490-a9dc-17aac258cbda"),
     "Ash Zealot",
@@ -2184,7 +2089,7 @@ pub(in crate::card::sets) static GORE_HOUSE_CHAINWALKER: CardRecord =
     );
 
 // RTR 97 — Guild Feud
-// Audit: metadata-only — Needs two linked top-three selections, optional creature entries, graveyard placement, and a conditional fight between the chosen creatures.
+// Audit: unsupported — Needs two linked top-three selections, optional creature entries, graveyard placement, and a conditional fight between the chosen creatures.
 pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e622878-0aea-4401-873e-d34bf05ee98d"),
     "Guild Feud",
@@ -2644,7 +2549,7 @@ pub(in crate::card::sets) static ARCHWEAVER: CardRecord = CardRecord::new_with_l
 );
 
 // RTR 115 — Axebane Guardian
-// Audit: metadata-only — Needs a dynamic amount of mana distributed in an arbitrary combination of colors.
+// Audit: unsupported — Needs a dynamic amount of mana distributed in an arbitrary combination of colors.
 pub(in crate::card::sets) static AXEBANE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("725584fe-9e97-4020-89b1-5e5b45a5beb2"),
     "Axebane Guardian",
@@ -2944,7 +2849,7 @@ pub(in crate::card::sets) static KOROZDA_MONITOR: CardRecord = CardRecord::new_w
 );
 
 // RTR 130 — Mana Bloom
-// Audit: metadata-only — Needs X entry counters, a remove-counter mana cost limited to once each turn, and a no-charge-counter upkeep condition.
+// Audit: unsupported — Needs X entry counters, a remove-counter mana cost limited to once each turn, and a no-charge-counter upkeep condition.
 pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7592d88-64e8-4a31-b00a-f65d4b1867fc"),
     "Mana Bloom",
@@ -2954,7 +2859,7 @@ pub(in crate::card::sets) static MANA_BLOOM: CardRecord = CardRecord::new(
 );
 
 // RTR 131 — Oak Street Innkeeper
-// Audit: metadata-only — Needs a continuous other-player-turn and tapped-state condition when granting hexproof.
+// Audit: unsupported — Needs a continuous other-player-turn and tapped-state condition when granting hexproof.
 pub(in crate::card::sets) static OAK_STREET_INNKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08274d1b-52b7-46c1-8f93-7631d2e21def"),
     "Oak Street Innkeeper",
@@ -3036,7 +2941,7 @@ pub(in crate::card::sets) static SEEK_THE_HORIZON: CardRecord = CardRecord::new_
 );
 
 // RTR 135 — Slime Molding
-// Audit: metadata-only — Token creation cannot produce a token whose power and toughness are the chosen X value.
+// Audit: unsupported — Token creation cannot produce a token whose power and toughness are the chosen X value.
 pub(in crate::card::sets) static SLIME_MOLDING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44a439e8-d586-4995-abfc-3dee5c860968"),
     "Slime Molding",
@@ -3078,7 +2983,7 @@ pub(in crate::card::sets) static TOWERING_INDRIK: CardRecord = keyword_creature(
 );
 
 // RTR 138 — Urban Burgeoning
-// Audit: metadata-only — Needs an Aura-granted untap action during each other player's untap step.
+// Audit: unsupported — Needs an Aura-granted untap action during each other player's untap step.
 pub(in crate::card::sets) static URBAN_BURGEONING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("393c230f-5bc3-4b71-b5ac-81d5ce227df5"),
     "Urban Burgeoning",
@@ -3088,7 +2993,7 @@ pub(in crate::card::sets) static URBAN_BURGEONING: CardRecord = CardRecord::new(
 );
 
 // RTR 139 — Wild Beastmaster
-// Audit: metadata-only — Needs this creature's power captured as X when the attack trigger resolves so the resulting bonus remains fixed for the turn.
+// Audit: unsupported — Needs this creature's power captured as X when the attack trigger resolves so the resulting bonus remains fixed for the turn.
 pub(in crate::card::sets) static WILD_BEASTMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a4d4ef98-949b-49db-b4f9-a070f8b4ff47"),
     "Wild Beastmaster",
@@ -3440,7 +3345,7 @@ pub(in crate::card::sets) static COMMON_BOND: CardRecord = CardRecord::new_with_
 );
 
 // RTR 152 — Corpsejack Menace
-// Audit: metadata-only — Needs a replacement effect that doubles +1/+1 counters placed on creatures you control.
+// Audit: unsupported — Needs a replacement effect that doubles +1/+1 counters placed on creatures you control.
 pub(in crate::card::sets) static CORPSEJACK_MENACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b35a8efe-2a3e-4060-9134-d4150e4bdf28"),
     "Corpsejack Menace",
@@ -3606,7 +3511,7 @@ pub(in crate::card::sets) static DREG_MANGLER: CardRecord = CardRecord::new_with
 );
 
 // RTR 159 — Epic Experiment
-// Audit: metadata-only — Needs linked top-X exile, permission to cast qualifying cards without paying their costs, and cleanup of the uncast cards.
+// Audit: unsupported — Needs linked top-X exile, permission to cast qualifying cards without paying their costs, and cleanup of the uncast cards.
 pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42f0b68a-de4b-4c0c-98ac-a812017f88a7"),
     "Epic Experiment",
@@ -3616,7 +3521,6 @@ pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
 );
 
 // RTR 160 — Essence Backlash
-// Audit: partial — TargetPower cannot read a creature spell's power, so the post-counter damage amount resolves as zero.
 pub(in crate::card::sets) static ESSENCE_BACKLASH: CardRecord = CardRecord::new_with_legacy_id(
     1316,
     "Essence Backlash",
@@ -3645,10 +3549,7 @@ pub(in crate::card::sets) static ESSENCE_BACKLASH: CardRecord = CardRecord::new_
                     amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
                 },
             ]),
-        )
-        .with_coverage(AbilityCoverageDef::partial(
-            "TargetPower supports battlefield permanents but not a targeted creature spell or its last-known stack characteristics.",
-        )),
+        ),
     ),
 );
 
@@ -3683,7 +3584,7 @@ pub(in crate::card::sets) static FALL_OF_THE_GAVEL: CardRecord = CardRecord::new
 );
 
 // RTR 162 — Firemind's Foresight
-// Audit: metadata-only — Needs three sequential hidden-library searches with distinct exact mana-value predicates before one final shuffle.
+// Audit: unsupported — Needs three sequential hidden-library searches with distinct exact mana-value predicates before one final shuffle.
 pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cb5cb63-e7ec-4fc3-a389-4d8b5a4b96b9"),
     "Firemind's Foresight",
@@ -3779,7 +3680,7 @@ pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 166 — Havoc Festival
-// Audit: metadata-only — Needs a player-wide life-gain prohibition and an upkeep loss amount of half that player's life rounded up.
+// Audit: unsupported — Needs a player-wide life-gain prohibition and an upkeep loss amount of half that player's life rounded up.
 pub(in crate::card::sets) static HAVOC_FESTIVAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04560623-c768-4273-a40d-7e3f39e832cf"),
     "Havoc Festival",
@@ -3844,7 +3745,7 @@ pub(in crate::card::sets) static HUSSAR_PATROL: CardRecord = CardRecord::new_wit
 );
 
 // RTR 170 — Hypersonic Dragon
-// Audit: metadata-only — Needs a static timing permission that lets every sorcery spell you cast be cast as though it had flash.
+// Audit: unsupported — Needs a static timing permission that lets every sorcery spell you cast be cast as though it had flash.
 pub(in crate::card::sets) static HYPERSONIC_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f024b19a-923a-4313-be06-e743d3fbab46"),
     "Hypersonic Dragon",
@@ -3956,7 +3857,7 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
 );
 
 // RTR 174 — Jarad, Golgari Lich Lord
-// Audit: metadata-only — Needs a dynamic creature-card graveyard bonus and sacrifice costs whose chosen object's power and land subtypes drive linked effects.
+// Audit: unsupported — Needs a dynamic creature-card graveyard bonus and sacrifice costs whose chosen object's power and land subtypes drive linked effects.
 pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f6a2f10c-721c-40c7-8fe1-b4877a40fe96"),
     "Jarad, Golgari Lich Lord",
@@ -3966,7 +3867,7 @@ pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecor
 );
 
 // RTR 175 — Jarad's Orders
-// Audit: metadata-only — Needs a two-card hidden search followed by assigning one selected creature to hand and the other to graveyard.
+// Audit: unsupported — Needs a two-card hidden search followed by assigning one selected creature to hand and the other to graveyard.
 pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c59171ce-7dc6-4dd9-a124-3c2c3028d93d"),
     "Jarad's Orders",
@@ -4028,7 +3929,7 @@ pub(in crate::card::sets) static KOROZDA_GUILDMAGE: CardRecord = CardRecord::new
 );
 
 // RTR 177 — Lotleth Troll
-// Audit: metadata-only — Its discard-for-counter ability is expressible, but regeneration shields are not available for the whole card.
+// Audit: unsupported — Its discard-for-counter ability is expressible, but regeneration shields are not available for the whole card.
 pub(in crate::card::sets) static LOTLETH_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3b628197-f26c-457a-b9a4-c1f1d3e02f3d"),
     "Lotleth Troll",
@@ -4090,7 +3991,7 @@ pub(in crate::card::sets) static LYEV_SKYKNIGHT: CardRecord = CardRecord::new_wi
 );
 
 // RTR 180 — Mercurial Chemister
-// Audit: metadata-only — The second ability needs the discarded card's mana value linked through its activation cost as the damage amount.
+// Audit: unsupported — The second ability needs the discarded card's mana value linked through its activation cost as the damage amount.
 pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("881728ce-4b18-410e-9cdb-4d439ce0b21d"),
     "Mercurial Chemister",
@@ -4137,7 +4038,7 @@ pub(in crate::card::sets) static NEW_PRAHV_GUILDMAGE: CardRecord = CardRecord::n
 );
 
 // RTR 182 — Nivix Guildmage
-// Audit: metadata-only — Its second activation needs copying a targeted instant or sorcery spell and optionally choosing new targets for the copy.
+// Audit: unsupported — Its second activation needs copying a targeted instant or sorcery spell and optionally choosing new targets for the copy.
 pub(in crate::card::sets) static NIVIX_GUILDMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d3fde47-8d9e-4a84-b8a5-dcfe0c1d443c"),
     "Nivix Guildmage",
@@ -4186,7 +4087,7 @@ pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord =
     );
 
 // RTR 184 — Rakdos Charm
-// Audit: metadata-only — Its third mode needs each creature to be the source of damage dealt to its own controller.
+// Audit: unsupported — Its third mode needs each creature to be the source of damage dealt to its own controller.
 pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fcd4394-d22d-4eec-ad73-ffaf10ad60de"),
     "Rakdos Charm",
@@ -4237,7 +4138,7 @@ pub(in crate::card::sets) static RAKDOS_RINGLEADER: CardRecord = CardRecord::new
 );
 
 // RTR 187 — Rakdos, Lord of Riots
-// Audit: metadata-only — Needs a life-lost-this-turn cast restriction and a global creature-spell cost reduction derived from opponents' life loss.
+// Audit: unsupported — Needs a life-lost-this-turn cast restriction and a global creature-spell cost reduction derived from opponents' life loss.
 pub(in crate::card::sets) static RAKDOS_LORD_OF_RIOTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04f3db71-802f-488c-b40d-ac90df2d660a"),
     "Rakdos, Lord of Riots",
@@ -4247,7 +4148,7 @@ pub(in crate::card::sets) static RAKDOS_LORD_OF_RIOTS: CardRecord = CardRecord::
 );
 
 // RTR 188 — Rakdos's Return
-// Audit: metadata-only — Targeting cannot restrict a player-or-planeswalker union to an opponent while routing the discard to that player or the planeswalker's controller.
+// Audit: unsupported — Targeting cannot restrict a player-or-planeswalker union to an opponent while routing the discard to that player or the planeswalker's controller.
 pub(in crate::card::sets) static RAKDOS_S_RETURN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d72981c0-1632-4d64-9341-2a76047d9b36"),
     "Rakdos's Return",
@@ -4316,7 +4217,7 @@ pub(in crate::card::sets) static RISEN_SANCTUARY: CardRecord = keyword_creature(
 );
 
 // RTR 191 — Rites of Reaping
-// Audit: metadata-only — Needs two creature targets constrained to be different; ordinary target slots currently allow choosing the same creature twice.
+// Audit: unsupported — Needs two creature targets constrained to be different; ordinary target slots currently allow choosing the same creature twice.
 pub(in crate::card::sets) static RITES_OF_REAPING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("115d504f-3aec-4374-8cd8-732d56c448f2"),
     "Rites of Reaping",
@@ -4326,7 +4227,7 @@ pub(in crate::card::sets) static RITES_OF_REAPING: CardRecord = CardRecord::new(
 );
 
 // RTR 192 — Rix Maadi Guildmage
-// Audit: metadata-only — Its second activation needs a target-player predicate for a player who lost life this turn.
+// Audit: unsupported — Its second activation needs a target-player predicate for a player who lost life this turn.
 pub(in crate::card::sets) static RIX_MAADI_GUILDMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb737465-5de8-4015-befe-2bf386da2a89"),
     "Rix Maadi Guildmage",
@@ -4336,7 +4237,7 @@ pub(in crate::card::sets) static RIX_MAADI_GUILDMAGE: CardRecord = CardRecord::n
 );
 
 // RTR 193 — Search Warrant
-// Audit: metadata-only — Needs revealing a target player's hand and counting the cards in that player's hand for the life-gain amount.
+// Audit: unsupported — Needs revealing a target player's hand and counting the cards in that player's hand for the life-gain amount.
 pub(in crate::card::sets) static SEARCH_WARRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d55f625a-6e9e-40ba-ae46-cf6bafc0a41b"),
     "Search Warrant",
@@ -4456,7 +4357,7 @@ pub(in crate::card::sets) static SKYMARK_ROC: CardRecord = CardRecord::new_with_
 );
 
 // RTR 197 — Slaughter Games
-// Audit: metadata-only — Needs a nonland card-name choice and a name-linked search across an opponent's graveyard, hand, and library.
+// Audit: unsupported — Needs a nonland card-name choice and a name-linked search across an opponent's graveyard, hand, and library.
 pub(in crate::card::sets) static SLAUGHTER_GAMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf37391d-db35-40a7-908a-abb53895793c"),
     "Slaughter Games",
@@ -4821,7 +4722,7 @@ pub(in crate::card::sets) static WAYFARING_TEMPLE: CardRecord = CardRecord::new_
 );
 
 // RTR 210 — Azor's Elocutors
-// Audit: metadata-only — Needs filibuster counters, a five-counter win condition, and damage-to-player triggers that remove that custom counter kind.
+// Audit: unsupported — Needs filibuster counters, a five-counter win condition, and damage-to-player triggers that remove that custom counter kind.
 pub(in crate::card::sets) static AZOR_S_ELOCUTORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61e82934-546b-4734-a715-b22ace4c5a9b"),
     "Azor's Elocutors",
@@ -4861,7 +4762,7 @@ pub(in crate::card::sets) static BLISTERCOIL_WEIRD: CardRecord = CardRecord::new
 );
 
 // RTR 212 — Cryptborn Horror
-// Audit: metadata-only — Needs the total life lost by all opponents this turn as a dynamic enters-with-counter replacement value.
+// Audit: unsupported — Needs the total life lost by all opponents this turn as a dynamic enters-with-counter replacement value.
 pub(in crate::card::sets) static CRYPTBORN_HORROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8ffd77d7-3fe6-4493-96eb-f62183c0358d"),
     "Cryptborn Horror",
@@ -4959,7 +4860,7 @@ pub(in crate::card::sets) static DEATHRITE_SHAMAN: CardRecord = CardRecord::new_
 );
 
 // RTR 214 — Dryad Militant
-// Audit: metadata-only — The graveyard replacement event cannot filter the moving object to instant or sorcery cards.
+// Audit: unsupported — The graveyard replacement event cannot filter the moving object to instant or sorcery cards.
 pub(in crate::card::sets) static DRYAD_MILITANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2bb8cb8c-0d03-4cbf-b7f2-a97324817698"),
     "Dryad Militant",
@@ -5047,7 +4948,7 @@ ObjectPredicateDef::AnyOf(&[
 );
 
 // RTR 219 — Nivmagus Elemental
-// Audit: metadata-only — Needs exiling a chosen instant or sorcery spell you control from the stack as an activation cost.
+// Audit: unsupported — Needs exiling a chosen instant or sorcery spell you control from the stack as an activation cost.
 pub(in crate::card::sets) static NIVMAGUS_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b1892003-2e4c-43bd-8a37-3a97a76f113a"),
     "Nivmagus Elemental",
@@ -5439,7 +5340,7 @@ pub(in crate::card::sets) static SELESNYA_KEYRUNE: CardRecord = CardRecord::new_
 );
 
 // RTR 234 — Street Sweeper
-// Audit: metadata-only — Needs selecting and destroying every Aura attached to the targeted land through an attachment-relationship predicate.
+// Audit: unsupported — Needs selecting and destroying every Aura attached to the targeted land through an attachment-relationship predicate.
 pub(in crate::card::sets) static STREET_SWEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a62827a-183f-4bef-b6ce-20a4577f6d30"),
     "Street Sweeper",
@@ -5449,7 +5350,7 @@ pub(in crate::card::sets) static STREET_SWEEPER: CardRecord = CardRecord::new(
 );
 
 // RTR 235 — Tablet of the Guilds
-// Audit: metadata-only — Needs choosing and storing two colors, matching cast spells against both, and counting how many chosen colors match.
+// Audit: unsupported — Needs choosing and storing two colors, matching cast spells against both, and counting how many chosen colors match.
 pub(in crate::card::sets) static TABLET_OF_THE_GUILDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b006384-6fb6-4129-b1d2-7674d1141f8f"),
     "Tablet of the Guilds",
@@ -5459,7 +5360,7 @@ pub(in crate::card::sets) static TABLET_OF_THE_GUILDS: CardRecord = CardRecord::
 );
 
 // RTR 236 — Volatile Rig
-// Audit: metadata-only — Needs coin flips with lose branches for both damage and death triggers.
+// Audit: unsupported — Needs coin flips with lose branches for both damage and death triggers.
 pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5055ed18-b234-4702-92eb-4d483431ff47"),
     "Volatile Rig",
@@ -5516,7 +5417,7 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
 );
 
 // RTR 240 — Grove of the Guardian
-// Audit: metadata-only — Needs tapping two chosen untapped creatures you control as one activation cost.
+// Audit: unsupported — Needs tapping two chosen untapped creatures you control as one activation cost.
 pub(in crate::card::sets) static GROVE_OF_THE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cf60ca0-e01f-499c-8d04-d59050f38c33"),
     "Grove of the Guardian",

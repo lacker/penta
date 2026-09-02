@@ -9,8 +9,7 @@ use crate::{FormatCategory, FormatDefinition};
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 struct CatalogCoverage {
     declarative: usize,
-    partial: usize,
-    metadata_only: usize,
+    unsupported: usize,
 }
 
 impl CatalogCoverage {
@@ -19,15 +18,14 @@ impl CatalogCoverage {
         for definition in definitions {
             match definition.implementation_status() {
                 ImplementationStatus::Complete => coverage.declarative += 1,
-                ImplementationStatus::Partial => coverage.partial += 1,
-                ImplementationStatus::MetadataOnly => coverage.metadata_only += 1,
+                ImplementationStatus::Unsupported => coverage.unsupported += 1,
             }
         }
         coverage
     }
 
     const fn total(self) -> usize {
-        self.declarative + self.partial + self.metadata_only
+        self.declarative + self.unsupported
     }
 }
 
@@ -63,8 +61,7 @@ impl SetCoverage {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 struct PoolCoverage {
     declarative: Vec<String>,
-    partial: Vec<String>,
-    metadata_only: Vec<String>,
+    unsupported: Vec<String>,
     uncataloged: Vec<String>,
 }
 
@@ -81,10 +78,7 @@ impl PoolCoverage {
             };
             match definition.implementation_status() {
                 ImplementationStatus::Complete => coverage.declarative.push(name.to_owned()),
-                ImplementationStatus::Partial => coverage.partial.push(name.to_owned()),
-                ImplementationStatus::MetadataOnly => {
-                    coverage.metadata_only.push(name.to_owned());
-                }
+                ImplementationStatus::Unsupported => coverage.unsupported.push(name.to_owned()),
             }
         }
         coverage
@@ -93,16 +87,12 @@ impl PoolCoverage {
     const fn catalog_coverage(&self) -> CatalogCoverage {
         CatalogCoverage {
             declarative: self.declarative.len(),
-            partial: self.partial.len(),
-            metadata_only: self.metadata_only.len(),
+            unsupported: self.unsupported.len(),
         }
     }
 
     const fn total(&self) -> usize {
-        self.declarative.len()
-            + self.partial.len()
-            + self.metadata_only.len()
-            + self.uncataloged.len()
+        self.declarative.len() + self.unsupported.len() + self.uncataloged.len()
     }
 }
 
@@ -126,9 +116,7 @@ fn coverage_for(root: &Path, catalog: &crate::card::CardCatalog, format: Format)
 fn write_catalog_coverage(report: &mut String, coverage: CatalogCoverage) {
     writeln!(report, "    declarative    {:>6}", coverage.declarative)
         .expect("writing to a String cannot fail");
-    writeln!(report, "    partial        {:>6}", coverage.partial)
-        .expect("writing to a String cannot fail");
-    writeln!(report, "    metadata-only  {:>6}", coverage.metadata_only)
+    writeln!(report, "    unsupported    {:>6}", coverage.unsupported)
         .expect("writing to a String cannot fail");
 }
 
@@ -166,8 +154,7 @@ fn write_format_coverage(
                 .expect("writing to a String cannot fail");
             if verbose {
                 write_pool_names(report, "declarative", &coverage.declarative);
-                write_pool_names(report, "partial", &coverage.partial);
-                write_pool_names(report, "metadata-only", &coverage.metadata_only);
+                write_pool_names(report, "unsupported", &coverage.unsupported);
                 write_pool_names(report, "uncataloged", &coverage.uncataloged);
             }
         }
@@ -231,8 +218,7 @@ fn report_layout_is_derived_from_category_registries() {
                 FormatCoverage::Sets(SetCoverage {
                     catalog: CatalogCoverage {
                         declarative: 4,
-                        partial: 1,
-                        metadata_only: 7,
+                        unsupported: 8,
                     },
                     blocked: 0,
                 }),
@@ -244,8 +230,7 @@ fn report_layout_is_derived_from_category_registries() {
                 Format::PauperCube,
                 FormatCoverage::Cube(PoolCoverage {
                     declarative: vec!["Declarative Card".to_owned()],
-                    partial: Vec::new(),
-                    metadata_only: vec!["Stub Card".to_owned()],
+                    unsupported: vec!["Stub Card".to_owned()],
                     uncataloged: Vec::new(),
                 }),
             )],
@@ -254,8 +239,7 @@ fn report_layout_is_derived_from_category_registries() {
     let report = render_report(
         CatalogCoverage {
             declarative: 10,
-            partial: 3,
-            metadata_only: 8,
+            unsupported: 11,
         },
         &categories,
         false,
@@ -269,23 +253,20 @@ fn report_layout_is_derived_from_category_registries() {
             "\n",
             "Repository catalog definitions\n",
             "    declarative        10\n",
-            "    partial             3\n",
-            "    metadata-only       8\n",
+            "    unsupported        11\n",
             "    total              21\n",
             "\n",
             "Standard\n",
             "  Standard: SOM-M13\n",
             "    declarative         4\n",
-            "    partial             1\n",
-            "    metadata-only       7\n",
+            "    unsupported         8\n",
             "    blocked             0\n",
             "    total              12\n",
             "\n",
             "Cubes\n",
             "  Cube: The Pauper Cube\n",
             "    declarative         1\n",
-            "    partial             0\n",
-            "    metadata-only       1\n",
+            "    unsupported         1\n",
             "    uncataloged         0\n",
             "    total               2\n",
         )

@@ -2,12 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayerRefDef, PlayerRelation, SumValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, SumValueDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -15,25 +14,13 @@ use crate::{TargetIndex, mana_cost};
 use super::super::y2020::theros_beyond_death::escape;
 
 // M3C 4 — Ulalek, Fused Atrocity
-// Audit: metadata-only — Its creature body and Devoid are catalog metadata; the mass spell-and-ability copy trigger is not executable.
+// Audit: unsupported — Needs grouped copying of every controlled spell and nonmana stack ability with independent target reselection.
 pub(in crate::card::sets) static ULALEK_FUSED_ATROCITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c"),
     "Ulalek, Fused Atrocity",
     CardArt::new("fdad1b0e-d3cc-4d76-ae7e-fee12558cf2c", "Alex Konstad"),
     CardSet::ModernHorizons3Commander,
-    CardRules::new_creature(mana_cost!("{C/W}{C/U}{C/B}{C/R}{C/G}"), &["Eldrazi"], 2, 5)
-        .with_supertype(CardSupertype::Legendary)
-        .with_metadata_only_creature_body()
-        .printed_colors(&[])
-        .with_abilities(&[
-            abilities::devoid().with_coverage(AbilityCoverageDef::metadata_only(
-                "Ulalek's colorlessness is represented directly in its printed color metadata.",
-            )),
-            AbilityDef::not_implemented(
-                "Whenever you cast an Eldrazi spell, you may pay {C}{C}. If you do, copy all spells you control, then copy all other activated and triggered abilities you control. You may choose new targets for the copies. (Mana abilities can't be copied.)",
-                "Copying every spell and nonmana ability one player controls, while preserving each copy's choices and allowing new targets, is not modeled.",
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 /// "That number plus 1", shared by both Lhurgoyfs in this set: each counts
@@ -231,7 +218,7 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
 );
 
 // M3C 320 — Basilisk Gate
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a306025-d429-4006-b7ed-bdb287e83f57"),
     "Basilisk Gate",

@@ -59,7 +59,7 @@ use observation_json::{decision_json, stack_object_json};
 /// abilities. These changes form one compatibility boundary even though they
 /// were developed across several commits. Version 4 adds executable modal
 /// spell choices, public counterability and permanent-choice state, and
-/// enables previously metadata-only cards whose actions now appear in
+/// enables previously unsupported cards whose actions now appear in
 /// legal-action lists. Version 5 is upstream's post-Innistrad action contract.
 /// Version 6 adds one activation action per affordable value of X. Version 7
 /// exposes the priority window between first-strike and regular combat damage
@@ -95,8 +95,10 @@ use observation_json::{decision_json, stack_object_json};
 /// definition identity. Version 28 broadens catalog mana symbols beyond
 /// ordinary two-color hybrid and records explicitly announced flexible-mana
 /// alternatives on cast actions. Version 29 removes the `isd-dgm-standard`
-/// format value; use the final pre-Theros `isd-m14-standard` profile.
-pub const PROTOCOL_VERSION: u32 = 29;
+/// format value; use the final pre-Theros `isd-m14-standard` profile. Version
+/// 30 replaces the card implementation-status values `partial` and
+/// `metadataOnly` with the single whole-card value `unsupported`.
+pub const PROTOCOL_VERSION: u32 = 30;
 
 /// The engine package release. This is ordinary Cargo `SemVer`, not an exact
 /// ruleset identity; use [`SIMULATION_FINGERPRINT`] for replay and model

@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // KTK 3 — Ainok Bond-Kin
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22d2a844-17fc-4628-9591-684555e98f7b"),
     "Ainok Bond-Kin",
@@ -19,7 +19,7 @@ pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
 );
 
 // KTK 22 — Seeker of the Way
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c17e350-44f7-4413-ad24-7c5d6616effd"),
     "Seeker of the Way",
@@ -47,7 +47,7 @@ pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
 );
 
 // KTK 78 — Mardu Skullhunter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd3ca5e7-96f3-4326-9315-34bb396a054c"),
     "Mardu Skullhunter",
@@ -57,7 +57,7 @@ pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new
 );
 
 // KTK 111 — Hordeling Outburst
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORDELING_OUTBURST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5c1bf52-2737-423a-b340-07448afcaea6"),
     "Hordeling Outburst",
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static HORDELING_OUTBURST: CardRecord = CardRecord::ne
 );
 
 // KTK 118 — Monastery Swiftspear
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b81c6c8b-a9cf-4866-89ba-7f8ad077b836"),
     "Monastery Swiftspear",
@@ -77,7 +77,7 @@ pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::
 );
 
 // KTK 137 — Hooting Mandrills
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("090d678c-f0e4-4757-8900-93dfe67aefe9"),
     "Hooting Mandrills",
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_
 );
 
 // KTK 242 — Scoured Barrens
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0824a960-dd89-45c5-90f0-3ec9eb47d9ce"),
     "Scoured Barrens",
@@ -131,7 +131,7 @@ pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
 );
 
 // KTK 246 — Tranquil Cove
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANQUIL_COVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f840bd2-c4f5-4ac4-918c-91b4feeb8783"),
     "Tranquil Cove",

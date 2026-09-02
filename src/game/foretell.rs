@@ -26,12 +26,11 @@ impl Game {
         self.catalog.get(definition).is_some_and(|card| {
             card.parts.iter().any(|part| {
                 part.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(
-                            ability.definition,
-                            DeclarativeAbilityDef::AlternativeCast(alternative)
-                                if alternative.kind == AlternativeCastKindDef::Foretell
-                        )
+                    matches!(
+                        ability.definition,
+                        DeclarativeAbilityDef::AlternativeCast(alternative)
+                            if alternative.kind == AlternativeCastKindDef::Foretell
+                    )
                 })
             })
         })

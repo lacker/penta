@@ -46,8 +46,7 @@ pub(super) fn parse_ongoing_effect(
         DeclarativeAbilityDef::ActivatedMana(definition) => (definition, true),
         _ => return Err("ongoing effect locator does not identify an activated ability".into()),
     };
-    if !ability.is_executable()
-        || definition.procedure != AbilityProcedureDef::Shared
+    if definition.procedure != AbilityProcedureDef::Shared
         || definition.source_zones != [ZoneKind::Command]
         || !definition.targets.is_empty()
         || definition.modes.is_some()

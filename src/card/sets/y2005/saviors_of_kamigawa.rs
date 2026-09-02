@@ -3,7 +3,7 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 
 // SOK 63 — Death Denied
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f66ddc5-f5e6-44de-8189-87b6521d1fea"),
     "Death Denied",

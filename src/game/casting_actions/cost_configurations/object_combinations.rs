@@ -59,6 +59,9 @@ impl Game {
                         .unwrap_or(0)
                         .max(0)
                         .cast_unsigned(),
+                    crate::card::ObjectValueDef::Counters(kind) => {
+                        self.current_or_last_known_counters(*id, kind)
+                    }
                 });
                 match operation {
                     crate::card::AggregateOperationDef::Minimum => values.min().unwrap_or(0),

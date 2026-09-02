@@ -2,13 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef,
-    CostAmountDef, CounterKind, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    RevealObjectsDef, SpellCastQueryDef, SpellCostConditionDef, TokenCharacteristics,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, DrawEventMatcherDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, RevealObjectsDef, TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -226,33 +225,13 @@ pub(in crate::card::sets) static TEFERI_HERO_OF_DOMINARIA: CardRecord = CardReco
 );
 
 // DOM 213 — Damping Sphere
-// Audit: partial — The spell tax is declarative. The mana-production clause needs a static replacement that changes a land ability producing two or more mana into exactly {C}.
+// Audit: unsupported — Needs a static replacement changing a land ability producing two or more mana into exactly {C}.
 pub(in crate::card::sets) static DAMPING_SPHERE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5c7d16b-8f4e-42b9-be24-3cb091932d7c"),
     "Damping Sphere",
     CardArt::new("a5c7d16b-8f4e-42b9-be24-3cb091932d7c", "Adam Paquette"),
     CardSet::Dominaria,
-    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        AbilityDef::static_ability(
-            "If a land is tapped for two or more mana, it produces {C} instead of any other type and amount.",
-            EffectDef::None,
-        )
-        .with_coverage(AbilityCoverageDef::metadata_only(
-            "Needs a static replacement that changes a land mana ability producing two or more mana into exactly one colorless mana.",
-        )),
-        abilities::spell_cost_adjustment(
-            "Each spell a player casts costs {1} more to cast for each other spell that player has cast this turn.",
-            ObjectPredicateDef::Any,
-            PlayerRelation::Any,
-            SpellCostConditionDef::Always,
-            CostAdjustmentDef::Add(CostAmountDef::Generic(ValueDef::CountSpellsCastThisTurn(
-                &SpellCastQueryDef {
-                    player: PlayerRelation::You,
-                    spell: ObjectPredicateDef::Any,
-                },
-            ))),
-        ),
-    ]),
+    CardRules::unsupported(),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

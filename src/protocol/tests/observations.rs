@@ -248,9 +248,9 @@ fn face_down_characteristics_are_inline_and_have_no_definition() {
 
 #[test]
 fn emblem_characteristics_are_inline_without_catalog_identity() {
-    static EMBLEM_ABILITIES: [crate::AbilityDef; 1] = [crate::AbilityDef::not_implemented(
+    static EMBLEM_ABILITIES: [crate::AbilityDef; 1] = [crate::AbilityDef::static_ability(
         "Test emblem rule.",
-        "protocol fixture",
+        crate::EffectDef::None,
     )];
     static EMBLEM: crate::EmblemCharacteristics =
         crate::EmblemCharacteristics::new("Test emblem", &EMBLEM_ABILITIES);
@@ -268,7 +268,7 @@ fn emblem_characteristics_are_inline_without_catalog_identity() {
     );
     assert_eq!(
         characteristics["presentation"]["implementationStatus"],
-        "metadataOnly"
+        "complete"
     );
     assert!(characteristics.get("definition").is_none());
     assert!(characteristics.get("partId").is_none());

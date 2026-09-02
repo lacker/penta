@@ -432,29 +432,21 @@ impl CounterKind {
 
 include!("rules_primitives/supertypes.rs");
 
-/// How completely the engine implements a card or independently modeled part.
-///
-/// Ordinary construction defaults to [`Self::Complete`]. Explanations live on
-/// the non-declarative clause implementations that caused a non-complete
-/// aggregate status, rather than being duplicated at card level.
+/// Whether the engine implements a complete card definition.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
 pub enum ImplementationStatus {
     #[default]
     Complete,
-    Partial,
-    MetadataOnly,
+    Unsupported,
 }
 
 impl ImplementationStatus {
     #[must_use]
     pub const fn combine(self, other: Self) -> Self {
-        match (self, other) {
-            (Self::Partial, _)
-            | (_, Self::Partial)
-            | (Self::Complete, Self::MetadataOnly)
-            | (Self::MetadataOnly, Self::Complete) => Self::Partial,
-            (Self::MetadataOnly, Self::MetadataOnly) => Self::MetadataOnly,
-            (Self::Complete, Self::Complete) => Self::Complete,
+        if matches!(self, Self::Complete) && matches!(other, Self::Complete) {
+            Self::Complete
+        } else {
+            Self::Unsupported
         }
     }
 
@@ -464,14 +456,11 @@ impl ImplementationStatus {
     }
 }
 
-/// Whether the current game engine may execute an independently modeled play
-/// option or mode. Ordinary single-card options derive this gate from their
-/// clause-local [`ImplementationStatus`] instead of storing another status on
-/// [`CardRules`].
+/// Whether the current game engine may execute a card's play option.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardEffectStatus {
     Implemented,
-    MetadataOnly,
+    Unsupported,
 }
 
 /// Where in a library a card is put.

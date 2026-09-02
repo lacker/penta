@@ -88,6 +88,7 @@ impl Game {
             combat: assignment.combat,
         };
         let preventable = !self.damage_cannot_be_prevented_this_turn
+            && !self.static_damage_cannot_be_prevented()
             && !self.combat_damage_cannot_be_prevented(assignment.source, assignment.combat);
         let mut amount = if preventable {
             self.apply_resolved_damage_prevention(event, assignment.amount, deferred_life_gains)

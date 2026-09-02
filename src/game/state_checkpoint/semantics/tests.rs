@@ -4,10 +4,7 @@ use crate::card::{
     TokenCharacteristics, ValueDef,
 };
 
-static GRANTED: AbilityDef = AbilityDef::not_implemented(
-    "A nested ability.",
-    "Only structural checkpoint traversal matters in this fixture.",
-);
+static GRANTED: AbilityDef = AbilityDef::static_ability("A nested ability.", EffectDef::None);
 static APPLIED: [AppliedEffectDef; 2] = [
     AppliedEffectDef::add_ability(&GRANTED),
     AppliedEffectDef::set_base_power_toughness(ValueDef::Constant(3), ValueDef::Constant(3)),

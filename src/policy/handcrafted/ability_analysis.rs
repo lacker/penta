@@ -622,9 +622,7 @@ impl HandcraftedPolicy {
             ) if presented == part => *token.part(part)?.rules.ability(ability)?,
             _ => return None,
         };
-        if !ability.is_executable()
-            || !matches!(ability.definition, DeclarativeAbilityDef::Activated(_))
-        {
+        if !matches!(ability.definition, DeclarativeAbilityDef::Activated(_)) {
             return None;
         }
         let mut profile = DeclarativeSpellProfile::default();

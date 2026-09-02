@@ -13,11 +13,10 @@ The preferred implementation order is:
    clear general shape.
 2. Compose unusual behavior in the card's declarative ability clauses while
    shared timing, targeting, and stack rules remain in force.
-3. If the shared model cannot yet express the complete behavior, keep the gap
-   honestly partial or metadata-only until a reusable primitive exists.
-4. When the ideal boundary would stall useful work, land the smallest working
-   and truthful slice, contain the debt, and leave unsupported behavior
-   explicitly partial rather than silently approximating it.
+3. If the shared model cannot yet express the complete behavior, keep the
+   whole card unsupported until a reusable primitive exists.
+4. Shared primitives may land in useful increments, but a card becomes
+   executable only when its complete printed behavior is declarative.
 
 Do not add a card-specific resolver or direct card-identity branch to make a
 card executable.
@@ -50,8 +49,8 @@ aggregate or card-by-card coverage reports from them on demand.
 - Player observations do not expose an opponent's hidden information.
 - Legal actions are enumerated and checked by the engine.
 - The core engine has no UI, network, async-runtime, or training dependencies.
-- Unsupported behavior remains visible as partial or metadata-only coverage;
-  it does not resolve as a silent no-op.
+- Unsupported cards remain visible as whole-card `Unsupported` coverage and
+  expose no executable subset or silent no-op.
 - Optimization is derived from the semantic model rather than requested by
   card declarations; the reference implementation remains available wherever
   an optimized lowering cannot prove support.

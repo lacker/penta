@@ -13,8 +13,8 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef,
     AppliedEffectDef, BattlefieldEntryModificationDef, CardDefinition, CharacteristicOperationDef,
     CopyAbilityDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
-    ImplementationStatus, ObjectSetDef, ReplacementEffectDef, ReplacementEventDef, SpellForm,
-    TargetChooserDef, TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    ObjectSetDef, ReplacementEffectDef, ReplacementEventDef, SpellForm, TargetChooserDef,
+    TokenCharacteristics, ValueDef, ZoneKind, ZoneMoveCauseDef,
 };
 use crate::{
     AbilityId, AdditionalCostId, AlternativeCostId, CardPartId, GrantId, ModeId, TargetIndex,
@@ -217,8 +217,7 @@ fn validate_attached_ability(
         // modes; a modal spell prints nothing but its modes. Only the spell
         // is required to be empty.
         if matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
-            && (ability.coverage.status != ImplementationStatus::Complete
-                || ability.effect.definition != AbilityProgramDef::Effects(EffectDef::None))
+            && ability.effect.definition != AbilityProgramDef::Effects(EffectDef::None)
         {
             return Err(CatalogError::InvalidModalSpellParent {
                 definition: definition.id,
@@ -312,8 +311,7 @@ fn validate_granted_abilities(
         let grant = GrantId::from_index(index)
             .expect("the containing ability's grant-site capacity was validated");
         path.push(grant);
-        if granted.is_executable() && matches!(granted.definition, DeclarativeAbilityDef::Static(_))
-        {
+        if matches!(granted.definition, DeclarativeAbilityDef::Static(_)) {
             return Err(CatalogError::InvalidGrantedAbility {
                 definition: definition.id,
                 part,
@@ -433,19 +431,10 @@ fn validate_ability_coverage(ability: &AbilityDef) -> Result<(), GrantedAbilityV
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
-        | DeclarativeAbilityDef::DeckConstruction(_)
-        | DeclarativeAbilityDef::Unimplemented => false,
+        | DeclarativeAbilityDef::DeckConstruction(_) => false,
     };
-    if ability.is_executable() && uses_legacy_procedure {
+    if uses_legacy_procedure {
         return Err(GrantedAbilityValidationError::UnsupportedLegacyProcedure);
-    }
-    let explanation = ability.coverage.explanation;
-    let explanation_required =
-        ability.coverage.status != ImplementationStatus::Complete || uses_legacy_procedure;
-    if explanation.is_some_and(|explanation| explanation.trim().is_empty())
-        || (explanation_required && explanation.is_none())
-    {
-        return Err(GrantedAbilityValidationError::MissingImplementationExplanation);
     }
     Ok(())
 }
@@ -564,8 +553,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         DeclarativeAbilityDef::AlternativeCast(alternative) => (None, alternative.targets, false),
         DeclarativeAbilityDef::OptionalAdditionalCost(_)
         | DeclarativeAbilityDef::Keyword(_)
-        | DeclarativeAbilityDef::DeckConstruction(_)
-        | DeclarativeAbilityDef::Unimplemented => (None, &[][..], false),
+        | DeclarativeAbilityDef::DeckConstruction(_) => (None, &[][..], false),
     };
 
     if source_zones.is_some_and(<[ZoneKind]>::is_empty) {
@@ -578,7 +566,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         validate_activated_target_choosers(activated.targets)?;
         validate_ability_cost_target_references(activated.costs.as_slice(), targets)?;
     }
-    if ability.is_executable() {
+    {
         validate_triggered_ability_shape(ability, targets.len())?;
     }
     if let Err(problem) = validate_ability_effect_context(ability) {
@@ -602,8 +590,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         | DeclarativeAbilityDef::SpecialAction(_)
         | DeclarativeAbilityDef::Pregame(_)
         | DeclarativeAbilityDef::Keyword(_)
-        | DeclarativeAbilityDef::DeckConstruction(_)
-        | DeclarativeAbilityDef::Unimplemented => None,
+        | DeclarativeAbilityDef::DeckConstruction(_) => None,
     };
     let binds_chosen_cost_card = matches!(
         ability.definition,
@@ -631,9 +618,7 @@ fn validate_ability_program(ability: &AbilityDef) -> Result<(), GrantedAbilityVa
             DeclarativeAbilityDef::Replacement(definition),
             AbilityProgramDef::Replacement(effect),
         ) => {
-            if ability.is_executable()
-                && let Err(operation) =
-                    validate_replacement_program_for_event(definition.event, effect)
+            if let Err(operation) = validate_replacement_program_for_event(definition.event, effect)
             {
                 return Err(
                     GrantedAbilityValidationError::UnsupportedReplacementProgram {

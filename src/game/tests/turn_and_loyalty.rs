@@ -544,6 +544,7 @@ fn bonfire_burns_a_player_and_everything_they_control() {
 }
 
 #[test]
+#[ignore = "card is unsupported"]
 fn aurelias_fury_taps_what_it_burns_and_locks_who_it_hits() {
     let mut game = ready_game();
     game.battlefield.clear();

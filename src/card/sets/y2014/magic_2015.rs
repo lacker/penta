@@ -10,7 +10,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // M15 40 — Triplicate Spirits
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d6498d3-bf1f-4bf1-a602-7c21fb44c106"),
     "Triplicate Spirits",
@@ -20,7 +20,7 @@ pub(in crate::card::sets) static TRIPLICATE_SPIRITS: CardRecord = CardRecord::ne
 );
 
 // M15 142 — Frenzied Goblin
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRENZIED_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d307d8c7-b9b5-4f8f-933d-f1c64cbbf92f"),
     "Frenzied Goblin",

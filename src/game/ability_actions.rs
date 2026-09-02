@@ -190,7 +190,6 @@ impl Game {
         self.for_each_effective_ability(permanent, |effective| {
             if let DeclarativeAbilityDef::Activated(definition) = effective.ability.definition
                 && definition.any_player_may_activate
-                && effective.ability.is_executable()
             {
                 open = true;
             }
@@ -238,8 +237,7 @@ impl Game {
                     return;
                 }
                 last_activated_origin = Some(effective.origin);
-                if !ability.is_executable()
-                    || !definition.source_zones.contains(&ZoneKind::Battlefield)
+                if !definition.source_zones.contains(&ZoneKind::Battlefield)
                     // Detain stops activated abilities, not the permanent's
                     // other clauses. An Aura saying so directly is the same
                     // prohibition without the deadline.
@@ -709,8 +707,7 @@ impl Game {
             let DeclarativeAbilityDef::Activated(definition) = ongoing.ability.definition else {
                 continue;
             };
-            if !ongoing.ability.is_executable()
-                || definition.procedure != AbilityProcedureDef::Shared
+            if definition.procedure != AbilityProcedureDef::Shared
                 || definition.source_zones != [ZoneKind::Command]
                 || !self.activation_timing_allows(player, definition.timing)
             {

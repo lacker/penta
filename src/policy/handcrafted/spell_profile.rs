@@ -76,8 +76,7 @@ impl HandcraftedPolicy {
                     .into_iter()
                     .any(|land_type| card.rules.has_subtype(land_type.subtype())))
                 || card.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
+                    matches!(ability.definition, DeclarativeAbilityDef::ActivatedMana(_))
                 })
         })
     }
@@ -87,27 +86,22 @@ impl HandcraftedPolicy {
         if card.rules.has_type(CardType::Land) {
             return self.is_mana_source(definition).then_some(80);
         }
-        card.rules
-            .ability_clauses()
-            .iter()
-            .filter(|ability| ability.is_executable())
-            .find_map(|ability| {
-                let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
-                    return None;
-                };
-                let EffectDef::AddMana(effect) = ability.declarative_effect()? else {
-                    return None;
-                };
-                Some(
-                    if effect.amount >= 3
-                        && definition.costs.contains(&AbilityCostDef::SacrificeSource)
-                    {
-                        100
-                    } else {
-                        90
-                    },
-                )
-            })
+        card.rules.ability_clauses().iter().find_map(|ability| {
+            let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
+                return None;
+            };
+            let EffectDef::AddMana(effect) = ability.declarative_effect()? else {
+                return None;
+            };
+            Some(
+                if effect.amount >= 3 && definition.costs.contains(&AbilityCostDef::SacrificeSource)
+                {
+                    100
+                } else {
+                    90
+                },
+            )
+        })
     }
 
     pub(super) fn declarative_spell_profile(
@@ -123,8 +117,7 @@ impl HandcraftedPolicy {
         let rules = &card.part(part)?.rules;
         if let Some(ability) = choices.costs().alternative().and_then(|alternative| {
             rules.indexed_abilities().find_map(|attached| {
-                (attached.definition.is_executable()
-                    && attached.alternative_cost_id() == Some(alternative)
+                (attached.alternative_cost_id() == Some(alternative)
                     && matches!(
                         attached.definition.definition,
                         DeclarativeAbilityDef::AlternativeCast(alternative_cast)
@@ -148,9 +141,10 @@ impl HandcraftedPolicy {
             );
             return Some(profile);
         }
-        let ability = rules.ability_clauses().iter().find(|ability| {
-            ability.is_executable() && matches!(ability.definition, DeclarativeAbilityDef::Spell(_))
-        })?;
+        let ability = rules
+            .ability_clauses()
+            .iter()
+            .find(|ability| matches!(ability.definition, DeclarativeAbilityDef::Spell(_)))?;
         let DeclarativeAbilityDef::Spell(spell) = ability.definition else {
             unreachable!("the selected ability is a spell ability")
         };
@@ -169,9 +163,6 @@ impl HandcraftedPolicy {
         }
         for selected in choices.modes() {
             let mode = spell.mode(*selected)?;
-            if !mode.is_executable() {
-                return None;
-            }
             Self::collect_spell_effect(
                 mode.declarative_effect()?,
                 choices.x(),

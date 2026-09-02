@@ -42,7 +42,7 @@ cube cannot accidentally be interpreted as an empty set window. Vintage Cube
 coverage is documented in the [Vintage Cube roadmap](vintage-cube.md). The
 Pauper Cube list lives in `src/formats/cubes/pauper.rs`; every member is
 cataloged, with newly introduced identities deliberately represented as
-metadata-only stubs. The Vintage Cube pool is likewise identity-complete, with
+unsupported declarations. The Vintage Cube pool is likewise identity-complete, with
 unsupported members represented explicitly rather than left uncataloged.
 Neither cube has built-in decks or drafting support yet,
 so neither is offered in the web client.
@@ -75,7 +75,7 @@ Theros. It empties mana after each step and phase and has no mana burn.
 
 This earlier historical window combines Scars of Mirrodin block and Magic 2012
 with Innistrad block and Magic 2013. Its newly introduced identities are
-cataloged as explicit metadata-only stubs rather than opportunistically
+cataloged as explicit unsupported declarations rather than opportunistically
 implementing individual cards in this format-registration change.
 
 ## Engine coverage
@@ -107,7 +107,7 @@ The engine currently supports:
   identity;
 - identity-complete inventories for the full Premodern and SOM–M13 set windows,
   with every unsupported identity represented by an explicitly audited
-  metadata-only stub;
+  whole-card unsupported declaration;
 - exact, fully cataloged fixed card lists for Cube: Vintage and Cube: The
   Pauper Cube; and
 - fixed source-faithful decks with complete main-deck and sideboard lists for
@@ -115,9 +115,8 @@ The engine currently supports:
 
 The engine is playable end to end but is not a general implementation of the
 Comprehensive Rules. Interactions are implemented to the depth required by the
-supported tranche. Unsupported clauses remain visible through derived
-Complete, Partial, or MetadataOnly coverage. Metadata-only noncreature spells
-are withheld from legal actions rather than resolving as silent no-ops.
+supported tranche. Cards are classified as `Complete` or `Unsupported`;
+unsupported cards expose no legal play option or partial creature body.
 
 Representative deeper implementations include Fireball's multi-target
 additional cost and damage division, Fork's copy retargeting, player-selected

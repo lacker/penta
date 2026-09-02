@@ -276,6 +276,9 @@ impl Game {
                     context.paid_amount = paid;
                     self.resolve_nested_effect_before_later(effect, &object, context);
                 }
+                if paid.is_some() {
+                    self.capture_optional_effect_taken(&object);
+                }
             }
             DecisionContinuation::ActivationCostSacrifice {
                 player,

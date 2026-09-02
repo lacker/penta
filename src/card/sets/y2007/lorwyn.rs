@@ -74,7 +74,7 @@ pub(in crate::card::sets) static CRYPTIC_COMMAND: CardRecord = CardRecord::new_w
 );
 
 // LRW 76 — Mulldrifter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MULLDRIFTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a97cfefa-ade7-49f6-b2aa-1118b9db4935"),
     "Mulldrifter",
@@ -283,7 +283,7 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
 );
 
 // LRW 273 — Shimmering Grotto
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMMERING_GROTTO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b5e85acc-ed12-4036-8193-739721c3e178"),
     "Shimmering Grotto",

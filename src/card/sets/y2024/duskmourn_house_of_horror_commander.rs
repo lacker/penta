@@ -106,7 +106,7 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
 );
 
 // DSC 88 — Growth Spiral
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("288ed3e9-4485-44ad-8561-efa09ed96f34"),
     "Growth Spiral",
@@ -116,7 +116,7 @@ pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
 );
 
 // DSC 270 — Dimir Aqueduct
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("df3c3d56-8291-407e-87a1-94b7d12811fd"),
     "Dimir Aqueduct",
@@ -126,7 +126,7 @@ pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
 );
 
 // DSC 279 — Golgari Rot Farm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOLGARI_ROT_FARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("104364d5-ede8-4ac5-900f-19947f51bbc1"),
     "Golgari Rot Farm",

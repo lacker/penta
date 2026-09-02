@@ -157,7 +157,7 @@ impl Game {
             .ability_clauses()
             .iter()
             .find_map(|ability| match ability.definition {
-                DeclarativeAbilityDef::Spell(spell) if ability.is_executable() => match spell {
+                DeclarativeAbilityDef::Spell(spell) => match spell {
                     crate::card::SpellAbilityDef::Nonmodal {
                         additional_cost: Some(cost),
                         ..
@@ -705,10 +705,7 @@ impl Game {
         } = request;
         for cost in &option.alternative_costs {
             let (origin, kind) = match Self::alternative_cast_clause(definition, option, cost.id) {
-                Some((origin, ability, kind)) if ability.is_executable() => {
-                    (Some(origin), Some(kind))
-                }
-                Some(_) => continue,
+                Some((origin, _ability, kind)) => (Some(origin), Some(kind)),
                 None => (None, None),
             };
             if match context.offer {

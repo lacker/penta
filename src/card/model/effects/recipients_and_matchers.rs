@@ -965,7 +965,7 @@ impl DamagePreventionDef {
     }
 
     #[must_use]
-    pub const fn with_coverage(mut self, coverage: DamageCoverageDef) -> Self {
+    pub const fn with_damage_coverage(mut self, coverage: DamageCoverageDef) -> Self {
         self.coverage = coverage;
         self
     }

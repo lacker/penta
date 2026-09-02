@@ -93,7 +93,7 @@ pub(in crate::card::sets) static LEYLINE_BINDING: CardRecord = CardRecord::new(
 );
 
 // DMU 72 — Tolarian Terror
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOLARIAN_TERROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42f01cba-43d4-46ad-b7a5-d7631b0e1347"),
     "Tolarian Terror",
@@ -168,7 +168,7 @@ pub(in crate::card::sets) static SHEOLDRED_THE_APOCALYPSE: CardRecord =
     );
 
 // DMU 137 — Lightning Strike
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_STRIKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbb03f2e-2b92-4aa1-afae-301ed5d151d3"),
     "Lightning Strike",

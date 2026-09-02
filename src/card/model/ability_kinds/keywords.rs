@@ -94,11 +94,6 @@ static WOLF_OF_THE_HUNT: ObjectPredicateDef = ObjectPredicateDef::All(&[
 ]);
 
 /// A keyword ability carried as an ordinary, ordered rules clause.
-///
-/// The clause's [`AbilityCoverageDef`] says whether the engine currently
-/// executes the keyword. This keeps unimplemented keywords such as banding
-/// visible and accurately reflected in aggregate coverage without hiding them
-/// in card-level booleans.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum KeywordAbility {
     /// CR 702.51. Each untapped creature the caster taps while paying for the

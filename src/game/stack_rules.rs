@@ -297,15 +297,13 @@ impl Game {
         parts.iter().copied().any(|part| {
             definition.part(part).is_some_and(|part| {
                 part.rules.ability_clauses().iter().any(|ability| {
-                    ability.is_executable()
-                        && matches!(
-                            ability.definition,
-                            DeclarativeAbilityDef::Static(definition)
-                                if definition.source_zones.contains(&ZoneKind::Stack)
-                        )
-                        && ability
-                            .declarative_effect()
-                            .is_some_and(|effect| Self::effect_applies_to_source(effect, expected))
+                    matches!(
+                        ability.definition,
+                        DeclarativeAbilityDef::Static(definition)
+                            if definition.source_zones.contains(&ZoneKind::Stack)
+                    ) && ability
+                        .declarative_effect()
+                        .is_some_and(|effect| Self::effect_applies_to_source(effect, expected))
                 })
             })
         })

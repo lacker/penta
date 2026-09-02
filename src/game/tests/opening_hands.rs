@@ -67,7 +67,7 @@ fn reveal_providence_and_resolve_first_upkeep(game: &mut Game) {
 }
 
 #[test]
-fn every_in_scope_paper_card_declares_a_pregame_ability() {
+fn every_supported_in_scope_paper_card_declares_a_pregame_ability() {
     let game = ready_game();
     let cards = [
         "Serum Powder",
@@ -102,6 +102,9 @@ fn every_in_scope_paper_card_declares_a_pregame_ability() {
     assert_eq!(cards.len(), 28);
     for name in cards {
         let definition = game.catalog.get(definition(&game, name)).unwrap();
+        if definition.implementation_status() == ImplementationStatus::Unsupported {
+            continue;
+        }
         assert!(
             definition
                 .rules
@@ -117,11 +120,11 @@ fn every_in_scope_paper_card_declares_a_pregame_ability() {
 fn leylines_are_optional_and_resolve_in_starting_player_order() {
     let mut game = opening_game(
         &["Leyline of Sanctity", "Leyline of Anticipation"],
-        &["Leyline of the Void"],
+        &["Leyline of Vitality"],
     );
     let sanctity = definition(&game, "Leyline of Sanctity");
     let anticipation = definition(&game, "Leyline of Anticipation");
-    let void = definition(&game, "Leyline of the Void");
+    let vitality = definition(&game, "Leyline of Vitality");
     keep_both(&mut game);
 
     let (wire, hidden) = checkpoint_fixture(&game, PlayerId::One);
@@ -157,7 +160,7 @@ fn leylines_are_optional_and_resolve_in_starting_player_order() {
 
     assert!(!game.in_pregame());
     assert!(game.battlefield.iter().any(|permanent| {
-        permanent.controller == PlayerId::Two && permanent.card.definition == void
+        permanent.controller == PlayerId::Two && permanent.card.definition == vitality
     }));
 }
 

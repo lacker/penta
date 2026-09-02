@@ -413,9 +413,19 @@ impl Game {
                 // the printed value is the whole answer. Scavenge asks this
                 // of a card it has already exiled to pay its own cost.
                 Some(RetiredObject::Card(card)) => self.printed_card_power(card, None),
-                Some(RetiredObject::Stack(_)) | None => self
-                    .card_in_nonbattlefield_zone(object)
-                    .and_then(|(zone, card)| self.printed_card_power(card, Some(zone))),
+                Some(RetiredObject::Stack(stack)) => self
+                    .stack_trigger_event_object(stack)
+                    .and_then(|view| view.power),
+                None => self
+                    .stack
+                    .iter()
+                    .find(|candidate| candidate.id == object)
+                    .and_then(|stack| self.stack_trigger_event_object(stack))
+                    .and_then(|view| view.power)
+                    .or_else(|| {
+                        self.card_in_nonbattlefield_zone(object)
+                            .and_then(|(zone, card)| self.printed_card_power(card, Some(zone)))
+                    }),
             })
     }
 

@@ -28,7 +28,7 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 // IKO 137 — Spelleater Wolverine
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22"),
     "Spelleater Wolverine",
@@ -38,7 +38,7 @@ pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::
 );
 
 // IKO 170 — Ram Through
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAM_THROUGH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ac0b24e7-14e7-45ee-b5d8-bdb8674b669c"),
     "Ram Through",

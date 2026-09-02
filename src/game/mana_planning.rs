@@ -252,7 +252,6 @@ impl Game {
             && let Some(definition) = self
                 .find_printed_card_ability(card, &CharacteristicContext::Hand, |effective| {
                     effective.origin == ability
-                        && effective.ability.is_executable()
                         && matches!(
                             effective.ability.definition,
                             DeclarativeAbilityDef::Activated(definition)
@@ -307,8 +306,7 @@ impl Game {
                 | DeclarativeAbilityDef::SpecialAction(_)
                 | DeclarativeAbilityDef::Pregame(_)
                 | DeclarativeAbilityDef::Keyword(_)
-                | DeclarativeAbilityDef::DeckConstruction(_)
-                | DeclarativeAbilityDef::Unimplemented => None,
+                | DeclarativeAbilityDef::DeckConstruction(_) => None,
             })
         {
             let (options, purpose) = Self::battlefield_ability_mana_context(

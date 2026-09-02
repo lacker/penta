@@ -10,14 +10,8 @@ use super::{
     TargetPredicate, TriggerEventDef, ZoneKind,
 };
 use crate::{
-    AbilityCoverageDef, AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId,
-    PlayOptionId, TargetIndex,
+    AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
 };
-
-static DEFERRED_CLAUSE: [AbilityDef; 1] = [AbilityDef::not_implemented(
-    "A deferred card-specific ability.",
-    "The card-specific ability is not executed.",
-)];
 
 #[test]
 fn likelihood_def_preserves_a_valid_floating_point_value() {
@@ -631,7 +625,7 @@ fn symbolic_mana_costs_reject_invalid_or_unsupported_notation() {
 }
 
 #[test]
-fn clause_implementation_drives_the_ordinary_play_option_gate() {
+fn card_support_drives_the_ordinary_play_option_gate() {
     let implemented = CardRules::new_instant(ManaCost::default());
     assert_eq!(
         ImplementationStatus::default(),
@@ -642,54 +636,24 @@ fn clause_implementation_drives_the_ordinary_play_option_gate() {
         CardEffectStatus::Implemented
     );
 
-    let uncategorized =
-        CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::not_implemented(
-            "Text with no assigned implementation.",
-            "The card-specific ability is not executed.",
-        ));
+    let unsupported = CardRules::unsupported();
     assert_eq!(
-        uncategorized.implementation_status(),
-        ImplementationStatus::MetadataOnly
-    );
-    let metadata_only =
-        CardRules::new_instant(ManaCost::default()).with_ability(AbilityDef::not_implemented(
-            "A deferred spell effect.",
-            "The card-specific ability is not executed.",
-        ));
-    assert_eq!(
-        metadata_only.implementation_status(),
-        ImplementationStatus::MetadataOnly
+        unsupported.implementation_status(),
+        ImplementationStatus::Unsupported
     );
     assert_eq!(
-        CardComposition::single("Deferred", metadata_only).play_options[0].effect_status,
-        CardEffectStatus::MetadataOnly
+        CardComposition::single("Unsupported", unsupported).play_options[0].effect_status,
+        CardEffectStatus::Unsupported
     );
-    let metadata_definition = CardDefinition::new(
+    let unsupported_definition = CardDefinition::new(
         CardDefinitionId::new(8),
         "Unsupported",
         CardSet::Alpha,
-        crate::card::CardRules::unsupported(),
+        unsupported,
     );
     assert_eq!(
-        metadata_definition.implementation_status(),
-        ImplementationStatus::MetadataOnly
-    );
-
-    let partial = CardRules::new_enchantment(ManaCost::default()).with_ability(
-        AbilityDef::spell("A clause with one deferred rider.", EffectDef::None)
-            .with_coverage(AbilityCoverageDef::partial("One rider is deferred.")),
-    );
-    assert_eq!(
-        partial.ability_clauses()[0].coverage.explanation,
-        Some("One rider is deferred.")
-    );
-    assert_eq!(
-        partial.implementation_status(),
-        ImplementationStatus::Partial
-    );
-    assert_eq!(
-        CardComposition::single("Partial", partial).play_options[0].effect_status,
-        CardEffectStatus::Implemented
+        unsupported_definition.implementation_status(),
+        ImplementationStatus::Unsupported
     );
 }
 
@@ -700,63 +664,6 @@ fn vanilla_creature_body_is_complete() {
     assert_eq!(
         rules.implementation_status(),
         ImplementationStatus::Complete
-    );
-}
-
-#[test]
-fn creature_body_with_an_unimplemented_clause_is_partial() {
-    let rules =
-        CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_abilities(&DEFERRED_CLAUSE);
-
-    assert_eq!(rules.implementation_status(), ImplementationStatus::Partial);
-    assert_eq!(
-        CardComposition::single("Partial creature", rules).play_options[0].effect_status,
-        CardEffectStatus::Implemented
-    );
-}
-
-#[test]
-fn a_catalog_only_creature_body_can_be_explicitly_metadata_only() {
-    let rules = CardRules::new_creature(ManaCost::default(), &[], 2, 2)
-        .with_metadata_only_creature_body()
-        .with_abilities(&DEFERRED_CLAUSE);
-
-    assert_eq!(
-        rules.implementation_status(),
-        ImplementationStatus::MetadataOnly
-    );
-    assert_eq!(
-        CardComposition::single("Catalog-only creature", rules).play_options[0].effect_status,
-        CardEffectStatus::MetadataOnly
-    );
-}
-
-#[test]
-fn a_catalog_only_creature_body_needs_no_synthetic_deferred_clause() {
-    let rules =
-        CardRules::new_creature(ManaCost::default(), &[], 2, 2).with_metadata_only_creature_body();
-
-    assert_eq!(
-        rules.implementation_status(),
-        ImplementationStatus::MetadataOnly
-    );
-    assert_eq!(
-        CardComposition::single("Catalog-only creature", rules).play_options[0].effect_status,
-        CardEffectStatus::MetadataOnly
-    );
-}
-
-#[test]
-fn noncreature_with_only_an_unimplemented_clause_is_metadata_only() {
-    let rules = CardRules::new_enchantment(ManaCost::default()).with_abilities(&DEFERRED_CLAUSE);
-
-    assert_eq!(
-        rules.implementation_status(),
-        ImplementationStatus::MetadataOnly
-    );
-    assert_eq!(
-        CardComposition::single("Deferred enchantment", rules).play_options[0].effect_status,
-        CardEffectStatus::MetadataOnly
     );
 }
 

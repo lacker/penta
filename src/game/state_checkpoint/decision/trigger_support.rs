@@ -26,10 +26,9 @@ pub(in crate::game::state_checkpoint) fn pending_trigger_snapshot(
             // own program, and a mode is an ordinary spell ability nested
             // under the trigger. It states no intervening-if of its own,
             // which is why a modal trigger declares none either.
-            DeclarativeAbilityDef::Spell(_) if ability.is_executable() => None,
+            DeclarativeAbilityDef::Spell(_) => None,
             DeclarativeAbilityDef::AlternativeCast(alternative)
-                if ability.is_executable()
-                    && alternative.kind == AlternativeCastKindDef::Miracle =>
+                if alternative.kind == AlternativeCastKindDef::Miracle =>
             {
                 None
             }
@@ -88,9 +87,9 @@ pub(in crate::game::state_checkpoint) fn parse_pending_trigger(
     let condition = match ability.definition {
         DeclarativeAbilityDef::Triggered(triggered) => triggered.condition,
         // The chosen mode of a modal trigger, as above.
-        DeclarativeAbilityDef::Spell(_) if ability.is_executable() => None,
+        DeclarativeAbilityDef::Spell(_) => None,
         DeclarativeAbilityDef::AlternativeCast(alternative)
-            if ability.is_executable() && alternative.kind == AlternativeCastKindDef::Miracle =>
+            if alternative.kind == AlternativeCastKindDef::Miracle =>
         {
             None
         }

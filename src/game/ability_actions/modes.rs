@@ -9,7 +9,6 @@ impl Game {
             .modes
             .iter()
             .enumerate()
-            .filter(|(_, mode)| mode.is_executable())
             .filter_map(|(index, _)| ModeId::from_index(index))
             .collect::<Vec<_>>();
         mode_id_selections(

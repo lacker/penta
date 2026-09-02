@@ -2,23 +2,22 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef,
-    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
-    ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EmblemCharacteristics,
-    ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
-    ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef, PerPlayerSelectionDef,
-    PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef, AppliedEffectDef,
+    AppliedRuleDef, AttackEventMatcherDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
+    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
+    ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef,
+    ControlDurationDef, CopyExceptionsDef, CostQuantityDef, CounterKind, CreatureTypeSetDef,
+    DrawEventMatcherDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    EmblemCharacteristics, ExiledCastPermissionDef, HalvedValueDef, InstalledTriggerDef,
+    InstalledTriggerLifetimeDef, ManaColor, ManaCost, ManaSpendEffectDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef,
+    PerPlayerSelectionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SetOperationDef,
     SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
-    ZonePlacement, abilities, tokens,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    tokens,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
@@ -73,7 +72,6 @@ static DEVOURER_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
 );
 
 // MH3 2 — Devourer of Destiny
-// Audit: partial — The opening-hand action is declarative; its cast trigger needs a predicate for permanents with one or more colors.
 pub(in crate::card::sets) static DEVOURER_OF_DESTINY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("560debcd-feb4-4534-991e-a7aa1cca2409"),
     "Devourer of Destiny",
@@ -84,7 +82,18 @@ pub(in crate::card::sets) static DEVOURER_OF_DESTINY: CardRecord = CardRecord::n
             "You may reveal this card from your opening hand. If you do, at the beginning of your first upkeep, look at the top four cards of your library. You may put one of those cards back on top of your library. Exile the rest.",
             EffectDef::InstallTrigger(InstalledTriggerDef::once(&DEVOURER_OPENING_TRIGGER)),
         ),
-        AbilityDef::not_implemented("When you cast this spell, exile target permanent that's one or more colors.", "Needs a target predicate for a permanent whose color set is nonempty."),
+        AbilityDef::triggered_with_targets(
+            "When you cast this spell, exile target permanent that's one or more colors.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Not(
+                &ObjectPredicateDef::ColorCount(0),
+            ))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
     ]),
 );
 
@@ -127,7 +136,7 @@ const fn landscape_abilities(
 }
 
 // MH3 18 — Aerie Auxiliary
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AERIE_AUXILIARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e4c134b-a416-467e-a158-def84c92c6af"),
     "Aerie Auxiliary",
@@ -137,7 +146,7 @@ pub(in crate::card::sets) static AERIE_AUXILIARY: CardRecord = CardRecord::new(
 );
 
 // MH3 22 — Dog Umbra
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DOG_UMBRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d4ba710-eddb-40ca-b2fe-0e4e778aab9c"),
     "Dog Umbra",
@@ -147,7 +156,7 @@ pub(in crate::card::sets) static DOG_UMBRA: CardRecord = CardRecord::new(
 );
 
 // MH3 34 — Mandibular Kite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANDIBULAR_KITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b922f71-18e6-4a74-b792-d477d4a1deca"),
     "Mandibular Kite",
@@ -368,7 +377,7 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
 );
 
 // MH3 45 — Thraben Charm
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd28a646-f38f-4cdf-948c-969cd979e5e6"),
     "Thraben Charm",
@@ -414,7 +423,7 @@ pub(in crate::card::sets) static BRAINSURGE: CardRecord = CardRecord::new(
 );
 
 // MH3 69 — Serum Visionary
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08a587f5-5910-405e-8982-c889dbbc7f98"),
     "Serum Visionary",
@@ -424,7 +433,7 @@ pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
 );
 
 // MH3 80 — Accursed Marauder
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ACCURSED_MARAUDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44a63029-1fb2-4fdc-bca9-0a530c7b42d9"),
     "Accursed Marauder",
@@ -603,7 +612,7 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
 );
 
 // MH3 106 — Retrofitted Transmogrant
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12c1b83d-710b-4680-855a-02ba1f72abf0"),
     "Retrofitted Transmogrant",
@@ -613,7 +622,7 @@ pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardReco
 );
 
 // MH3 108 — Scurrilous Sentry
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCURRILOUS_SENTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29e2805f-59fa-4a6d-97bc-266191b2aa8d"),
     "Scurrilous Sentry",
@@ -623,7 +632,7 @@ pub(in crate::card::sets) static SCURRILOUS_SENTRY: CardRecord = CardRecord::new
 );
 
 // MH3 111 — Wither and Bloom
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITHER_AND_BLOOM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("95c2390f-71f1-4e42-83da-d603ca86a8d0"),
     "Wither and Bloom",
@@ -689,57 +698,56 @@ pub(in crate::card::sets) static DETECTIVES_PHOENIX: CardRecord = CardRecord::ne
     // back again as a creature when whatever it was wearing is gone.
     CardRules::new_enchantment_creature(mana_cost!("{2}{R}"), &["Phoenix"], 2, 2)
         .with_abilities(&[
-            AbilityDef::alternative_cast_with_targets(
-                mana_cost!("{R}"),
-                AlternativeCastKindDef::Bestow,
-                Some(
-                    "Bestow—{R}, Collect evidence 6. (To pay this bestow cost, pay {R} and exile cards \
+        AbilityDef::alternative_cast_with_targets(
+            mana_cost!("{R}"),
+            AlternativeCastKindDef::Bestow,
+            Some(
+                "Bestow—{R}, Collect evidence 6. (To pay this bestow cost, pay {R} and exile cards \
                      with total mana value 6 or greater from your graveyard.)",
-                ),
-                &abilities::ENCHANT_CREATURE_TARGET,
-                EffectDef::Attach {
-                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                },
-            )
-            // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
-            // mana values add up to six, however many that takes.
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
-                ObjectPredicateDef::Any,
-                ZoneKind::Graveyard,
-                CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
-                    value: ObjectSetValueDef::Aggregate {
-                        select: ObjectValueDef::ManaValue,
-                        operation: AggregateOperationDef::Sum,
-                    },
-                    minimum: 6,
-                }),
-            ))
-            .with_alternative_from_graveyard(),
-            abilities::flying(),
-            abilities::haste(),
-            // Only while it is an Aura: unattached, the recipient names nothing and
-            // the clause does nothing, which is exactly CR 702.103d.
-            AbilityDef::static_ability(
-                "Enchanted creature gets +2/+2 and has flying and haste.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-                        AppliedEffectDef::add_ability(&abilities::flying()),
-                        AppliedEffectDef::add_ability(&abilities::haste()),
-                    ]),
-                },
             ),
-            AbilityDef::static_ability(
-                "You may cast this card from your graveyard using its bestow ability.",
-                EffectDef::None,
-            )
-            .with_source_zones(&[ZoneKind::Graveyard])
-            .with_coverage(AbilityCoverageDef::explained_complete(
-                "The permission is carried by the bestow clause, which this card marks as castable from \
-                 its owner's graveyard.",
-            )),
-        ]),
+            &abilities::ENCHANT_CREATURE_TARGET,
+            EffectDef::Attach {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        )
+        // Collect evidence 6 (CR 701.58a): cards out of your own graveyard whose
+        // mana values add up to six, however many that takes.
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Any,
+            ZoneKind::Graveyard,
+            CostQuantityDef::ObjectSetValueAtLeast(&ObjectSetValueAtLeastDef {
+                value: ObjectSetValueDef::Aggregate {
+                    select: ObjectValueDef::ManaValue,
+                    operation: AggregateOperationDef::Sum,
+                },
+                minimum: 6,
+            }),
+        ))
+        .with_alternative_from_graveyard(),
+        abilities::flying(),
+        abilities::haste(),
+        // Only while it is an Aura: unattached, the recipient names nothing and
+        // the clause does nothing, which is exactly CR 702.103d.
+        AbilityDef::static_ability(
+            "Enchanted creature gets +2/+2 and has flying and haste.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::AttachedPermanent,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::haste()),
+                ]),
+            },
+        ),
+        AbilityDef::static_ability(
+            "You may cast this card from your graveyard using its bestow ability.",
+            EffectDef::None,
+        )
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
 );
 
 // MH3 122 — Galvanic Discharge
@@ -784,7 +792,7 @@ pub(in crate::card::sets) static GALVANIC_DISCHARGE: CardRecord = CardRecord::ne
 );
 
 // MH3 128 — Molten Gatekeeper
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f5ba065-2806-4e99-a330-168cfe76250f"),
     "Molten Gatekeeper",
@@ -794,7 +802,7 @@ pub(in crate::card::sets) static MOLTEN_GATEKEEPER: CardRecord = CardRecord::new
 );
 
 // MH3 145 — Basking Broodscale
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASKING_BROODSCALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5feba5d6-99a6-4e9b-8a7d-90d955868fc3"),
     "Basking Broodscale",
@@ -876,7 +884,7 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
 );
 
 // MH3 150 — Eldrazi Repurposer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELDRAZI_REPURPOSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37f79ba7-7b65-4387-b498-f770816ce8dd"),
     "Eldrazi Repurposer",
@@ -886,7 +894,7 @@ pub(in crate::card::sets) static ELDRAZI_REPURPOSER: CardRecord = CardRecord::ne
 );
 
 // MH3 151 — Evolution Witness
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b4ecfa6-5e38-4c0a-91e2-f93cb492f374"),
     "Evolution Witness",
@@ -942,7 +950,7 @@ pub(in crate::card::sets) static FANATIC_OF_RHONAS: CardRecord = CardRecord::new
 );
 
 // MH3 157 — Horrific Assault
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORRIFIC_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfa6ed13-7bba-40c0-8e0e-4ffd3cea6241"),
     "Horrific Assault",
@@ -994,7 +1002,7 @@ pub(in crate::card::sets) static MALEVOLENT_RUMBLE: CardRecord = CardRecord::new
 );
 
 // MH3 164 — Nyxborn Hydra
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NYXBORN_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("902a969e-9f22-4e92-93eb-9d4536ca82e5"),
     "Nyxborn Hydra",
@@ -1233,7 +1241,7 @@ pub(in crate::card::sets) static SPRINGHEART_NANTUKO: CardRecord = CardRecord::n
 );
 
 // MH3 172 — Temperamental Oozewagg
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TEMPERAMENTAL_OOZEWAGG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6625df2e-7046-411a-ae86-c46ac0953a0b"),
     "Temperamental Oozewagg",
@@ -1243,7 +1251,7 @@ pub(in crate::card::sets) static TEMPERAMENTAL_OOZEWAGG: CardRecord = CardRecord
 );
 
 // MH3 179 — Conduit Goblin
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c9ad04d-c4d4-4d06-93bb-a881be733717"),
     "Conduit Goblin",
@@ -1253,7 +1261,7 @@ pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
 );
 
 // MH3 184 — Expanding Ooze
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPANDING_OOZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbdb095d-b826-4e3e-8c61-0d408e52d6b8"),
     "Expanding Ooze",
@@ -1263,7 +1271,7 @@ pub(in crate::card::sets) static EXPANDING_OOZE: CardRecord = CardRecord::new(
 );
 
 // MH3 185 — Faithful Watchdog
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAITHFUL_WATCHDOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9afac99-a094-41a8-8323-90dec29691c4"),
     "Faithful Watchdog",
@@ -1387,7 +1395,7 @@ pub(in crate::card::sets) static PSYCHIC_FROG: CardRecord = CardRecord::new_with
 );
 
 // MH3 204 — Snapping Voidcraw
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ab3a5a5-9cb1-4ee5-b7b2-d870c9a56097"),
     "Snapping Voidcraw",
@@ -1397,7 +1405,7 @@ pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new
 );
 
 // MH3 208 — Writhing Chrysalis
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRITHING_CHRYSALIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f54dbeb1-51f8-40e2-912a-ec25457de5a2"),
     "Writhing Chrysalis",
@@ -1458,7 +1466,7 @@ pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::n
 );
 
 // MH3 218 — Contaminated Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2312c49-1627-47ad-8113-78a999a97d8d"),
     "Contaminated Landscape",
@@ -1468,7 +1476,7 @@ pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord
 );
 
 // MH3 219 — Deceptive Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DECEPTIVE_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ae6828e-ff19-45db-8b59-61616353491f"),
     "Deceptive Landscape",
@@ -1478,7 +1486,7 @@ pub(in crate::card::sets) static DECEPTIVE_LANDSCAPE: CardRecord = CardRecord::n
 );
 
 // MH3 221 — Foreboding Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOREBODING_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57fb0fa7-0c5c-4a75-9461-c51403c30282"),
     "Foreboding Landscape",
@@ -1488,7 +1496,7 @@ pub(in crate::card::sets) static FOREBODING_LANDSCAPE: CardRecord = CardRecord::
 );
 
 // MH3 223 — Perilous Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERILOUS_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b0bd07e-cf80-4d64-af29-f4cec6632b3e"),
     "Perilous Landscape",
@@ -1498,7 +1506,7 @@ pub(in crate::card::sets) static PERILOUS_LANDSCAPE: CardRecord = CardRecord::ne
 );
 
 // MH3 225 — Seething Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEETHING_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("661fc907-7003-45c6-820c-9616e9a71c30"),
     "Seething Landscape",
@@ -1508,7 +1516,7 @@ pub(in crate::card::sets) static SEETHING_LANDSCAPE: CardRecord = CardRecord::ne
 );
 
 // MH3 226 — Shattered Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHATTERED_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3da28c7-6e92-439d-a163-91682d4f11dc"),
     "Shattered Landscape",
@@ -1626,7 +1634,7 @@ pub(in crate::card::sets) static SHIFTING_WOODLAND: CardRecord = CardRecord::new
 );
 
 // MH3 231 — Tranquil Landscape
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANQUIL_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("113f48b9-a972-4e2c-af95-05ab078e01f2"),
     "Tranquil Landscape",
@@ -1933,7 +1941,7 @@ pub(in crate::card::sets) static SINK_INTO_STUPOR: CardRecord = CardRecord::new_
 );
 
 // MH3 284 — Annoyed Altisaur
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANNOYED_ALTISAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7536d618-0c98-45bb-913b-b8117b4acf87"),
     "Annoyed Altisaur",
@@ -1943,7 +1951,7 @@ pub(in crate::card::sets) static ANNOYED_ALTISAUR: CardRecord = CardRecord::new(
 );
 
 // MH3 286 — Priest of Titania
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIEST_OF_TITANIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("965c33c3-0c68-4516-b8b0-5a0552ed44b6"),
     "Priest of Titania",
@@ -2220,7 +2228,9 @@ pub(in crate::card::sets) static TAMIYO_INQUISITIVE_STUDENT: CardRecord = CardRe
                                         "You have no maximum hand size.",
                                         EffectDef::StaticApply {
                                             recipient: EffectRecipientDef::Controller,
-                                            effect: AppliedEffectDef::Rule(AppliedRuleDef::NoMaximumHandSize),
+                                            effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                                                crate::card::PlayerRuleDef::NoMaximumHandSize,
+                                            )),
                                         },
                                     )] }),
                             },
@@ -2458,55 +2468,13 @@ pub(in crate::card::sets) static GUIDE_OF_SOULS: CardRecord = CardRecord::new(
 );
 
 // MH3 452 — Crabomination
+// Audit: unsupported — Needs one choice among the three cards exiled by its enter trigger before offering a free cast.
 pub(in crate::card::sets) static CRABOMINATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6ac511f-6c28-45f9-968b-9ac72872641b"),
     "Crabomination",
     CardArt::new("b6ac511f-6c28-45f9-968b-9ac72872641b", "Nicholas Gregory"),
     CardSet::ModernHorizons3,
-    // Six mana for a 5/5 is not the price anybody pays: an artifact that
-    // has already done its work pays most of it.
-    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Crab", "Demon"], 5, 5)
-        .with_abilities(&[
-            AbilityDef::alternative_cast(
-                mana_cost!("{5}{B}{B}"),
-                AlternativeCastKindDef::Emerge,
-                Some(
-                    "Emerge from artifact {5}{B}{B} (You may cast this spell by sacrificing an artifact \
-                     and paying the emerge cost reduced by that artifact's mana value.)",
-                ),
-                EffectDef::None,
-            )
-            .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
-                ObjectPredicateDef::HasType(CardType::Artifact),
-                CostQuantityDef::Fixed(1),
-            )),
-            // The free cast happens as the trigger resolves; what is not cast then
-            // stays in exile.
-            //
-            // Audit: partial — the pile is offered one card at a time rather than as
-            // a choice among the three, so which card the permission reaches is the
-            // order they were exiled in rather than the caster's pick.
-            abilities::enters_trigger_with_targets(
-                "When this creature enters, target opponent exiles the top card of their library, a card \
-                 at random from their graveyard, and a card at random from their hand. You may cast a \
-                 spell from among cards exiled this way without paying its mana cost.",
-                &[AbilityTargetDef::exactly_one(
-                    AbilityTargetPredicate::Player(PlayerRelation::Opponent),
-                )],
-                EffectDef::ExileOneFromEachZone(&PileExileDef {
-                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    // The three zones, in the order the card names them. A library has a top
-                    // to take from; a graveyard and a hand do not, so those are drawn at
-                    // random.
-                    zones: &[
-                        ZonePickDef::top(ZoneKind::Library),
-                        ZonePickDef::at_random(ZoneKind::Graveyard),
-                        ZonePickDef::at_random(ZoneKind::Hand),
-                    ],
-                    permission: Some(ExiledCastPermissionDef::FreeWhileResolving),
-                }),
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // MH3 457 — Detective's Phoenix (alternate printing)

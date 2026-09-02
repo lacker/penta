@@ -189,7 +189,7 @@ pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_wit
 );
 
 // CLU 94 — Repeal
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPEAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7dd929-4bba-46a6-86c9-b8ed853eb721"),
     "Repeal",
@@ -199,7 +199,7 @@ pub(in crate::card::sets) static REPEAL: CardRecord = CardRecord::new(
 );
 
 // CLU 186 — Dimir Guildmage
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9ab53af-749e-4559-85fa-f8d4181cf7da"),
     "Dimir Guildmage",
@@ -209,7 +209,7 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
 );
 
 // CLU 229 — Azorius Chancery
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AZORIUS_CHANCERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e58365d2-e4db-444b-b1a9-795668ad3038"),
     "Azorius Chancery",
@@ -219,7 +219,7 @@ pub(in crate::card::sets) static AZORIUS_CHANCERY: CardRecord = CardRecord::new(
 );
 
 // CLU 241 — Orzhov Basilica
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ORZHOV_BASILICA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f9154d2a-3fc5-4fd6-9885-a810cb6b542a"),
     "Orzhov Basilica",
@@ -229,7 +229,7 @@ pub(in crate::card::sets) static ORZHOV_BASILICA: CardRecord = CardRecord::new(
 );
 
 // CLU 246 — Selesnya Sanctuary
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SELESNYA_SANCTUARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5e51787-f9c9-4926-9df1-a384a3092676"),
     "Selesnya Sanctuary",

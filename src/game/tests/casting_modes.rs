@@ -403,36 +403,6 @@ fn counterflux_uses_not_you_for_both_casting_modes() {
 }
 
 #[test]
-fn a_non_executable_cannot_be_countered_clause_does_not_change_gameplay() {
-    static ABILITIES: [AbilityDef; 1] = [AbilityDef::static_ability(
-        "This spell can't be countered.",
-        EffectDef::StaticApply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-        },
-    )
-    .with_source_zones(&[ZoneKind::Stack])
-    .with_coverage(AbilityCoverageDef::metadata_only(
-        "Test-only incomplete clause.",
-    ))];
-    let definition_id = CardDefinitionId::new(20_000);
-    let mut definition = CardDefinition::new(
-        definition_id,
-        "Incomplete uncounterable spell",
-        CardSet::ReturnToRavnica,
-        crate::card::CardRules::unsupported(),
-    );
-    definition.rules = CardRules::new_instant(ManaCost::default()).with_abilities(&ABILITIES);
-    synchronize_single_part_definition(&mut definition);
-    let mut game = ready_game();
-    game.catalog = CardCatalog::new([definition]).unwrap();
-    game.stack
-        .push(spell(20_000, definition_id, PlayerId::One, 0));
-
-    assert!(game.can_be_countered(&game.stack[0]));
-}
-
-#[test]
 fn a_composite_static_clause_can_make_its_source_uncounterable() {
     static COMPONENTS: [AppliedEffectDef; 1] =
         [AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered)];

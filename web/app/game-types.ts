@@ -9,7 +9,7 @@ export type CardArtMetadata = {
 
 export type StackObjectKind = "Spell" | "ActivatedAbility" | "TriggeredAbility";
 
-export type ImplementationStatus = "complete" | "partial" | "metadataOnly";
+export type ImplementationStatus = "complete" | "unsupported";
 
 export type AbilityOriginMetadata =
   | { kind: "printed"; definition: number; partId: number; abilityId: number }

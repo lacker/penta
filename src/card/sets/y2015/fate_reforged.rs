@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // FRF 72 — Gurmag Angler
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GURMAG_ANGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9"),
     "Gurmag Angler",

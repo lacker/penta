@@ -12,7 +12,7 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // MRD 57 — Barter in Blood
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARTER_IN_BLOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("beccbb2c-ca1d-4b72-9eca-a64a313fd830"),
     "Barter in Blood",
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
 );
 
 // MRD 146 — Bonesplitter
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae31d513-7412-4467-b497-a7183ff29a42"),
     "Bonesplitter",
@@ -93,7 +93,7 @@ pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
 );
 
 // MRD 152 — Chrome Mox
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a058e68-70af-4a64-859c-c881e5578368"),
     "Chrome Mox",

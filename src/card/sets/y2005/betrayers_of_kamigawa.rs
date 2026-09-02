@@ -10,7 +10,7 @@ use crate::ids::TargetIndex;
 use crate::mana_cost;
 
 // BOK 76 — Okiba-Gang Shinobi
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5cd9297e-301e-4e70-af9b-3218eacacf8d"),
     "Okiba-Gang Shinobi",

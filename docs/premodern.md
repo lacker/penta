@@ -15,7 +15,7 @@ carry out.
 - All 8 lists registered and playable: Neal Sacks's Sligh, Daniel Sondike's
   GAT, Bryan Gulotta's Replenish, Drew Glauberg's Stasis, Chris Danis's BW
   Control, TentacleFan's Landstill, Andy Dominguez's RG Goblins, and Ryan
-  Marvin's Angry Hermit. Nothing in any of them is metadata-only or partial
+  Marvin's Angry Hermit. Every card in them is complete
 
 Nothing is outstanding: every card in the tranche is cataloged, and every
 list is registered and playable.
@@ -32,7 +32,7 @@ Edition through Scourge, the format's own thirty-three-card ban list, no
 restricted list, and contemporary mana rules. All three are taken from the
 [Premodern rules page][rules]. Every identity in those twenty-nine sets now has
 an ordered source entry and catalog representation; unimplemented cards are
-explicit metadata-only stubs.
+explicit unsupported declarations.
 
 The format is offered in the web client, and its picker lists exactly the
 decks the engine has registered. Whole-game coverage matches the other two
@@ -41,8 +41,8 @@ result and rebuild sampled Premodern positions from their observations.
 
 ## Remaining format work
 
-- Replace metadata-only inventory stubs with accurate characteristics and
-  Oracle clauses. Unsupported clauses must remain explicit rather than become
+- Replace unsupported inventory declarations with complete declarative cards and
+  Oracle clauses. Unsupported cards must remain explicit rather than become
   executable no-ops.
 - Implement reusable mechanics before card-local behavior. Cycling and
   typecycling, flashback, split cards, tutors, alternative costs that exile a
@@ -105,7 +105,7 @@ result and rebuild sampled Premodern positions from their observations.
 The card declarations and their inline `// Audit:` entries are the authoritative
 implementation inventory. Run `make catalog-report` for current Premodern
 coverage counts. The report partitions the format's full twenty-nine-set legal
-window into declarative, partial, metadata-only, and blocked cards, so
+window into declarative, unsupported, and blocked cards, so
 it gives a rough picture of how much of Premodern is implemented rather than an
 interaction audit limited to these eight decks.
 

@@ -114,8 +114,7 @@ impl Game {
             .flat_map(|part| part.rules.ability_clauses())
             .find_map(|ability| match ability.definition {
                 DeclarativeAbilityDef::AlternativeCast(alternative)
-                    if alternative.kind == AlternativeCastKindDef::Splice
-                        && ability.is_executable() =>
+                    if alternative.kind == AlternativeCastKindDef::Splice =>
                 {
                     match alternative.mana_cost {
                         crate::card::AlternativeCastManaCostDef::Fixed(cost) => Some(cost),

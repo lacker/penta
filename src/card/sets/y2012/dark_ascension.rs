@@ -5,19 +5,19 @@ use crate::card::sets::y2011::innistrad::{
     WEREWOLF_BACK_TRANSFORM, WEREWOLF_FRONT_TRANSFORM, morbid_entry_counters,
 };
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldArrivalDef,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyStackObjectDef,
-    CostModificationDef, CostQuantityDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
-    KeywordAbility, LifeConditionDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetCountConditionDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, QuantifierDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    SumValueDef, TargetConditionDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldArrivalDef, BattlefieldEntryModificationDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, ConditionalValueDef,
+    ControlDurationDef, CopyStackObjectDef, CostModificationDef, CostQuantityDef, CounterKind,
+    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef,
+    EffectChoiceDef, EffectDef, EffectRecipientDef, KeywordAbility, LifeConditionDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef, PlayerRefDef,
+    PlayerRelation, QuantifierDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{AdditionalCostObjectIndex, TargetIndex};
 use crate::{ParentBinding, mana_cost, value_if_condition};
@@ -235,7 +235,7 @@ pub(in crate::card::sets) static ELGAUD_INQUISITOR: CardRecord = CardRecord::new
 );
 
 // DKA 7 — Faith's Shield
-// Audit: metadata-only — Needs a recorded color choice, temporary protection from that choice, and the fateful-hour controller-life branch.
+// Audit: unsupported — Needs a recorded color choice, temporary protection from that choice, and the fateful-hour controller-life branch.
 pub(in crate::card::sets) static FAITH_S_SHIELD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65eb5920-3b03-4300-bc77-0fba5e6abe69"),
     "Faith's Shield",
@@ -300,7 +300,7 @@ pub(in crate::card::sets) static GAVONY_IRONWRIGHT: CardRecord = CardRecord::new
 );
 
 // DKA 10 — Hollowhenge Spirit
-// Audit: metadata-only — Needs an effect that removes a chosen attacking or blocking creature from combat.
+// Audit: unsupported — Needs an effect that removes a chosen attacking or blocking creature from combat.
 pub(in crate::card::sets) static HOLLOWHENGE_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b1be91a-cdec-4933-b834-0a7838abb9b8"),
     "Hollowhenge Spirit",
@@ -355,7 +355,7 @@ pub(in crate::card::sets) static LINGERING_SOULS: CardRecord = CardRecord::new_w
 );
 
 // DKA 13 — Loyal Cathar // Unhallowed Cathar
-// Audit: metadata-only — Needs a delayed end-step return that brings the dead card back transformed and tapped.
+// Audit: unsupported — Needs a delayed end-step return that brings the dead card back transformed and tapped.
 pub(in crate::card::sets) static LOYAL_CATHAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cb09041b-4d09-4cae-9e85-b859edae885b"),
     "Loyal Cathar",
@@ -493,7 +493,7 @@ pub(in crate::card::sets) static SANCTUARY_CAT: CardRecord = CardRecord::new_wit
 );
 
 // DKA 20 — Séance
-// Audit: metadata-only — Needs temporary copy tokens that add the Spirit subtype and a delayed end-step exile linked to each token.
+// Audit: unsupported — Needs temporary copy tokens that add the Spirit subtype and a delayed end-step exile linked to each token.
 pub(in crate::card::sets) static SEANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e00ae92c-af6d-4a00-b102-c6d3bcc394b4"),
     "Séance",
@@ -542,7 +542,7 @@ pub(in crate::card::sets) static SKILLFUL_LUNGE: CardRecord = CardRecord::new_wi
 );
 
 // DKA 23 — Sudden Disappearance
-// Audit: metadata-only — Needs one delayed trigger to return an arbitrary mass-exiled group at the next end step after the spell source has left the stack.
+// Audit: unsupported — Needs one delayed trigger to return an arbitrary mass-exiled group at the next end step after the spell source has left the stack.
 pub(in crate::card::sets) static SUDDEN_DISAPPEARANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a51b792c-b987-49b6-9cc6-80d613c7d065"),
     "Sudden Disappearance",
@@ -732,7 +732,7 @@ pub(in crate::card::sets) static BONE_TO_ASH: CardRecord = CardRecord::new_with_
 );
 
 // DKA 30 — Call to the Kindred
-// Audit: metadata-only — Needs a top-five selection predicate that dynamically shares a creature type with the enchanted creature, plus arbitrary bottom ordering.
+// Audit: unsupported — Needs a top-five selection predicate that dynamically shares a creature type with the enchanted creature, plus arbitrary bottom ordering.
 pub(in crate::card::sets) static CALL_TO_THE_KINDRED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee35f96c-6060-4456-897e-27b74c8c2137"),
     "Call to the Kindred",
@@ -791,7 +791,7 @@ pub(in crate::card::sets) static CHILL_OF_FOREBODING: CardRecord = CardRecord::n
 );
 
 // DKA 33 — Counterlash
-// Audit: metadata-only — Needs a post-counter optional cast from hand without paying mana, filtered by a card type shared with the countered spell.
+// Audit: unsupported — Needs a post-counter optional cast from hand without paying mana, filtered by a card type shared with the countered spell.
 pub(in crate::card::sets) static COUNTERLASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d3ec2c57-8e67-472d-8f2e-0492d311f130"),
     "Counterlash",
@@ -801,21 +801,13 @@ pub(in crate::card::sets) static COUNTERLASH: CardRecord = CardRecord::new(
 );
 
 // DKA 34 — Curse of Echoes
-// Audit: partial — Needs optional copies of a triggering spell with independently reselectable targets for every other player.
+// Audit: unsupported — Needs optional copies of a triggering spell with independently reselectable targets for every other player.
 pub(in crate::card::sets) static CURSE_OF_ECHOES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("147dbe42-665a-4e21-b405-d17554d5efcf"),
     "Curse of Echoes",
     crate::card::CardArt::new("147dbe42-665a-4e21-b405-d17554d5efcf", "Slawomir Maniak"),
     crate::card::CardSet::DarkAscension,
-    CardRules::new_enchantment(mana_cost!("{4}{U}"))
-        .with_subtypes(&["Aura", "Curse"])
-        .with_abilities(&[
-            abilities::enchant_player(),
-            AbilityDef::not_implemented(
-                "Whenever enchanted player casts an instant or sorcery spell, each other player may copy that spell and may choose new targets for the copy they control.",
-                "Copying another spell once for each other player with independently reselectable targets is not implemented.",
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // DKA 35 — Divination
@@ -831,7 +823,6 @@ pub(in crate::card::sets) static DIVINATION: CardRecord = CardRecord::new_with_l
 );
 
 // DKA 36 — Dungeon Geists
-// Audit: partial — A does-not-untap effect lasting until the source leaves is outside the shared applied-effect runtime boundary for another permanent.
 pub(in crate::card::sets) static DUNGEON_GEISTS: CardRecord = CardRecord::new_with_legacy_id(
     697,
     "Dungeon Geists",
@@ -844,12 +835,18 @@ pub(in crate::card::sets) static DUNGEON_GEISTS: CardRecord = CardRecord::new_wi
                 zones: &[ZoneKind::Battlefield],
                 controller: Some(PlayerRelation::Opponent),
                 owner: None,
-            })], EffectDef::Tap {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            })
-        .with_coverage(AbilityCoverageDef::partial(
-            "The target is tapped, but applying a does-not-untap effect to it until this source leaves is not supported by the shared runtime.",
-        )),
+            })], EffectDef::Sequence(&[
+                EffectDef::Tap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(
+                        AppliedRuleDef::DoesNotUntapDuringUntapStep,
+                    ),
+                    duration: ResolvedEffectDurationDef::WhileSourceRemains,
+                },
+            ])),
     ]),
 );
 
@@ -1157,7 +1154,7 @@ pub(in crate::card::sets) static SHRIEKGEIST: CardRecord = CardRecord::new_with_
 );
 
 // DKA 50 — Soul Seizer // Ghastly Haunting
-// Audit: metadata-only — Needs transforming a creature into an Aura, attaching the transformed permanent to the damaged player, and granting permanent control of that player's creature.
+// Audit: unsupported — Needs transforming a creature into an Aura, attaching the transformed permanent to the damaged player, and granting permanent control of that player's creature.
 pub(in crate::card::sets) static SOUL_SEIZER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f500cb95-d5ea-4cf2-920a-f1df45a9059b"),
     "Soul Seizer",
@@ -1289,21 +1286,13 @@ pub(in crate::card::sets) static CHOSEN_OF_MARKOV: CardRecord = CardRecord::new_
 );
 
 // DKA 56 — Curse of Misfortunes
-// Audit: partial — Needs a library search predicate excluding Curse names already attached to the enchanted player and an attached battlefield arrival.
+// Audit: unsupported — Needs a library search excluding names already attached to the enchanted player and an attached arrival.
 pub(in crate::card::sets) static CURSE_OF_MISFORTUNES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c531d218-ff1c-4333-a19d-446d709b1e28"),
     "Curse of Misfortunes",
     crate::card::CardArt::new("c531d218-ff1c-4333-a19d-446d709b1e28", "Terese Nielsen"),
     crate::card::CardSet::DarkAscension,
-    CardRules::new_enchantment(mana_cost!("{4}{B}"))
-        .with_subtypes(&["Aura", "Curse"])
-        .with_abilities(&[
-            abilities::enchant_player(),
-            AbilityDef::not_implemented(
-                "At the beginning of your upkeep, you may search your library for a Curse card that doesn't have the same name as a Curse attached to enchanted player, put it onto the battlefield attached to that player, then shuffle.",
-                "Searching by names absent from the enchanted player's attached Curses and attaching the battlefield arrival are not implemented.",
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // DKA 57 — Curse of Thirst
@@ -1398,7 +1387,7 @@ pub(in crate::card::sets) static DEATHS_CARESS: CardRecord = CardRecord::new_wit
 );
 
 // DKA 60 — Falkenrath Torturer
-// Audit: metadata-only — Needs an activated sacrifice cost to expose whether the chosen creature was Human so the conditional counter can follow the flying grant.
+// Audit: unsupported — Needs an activated sacrifice cost to expose whether the chosen creature was Human so the conditional counter can follow the flying grant.
 pub(in crate::card::sets) static FALKENRATH_TORTURER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e81d6ed-2141-4177-9ded-680fff65b39e"),
     "Falkenrath Torturer",
@@ -1432,7 +1421,7 @@ pub(in crate::card::sets) static FARBOG_BONEFLINGER: CardRecord = CardRecord::ne
 );
 
 // DKA 62 — Fiend of the Shadows
-// Audit: metadata-only — Needs play permission for a card exiled from an opponent's hand and a sacrifice-regeneration procedure that preserves source identity.
+// Audit: unsupported — Needs play permission for a card exiled from an opponent's hand and a sacrifice-regeneration procedure that preserves source identity.
 pub(in crate::card::sets) static FIEND_OF_THE_SHADOWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38167118-f5b3-4e07-8060-b170b49cff9e"),
     "Fiend of the Shadows",
@@ -1464,7 +1453,7 @@ pub(in crate::card::sets) static GERALFS_MESSENGER: CardRecord = CardRecord::new
 );
 
 // DKA 64 — Gravecrawler
-// Audit: metadata-only — Needs conditional graveyard casting permission tied to controlling a Zombie and a static prohibition on blocking.
+// Audit: unsupported — Needs conditional graveyard casting permission tied to controlling a Zombie and a static prohibition on blocking.
 pub(in crate::card::sets) static GRAVECRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33df275d-bdad-4e4b-9f92-ec2bf98fcba7"),
     "Gravecrawler",
@@ -1474,7 +1463,7 @@ pub(in crate::card::sets) static GRAVECRAWLER: CardRecord = CardRecord::new(
 );
 
 // DKA 65 — Gravepurge
-// Audit: metadata-only — Needs an unbounded “any number” target group; the fixed-cardinality target representation cannot express every legal graveyard size.
+// Audit: unsupported — Needs an unbounded “any number” target group; the fixed-cardinality target representation cannot express every legal graveyard size.
 pub(in crate::card::sets) static GRAVEPURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c0c266b-9ef5-4de2-a358-65739de41491"),
     "Gravepurge",
@@ -1484,7 +1473,7 @@ pub(in crate::card::sets) static GRAVEPURGE: CardRecord = CardRecord::new(
 );
 
 // DKA 66 — Gruesome Discovery
-// Audit: metadata-only — Needs the morbid replacement branch to reveal a hand and let the spell's controller choose two cards from it.
+// Audit: unsupported — Needs the morbid replacement branch to reveal a hand and let the spell's controller choose two cards from it.
 pub(in crate::card::sets) static GRUESOME_DISCOVERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0a9d733-24b6-49ed-a15a-c00285eea4b2"),
     "Gruesome Discovery",
@@ -1626,7 +1615,7 @@ pub(in crate::card::sets) static MIKAEUS_THE_UNHALLOWED: CardRecord = CardRecord
 );
 
 // DKA 71 — Ravenous Demon // Archdemon of Greed
-// Audit: metadata-only — Needs a transformed-face upkeep procedure that offers a Human sacrifice and otherwise transforms the source and makes its controller lose 9 life.
+// Audit: unsupported — Needs a transformed-face upkeep procedure that offers a Human sacrifice and otherwise transforms the source and makes its controller lose 9 life.
 pub(in crate::card::sets) static RAVENOUS_DEMON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("abbbb466-31ef-42dd-9993-124f7ec3d8ae"),
     "Ravenous Demon",
@@ -1759,10 +1748,7 @@ pub(in crate::card::sets) static TRAGIC_SLIP: CardRecord = CardRecord::new_with_
             // The conditional value on the spell clause above already
             // carries this modifier; this clause has no second effect to run.
             EffectDef::None,
-        )
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The morbid amount is chosen by the value on the preceding clause.",
-        )),
+        ),
     ]),
 );
 
@@ -1919,7 +1905,7 @@ pub(in crate::card::sets) static AFFLICTED_DESERTER: CardRecord = CardRecord::ne
 );
 
 // DKA 82 — Alpha Brawl
-// Audit: metadata-only — Needs damage sourced by the targeted creature to every other creature its opponent controls, followed by reciprocal damage from each survivor.
+// Audit: unsupported — Needs damage sourced by the targeted creature to every other creature its opponent controls, followed by reciprocal damage from each survivor.
 pub(in crate::card::sets) static ALPHA_BRAWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2ec168a-3e4f-4527-901a-bc28cc28d125"),
     "Alpha Brawl",
@@ -1984,21 +1970,13 @@ pub(in crate::card::sets) static BURNING_OIL: CardRecord = CardRecord::new_with_
 );
 
 // DKA 85 — Curse of Bloodletting
-// Audit: partial — Needs a damage-event replacement that doubles damage to the enchanted player with replacement-order choices.
+// Audit: unsupported — Needs a damage-event replacement that doubles damage to the enchanted player with replacement-order choices.
 pub(in crate::card::sets) static CURSE_OF_BLOODLETTING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9dc4ac6f-0005-47f8-bee9-10429cc542e4"),
     "Curse of Bloodletting",
     crate::card::CardArt::new("9dc4ac6f-0005-47f8-bee9-10429cc542e4", "Michael C. Hayes"),
     crate::card::CardSet::DarkAscension,
-    CardRules::new_enchantment(mana_cost!("{3}{R}{R}"))
-        .with_subtypes(&["Aura", "Curse"])
-        .with_abilities(&[
-            abilities::enchant_player(),
-            AbilityDef::not_implemented(
-                "If a source would deal damage to enchanted player, it deals double that damage to that player instead.",
-                "Damage-event multiplication and replacement-order choices are not implemented.",
-            ),
-        ]),
+    CardRules::unsupported(),
 );
 
 // DKA 86 — Erdwal Ripper
@@ -2732,7 +2710,7 @@ pub(in crate::card::sets) static DERANGED_OUTCAST: CardRecord = CardRecord::new_
 );
 
 // DKA 113 — Favor of the Woods
-// Audit: metadata-only — Trigger capture has no event for the attached creature becoming a blocker.
+// Audit: unsupported — Trigger capture has no event for the attached creature becoming a blocker.
 pub(in crate::card::sets) static FAVOR_OF_THE_WOODS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("da0e760a-241b-40c5-b201-bfc03effed2e"),
     "Favor of the Woods",
@@ -2865,10 +2843,7 @@ pub(in crate::card::sets) static HUNGER_OF_THE_HOWLPACK: CardRecord = CardRecord
         AbilityDef::static_ability(
             "Morbid — Put three +1/+1 counters on that creature instead if a creature died this turn.",
             EffectDef::None,
-        )
-        .with_coverage(AbilityCoverageDef::explained_complete(
-            "The morbid replacement amount is selected by the preceding spell clause.",
-        )),
+        ),
     ]),
 );
 
@@ -2940,7 +2915,7 @@ pub(in crate::card::sets) static LAMBHOLT_ELDER: CardRecord = CardRecord::new_df
 );
 
 // DKA 123 — Lost in the Woods
-// Audit: metadata-only — Needs a per-attacker top-card reveal, a Forest-card branch that removes that attacker from combat, and bottom placement.
+// Audit: unsupported — Needs a per-attacker top-card reveal, a Forest-card branch that removes that attacker from combat, and bottom placement.
 pub(in crate::card::sets) static LOST_IN_THE_WOODS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5865603c-0a5e-45c3-84e3-2dc3b4cf0cf7"),
     "Lost in the Woods",
@@ -3157,7 +3132,7 @@ pub(in crate::card::sets) static WILD_HUNGER: CardRecord = CardRecord::new_with_
 );
 
 // DKA 133 — Wolfbitten Captive // Krallenhorde Killer
-// Audit: metadata-only — Needs a once-per-turn activation limit shared with each face's distinct self-pump ability in a transforming Werewolf composition.
+// Audit: unsupported — Needs a once-per-turn activation limit shared with each face's distinct self-pump ability in a transforming Werewolf composition.
 pub(in crate::card::sets) static WOLFBITTEN_CAPTIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1303e02a-ef69-4817-bca5-02c74774b811"),
     "Wolfbitten Captive",
@@ -3281,7 +3256,7 @@ pub(in crate::card::sets) static DROGSKOL_REAVER: CardRecord = CardRecord::new_w
 );
 
 // DKA 138 — Falkenrath Aristocrat
-// Audit: metadata-only — Needs an activated sacrifice cost to expose whether the chosen creature was Human for the conditional +1/+1 counter.
+// Audit: unsupported — Needs an activated sacrifice cost to expose whether the chosen creature was Human for the conditional +1/+1 counter.
 pub(in crate::card::sets) static FALKENRATH_ARISTOCRAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c397388e-ebe2-4034-83b7-a7c0df1af78f"),
     "Falkenrath Aristocrat",
@@ -3291,7 +3266,7 @@ pub(in crate::card::sets) static FALKENRATH_ARISTOCRAT: CardRecord = CardRecord:
 );
 
 // DKA 139 — Havengul Lich
-// Audit: metadata-only — Needs temporary graveyard-casting permission for a targeted creature card and a later cast trigger that copies all of that card's activated abilities.
+// Audit: unsupported — Needs temporary graveyard-casting permission for a targeted creature card and a later cast trigger that copies all of that card's activated abilities.
 pub(in crate::card::sets) static HAVENGUL_LICH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("321077a4-e468-4e74-94f7-80c83790e0d9"),
     "Havengul Lich",
@@ -3415,7 +3390,7 @@ pub(in crate::card::sets) static HUNTMASTER_OF_THE_FELLS: CardRecord =
     );
 
 // DKA 141 — Immerwolf
-// Audit: metadata-only — Needs a continuous prohibition preventing non-Human Werewolves you control from transforming.
+// Audit: unsupported — Needs a continuous prohibition preventing non-Human Werewolves you control from transforming.
 pub(in crate::card::sets) static IMMERWOLF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9326061f-ea76-4be7-a06f-aefb63454777"),
     "Immerwolf",
@@ -3425,7 +3400,7 @@ pub(in crate::card::sets) static IMMERWOLF: CardRecord = CardRecord::new(
 );
 
 // DKA 142 — Sorin, Lord of Innistrad
-// Audit: metadata-only — Needs its creator-owned emblem ability, Vampire token effect, and an ultimate continuation that returns only the permanents destroyed this way under your control.
+// Audit: unsupported — Needs its creator-owned emblem ability, Vampire token effect, and an ultimate continuation that returns only the permanents destroyed this way under your control.
 pub(in crate::card::sets) static SORIN_LORD_OF_INNISTRAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27bb371f-d49f-41bd-bbe0-d5e1e2067e36"),
     "Sorin, Lord of Innistrad",
@@ -3483,7 +3458,7 @@ pub(in crate::card::sets) static STROMKIRK_CAPTAIN: CardRecord = CardRecord::new
 );
 
 // DKA 144 — Altar of the Lost
-// Audit: metadata-only — Needs two-mana any-color combination choice plus spending provenance restricted to flashback spells cast from graveyards.
+// Audit: unsupported — Needs two-mana any-color combination choice plus spending provenance restricted to flashback spells cast from graveyards.
 pub(in crate::card::sets) static ALTAR_OF_THE_LOST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("774e5322-1b41-488d-94b1-7742fbd983d4"),
     "Altar of the Lost",
@@ -3531,7 +3506,7 @@ pub(in crate::card::sets) static AVACYNS_COLLAR: CardRecord = CardRecord::new_wi
 );
 
 // DKA 146 — Chalice of Life // Chalice of Death
-// Audit: metadata-only — Needs an activation-resolution life-total threshold that transforms the source, plus the complete back-face mana ability.
+// Audit: unsupported — Needs an activation-resolution life-total threshold that transforms the source, plus the complete back-face mana ability.
 pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d9c1c46-7aa7-464c-87b0-b29b9663daef"),
     "Chalice of Life",
@@ -3541,7 +3516,7 @@ pub(in crate::card::sets) static CHALICE_OF_LIFE: CardRecord = CardRecord::new(
 );
 
 // DKA 147 — Elbrus, the Binding Blade // Withengar Unbound
-// Audit: partial — Withengar's player-loses trigger is metadata-only because Penta's supported two-player game terminates as soon as a player loses.
+// Audit: unsupported — Penta's two-player game terminates before Withengar's player-loses trigger could resolve.
 pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
     CardRecord::new_dfc_with_legacy_id(
         2313,
@@ -3551,54 +3526,9 @@ pub(in crate::card::sets) static ELBRUS_THE_BINDING_BLADE: CardRecord =
         &[
             (
                 "Elbrus, the Binding Blade",
-                const {
-                    CardRules::new_artifact(mana_cost!("{7}"))
-                    .with_supertype(CardSupertype::Legendary)
-                    .with_subtypes(&const { ["Equipment"] })
-                    .with_abilities(&const { [
-                        AbilityDef::static_ability(
-                            "Equipped creature gets +1/+0.",
-                            EffectDef::StaticApply {
-                                recipient: EffectRecipientDef::AttachedPermanent,
-                                effect: AppliedEffectDef::modify_power_toughness(
-                                    ValueDef::Constant(1),
-                                    ValueDef::Constant(0),
-                                ),
-                            },
-                        ),
-                        AbilityDef::triggered(
-                            "When equipped creature deals combat damage to a player, unattach Elbrus, then transform it.",
-                            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::AttachedToSource),
-                            EffectDef::Sequence(&const { [
-                                EffectDef::Unattach {
-                                    object: EffectRecipientDef::Source,
-                                },
-                                EffectDef::Transform {
-                                    object: EffectRecipientDef::Source,
-                                },
-                            ] }),
-                        ),
-                        abilities::equip(&const { [AbilityCostDef::Mana(mana_cost!("{1}"))] }, "Equip {1}"),
-                    ] })
-                },
+                const { CardRules::unsupported() },
             ),
-            (
-                "Withengar Unbound",
-                const {
-                    CardRules::new_creature_without_mana_cost(&const { ["Demon"] }, 13, 13)
-                    .with_supertype(CardSupertype::Legendary)
-                    .printed_colors(&const { [ManaColor::Black] })
-                    .with_abilities(&const { [
-                        abilities::flying(),
-                        abilities::intimidate(),
-                        abilities::trample(),
-                        AbilityDef::not_implemented(
-                            "Whenever a player loses the game, put thirteen +1/+1 counters on Withengar Unbound.",
-                            "Penta's supported two-player game ends as soon as a player loses, so no continuing game exists in which this trigger can be put on the stack or resolve.",
-                        ),
-                    ] })
-                },
-            ),
+            ("Withengar Unbound", const { CardRules::unsupported() }),
         ],
     );
 
@@ -3627,7 +3557,7 @@ pub(in crate::card::sets) static EXECUTIONERS_HOOD: CardRecord = CardRecord::new
 );
 
 // DKA 149 — Grafdigger's Cage
-// Audit: metadata-only — Needs zone-origin-sensitive casting prohibitions and a replacement that stops creature cards in graveyards or libraries entering the battlefield.
+// Audit: unsupported — Needs zone-origin-sensitive casting prohibitions and a replacement that stops creature cards in graveyards or libraries entering the battlefield.
 pub(in crate::card::sets) static GRAFDIGGER_S_CAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2a6240e7-d3aa-40e9-a627-58e7bf62525c"),
     "Grafdigger's Cage",
@@ -3739,7 +3669,7 @@ then: None,
 );
 
 // DKA 152 — Jar of Eyeballs
-// Audit: metadata-only — Needs a “remove all” counter cost whose removed count is retained as X for a later top-card selection.
+// Audit: unsupported — Needs a “remove all” counter cost whose removed count is retained as X for a later top-card selection.
 pub(in crate::card::sets) static JAR_OF_EYEBALLS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72825270-d5c1-4ab1-903a-e2868ade17f2"),
     "Jar of Eyeballs",
@@ -3749,7 +3679,7 @@ pub(in crate::card::sets) static JAR_OF_EYEBALLS: CardRecord = CardRecord::new(
 );
 
 // DKA 153 — Warden of the Wall
-// Audit: metadata-only — Needs a continuous animation active only during turns other than its controller's, while preserving the tapped entry and mana ability.
+// Audit: unsupported — Needs a continuous animation active only during turns other than its controller's, while preserving the tapped entry and mana ability.
 pub(in crate::card::sets) static WARDEN_OF_THE_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd1a1f48-d46b-4b8e-a642-fc70fd9ef7df"),
     "Warden of the Wall",

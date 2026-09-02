@@ -9,7 +9,7 @@ use crate::card::{
 use crate::mana_cost;
 
 // ECL 128 — Brambleback Brute
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ebb8365-c6e1-46e8-a242-6aa27b21e68a"),
     "Brambleback Brute",
@@ -19,7 +19,7 @@ pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new
 );
 
 // ECL 181 — Lys Alana Informant
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LYS_ALANA_INFORMANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a79649c4-559e-4306-a102-5fd8750629c7"),
     "Lys Alana Informant",
@@ -69,7 +69,7 @@ pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::n
 );
 
 // ECL 251 — Wary Farmer
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22d20c0d-176d-49c9-aa0b-2c5778548cc5"),
     "Wary Farmer",

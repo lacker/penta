@@ -27,7 +27,7 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_w
 );
 
 // DST 127 — Leonin Bola
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7eab112-20a6-414f-84c9-678580485420"),
     "Leonin Bola",
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static SKULLCLAMP: CardRecord = CardRecord::new_with_l
 );
 
 // DST 157 — Vulshok Morningstar
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VULSHOK_MORNINGSTAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("acf00de0-af24-4ef9-8ac2-135e6b53a8fd"),
     "Vulshok Morningstar",

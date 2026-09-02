@@ -63,7 +63,7 @@ pub(in crate::card::sets) static PALACE_JAILER: CardRecord = CardRecord::new_wit
 );
 
 // CN2 19 — Palace Sentinels
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e002a99-eb2b-4cc3-992e-f3ee42245dba"),
     "Palace Sentinels",
@@ -73,7 +73,7 @@ pub(in crate::card::sets) static PALACE_SENTINELS: CardRecord = CardRecord::new(
 );
 
 // CN2 48 — Thorn of the Black Rose
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e4829c6-50d4-4602-af78-59249486a97c"),
     "Thorn of the Black Rose",
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecor
 );
 
 // CN2 64 — Entourage of Trest
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d7ee777-6113-43f8-883e-c7569eefb872"),
     "Entourage of Trest",

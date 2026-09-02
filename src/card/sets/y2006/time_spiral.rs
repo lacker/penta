@@ -3,15 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CounterKind, CounterKindDef,
-    CounterOperationDef, EffectChoiceDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, PregameConditionDef, PrintedManaCost, TokenCountersDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ComparisonDef, CounterKind,
+    CounterKindDef, CounterOperationDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost, TokenCountersDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // TSP 29 — Momentary Blink
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOMENTARY_BLINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("032e072a-0630-472b-9106-5df554dff785"),
     "Momentary Blink",
@@ -21,7 +21,7 @@ pub(in crate::card::sets) static MOMENTARY_BLINK: CardRecord = CardRecord::new(
 );
 
 // TSP 40 — Serra Avenger
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERRA_AVENGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e9d7c1c-3bfd-4705-9bc2-5ca3f84cc32a"),
     "Serra Avenger",
@@ -135,7 +135,7 @@ pub(in crate::card::sets) static DEEP_SEA_KRAKEN: CardRecord = CardRecord::new(
 );
 
 // TSP 66 — Looter il-Kor
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOOTER_IL_KOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("368ee06f-9021-4b65-9f53-9c326bf3a27f"),
     "Looter il-Kor",
@@ -145,7 +145,7 @@ pub(in crate::card::sets) static LOOTER_IL_KOR: CardRecord = CardRecord::new(
 );
 
 // TSP 104 — Dread Return
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DREAD_RETURN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7e304fc-0ace-459e-8d2f-376f1899639c"),
     "Dread Return",
@@ -205,7 +205,7 @@ pub(in crate::card::sets) static RIFT_BOLT: CardRecord = CardRecord::new(
 );
 
 // TSP 180 — Sulfurous Blast
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SULFUROUS_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67511e0e-be09-4f4e-9949-b9ecbdc7f536"),
     "Sulfurous Blast",
@@ -326,7 +326,7 @@ pub(in crate::card::sets) static JHOIRAS_TIMEBUG: CardRecord = CardRecord::new(
 );
 
 // TSP 264 — Stuffy Doll
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STUFFY_DOLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14ca7425-a499-4864-b955-369ef2577849"),
     "Stuffy Doll",
@@ -336,7 +336,6 @@ pub(in crate::card::sets) static STUFFY_DOLL: CardRecord = CardRecord::new(
 );
 
 // TSP 274 — Gemstone Caverns
-// Audit: partial — The opening-hand action is declarative; its conditional mana replacement needs a mana ability that branches on a luck counter.
 pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94d74254-4750-4fb3-9e53-473a5f98b315"),
     "Gemstone Caverns",
@@ -366,9 +365,25 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
                     },
                 },
             ),
-            AbilityDef::not_implemented(
-                "{T}: Add {C}. If Gemstone Caverns has a luck counter on it, instead add one mana of any color.",
-                "Needs a conditional activated-mana result keyed to a counter on its source.",
+            AbilityDef::activated_mana_if(
+                "{T}: Add {C}.",
+                &[AbilityCostDef::TapSource],
+                &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("luck"),
+                    comparison: ComparisonDef::LessOrEqual,
+                    amount: 0,
+                },
+                EffectDef::AddMana(AddManaEffectDef::one(crate::card::ManaColor::Colorless)),
+            ),
+            AbilityDef::activated_mana_if(
+                "{T}: If this land has a luck counter on it, add one mana of any color instead.",
+                &[AbilityCostDef::TapSource],
+                &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("luck"),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                EffectDef::AddMana(AddManaEffectDef::any_color()),
             ),
         ]),
 );

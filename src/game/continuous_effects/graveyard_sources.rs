@@ -75,6 +75,7 @@ impl Game {
             .collect()
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn visit_static_source_effects(
         &self,
         input: StaticEffectSource<'_>,

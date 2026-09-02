@@ -467,10 +467,18 @@ fn activated_clauses_keep_their_own_origins() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Declarative(ScopedEffect {
-            effect: EffectDef::DrawCards { .. },
-            ..
-        }))
+        Some(
+            StackAbilityResolver::Declarative(ScopedEffect {
+                effect: EffectDef::DrawCards { .. },
+                ..
+            }) | StackAbilityResolver::Prepared {
+                reference: ScopedEffect {
+                    effect: EffectDef::DrawCards { .. },
+                    ..
+                },
+                ..
+            }
+        )
     ));
     pass_priority_pair(&mut game);
     assert!(game.battlefield[0].tapped);
@@ -542,10 +550,18 @@ fn a_second_activation_after_another_clause_keeps_its_own_origin() {
             .ability
             .as_ref()
             .map(|ability| ability.resolver),
-        Some(StackAbilityResolver::Declarative(ScopedEffect {
-            effect: EffectDef::DrawCards { .. },
-            ..
-        }))
+        Some(
+            StackAbilityResolver::Declarative(ScopedEffect {
+                effect: EffectDef::DrawCards { .. },
+                ..
+            }) | StackAbilityResolver::Prepared {
+                reference: ScopedEffect {
+                    effect: EffectDef::DrawCards { .. },
+                    ..
+                },
+                ..
+            }
+        )
     ));
     assert_eq!(game.players[PlayerId::One.index()].life, 20);
     pass_priority_pair(&mut game);

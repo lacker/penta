@@ -143,27 +143,8 @@ impl Game {
     }
 
     fn supplies_land_type_effect_uncached(&self, source: &Permanent) -> bool {
-        if source.face_down.is_none()
-            && source.active_copy_values().is_none()
-            && let ObjectKind::Card(definition) = source.card.definition
-            && let Some(program) = self
-                .prepared_engine
-                .static_program(definition, source.presented)
-        {
-            return program.supplies_land_type_effect();
-        }
-        if let Some(program) = self.prepared_static_program(Self::effective_rules_source(source)) {
-            return program.supplies_land_type_effect()
-                || source.active_copy_values().into_iter().any(|copy| {
-                    copy.added_abilities.iter().any(|ability| {
-                        let ability = ability.definition;
-                        ability.is_executable()
-                            && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-                            && ability
-                                .declarative_effect()
-                                .is_some_and(Self::effect_contains_land_type_operation)
-                    })
-                });
+        if let Some(supplies) = self.prepared_supplies_land_type_effect(source) {
+            return supplies;
         }
         self.with_effective_rules(source, |rules| {
             rules
@@ -1001,4 +982,5 @@ impl Game {
 }
 
 include!("land_type_layers/effect_inspection.rs");
+include!("land_type_layers/prepared.rs");
 include!("land_type_layers/query_memo.rs");

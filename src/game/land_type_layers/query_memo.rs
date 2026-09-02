@@ -117,7 +117,7 @@ impl Game {
         });
     }
 
-    fn supplies_land_type_effect(&self, source: &Permanent) -> bool {
+    pub(in crate::game) fn supplies_land_type_effect(&self, source: &Permanent) -> bool {
         if !self.land_type_memo_installed() {
             return self.supplies_land_type_effect_uncached(source);
         }

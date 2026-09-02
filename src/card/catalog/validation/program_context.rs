@@ -402,7 +402,9 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
             | AppliedRuleDef::MayPlayAdditionalLands(_)
             | AppliedRuleDef::MayPlayAnyNumberOfLands
             | AppliedRuleDef::CannotDrawMoreThanEachTurn(_)
-            | AppliedRuleDef::RevealsDrawnCards | AppliedRuleDef::CannotGainLife
+            | AppliedRuleDef::NoMaximumHandSize
+            | AppliedRuleDef::RevealsDrawnCards
+            | AppliedRuleDef::CannotGainLife
             | AppliedRuleDef::PlayerRule(_)
             | AppliedRuleDef::DoublesTokensCreated,
         ) => true,

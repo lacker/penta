@@ -142,8 +142,11 @@ pub(in super::super) fn shared_activated_costs(
             }
             AbilityCostDef::MoveToZone(movement) => {
                 battlefield
-                    && matches!(movement.from, ZoneKind::Hand | ZoneKind::Graveyard)
-                    && movement.to == ZoneKind::Exile
+                    && matches!(
+                        (movement.from, movement.to),
+                        (ZoneKind::Hand | ZoneKind::Graveyard, ZoneKind::Exile)
+                            | (ZoneKind::Hand, ZoneKind::Graveyard)
+                    )
                     && movement.fixed_count().is_some_and(|count| count > 0)
                     && movement
                         .binding

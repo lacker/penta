@@ -539,8 +539,6 @@ pub enum ValueDef {
     /// How many recipients remain after legality is checked for the effect
     /// currently resolving. Zero outside a recipient-aware effect path.
     ResolvedRecipientCount,
-    /// The power of what a target slot points at, for "damage equal to its
-    /// power".
     /// The triggering object's power, read with last-known information. A
     /// death trigger asks this about a creature that has already left, which
     /// is the only time it is interesting.
@@ -548,10 +546,12 @@ pub enum ValueDef {
     /// The triggering object's toughness, read the same way and for the same
     /// reason: a death trigger asks about a creature that has already left.
     TriggeringObjectToughness,
+    /// The power of what a target slot points at, for "damage equal to its
+    /// power". Current and last-known battlefield, stack, and card objects
+    /// all retain the characteristic this reads.
     TargetPower(TargetIndex),
-    /// The toughness of what a target slot points at. Read the same way
-    /// as its power, and no harder to reach -- the card simply has to say
-    /// which characteristic it wants.
+    /// The toughness of what a target slot points at. Read the same way as
+    /// its power, including current and last-known nonbattlefield objects.
     TargetToughness(TargetIndex),
     /// How many cards are in the library of the player a target slot
     /// points at. Read live, so an effect that mills as it goes sees

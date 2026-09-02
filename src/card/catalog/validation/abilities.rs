@@ -592,20 +592,20 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         | DeclarativeAbilityDef::Keyword(_)
         | DeclarativeAbilityDef::DeckConstruction(_) => None,
     };
-    let binds_chosen_cost_card = matches!(
-        ability.definition,
-        DeclarativeAbilityDef::Activated(definition)
-            if definition.costs.iter().any(|cost| matches!(
-                cost,
-                AbilityCostDef::MoveToZone(movement)
-                    if movement.binding == Some(crate::Binding!("object"))
-            ))
-    );
+    let chosen_cost_card_binding = match ability.definition {
+        DeclarativeAbilityDef::Activated(definition) => {
+            definition.costs.iter().find_map(|cost| match cost {
+                AbilityCostDef::MoveToZone(movement) => movement.binding,
+                _ => None,
+            })
+        }
+        _ => None,
+    };
     validate_ability_program_targets(
         targets,
         ability.effect.definition,
         trigger_event,
-        binds_chosen_cost_card,
+        chosen_cost_card_binding,
     )?;
     Ok(())
 }

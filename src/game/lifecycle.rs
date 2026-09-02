@@ -406,6 +406,12 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == object)
             .and_then(|permanent| self.power(permanent))
+            .or_else(|| {
+                self.stack
+                    .iter()
+                    .find(|stack| stack.id == object)
+                    .and_then(|stack| self.stack_trigger_event_object(stack)?.power)
+            })
             .or_else(|| match self.retired_objects.get(&object) {
                 Some(RetiredObject::Permanent { power, .. }) => *power,
                 // A card that was never a permanent still has a power to
@@ -674,10 +680,19 @@ impl Game {
             .iter()
             .find(|permanent| permanent.card.id == object)
             .and_then(|permanent| self.toughness(permanent))
+            .or_else(|| {
+                self.stack
+                    .iter()
+                    .find(|stack| stack.id == object)
+                    .and_then(|stack| self.stack_trigger_event_object(stack)?.toughness)
+            })
             .or_else(|| match self.retired_objects.get(&object) {
                 Some(RetiredObject::Permanent { toughness, .. }) => *toughness,
                 Some(RetiredObject::Card(card)) => self.printed_card_toughness(card, None),
-                Some(RetiredObject::Stack(_)) | None => self
+                Some(RetiredObject::Stack(stack)) => {
+                    self.stack_trigger_event_object(stack)?.toughness
+                }
+                None => self
                     .card_in_nonbattlefield_zone(object)
                     .and_then(|(zone, card)| self.printed_card_toughness(card, Some(zone))),
             })

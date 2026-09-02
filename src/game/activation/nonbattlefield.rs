@@ -15,6 +15,11 @@ impl Game {
         movement: MoveToZoneCostDef,
         cost_objects: &[GameObjectId],
     ) {
+        if movement.to == ZoneKind::Graveyard {
+            debug_assert_eq!(movement.from, ZoneKind::Hand);
+            self.discard_cards(player, cost_objects);
+            return;
+        }
         debug_assert_eq!(movement.to, ZoneKind::Exile);
         let mut moved = Vec::new();
         for chosen in cost_objects {

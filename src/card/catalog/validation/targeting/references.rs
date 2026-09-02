@@ -47,15 +47,14 @@ pub(super) fn validate_ability_program_targets(
     targets: &[AbilityTargetDef],
     program: AbilityProgramDef,
     trigger_event: Option<TriggerEventDef>,
-    binds_chosen_cost_card: bool,
+    chosen_cost_card_binding: Option<Binding>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
     let bindings = BindingRegistry::default();
-    let scope = if binds_chosen_cost_card {
-        BindingScope::empty(&bindings).with_object(Binding!("object"))?
-    } else {
-        BindingScope::empty(&bindings)
-    };
+    let scope = chosen_cost_card_binding.map_or_else(
+        || Ok(BindingScope::empty(&bindings)),
+        |binding| BindingScope::empty(&bindings).with_object(binding),
+    )?;
     validate_program_references(program, targets.len(), scope)?;
     validate_program_target_shapes(program, targets, trigger_event)
 }

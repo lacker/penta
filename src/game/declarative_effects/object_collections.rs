@@ -179,19 +179,14 @@ impl Game {
             }
             EffectDef::ClassifyObjects(definition) => {
                 let input = self.effect_objects(definition.input, object, &context, scoped);
-                let source = object.source.unwrap_or(object.id);
                 let (matching, remainder) = input.into_iter().partition(|target| {
-                    if definition.object == crate::card::ObjectPredicateDef::HasChosenName {
-                        return context.chosen_name.as_ref().is_some_and(|chosen| {
-                            let Target::Card(id) = target else {
-                                return false;
-                            };
-                            self.card_in_nonbattlefield_zone(*id)
-                                .and_then(|(_, card)| self.catalog.get(card.definition))
-                                .is_some_and(|card| card.name == *chosen)
-                        });
-                    }
-                    self.bound_object_matches(*target, definition.object, source)
+                    self.effect_collection_target_matches(
+                        definition.object,
+                        *target,
+                        object,
+                        &context,
+                        scoped,
+                    )
                 });
                 let mut context = context;
                 context.bind_object_group(definition.matching, matching);

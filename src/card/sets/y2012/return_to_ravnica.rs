@@ -3,25 +3,25 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::magic_2013};
 use crate::card::{
-    AbilityCostDef, AbilityCoverageDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef,
-    ChooseCardsFromCollectionDef, ChooseGroupDef, ChooseObjectOrderDef, CollectionInspectionDef,
-    ColorSet, ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CopyExceptionsDef,
-    CostModificationDef, CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageAssignmentDef,
-    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, IfNoObjectsDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
+    BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    CastTimingPermissionDef, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseGroupDef,
+    ChooseObjectOrderDef, ClassifyObjectsDef, CollectionInspectionDef, ColorSet, ComparisonDef,
+    ConditionalStaticEffectDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
+    CostQuantityDef, CounterKind, CreatureTypeSetDef, DamageAssignmentDef, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, FreePlayDef, FreePlayDurationDef, HalvedValueDef, IfNoObjectsDef,
     InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
     ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, PartitionGroupDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef,
-    SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef,
-    ZonePlacement, abilities,
+    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticApplyDef, TokenStatsDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
-use crate::ids::{Binding, ObjectBindingIndex, ObjectSetBindingIndex, ParentBinding, TargetIndex};
+use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 #[allow(clippy::too_many_arguments)]
@@ -1238,8 +1238,6 @@ pub(in crate::card::sets) static PARALYZING_GRASP: CardRecord = CardRecord::new_
 );
 
 // RTR 47 — Psychic Spiral
-const PSYCHIC_SPIRAL_MOVED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(7);
-
 pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59b09c16-f611-4c90-a990-e22bf46bd0e2"),
     "Psychic Spiral",
@@ -1259,14 +1257,14 @@ pub(in crate::card::sets) static PSYCHIC_SPIRAL: CardRecord = CardRecord::new(
             from: Some(ZoneKind::Graveyard),
             zone: ZoneKind::Library,
             placement: ZonePlacement::Top,
-            moved: Some(PSYCHIC_SPIRAL_MOVED),
+            moved: Some(ParentBinding),
             then: &EffectDef::Sequence(&[
                 EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Controller,
                 },
                 EffectDef::Mill {
                     player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    amount: ValueDef::BoundObjectCount(PSYCHIC_SPIRAL_MOVED),
+                    amount: ValueDef::BoundObjectCount(ParentBinding),
                 },
             ]),
         }),
@@ -1681,13 +1679,73 @@ pub(in crate::card::sets) static DRAINPIPE_VERMIN: CardRecord = CardRecord::new_
 );
 
 // RTR 67 — Grave Betrayal
-// Audit: unsupported — Needs a delayed next-end-step return linked to each dead creature plus persistent color and Zombie type changes.
+const GRAVE_BETRAYAL_CARD: Binding = Binding!("grave_betrayal_card");
+
 pub(in crate::card::sets) static GRAVE_BETRAYAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("47b38c68-8e72-4afc-bb5e-0b40880fdda9"),
     "Grave Betrayal",
     crate::card::CardArt::new("47b38c68-8e72-4afc-bb5e-0b40880fdda9", "Lucas Graciano"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{5}{B}{B}")).with_ability(
+        abilities::dies_trigger_matching(
+            "Whenever a creature you don't control dies, return it to the battlefield under your control with an additional +1/+1 counter on it at the beginning of the next end step. That creature is a black Zombie in addition to its other colors and types.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ]),
+            EffectDef::BindObjects(BindObjectsDef {
+                source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::One(
+                    ObjectRefDef::ZoneChangeResultOfTriggeringObject,
+                )),
+                binding: GRAVE_BETRAYAL_CARD,
+                then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(
+                    &AbilityDef::triggered(
+                        "At the beginning of the next end step, return that card to the battlefield under your control with an additional +1/+1 counter on it. That creature is a black Zombie in addition to its other colors and types.",
+                        TriggerEventDef::StepBegins {
+                            step: TurnStepDef::End,
+                            player: PlayerRelation::Any,
+                        },
+                        EffectDef::WithZoneMoveResult {
+                            effect: &EffectDef::WithBattlefieldArrival {
+                                effect: &EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                        GRAVE_BETRAYAL_CARD,
+                                    )),
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                },
+                                arrival: crate::card::BattlefieldArrivalDef {
+                                    controller: Some(PlayerRelation::You),
+                                    modifications: &[
+                                        BattlefieldEntryModificationDef::AddCounters {
+                                            kind: CounterKind::PlusOnePlusOne,
+                                            amount: 1,
+                                        },
+                                    ],
+                                    ..crate::card::BattlefieldArrivalDef::DEFAULT
+                                },
+                            },
+                            binding: ParentBinding,
+                            then: &EffectDef::Apply {
+                                recipient: EffectRecipientDef::binding_zone_change_successors(
+                                    ParentBinding,
+                                ),
+                                effect: AppliedEffectDef::Composite(&[
+                                    AppliedEffectDef::add_colors(ColorSet::from_colors(&[
+                                        ManaColor::Black,
+                                    ])),
+                                    AppliedEffectDef::add_creature_types(
+                                        CreatureTypeSetDef::named(&["Zombie"]),
+                                    ),
+                                ]),
+                                duration: ResolvedEffectDurationDef::Permanent,
+                            },
+                        },
+                    ),
+                )),
+            }),
+        ),
+    ),
 );
 
 // RTR 68 — Grim Roustabout
@@ -2354,12 +2412,13 @@ pub(in crate::card::sets) static GORE_HOUSE_CHAINWALKER: CardRecord =
     );
 
 // RTR 97 — Guild Feud
-const GUILD_FEUD_OPPONENT_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const GUILD_FEUD_OPPONENT_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(1);
-const GUILD_FEUD_OPPONENT_ENTERED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
-const GUILD_FEUD_CONTROLLER_CHOSEN: ObjectSetBindingIndex = ObjectSetBindingIndex::new(3);
-const GUILD_FEUD_CONTROLLER_REST: ObjectSetBindingIndex = ObjectSetBindingIndex::new(4);
-const GUILD_FEUD_CONTROLLER_ENTERED: ObjectSetBindingIndex = ObjectSetBindingIndex::new(5);
+const GUILD_FEUD_OPPONENT_CHOSEN: Binding = Binding!("guild_feud_opponent_chosen");
+const GUILD_FEUD_OPPONENT_REST: Binding = Binding!("guild_feud_opponent_rest");
+const GUILD_FEUD_OPPONENT_ENTERED: Binding = Binding!("guild_feud_opponent_entered");
+const GUILD_FEUD_CONTROLLER_CHOSEN: Binding = Binding!("guild_feud_controller_chosen");
+const GUILD_FEUD_CONTROLLER_REST: Binding = Binding!("guild_feud_controller_rest");
+const GUILD_FEUD_CONTROLLER_ENTERED: Binding = Binding!("guild_feud_controller_entered");
+const GUILD_FEUD_OPPONENT_FIGHTER: Binding = Binding!("guild_feud_opponent_fighter");
 
 pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8e622878-0aea-4401-873e-d34bf05ee98d"),
@@ -2394,13 +2453,16 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                     zone: ZoneKind::Battlefield,
                     placement: ZonePlacement::Top,
                     moved: Some(GUILD_FEUD_OPPONENT_ENTERED),
-                    then: &EffectDef::MoveObjects(MoveObjectsDef {
-                        input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_REST),
-                        from: Some(ZoneKind::Library),
-                        zone: ZoneKind::Graveyard,
-                        placement: ZonePlacement::Top,
-                        moved: None,
-                        then: &EffectDef::ChooseCardsFromCollection(
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(GUILD_FEUD_OPPONENT_REST),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Graveyard,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::ChooseCardsFromCollection(
                             ChooseCardsFromCollectionDef {
                                 source: ObjectCollectionSourceDef::TopCards {
                                     player: PlayerRefDef::EffectController,
@@ -2419,34 +2481,39 @@ pub(in crate::card::sets) static GUILD_FEUD: CardRecord = CardRecord::new(
                                     zone: ZoneKind::Battlefield,
                                     placement: ZonePlacement::Top,
                                     moved: Some(GUILD_FEUD_CONTROLLER_ENTERED),
-                                    then: &EffectDef::MoveObjects(MoveObjectsDef {
-                                        input: ObjectSetDef::Binding(GUILD_FEUD_CONTROLLER_REST),
-                                        from: Some(ZoneKind::Library),
-                                        zone: ZoneKind::Graveyard,
-                                        placement: ZonePlacement::Top,
-                                        moved: None,
-                                        then: &EffectDef::ForEachInBinding {
+                                    then: &EffectDef::Sequence(&[
+                                        EffectDef::MoveObjects(MoveObjectsDef {
+                                            input: ObjectSetDef::Binding(
+                                                GUILD_FEUD_CONTROLLER_REST,
+                                            ),
+                                            from: Some(ZoneKind::Library),
+                                            zone: ZoneKind::Graveyard,
+                                            placement: ZonePlacement::Top,
+                                            moved: None,
+                                            then: &EffectDef::None,
+                                        }),
+                                        EffectDef::ForEachInBinding {
                                             objects: GUILD_FEUD_OPPONENT_ENTERED,
-                                            binding: ObjectBindingIndex::PRIMARY,
+                                            binding: GUILD_FEUD_OPPONENT_FIGHTER,
                                             effect: &EffectDef::ForEachInBinding {
                                                 objects: GUILD_FEUD_CONTROLLER_ENTERED,
-                                                binding: ObjectBindingIndex::new(1),
+                                                binding: ParentBinding,
                                                 effect: &EffectDef::Fight {
                                                     first: ObjectRefDef::Binding(
-                                                        ObjectBindingIndex::PRIMARY,
+                                                        GUILD_FEUD_OPPONENT_FIGHTER,
                                                     ),
                                                     second: ObjectRefDef::Binding(
-                                                        ObjectBindingIndex::new(1),
+                                                        ParentBinding,
                                                     ),
                                                     excess: None,
                                                 },
                                             },
                                         },
-                                    }),
+                                    ]),
                                 }),
                             },
                         ),
-                    }),
+                    ]),
                 }),
             }),
         ),
@@ -3961,13 +4028,58 @@ pub(in crate::card::sets) static DREG_MANGLER: CardRecord = CardRecord::new_with
 );
 
 // RTR 159 — Epic Experiment
-// Audit: unsupported — Needs linked top-X exile, permission to cast qualifying cards without paying their costs, and cleanup of the uncast cards.
+const EPIC_EXPERIMENT_CASTABLE: Binding = Binding!("epic_experiment_castable");
+const EPIC_EXPERIMENT_EXILED: Binding = Binding!("epic_experiment_exiled");
+
 pub(in crate::card::sets) static EPIC_EXPERIMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42f0b68a-de4b-4c0c-98ac-a812017f88a7"),
     "Epic Experiment",
     crate::card::CardArt::new("42f0b68a-de4b-4c0c-98ac-a812017f88a7", "Dan Murayama Scott"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{U}{R}")).with_ability(AbilityDef::spell(
+        "Exile the top X cards of your library. You may cast instant and sorcery spells with mana value X or less from among them without paying their mana costs. Then put all cards exiled this way that weren't cast into your graveyard.",
+        abilities::bind_top_cards_then(
+            PlayerRefDef::EffectController,
+            ValueDef::ChosenX,
+            &const {
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(ParentBinding),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                    moved: Some(EPIC_EXPERIMENT_EXILED),
+                    then: &EffectDef::ClassifyObjects(ClassifyObjectsDef {
+                        input: ObjectSetDef::Binding(EPIC_EXPERIMENT_EXILED),
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                            ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+                        ]),
+                        matching: EPIC_EXPERIMENT_CASTABLE,
+                        remainder: Binding!("epic_experiment_rest"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::MayPlayWithoutPaying(FreePlayDef {
+                                objects: ObjectSetDef::Binding(EPIC_EXPERIMENT_CASTABLE),
+                                duration: FreePlayDurationDef::WhileResolving,
+                                mandatory: false,
+                                grants_haste: false,
+                            }),
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(EPIC_EXPERIMENT_EXILED),
+                                from: Some(ZoneKind::Exile),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                        ]),
+                    }),
+                })
+            },
+        ),
+    )),
 );
 
 // RTR 160 — Essence Backlash
@@ -4041,23 +4153,26 @@ pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::
     crate::card::CardSet::ReturnToRavnica,
     CardRules::new_instant(mana_cost!("{5}{U}{R}")).with_ability(AbilityDef::spell(
         "Search your library for an instant card with mana value 3, reveal it, and put it into your hand. Then repeat this process for instant cards with mana values 2 and 1. Then shuffle.",
-        EffectDef::SearchZone {
-            player: EffectRecipientDef::Controller,
-            source: ZoneKind::Library,
-            object: ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Instant),
-                ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3)),
-            ]),
-            minimum: 0,
-            maximum: ValueDef::Constant(1),
-            reveal: true,
-            destination: ZoneKind::Hand,
-            placement: ZonePlacement::Top,
-            shuffle: false,
-            enters_tapped: false,
-            attachment: None,
-            binding: None,
-            then: Some(&EffectDef::SearchZone {
+        EffectDef::Sequence(&[
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(3)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: false,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+            EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
                 object: ObjectPredicateDef::All(&[
@@ -4073,26 +4188,27 @@ pub(in crate::card::sets) static FIREMIND_S_FORESIGHT: CardRecord = CardRecord::
                 enters_tapped: false,
                 attachment: None,
                 binding: None,
-                then: Some(&EffectDef::SearchZone {
-                    player: EffectRecipientDef::Controller,
-                    source: ZoneKind::Library,
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Instant),
-                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
-                    ]),
-                    minimum: 0,
-                    maximum: ValueDef::Constant(1),
-                    reveal: true,
-                    destination: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                    shuffle: true,
-                    enters_tapped: false,
-                    attachment: None,
-                    binding: None,
-                    then: None,
-                }),
-            }),
-        },
+                then: None,
+            },
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::ManaValueEqualTo(ValueDef::Constant(1)),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: true,
+                destination: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ]),
     )),
 );
 
@@ -4183,13 +4299,34 @@ pub(in crate::card::sets) static GRISLY_SALVAGE: CardRecord = CardRecord::new_wi
 );
 
 // RTR 166 — Havoc Festival
-// Audit: unsupported — Needs a player-wide life-gain prohibition and an upkeep loss amount of half that player's life rounded up.
 pub(in crate::card::sets) static HAVOC_FESTIVAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04560623-c768-4273-a40d-7e3f39e832cf"),
     "Havoc Festival",
     crate::card::CardArt::new("04560623-c768-4273-a40d-7e3f39e832cf", "Johannes Voss"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{4}{B}{R}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Players can't gain life.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotGainLife),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of each player's upkeep, that player loses half their life, rounded up.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Halved(&HalvedValueDef::new(
+                    ValueDef::LifeTotal(PlayerRelation::EventPlayer),
+                    RoundingDef::Up,
+                )),
+            },
+        ),
+    ]),
 );
 
 // RTR 167 — Hellhole Flailer
@@ -4381,8 +4518,7 @@ pub(in crate::card::sets) static JARAD_GOLGARI_LICH_LORD: CardRecord = CardRecor
 );
 
 // RTR 175 — Jarad's Orders
-const JARAD_ORDERS_FOUND: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-const JARAD_ORDERS_GRAVEYARD: ObjectSetBindingIndex = ObjectSetBindingIndex::new(2);
+const JARAD_ORDERS_GRAVEYARD: Binding = Binding!("jarad_orders_graveyard");
 
 pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c59171ce-7dc6-4dd9-a124-3c2c3028d93d"),
@@ -4403,34 +4539,37 @@ pub(in crate::card::sets) static JARAD_S_ORDERS: CardRecord = CardRecord::new(
             shuffle: false,
             enters_tapped: false,
             attachment: None,
-            binding: Some(JARAD_ORDERS_FOUND),
+            binding: Some(ParentBinding),
             then: Some(&EffectDef::IfNoObjects(IfNoObjectsDef {
-                input: ObjectSetDef::Binding(JARAD_ORDERS_FOUND),
+                input: ObjectSetDef::Binding(ParentBinding),
                 if_empty: &EffectDef::ShuffleLibrary {
                     player: EffectRecipientDef::Controller,
                 },
                 otherwise: &EffectDef::ChooseCardsFromCollection(
                     ChooseCardsFromCollectionDef {
                         source: ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Binding(
-                            JARAD_ORDERS_FOUND,
+                            ParentBinding,
                         )),
                         actor: PlayerRefDef::EffectController,
                         inspection: CollectionInspectionDef::Reveal,
                         object: ObjectPredicateDef::Any,
                         minimum: 1,
                         maximum: 1,
-                        chosen: ObjectSetBindingIndex::new(1),
+                        chosen: ParentBinding,
                         remainder: JARAD_ORDERS_GRAVEYARD,
-                        then: &EffectDef::MoveObjects(MoveObjectsDef {
-                            input: ObjectSetDef::Binding(JARAD_ORDERS_GRAVEYARD),
-                            from: Some(ZoneKind::Hand),
-                            zone: ZoneKind::Graveyard,
-                            placement: ZonePlacement::Top,
-                            moved: None,
-                            then: &EffectDef::ShuffleLibrary {
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::MoveObjects(MoveObjectsDef {
+                                input: ObjectSetDef::Binding(JARAD_ORDERS_GRAVEYARD),
+                                from: Some(ZoneKind::Hand),
+                                zone: ZoneKind::Graveyard,
+                                placement: ZonePlacement::Top,
+                                moved: None,
+                                then: &EffectDef::None,
+                            }),
+                            EffectDef::ShuffleLibrary {
                                 player: EffectRecipientDef::Controller,
                             },
-                        }),
+                        ]),
                     },
                 ),
             })),
@@ -4569,13 +4708,53 @@ pub(in crate::card::sets) static LYEV_SKYKNIGHT: CardRecord = CardRecord::new_wi
 );
 
 // RTR 180 — Mercurial Chemister
-// Audit: unsupported — The second ability needs the discarded card's mana value linked through its activation cost as the damage amount.
+const MERCURIAL_CHEMISTER_DISCARDED: Binding = Binding!("mercurial_chemister_discarded");
+
 pub(in crate::card::sets) static MERCURIAL_CHEMISTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("881728ce-4b18-410e-9cdb-4d439ce0b21d"),
     "Mercurial Chemister",
     crate::card::CardArt::new("881728ce-4b18-410e-9cdb-4d439ce0b21d", "Wesley Burt"),
     crate::card::CardSet::ReturnToRavnica,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}{R}"), &["Human", "Wizard"], 2, 3).with_abilities(
+        &[
+            AbilityDef::activated(
+                "{U}, {T}: Draw two cards.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{U}")),
+                    AbilityCostDef::TapSource,
+                ],
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ),
+            AbilityDef::activated_with_targets(
+                "{R}, {T}, Discard a card: This creature deals damage to any target equal to that card's mana value.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{R}")),
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::MoveToZone(
+                        crate::card::MoveToZoneCostDef::new(
+                            ObjectPredicateDef::Any,
+                            ZoneKind::Hand,
+                            ZoneKind::Graveyard,
+                            1,
+                        )
+                        .binding(MERCURIAL_CHEMISTER_DISCARDED),
+                    ),
+                ],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::AnyTarget,
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::ObjectManaValue(ObjectRefDef::Binding(
+                        MERCURIAL_CHEMISTER_DISCARDED,
+                    )),
+                },
+            ),
+        ],
+    ),
 );
 
 // RTR 181 — New Prahv Guildmage
@@ -4706,8 +4885,6 @@ pub(in crate::card::sets) static NIV_MIZZET_DRACOGENIUS: CardRecord =
     );
 
 // RTR 184 — Rakdos Charm
-const RAKDOS_CHARM_CREATURES: ObjectSetBindingIndex = ObjectSetBindingIndex::new(0);
-
 pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fcd4394-d22d-4eec-ad73-ffaf10ad60de"),
     "Rakdos Charm",
@@ -4751,14 +4928,14 @@ pub(in crate::card::sets) static RAKDOS_CHARM: CardRecord = CardRecord::new(
                             &[ZoneKind::Battlefield],
                         ),
                     )),
-                    binding: RAKDOS_CHARM_CREATURES,
+                    binding: ParentBinding,
                     then: &EffectDef::ForEachInBinding {
-                        objects: RAKDOS_CHARM_CREATURES,
-                        binding: ObjectBindingIndex::PRIMARY,
+                        objects: ParentBinding,
+                        binding: ParentBinding,
                         effect: &EffectDef::DealDamageFrom {
-                            source: ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY),
+                            source: ObjectRefDef::Binding(ParentBinding),
                             recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
-                                ObjectRefDef::Binding(ObjectBindingIndex::PRIMARY),
+                                ObjectRefDef::Binding(ParentBinding),
                             )),
                             amount: ValueDef::Constant(1),
                         },

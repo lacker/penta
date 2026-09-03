@@ -363,6 +363,24 @@ pub const LAND_SUBTYPES: &[&str] = &[
     "Urza’s",
 ];
 
+/// Every nonbasic land subtype in [`LAND_SUBTYPES`]. Characteristic-defining
+/// abilities such as Planar Nexus use this vocabulary in every zone.
+pub const NONBASIC_LAND_SUBTYPES: &[&str] = &[
+    "Cave",
+    "Desert",
+    "Gate",
+    "Lair",
+    "Locus",
+    "Mine",
+    "Planet",
+    "Power-Plant",
+    "Sphere",
+    "Tower",
+    "Town",
+    "Urza's",
+    "Urza’s",
+];
+
 impl BasicLandType {
     pub const ALL: [Self; 5] = [
         Self::Plains,

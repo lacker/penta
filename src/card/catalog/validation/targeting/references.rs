@@ -984,7 +984,7 @@ fn validate_card_name_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match name {
-        CardNameDef::Object(reference) => validate_object_reference(reference, target_count, scope),
+        CardNameDef::NameOf(reference) => validate_object_reference(reference, target_count, scope),
         CardNameDef::EffectChoice => {
             scope.mark_chosen_name_read();
             Ok(())
@@ -999,6 +999,10 @@ fn validate_card_name_set_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match names {
+        CardNameSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .try_for_each(|names| validate_card_name_set_references(names, target_count, scope)),
         CardNameSetDef::NamesOf(objects)
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             validate_object_set_target_references(*objects, target_count, scope)

@@ -131,8 +131,9 @@ pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::ne
         abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
             "As this artifact enters, look at an opponent's hand, then choose any card name.",
         ),
-        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+        abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            crate::card::CardNameDef::SourceChoice,
         ),
     ]),
 );

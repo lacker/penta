@@ -87,7 +87,9 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        abilities::SOURCES_CHOSEN_CARD_NAME,
+                        ObjectPredicateDef::NameEquals(
+                            crate::card::CardNameDef::SourceChoice,
+                        ),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Opponent,

@@ -13,7 +13,9 @@ use super::{
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardNameDef {
     Literal(&'static str),
-    Object(ObjectRefDef),
+    /// The name of the referenced object, read with last-known information
+    /// after that object changes zones.
+    NameOf(ObjectRefDef),
     /// The card name chosen by the resolving effect.
     EffectChoice,
     /// The card name recorded on the ability's source as it entered.
@@ -28,6 +30,8 @@ pub enum CardNameDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardNameSetDef {
     NamesOf(&'static ObjectSetDef),
+    /// Every name in any of the listed sets.
+    Union(&'static [CardNameSetDef]),
     NamesAppearingAtLeast {
         objects: &'static ObjectSetDef,
         count: u8,

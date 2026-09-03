@@ -40,7 +40,7 @@ impl Game {
             ObjectPredicateDef::NameEquals(
                 CardNameDef::Literal(_)
                 | CardNameDef::SourceChoice
-                | CardNameDef::Object(ObjectRefDef::Source | ObjectRefDef::AttachedToSource),
+                | CardNameDef::NameOf(ObjectRefDef::Source | ObjectRefDef::AttachedToSource),
             )
             | ObjectPredicateDef::NameIn(CardNameSetDef::BasicLandNames) => true,
             ObjectPredicateDef::Any

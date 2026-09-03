@@ -3918,7 +3918,7 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                     // By name rather than by identity, so a second Sphere is
                     // no more a legal target than this one.
                     ObjectPredicateDef::Not(&ObjectPredicateDef::NameEquals(
-                        CardNameDef::Object(ObjectRefDef::Source),
+                        CardNameDef::NameOf(ObjectRefDef::Source),
                     )),
                 ]),
                 zones: &[ZoneKind::Battlefield],
@@ -3930,7 +3930,7 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                 effect: &EffectDef::ExileLinkedToSource {
                 until_source_leaves: false,
                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                    ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     ))),
                     &[ZoneKind::Battlefield],
@@ -4488,7 +4488,7 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
                 recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
                             TargetIndex::PRIMARY,
                         ))),
                     ]),
@@ -6205,8 +6205,9 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new_wi
             "As this artifact enters, choose a card name.",
             crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
         ),
-        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+        abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            CardNameDef::SourceChoice,
         ),
     ]),
 );

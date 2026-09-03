@@ -14,14 +14,28 @@ use crate::card::{
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
-/// Each land names the other two, and a name predicate compares the name a
-/// record carries. That is "Urza's Power Plant" without a hyphen, which is
-/// both the printed name and the current Oracle one; the reference text of
-/// the other two lands still hyphenates it, and the rules text here follows
-/// the record so that what a reader sees and what the engine matches agree.
-const fn controls_named(name: &'static str) -> ConditionDef {
+static URZAS_MINE_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::Subtype("Urza's"),
+    ObjectPredicateDef::Subtype("Mine"),
+]);
+static URZAS_POWER_PLANT_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::Subtype("Urza's"),
+    ObjectPredicateDef::Subtype("Power-Plant"),
+]);
+static URZAS_TOWER_TYPE: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Land),
+    ObjectPredicateDef::Subtype("Urza's"),
+    ObjectPredicateDef::Subtype("Tower"),
+]);
+
+/// One of the two-part Urza land types the mana abilities ask for. Both
+/// subtypes matter: a land that is only a Mine is not an Urza's Mine, while
+/// Planar Nexus has every nonbasic land type and therefore satisfies each.
+const fn controls_urzas_land(object: ObjectPredicateDef) -> ConditionDef {
     ConditionDef::Exists(ObjectQueryDef::matching(
-        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Literal(name)),
+        object,
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     ))
@@ -1952,15 +1966,15 @@ pub(in crate::card::sets) static URZA_S_MINE: CardRecord = CardRecord::new_with_
     "Urza's Mine",
     CardArt::new("ddf85792-470b-4b42-99ac-9cb43a575523", "Anson Maddocks"),
     CardSet::Antiquities,
-    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+    CardRules::new_land(&["Urza's", "Mine"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Power Plant and an Urza's Tower, add {C}{C} \
          instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[
-                    controls_named("Urza's Power Plant"),
-                    controls_named("Urza's Tower"),
+                    controls_urzas_land(URZAS_POWER_PLANT_TYPE),
+                    controls_urzas_land(URZAS_TOWER_TYPE),
                 ]),
                 2,
             ),
@@ -1980,14 +1994,14 @@ pub(in crate::card::sets) static URZA_S_POWER_PLANT: CardRecord = CardRecord::ne
     "Urza's Power Plant",
     CardArt::new("94896e0b-859c-47e4-bf27-35ed37b841e0", "Mark Tedin"),
     CardSet::Antiquities,
-    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+    CardRules::new_land(&["Urza's", "Power-Plant"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Mine and an Urza's Tower, add {C}{C} instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[
-                    controls_named("Urza's Mine"),
-                    controls_named("Urza's Tower"),
+                    controls_urzas_land(URZAS_MINE_TYPE),
+                    controls_urzas_land(URZAS_TOWER_TYPE),
                 ]),
                 2,
             ),
@@ -2007,15 +2021,15 @@ pub(in crate::card::sets) static URZA_S_TOWER: CardRecord = CardRecord::new_with
     "Urza's Tower",
     CardArt::new("8ed85655-fc59-4a57-bcf9-75e1899dff78", "Mark Poole"),
     CardSet::Antiquities,
-    CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
+    CardRules::new_land(&["Urza's", "Tower"]).with_ability(AbilityDef::activated_mana(
         "{T}: Add {C}. If you control an Urza's Mine and an Urza's Power Plant, add {C}{C}{C} \
          instead.",
         &[AbilityCostDef::TapSource],
         EffectDef::AddMana(
             AddManaEffectDef::one(ManaColor::Colorless).with_amount_override(
                 ConditionDef::All(&[
-                    controls_named("Urza's Mine"),
-                    controls_named("Urza's Power Plant"),
+                    controls_urzas_land(URZAS_MINE_TYPE),
+                    controls_urzas_land(URZAS_POWER_PLANT_TYPE),
                 ]),
                 3,
             ),

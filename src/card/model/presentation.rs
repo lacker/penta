@@ -550,7 +550,7 @@ impl AbilityTargetDef {
                 }
                 if predicate_negates(
                     object,
-                    ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Source)),
+                    ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Source)),
                 ) {
                     label.push_str(" with a different name from this source");
                 }

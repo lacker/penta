@@ -15,7 +15,7 @@ use super::{
 use crate::Binding;
 
 impl Game {
-    /// The printed name of any object the engine can still find, wherever it
+    /// The copiable name of any object the engine can still find, wherever it
     /// is. Used by the cards that speak about names rather than identity.
     pub(super) fn object_card_name(&self, id: GameObjectId) -> Option<Cow<'_, str>> {
         self.permanent_card_name(id)
@@ -30,6 +30,12 @@ impl Game {
                     })
                     .and_then(|card| self.catalog.get(card.definition))
                     .map(|card| Cow::Borrowed(card.name.as_str()))
+            })
+            .or_else(|| {
+                self.stack
+                    .iter()
+                    .find(|object| object.id == id)
+                    .and_then(|object| self.presentation_name(object.presentation()))
             })
             .or_else(|| match self.retired_objects.get(&id) {
                 Some(RetiredObject::Permanent { permanent, .. }) => {

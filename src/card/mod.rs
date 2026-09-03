@@ -63,7 +63,7 @@ pub use model::{
     ManaCostParseErrorKind, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef, ManaSplit,
     ManaTypeDef, ManaTypeFilterDef, ManaTypeSetDef, ManaTypeSourceDef, MeldComponentDef,
     MeldRecipeDef, MeldResultDef, MillLoopDef, MillUntilDef, ModalModeListDef, ModalSpellDef,
-    ModeDef, ModeSetDef, MoveObjectsDef, MoveToZoneCostDef, ObjectChoiceBindingDef,
+    ModeDef, ModeSetDef, MoveObjectsDef, MoveToZoneCostDef, NONBASIC_LAND_SUBTYPES, ObjectChoiceBindingDef,
     ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectCounterValueDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueAggregateDef,

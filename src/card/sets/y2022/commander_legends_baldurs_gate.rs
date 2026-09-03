@@ -41,7 +41,7 @@ pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
                         PlayerRelation::Opponent,
                     )),
                     object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                        CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     )),
                 },
             )),

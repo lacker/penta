@@ -2617,8 +2617,9 @@ pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new
             abilities::choose_nonland_card_name(
                 "As this creature enters, choose a nonland card name.",
             ),
-            abilities::cannot_activate_abilities_with_chosen_name(
+            abilities::cannot_activate_abilities_with_name(
                 "Activated abilities of sources with the chosen name can't be activated.",
+                crate::card::CardNameDef::SourceChoice,
             ),
         ]),
 );

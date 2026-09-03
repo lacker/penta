@@ -265,10 +265,6 @@ const BINDING_LABELS: &[&str] = &[
     "consult_kicked_rest",
     "consult_normal_chosen",
     "consult_normal_rest",
-    "counterbore_graveyard",
-    "counterbore_hand",
-    "counterbore_library",
-    "counterbore_target",
     "delver_matching",
     "delver_other",
     "devourer_exiled",
@@ -282,10 +278,6 @@ const BINDING_LABELS: &[&str] = &[
     "epic_experiment_exiled",
     "epic_experiment_rest",
     "exiled_creature",
-    "extirpate_graveyard",
-    "extirpate_hand",
-    "extirpate_library",
-    "extirpate_target",
     "fact_chosen",
     "fact_first",
     "fact_second",
@@ -365,8 +357,13 @@ const BINDING_LABELS: &[&str] = &[
     "uncovered_clues_remainder",
     "wilderness_remainder",
     "wilds_land",
+    // New labels append so every established compact identifier stays stable.
     "winding_way_chosen",
     "winding_way_rest",
+    "counterbore_target",
+    "extirpate_target",
+    "search_and_exile_hand",
+    "search_and_exile_library",
 ];
 
 #[allow(non_upper_case_globals)]

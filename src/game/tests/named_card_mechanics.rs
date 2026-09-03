@@ -595,12 +595,14 @@ fn extirpate_searches_another_players_zones_without_giving_them_the_choices() {
     .unwrap();
     pass_priority_pair(&mut game);
 
-    for zone_index in 0..3 {
+    for zone_index in 0..2 {
         let decision = game
             .observe(PlayerId::One)
             .decision
-            .unwrap_or_else(|| panic!("Extirpate offers searched zone {zone_index} in order"));
+            .unwrap_or_else(|| panic!("Extirpate offers hidden zone {zone_index} in order"));
         assert_eq!(decision.player, PlayerId::One);
+        assert_eq!(decision.visibility, DecisionVisibility::Private);
+        assert!(game.observe(PlayerId::Two).decision.is_none());
         let options = decision.options.iter().map(|option| option.id).collect();
         game.apply(
             PlayerId::One,
@@ -685,12 +687,14 @@ fn counterbore_keeps_the_countered_spells_name_and_controller_for_its_searches()
     .expect("Counterbore targets the spell");
     pass_priority_pair(&mut game);
 
-    for zone_index in 0..3 {
+    for zone_index in 0..2 {
         let decision = game
             .observe(PlayerId::One)
             .decision
-            .unwrap_or_else(|| panic!("Counterbore offers searched zone {zone_index} in order"));
+            .unwrap_or_else(|| panic!("Counterbore offers hidden zone {zone_index} in order"));
         assert_eq!(decision.player, PlayerId::One);
+        assert_eq!(decision.visibility, DecisionVisibility::Private);
+        assert!(game.observe(PlayerId::Two).decision.is_none());
         let options = decision.options.iter().map(|option| option.id).collect();
         game.apply(
             PlayerId::One,
@@ -710,4 +714,63 @@ fn counterbore_keeps_the_countered_spells_name_and_controller_for_its_searches()
             .count(),
         exiled_before + matching_before,
     );
+}
+
+fn resolve_bazaar_bolt(mut game: Game, bolt_id: GameObjectId) -> Game {
+    game.players[PlayerId::Two.index()].mana_pool.red = 1;
+    game.priority = PlayerId::Two;
+    game.apply(
+        PlayerId::Two,
+        cast_action(bolt_id, vec![Target::Player(PlayerId::One)], Vec::new(), 0),
+    )
+    .expect("Lightning Bolt is cast");
+    for _ in 0..4 {
+        if game.stack.is_empty() && game.pending_triggers.is_empty() {
+            break;
+        }
+        pass_priority_pair(&mut game);
+    }
+    game
+}
+
+#[test]
+fn bazaar_of_wonders_unions_names_from_graveyards_and_nontoken_permanents() {
+    for matching_object in [ZoneKind::Graveyard, ZoneKind::Battlefield] {
+        let mut game = ready_game();
+        game.put_onto_battlefield(PlayerId::One, cards::BAZAAR_OF_WONDERS)
+            .expect("Bazaar of Wonders is cataloged");
+        // Drive the checkpoint that sees the entry, then resolve Bazaar's
+        // graveyard-clearing enter trigger before staging the matching card.
+        pass_priority_pair(&mut game);
+        drain_pending(&mut game);
+        match matching_object {
+            ZoneKind::Graveyard => game.players[PlayerId::One.index()].graveyard.push(card(
+                10_081,
+                cards::LIGHTNING_BOLT,
+                PlayerId::One,
+            )),
+            ZoneKind::Battlefield => {
+                game.battlefield
+                    .push(creature(10_081, cards::LIGHTNING_BOLT, PlayerId::One))
+            }
+            _ => unreachable!(),
+        }
+        let bolt = card(10_082, cards::LIGHTNING_BOLT, PlayerId::Two);
+        let bolt_id = bolt.id;
+        game.players[PlayerId::Two.index()].hand.push(bolt);
+
+        let game = resolve_bazaar_bolt(game, bolt_id);
+        assert_eq!(
+            game.players[PlayerId::One.index()].life,
+            20,
+            "the {matching_object:?} name counters the spell",
+        );
+        assert!(
+            game.players[PlayerId::Two.index()]
+                .graveyard
+                .iter()
+                .any(|card| card.definition == cards::LIGHTNING_BOLT),
+            "the countered spell goes to its owner's graveyard",
+        );
+    }
 }

@@ -6,11 +6,10 @@ use crate::card::{
     CardArt, CardNameDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
     CopyStackObjectDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef,
     SpellAdditionalCostDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -80,100 +79,33 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                         zone: ZoneKind::Graveyard,
                         placement: ZonePlacement::Top,
                     },
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!(
-                            "counterbore_graveyard"
+                    abilities::search_and_exile(
+                        ZoneKind::Graveyard,
+                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
+                            "counterbore_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("counterbore_target")),
                         )),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Graveyard],
-                                PlayerSetDef::One(PlayerRefDef::ControllerOf(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "counterbore_graveyard"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!("counterbore_hand")),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Hand],
-                                PlayerSetDef::One(PlayerRefDef::ControllerOf(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "counterbore_hand"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!(
-                            "counterbore_library"
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Hand,
+                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
+                            "counterbore_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("counterbore_target")),
                         )),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Library],
-                                PlayerSetDef::One(PlayerRefDef::ControllerOf(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "counterbore_library"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Library,
+                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
+                            "counterbore_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("counterbore_target")),
+                        )),
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                             ObjectRefDef::Binding(Binding!("counterbore_target")),

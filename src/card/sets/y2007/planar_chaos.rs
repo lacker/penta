@@ -6,8 +6,9 @@ use crate::card::{
     BasicLandType, CardArt, CardNameDef, CardRules, CardSet, CardSupertype, CardType,
     ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetFilterDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, TriggerEventDef,
+    ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -20,11 +21,13 @@ pub(in crate::card::sets) static VOIDSTONE_GARGOYLE: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Gargoyle"], 3, 3).with_abilities(&[
         abilities::flying(),
         abilities::choose_nonland_card_name("As this creature enters, choose a nonland card name."),
-        abilities::cannot_cast_spells_with_chosen_name(
+        abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
+            CardNameDef::SourceChoice,
         ),
-        abilities::cannot_activate_abilities_with_chosen_name(
+        abilities::cannot_activate_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated.",
+            CardNameDef::SourceChoice,
         ),
     ]),
 );
@@ -102,98 +105,33 @@ pub(in crate::card::sets) static EXTIRPATE: CardRecord = CardRecord::new(
                 maximum: 1,
                 visibility: ChoiceVisibilityDef::Public,
                 then: &EffectDef::Sequence(&[
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!(
-                            "extirpate_graveyard"
+                    abilities::search_and_exile(
+                        ZoneKind::Graveyard,
+                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
+                            "extirpate_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("extirpate_target")),
                         )),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Graveyard],
-                                PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(
-                                    Binding!("extirpate_target"),
-                                ))),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("extirpate_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Public,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "extirpate_graveyard"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!("extirpate_hand")),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Hand],
-                                PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(
-                                    Binding!("extirpate_target"),
-                                ))),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("extirpate_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "extirpate_hand"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
-                    EffectDef::Choose(ChooseDef {
-                        binding: ObjectChoiceBindingDef::Objects(Binding!("extirpate_library")),
-                        unchosen: None,
-                        chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::Matching {
-                            objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::Any,
-                                &[ZoneKind::Library],
-                                PlayerSetDef::One(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(
-                                    Binding!("extirpate_target"),
-                                ))),
-                            )),
-                            object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                    ObjectRefDef::Binding(Binding!("extirpate_target")),
-                                )),
-                            ),
-                        },
-                        exclude: None,
-                        minimum: 0,
-                        maximum: usize::MAX,
-                        visibility: ChoiceVisibilityDef::Private,
-                        then: &EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
-                                "extirpate_library"
-                            ))),
-                            zone: ZoneKind::Exile,
-                            placement: ZonePlacement::Top,
-                        },
-                    }),
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Hand,
+                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
+                            "extirpate_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("extirpate_target")),
+                        )),
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Library,
+                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
+                            "extirpate_target"
+                        ))),
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                            ObjectRefDef::Binding(Binding!("extirpate_target")),
+                        )),
+                    ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
                             ObjectRefDef::Binding(Binding!("extirpate_target")),

@@ -1281,8 +1281,9 @@ pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_wit
             "As this creature enters, choose a nonland card name.",
             crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
         ),
-        abilities::cannot_cast_spells_with_chosen_name(
+        abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
+            crate::card::CardNameDef::SourceChoice,
         ),
     ]),
 );

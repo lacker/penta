@@ -14,13 +14,13 @@ use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
-    ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseDef, CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef,
+    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2912,7 +2912,7 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             "When the chosen player draws a card with the chosen name, sacrifice this artifact. If you do, it deals 10 damage to that player.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::matching(
                 PlayerRelation::ChosenPlayer,
-                abilities::SOURCES_CHOSEN_CARD_NAME,
+                ObjectPredicateDef::NameEquals(CardNameDef::SourceChoice),
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[

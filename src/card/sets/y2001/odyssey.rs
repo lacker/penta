@@ -1338,7 +1338,7 @@ pub(in crate::card::sets) static CABAL_SHRINE: CardRecord = CardRecord::new(
                     &[ZoneKind::Graveyard],
                 )),
                 object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::Object(ObjectRefDef::TriggeringObject),
+                    CardNameDef::NameOf(ObjectRefDef::TriggeringObject),
                 )),
             }),
             selection: DiscardSelectionDef::RecipientChooses,

@@ -29,7 +29,7 @@ pub(in crate::card::sets) static ECHOING_TRUTH: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                 )),
                 object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             zone: ZoneKind::Hand,
@@ -56,7 +56,7 @@ pub(in crate::card::sets) static ECHOING_RUIN: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                 )),
                 object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             can_regenerate: true,
@@ -83,7 +83,7 @@ pub(in crate::card::sets) static ECHOING_COURAGE: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                 )),
                 object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             effect: AppliedEffectDef::modify_power_toughness(

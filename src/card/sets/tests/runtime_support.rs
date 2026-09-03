@@ -99,12 +99,13 @@ fn shared_card_name(name: CardNameDef) -> bool {
         CardNameDef::Literal(_)
             | CardNameDef::EffectChoice
             | CardNameDef::SourceChoice
-            | CardNameDef::Object(_)
+            | CardNameDef::NameOf(_)
     )
 }
 
 fn shared_card_name_set(names: CardNameSetDef) -> bool {
     match names {
+        CardNameSetDef::Union(sets) => sets.iter().copied().all(shared_card_name_set),
         CardNameSetDef::NamesOf(objects)
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             matches!(objects, ObjectSetDef::Binding(_)) || shared_source_object_set(*objects)

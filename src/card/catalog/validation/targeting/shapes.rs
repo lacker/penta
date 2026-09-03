@@ -454,7 +454,7 @@ fn validate_card_name_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match name {
-        CardNameDef::Object(reference) => validate_object_reference_shape(reference, targets),
+        CardNameDef::NameOf(reference) => validate_object_reference_shape(reference, targets),
         CardNameDef::Literal(_) | CardNameDef::EffectChoice | CardNameDef::SourceChoice => Ok(()),
     }
 }
@@ -464,6 +464,10 @@ fn validate_card_name_set_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match names {
+        CardNameSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .try_for_each(|names| validate_card_name_set_shape(names, targets)),
         CardNameSetDef::NamesOf(objects)
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             validate_object_set_shape(*objects, targets)

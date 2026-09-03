@@ -212,8 +212,9 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
     CardSet::SecretsOfStrixhaven,
     CardRules::new_land(&[]).with_abilities(&[
         abilities::choose_land_card_name("As this land enters, choose a land card name."),
-        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+        abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+            crate::card::CardNameDef::SourceChoice,
         ),
         AbilityDef::static_ability(
             "Lands with the chosen name have “{T}: Add {C}.”",
@@ -221,7 +222,9 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
                 recipient: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
-                        abilities::SOURCES_CHOSEN_CARD_NAME,
+                        ObjectPredicateDef::NameEquals(
+                            crate::card::CardNameDef::SourceChoice,
+                        ),
                     ]),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,

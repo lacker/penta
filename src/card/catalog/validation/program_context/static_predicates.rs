@@ -128,12 +128,16 @@ fn static_card_name_supported(name: CardNameDef) -> bool {
         name,
         CardNameDef::Literal(_)
             | CardNameDef::SourceChoice
-            | CardNameDef::Object(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
+            | CardNameDef::NameOf(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
     )
 }
 
 fn static_card_name_set_supported(names: CardNameSetDef) -> bool {
     match names {
+        CardNameSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .all(static_card_name_set_supported),
         CardNameSetDef::NamesOf(objects)
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             static_condition_object_set_supported(*objects)

@@ -96,7 +96,7 @@ pub(in crate::card::sets) static EYE_OF_SINGULARITY: CardRecord = CardRecord::ne
                                 &[ZoneKind::Battlefield],
                             )),
                             object: ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                &ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
                                     ObjectRefDef::TriggeringObject,
                                 )),
                             ),

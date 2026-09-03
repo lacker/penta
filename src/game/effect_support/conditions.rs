@@ -115,6 +115,35 @@ impl Game {
         )
     }
 
+    fn effect_object_set_count_condition_holds(
+        &self,
+        condition: crate::card::ObjectSetCountConditionDef,
+        objects: Vec<Target>,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> bool {
+        let count = condition.filter.map_or(objects.len(), |filter| {
+            objects
+                .into_iter()
+                .filter(|target| {
+                    self.effect_collection_target_matches(
+                        filter.predicate(),
+                        *target,
+                        object,
+                        context,
+                        scoped,
+                    )
+                })
+                .count()
+        });
+        compare(
+            &count,
+            condition.comparison,
+            &usize::from(condition.amount),
+        )
+    }
+
     /// Whether one chosen target answers a characteristic predicate.
     ///
     /// What is read depends on what the slot named: a permanent on the
@@ -524,7 +553,9 @@ impl Game {
                         |(object, scoped, context)| {
                             let objects =
                                 self.effect_objects(*counting.objects, object, context, scoped);
-                            self.object_set_count_condition_holds(**counting, objects, source)
+                            self.effect_object_set_count_condition_holds(
+                                **counting, objects, object, context, scoped,
+                            )
                         },
                     )
                 }

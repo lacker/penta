@@ -608,14 +608,14 @@ impl Game {
                 // control" can use the full effect context before the hidden
                 // zone choices are filtered.
                 let predicate = match predicate {
-                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(reference)) => {
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(reference)) => {
                         let Some(referenced) =
                             self.effect_object_reference_id(reference, object, context, scoped)
                         else {
                             return;
                         };
                         source = referenced;
-                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
                             ObjectRefDef::Source,
                         ))
                     }

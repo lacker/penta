@@ -11,8 +11,8 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules, CardSet,
-    CardSupertype,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardNameSetDef,
+    CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
@@ -722,40 +722,31 @@ pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new
                 "Whenever a player casts a spell, counter it if a card with the same name is in a graveyard or a nontoken permanent with the same name is on the battlefield.",
                 TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
                 EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::AnyOf(&[
-                        TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::Matching {
-                                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                                    ObjectPredicateDef::Any,
-                                    &[ZoneKind::Graveyard],
-                                )),
-                                object: ObjectSetFilterDef::Predicate(
-                                    &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                        ObjectRefDef::TriggeringObject,
+                    condition: &TriggerConditionDef::ObjectSetCount(
+                        &ObjectSetCountConditionDef {
+                            objects: &ObjectSetDef::One(ObjectRefDef::TriggeringObject),
+                            filter: Some(ObjectSetFilterDef::Predicate(
+                                &ObjectPredicateDef::NameIn(CardNameSetDef::Union(&[
+                                    CardNameSetDef::NamesOf(&ObjectSetDef::Query(
+                                        ObjectQueryDef::new(
+                                            ObjectPredicateDef::Any,
+                                            &[ZoneKind::Graveyard],
+                                        ),
                                     )),
-                                ),
-                            },
-                            filter: None,
+                                    CardNameSetDef::NamesOf(&ObjectSetDef::Query(
+                                        ObjectQueryDef::new(
+                                            ObjectPredicateDef::Not(
+                                                &ObjectPredicateDef::Token,
+                                            ),
+                                            &[ZoneKind::Battlefield],
+                                        ),
+                                    )),
+                                ])),
+                            )),
                             comparison: ComparisonDef::GreaterOrEqual,
                             amount: 1,
-                        }),
-                        TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::Matching {
-                                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
-                                    &[ZoneKind::Battlefield],
-                                )),
-                                object: ObjectSetFilterDef::Predicate(
-                                    &ObjectPredicateDef::NameEquals(CardNameDef::Object(
-                                        ObjectRefDef::TriggeringObject,
-                                    )),
-                                ),
-                            },
-                            filter: None,
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            amount: 1,
-                        }),
-                    ]),
+                        },
+                    ),
                     then: &EffectDef::Counter {
                         object: EffectRecipientDef::TriggeringObject,
                         zone: ZoneKind::Graveyard,

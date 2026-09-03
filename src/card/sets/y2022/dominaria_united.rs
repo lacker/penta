@@ -21,13 +21,15 @@ pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::
         abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
             "As this creature enters, look at an opponent's hand, then choose any card name.",
         ),
-        abilities::chosen_name_spell_cost_increase(
+        abilities::spell_cost_increase_for_name(
             "Spells your opponents cast with the chosen name cost {2} more to cast.",
+            crate::card::CardNameDef::SourceChoice,
             PlayerRelation::Opponent,
             mana_cost!("{2}"),
         ),
-        abilities::chosen_name_ability_cost_increase(
+        abilities::ability_cost_increase_for_name(
             "Activated abilities of sources with the chosen name cost {2} more to activate unless they're mana abilities.",
+            crate::card::CardNameDef::SourceChoice,
             mana_cost!("{2}"),
         ),
     ]),

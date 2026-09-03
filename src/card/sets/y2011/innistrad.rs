@@ -820,8 +820,9 @@ pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
             "As this enchantment enters, choose a nonland card name.",
             crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
         ),
-        abilities::cannot_cast_spells_with_chosen_name(
+        abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
+            CardNameDef::SourceChoice,
         ),
     ]),
 );
@@ -3270,7 +3271,7 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
                 object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
                             TargetIndex::PRIMARY,
                         ))),
                     ]),
@@ -5888,7 +5889,7 @@ pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
                         &[AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
                                     ObjectRefDef::Source,
                                 )),
                             ]),

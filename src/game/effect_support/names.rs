@@ -42,10 +42,10 @@ impl Game {
     ) -> Option<String> {
         match name {
             CardNameDef::Literal(name) => Some(name.to_owned()),
-            CardNameDef::Object(ObjectRefDef::Source) => {
+            CardNameDef::NameOf(ObjectRefDef::Source) => {
                 self.object_card_name(source).map(|name| name.into_owned())
             }
-            CardNameDef::Object(ObjectRefDef::AttachedToSource) => self
+            CardNameDef::NameOf(ObjectRefDef::AttachedToSource) => self
                 .current_or_last_known_attached_host(source)
                 .and_then(|host| self.object_card_name(host))
                 .map(|name| name.into_owned()),
@@ -54,7 +54,7 @@ impl Game {
                 .iter()
                 .find(|permanent| permanent.card.id == source)
                 .and_then(|permanent| permanent.chosen_card_name.clone()),
-            CardNameDef::EffectChoice | CardNameDef::Object(_) => None,
+            CardNameDef::EffectChoice | CardNameDef::NameOf(_) => None,
         }
     }
 
@@ -66,6 +66,13 @@ impl Game {
         match names {
             CardNameSetDef::NamesOf(objects) => {
                 self.names_of_targets(self.source_object_set_targets(*objects, source))
+            }
+            CardNameSetDef::Union(sets) => {
+                let mut union = BTreeSet::new();
+                for names in sets {
+                    union.extend(self.source_card_name_set(*names, source));
+                }
+                union
             }
             CardNameSetDef::NamesAppearingAtLeast { objects, count } => self
                 .names_appearing_at_least(self.source_object_set_targets(*objects, source), count),
@@ -82,7 +89,7 @@ impl Game {
     ) -> Option<String> {
         match name {
             CardNameDef::Literal(name) => Some(name.to_owned()),
-            CardNameDef::Object(reference) => self
+            CardNameDef::NameOf(reference) => self
                 .object_reference_id(reference, object, context, scoped)
                 .and_then(|referenced| self.object_card_name(referenced))
                 .map(|name| name.into_owned()),
@@ -108,6 +115,13 @@ impl Game {
         match names {
             CardNameSetDef::NamesOf(objects) => {
                 self.names_of_targets(self.effect_objects(*objects, object, context, scoped))
+            }
+            CardNameSetDef::Union(sets) => {
+                let mut union = BTreeSet::new();
+                for names in sets {
+                    union.extend(self.effect_card_name_set(*names, object, context, scoped));
+                }
+                union
             }
             CardNameSetDef::NamesAppearingAtLeast { objects, count } => self
                 .names_appearing_at_least(

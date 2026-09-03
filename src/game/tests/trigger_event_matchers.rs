@@ -812,7 +812,7 @@ fn simultaneous_exit_predicates_use_source_and_object_lki() {
         ObjectPredicateDef::AttachedToSource,
         ObjectPredicateDef::ManaValueAtMostValue(ValueDef::SourcePower),
         ObjectPredicateDef::DebutSet(CardSet::Alpha),
-        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(ObjectRefDef::Source)),
+        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(ObjectRefDef::Source)),
     ] {
         assert!(
             game.trigger_event_matches_for_controller(

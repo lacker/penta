@@ -2967,7 +2967,7 @@ pub(in crate::card::sets) static ASSEMBLY_HALL: CardRecord = CardRecord::new(
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
-            object: ObjectPredicateDef::NameEquals(CardNameDef::Object(
+            object: ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
                 ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY),
             )),
             minimum: 0,

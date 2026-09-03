@@ -49,7 +49,7 @@ pub(in crate::card::sets) static AKRON_LEGIONNAIRE: CardRecord = CardRecord::new
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(
+                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
                                 ObjectRefDef::Source,
                             )),
                             ObjectPredicateDef::HasType(CardType::Artifact),
@@ -518,7 +518,7 @@ pub(in crate::card::sets) static IVORY_GUARDIANS: CardRecord = CardRecord::new_w
                     recipient: EffectRecipientDef::matching_objects(
                         ObjectPredicateDef::All(&[
                             ObjectPredicateDef::HasType(CardType::Creature),
-                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(
+                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
                                 ObjectRefDef::Source,
                             )),
                         ]),

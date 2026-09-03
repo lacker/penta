@@ -1,29 +1,68 @@
 //! Stronghold cards used by the staged Premodern deck tranche.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::TargetIndex;
 use crate::card::CostQuantityDef;
 use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2012::dark_ascension as catalog_dka;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, DamageEventMatcherDef, DamagePreventionDef,
-    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, MillUntilDef,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef,
+    AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CounterKind, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
+    ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
 use crate::mana_cost;
 
+static TRANSFER_SPIKE_COUNTER: AbilityDef = AbilityDef::activated_with_targets(
+    "{2}, Remove a +1/+1 counter from this creature: Put a +1/+1 counter on target creature.",
+    &[
+        AbilityCostDef::Mana(mana_cost!("{2}")),
+        AbilityCostDef::RemoveCountersFromSource {
+            kind: CounterKind::PlusOnePlusOne,
+            amount: 1,
+        },
+    ],
+    &[AbilityTargetDef::exactly_one_permanent(
+        ObjectPredicateDef::HasType(CardType::Creature),
+    )],
+    EffectDef::AddCounters {
+        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        kind: CounterKind::PlusOnePlusOne,
+        amount: ValueDef::Constant(1),
+    },
+);
+
 // STH 1 — Bandage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BANDAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("79ed559a-9a88-43d2-85d1-4bbec038f71e"),
     "Bandage",
     crate::card::CardArt::new("79ed559a-9a88-43d2-85d1-4bbec038f71e", "Rebecca Guay"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Prevent the next 1 damage that would be dealt to any target this turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::AnyTarget,
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Target(TargetIndex::PRIMARY)),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // STH 2 — Calming Licid
@@ -40,7 +79,7 @@ pub(in crate::card::sets) static CALMING_LICID: CardRecord = CardRecord::new(
 );
 
 // STH 3 — Change of Heart
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Resolving effects cannot apply a temporary attack restriction to a permanent.
 pub(in crate::card::sets) static CHANGE_OF_HEART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afaf277e-b430-4c96-880c-ae654973478c"),
     "Change of Heart",
@@ -50,23 +89,51 @@ pub(in crate::card::sets) static CHANGE_OF_HEART: CardRecord = CardRecord::new(
 );
 
 // STH 4 — Contemplation
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTEMPLATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("848672be-b1cd-40ef-a7ed-ce1620aebd2e"),
     "Contemplation",
     crate::card::CardArt::new("848672be-b1cd-40ef-a7ed-ce1620aebd2e", "Brom"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::triggered(
+        "Whenever you cast a spell, you gain 1 life.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // STH 5 — Conviction
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CONVICTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("190332b3-6a1c-4c25-af61-d8923fc9a0c3"),
     "Conviction",
     crate::card::CardArt::new("190332b3-6a1c-4c25-af61-d8923fc9a0c3", "Paolo Parente"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+3.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(3),
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{W}: Return this Aura to its owner's hand.",
+                &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // STH 6 — Hidden Retreat
@@ -80,13 +147,25 @@ pub(in crate::card::sets) static HIDDEN_RETREAT: CardRecord = CardRecord::new(
 );
 
 // STH 7 — Honor Guard
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HONOR_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35c44137-ddcc-42fa-baff-a0c3785b84ee"),
     "Honor Guard",
     crate::card::CardArt::new("35c44137-ddcc-42fa-baff-a0c3785b84ee", "Joel Biske"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{W}: This creature gets +0/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 8 — Lancers en-Kor
@@ -170,17 +249,17 @@ pub(in crate::card::sets) static SHAMAN_EN_KOR: CardRecord = CardRecord::new(
 );
 
 // STH 16 — Skyshroud Falcon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_FALCON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afb86621-1a6e-4d56-ab0e-531105775c56"),
     "Skyshroud Falcon",
     crate::card::CardArt::new("afb86621-1a6e-4d56-ab0e-531105775c56", "Mike Raabe"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Bird"], 1, 1)
+        .with_abilities(&[abilities::flying(), abilities::vigilance()]),
 );
 
 // STH 17 — Smite
-// Audit: metadata-only — Card rules have not been implemented.
+// Audit: metadata-only — Target predicates cannot require an attacking creature to currently be blocked.
 pub(in crate::card::sets) static SMITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14f165ad-cfe6-4a5d-8073-a70969494855"),
     "Smite",
@@ -190,13 +269,34 @@ pub(in crate::card::sets) static SMITE: CardRecord = CardRecord::new(
 );
 
 // STH 18 — Soltari Champion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a112edf3-c976-426c-a407-e86255586e41"),
     "Soltari Champion",
     crate::card::CardArt::new("a112edf3-c976-426c-a407-e86255586e41", "Adam Rex"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Soltari", "Soldier"], 2, 2)
+        .with_abilities(&[
+            abilities::shadow(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, other creatures you control get +1/+1 until end of turn.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // STH 19 — Spirit en-Kor
@@ -220,13 +320,20 @@ pub(in crate::card::sets) static TEMPER: CardRecord = CardRecord::new(
 );
 
 // STH 21 — Venerable Monk
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VENERABLE_MONK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72322032-c287-4a9e-9d61-a452f6c45bfb"),
     "Venerable Monk",
     crate::card::CardArt::new("704b8be3-4ed8-4e94-aa66-c7187a299088", "Terese Nielsen"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Monk", "Cleric"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you gain 2 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // STH 22 — Wall of Essence
@@ -250,33 +357,54 @@ pub(in crate::card::sets) static WARRIOR_EN_KOR: CardRecord = CardRecord::new(
 );
 
 // STH 24 — Warrior Angel
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WARRIOR_ANGEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81d2c6e3-e556-4cc6-94b6-fdbc62d6853e"),
     "Warrior Angel",
     crate::card::CardArt::new("81d2c6e3-e556-4cc6-94b6-fdbc62d6853e", "Brom"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel", "Warrior"], 3, 4).with_abilities(
+        &[
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever this creature deals damage, you gain that much life.",
+                TriggerEventDef::damage_dealt_by(ObjectPredicateDef::Source),
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+        ],
+    ),
 );
 
 // STH 25 — Youthful Knight
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static YOUTHFUL_KNIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fcd3b7a7-c5e8-4179-ade3-31625620f3a9"),
     "Youthful Knight",
     crate::card::CardArt::new("fcd3b7a7-c5e8-4179-ade3-31625620f3a9", "Rebecca Guay"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 2, 1)
+        .with_ability(abilities::first_strike()),
 );
 
 // STH 26 — Cloud Spirit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUD_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc7547aa-fcf7-4b6e-955d-cc5ebc40cd7d"),
     "Cloud Spirit",
     crate::card::CardArt::new("938d6c51-903b-4e0b-8702-291666581f2a", "Randy Gallegos"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Spirit"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // STH 27 — Contempt
@@ -313,13 +441,23 @@ pub(in crate::card::sets) static DREAM_PROWLER: CardRecord = CardRecord::new(
 );
 
 // STH 30 — Evacuation
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EVACUATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1cb8ae53-a53f-4a0f-94f7-559aca041797"),
     "Evacuation",
     crate::card::CardArt::new("1cb8ae53-a53f-4a0f-94f7-559aca041797", "Rob Alexander"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::spell(
+        "Return all creatures to their owners' hands.",
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // STH 31 — Gliding Licid
@@ -363,13 +501,28 @@ pub(in crate::card::sets) static INTRUDER_ALARM: CardRecord = CardRecord::new(
 );
 
 // STH 35 — Leap
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0841423d-7a27-4bc5-9ac2-0ba47648c6f1"),
     "Leap",
     crate::card::CardArt::new("0841423d-7a27-4bc5-9ac2-0ba47648c6f1", "Kev Walker"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gains flying until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // STH 36 — Mana Leak
@@ -403,13 +556,27 @@ pub(in crate::card::sets) static MASK_OF_THE_MIMIC: CardRecord = CardRecord::new
 );
 
 // STH 38 — Mind Games
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_GAMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4da50979-1f5d-48d1-9406-dfc785273c04"),
     "Mind Games",
     crate::card::CardArt::new("4da50979-1f5d-48d1-9406-dfc785273c04", "Andrew Robinson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{2}{U}")),
+        AbilityDef::spell_with_targets(
+            "Tap target artifact, creature, or land.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // STH 39 — Ransack
@@ -469,13 +636,26 @@ pub(in crate::card::sets) static REINS_OF_POWER: CardRecord = CardRecord::new(
 );
 
 // STH 42 — Sift
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SIFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bf5b23da-9ba8-4b43-a5c9-51e1fc253913"),
     "Sift",
     crate::card::CardArt::new("bf5b23da-9ba8-4b43-a5c9-51e1fc253913", "Pete Venters"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(AbilityDef::spell(
+        "Draw three cards, then discard a card.",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ]),
+    )),
 );
 
 // STH 43 — Silver Wyvern
@@ -518,13 +698,27 @@ pub(in crate::card::sets) static SILVER_WYVERN: CardRecord = CardRecord::new(
 );
 
 // STH 44 — Spindrift Drake
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINDRIFT_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c881c388-430f-4a4b-9cd1-fba0a2bc2cd6"),
     "Spindrift Drake",
     crate::card::CardArt::new("c881c388-430f-4a4b-9cd1-fba0a2bc2cd6", "Anthony S. Waters"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Drake"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you pay {U}.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless_mana(
+                mana_cost!("{U}"),
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ]),
 );
 
 // STH 45 — Thalakos Deceiver
@@ -538,23 +732,53 @@ pub(in crate::card::sets) static THALAKOS_DECEIVER: CardRecord = CardRecord::new
 );
 
 // STH 46 — Tidal Surge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDAL_SURGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a027c31d-c662-4ce1-a0d1-a32e62f6a724"),
     "Tidal Surge",
     crate::card::CardArt::new("8737440b-0bf0-483f-895b-aa24da2b9cfe", "Doug Chaffee"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Tap up to three target creatures without flying.",
+        &[AbilityTargetDef::up_to(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        crate::card::KeywordAbility::Flying,
+                    )),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            3,
+        )],
+        EffectDef::Tap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // STH 47 — Tidal Warrior
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDAL_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab89a30a-ac4d-4a5e-bbff-a02366bc9cf6"),
     "Tidal Warrior",
     crate::card::CardArt::new("ab89a30a-ac4d-4a5e-bbff-a02366bc9cf6", "Daren Bader"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk", "Warrior"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target land becomes an Island until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::set_basic_land_types(&[BasicLandType::Island]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 48 — Volrath's Shapeshifter
@@ -591,23 +815,51 @@ pub(in crate::card::sets) static WALL_OF_TEARS: CardRecord = CardRecord::new(
 );
 
 // STH 51 — Bottomless Pit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BOTTOMLESS_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91f05fc3-da6e-45d4-8566-f4e7bdce1fe5"),
     "Bottomless Pit",
     crate::card::CardArt::new("91f05fc3-da6e-45d4-8566-f4e7bdce1fe5", "Kev Walker"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each player's upkeep, that player discards a card at random.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+            selection: DiscardSelectionDef::Random,
+            then: None,
+        },
+    )),
 );
 
 // STH 52 — Brush with Death
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BRUSH_WITH_DEATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("04013bc6-7774-400b-a6af-de755b4c324d"),
     "Brush with Death",
     crate::card::CardArt::new("04013bc6-7774-400b-a6af-de755b4c324d", "Stephen Daniele"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{2}{B}{B}")),
+        AbilityDef::spell_with_targets(
+            "Target opponent loses 2 life. You gain 2 life.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // STH 53 — Cannibalize
@@ -641,27 +893,44 @@ pub(in crate::card::sets) static CROVAX_THE_CURSED: CardRecord = CardRecord::new
 );
 
 // STH 56 — Dauthi Trapper
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DAUTHI_TRAPPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d83770e-16ff-49c6-b4e7-eb7fc566eef8"),
     "Dauthi Trapper",
     crate::card::CardArt::new("6d83770e-16ff-49c6-b4e7-eb7fc566eef8", "Thomas M. Baxa"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Dauthi", "Minion"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains shadow until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::shadow()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 57 — Death Stroke
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_STROKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7478a471-3bd2-4038-a4eb-70c38a43afa9"),
     "Death Stroke",
     crate::card::CardArt::new("7478a471-3bd2-4038-a4eb-70c38a43afa9", "Colin MacNeil"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}{B}")).with_ability(AbilityDef::destroy_target(
+        "Destroy target tapped creature.",
+        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Tapped,
+        ])),
+        true,
+    )),
 );
 
 // STH 58 — Dungeon Shade
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DUNGEON_SHADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a818483-de47-454d-bb24-3410aa95289c"),
     "Dungeon Shade",
@@ -670,17 +939,39 @@ pub(in crate::card::sets) static DUNGEON_SHADE: CardRecord = CardRecord::new(
         "Jason Alexander Behnke",
     ),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Shade", "Spirit"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 59 — Foul Imp
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FOUL_IMP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e35ab62e-d6c6-448c-bbe0-42abe5780adc"),
     "Foul Imp",
     crate::card::CardArt::new("e35ab62e-d6c6-448c-bbe0-42abe5780adc", "Jim Nelson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}{B}"), &["Imp"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, you lose 2 life.",
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // STH 60 — Grave Pact
@@ -694,53 +985,114 @@ pub(in crate::card::sets) static GRAVE_PACT: CardRecord = CardRecord::new(
 );
 
 // STH 61 — Lab Rats
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LAB_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3132c128-e0bd-4524-9526-914b3c7181fc"),
     "Lab Rats",
     crate::card::CardArt::new("3132c128-e0bd-4524-9526-914b3c7181fc", "DiTerlizzi"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{4}")),
+        AbilityDef::spell(
+            "Create a 1/1 black Rat creature token.",
+            EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1),
+        ),
+    ]),
 );
 
 // STH 62 — Megrim
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MEGRIM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4eacd05b-078a-468c-b137-a802346d348a"),
     "Megrim",
     crate::card::CardArt::new("4eacd05b-078a-468c-b137-a802346d348a", "Donato Giancola"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever an opponent discards a card, this enchantment deals 2 damage to that player.",
+        TriggerEventDef::Discarded(PlayerRelation::Opponent),
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // STH 63 — Mind Peel
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_PEEL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92bd531c-fdd1-4a22-816e-258b2975c1a3"),
     "Mind Peel",
     crate::card::CardArt::new("92bd531c-fdd1-4a22-816e-258b2975c1a3", "Adam Rex"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{2}{B}{B}")),
+        AbilityDef::spell_with_targets(
+            "Target player discards a card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // STH 64 — Mindwarper
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MINDWARPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ebe796e1-97f9-469a-a6b6-a09161058e12"),
     "Mindwarper",
     crate::card::CardArt::new("ebe796e1-97f9-469a-a6b6-a09161058e12", "Paolo Parente"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Spirit"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with three +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{2}{B}, Remove a +1/+1 counter from this creature: Target player discards a card. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // STH 65 — Morgue Thrull
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MORGUE_THRULL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("270a26ce-3435-4fef-bc34-abbc6f1cf3f4"),
     "Morgue Thrull",
     crate::card::CardArt::new("270a26ce-3435-4fef-bc34-abbc6f1cf3f4", "Robert Bliss"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Thrull"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: Mill three cards.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // STH 66 — Mortuary
@@ -754,33 +1106,75 @@ pub(in crate::card::sets) static MORTUARY: CardRecord = CardRecord::new(
 );
 
 // STH 67 — Rabid Rats
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RABID_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed8c028e-6656-47ef-97fb-de99f8833d5f"),
     "Rabid Rats",
     crate::card::CardArt::new("ed8c028e-6656-47ef-97fb-de99f8833d5f", "Matthew D. Wilson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Rat"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target blocking creature gets -1/-1 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Blocking,
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 68 — Revenant
-// Audit: metadata-only — Card rules have not been implemented.
+static REVENANT_CREATURE_CARDS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasType(CardType::Creature),
+    &[ZoneKind::Graveyard],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static REVENANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("74d11d10-90c7-4deb-bf7c-2208a0fcc19f"),
     "Revenant",
     crate::card::CardArt::new("0da40601-b6a3-47ca-b5b6-8fdbdf81f3d4", "Terese Nielsen"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Spirit"], 0, 0).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Revenant's power and toughness are each equal to the number of creature cards in your graveyard.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::define_power_toughness(
+                    ValueDef::CountMatchingObjects(&REVENANT_CREATURE_CARDS),
+                    ValueDef::CountMatchingObjects(&REVENANT_CREATURE_CARDS),
+                ),
+            },
+        ),
+    ]),
 );
 
 // STH 69 — Serpent Warrior
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SERPENT_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c364fd06-64c5-45f6-8ed5-64f44a1e8bda"),
     "Serpent Warrior",
     crate::card::CardArt::new("ab726e7d-171f-48b2-9652-545e17913330", "Ron Spencer"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Snake", "Warrior"], 3, 3).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you lose 3 life.",
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // STH 70 — Skeleton Scavengers
@@ -794,43 +1188,121 @@ pub(in crate::card::sets) static SKELETON_SCAVENGERS: CardRecord = CardRecord::n
 );
 
 // STH 71 — Stronghold Assassin
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGHOLD_ASSASSIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc0f043c-efb3-4392-ae25-b3ec180b0cb2"),
     "Stronghold Assassin",
     crate::card::CardArt::new("cc0f043c-efb3-4392-ae25-b3ec180b0cb2", "Matthew D. Wilson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{B}{B}"),
+        &["Phyrexian", "Zombie", "Assassin"],
+        2,
+        1,
+    )
+    .with_ability(AbilityDef::activated_with_targets(
+        "{T}, Sacrifice a creature: Destroy target nonblack creature.",
+        &[
+            AbilityCostDef::TapSource,
+            AbilityCostDef::SacrificePermanent {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                controller: PlayerRelation::You,
+            },
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            ]),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            can_regenerate: true,
+            then: None,
+        },
+    )),
 );
 
 // STH 72 — Stronghold Taskmaster
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGHOLD_TASKMASTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6171c210-01b5-45a9-9dd3-dbf96a33a750"),
     "Stronghold Taskmaster",
     crate::card::CardArt::new("6171c210-01b5-45a9-9dd3-dbf96a33a750", "Brom"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Giant", "Minion"], 4, 3).with_ability(
+        AbilityDef::static_ability(
+            "Other black creatures get -1/-1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+            },
+        ),
+    ),
 );
 
 // STH 73 — Torment
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TORMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe74a415-ea8f-4f16-8889-ae649f1483b2"),
     "Torment",
     crate::card::CardArt::new("fe74a415-ea8f-4f16-8889-ae649f1483b2", "Paolo Parente"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -3/-0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-3),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // STH 74 — Tortured Existence
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TORTURED_EXISTENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1754b92b-d6f9-4503-af01-dee03f72a048"),
     "Tortured Existence",
     crate::card::CardArt::new("1754b92b-d6f9-4503-af01-dee03f72a048", "Keith Parkinson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}, Discard a creature card: Return target creature card from your graveyard to your hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{B}")),
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+                    CardType::Creature,
+                )),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // STH 75 — Wall of Souls
@@ -844,13 +1316,28 @@ pub(in crate::card::sets) static WALL_OF_SOULS: CardRecord = CardRecord::new(
 );
 
 // STH 76 — Amok
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AMOK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c5bdb8c-2a2e-47cf-a502-2d62f9ada3fa"),
     "Amok",
     crate::card::CardArt::new("5c5bdb8c-2a2e-47cf-a502-2d62f9ada3fa", "Dermot Power"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}, Discard a card at random: Put a +1/+1 counter on target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::DiscardCardsAtRandom(1),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // STH 77 — Convulsing Licid
@@ -864,13 +1351,20 @@ pub(in crate::card::sets) static CONVULSING_LICID: CardRecord = CardRecord::new(
 );
 
 // STH 78 — Craven Giant
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CRAVEN_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a2e1c12-f848-43b4-9505-851c66a509f1"),
     "Craven Giant",
     crate::card::CardArt::new("ea3cf964-88f6-4e62-97ce-cf0e179a53fb", "Brian Snõddy"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Giant"], 4, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ),
 );
 
 // STH 79 — Duct Crawler
@@ -884,13 +1378,24 @@ pub(in crate::card::sets) static DUCT_CRAWLER: CardRecord = CardRecord::new(
 );
 
 // STH 80 — Fanning the Flames
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FANNING_THE_FLAMES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("79075361-e6ee-4cc9-990b-88fef27bbb1c"),
     "Fanning the Flames",
     crate::card::CardArt::new("79075361-e6ee-4cc9-990b-88fef27bbb1c", "Ron Spencer"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{R}{R}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{3}")),
+        AbilityDef::spell_with_targets(
+            "Fanning the Flames deals X damage to any target.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+            },
+        ),
+    ]),
 );
 
 // STH 81 — Flame Wave
@@ -906,53 +1411,119 @@ pub(in crate::card::sets) static FLAME_WAVE: CardRecord = CardRecord::new(
 // STH 82 — Fling (reprint)
 
 // STH 83 — Flowstone Blade
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ab9781fd-10c9-4790-8279-51c3cc6653cf"),
     "Flowstone Blade",
     crate::card::CardArt::new("ab9781fd-10c9-4790-8279-51c3cc6653cf", "Allen Williams"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "{R}: Enchanted creature gets +1/-1 until end of turn.",
+                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(-1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // STH 84 — Flowstone Hellion
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_HELLION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("680ccbc7-aa97-4f01-9d26-0df184af3c3e"),
     "Flowstone Hellion",
     crate::card::CardArt::new("680ccbc7-aa97-4f01-9d26-0df184af3c3e", "Daren Bader"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Hellion", "Beast"], 3, 3).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::activated(
+            "{0}: This creature gets +1/-1 until end of turn.",
+            &[],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 85 — Flowstone Mauler
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_MAULER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3165251-6ac6-4294-8bca-595c362f4ceb"),
     "Flowstone Mauler",
     crate::card::CardArt::new("a3165251-6ac6-4294-8bca-595c362f4ceb", "Paolo Parente"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Beast"], 4, 5).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/-1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 86 — Flowstone Shambler
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FLOWSTONE_SHAMBLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f2b70a5-db13-4c3f-829d-d4b9e0a16245"),
     "Flowstone Shambler",
     crate::card::CardArt::new("6f2b70a5-db13-4c3f-829d-d4b9e0a16245", "Jim Nelson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{R}: This creature gets +1/-1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 87 — Furnace Spirit
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static FURNACE_SPIRIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6a79dc7-ce46-41f7-9375-8d12afe6355a"),
     "Furnace Spirit",
     crate::card::CardArt::new("b6a79dc7-ce46-41f7-9375-8d12afe6355a", "Jeff Miracola"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Spirit"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 88 — Heat of Battle
@@ -976,13 +1547,25 @@ pub(in crate::card::sets) static INVASION_PLANS: CardRecord = CardRecord::new(
 );
 
 // STH 90 — Mob Justice
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MOB_JUSTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b790d789-bb21-4119-a0e3-43af9bef8acc"),
     "Mob Justice",
     crate::card::CardArt::new("b790d789-bb21-4119-a0e3-43af9bef8acc", "Ron Spencer"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Mob Justice deals damage to target player or planeswalker equal to the number of creatures you control.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        },
+    )),
 );
 
 // STH 91 — Mogg Bombers
@@ -1026,23 +1609,51 @@ pub(in crate::card::sets) static MOGG_MANIAC: CardRecord = CardRecord::new(
 );
 
 // STH 95 — Ruination
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RUINATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d45eea06-806b-4163-ac86-de6ed6d1a91e"),
     "Ruination",
     crate::card::CardArt::new("d45eea06-806b-4163-ac86-de6ed6d1a91e", "Dermot Power"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(AbilityDef::spell(
+        "Destroy all nonbasic lands.",
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            can_regenerate: true,
+            then: None,
+        },
+    )),
 );
 
 // STH 96 — Seething Anger
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SEETHING_ANGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e6f1edb8-fff4-4f84-944c-fa5a032f4fb1"),
     "Seething Anger",
     crate::card::CardArt::new("e6f1edb8-fff4-4f84-944c-fa5a032f4fb1", "Val Mayerik"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{3}")),
+        AbilityDef::spell_with_targets(
+            "Target creature gets +3/+0 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 97 — Shard Phoenix
@@ -1058,33 +1669,74 @@ pub(in crate::card::sets) static SHARD_PHOENIX: CardRecord = CardRecord::new(
 // STH 98 — Shock (reprint)
 
 // STH 99 — Spitting Hydra
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPITTING_HYDRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38c25d65-16bd-4628-b6ec-9e5495818277"),
     "Spitting Hydra",
     crate::card::CardArt::new("38c25d65-16bd-4628-b6ec-9e5495818277", "Daren Bader"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Hydra"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with four +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 4,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{R}, Remove a +1/+1 counter from this creature: It deals 1 damage to target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // STH 100 — Wall of Razors
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_RAZORS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bb37bcd-0bbd-4f3f-9623-803885750344"),
     "Wall of Razors",
     crate::card::CardArt::new("0bb37bcd-0bbd-4f3f-9623-803885750344", "Michael Sutfin"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Wall"], 4, 1)
+        .with_abilities(&[abilities::defender(), abilities::first_strike()]),
 );
 
 // STH 101 — Awakening
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static AWAKENING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59612c02-6028-4953-ac4d-aca94b0ce4b9"),
     "Awakening",
     crate::card::CardArt::new("59612c02-6028-4953-ac4d-aca94b0ce4b9", "Dan Frazier"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each upkeep, untap all creatures and lands.",
+        TriggerEventDef::StepBegins {
+            step: TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Untap {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+        },
+    )),
 );
 
 // STH 102 — Burgeoning
@@ -1098,13 +1750,18 @@ pub(in crate::card::sets) static BURGEONING: CardRecord = CardRecord::new(
 );
 
 // STH 103 — Carnassid
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CARNASSID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae10e7fe-ee51-4c39-86ec-503324d19f6c"),
     "Carnassid",
     crate::card::CardArt::new("ae10e7fe-ee51-4c39-86ec-503324d19f6c", "Brom"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Beast"], 5, 4).with_abilities(&[
+        abilities::trample(),
+        abilities::regenerate_self(
+            "{1}{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+        ),
+    ]),
 );
 
 // STH 104 — Constant Mists
@@ -1132,13 +1789,23 @@ pub(in crate::card::sets) static CONSTANT_MISTS: CardRecord = CardRecord::new(
 );
 
 // STH 105 — Crossbow Ambush
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CROSSBOW_AMBUSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("283146fd-2307-4019-b23d-7fb1893dc46c"),
     "Crossbow Ambush",
     crate::card::CardArt::new("283146fd-2307-4019-b23d-7fb1893dc46c", "Kev Walker"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell(
+        "Creatures you control gain reach until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::reach()),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // STH 106 — Elven Rite
@@ -1226,13 +1893,22 @@ pub(in crate::card::sets) static OVERGROWTH: CardRecord = CardRecord::new(
 );
 
 // STH 112 — Primal Rage
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMAL_RAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e78026e4-edb8-4f55-bd80-4152f4dfb461"),
     "Primal Rage",
     crate::card::CardArt::new("e78026e4-edb8-4f55-bd80-4152f4dfb461", "Brian Snõddy"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control have trample.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::trample()),
+        },
+    )),
 );
 
 // STH 113 — Provoke
@@ -1246,83 +1922,187 @@ pub(in crate::card::sets) static PROVOKE: CardRecord = CardRecord::new(
 );
 
 // STH 114 — Skyshroud Archer
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_ARCHER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("485aeabb-4a9b-4d88-80ad-83e31da6804b"),
     "Skyshroud Archer",
     crate::card::CardArt::new("485aeabb-4a9b-4d88-80ad-83e31da6804b", "Jeff Miracola"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Archer"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature with flying gets -1/-1 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // STH 115 — Skyshroud Troopers
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SKYSHROUD_TROOPERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d5197937-023c-412c-bf2c-b8e811ca04e1"),
     "Skyshroud Troopers",
     crate::card::CardArt::new("d5197937-023c-412c-bf2c-b8e811ca04e1", "DiTerlizzi"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Druid", "Warrior"], 3, 3)
+        .with_ability(abilities::tap_for(ManaColor::Green)),
 );
 
 // STH 116 — Spike Breeder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_BREEDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7e11ef7-18a9-4ab1-981e-b337b1488ebd"),
     "Spike Breeder",
     crate::card::CardArt::new("f7e11ef7-18a9-4ab1-981e-b337b1488ebd", "Adam Rex"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Spike"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with three +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        TRANSFER_SPIKE_COUNTER,
+        AbilityDef::activated(
+            "{2}, Remove a +1/+1 counter from this creature: Create a 1/1 green Spike creature token.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 1,
+                },
+            ],
+            EffectDef::create_creature_token(&["Spike"], &[ManaColor::Green], 1, 1),
+        ),
+    ]),
 );
 
 // STH 117 — Spike Colony
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_COLONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6ea4703-8521-4576-8405-4b923e0a9522"),
     "Spike Colony",
     crate::card::CardArt::new("a6ea4703-8521-4576-8405-4b923e0a9522", "Douglas Shuler"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Spike"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with four +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 4,
+                },
+            ),
+        ),
+        TRANSFER_SPIKE_COUNTER,
+    ]),
 );
 
 // STH 118 — Spike Feeder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_FEEDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3751b2ae-a234-4691-984b-2f9f6b1cd1df"),
     "Spike Feeder",
     crate::card::CardArt::new("3751b2ae-a234-4691-984b-2f9f6b1cd1df", "Heather Hudson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Spike"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with two +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        TRANSFER_SPIKE_COUNTER,
+        AbilityDef::activated(
+            "Remove a +1/+1 counter from this creature: You gain 2 life.",
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::PlusOnePlusOne,
+                amount: 1,
+            }],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // STH 119 — Spike Soldier
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_SOLDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa45664c-ac39-40f8-9f56-cf25ed60a84a"),
     "Spike Soldier",
     crate::card::CardArt::new("aa45664c-ac39-40f8-9f56-cf25ed60a84a", "Randy Elliott"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Spike", "Soldier"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with three +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 3,
+                },
+            ),
+        ),
+        TRANSFER_SPIKE_COUNTER,
+        AbilityDef::activated(
+            "Remove a +1/+1 counter from this creature: This creature gets +2/+2 until end of turn.",
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::PlusOnePlusOne,
+                amount: 1,
+            }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // STH 120 — Spike Worker
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIKE_WORKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2713de6c-b754-435c-8d11-5215fd602a40"),
     "Spike Worker",
     crate::card::CardArt::new("2713de6c-b754-435c-8d11-5215fd602a40", "Daniel Gelon"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Spike"], 0, 0).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with two +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        TRANSFER_SPIKE_COUNTER,
+    ]),
 );
 
 // STH 121 — Spined Wurm
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SPINED_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0053bd00-90fd-48c2-8f79-952d5d1e3e74"),
     "Spined Wurm",
     crate::card::CardArt::new("113fad70-36bc-4ab7-962a-cda3bddd02fc", "Keith Parkinson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Wurm"], 5, 4),
 );
 
 // STH 122 — Tempting Licid
@@ -1359,13 +2139,21 @@ pub(in crate::card::sets) static VOLRATH_S_GARDENS: CardRecord = CardRecord::new
 );
 
 // STH 125 — Wall of Blossoms
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_BLOSSOMS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7eb4a1a3-efcf-4c9a-ad1f-0a3f8f2b456f"),
     "Wall of Blossoms",
     crate::card::CardArt::new("7eb4a1a3-efcf-4c9a-ad1f-0a3f8f2b456f", "Heather Hudson"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // STH 126 — Acidic Sliver
@@ -1399,13 +2187,18 @@ pub(in crate::card::sets) static HIBERNATION_SLIVER: CardRecord = CardRecord::ne
 );
 
 // STH 129 — Sliver Queen
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SLIVER_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("235c0ece-aed0-4120-99cc-5d0e28fa70ab"),
     "Sliver Queen",
     crate::card::CardArt::new("235c0ece-aed0-4120-99cc-5d0e28fa70ab", "Ron Spencer"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{U}{B}{R}{G}"), &["Sliver"], 7, 7)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated(
+            "{2}: Create a 1/1 colorless Sliver creature token.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::create_creature_token(&["Sliver"], &[], 1, 1),
+        )),
 );
 
 // STH 130 — Spined Sliver
@@ -1472,13 +2265,22 @@ pub(in crate::card::sets) static HEARTSTONE: CardRecord = CardRecord::new(
 );
 
 // STH 135 — Horn of Greed
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HORN_OF_GREED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("950660f9-b185-4979-a08b-cce4ec6ce07d"),
     "Horn of Greed",
     crate::card::CardArt::new("950660f9-b185-4979-a08b-cce4ec6ce07d", "Jeff Miracola"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::triggered(
+        "Whenever a player plays a land, that player draws a card.",
+        TriggerEventDef::LandPlayed {
+            land: ObjectPredicateDef::Any,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // STH 136 — Hornet Cannon
@@ -1547,23 +2349,50 @@ pub(in crate::card::sets) static PORTCULLIS: CardRecord = CardRecord::new(
 );
 
 // STH 140 — Shifting Wall
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIFTING_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49b7a950-bf79-46fa-8b29-b7856b38e0fd"),
     "Shifting Wall",
     crate::card::CardArt::new("49b7a950-bf79-46fa-8b29-b7856b38e0fd", "Michael Sutfin"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{X}"), &["Wall"], 0, 0).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::as_enters(
+            "This creature enters with X +1/+1 counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCastXCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+            ),
+        ),
+    ]),
 );
 
 // STH 141 — Sword of the Chosen
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SWORD_OF_THE_CHOSEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("401678d7-11dc-47ec-be28-4facdd949bc1"),
     "Sword of the Chosen",
     crate::card::CardArt::new("401678d7-11dc-47ec-be28-4facdd949bc1", "Adam Rex"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{T}: Target legendary creature gets +2/+2 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )),
 );
 
 // STH 142 — Volrath's Laboratory
@@ -1577,13 +2406,36 @@ pub(in crate::card::sets) static VOLRATH_S_LABORATORY: CardRecord = CardRecord::
 );
 
 // STH 143 — Volrath's Stronghold
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLRATH_S_STRONGHOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43bf015b-152e-4d67-b773-e75fb2487a32"),
     "Volrath's Stronghold",
     crate::card::CardArt::new("43bf015b-152e-4d67-b773-e75fb2487a32", "Kev Walker"),
     crate::card::CardSet::Stronghold,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated_with_targets(
+                "{1}{B}, {T}: Put target creature card from your graveyard on top of your library.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{1}{B}")),
+                    AbilityCostDef::TapSource,
+                ],
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Library,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

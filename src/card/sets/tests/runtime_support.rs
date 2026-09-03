@@ -43,10 +43,12 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
             | ObjectRefDef::SourceOfTargetedStackObject(_),
         )
         | ObjectPredicateDef::Special(_) => false,
+        ObjectPredicateDef::SharesNameWithAny(objects) => shared_source_object_set(*objects),
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::Ability
@@ -144,6 +146,9 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
             | ObjectSetDef::SharingNameWith(_)
+            | ObjectSetDef::SharingNameWithIn { .. }
+            | ObjectSetDef::NamesAppearingAtLeast { .. }
+            | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::SharingNameWithBinding { .. }
             | ObjectSetDef::TokensCreatedBy(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },

@@ -228,6 +228,17 @@ fn validate_object_set_shape(
             validate_object_set_shape(*objects, targets)?;
             validate_object_predicate_shape(object.predicate(), targets)
         }
+        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
+            validate_object_set_shape(*objects, targets)
+        }
+        ObjectSetDef::SharingNameWithIn { reference, objects } => {
+            validate_object_reference_shape(reference, targets)?;
+            validate_object_set_shape(*objects, targets)
+        }
+        ObjectSetDef::ExceptObject { objects, object } => {
+            validate_object_set_shape(*objects, targets)?;
+            validate_object_reference_shape(object, targets)
+        }
         ObjectSetDef::CardsDrawnThisTurnInHand(player)
         | ObjectSetDef::PermanentsControlledBy(player) => {
             validate_player_reference_shape(player, targets)
@@ -444,6 +455,7 @@ fn validate_object_predicate_shape(
         ObjectPredicateDef::HasName(reference) => {
             validate_object_reference_shape(reference, targets)
         }
+        ObjectPredicateDef::SharesNameWithAny(objects) => validate_object_set_shape(*objects, targets),
         _ => Ok(()),
     }
 }
@@ -690,6 +702,9 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
+            | ObjectSetDef::SharingNameWithIn { .. }
+            | ObjectSetDef::NamesAppearingAtLeast { .. }
+            | ObjectSetDef::ExceptObject { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
             | ObjectSetDef::LinkedExiles
@@ -765,6 +780,9 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
+            | ObjectSetDef::SharingNameWithIn { .. }
+            | ObjectSetDef::NamesAppearingAtLeast { .. }
+            | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)

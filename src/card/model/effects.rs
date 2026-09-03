@@ -35,6 +35,7 @@ use super::{
 // consumed by both resolving and continuously applied effects below.
 include!("effects/zone_change_references.rs");
 include!("effects/recipients_and_matchers.rs");
+include!("effects/damage_event_matcher_helpers.rs");
 include!("effects/durations.rs");
 include!("effects/zone_change_event_matchers.rs");
 include!("effects/combat_restrictions.rs");

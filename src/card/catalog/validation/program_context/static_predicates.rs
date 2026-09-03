@@ -53,6 +53,9 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::ControlledBy(relation) | ObjectPredicateDef::OwnedBy(relation) => {
             static_player_relation_supported(relation)
         }
+        ObjectPredicateDef::SharesNameWithAny(objects) => {
+            static_condition_object_set_supported(*objects)
+        }
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -92,6 +95,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell

@@ -33,6 +33,18 @@ pub const fn choose_card_name_as_enters(
     )
 }
 
+/// Records one catalog-derived nonland card name on a permanent as it enters.
+#[must_use]
+pub const fn choose_nonland_card_name(text: &'static str) -> AbilityDef {
+    choose_card_name_as_enters(text, BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME)
+}
+
+/// Records one catalog-derived land card name on a permanent as it enters.
+#[must_use]
+pub const fn choose_land_card_name(text: &'static str) -> AbilityDef {
+    choose_card_name_as_enters(text, BattlefieldEntryScalarChoiceDef::LAND_CARD_NAME)
+}
+
 /// Privately inspects the opponent's hand, then records any card name on the
 /// entering permanent. The hand observation is available while the public
 /// naming decision is pending.
@@ -73,6 +85,23 @@ pub const fn cannot_activate_nonmana_abilities_with_chosen_name(
             recipient: EffectRecipientDef::EachPlayer,
             effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
                 PlayActionMatcherDef::ActivateNonManaAbility,
+                SOURCES_CHOSEN_CARD_NAME,
+            ))),
+        },
+    )
+}
+
+/// No player can activate any ability of a source with the name this
+/// permanent chose, including mana abilities and sources outside the
+/// battlefield.
+#[must_use]
+pub const fn cannot_activate_abilities_with_chosen_name(text: &'static str) -> AbilityDef {
+    AbilityDef::static_ability(
+        text,
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::EachPlayer,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(PlayRestrictionDef::new(
+                PlayActionMatcherDef::ActivateAbility,
                 SOURCES_CHOSEN_CARD_NAME,
             ))),
         },

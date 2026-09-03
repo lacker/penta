@@ -388,6 +388,7 @@ impl Game {
                         // which the choice list below answers.
                         | AbilityCostDef::MoveToZone(_)
                         | AbilityCostDef::DiscardCardMatching(_)
+                        | AbilityCostDef::RevealCardFromHand(_)
                         | AbilityCostDef::ExileCardFromHand(_) => false,
                         AbilityCostDef::DiscardSource
                         | AbilityCostDef::DiscardCards(_)
@@ -423,6 +424,7 @@ impl Game {
                             | AbilityCostDef::TapPermanents { .. }
                             | AbilityCostDef::MoveToZone(_)
                             | AbilityCostDef::DiscardCardMatching(_)
+                            | AbilityCostDef::RevealCardFromHand(_)
                             | AbilityCostDef::ExileCardFromHand(_)
                     )
                 });
@@ -504,6 +506,15 @@ impl Game {
                         Self::object_combinations(&candidates, usize::from(count))
                     }
                     Some(AbilityCostDef::DiscardCardMatching(object)) => self.players
+                        [player.index()]
+                    .hand
+                    .iter()
+                    .filter(|card| {
+                        self.card_object_matches(*object, card, ZoneKind::Hand, permanent.card.id)
+                    })
+                    .map(|card| vec![card.id])
+                    .collect(),
+                    Some(AbilityCostDef::RevealCardFromHand(object)) => self.players
                         [player.index()]
                     .hand
                     .iter()

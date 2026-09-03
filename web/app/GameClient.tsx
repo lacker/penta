@@ -54,6 +54,7 @@ import {
   targetActionsAreUnambiguous,
 } from "./targeted-action-groups.mjs";
 import { maxSeed, parseSeed, seedTextIsInvalid } from "./match-seed.mjs";
+import { searchableDecisionOptions } from "./decision-options.mjs";
 
 const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 
@@ -262,6 +263,10 @@ export function GameClient({
     decisionId: number | null;
     options: number[];
   }>({ decisionId: null, options: [] });
+  const [decisionFilterState, setDecisionFilterState] = useState<{
+    decisionId: number | null;
+    query: string;
+  }>({ decisionId: null, query: "" });
   const [mulliganBottomSelection, setMulliganBottomSelection] = useState<number[]>([]);
   const pendingActionRef = useRef<Action | null>(null);
   const dragDropped = useRef(false);
@@ -309,6 +314,15 @@ export function GameClient({
     state?.decision?.id === decisionSelectionState.decisionId
       ? decisionSelectionState.options
       : [];
+  const decisionFilter =
+    state?.decision?.id === decisionFilterState.decisionId
+      ? decisionFilterState.query
+      : "";
+  const decisionOptionView = searchableDecisionOptions(
+    state?.decision?.options ?? [],
+    decisionFilter,
+    decisionSelection,
+  );
   const triggerResolutionOrder = isTriggerOrderDecision(state?.decision)
     ? decisionSelectionState.decisionId === state.decision.id &&
       decisionSelectionState.options.length === state.decision.options.length &&
@@ -2360,8 +2374,41 @@ export function GameClient({
                         />
                       )}
                     </div>
+                    {decisionOptionView.searchable && (
+                      <label className="decision-filter">
+                        <span>Search choices</span>
+                        <input
+                          type="search"
+                          value={decisionFilter}
+                          placeholder="Type a name"
+                          autoComplete="off"
+                          disabled={watchingOpponent}
+                          onChange={(event) =>
+                            setDecisionFilterState({
+                              decisionId: state.decision?.id ?? null,
+                              query: event.target.value,
+                            })
+                          }
+                        />
+                        <small aria-live="polite">
+                          {decisionFilter.trim().length === 0
+                            ? `${state.decision.options.length} choices`
+                            : `${decisionOptionView.matchCount} matches`}
+                          {decisionOptionView.truncated && decisionFilter.trim().length > 0
+                            ? ` · ${decisionOptionView.matches.length} shown`
+                            : ""}
+                        </small>
+                      </label>
+                    )}
                     <div className="decision-options">
-                      {state.decision.options.map((option) => (
+                      {decisionOptionView.searchable && decisionOptionView.matches.length === 0 && (
+                        <p className="decision-options-empty">
+                          {decisionFilter.trim().length === 0
+                            ? "Type to search the available choices."
+                            : "No matching choices."}
+                        </p>
+                      )}
+                      {decisionOptionView.matches.map((option) => (
                         <button
                           key={option.id}
                           className={decisionSelection.includes(option.id) ? "is-selected" : ""}

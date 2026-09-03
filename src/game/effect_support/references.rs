@@ -60,9 +60,9 @@ impl Game {
             // the spell that is currently resolving.
             ObjectRefDef::ResolvingObject => Some(Target::Spell(object.id)),
             ObjectRefDef::AdditionalCostObject(index) => object
-                .signature
-                .as_ref()
-                .and_then(|_| object.chosen_permanents.get(index.index()).copied())
+                .chosen_permanents
+                .get(index.index())
+                .copied()
                 .and_then(|paid| self.object_target_with_lki(paid)),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
@@ -223,10 +223,9 @@ impl Game {
                 })
             }
             ObjectRefDef::ResolvingObject => Some(object.id),
-            ObjectRefDef::AdditionalCostObject(index) => object
-                .signature
-                .as_ref()
-                .and_then(|_| object.chosen_permanents.get(index.index()).copied()),
+            ObjectRefDef::AdditionalCostObject(index) => {
+                object.chosen_permanents.get(index.index()).copied()
+            }
             ObjectRefDef::Binding(binding) => {
                 context
                     .single_object(binding)
@@ -654,8 +653,71 @@ impl Game {
                     self.bound_object_matches(*target, predicate.predicate(), source)
                 })
                 .collect(),
+            ObjectSetDef::SharingNameWithIn { reference, objects } => {
+                let Some(reference) = (match reference {
+                    ObjectRefDef::Source => Some(source),
+                    ObjectRefDef::AttachedToSource => {
+                        self.current_or_last_known_attached_host(source)
+                    }
+                    _ => None,
+                }) else {
+                    return Vec::new();
+                };
+                let Some(name) = self.object_card_name(reference) else {
+                    return Vec::new();
+                };
+                self.source_object_set_targets(*objects, source)
+                    .into_iter()
+                    .filter(|target| Self::target_object_id(*target).and_then(|id| self.object_card_name(id)).is_some_and(|candidate| candidate == name))
+                    .collect()
+            }
+            ObjectSetDef::NamesAppearingAtLeast { objects, count } => {
+                let candidates = self.source_object_set_targets(*objects, source);
+                self.names_appearing_at_least(candidates, count)
+            }
+            ObjectSetDef::ExceptObject { objects, object } => {
+                let excluded = match object {
+                    ObjectRefDef::Source => Some(source),
+                    ObjectRefDef::AttachedToSource => {
+                        self.current_or_last_known_attached_host(source)
+                    }
+                    _ => None,
+                };
+                self.source_object_set_targets(*objects, source)
+                    .into_iter()
+                    .filter(|target| Self::target_object_id(*target) != excluded)
+                    .collect()
+            }
             _ => Vec::new(),
         }
+    }
+
+    fn target_object_id(target: Target) -> Option<GameObjectId> {
+        match target {
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+            Target::Player(_) => None,
+        }
+    }
+
+    fn names_appearing_at_least(&self, candidates: Vec<Target>, count: u8) -> Vec<Target> {
+        candidates
+            .iter()
+            .copied()
+            .filter(|candidate| {
+                Self::target_object_id(*candidate)
+                    .and_then(|id| self.object_card_name(id))
+                    .is_some_and(|name| {
+                        candidates
+                            .iter()
+                            .filter_map(|other| Self::target_object_id(*other))
+                            .filter_map(|id| self.object_card_name(id))
+                            .filter(|other| *other == name)
+                            .take(usize::from(count))
+                            .count()
+                            >= usize::from(count)
+                    })
+            })
+            .collect()
     }
 
     fn legal_attachment_hosts(
@@ -785,6 +847,33 @@ impl Game {
             }
             ObjectSetDef::SharingNameWith(reference) => {
                 self.objects_sharing_name_with_reference(reference, object, context, scoped)
+            }
+            ObjectSetDef::SharingNameWithIn { reference, objects } => {
+                let Some(name) = self
+                    .object_reference_id(reference, object, context, scoped)
+                    .and_then(|referenced| self.object_card_name(referenced))
+                else {
+                    return Vec::new();
+                };
+                self.effect_objects(*objects, object, context, scoped)
+                    .into_iter()
+                    .filter(|candidate| {
+                        Self::target_object_id(*candidate)
+                            .and_then(|id| self.object_card_name(id))
+                            .is_some_and(|candidate| candidate == name)
+                    })
+                    .collect()
+            }
+            ObjectSetDef::NamesAppearingAtLeast { objects, count } => {
+                let candidates = self.effect_objects(*objects, object, context, scoped);
+                self.names_appearing_at_least(candidates, count)
+            }
+            ObjectSetDef::ExceptObject { objects, object: excluded } => {
+                let excluded = self.object_reference_id(excluded, object, context, scoped);
+                self.effect_objects(*objects, object, context, scoped)
+                    .into_iter()
+                    .filter(|candidate| Self::target_object_id(*candidate) != excluded)
+                    .collect()
             }
             ObjectSetDef::SharingNameWithBinding {
                 binding,

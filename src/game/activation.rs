@@ -424,6 +424,7 @@ impl Game {
                     | AbilityCostDef::MillCards(_)
                     | AbilityCostDef::DiscardCards(_)
                     | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::RevealCardFromHand(_)
                     | AbilityCostDef::ExileCardFromHand(_)
                     | AbilityCostDef::DiscardCardsAtRandom(_)
                     | AbilityCostDef::SacrificePermanent { .. }
@@ -713,6 +714,19 @@ impl Game {
                     }
                     AbilityCostDef::DiscardCardMatching(_) => {
                         self.discard_cards(player, cost_objects);
+                    }
+                    AbilityCostDef::RevealCardFromHand(_) => {
+                        self.events.extend(cost_objects.iter().filter_map(|chosen| {
+                            self.players[player.index()]
+                                .hand
+                                .iter()
+                                .find(|card| card.id == *chosen)
+                                .map(|card| GameEvent::CardRevealed {
+                                    player,
+                                    card: card.id,
+                                    definition: card.definition,
+                                })
+                        }));
                     }
                     AbilityCostDef::ExileCardFromHand(_) => {
                         for chosen in cost_objects {

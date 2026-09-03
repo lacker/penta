@@ -137,6 +137,7 @@ impl Game {
             }
             ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
             ObjectPredicateDef::ManaValueAtMost(_)
+            | ObjectPredicateDef::NameIsBasicLandName
             | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
             | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -195,6 +196,7 @@ impl Game {
             | ObjectPredicateDef::DeclaredTargetCount { .. }
             | ObjectPredicateDef::HasDeclaredTarget(_)
             | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
+            | ObjectPredicateDef::SharesNameWithAny(_)
             | ObjectPredicateDef::Special(_) => None,
         }
     }

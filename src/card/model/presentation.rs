@@ -94,6 +94,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::EnteredThisTurn
         | ObjectPredicateDef::AttackedDuringControllersLastTurn
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::Ability
         | ObjectPredicateDef::ActivatedAbility
@@ -136,6 +137,7 @@ fn predicate_negates(predicate: ObjectPredicateDef, expected: ObjectPredicateDef
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::HasNonManaActivatedAbility
         | ObjectPredicateDef::AnyOf(_)
+        | ObjectPredicateDef::SharesNameWithAny(_)
         | ObjectPredicateDef::Special(_) => false,
     }
 }

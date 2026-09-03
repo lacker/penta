@@ -456,6 +456,9 @@ impl Game {
                 | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::SharingNameWith(_)
+                | ObjectSetDef::SharingNameWithIn { .. }
+                | ObjectSetDef::NamesAppearingAtLeast { .. }
+                | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::SharingNameWithBinding { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
@@ -501,6 +504,7 @@ impl Game {
                     .is_some_and(|actual| actual == chosen)
             }),
             ObjectPredicateDef::HasAnyBasicLandType(_)
+            | ObjectPredicateDef::NameIsBasicLandName
             | ObjectPredicateDef::Spell
             | ObjectPredicateDef::Ability
             | ObjectPredicateDef::ActivatedAbility
@@ -558,6 +562,7 @@ impl Game {
             | ObjectPredicateDef::EnteredThisTurn
             | ObjectPredicateDef::AttackedDuringControllersLastTurn
             | ObjectPredicateDef::HasNonManaActivatedAbility
+            | ObjectPredicateDef::SharesNameWithAny(_)
             | ObjectPredicateDef::Special(_) => false,
         }
     }

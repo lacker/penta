@@ -39,6 +39,7 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
                     | AbilityCostDef::TapPermanents { .. }
                     | AbilityCostDef::MoveToZone(_)
                     | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::RevealCardFromHand(_)
                     | AbilityCostDef::ExileCardFromHand(_)
             )
         })
@@ -137,6 +138,7 @@ pub(in super::super) fn shared_activated_costs(
             }
             AbilityCostDef::SacrificePermanents { object, .. }
             | AbilityCostDef::DiscardCardMatching(object)
+            | AbilityCostDef::RevealCardFromHand(object)
             | AbilityCostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }

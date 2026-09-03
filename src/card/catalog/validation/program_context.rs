@@ -805,6 +805,18 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
             static_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
+        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
+            static_object_set_supported(*objects)
+        }
+        ObjectSetDef::ExceptObject {
+            objects,
+            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
+        } => static_object_set_supported(*objects),
+        ObjectSetDef::SharingNameWithIn {
+            reference: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
+            objects,
+        } => static_object_set_supported(*objects),
+        ObjectSetDef::SharingNameWithIn { .. } | ObjectSetDef::ExceptObject { .. } => false,
     }
 }
 
@@ -819,6 +831,18 @@ fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
             static_condition_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
+        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
+            static_condition_object_set_supported(*objects)
+        }
+        ObjectSetDef::ExceptObject {
+            objects,
+            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
+        }
+        | ObjectSetDef::SharingNameWithIn {
+            reference: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
+            objects,
+        } => static_condition_object_set_supported(*objects),
+        ObjectSetDef::SharingNameWithIn { .. } | ObjectSetDef::ExceptObject { .. } => false,
         _ => static_object_set_supported(objects),
     }
 }

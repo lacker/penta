@@ -156,6 +156,9 @@ impl Game {
                     | ObjectSetDef::TokensCreatedBy(_)
                     | ObjectSetDef::BottomOfGraveyard(_)
                     | ObjectSetDef::SharingNameWith(_)
+                    | ObjectSetDef::SharingNameWithIn { .. }
+                    | ObjectSetDef::NamesAppearingAtLeast { .. }
+                    | ObjectSetDef::ExceptObject { .. }
                     | ObjectSetDef::SharingNameWithBinding { .. }
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 ) => false,

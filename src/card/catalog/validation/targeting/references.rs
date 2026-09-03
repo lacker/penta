@@ -708,6 +708,17 @@ fn validate_object_set_target_references(
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_predicate_references(object.predicate(), target_count, scope)
         }
+        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
+            validate_object_set_target_references(*objects, target_count, scope)
+        }
+        ObjectSetDef::SharingNameWithIn { reference, objects } => {
+            validate_object_reference(reference, target_count, scope)?;
+            validate_object_set_target_references(*objects, target_count, scope)
+        }
+        ObjectSetDef::ExceptObject { objects, object } => {
+            validate_object_set_target_references(*objects, target_count, scope)?;
+            validate_object_reference(object, target_count, scope)
+        }
         ObjectSetDef::LegalTargets(target) => {
             validate_target_index(target, target_count)
         }
@@ -972,6 +983,9 @@ fn validate_object_predicate_references(
         }
         ObjectPredicateDef::HasName(reference) => {
             validate_object_reference(reference, target_count, scope)
+        }
+        ObjectPredicateDef::SharesNameWithAny(objects) => {
+            validate_object_set_target_references(*objects, target_count, scope)
         }
         ObjectPredicateDef::HasChosenName => {
             scope.mark_chosen_name_read();

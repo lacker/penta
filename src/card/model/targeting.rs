@@ -3,7 +3,7 @@ use crate::ids::TargetIndex;
 use super::{
     AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
     CardSupertype, CardType, ComparisonDef, CounterKind, KeywordAbility, ManaColor, ObjectRefDef,
-    PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
+    ObjectSetDef, PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
 };
 
 /// A composable predicate over a card or game object.
@@ -27,6 +27,10 @@ pub enum ObjectPredicateDef {
     /// controller matches as readily as one that connected in combat.
     DealtDamageThisTurn,
     HasType(CardType),
+    /// Whether the object's effective name is the canonical name of a basic
+    /// land card in the catalog. This is about the name, not the object's
+    /// current supertypes: a copied Plains still has a basic land name.
+    NameIsBasicLandName,
     /// A land with at least one of the listed effective basic land subtypes.
     ///
     /// This uses the object's prospective/effective type line, so continuous
@@ -135,6 +139,9 @@ pub enum ObjectPredicateDef {
     /// Has the same name as the referenced object. The common printed "with
     /// the same name as this" form uses [`ObjectRefDef::Source`].
     HasName(ObjectRefDef),
+    /// Shares its effective name with at least one member of the resolved
+    /// set. The tested object is not implicitly added to that set.
+    SharesNameWithAny(&'static ObjectSetDef),
     /// A spell or ability on the stack whose chosen targets include an object
     /// matching this. "That targets a land you control" reads the targets it
     /// already has rather than what it could have taken.

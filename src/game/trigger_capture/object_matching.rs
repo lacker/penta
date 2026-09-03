@@ -348,6 +348,19 @@ impl Game {
             ObjectPredicateDef::HasSourcesChosenScalar(destination) => {
                 self.matches_chosen_scalar(destination, object, source)
             }
+            ObjectPredicateDef::SharesNameWithAny(objects) => self
+                .object_card_name(object.id)
+                .is_some_and(|name| {
+                    self.source_object_set_targets(*objects, source)
+                        .into_iter()
+                        .filter_map(|target| match target {
+                            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => {
+                                self.object_card_name(id)
+                            }
+                            Target::Player(_) => None,
+                        })
+                        .any(|candidate| candidate == name)
+                }),
             _ => unreachable!("only the three indirect predicates arrive here"),
         }
     }
@@ -490,6 +503,11 @@ impl Game {
             ObjectPredicateDef::Token => object.token,
             ObjectPredicateDef::Saddled => object.saddled,
             ObjectPredicateDef::HasType(card_type) => object.types.contains(card_type),
+            ObjectPredicateDef::NameIsBasicLandName => self
+                .object_card_name(object.id)
+                .and_then(|name| self.catalog.find_by_name(name.as_ref()))
+                .and_then(|definition| self.catalog.get(definition))
+                .is_some_and(crate::card::CardDefinition::is_basic_land),
             ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
                 object.types.contains(CardType::Land)
                     && land_types
@@ -558,7 +576,8 @@ impl Game {
             ObjectPredicateDef::Named(_)
             | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::TargetsObjectMatching(_)
-            | ObjectPredicateDef::HasSourcesChosenScalar(_) => {
+            | ObjectPredicateDef::HasSourcesChosenScalar(_)
+            | ObjectPredicateDef::SharesNameWithAny(_) => {
                 self.indirect_predicate_matches(predicate, object, source, controller)
             }
             ObjectPredicateDef::HasKeyword(keyword) => keyword

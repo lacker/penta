@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityCostList, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt,
+    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor, ManaCost,
+    ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -204,6 +204,35 @@ pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
     ),
 );
 
+// SOS 259 — Petrified Hamlet
+pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("355dd460-b0e9-41f2-a058-b7f7e39ac387"),
+    "Petrified Hamlet",
+    CardArt::new("355dd460-b0e9-41f2-a058-b7f7e39ac387", "Richard Wright"),
+    CardSet::SecretsOfStrixhaven,
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::choose_land_card_name("As this land enters, choose a land card name."),
+        abilities::cannot_activate_nonmana_abilities_with_chosen_name(
+            "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
+        ),
+        AbilityDef::static_ability(
+            "Lands with the chosen name have “{T}: Add {C}.”",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        abilities::SOURCES_CHOSEN_CARD_NAME,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::tap_for(ManaColor::Colorless)),
+            },
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+    ]),
+);
+
 // SOS 262 — Spectacle Summit
 pub(in crate::card::sets) static SPECTACLE_SUMMIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0a66f7b-eab4-45da-8895-c2c2c7eb05f8"),
@@ -261,6 +290,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &FIELDS_OF_STRIFE,
     &FORUM_OF_AMITY,
     &PARADOX_GARDENS,
+    &PETRIFIED_HAMLET,
     &SPECTACLE_SUMMIT,
     &TITAN_S_GRAVE,
 ];

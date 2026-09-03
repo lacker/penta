@@ -50,6 +50,9 @@ fn validate_trigger_object_predicate(
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             validate_trigger_object_predicate(*predicate, event, target_count, scope)
         }
+        ObjectPredicateDef::SharesNameWithAny(objects) => {
+            validate_object_set_target_references(*objects, target_count, scope)
+        }
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -90,6 +93,7 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::NoncreatureSpell
@@ -151,6 +155,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::WasDealtDamageThisTurn
         | ObjectPredicateDef::DealtDamageThisTurn
         | ObjectPredicateDef::HasType(_)
+        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::Ability
@@ -187,6 +192,7 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::DebutSet(_)
         | ObjectPredicateDef::HasName(_)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
+        | ObjectPredicateDef::SharesNameWithAny(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
         | ObjectPredicateDef::HasKeyword(_)

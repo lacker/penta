@@ -719,6 +719,7 @@ fn validate_replacement_effect_target_shapes(
                 | (
                     ScalarChoiceListDef::CardNames
                         | ScalarChoiceListDef::NonlandCardNames
+                        | ScalarChoiceListDef::LandCardNames
                         | ScalarChoiceListDef::NonbasicLandCardNames
                         | ScalarChoiceListDef::CardNamesOtherThanBasicLands,
                     BattlefieldEntryChoiceDestinationDef::CardName

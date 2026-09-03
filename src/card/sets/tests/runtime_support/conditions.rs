@@ -213,6 +213,9 @@ pub(super) fn shared_source_object_set(objects: ObjectSetDef) -> bool {
         ObjectSetDef::Matching { objects, object } => {
             shared_source_object_set(*objects) && shared_object_predicate(object.predicate())
         }
+        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => shared_source_object_set(*objects),
+        ObjectSetDef::SharingNameWithIn { objects, .. }
+        | ObjectSetDef::ExceptObject { objects, .. } => shared_source_object_set(*objects),
         ObjectSetDef::Query(query) => shared_query(query),
         _ => false,
     }

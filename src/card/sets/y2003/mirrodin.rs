@@ -2,11 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostAdjustmentDef, CostAmountDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    SpellCostConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    CostAdjustmentDef, CostAmountDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, SpellCostConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -159,6 +160,47 @@ pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
     ]),
 );
 
+// MRD 169 — Extraplanar Lens
+pub(in crate::card::sets) static EXTRAPLANAR_LENS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("622a6523-3b12-4657-a656-00a57a3ae59c"),
+    "Extraplanar Lens",
+    CardArt::new("622a6523-3b12-4657-a656-00a57a3ae59c", "Lars Grant-West"),
+    CardSet::Mirrodin,
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, you may exile target land you control.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            })],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::ExileLinkedToSource {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    until_source_leaves: false,
+                    face_down: false,
+                    then: None,
+                },
+            },
+        ),
+        AbilityDef::triggered_mana(
+            "Whenever a land with the same name as the exiled card is tapped for mana, its controller adds one mana of any type that land produced.",
+            TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Land),
+                ObjectPredicateDef::SharesNameWithAny(&ObjectSetDef::LinkedExiles),
+            ])),
+            EffectDef::AddMana(
+                AddManaEffectDef::choice_from(ManaTypeSetDef::produced_by(
+                    ObjectRefDef::TriggeringObject,
+                ))
+                .to_triggering_objects_controller(),
+            ),
+        ),
+    ]),
+);
+
 // MRD 199 — Lightning Greaves
 pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new_with_legacy_id(
     2170,
@@ -249,6 +291,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AETHER_SPELLBOMB,
     &BONESPLITTER,
     &CHROME_MOX,
+    &EXTRAPLANAR_LENS,
     &LIGHTNING_GREAVES,
     &TALISMAN_OF_DOMINANCE,
     &TALISMAN_OF_PROGRESS,

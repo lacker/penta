@@ -192,11 +192,12 @@ impl TargetIndex {
     }
 }
 
-/// Positional reference to an object paid for a spell's additional cost.
+/// Positional reference to an object paid for a spell or ability's object cost.
 ///
-/// The order is the order in which the cast's object costs were paid. Unlike
-/// a target, this names the paid object itself and therefore remains useful
-/// through last-known information after payment moves it to another zone.
+/// The order is the order in which the action's object costs were paid.
+/// Unlike a target, this names the paid object itself and therefore remains
+/// useful through last-known information after payment moves it to another
+/// zone, or while a revealed object remains in its hand.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AdditionalCostObjectIndex(pub u8);
 
@@ -264,6 +265,10 @@ const BINDING_LABELS: &[&str] = &[
     "consult_kicked_rest",
     "consult_normal_chosen",
     "consult_normal_rest",
+    "counterbore_graveyard",
+    "counterbore_hand",
+    "counterbore_library",
+    "counterbore_target",
     "delver_matching",
     "delver_other",
     "devourer_exiled",
@@ -277,6 +282,10 @@ const BINDING_LABELS: &[&str] = &[
     "epic_experiment_exiled",
     "epic_experiment_rest",
     "exiled_creature",
+    "extirpate_graveyard",
+    "extirpate_hand",
+    "extirpate_library",
+    "extirpate_target",
     "fact_chosen",
     "fact_first",
     "fact_second",

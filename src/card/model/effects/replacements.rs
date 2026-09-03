@@ -155,6 +155,8 @@ pub enum ScalarChoiceListDef {
     /// restriction on Meddling Mage rather than flavor: naming a land would
     /// otherwise lock out a fetch that was never castable anyway.
     NonlandCardNames,
+    /// Only land card names, basic or nonbasic.
+    LandCardNames,
     /// Only nonbasic lands. Alpine Moon cannot name a spell, a basic land,
     /// or a nonland permanent even though all of them are ordinary card
     /// names elsewhere.
@@ -209,6 +211,11 @@ impl BattlefieldEntryScalarChoiceDef {
 
     pub const NONLAND_CARD_NAME: Self = Self {
         list: ScalarChoiceListDef::NonlandCardNames,
+        destination: BattlefieldEntryChoiceDestinationDef::CardName,
+    };
+
+    pub const LAND_CARD_NAME: Self = Self {
+        list: ScalarChoiceListDef::LandCardNames,
         destination: BattlefieldEntryChoiceDestinationDef::CardName,
     };
 

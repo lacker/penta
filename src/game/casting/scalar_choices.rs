@@ -28,6 +28,7 @@ impl Game {
             ),
             ScalarChoiceListDef::CardNames
             | ScalarChoiceListDef::NonlandCardNames
+            | ScalarChoiceListDef::LandCardNames
             | ScalarChoiceListDef::NonbasicLandCardNames
             | ScalarChoiceListDef::CardNamesOtherThanBasicLands => {
                 let mut names = self
@@ -43,6 +44,7 @@ impl Game {
                         ScalarChoiceListDef::NonlandCardNames => {
                             !part.rules.has_type(CardType::Land)
                         }
+                        ScalarChoiceListDef::LandCardNames => part.rules.has_type(CardType::Land),
                         ScalarChoiceListDef::NonbasicLandCardNames => {
                             part.rules.has_type(CardType::Land)
                                 && !part.rules.has_supertype(crate::card::CardSupertype::Basic)
@@ -63,6 +65,7 @@ impl Game {
                 (
                     match choice.list {
                         ScalarChoiceListDef::NonlandCardNames => "Choose a nonland card name",
+                        ScalarChoiceListDef::LandCardNames => "Choose a land card name",
                         ScalarChoiceListDef::NonbasicLandCardNames => {
                             "Choose a nonbasic land card name"
                         }

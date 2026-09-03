@@ -40,9 +40,10 @@ pub enum ObjectRefDef {
     ResolvingObject,
     /// One object saved by an earlier choice in this resolution.
     Binding(Binding),
-    /// One object paid for the resolving spell's additional costs, by payment
-    /// order. This names that exact object incarnation so characteristic
-    /// reads can use last-known information after the payment moves it.
+    /// One object paid for the resolving spell or ability's object costs, by
+    /// payment order. This names that exact object incarnation so
+    /// characteristic reads can use last-known information after the payment
+    /// moves it, or can inspect a revealed object that stayed in place.
     AdditionalCostObject(AdditionalCostObjectIndex),
     AttachedToSource,
     Target(TargetIndex),
@@ -179,6 +180,24 @@ pub enum ObjectSetDef {
     /// Every battlefield permanent sharing the referenced object's effective
     /// name, including the referenced object itself.
     SharingNameWith(ObjectRefDef),
+    /// Members of an arbitrary object set sharing the referenced object's
+    /// effective name. Unlike [`Self::SharingNameWith`], the candidate set
+    /// decides both zones and player relations.
+    SharingNameWithIn {
+        reference: ObjectRefDef,
+        objects: &'static ObjectSetDef,
+    },
+    /// Members whose effective name appears at least `count` times in the
+    /// input set. Every member of each qualifying name group is retained.
+    NamesAppearingAtLeast {
+        objects: &'static ObjectSetDef,
+        count: u8,
+    },
+    /// Every member of one set except the exact referenced object.
+    ExceptObject {
+        objects: &'static ObjectSetDef,
+        object: ObjectRefDef,
+    },
     /// The newest matching card in one player's graveyard. A graveyard is a
     /// pile, so "the top creature card" is the last creature card put there
     /// rather than a choice among them.
@@ -344,6 +363,9 @@ impl EffectRecipientDef {
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::Query(_)
                 | ObjectSetDef::SharingNameWith(_)
+                | ObjectSetDef::SharingNameWithIn { .. }
+                | ObjectSetDef::NamesAppearingAtLeast { .. }
+                | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::SharingNameWithBinding { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
@@ -374,6 +396,9 @@ impl EffectRecipientDef {
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::SharingNameWith(_)
+                | ObjectSetDef::SharingNameWithIn { .. }
+                | ObjectSetDef::NamesAppearingAtLeast { .. }
+                | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::SharingNameWithBinding { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
@@ -814,101 +839,6 @@ impl TapEventMatcherDef {
             purpose: TapPurposeDef::Mana,
         }
     }
-}
-
-impl DamageEventMatcherDef {
-    pub const ANY: Self = Self {
-        kind: DamageKindDef::Any,
-        source: DamageSourceMatcherDef::Any,
-        recipient: DamageRecipientMatcherDef::Any,
-    };
-
-    pub const COMBAT: Self = Self {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::Any,
-        recipient: DamageRecipientMatcherDef::Any,
-    };
-
-    #[must_use]
-    pub const fn to(recipients: EffectRecipientDef) -> Self {
-        Self {
-            recipient: DamageRecipientMatcherDef::Recipients(recipients),
-            ..Self::ANY
-        }
-    }
-
-    #[must_use]
-    pub const fn from(source: ObjectRefDef) -> Self {
-        Self {
-            source: DamageSourceMatcherDef::Object(source),
-            ..Self::ANY
-        }
-    }
-
-    #[must_use]
-    pub const fn from_group_to(
-        source: DamageSourceGroupDef,
-        recipients: EffectRecipientDef,
-    ) -> Self {
-        Self {
-            source: DamageSourceMatcherDef::Group(source),
-            recipient: DamageRecipientMatcherDef::Recipients(recipients),
-            ..Self::ANY
-        }
-    }
-
-    #[must_use]
-    pub const fn combat_to(recipients: EffectRecipientDef) -> Self {
-        Self {
-            recipient: DamageRecipientMatcherDef::Recipients(recipients),
-            ..Self::COMBAT
-        }
-    }
-
-    #[must_use]
-    pub const fn combat_from(source: ObjectRefDef) -> Self {
-        Self {
-            source: DamageSourceMatcherDef::Object(source),
-            ..Self::COMBAT
-        }
-    }
-
-    #[must_use]
-    pub const fn combat_except(source: ObjectRefDef) -> Self {
-        Self {
-            source: DamageSourceMatcherDef::Except(source),
-            ..Self::COMBAT
-        }
-    }
-
-    #[must_use]
-    pub const fn to_player_and_creatures_controlled_by(player: PlayerRefDef) -> Self {
-        Self {
-            recipient: DamageRecipientMatcherDef::PlayerAndCreaturesControlledBy(player),
-            ..Self::ANY
-        }
-    }
-
-    #[must_use]
-    pub const fn from_matching_to_affected(source: ObjectPredicateDef) -> Self {
-        Self {
-            kind: DamageKindDef::Any,
-            source: DamageSourceMatcherDef::Matching(source),
-            recipient: DamageRecipientMatcherDef::AffectedObject,
-        }
-    }
-
-    pub const COMBAT_FROM_AFFECTED: Self = Self {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::AffectedObject,
-        recipient: DamageRecipientMatcherDef::Any,
-    };
-
-    pub const COMBAT_TO_AFFECTED: Self = Self {
-        kind: DamageKindDef::Combat,
-        source: DamageSourceMatcherDef::Any,
-        recipient: DamageRecipientMatcherDef::AffectedObject,
-    };
 }
 
 /// How long or how often a resolving prevention rule can be spent.

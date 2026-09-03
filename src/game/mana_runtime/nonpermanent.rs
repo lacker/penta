@@ -16,6 +16,20 @@ impl Game {
             || !self.activation_timing_allows(controller, definition.timing)
             || definition.activation_limit.is_some()
             || definition.condition.is_some()
+            || self
+                .card_in_nonbattlefield_zone(source)
+                .is_some_and(|(_, card)| {
+                    let context = match zone {
+                        ZoneKind::Hand => CharacteristicContext::Hand,
+                        ZoneKind::Command => CharacteristicContext::Command,
+                        _ => return false,
+                    };
+                    self.nonbattlefield_mana_ability_activation_is_prohibited(
+                        controller,
+                        card,
+                        &context,
+                    )
+                })
         {
             return Vec::new();
         }

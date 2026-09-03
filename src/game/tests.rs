@@ -247,6 +247,7 @@ mod player_curses;
 mod poison;
 mod populate;
 mod populate_cards;
+mod portal_second_age;
 mod power_blocking;
 mod power_blocking_restrictions;
 mod premodern_bw;

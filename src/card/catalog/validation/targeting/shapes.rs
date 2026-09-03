@@ -874,10 +874,7 @@ fn validate_applied_effect_shapes(
         }
         AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
             crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
-        )) => {
-            validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
-            validate_object_predicate_shape(*predicate, targets)
-        }
+        )) => validate_predicated_player_rule_shape(recipient, *predicate, targets),
         // Each names a player and carries nothing else.
         AppliedEffectDef::Rule(
             AppliedRuleDef::Ascend
@@ -941,6 +938,15 @@ fn validate_applied_effect_shapes(
             validate_recipient_shape(recipient, targets, RecipientExpectation::Object)
         }
     }
+}
+
+fn validate_predicated_player_rule_shape(
+    recipient: EffectRecipientDef,
+    predicate: ObjectPredicateDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+    validate_object_predicate_shape(predicate, targets)
 }
 
 fn validate_attack_restriction_shape(

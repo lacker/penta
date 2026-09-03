@@ -13,6 +13,8 @@ use crate::{
     AbilityId, AlternativeCostId, CardDefinitionId, CardPartId, ModeId, PlayOptionId, TargetIndex,
 };
 
+mod composition;
+
 #[test]
 fn likelihood_def_preserves_a_valid_floating_point_value() {
     const LIKELIHOOD: LikelihoodDef = LikelihoodDef::new(0.9);

@@ -111,12 +111,30 @@ fn built_in_records_have_unique_identity() {
         records.len(),
         "every catalog definition must have a unique anchor printing",
     );
+    let mut art_scryfall_ids = HashSet::new();
     for record in records {
         assert!(
             super::is_uuid(record.identity_anchor()),
             "{} has an invalid anchor printing UUID: {}",
             record.name,
             record.identity_anchor(),
+        );
+        assert!(
+            super::is_uuid(record.art.scryfall_id),
+            "{} has an invalid presentation-art UUID: {}",
+            record.name,
+            record.art.scryfall_id,
+        );
+        assert!(
+            art_scryfall_ids.insert(record.art.scryfall_id),
+            "{} reuses presentation-art printing {}",
+            record.name,
+            record.art.scryfall_id,
+        );
+        assert!(
+            !record.art.artist.trim().is_empty(),
+            "{} has no presentation-art artist",
+            record.name,
         );
     }
 }
@@ -140,6 +158,30 @@ fn modal_spells_derive_their_rules_text_from_modes() {
                 record.name,
             );
         }
+    }
+}
+
+#[test]
+fn basic_land_types_are_the_single_authority_for_intrinsic_mana() {
+    let typed_lands = SET_MODULES
+        .iter()
+        .flat_map(|module| module.cards.iter().copied())
+        .filter(|record| record.rules.has_type(CardType::Land))
+        .filter(|record| {
+            BasicLandType::ALL
+                .into_iter()
+                .any(|land_type| record.rules.has_subtype(land_type.subtype()))
+        });
+
+    for land in typed_lands {
+        assert!(
+            !land.rules.ability_clauses().iter().any(|ability| matches!(
+                ability.definition,
+                DeclarativeAbilityDef::ActivatedMana(_)
+            )),
+            "{} duplicates mana already granted by its basic land types",
+            land.name,
+        );
     }
 }
 

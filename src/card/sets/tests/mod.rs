@@ -1,26 +1,20 @@
 use std::collections::HashSet;
 
-use super::{
-    CardRecord, SET_MODULES, y1993, y1994, y1996, y1997, y1998, y2002, y2004, y2007, y2011, y2012,
-    y2013, y2024,
-};
+use super::{CardRecord, SET_MODULES, y1993, y1996, y2002, y2012};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,
     AbilityProgramDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,
-    CardChoiceSourceDef, CardPrinting, CardPrintingId, CardStructure, CardSupertype, CardType,
-    CharacteristicOperationDef, ComparisonDef, ConditionDef, DamagePreventionCapacityDef,
-    DamagePreventionFollowUpDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, DoubleFacedKind, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    EffectRecipientSetDef, ImplementationStatus, KeywordAbility, ManaColor, ManaRestrictionDef,
-    ManaSelectionDef, ManaSpendEffectDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayActionKind, PlayRestriction, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SetOperationDef, SpellForm, TargetPredicate, TriggerConditionDef,
+    CardChoiceSourceDef, CardPrintingId, CardSupertype, CardType, CharacteristicOperationDef,
+    ComparisonDef, ConditionDef, DamagePreventionCapacityDef, DamagePreventionFollowUpDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
+    EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, ImplementationStatus,
+    KeywordAbility, ManaColor, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, cards,
 };
-use crate::{
-    CardDefinitionId, CardPartId, CardSet, Format, ManaCost, ModeId, PlayOptionId, TargetSlotId,
-};
+use crate::{CardDefinitionId, CardSet, Format, ManaCost};
 
 fn standard_records() -> Vec<&'static CardRecord> {
     let allowed_sets = Format::IsdM14Standard
@@ -44,24 +38,8 @@ fn is_uuid(value: &str) -> bool {
         })
 }
 
-fn printings_for_set(set: CardSet) -> Vec<CardPrinting> {
-    let module = SET_MODULES.iter().find(|module| module.set == set).unwrap();
-    module
-        .cards
-        .iter()
-        .map(|record| CardPrinting::new(record.id(), set))
-        .chain(
-            module
-                .additional_printings
-                .iter()
-                .map(|record| record.printing(set)),
-        )
-        .collect()
-}
-
 mod catalog_report;
 mod isd_m14_coverage;
-mod metadata_composition_mana;
 mod old_school_coverage;
 mod registry_integrity;
 mod runtime_boundary;

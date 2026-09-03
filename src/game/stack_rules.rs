@@ -1,7 +1,7 @@
 use super::{
     AppliedEffectDef, AppliedRuleDef, CharacteristicContext, CounteredSpellZone,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, Game, GameObjectId, StackObject,
-    StackObjectKind, Target, ZoneKind, applicable_part_ids_ref,
+    StackObjectKind, Target, TriggerContext, ZoneKind, applicable_part_ids_ref,
 };
 use crate::card::ChooseDef;
 use crate::card::ZonePlacement;
@@ -316,11 +316,55 @@ impl Game {
         !self.stack_spell_has_static_effect(
             object,
             AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-        ) && !object.applied_effects.iter().any(|applied| {
-            Self::applied_effect_contains(
-                applied.effect,
-                AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
-            )
+        ) && !self.battlefield_static_effect_makes_spell_uncounterable(object)
+            && !object.applied_effects.iter().any(|applied| {
+                Self::applied_effect_contains(
+                    applied.effect,
+                    AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+                )
+            })
+    }
+
+    fn battlefield_static_effect_makes_spell_uncounterable(&self, object: &StackObject) -> bool {
+        let Some(characteristics) = self.stack_trigger_event_object(object) else {
+            return false;
+        };
+        self.battlefield.iter().any(|source| {
+            let mut applies = false;
+            self.for_each_effective_ability(source, |effective| {
+                let DeclarativeAbilityDef::Static(definition) = effective.ability.definition else {
+                    return;
+                };
+                let Some(EffectDef::StaticApply { recipient, effect }) =
+                    effective.ability.declarative_effect()
+                else {
+                    return;
+                };
+                let Some(query) = recipient.object_query() else {
+                    return;
+                };
+                applies |= definition.source_zones == [ZoneKind::Battlefield]
+                    && query.zones == [ZoneKind::Stack]
+                    && self.query_player_constraints_match(
+                        Some(object.controller),
+                        object.card.owner,
+                        query,
+                        (source.controller, source.card.id),
+                        TriggerContext::empty(),
+                        None,
+                    )
+                    && self.trigger_object_matches(
+                        query.object,
+                        &characteristics,
+                        source.card.id,
+                        true,
+                    )
+                    && Self::applied_effect_contains(
+                        effect,
+                        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+                    );
+            });
+            applies
         })
     }
 

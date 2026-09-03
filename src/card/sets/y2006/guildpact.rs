@@ -2,8 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, abilities,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef,
+    ReplacementEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -49,13 +50,25 @@ pub(in crate::card::sets) static LEYLINE_OF_SINGULARITY: CardRecord = CardRecord
 );
 
 // GPT 52 — Leyline of the Void
-// Audit: unsupported — Needs a battlefield replacement for every opponent-owned card moving to a graveyard.
 pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37dfe8b8-b39e-4e70-9e5b-be42c93b4f70"),
     "Leyline of the Void",
     CardArt::new("37dfe8b8-b39e-4e70-9e5b-be42c93b4f70", "Adam Rex"),
     CardSet::Guildpact,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(
+            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
+        ),
+        AbilityDef::replacement_for(
+            "If a card would be put into an opponent's graveyard from anywhere, exile it instead.",
+            ReplacementEventDef::AnyObjectWouldMove {
+                to: ZoneKind::Graveyard,
+                owner: PlayerRelation::Opponent,
+                tokens: false,
+            },
+            ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
+        ),
+    ]),
 );
 
 // GPT 56 — Plagued Rusalka
@@ -92,13 +105,27 @@ pub(in crate::card::sets) static SCORCHED_RUSALKA: CardRecord = CardRecord::new(
 );
 
 // GPT 90 — Leyline of Lifeforce
-// Audit: unsupported — Global battlefield static effects cannot currently modify matching spells on the stack.
 pub(in crate::card::sets) static LEYLINE_OF_LIFEFORCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7caffa7-29bd-455c-9770-94a0ad7ef5e3"),
     "Leyline of Lifeforce",
     CardArt::new("f7caffa7-29bd-455c-9770-94a0ad7ef5e3", "Kev Walker"),
     CardSet::Guildpact,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(
+            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
+        ),
+        AbilityDef::static_ability(
+            "Creature spells can't be countered.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Stack],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered),
+            },
+        ),
+    ]),
 );
 
 // GPT 125 — Pillory of the Sleepless

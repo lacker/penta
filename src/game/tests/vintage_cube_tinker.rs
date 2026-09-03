@@ -231,18 +231,18 @@ fn the_search_may_be_declined_with_an_artifact_in_the_library() {
 /// an artifact, and paying with one is the same trade at a worse price.
 #[test]
 fn an_artifact_creature_can_pay_the_cost() {
-    let (mut game, tinker) = staged(&[cards::PHYREXIAN_REVOKER], &[cards::BLACK_LOTUS]);
-    let revoker = game.battlefield[0].card.id;
+    let (mut game, tinker) = staged(&[cards::ORNITHOPTER], &[cards::BLACK_LOTUS]);
+    let ornithopter = game.battlefield[0].card.id;
 
     assert_eq!(
         payments(&game, tinker),
-        vec![revoker],
-        "the Revoker is the artifact on offer",
+        vec![ornithopter],
+        "the Ornithopter is the artifact on offer",
     );
 
-    cast_paying_with(&mut game, tinker, revoker);
+    cast_paying_with(&mut game, tinker, ornithopter);
     drain_pending(&mut game);
 
-    assert!(!on_battlefield(&game, cards::PHYREXIAN_REVOKER));
+    assert!(!on_battlefield(&game, cards::ORNITHOPTER));
     assert!(on_battlefield(&game, cards::BLACK_LOTUS));
 }

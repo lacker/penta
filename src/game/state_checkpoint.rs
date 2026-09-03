@@ -14,12 +14,11 @@ use super::{
     PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext,
     ReplayRng, ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
     ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
-    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
-    ResolvedDamageSourceMatcher, ResolvedOngoingEffect, ResolvedPlayPermission,
-    ResolvedPlayRestriction, ResolvedPlayerProtection, ResolvedPlayerRule,
-    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackAbilityPayload,
-    StackAbilityResolver, StackObject, StackObjectKind, Step, TriggerCapture, TriggerContext,
-    TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
+    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
+    ResolvedOngoingEffect, ResolvedPlayPermission, ResolvedPlayRestriction,
+    ResolvedPlayerProtection, ResolvedPlayerRule, ResolvedPowerToughnessOperation, RetiredObject,
+    ScopedEffect, StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step,
+    TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
 use crate::card::{

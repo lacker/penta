@@ -304,7 +304,7 @@ pub(in crate::card::sets) static WILDFIRE: CardRecord = CardRecord::new(
 );
 
 // P02 131 — Lone Wolf
-// Audit: metadata-only — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
+// Audit: unsupported — Needs a combat-damage assignment option that lets the attacker assign damage as though it were unblocked without actually becoming unblocked.
 pub(in crate::card::sets) static LONE_WOLF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ff4d831-7388-4321-a636-79cf7bde25bb"),
     "Lone Wolf",

@@ -87,11 +87,15 @@ fn supported_flexible_symbol_cards_keep_their_exact_catalog_metadata() {
     let catalog = poc::catalog().expect("catalog builds");
     assert_flexible_card_printings(&catalog);
 
-    for id in [
-        cards::BARKSHELL_BLESSING,
-        cards::ULALEK_FUSED_ATROCITY,
-        cards::TAMIYO_COMPLEATED_SAGE,
-    ] {
+    assert_eq!(
+        catalog
+            .get(cards::BARKSHELL_BLESSING)
+            .expect("cataloged")
+            .implementation_status(),
+        ImplementationStatus::Complete,
+    );
+
+    for id in [cards::ULALEK_FUSED_ATROCITY, cards::TAMIYO_COMPLEATED_SAGE] {
         assert_eq!(
             catalog.get(id).expect("cataloged").implementation_status(),
             ImplementationStatus::Unsupported,
@@ -387,7 +391,6 @@ fn generic_reductions_apply_after_beseechs_two_brid_choice() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn barkshell_blessing_executes_its_pump_without_conspire() {
     let mut game = ready_game();
     let creature = game

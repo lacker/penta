@@ -125,10 +125,11 @@ fn validate_static_effect(
                 source_zones,
                 conditional.then.recipient,
                 conditional.then.effect,
+                StaticPosition::Traversed,
             )
         }
         EffectDef::StaticApply { recipient, effect } => {
-            validate_static_apply(source_zones, recipient, effect)
+            validate_static_apply(source_zones, recipient, effect, position)
         }
         EffectDef::GainControl {
             object: EffectRecipientDef::AttachedPermanent,
@@ -243,6 +244,7 @@ fn validate_static_apply(
     source_zones: &[ZoneKind],
     recipient: EffectRecipientDef,
     effect: AppliedEffectDef,
+    position: StaticPosition,
 ) -> Result<(), &'static str> {
     if source_zones == [ZoneKind::Stack] {
         return if recipient == EffectRecipientDef::Source
@@ -273,6 +275,15 @@ fn validate_static_apply(
     }
     if !matches!(source_zones, [ZoneKind::Battlefield | ZoneKind::Graveyard]) {
         return Err("StaticApply from unsupported source zones");
+    }
+    if position == StaticPosition::Root
+        && source_zones == [ZoneKind::Battlefield]
+        && recipient
+            .object_query()
+            .is_some_and(|query| query.zones == [ZoneKind::Stack] && static_query_supported(query))
+        && stack_static_applied_effect_supported(effect)
+    {
+        return Ok(());
     }
     match recipient.0 {
         // A static clause names one kind of thing or the other; the mixed

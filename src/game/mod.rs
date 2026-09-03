@@ -146,8 +146,7 @@ use damage::DamageAssignment;
 use damage::{DamageAssignmentOutcome, DamageRecipientOutcome};
 use prevention_state::{
     RelationalSourceFilter, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
-    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
-    ResolvedDamageSourceMatcher,
+    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
 };
 
 pub use decision::{

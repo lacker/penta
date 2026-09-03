@@ -873,10 +873,9 @@ impl Default for StaticAbilityDef {
     }
 }
 
-/// The rules category and structural procedure of an ability. Text and
-/// implementation coverage live on [`AbilityDef`] so every printed clause has
-/// one canonical text string regardless of how it executes. Identity is
-/// supplied only when a definition is attached.
+/// The rules category and structural procedure of an ability. Printed text
+/// lives on [`AbilityDef`] so every clause has one canonical text string.
+/// Identity is supplied only when a definition is attached.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum DeclarativeAbilityDef {
     Spell(SpellAbilityDef),

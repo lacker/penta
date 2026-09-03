@@ -47,7 +47,7 @@ pub use model::{
     CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
     CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily, CounterKind,
     CounterKindDef, CounterName, CounterOperationDef, CreatedTokensDef, CreatureStats,
-    CreatureTypeSetDef, DamageCoverageDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
+    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
     DamagePreventionCapacityDef, DamagePreventionDef, DamagePreventionFollowUpDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, DeckConstructionDef,
     DeclarativeAbilityDef, DestroyFollowUpDef, DiscardFollowUpDef, DiscardSelectionDef,

@@ -19,19 +19,10 @@ pub(super) struct DamagePreventionLocator {
 )]
 pub(super) enum DamageSourceMatcherSnapshot {
     Any,
-    Exact {
-        object_id: u32,
-    },
-    Except {
-        object_id: u32,
-    },
-    Matching {
-        definition: DamagePreventionLocator,
-        relative_to: u32,
-    },
-    Group {
-        group: DamageSourceGroupSnapshot,
-    },
+    Exact { object_id: u32 },
+    Except { object_id: u32 },
+    Matching { relative_to: u32 },
+    Group { group: DamageSourceGroupSnapshot },
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
@@ -79,13 +70,6 @@ pub(super) enum DamagePreventionCapacitySnapshot {
     Unlimited,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) enum DamagePreventionCoverageSnapshot {
-    All,
-    HalfRoundedDown,
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct ResolvedDamagePreventionSnapshot {
@@ -93,7 +77,9 @@ pub(super) struct ResolvedDamagePreventionSnapshot {
     pub(super) recipient: DamageRecipientMatcherSnapshot,
     pub(super) combat_only: bool,
     pub(super) capacity: DamagePreventionCapacitySnapshot,
-    pub(super) coverage: DamagePreventionCoverageSnapshot,
+    /// Locates the authoritative declaration when either the source matcher
+    /// or deferred amount expression must be reconstructed.
+    pub(super) definition: Option<DamagePreventionLocator>,
     pub(super) gain_life: Option<usize>,
     pub(super) source_ability: AbilitySourceSnapshot,
     pub(super) timestamp: u64,

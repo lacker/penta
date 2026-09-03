@@ -16,13 +16,11 @@ pub(crate) fn compile_catalog(catalog: &CardCatalog) -> PreparedCatalog {
                 parts.into_iter().any(|part| {
                     definition.part(part).is_some_and(|part| {
                         part.rules.ability_clauses().iter().copied().any(|ability| {
-                            ability.is_executable()
-                                && matches!(
-                                    ability.definition,
-                                    DeclarativeAbilityDef::Static(definition)
-                                        if definition.source_zones.contains(&ZoneKind::Graveyard)
-                                )
-                                && ability.declarative_effect().is_some()
+                            matches!(
+                                ability.definition,
+                                DeclarativeAbilityDef::Static(definition)
+                                    if definition.source_zones.contains(&ZoneKind::Graveyard)
+                            ) && ability.declarative_effect().is_some()
                         })
                     })
                 })
@@ -57,9 +55,6 @@ fn compile_static_program(abilities: &[AbilityDef]) -> PreparedStaticProgram {
         let DeclarativeAbilityDef::Static(definition) = ability.definition else {
             continue;
         };
-        if !ability.is_executable() {
-            continue;
-        }
         let Some(effect) = ability.declarative_effect() else {
             continue;
         };
@@ -75,16 +70,17 @@ fn compile_static_program(abilities: &[AbilityDef]) -> PreparedStaticProgram {
     }
     let mut lanes = 0;
     let mut has_static_effects = false;
-    for ability in abilities.iter().copied().filter(|ability| {
-        ability.is_executable() && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
-    }) {
+    for ability in abilities
+        .iter()
+        .copied()
+        .filter(|ability| matches!(ability.definition, DeclarativeAbilityDef::Static(_)))
+    {
         if let Some(effect) = ability.declarative_effect() {
             collect_effect_lanes(effect, &mut lanes, &mut has_static_effects);
         }
     }
     let supplies_land_type_effect = abilities.iter().copied().any(|ability| {
-        ability.is_executable()
-            && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+        matches!(ability.definition, DeclarativeAbilityDef::Static(_))
             && ability
                 .declarative_effect()
                 .is_some_and(effect_contains_land_type_operation)

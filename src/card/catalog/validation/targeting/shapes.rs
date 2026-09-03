@@ -384,6 +384,7 @@ fn validate_value_shape(
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
         | ValueDef::TriggerEventAmount
+        | ValueDef::DamageEventAmount
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)

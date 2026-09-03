@@ -9,7 +9,7 @@
 
 use super::super::*;
 use super::{source_for_locator, true_hidden_hypothesis};
-use crate::card::{EffectDef, ObjectChoiceBindingDef, SpellForm};
+use crate::card::{EffectDef, ObjectChoiceBindingDef, SpellForm, ValueDef};
 use crate::game::tests::card;
 use crate::game::{DecisionContinuation, DecisionKind, PendingDecision};
 use crate::{
@@ -519,7 +519,7 @@ fn retained_trigger_state_never_serializes_unrebindable_hidden_object_ids() {
         recipient: ResolvedDamageRecipientMatcher::Any,
         combat_only: false,
         capacity: ResolvedDamagePreventionCapacity::Unlimited,
-        coverage: ResolvedDamagePreventionCoverage::All,
+        amount: ValueDef::DamageEventAmount,
         gain_life: None,
         source_ability: source,
         timestamp: ContinuousEffectTimestamp(90_003),

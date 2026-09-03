@@ -15,8 +15,7 @@ impl Game {
                 || source.active_copy_values().into_iter().any(|copy| {
                     copy.added_abilities.iter().any(|ability| {
                         let ability = ability.definition;
-                        ability.is_executable()
-                            && matches!(ability.definition, DeclarativeAbilityDef::Static(_))
+                        matches!(ability.definition, DeclarativeAbilityDef::Static(_))
                             && ability
                                 .declarative_effect()
                                 .is_some_and(Self::effect_contains_land_type_operation)

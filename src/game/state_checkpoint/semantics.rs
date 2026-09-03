@@ -31,7 +31,7 @@ use crate::card::{
     AbilityDef, AbilityOperationDef, AbilityProgramDef, AbilityTargetDef, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CharacteristicOperationDef, DamagePreventionDef,
     DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, ManaSpendEffectDef,
-    ObjectPredicateDef, ReplacementEffectDef, SpellAbilityDef,
+    ObjectPredicateDef, ReplacementEffectDef, SpellAbilityDef, ValueDef,
 };
 use crate::{CardCatalog, CardPartId};
 
@@ -355,19 +355,27 @@ pub(super) fn catalog_applied_effect(
 pub(super) fn resolved_damage_prevention_locator(
     catalog: &CardCatalog,
     source: AbilitySourceRef,
-    predicate: ObjectPredicateDef,
+    matching_source: Option<ObjectPredicateDef>,
+    amount: ValueDef,
 ) -> Option<DamagePreventionLocator> {
-    let expected = DamageSourceMatcherDef::Matching(predicate);
     let mut contains = |candidate: &AbilityDef| {
-        damage_prevention_defs(candidate)
-            .iter()
-            .any(|prevention| prevention.matcher.source == expected)
+        damage_prevention_defs(candidate).iter().any(|prevention| {
+            prevention.amount == amount
+                && matching_source.is_none_or(|predicate| {
+                    prevention.matcher.source == DamageSourceMatcherDef::Matching(predicate)
+                })
+        })
     };
     let ability = ability_locator_for_origin(catalog, source.ability, &mut contains)?;
     let definition = catalog_ability(catalog, &ability)?;
     let effect_index = damage_prevention_defs(&definition)
         .iter()
-        .position(|prevention| prevention.matcher.source == expected)?;
+        .position(|prevention| {
+            prevention.amount == amount
+                && matching_source.is_none_or(|predicate| {
+                    prevention.matcher.source == DamageSourceMatcherDef::Matching(predicate)
+                })
+        })?;
     Some(DamagePreventionLocator {
         ability,
         effect_index,

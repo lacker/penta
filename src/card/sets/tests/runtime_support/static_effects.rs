@@ -168,7 +168,7 @@ pub(in super::super) fn shared_static_non_apply_effect(
                 && effects
                     .iter()
                     .copied()
-                    .all(|effect| shared_static_effect(source_zones, effect))
+                    .all(|effect| shared_static_effect_at(source_zones, effect, false))
         }
         _ => false,
     }
@@ -176,6 +176,11 @@ pub(in super::super) fn shared_static_non_apply_effect(
 
 #[allow(clippy::too_many_lines)]
 pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: EffectDef) -> bool {
+    shared_static_effect_at(source_zones, effect, true)
+}
+
+#[allow(clippy::too_many_lines)]
+fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: bool) -> bool {
     match effect {
         EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
@@ -196,12 +201,13 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                     .condition
                     .filter
                     .is_none_or(|filter| shared_object_predicate(filter.predicate()))
-                && shared_static_effect(
+                && shared_static_effect_at(
                     source_zones,
                     EffectDef::StaticApply {
                         recipient: conditional.then.recipient,
                         effect: conditional.then.effect,
                     },
+                    false,
                 )
         }
         EffectDef::StaticApply { recipient, effect } => {
@@ -278,6 +284,14 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
             let stack_source_effect = source_zones == [ZoneKind::Stack]
                 && recipient == EffectRecipientDef::Source
                 && shared_cannot_be_countered_effect(effect);
+            let battlefield_stack_effect = root
+                && battlefield_only(source_zones)
+                && recipient.object_query().is_some_and(|query| {
+                    query.zones == [ZoneKind::Stack]
+                        && shared_object_predicate(query.object)
+                        && shared_static_query(query)
+                })
+                && shared_stack_uncounterability_effect(effect);
             // "As long as this isn't on the battlefield, it's a 1/1 Insect
             // creature": what a card says about itself, read by the card
             // view in whichever of its zones the clause names. The stack is
@@ -297,7 +311,10 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 })
                 && recipient == EffectRecipientDef::Source
                 && shared_card_characteristics(effect);
-            battlefield_effect || stack_source_effect || card_source_effect
+            battlefield_effect
+                || stack_source_effect
+                || battlefield_stack_effect
+                || card_source_effect
         }
         effect @ (EffectDef::IfCondition { .. } | EffectDef::IfElseCondition { .. }) => {
             let conditional = effect
@@ -305,10 +322,10 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
                 .expect("conditional variants expose their shared shape");
             battlefield_only(source_zones)
                 && shared_static_trigger_condition(*conditional.condition)
-                && shared_static_effect(source_zones, *conditional.then)
-                && conditional
-                    .otherwise
-                    .is_none_or(|otherwise| shared_static_effect(source_zones, *otherwise))
+                && shared_static_effect_at(source_zones, *conditional.then, false)
+                && conditional.otherwise.is_none_or(|otherwise| {
+                    shared_static_effect_at(source_zones, *otherwise, false)
+                })
         }
         // None of these is a static ability; all execute from the stack.
         EffectDef::BindOutput { .. }
@@ -438,6 +455,20 @@ pub(in super::super) fn shared_static_effect(source_zones: &[ZoneKind], effect: 
         | EffectDef::DealDamageSimultaneously(_)
         | EffectDef::Fight { .. }
         | EffectDef::Special(_) => false,
+    }
+}
+
+fn shared_stack_uncounterability_effect(effect: AppliedEffectDef) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => {
+            !effects.is_empty()
+                && effects
+                    .iter()
+                    .copied()
+                    .all(shared_stack_uncounterability_effect)
+        }
+        AppliedEffectDef::Rule(AppliedRuleDef::CannotBeCountered) => true,
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
     }
 }
 

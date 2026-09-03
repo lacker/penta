@@ -1,3 +1,6 @@
+static HALF_DAMAGE_ROUNDED_DOWN: crate::card::HalvedValueDef =
+    crate::card::HalvedValueDef::new(ValueDef::DamageEventAmount, crate::card::RoundingDef::Down);
+
 fn keyword_from_ability(ability: &AbilityDef) -> KeywordAbility {
     let crate::card::DeclarativeAbilityDef::Keyword(keyword) = ability.definition else {
         unreachable!("protection constructor always returns a keyword ability")
@@ -375,7 +378,7 @@ fn sylvan_library_for_each_payment_resumes_after_checkpoint_round_trip() {
 fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
     let mut game = crate::game::tests::ready_game();
     let source = game
-        .put_onto_battlefield(PlayerId::One, crate::card::cards::SAVANNAH_LIONS)
+        .put_onto_battlefield(PlayerId::One, crate::card::cards::DARK_SPHERE)
         .expect("prevention source enters");
     let prohibited = game
         .put_onto_battlefield(PlayerId::Two, crate::card::cards::ATOG)
@@ -401,7 +404,11 @@ fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
         });
     let source_ability = AbilitySourceRef {
         object: source,
-        ability: AbilityOrigin::IntrinsicBasicLand(BasicLandType::Plains),
+        ability: AbilityOrigin::Printed {
+            definition: crate::card::cards::DARK_SPHERE,
+            part: CardPartId::PRIMARY,
+            ability: AbilityId::PRIMARY,
+        },
     };
     game.damage_preventions = vec![
         ResolvedDamagePrevention {
@@ -411,7 +418,7 @@ fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
             ),
             combat_only: false,
             capacity: ResolvedDamagePreventionCapacity::Unlimited,
-            coverage: ResolvedDamagePreventionCoverage::All,
+            amount: ValueDef::DamageEventAmount,
             gain_life: None,
             source_ability,
             timestamp: ContinuousEffectTimestamp(17),
@@ -422,7 +429,7 @@ fn resolved_prevention_and_prohibitions_survive_checkpoint_round_trip() {
             recipient: ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two)),
             combat_only: true,
             capacity: ResolvedDamagePreventionCapacity::Events(1),
-            coverage: ResolvedDamagePreventionCoverage::HalfRoundedDown,
+            amount: ValueDef::Halved(&HALF_DAMAGE_ROUNDED_DOWN),
             gain_life: Some(PlayerId::One),
             source_ability,
             timestamp: ContinuousEffectTimestamp(18),
@@ -650,7 +657,7 @@ fn resolved_prevention_retains_controller_lki_and_rejects_spliced_provenance() {
         recipient: ResolvedDamageRecipientMatcher::Any,
         combat_only: false,
         capacity: ResolvedDamagePreventionCapacity::Unlimited,
-        coverage: ResolvedDamagePreventionCoverage::All,
+        amount: ValueDef::DamageEventAmount,
         gain_life: None,
         source_ability,
         timestamp: ContinuousEffectTimestamp(19),

@@ -1,4 +1,4 @@
-mod shield_coverage {
+mod prevention_amounts {
     use super::*;
 
     fn shielded(game: &mut Game, source: GameObjectId, card: CardDefinitionId) {

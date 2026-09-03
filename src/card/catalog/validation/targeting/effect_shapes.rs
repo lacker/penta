@@ -211,7 +211,7 @@ fn validate_effect_target_shapes(
             if let DamagePreventionCapacityDef::Amount(amount) = prevention.capacity {
                 validate_value_shape(amount, targets)?;
             }
-            Ok(())
+            validate_value_shape(prevention.amount, targets)
         }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DealDamageAndApply {

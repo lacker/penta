@@ -92,6 +92,7 @@ fn static_power_toughness_value_supported(value: ValueDef) -> bool {
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
         | ValueDef::TriggerEventAmount
+        | ValueDef::DamageEventAmount
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::Negate(_)
         | ValueDef::IfCreatureDiedThisTurn(_)
@@ -159,6 +160,7 @@ fn static_cost_reduction_value_supported(value: ValueDef) -> bool {
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
         | ValueDef::TriggerEventAmount
+        | ValueDef::DamageEventAmount
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::AnyMatchingObject(_)

@@ -63,11 +63,17 @@ fn validate_trigger_object_predicate(
                 Err(unsupported_trigger_event(event))
             }
         }
+        ObjectPredicateDef::DeclaredTargetCount { minimum, maximum } => {
+            if minimum <= maximum {
+                Ok(())
+            } else {
+                Err(unsupported_trigger_event(event))
+            }
+        }
         ObjectPredicateDef::HasAbility(_)
         | ObjectPredicateDef::Ability
         | ObjectPredicateDef::ActivatedAbility
         | ObjectPredicateDef::TriggeredAbility
-        | ObjectPredicateDef::DeclaredTargetCount { .. }
         | ObjectPredicateDef::HasDeclaredTarget(_)
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
         | ObjectPredicateDef::ControlledBy(

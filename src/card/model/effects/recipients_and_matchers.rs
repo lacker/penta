@@ -913,13 +913,6 @@ pub enum DamagePreventionCapacityDef {
     Unlimited,
 }
 
-/// How much of each matched damage event is prevented.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum DamageCoverageDef {
-    All,
-    HalfRoundedDown,
-}
-
 /// A synchronous consequence of damage prevented by one rule.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum DamagePreventionFollowUpDef {
@@ -931,7 +924,9 @@ pub enum DamagePreventionFollowUpDef {
 pub struct DamagePreventionDef {
     pub matcher: DamageEventMatcherDef,
     pub capacity: DamagePreventionCapacityDef,
-    pub coverage: DamageCoverageDef,
+    /// Evaluated only when a matching damage event is being modified. The
+    /// resulting amount is then capped by any remaining point capacity.
+    pub amount: ValueDef,
     pub follow_up: Option<DamagePreventionFollowUpDef>,
 }
 
@@ -959,14 +954,14 @@ impl DamagePreventionDef {
         Self {
             matcher,
             capacity,
-            coverage: DamageCoverageDef::All,
+            amount: ValueDef::DamageEventAmount,
             follow_up: None,
         }
     }
 
     #[must_use]
-    pub const fn with_damage_coverage(mut self, coverage: DamageCoverageDef) -> Self {
-        self.coverage = coverage;
+    pub const fn with_amount(mut self, amount: ValueDef) -> Self {
+        self.amount = amount;
         self
     }
 

@@ -35,6 +35,9 @@ pub enum OptionalAdditionalCostKindDef {
     /// many token copies of the creature. Repeatable like the two above;
     /// what it buys is printed beside it and reads the count back.
     Squad,
+    /// Conspire (CR 702.78): tap two untapped creatures that share a color
+    /// with the spell once; a cast trigger on the spell creates the copy.
+    Conspire,
 }
 
 impl OptionalAdditionalCostKindDef {
@@ -47,6 +50,7 @@ impl OptionalAdditionalCostKindDef {
             Self::Multikicker => "Multikicker",
             Self::Repeatable => "Additional cost",
             Self::Squad => "Squad",
+            Self::Conspire => "Conspire",
         }
     }
 
@@ -109,6 +113,7 @@ impl OptionalAdditionalCostAbilityDef {
                  copies of it.)"
             ),
             (OptionalAdditionalCostKindDef::Squad, None) => "Squad".into(),
+            (OptionalAdditionalCostKindDef::Conspire, _) => "Conspire".into(),
         }
     }
 

@@ -1,11 +1,11 @@
 use crate::card::{
     DamageEventMatcherDef, DamageKindDef, DamageLimitDef, DamageRecipientMatcherDef,
-    DamageSourceGroupDef, DamageSourceMatcherDef, ObjectRefDef,
+    DamageSourceGroupDef, DamageSourceMatcherDef, ObjectRefDef, ValueDef,
 };
 
 use super::prevention_state::{
-    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
-    ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
+    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamageRecipientMatcher,
+    ResolvedDamageSourceMatcher,
 };
 use super::{
     AppliedRuleDef, BattlefieldTriggerListener, CardType, CommittedTriggerEvent, ControlFlow,
@@ -148,13 +148,15 @@ impl Game {
             }
             let prevented = match &mut prevention.capacity {
                 ResolvedDamagePreventionCapacity::Amount(remaining) => {
-                    let prevented = Self::damage_covered(prevention.coverage, left).min(*remaining);
+                    let prevented =
+                        Self::finalize_damage_prevention_amount(prevention.amount, left)
+                            .min(*remaining);
                     *remaining -= prevented;
                     prevented
                 }
                 ResolvedDamagePreventionCapacity::Events(remaining) => {
                     *remaining = remaining.saturating_sub(1);
-                    Self::damage_covered(prevention.coverage, left)
+                    Self::finalize_damage_prevention_amount(prevention.amount, left)
                 }
                 ResolvedDamagePreventionCapacity::Unlimited => continue,
             };
@@ -186,7 +188,7 @@ impl Game {
                 {
                     continue;
                 }
-                let prevented = Self::damage_covered(prevention.coverage, left);
+                let prevented = Self::finalize_damage_prevention_amount(prevention.amount, left);
                 left -= prevented;
                 if let Some(player) = prevention.gain_life
                     && prevented > 0
@@ -201,11 +203,29 @@ impl Game {
         left
     }
 
-    const fn damage_covered(coverage: ResolvedDamagePreventionCoverage, amount: u16) -> u16 {
-        match coverage {
-            ResolvedDamagePreventionCoverage::All => amount,
-            ResolvedDamagePreventionCoverage::HalfRoundedDown => amount / 2,
+    fn finalize_damage_prevention_amount(definition: ValueDef, damage: u16) -> u16 {
+        fn evaluate(definition: ValueDef, damage: i32) -> i32 {
+            match definition {
+                ValueDef::Constant(value) => value,
+                ValueDef::DamageEventAmount => damage,
+                ValueDef::Negate(value) => evaluate(*value, damage).saturating_neg(),
+                ValueDef::Scaled(value) => {
+                    evaluate(value.value, damage).saturating_mul(value.factor)
+                }
+                ValueDef::Sum(value) => {
+                    evaluate(value.left, damage).saturating_add(evaluate(value.right, damage))
+                }
+                ValueDef::Halved(value) => value.apply(evaluate(value.value, damage)),
+                ValueDef::Quotient(value) => value.apply(
+                    evaluate(value.numerator, damage),
+                    evaluate(value.denominator, damage),
+                ),
+                _ => 0,
+            }
         }
+
+        u16::try_from(evaluate(definition, i32::from(damage)).clamp(0, i32::from(u16::MAX)))
+            .unwrap_or(u16::MAX)
     }
 
     fn resolved_damage_prevention_matches(

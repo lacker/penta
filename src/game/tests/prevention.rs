@@ -1,14 +1,18 @@
 //! Unified damage-prevention matching, spending, and expiration.
 
 use super::super::prevention_state::{
-    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
-    ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
+    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamageRecipientMatcher,
+    ResolvedDamageSourceMatcher,
 };
 use super::*;
+use crate::card::{HalvedValueDef, RoundingDef};
 use crate::{
     DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
     ResolvedEffectDurationDef,
 };
+
+static HALF_CURRENT_DAMAGE_ROUNDED_DOWN: HalvedValueDef =
+    HalvedValueDef::new(ValueDef::DamageEventAmount, RoundingDef::Down);
 
 fn install_prevention(
     game: &mut Game,
@@ -16,7 +20,7 @@ fn install_prevention(
     recipient: ResolvedDamageRecipientMatcher,
     combat_only: bool,
     capacity: ResolvedDamagePreventionCapacity,
-    coverage: ResolvedDamagePreventionCoverage,
+    amount: ValueDef,
     gain_life: Option<PlayerId>,
 ) {
     let timestamp = game.allocate_continuous_effect_timestamp();
@@ -25,7 +29,7 @@ fn install_prevention(
         recipient,
         combat_only,
         capacity,
-        coverage,
+        amount,
         gain_life,
         source_ability: AbilitySourceRef {
             object: GameObjectId(20_000),
@@ -47,7 +51,7 @@ fn install_fog(game: &mut Game) {
         ResolvedDamageRecipientMatcher::Any,
         true,
         ResolvedDamagePreventionCapacity::Unlimited,
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
 }
@@ -170,7 +174,7 @@ fn a_shield_absorbs_up_to_its_amount_and_is_then_gone() {
         ResolvedDamageRecipientMatcher::Exact(Target::Permanent(target)),
         false,
         ResolvedDamagePreventionCapacity::Amount(2),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
 
@@ -206,7 +210,7 @@ fn a_prevent_all_shield_is_not_consumed() {
         ResolvedDamageRecipientMatcher::Exact(Target::Permanent(target)),
         false,
         ResolvedDamagePreventionCapacity::Unlimited,
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
 
@@ -223,6 +227,38 @@ fn a_prevent_all_shield_is_not_consumed() {
 }
 
 #[test]
+fn prevention_amount_is_finalized_against_damage_after_earlier_prevention() {
+    let mut game = ready_game();
+    let before = game.players[PlayerId::Two.index()].life;
+    let recipient = ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two));
+    install_prevention(
+        &mut game,
+        ResolvedDamageSourceMatcher::Any,
+        recipient,
+        false,
+        ResolvedDamagePreventionCapacity::Amount(1),
+        ValueDef::DamageEventAmount,
+        None,
+    );
+    install_prevention(
+        &mut game,
+        ResolvedDamageSourceMatcher::Any,
+        recipient,
+        false,
+        ResolvedDamagePreventionCapacity::Events(1),
+        ValueDef::Halved(&HALF_CURRENT_DAMAGE_ROUNDED_DOWN),
+        None,
+    );
+
+    assert_eq!(
+        game.damage_target(Some(Target::Player(PlayerId::Two)), 6),
+        3,
+        "the second rule halves the five damage left after the first rule",
+    );
+    assert_eq!(game.players[PlayerId::Two.index()].life, before - 3);
+}
+
+#[test]
 fn a_shield_only_covers_the_recipient_it_names() {
     let mut game = ready_game();
     let shielded = shielded_creature(&mut game);
@@ -235,7 +271,7 @@ fn a_shield_only_covers_the_recipient_it_names() {
         ResolvedDamageRecipientMatcher::Exact(Target::Permanent(shielded)),
         false,
         ResolvedDamagePreventionCapacity::Amount(5),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
 
@@ -259,7 +295,7 @@ fn a_shield_can_cover_a_player() {
         ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two)),
         false,
         ResolvedDamagePreventionCapacity::Amount(3),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
 
@@ -277,7 +313,7 @@ fn shields_do_not_survive_cleanup() {
         ResolvedDamageRecipientMatcher::Exact(Target::Permanent(target)),
         false,
         ResolvedDamagePreventionCapacity::Unlimited,
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
     game.finish_cleanup();
@@ -406,7 +442,7 @@ fn drain_life_gains_only_the_damage_left_after_prevention() {
         ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two)),
         false,
         ResolvedDamagePreventionCapacity::Amount(2),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
     let object = resolving_prevention_object(PlayerId::One);
@@ -437,7 +473,7 @@ fn a_life_gain_shield_precedes_overlapping_relational_prevention() {
         ResolvedDamageRecipientMatcher::PlayerAndCreaturesControlledBy(PlayerId::One),
         false,
         ResolvedDamagePreventionCapacity::Unlimited,
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
     install_prevention(
@@ -446,7 +482,7 @@ fn a_life_gain_shield_precedes_overlapping_relational_prevention() {
         ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::One)),
         false,
         ResolvedDamagePreventionCapacity::Events(1),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         Some(PlayerId::One),
     );
     let starting_life = game.players[PlayerId::One.index()].life;
@@ -481,7 +517,7 @@ fn combat_player_trigger_uses_only_damage_left_after_prevention() {
         ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two)),
         false,
         ResolvedDamagePreventionCapacity::Amount(2),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
     game.deal_combat_damage_to_player(courier_id, PlayerId::Two, 2);
@@ -497,7 +533,7 @@ fn combat_player_trigger_uses_only_damage_left_after_prevention() {
         ResolvedDamageRecipientMatcher::Exact(Target::Player(PlayerId::Two)),
         false,
         ResolvedDamagePreventionCapacity::Amount(1),
-        ResolvedDamagePreventionCoverage::All,
+        ValueDef::DamageEventAmount,
         None,
     );
     game.deal_combat_damage_to_player(courier_id, PlayerId::Two, 2);
@@ -865,4 +901,4 @@ mod circle_of_protection {
 // or pay a rider when it fires. The arithmetic is the point: an odd point of
 // damage gets through Dark Sphere, and Reverse Damage gains exactly what it
 // stopped rather than what was aimed.
-include!("prevention/shield_coverage.rs");
+include!("prevention/prevention_amounts.rs");

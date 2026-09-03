@@ -301,15 +301,10 @@ impl Game {
                 .ability
                 .as_ref()
                 .map_or(0, |ability| i32::from(ability.sacrificed_mana_value)),
-            // Resolved per target by the divided-damage path; anything else
-            // reading it has no target in hand and so no share.
-            // Neither has an answer while an effect resolves: nothing is
-            // being divided, and only the static power-and-toughness layer
-            // has an affected object whose cost it could read.
-            // None of these has an answer while an effect resolves: nothing
-            // is being divided, and only the static power-and-toughness
-            // layer has an affected object or a source pile to read.
-            ValueDef::DistinctTargets
+            // These inputs belong to other evaluation contexts: a pending
+            // damage modification, per-target division, or a static layer.
+            ValueDef::DamageEventAmount
+            | ValueDef::DistinctTargets
             | ValueDef::DividedAmongTargets
             | ValueDef::ResolvedRecipientCount
             | ValueDef::AffectedManaValue

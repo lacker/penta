@@ -79,7 +79,7 @@ pub(in crate::card::sets) static CALMING_LICID: CardRecord = CardRecord::new(
 );
 
 // STH 3 — Change of Heart
-// Audit: metadata-only — Resolving effects cannot apply a temporary attack restriction to a permanent.
+// Audit: unsupported — Resolving effects cannot apply a temporary attack restriction to a permanent.
 pub(in crate::card::sets) static CHANGE_OF_HEART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afaf277e-b430-4c96-880c-ae654973478c"),
     "Change of Heart",
@@ -259,7 +259,7 @@ pub(in crate::card::sets) static SKYSHROUD_FALCON: CardRecord = CardRecord::new(
 );
 
 // STH 17 — Smite
-// Audit: metadata-only — Target predicates cannot require an attacking creature to currently be blocked.
+// Audit: unsupported — Target predicates cannot require an attacking creature to currently be blocked.
 pub(in crate::card::sets) static SMITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("14f165ad-cfe6-4a5d-8073-a70969494855"),
     "Smite",

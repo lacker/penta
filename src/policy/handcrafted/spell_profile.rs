@@ -642,6 +642,7 @@ impl HandcraftedPolicy {
             | ValueDef::TriggeringObjectToughness
             | ValueDef::SourceToughness
             | ValueDef::TriggerEventAmount
+            | ValueDef::DamageEventAmount
             | ValueDef::CardsInHandAbove { .. }
             | ValueDef::DamageTakenThisTurn { .. }
             | ValueDef::CountMatchingObjects(_)

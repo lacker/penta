@@ -285,6 +285,7 @@ mod relic_bind;
 mod reliquary_tower;
 mod removal_and_keywords;
 mod replacements_and_presentation;
+mod requested_declarative_cards;
 mod resolution_destinations;
 mod revealed_hands;
 mod ring_of_maruf;

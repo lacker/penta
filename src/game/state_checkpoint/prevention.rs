@@ -2,18 +2,18 @@ use crate::CardCatalog;
 use crate::card::DamageSourceMatcherDef;
 
 use super::model_prevention::{
-    DamagePreventionCapacitySnapshot, DamagePreventionCoverageSnapshot, DamagePreventionLocator,
-    DamageRecipientMatcherSnapshot, DamageSourceGroupSnapshot, DamageSourceMatcherSnapshot,
-    ResolvedDamagePreventionSnapshot, ResolvedDamageRedirectSnapshot,
+    DamagePreventionCapacitySnapshot, DamageRecipientMatcherSnapshot, DamageSourceGroupSnapshot,
+    DamageSourceMatcherSnapshot, ResolvedDamagePreventionSnapshot, ResolvedDamageRedirectSnapshot,
 };
 use super::stack::object_reference_requires_hidden_rebinding;
 use super::{
     AbilitySourceRef, ContinuousEffectTimestamp, Game, GameObjectId, PlayerId,
     RelationalSourceFilter, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
-    ResolvedDamagePreventionCoverage, ResolvedDamageRecipientMatcher, ResolvedDamageRedirect,
-    ResolvedDamageSourceMatcher, Target, ability_origin_from_snapshot, event, expiration_snapshot,
-    parse_expiration, parse_snapshot_target, player_from_index, semantics, target_snapshot,
+    ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher, Target,
+    ability_origin_from_snapshot, event, expiration_snapshot, parse_expiration,
+    parse_snapshot_target, player_from_index, semantics, target_snapshot,
 };
+use crate::card::ValueDef;
 
 pub(super) fn damage_redirect_snapshot(
     redirect: ResolvedDamageRedirect,
@@ -52,6 +52,25 @@ pub(super) fn damage_prevention_snapshot(
         return None;
     }
     let catalog = &game.catalog;
+    let matching_source = match prevention.source {
+        ResolvedDamageSourceMatcher::Matching { predicate, .. } => Some(predicate),
+        ResolvedDamageSourceMatcher::Any
+        | ResolvedDamageSourceMatcher::Exact(_)
+        | ResolvedDamageSourceMatcher::Except(_)
+        | ResolvedDamageSourceMatcher::Group(_) => None,
+    };
+    let needs_definition =
+        matching_source.is_some() || prevention.amount != ValueDef::DamageEventAmount;
+    let definition = if needs_definition {
+        Some(semantics::resolved_damage_prevention_locator(
+            catalog,
+            prevention.source_ability,
+            matching_source,
+            prevention.amount,
+        )?)
+    } else {
+        None
+    };
     let source = match prevention.source {
         ResolvedDamageSourceMatcher::Any => DamageSourceMatcherSnapshot::Any,
         ResolvedDamageSourceMatcher::Exact(object) => DamageSourceMatcherSnapshot::Exact {
@@ -60,17 +79,11 @@ pub(super) fn damage_prevention_snapshot(
         ResolvedDamageSourceMatcher::Except(object) => DamageSourceMatcherSnapshot::Except {
             object_id: object.0,
         },
-        ResolvedDamageSourceMatcher::Matching {
-            predicate,
-            relative_to,
-        } => DamageSourceMatcherSnapshot::Matching {
-            definition: semantics::resolved_damage_prevention_locator(
-                catalog,
-                prevention.source_ability,
-                predicate,
-            )?,
-            relative_to: relative_to.0,
-        },
+        ResolvedDamageSourceMatcher::Matching { relative_to, .. } => {
+            DamageSourceMatcherSnapshot::Matching {
+                relative_to: relative_to.0,
+            }
+        }
         ResolvedDamageSourceMatcher::Group(group) => DamageSourceMatcherSnapshot::Group {
             group: damage_source_group_snapshot(group),
         },
@@ -101,12 +114,7 @@ pub(super) fn damage_prevention_snapshot(
                 DamagePreventionCapacitySnapshot::Unlimited
             }
         },
-        coverage: match prevention.coverage {
-            ResolvedDamagePreventionCoverage::All => DamagePreventionCoverageSnapshot::All,
-            ResolvedDamagePreventionCoverage::HalfRoundedDown => {
-                DamagePreventionCoverageSnapshot::HalfRoundedDown
-            }
-        },
+        definition,
         gain_life: prevention.gain_life.map(PlayerId::index),
         source_ability: event::ability_source_snapshot(prevention.source_ability),
         timestamp: prevention.timestamp.0,
@@ -122,6 +130,19 @@ pub(super) fn parse_damage_prevention(
         object: GameObjectId(snapshot.source_ability.object),
         ability: ability_origin_from_snapshot(snapshot.source_ability.ability),
     };
+    let authored = snapshot
+        .definition
+        .as_ref()
+        .map(|definition| {
+            semantics::catalog_damage_prevention(catalog, definition)
+                .ok_or("damage-prevention locator is absent from this catalog")
+        })
+        .transpose()?;
+    if let Some(definition) = &snapshot.definition
+        && !semantics::ability_locator_matches_origin(&definition.ability, source_ability.ability)
+    {
+        return Err("damage-prevention locator disagrees with its source ability".into());
+    }
     Ok(ResolvedDamagePrevention {
         source: match &snapshot.source {
             DamageSourceMatcherSnapshot::Any => ResolvedDamageSourceMatcher::Any,
@@ -131,31 +152,15 @@ pub(super) fn parse_damage_prevention(
             DamageSourceMatcherSnapshot::Except { object_id } => {
                 ResolvedDamageSourceMatcher::Except(GameObjectId(*object_id))
             }
-            DamageSourceMatcherSnapshot::Matching {
-                definition,
-                relative_to,
-            } => {
-                let authored = semantics::catalog_damage_prevention(catalog, definition)
-                    .ok_or("damage-prevention matcher locator is absent from this catalog")?;
+            DamageSourceMatcherSnapshot::Matching { relative_to } => {
+                let Some(authored) = authored else {
+                    return Err("damage-prevention matcher has no authored definition".into());
+                };
                 let DamageSourceMatcherDef::Matching(predicate) = authored.matcher.source else {
                     return Err(
                         "damage-prevention matcher locator does not identify a predicate".into(),
                     );
                 };
-                let expected = semantics::resolved_damage_prevention_locator(
-                    catalog,
-                    source_ability,
-                    predicate,
-                )
-                .ok_or(
-                    "damage-prevention source ability does not contain its matcher definition",
-                )?;
-                if !same_locator(&expected, definition) {
-                    return Err(
-                        "damage-prevention matcher locator disagrees with its source ability"
-                            .into(),
-                    );
-                }
                 ResolvedDamageSourceMatcher::Matching {
                     predicate,
                     relative_to: GameObjectId(*relative_to),
@@ -188,21 +193,12 @@ pub(super) fn parse_damage_prevention(
                 ResolvedDamagePreventionCapacity::Unlimited
             }
         },
-        coverage: match snapshot.coverage {
-            DamagePreventionCoverageSnapshot::All => ResolvedDamagePreventionCoverage::All,
-            DamagePreventionCoverageSnapshot::HalfRoundedDown => {
-                ResolvedDamagePreventionCoverage::HalfRoundedDown
-            }
-        },
+        amount: authored.map_or(ValueDef::DamageEventAmount, |prevention| prevention.amount),
         gain_life: snapshot.gain_life.map(player_from_index).transpose()?,
         source_ability,
         timestamp: ContinuousEffectTimestamp(snapshot.timestamp),
         expiration: parse_expiration(&snapshot.expiration)?,
     })
-}
-
-fn same_locator(left: &DamagePreventionLocator, right: &DamagePreventionLocator) -> bool {
-    left.effect_index == right.effect_index && left.ability == right.ability
 }
 
 pub(super) fn damage_prevention_referenced_object_ids(

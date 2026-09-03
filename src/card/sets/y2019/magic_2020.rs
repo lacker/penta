@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -122,13 +122,37 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
 );
 
 // M20 179 — Leyline of Abundance
-// Audit: unsupported — Needs a creature-tapped-for-mana event plus its additional-mana replacement.
 pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c68e8342-78d2-4826-a287-64c371b97d19"),
     "Leyline of Abundance",
     CardArt::new("c68e8342-78d2-4826-a287-64c371b97d19", "Noah Bradley"),
     CardSet::Magic2020,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(
+            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
+        ),
+        AbilityDef::triggered_mana(
+            "Whenever you tap a creature for mana, add an additional {G}.",
+            TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        ),
+        AbilityDef::activated(
+            "{6}{G}{G}: Put a +1/+1 counter on each creature you control.",
+            &[AbilityCostDef::Mana(mana_cost!("{6}{G}{G}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // M20 230 — Manifold Key

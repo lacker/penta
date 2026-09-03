@@ -64,13 +64,11 @@ fn prepared_graveyard_source_summary_matches_reference_inspection() {
         let mut reference = false;
         game.for_each_printed_card_ability(&card, &CharacteristicContext::Graveyard, |effective| {
             let ability = effective.ability;
-            reference |= ability.is_executable()
-                && matches!(
-                    ability.definition,
-                    DeclarativeAbilityDef::Static(definition)
-                        if definition.source_zones.contains(&ZoneKind::Graveyard)
-                )
-                && ability.declarative_effect().is_some();
+            reference |= matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Static(definition)
+                    if definition.source_zones.contains(&ZoneKind::Graveyard)
+            ) && ability.declarative_effect().is_some();
         });
         let prepared = game
             .prepared_supplies_graveyard_static(definition.id)

@@ -818,8 +818,8 @@ impl CardRules {
         self
     }
 
-    /// Whether the printed clauses declare this keyword, regardless of its
-    /// current implementation coverage.
+    /// Whether the printed clauses declare this keyword, regardless of whether
+    /// the card is implemented.
     #[must_use]
     pub fn has_keyword(&self, expected: KeywordAbility) -> bool {
         self.ability_clauses().iter().any(

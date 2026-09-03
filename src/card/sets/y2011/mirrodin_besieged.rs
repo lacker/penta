@@ -2635,7 +2635,7 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
 );
 
 // MBS 122 — Phyrexian Revoker
-// Audit: unsupported — Needs chosen-name suppression for mana abilities of sources outside the battlefield.
+// Audit: unsupported — Needs a chosen-name activation restriction that reaches mana and nonmana abilities across every source zone without treating activation as a play action.
 pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c7bec21-61b0-4e72-848b-82f38e1910e0"),
     "Phyrexian Revoker",

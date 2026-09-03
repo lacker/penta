@@ -1,4 +1,4 @@
-use crate::card::ObjectPredicateDef;
+use crate::card::{ObjectPredicateDef, ValueDef};
 
 /// Which sources a relational prevention answers. The variants name rules
 /// rather than cards, but the list is deliberately closed: a prevention has
@@ -41,19 +41,12 @@ pub(super) enum ResolvedDamageRecipientMatcher {
 
 /// How many matching damage events or points a resolved rule can still
 /// prevent. Amount capacities can span several events; event capacities are
-/// consumed by a match even when their coverage rounds the prevented amount
-/// down to zero.
+/// consumed by a match even when their deferred amount rounds to zero.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ResolvedDamagePreventionCapacity {
     Amount(u16),
     Events(u16),
     Unlimited,
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum ResolvedDamagePreventionCoverage {
-    All,
-    HalfRoundedDown,
 }
 
 /// One installed damage-prevention rule. Static rules are evaluated live and
@@ -65,7 +58,9 @@ pub(super) struct ResolvedDamagePrevention {
     pub(super) recipient: ResolvedDamageRecipientMatcher,
     pub(super) combat_only: bool,
     pub(super) capacity: ResolvedDamagePreventionCapacity,
-    pub(super) coverage: ResolvedDamagePreventionCoverage,
+    /// Finalized against the current damage amount only when this rule is
+    /// applied, after earlier modifications have changed the event.
+    pub(super) amount: ValueDef,
     /// A frozen player who gains the amount actually prevented, when the
     /// authored rule has that rider.
     pub(super) gain_life: Option<PlayerId>,

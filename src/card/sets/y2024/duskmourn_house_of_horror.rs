@@ -8,7 +8,7 @@ use crate::card::{
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    CopyStackObjectDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, EmblemCharacteristics, GraveyardPlayPermissionDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
@@ -302,13 +302,43 @@ pub(in crate::card::sets) static FEAR_OF_MISSING_OUT: CardRecord = CardRecord::n
 );
 
 // DSK 143 — Leyline of Resonance
-// Audit: unsupported — Needs a spell-cast matcher over the complete target set and a reselectable spell copy.
 pub(in crate::card::sets) static LEYLINE_OF_RESONANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("92c5f0e3-345a-40a8-9cda-565a62156692"),
     "Leyline of Resonance",
     CardArt::new("92c5f0e3-345a-40a8-9cda-565a62156692", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(
+            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
+        ),
+        AbilityDef::triggered(
+            "Whenever you cast an instant or sorcery spell that targets only a single creature you control, copy that spell. You may choose new targets for the copy.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                ObjectPredicateDef::DeclaredTargetCount {
+                    minimum: 1,
+                    maximum: 1,
+                },
+                ObjectPredicateDef::TargetsObjectMatching(
+                    &ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ]),
+                ),
+            ])),
+            EffectDef::CopyStackObject(&CopyStackObjectDef {
+                object: EffectRecipientDef::TriggeringObject,
+                controller: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(1),
+                retarget: true,
+                colors: None,
+            }),
+        ),
+    ]),
 );
 
 // DSK 178 — Flesh Burrower

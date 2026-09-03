@@ -826,6 +826,7 @@ fn validate_value_target_references(
         | ValueDef::StartingLifeTotal(_)
         | ValueDef::SourceToughness
         | ValueDef::TriggerEventAmount
+        | ValueDef::DamageEventAmount
         | ValueDef::CardsInHandAbove { .. }
         | ValueDef::DamageTakenThisTurn { .. }
         | ValueDef::CountersOnSource(_)

@@ -528,7 +528,7 @@ fn validate_effect_references(
             if let DamagePreventionCapacityDef::Amount(amount) = prevention.capacity {
                 validate_value_target_references(amount, target_count, scope)?;
             }
-            Ok(())
+            validate_value_target_references(prevention.amount, target_count, scope)
         }
         EffectDef::DealDamage { recipient, amount }
         | EffectDef::DealDamageAndApply {

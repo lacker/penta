@@ -1,12 +1,12 @@
 use crate::card::{
-    DamageCoverageDef, DamageKindDef, DamagePreventionCapacityDef, DamagePreventionFollowUpDef,
+    DamageKindDef, DamagePreventionCapacityDef, DamagePreventionFollowUpDef,
     DamageRecipientMatcherDef, DamageSourceGroupDef, DamageSourceMatcherDef, EffectDef,
     EffectRecipientDef,
 };
 
 use super::super::prevention_state::{
-    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamagePreventionCoverage,
-    ResolvedDamageRecipientMatcher, ResolvedDamageSourceMatcher,
+    ResolvedDamagePrevention, ResolvedDamagePreventionCapacity, ResolvedDamageRecipientMatcher,
+    ResolvedDamageSourceMatcher,
 };
 use super::super::{
     AbilityId, AbilitySourceRef, EffectResolutionContext, Game, RelationalSourceFilter,
@@ -63,10 +63,6 @@ impl Game {
             }
             DamagePreventionCapacityDef::Unlimited => ResolvedDamagePreventionCapacity::Unlimited,
         };
-        let coverage = match prevention.coverage {
-            DamageCoverageDef::All => ResolvedDamagePreventionCoverage::All,
-            DamageCoverageDef::HalfRoundedDown => ResolvedDamagePreventionCoverage::HalfRoundedDown,
-        };
         let gain_life = match prevention.follow_up {
             Some(DamagePreventionFollowUpDef::GainLife(player)) => self
                 .effect_recipients(EffectRecipientDef::player(player), object, context, scoped)
@@ -100,7 +96,7 @@ impl Game {
                         recipient,
                         combat_only,
                         capacity,
-                        coverage,
+                        amount: prevention.amount,
                         gain_life,
                         source_ability,
                         timestamp,

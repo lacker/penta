@@ -963,9 +963,9 @@ pub enum EffectDef {
         object: EffectRecipientDef,
         count: u8,
     },
-    /// A descriptive marker for an effect portion the shared vocabulary does
-    /// not yet represent. The surrounding costs, targets, and timing can still
-    /// remain declarative; clause coverage records whether and how it executes.
+    /// A descriptive marker for an effect shape the shared vocabulary does not
+    /// yet represent. Catalog runtime validation rejects this marker from fully
+    /// declarative cards.
     Special(&'static str),
     /// A static application gated by a separately composed condition over an
     /// object set. This owns its nonrecursive parts so mechanic helpers can

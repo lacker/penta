@@ -43,7 +43,7 @@ impl EmblemCharacteristics {
         self.rules_view().rules_text()
     }
 
-    /// The aggregate implementation coverage of the emblem's abilities.
+    /// Whether every ability on the emblem is implemented.
     #[must_use]
     pub fn implementation_status(self) -> ImplementationStatus {
         self.rules_view().implementation_status()

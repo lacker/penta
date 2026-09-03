@@ -9,37 +9,59 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2024::modern_horizons_3 as catalog_mh3;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, OngoingEffectDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardChoiceSourceDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, GraveyardPlayPermissionDef,
+    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, OngoingEffectDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SpellResolutionDestinationDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // USG 1 — Absolute Grace
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ABSOLUTE_GRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe7d1839-7180-4b4c-8ddb-7df24573f740"),
     "Absolute Grace",
     crate::card::CardArt::new("fe7d1839-7180-4b4c-8ddb-7df24573f740", "Jeff Miracola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(AbilityDef::static_ability(
+        "All creatures have protection from black.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                ManaColor::Black,
+            )),
+        },
+    )),
 );
 
 // USG 2 — Absolute Law
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ABSOLUTE_LAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59d1f05b-f165-47c7-8a78-3b60ee3298ca"),
     "Absolute Law",
     crate::card::CardArt::new("59d1f05b-f165-47c7-8a78-3b60ee3298ca", "Mark Zug"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(AbilityDef::static_ability(
+        "All creatures have protection from red.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                ManaColor::Red,
+            )),
+        },
+    )),
 );
 
 // USG 3 — Angelic Chorus
@@ -53,13 +75,32 @@ pub(in crate::card::sets) static ANGELIC_CHORUS: CardRecord = CardRecord::new(
 );
 
 // USG 4 — Angelic Page
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANGELIC_PAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f50a4378-8b14-484c-b285-09cc4c4e1b3c"),
     "Angelic Page",
     crate::card::CardArt::new("f50a4378-8b14-484c-b285-09cc4c4e1b3c", "Rebecca Guay"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Angel", "Spirit"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target attacking or blocking creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // USG 5 — Brilliant Halo
@@ -83,13 +124,24 @@ pub(in crate::card::sets) static CATASTROPHE: CardRecord = CardRecord::new(
 );
 
 // USG 7 — Clear
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CLEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c7cdb977-7d5b-4050-bb01-181f6b363de7"),
     "Clear",
     crate::card::CardArt::new("c7cdb977-7d5b-4050-bb01-181f6b363de7", "Andrew Robinson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::destroy_target(
+            "Destroy target enchantment.",
+            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Enchantment,
+            )),
+            true,
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 8 — Congregate (reprint)
@@ -105,35 +157,58 @@ pub(in crate::card::sets) static DEFENSIVE_FORMATION: CardRecord = CardRecord::n
 );
 
 // USG 10 — Disciple of Grace
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DISCIPLE_OF_GRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("83fa36d2-0a60-40a5-a182-a63e1e65b2bd"),
     "Disciple of Grace",
     crate::card::CardArt::new("83fa36d2-0a60-40a5-a182-a63e1e65b2bd", "Robh Ruppel"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Black),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 11 — Disciple of Law
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DISCIPLE_OF_LAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a5c8701-a294-4474-9747-129f972cfb18"),
     "Disciple of Law",
     crate::card::CardArt::new("7a5c8701-a294-4474-9747-129f972cfb18", "Matthew D. Wilson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 1, 2).with_abilities(&[
+        abilities::protection_from_color(ManaColor::Red),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 12 — Disenchant (reprint)
 
 // USG 13 — Elite Archers
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ELITE_ARCHERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d7ee95c-3ce8-4b8c-a1a7-1caa5b8a3cc9"),
     "Elite Archers",
     crate::card::CardArt::new("6d7ee95c-3ce8-4b8c-a1a7-1caa5b8a3cc9", "Greg Staples"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{W}"), &["Human", "Soldier", "Archer"], 3, 3)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{T}: This creature deals 3 damage to target attacking or blocking creature.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        )),
 );
 
 // USG 14 — Faith Healer
@@ -147,25 +222,43 @@ pub(in crate::card::sets) static FAITH_HEALER: CardRecord = CardRecord::new(
 );
 
 // USG 15 — Glorious Anthem
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GLORIOUS_ANTHEM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61f867c5-0727-4408-b479-b81518daa0ec"),
     "Glorious Anthem",
     crate::card::CardArt::new("61f867c5-0727-4408-b479-b81518daa0ec", "Kev Walker"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control get +1/+1.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(1),
+                ValueDef::Constant(1),
+            ),
+        },
+    )),
 );
 
 // USG 16 — Healing Salve (reprint)
 
 // USG 17 — Herald of Serra
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HERALD_OF_SERRA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22a2b882-d616-495e-99f6-196031235f93"),
     "Herald of Serra",
     crate::card::CardArt::new("22a2b882-d616-495e-99f6-196031235f93", "Matthew D. Wilson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 3, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::echo(
+            "Echo {2}{W}{W} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{W}{W}"),
+        ),
+    ]),
 );
 
 // USG 18 — Humble
@@ -179,23 +272,52 @@ pub(in crate::card::sets) static HUMBLE: CardRecord = CardRecord::new(
 );
 
 // USG 19 — Intrepid Hero
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static INTREPID_HERO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f2a5c67-f76a-4021-959e-3e084a06b80f"),
     "Intrepid Hero",
     crate::card::CardArt::new("0f2a5c67-f76a-4021-959e-3e084a06b80f", "Brian Snõddy"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Destroy target creature with power 4 or greater.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::PowerAtLeast(4),
+                ]),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
 );
 
 // USG 20 — Monk Idealist
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static MONK_IDEALIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("285a867b-f82e-49cb-a59c-31a25129baf9"),
     "Monk Idealist",
     crate::card::CardArt::new("285a867b-f82e-49cb-a59c-31a25129baf9", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{W}"),
+        &["Human", "Monk", "Cleric"],
+        2,
+        2,
+    )
+    .with_ability(abilities::enters_trigger_with_targets(
+        "When this creature enters, return target enchantment card from your graveyard to your hand.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::HasType(CardType::Enchantment),
+            zones: &[ZoneKind::Graveyard],
+            controller: None,
+            owner: Some(PlayerRelation::You),
+        })],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+        },
+    )),
 );
 
 // USG 21 — Monk Realist
@@ -280,13 +402,13 @@ pub(in crate::card::sets) static PARIAH: CardRecord = CardRecord::new(
 // USG 29 — Path of Peace (reprint)
 
 // USG 30 — Pegasus Charger
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PEGASUS_CHARGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d62a5287-25ec-4e13-9e39-1c87a4052c4d"),
     "Pegasus Charger",
     crate::card::CardArt::new("d62a5287-25ec-4e13-9e39-1c87a4052c4d", "Val Mayerik"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Pegasus"], 2, 1)
+        .with_abilities(&[abilities::flying(), abilities::first_strike()]),
 );
 
 // USG 31 — Planar Birth
@@ -435,13 +557,13 @@ pub(in crate::card::sets) static SERRA_AVATAR: CardRecord = CardRecord::new(
 );
 
 // USG 46 — Serra Zealot
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SERRA_ZEALOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b311542-599f-4d2f-a871-18d5b0b7bbe5"),
     "Serra Zealot",
     crate::card::CardArt::new("0b311542-599f-4d2f-a871-18d5b0b7bbe5", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1)
+        .with_ability(abilities::first_strike()),
 );
 
 // USG 47 — Serra's Embrace
@@ -475,7 +597,6 @@ pub(in crate::card::sets) static SERRA_S_LITURGY: CardRecord = CardRecord::new(
 );
 
 // USG 50 — Shimmering Barrier
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIMMERING_BARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2aa7158a-5c00-4969-a116-c40cefdf4591"),
     "Shimmering Barrier",
@@ -484,17 +605,32 @@ pub(in crate::card::sets) static SHIMMERING_BARRIER: CardRecord = CardRecord::ne
         "D. Alexander Gregory",
     ),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Wall"], 1, 3).with_abilities(&[
+        abilities::defender(),
+        abilities::first_strike(),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 51 — Silent Attendant
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SILENT_ATTENDANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("56e90087-3738-40df-929b-d2f880264b55"),
     "Silent Attendant",
     crate::card::CardArt::new("56e90087-3738-40df-929b-d2f880264b55", "Rebecca Guay"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 0, 2).with_ability(
+        AbilityDef::activated(
+            "{T}: You gain 1 life.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // USG 52 — Songstitcher
@@ -518,23 +654,27 @@ pub(in crate::card::sets) static SOUL_SCULPTOR: CardRecord = CardRecord::new(
 );
 
 // USG 54 — Voice of Grace
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_GRACE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("72e8eb3b-3ebf-426c-8dc8-138ec9b7c671"),
     "Voice of Grace",
     crate::card::CardArt::new("72e8eb3b-3ebf-426c-8dc8-138ec9b7c671", "Jeff Miracola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Black),
+    ]),
 );
 
 // USG 55 — Voice of Law
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VOICE_OF_LAW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("daec52a4-02da-4bff-aff4-5247baed1326"),
     "Voice of Law",
     crate::card::CardArt::new("daec52a4-02da-4bff-aff4-5247baed1326", "Mark Zug"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Angel"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // USG 56 — Waylay
@@ -769,13 +909,28 @@ pub(in crate::card::sets) static GILDED_DRAKE: CardRecord = CardRecord::new_with
 );
 
 // USG 77 — Great Whale
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GREAT_WHALE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58a2acf1-dad8-4f93-a34e-891e5178a48f"),
     "Great Whale",
     crate::card::CardArt::new("58a2acf1-dad8-4f93-a34e-891e5178a48f", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Whale"], 5, 5).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, untap up to seven lands.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                7,
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // USG 78 — Hermetic Study
@@ -799,13 +954,20 @@ pub(in crate::card::sets) static HIBERNATION: CardRecord = CardRecord::new(
 );
 
 // USG 80 — Horseshoe Crab
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HORSESHOE_CRAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b33646b-a0e3-4344-873e-6711743bc85c"),
     "Horseshoe Crab",
     crate::card::CardArt::new("9b33646b-a0e3-4344-873e-6711743bc85c", "Scott Kirschner"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Crab"], 1, 3).with_ability(
+        AbilityDef::activated(
+            "{U}: Untap this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // USG 81 — Imaginary Pet
@@ -859,13 +1021,18 @@ pub(in crate::card::sets) static MORPHLING: CardRecord = CardRecord::new(
 );
 
 // USG 86 — Pendrell Drake
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PENDRELL_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("986b6708-5ed4-4085-b9b7-d359b2d5b26f"),
     "Pendrell Drake",
     crate::card::CardArt::new("986b6708-5ed4-4085-b9b7-d359b2d5b26f", "Jeff Miracola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 87 — Pendrell Flux
@@ -879,13 +1046,29 @@ pub(in crate::card::sets) static PENDRELL_FLUX: CardRecord = CardRecord::new(
 );
 
 // USG 88 — Peregrine Drake
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PEREGRINE_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4951863f-1c16-4d09-ba9a-f57dc3d81a20"),
     "Peregrine Drake",
     crate::card::CardArt::new("4951863f-1c16-4d09-ba9a-f57dc3d81a20", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Drake"], 2, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, untap up to five lands.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                5,
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // USG 89 — Power Sink (reprint)
@@ -911,13 +1094,28 @@ pub(in crate::card::sets) static RECANTATION: CardRecord = CardRecord::new(
 );
 
 // USG 92 — Rescind
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RESCIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58dde1dc-8eee-4a66-87d9-fdfb42270744"),
     "Rescind",
     crate::card::CardArt::new("58dde1dc-8eee-4a66-87d9-fdfb42270744", "Adam Rex"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Return target permanent to its owner's hand.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Any,
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 93 — Rewind
@@ -931,23 +1129,31 @@ pub(in crate::card::sets) static REWIND: CardRecord = CardRecord::new(
 );
 
 // USG 94 — Sandbar Merfolk
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDBAR_MERFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("65ce3960-abf1-4f28-8434-ab3b27d3b7cb"),
     "Sandbar Merfolk",
     crate::card::CardArt::new("65ce3960-abf1-4f28-8434-ab3b27d3b7cb", "rk post"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Merfolk"], 1, 1).with_ability(
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ),
 );
 
 // USG 95 — Sandbar Serpent
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDBAR_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3b430ec-28e1-4b2c-bea8-3bfd3a0e8cf8"),
     "Sandbar Serpent",
     crate::card::CardArt::new("b3b430ec-28e1-4b2c-bea8-3bfd3a0e8cf8", "Jim Nelson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}"), &["Serpent"], 3, 4).with_ability(
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ),
 );
 
 // USG 96 — Show and Tell
@@ -1010,23 +1216,45 @@ pub(in crate::card::sets) static SPIRE_OWL: CardRecord = CardRecord::new(
 );
 
 // USG 99 — Stern Proctor
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STERN_PROCTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7042fdc8-e2dd-4f9a-97b9-00d95c9eae74"),
     "Stern Proctor",
     crate::card::CardArt::new("7042fdc8-e2dd-4f9a-97b9-00d95c9eae74", "Randy Gallegos"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}{U}"), &["Human", "Wizard"], 1, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target artifact or enchantment to its owner's hand.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // USG 100 — Stroke of Genius
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static STROKE_OF_GENIUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5423cb8-38a2-4769-8999-de6ab5ebc294"),
     "Stroke of Genius",
     crate::card::CardArt::new("5e977755-8ea4-4a8b-90c4-dd175321e05d", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player draws X cards.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::ChosenX,
+        },
+    )),
 );
 
 // USG 101 — Sunder
@@ -1183,13 +1411,13 @@ pub(in crate::card::sets) static WIZARD_MENTOR: CardRecord = CardRecord::new(
 );
 
 // USG 113 — Zephid
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ZEPHID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e0317fff-dbad-4c47-a191-0369d81cdda2"),
     "Zephid",
     crate::card::CardArt::new("e0317fff-dbad-4c47-a191-0369d81cdda2", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{U}{U}"), &["Illusion"], 3, 4)
+        .with_abilities(&[abilities::flying(), abilities::shroud()]),
 );
 
 // USG 114 — Zephid's Embrace
@@ -1203,13 +1431,26 @@ pub(in crate::card::sets) static ZEPHID_S_EMBRACE: CardRecord = CardRecord::new(
 );
 
 // USG 115 — Abyssal Horror
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ABYSSAL_HORROR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("94396d26-cede-4a61-b30a-50aecc730407"),
     "Abyssal Horror",
     crate::card::CardArt::new("94396d26-cede-4a61-b30a-50aecc730407", "rk post"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Horror"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target player discards two cards.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // USG 116 — Befoul
@@ -1243,13 +1484,13 @@ pub(in crate::card::sets) static BLOOD_VASSAL: CardRecord = CardRecord::new(
 );
 
 // USG 119 — Bog Raiders
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_RAIDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("eb7bbb7a-b59a-4a01-b1cb-66eef881ffcd"),
     "Bog Raiders",
     crate::card::CardArt::new("3739188b-f2b3-4ab0-8e5c-b3a1d2a1ad09", "Carl Critchlow"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // USG 119s — Bog Raiders (alternate printing)
@@ -1265,13 +1506,24 @@ pub(in crate::card::sets) static BREACH: CardRecord = CardRecord::new(
 );
 
 // USG 121 — Cackling Fiend
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CACKLING_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ae410ae8-1e72-4727-96df-c7c195063fb5"),
     "Cackling Fiend",
     crate::card::CardArt::new("ae410ae8-1e72-4727-96df-c7c195063fb5", "Brian Despain"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Zombie"], 2, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, each opponent discards a card.",
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                    PlayerRelation::Opponent,
+                )),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // USG 122 — Carrion Beetles
@@ -1305,23 +1557,34 @@ pub(in crate::card::sets) static CORRUPT: CardRecord = CardRecord::new(
 );
 
 // USG 125 — Crazed Skirge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CRAZED_SKIRGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("816272de-f134-45fa-ac1f-70d35d30c7e1"),
     "Crazed Skirge",
     crate::card::CardArt::new("816272de-f134-45fa-ac1f-70d35d30c7e1", "Ron Spencer"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Imp"], 2, 2)
+        .with_abilities(&[abilities::flying(), abilities::haste()]),
 );
 
 // USG 126 — Dark Hatchling
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DARK_HATCHLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("87a538c1-8539-4955-ae3e-27312ce9e800"),
     "Dark Hatchling",
     crate::card::CardArt::new("87a538c1-8539-4955-ae3e-27312ce9e800", "Mark A. Nelson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Horror"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, destroy target nonblack creature. It can't be regenerated.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+        ),
+    ]),
 );
 
 // USG 127 — Dark Ritual (reprint)
@@ -1374,13 +1637,31 @@ pub(in crate::card::sets) static DISCORDANT_DIRGE: CardRecord = CardRecord::new(
 // USG 132 — Duress (reprint)
 
 // USG 133 — Eastern Paladin
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EASTERN_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f042a8c7-f07b-42bd-8251-c588d890683c"),
     "Eastern Paladin",
     crate::card::CardArt::new("f042a8c7-f07b-42bd-8251-c588d890683c", "Carl Critchlow"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{B}{B}"),
+        &["Phyrexian", "Zombie", "Knight"],
+        3,
+        3,
+    )
+    .with_ability(AbilityDef::activated_with_targets(
+        "{B}{B}, {T}: Destroy target green creature.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{B}{B}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Color(ManaColor::Green),
+            ]),
+        )],
+        EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+    )),
 );
 
 // USG 134 — Exhume
@@ -1412,7 +1693,6 @@ pub(in crate::card::sets) static EXHUME: CardRecord = CardRecord::new_with_legac
 );
 
 // USG 135 — Expunge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static EXPUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0576ffe8-a7b9-479b-8ea0-418b430b1aa1"),
     "Expunge",
@@ -1421,7 +1701,21 @@ pub(in crate::card::sets) static EXPUNGE: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
+        AbilityDef::destroy_target(
+            "Destroy target nonartifact, nonblack creature. It can't be regenerated.",
+            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            ])),
+            false,
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 136 — Flesh Reaver
@@ -1435,13 +1729,24 @@ pub(in crate::card::sets) static FLESH_REAVER: CardRecord = CardRecord::new(
 );
 
 // USG 137 — Hollow Dogs
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HOLLOW_DOGS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6e84fa4f-617d-4449-8141-783a9ce017c1"),
     "Hollow Dogs",
     crate::card::CardArt::new("6e84fa4f-617d-4449-8141-783a9ce017c1", "Jeff Miracola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Phyrexian", "Zombie", "Dog"], 3, 3)
+        .with_ability(AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )),
 );
 
 // USG 138 — Ill-Gotten Gains
@@ -1457,13 +1762,25 @@ pub(in crate::card::sets) static ILL_GOTTEN_GAINS: CardRecord = CardRecord::new(
 // USG 139 — Looming Shade (alternate printing)
 
 // USG 139s — Looming Shade
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LOOMING_SHADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3e94ab55-4390-4b3d-8e7f-a95996e2c5b7"),
     "Looming Shade",
     crate::card::CardArt::new("3e94ab55-4390-4b3d-8e7f-a95996e2c5b7", "Vincent Evans"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Shade"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 140 — Lurking Evil
@@ -1564,13 +1881,21 @@ pub(in crate::card::sets) static PLANAR_VOID: CardRecord = CardRecord::new(
 );
 
 // USG 150 — Priest of Gix
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIEST_OF_GIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64166899-fcc6-4000-9994-643f5a4cd214"),
     "Priest of Gix",
     crate::card::CardArt::new("64166899-fcc6-4000-9994-643f5a4cd214", "Brian Despain"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{B}"),
+        &["Phyrexian", "Human", "Cleric", "Minion"],
+        2,
+        1,
+    )
+    .with_ability(abilities::enters_trigger(
+        "When this creature enters, add {B}{B}{B}.",
+        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(3)),
+    )),
 );
 
 // USG 151 — Rain of Filth
@@ -1584,13 +1909,26 @@ pub(in crate::card::sets) static RAIN_OF_FILTH: CardRecord = CardRecord::new(
 );
 
 // USG 152 — Ravenous Skirge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVENOUS_SKIRGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d0b6e655-e05e-44b5-9c7f-9dbbc66e6e28"),
     "Ravenous Skirge",
     crate::card::CardArt::new("d0b6e655-e05e-44b5-9c7f-9dbbc66e6e28", "Ron Spencer"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Imp"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +2/+0 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // USG 153 — Reclusive Wight
@@ -1614,23 +1952,51 @@ pub(in crate::card::sets) static REPROCESS: CardRecord = CardRecord::new(
 );
 
 // USG 155 — Sanguine Guard
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SANGUINE_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c33fbb0-f49d-4b4d-804d-84b03e0daf4d"),
     "Sanguine Guard",
     crate::card::CardArt::new("5c33fbb0-f49d-4b4d-804d-84b03e0daf4d", "Kev Walker"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{1}{B}{B}"),
+        &["Phyrexian", "Zombie", "Knight"],
+        2,
+        2,
+    )
+    .with_abilities(&[
+        abilities::first_strike(),
+        abilities::regenerate_self(
+            "{1}{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
+        ),
+    ]),
 );
 
 // USG 156 — Sicken
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SICKEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa1beb5d-0ef2-4013-932b-5e4a5d0af559"),
     "Sicken",
     crate::card::CardArt::new("aa1beb5d-0ef2-4013-932b-5e4a5d0af559", "Heather Hudson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -1/-1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
+                },
+            ),
+            abilities::cycling(
+                "Cycling {2} ({2}, Discard this card: Draw a card.)",
+                mana_cost!("{2}"),
+            ),
+        ]),
 );
 
 // USG 157 — Skirge Familiar
@@ -1684,23 +2050,34 @@ pub(in crate::card::sets) static TAINTED_AETHER: CardRecord = CardRecord::new(
 );
 
 // USG 162 — Unnerve
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static UNNERVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f72779ce-bcd3-41dc-8b3f-bfb9a1b137d8"),
     "Unnerve",
     crate::card::CardArt::new("f72779ce-bcd3-41dc-8b3f-bfb9a1b137d8", "Terese Nielsen"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell(
+        "Each opponent discards two cards.",
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::players(PlayerSetDef::Related(PlayerRelation::Opponent)),
+            amount: ValueDef::Constant(2),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: None,
+        },
+    )),
 );
 
 // USG 163 — Unworthy Dead
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static UNWORTHY_DEAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0f42c561-1762-43c4-a539-0cf9a5ce7f4f"),
     "Unworthy Dead",
     crate::card::CardArt::new("0f42c561-1762-43c4-a539-0cf9a5ce7f4f", "Carl Critchlow"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Skeleton"], 1, 1).with_ability(
+        abilities::regenerate_self(
+            "{B}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+        ),
+    ),
 );
 
 // USG 163s — Unworthy Dead (alternate printing)
@@ -1748,13 +2125,31 @@ pub(in crate::card::sets) static VILE_REQUIEM: CardRecord = CardRecord::new(
 );
 
 // USG 168 — Western Paladin
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WESTERN_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c4bcfe0f-2397-488b-8f02-dae1f6cd5824"),
     "Western Paladin",
     crate::card::CardArt::new("c4bcfe0f-2397-488b-8f02-dae1f6cd5824", "Carl Critchlow"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{2}{B}{B}"),
+        &["Phyrexian", "Zombie", "Knight"],
+        3,
+        3,
+    )
+    .with_ability(AbilityDef::activated_with_targets(
+        "{B}{B}, {T}: Destroy target white creature.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{B}{B}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Color(ManaColor::White),
+            ]),
+        )],
+        EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+    )),
 );
 
 // USG 169 — Witch Engine
@@ -1851,13 +2246,22 @@ pub(in crate::card::sets) static ARC_LIGHTNING: CardRecord = CardRecord::new(
 );
 
 // USG 175 — Bedlam
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BEDLAM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a3e97dc9-8df3-4912-8564-7bdb2ac6564b"),
     "Bedlam",
     crate::card::CardArt::new("a3e97dc9-8df3-4912-8564-7bdb2ac6564b", "Mike Raabe"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::static_ability(
+        "Creatures can't block.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+        },
+    )),
 );
 
 // USG 176 — Brand
@@ -2099,33 +2503,38 @@ pub(in crate::card::sets) static GOBLIN_PATROL: CardRecord = CardRecord::new_wit
 // USG 194 — Goblin Raider (reprint)
 
 // USG 195 — Goblin Spelunkers
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SPELUNKERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7d02a81f-2dac-41f7-a818-811baa238021"),
     "Goblin Spelunkers",
     crate::card::CardArt::new("7d02a81f-2dac-41f7-a818-811baa238021", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Warrior"], 2, 2)
+        .with_ability(abilities::mountainwalk()),
 );
 
 // USG 196 — Goblin War Buggy
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_WAR_BUGGY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d2d0fc9e-fb6b-4a00-b422-32565f7ce454"),
     "Goblin War Buggy",
     crate::card::CardArt::new("d2d0fc9e-fb6b-4a00-b422-32565f7ce454", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 2, 2).with_abilities(&[
+        abilities::haste(),
+        abilities::echo(
+            "Echo {1}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{1}{R}"),
+        ),
+    ]),
 );
 
 // USG 197 — Guma
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GUMA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d6246f17-6034-4423-82c5-1aea8d71f94e"),
     "Guma",
     crate::card::CardArt::new("d6246f17-6034-4423-82c5-1aea8d71f94e", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Cat"], 2, 2)
+        .with_ability(abilities::protection_from_color(ManaColor::Blue)),
 );
 
 // USG 198 — Headlong Rush
@@ -2139,35 +2548,69 @@ pub(in crate::card::sets) static HEADLONG_RUSH: CardRecord = CardRecord::new(
 );
 
 // USG 199 — Heat Ray
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HEAT_RAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a27f90e-d156-439c-b5e5-6d53bd510fe7"),
     "Heat Ray",
     crate::card::CardArt::new("6a27f90e-d156-439c-b5e5-6d53bd510fe7", "Brian Snõddy"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "This spell deals X damage to target creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::ChosenX,
+        },
+    )),
 );
 
 // USG 200 — Jagged Lightning (reprint)
 
 // USG 201 — Lay Waste
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LAY_WASTE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46fa1186-51fa-419a-9cd0-42403d1dd4a7"),
     "Lay Waste",
     crate::card::CardArt::new("46fa1186-51fa-419a-9cd0-42403d1dd4a7", "Terese Nielsen"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}")).with_abilities(&[
+        AbilityDef::destroy_target(
+            "Destroy target land.",
+            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land)),
+            true,
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 202 — Lightning Dragon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4575bbe-a767-4861-87c3-795a287ac363"),
     "Lightning Dragon",
     crate::card::CardArt::new("342fc7bc-657f-43a3-9558-f516fa545a09", "Ron Spencer"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dragon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        abilities::echo(
+            "Echo {2}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{R}{R}"),
+        ),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // USG 203 — Meltdown
@@ -2201,13 +2644,28 @@ pub(in crate::card::sets) static OUTMANEUVER: CardRecord = CardRecord::new(
 );
 
 // USG 206 — Rain of Salt
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static RAIN_OF_SALT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("661ffab2-9cf5-492d-874f-de73d7a13e2b"),
     "Rain of Salt",
     crate::card::CardArt::new("4792293a-e11d-4c5e-bbd9-6f09e69ee617", "Adam Rex"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Destroy two target lands.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Land),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::Destroy {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            can_regenerate: true,
+            then: None,
+        },
+    )),
 );
 
 // USG 207 — Raze
@@ -2271,33 +2729,62 @@ pub(in crate::card::sets) static SCORIA_WURM: CardRecord = CardRecord::new(
 );
 
 // USG 213 — Scrap
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SCRAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3f070430-59d6-462f-9f04-306ffc2ae01b"),
     "Scrap",
     crate::card::CardArt::new("3f070430-59d6-462f-9f04-306ffc2ae01b", "Donato Giancola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::destroy_target(
+            "Destroy target artifact.",
+            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Artifact,
+            )),
+            true,
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 214 — Shivan Hellkite
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_HELLKITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d74f30e-277f-4d8d-ad75-567545a78d97"),
     "Shivan Hellkite",
     crate::card::CardArt::new("8d74f30e-277f-4d8d-ad75-567545a78d97", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "{1}{R}: This creature deals 1 damage to any target.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{R}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // USG 215 — Shivan Raptor
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_RAPTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0fc45153-3cb1-43bc-b694-06f6a74b3eb7"),
     "Shivan Raptor",
     crate::card::CardArt::new("0fc45153-3cb1-43bc-b694-06f6a74b3eb7", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dinosaur"], 3, 1).with_abilities(&[
+        abilities::first_strike(),
+        abilities::haste(),
+        abilities::echo(
+            "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{R}"),
+        ),
+    ]),
 );
 
 // USG 216 — Shiv's Embrace
@@ -2420,13 +2907,13 @@ pub(in crate::card::sets) static SULFURIC_VAPORS: CardRecord = CardRecord::new(
 );
 
 // USG 221 — Thundering Giant
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static THUNDERING_GIANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("98afd54f-2f86-4694-a688-ce3dcefccdbc"),
     "Thundering Giant",
     crate::card::CardArt::new("98afd54f-2f86-4694-a688-ce3dcefccdbc", "Mark Zug"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Giant"], 4, 3)
+        .with_ability(abilities::haste()),
 );
 
 // USG 222 — Torch Song
@@ -2440,23 +2927,27 @@ pub(in crate::card::sets) static TORCH_SONG: CardRecord = CardRecord::new(
 );
 
 // USG 223 — Viashino Outrider
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_OUTRIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("26ba659c-7e0f-4d8b-b91c-3c0725102ba2"),
     "Viashino Outrider",
     crate::card::CardArt::new("26ba659c-7e0f-4d8b-b91c-3c0725102ba2", "Ciruelo"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard"], 4, 3).with_ability(
+        abilities::echo(
+            "Echo {2}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{2}{R}"),
+        ),
+    ),
 );
 
 // USG 224 — Viashino Runner
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_RUNNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15bf72e0-0b0c-4b29-8709-9dcd460508cb"),
     "Viashino Runner",
     crate::card::CardArt::new("15bf72e0-0b0c-4b29-8709-9dcd460508cb", "Steve White"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Lizard"], 3, 2)
+        .with_ability(abilities::menace()),
 );
 
 // USG 225 — Viashino Sandswimmer
@@ -2470,23 +2961,42 @@ pub(in crate::card::sets) static VIASHINO_SANDSWIMMER: CardRecord = CardRecord::
 );
 
 // USG 226 — Viashino Weaponsmith
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHINO_WEAPONSMITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("def316ed-b080-4d1d-b946-d7a86ebb8ad9"),
     "Viashino Weaponsmith",
     crate::card::CardArt::new("def316ed-b080-4d1d-b946-d7a86ebb8ad9", "Dermot Power"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Lizard"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked by a creature, this creature gets +2/+2 until end of turn.",
+            TriggerEventDef::BecomesBlockedBy {
+                blocker: ObjectPredicateDef::HasType(CardType::Creature),
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 227 — Vug Lizard
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VUG_LIZARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("39bbb1f6-f3c4-4e11-bb71-91ea31797d1e"),
     "Vug Lizard",
     crate::card::CardArt::new("39bbb1f6-f3c4-4e11-bb71-91ea31797d1e", "Heather Hudson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}{R}"), &["Lizard"], 3, 4).with_abilities(&[
+        abilities::mountainwalk(),
+        abilities::echo(
+            "Echo {1}{R}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{1}{R}{R}"),
+        ),
+    ]),
 );
 
 // USG 228 — Wildfire (reprint)
@@ -2502,43 +3012,69 @@ pub(in crate::card::sets) static ABUNDANCE: CardRecord = CardRecord::new(
 );
 
 // USG 230 — Acridian
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ACRIDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05d5a38f-5a60-46da-af1c-440e4bf7fe9e"),
     "Acridian",
     crate::card::CardArt::new("05d5a38f-5a60-46da-af1c-440e4bf7fe9e", "rk post"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 2, 4).with_ability(abilities::echo(
+        "Echo {1}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+        mana_cost!("{1}{G}"),
+    )),
 );
 
 // USG 231 — Albino Troll
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ALBINO_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("58a3c112-f0c1-4d30-8df6-63fc01356a4f"),
     "Albino Troll",
     crate::card::CardArt::new("58a3c112-f0c1-4d30-8df6-63fc01356a4f", "Paolo Parente"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Troll"], 3, 3).with_abilities(&[
+        abilities::echo(
+            "Echo {1}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{1}{G}"),
+        ),
+        abilities::regenerate_self(
+            "{1}{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+        ),
+    ]),
 );
 
 // USG 232 — Anaconda
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ANACONDA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0a2012ad-6425-4935-83af-fc7309ec2ece"),
     "Anaconda",
     crate::card::CardArt::new("1be798fd-18c9-45b0-8207-7e5e01c83f49", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Snake"], 3, 3)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // USG 233 — Argothian Elder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARGOTHIAN_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("453e7cb4-bc37-4932-85b7-3a4e160b73dc"),
     "Argothian Elder",
     crate::card::CardArt::new("453e7cb4-bc37-4932-85b7-3a4e160b73dc", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Druid"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Untap two target lands.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                ValueDef::Constant(2),
+            )],
+            EffectDef::Untap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // USG 234 — Argothian Enchantress
@@ -2552,13 +3088,13 @@ pub(in crate::card::sets) static ARGOTHIAN_ENCHANTRESS: CardRecord = CardRecord:
 );
 
 // USG 235 — Argothian Swine
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ARGOTHIAN_SWINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afe5e4ec-9c0e-4b1a-b3c6-e9631cf214eb"),
     "Argothian Swine",
     crate::card::CardArt::new("afe5e4ec-9c0e-4b1a-b3c6-e9631cf214eb", "Randy Elliott"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Boar"], 3, 3)
+        .with_ability(abilities::trample()),
 );
 
 // USG 236 — Argothian Wurm
@@ -2582,23 +3118,22 @@ pub(in crate::card::sets) static BLANCHWOOD_ARMOR: CardRecord = CardRecord::new(
 );
 
 // USG 238 — Blanchwood Treefolk
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLANCHWOOD_TREEFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f824502c-d712-41af-ba44-33e8294c3735"),
     "Blanchwood Treefolk",
     crate::card::CardArt::new("f824502c-d712-41af-ba44-33e8294c3735", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Treefolk"], 4, 5),
 );
 
 // USG 239 — Bull Hippo
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BULL_HIPPO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1fbe115b-ded7-4749-95e2-b69bff26fc74"),
     "Bull Hippo",
     crate::card::CardArt::new("1d1f8259-1825-4a46-8026-75adc4480322", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Hippo"], 3, 3)
+        .with_ability(abilities::landwalk(BasicLandType::Island)),
 );
 
 // USG 240 — Carpet of Flowers
@@ -2632,13 +3167,18 @@ pub(in crate::card::sets) static CHILD_OF_GAEA: CardRecord = CardRecord::new(
 );
 
 // USG 243 — Citanul Centaurs
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CITANUL_CENTAURS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5a3ac987-7906-4159-a007-ed409baea9d7"),
     "Citanul Centaurs",
     crate::card::CardArt::new("5a3ac987-7906-4159-a007-ed409baea9d7", "Val Mayerik"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Centaur"], 6, 3).with_abilities(&[
+        abilities::shroud(),
+        abilities::echo(
+            "Echo {3}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{3}{G}"),
+        ),
+    ]),
 );
 
 // USG 244 — Citanul Hierophants
@@ -2652,43 +3192,87 @@ pub(in crate::card::sets) static CITANUL_HIEROPHANTS: CardRecord = CardRecord::n
 );
 
 // USG 245 — Cradle Guard
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CRADLE_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b659c1c-cc0b-40f0-87b4-aeddb44dfac5"),
     "Cradle Guard",
     crate::card::CardArt::new("8b659c1c-cc0b-40f0-87b4-aeddb44dfac5", "Mark Zug"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Treefolk"], 4, 4).with_abilities(&[
+        abilities::trample(),
+        abilities::echo(
+            "Echo {1}{G}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+            mana_cost!("{1}{G}{G}"),
+        ),
+    ]),
 );
 
 // USG 246 — Crosswinds
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static CROSSWINDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f182a85b-a119-46e2-8b8b-48b6758d9c39"),
     "Crosswinds",
     crate::card::CardArt::new("f182a85b-a119-46e2-8b8b-48b6758d9c39", "Randy Elliott"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_ability(AbilityDef::static_ability(
+        "Creatures with flying get -2/-0.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-2),
+                ValueDef::Constant(0),
+            ),
+        },
+    )),
 );
 
 // USG 247 — Elvish Herder
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_HERDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3cb2b07e-3d50-4b85-be2a-c99e9c8ebf25"),
     "Elvish Herder",
     crate::card::CardArt::new("3cb2b07e-3d50-4b85-be2a-c99e9c8ebf25", "Tom Fleming"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}: Target creature gains trample until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // USG 248 — Elvish Lyrist
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static ELVISH_LYRIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c63ea60-4ce0-4dc7-bda6-7f623b0f9e2a"),
     "Elvish Lyrist",
     crate::card::CardArt::new("1c63ea60-4ce0-4dc7-bda6-7f623b0f9e2a", "Rebecca Guay"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Elf"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Sacrifice this creature: Destroy target enchantment.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
 );
 
 // USG 249 — Endless Wurm
@@ -2750,13 +3334,29 @@ pub(in crate::card::sets) static FORTITUDE: CardRecord = CardRecord::new(
 );
 
 // USG 254 — Gaea's Bounty
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GAEA_S_BOUNTY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("66b55e37-fcad-4d50-89d4-5d88269fee66"),
     "Gaea's Bounty",
     crate::card::CardArt::new("66b55e37-fcad-4d50-89d4-5d88269fee66", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Search your library for up to two Forest cards, reveal those cards, put them into your hand, then shuffle.",
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+            minimum: 0,
+            maximum: ValueDef::Constant(2),
+            reveal: true,
+            destination: ZoneKind::Hand,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: false,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )),
 );
 
 // USG 255 — Gaea's Embrace
@@ -2770,13 +3370,12 @@ pub(in crate::card::sets) static GAEA_S_EMBRACE: CardRecord = CardRecord::new(
 );
 
 // USG 256 — Gorilla Warrior
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static GORILLA_WARRIOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38f9c3f3-0d4d-4eec-bd14-9be3233178dc"),
     "Gorilla Warrior",
     crate::card::CardArt::new("76c7e2b0-2df0-4cde-8565-762c93e6c14f", "Steve White"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Ape", "Warrior"], 3, 2),
 );
 
 // USG 257 — Greater Good
@@ -2800,13 +3399,13 @@ pub(in crate::card::sets) static GREENER_PASTURES: CardRecord = CardRecord::new(
 );
 
 // USG 259 — Hawkeater Moth
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HAWKEATER_MOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("842e8c4c-32f3-4ec3-b636-1d7dc9f0023e"),
     "Hawkeater Moth",
     crate::card::CardArt::new("842e8c4c-32f3-4ec3-b636-1d7dc9f0023e", "Heather Hudson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Insect"], 1, 2)
+        .with_abilities(&[abilities::flying(), abilities::shroud()]),
 );
 
 // USG 260 — Hidden Ancients
@@ -2873,13 +3472,29 @@ pub(in crate::card::sets) static HIDDEN_STAG: CardRecord = CardRecord::new(
 );
 
 // USG 266 — Hush
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static HUSH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("35f01c95-ce9e-4b45-9d15-a5d37100a5d8"),
     "Hush",
     crate::card::CardArt::new("35f01c95-ce9e-4b45-9d15-a5d37100a5d8", "Rebecca Guay"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "Destroy all enchantments.",
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 267 — Lull
@@ -2903,25 +3518,38 @@ pub(in crate::card::sets) static MIDSUMMER_REVEL: CardRecord = CardRecord::new(
 );
 
 // USG 269 — Pouncing Jaguar
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static POUNCING_JAGUAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d35ac6e5-3e46-4290-9683-51d6f54e4edf"),
     "Pouncing Jaguar",
     crate::card::CardArt::new("d35ac6e5-3e46-4290-9683-51d6f54e4edf", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Cat"], 2, 2).with_ability(abilities::echo(
+        "Echo {G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+        mana_cost!("{G}"),
+    )),
 );
 
 // USG 270 — Priest of Titania (reprint)
 
 // USG 271 — Rejuvenate
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REJUVENATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe3709a3-7a1b-4644-b1d5-e1ffef549f94"),
     "Rejuvenate",
     crate::card::CardArt::new("fe3709a3-7a1b-4644-b1d5-e1ffef549f94", "Greg Simanson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_abilities(&[
+        AbilityDef::spell(
+            "You gain 6 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(6),
+            },
+        ),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 272 — Retaliation
@@ -2955,33 +3583,70 @@ pub(in crate::card::sets) static SPREADING_ALGAE: CardRecord = CardRecord::new(
 );
 
 // USG 275 — Symbiosis
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SYMBIOSIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d35e2c5-1871-4749-aefa-4a7a69645c03"),
     "Symbiosis",
     crate::card::CardArt::new("5d35e2c5-1871-4749-aefa-4a7a69645c03", "Jeff Miracola"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Two target creatures each get +2/+2 until end of turn.",
+        &[AbilityTargetDef::exactly_value(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            ValueDef::Constant(2),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(2),
+                ValueDef::Constant(2),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // USG 276 — Titania's Boon
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TITANIA_S_BOON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8d64591-8552-4e94-b932-7a23922513a1"),
     "Titania's Boon",
     crate::card::CardArt::new("b8d64591-8552-4e94-b932-7a23922513a1", "Val Mayerik"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Put a +1/+1 counter on each creature you control.",
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // USG 277 — Titania's Chosen
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static TITANIA_S_CHOSEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d9450340-2c29-4573-8da2-0d3cae9759c1"),
     "Titania's Chosen",
     crate::card::CardArt::new("d9450340-2c29-4573-8da2-0d3cae9759c1", "Mark Zug"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Archer"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever a player casts a green spell, put a +1/+1 counter on this creature.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Green)),
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // USG 278 — Treefolk Seedlings
@@ -3055,13 +3720,15 @@ pub(in crate::card::sets) static WILD_DOGS: CardRecord = CardRecord::new(
 );
 
 // USG 285 — Winding Wurm
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WINDING_WURM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed75dc43-172c-4302-8807-23bfdd65baf4"),
     "Winding Wurm",
     crate::card::CardArt::new("ed75dc43-172c-4302-8807-23bfdd65baf4", "DiTerlizzi"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Wurm"], 6, 6).with_ability(abilities::echo(
+        "Echo {4}{G} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)",
+        mana_cost!("{4}{G}"),
+    )),
 );
 
 // USG 286 — Barrin's Codex
@@ -3153,13 +3820,26 @@ pub(in crate::card::sets) static CRYSTAL_CHIMES: CardRecord = CardRecord::new(
 );
 
 // USG 293 — Dragon Blood
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGON_BLOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ff72806a-ae41-44f5-ad74-56c3338ebfcb"),
     "Dragon Blood",
     crate::card::CardArt::new("ff72806a-ae41-44f5-ad74-56c3338ebfcb", "Greg Simanson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
+        "{3}, {T}: Put a +1/+1 counter on target creature.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{3}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::AddCounters {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: CounterKind::PlusOnePlusOne,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // USG 294 — Endoskeleton
@@ -3358,7 +4038,6 @@ pub(in crate::card::sets) static URZA_S_ARMOR: CardRecord = CardRecord::new(
 );
 
 // USG 314 — Voltaic Key
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static VOLTAIC_KEY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1aa4baf7-4693-4c55-af04-2fa5d901d701"),
     "Voltaic Key",
@@ -3367,7 +4046,19 @@ pub(in crate::card::sets) static VOLTAIC_KEY: CardRecord = CardRecord::new(
         "Henry G. Higginbotham",
     ),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
+        "{1}, {T}: Untap target artifact.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Artifact),
+        )],
+        EffectDef::Untap {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+        },
+    )),
 );
 
 // USG 315 — Wall of Junk
@@ -3381,13 +4072,19 @@ pub(in crate::card::sets) static WALL_OF_JUNK: CardRecord = CardRecord::new(
 );
 
 // USG 316 — Whetstone
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WHETSTONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("627805a0-535f-4cba-8176-a4de290b9c15"),
     "Whetstone",
     crate::card::CardArt::new("627805a0-535f-4cba-8176-a4de290b9c15", "Greg Simanson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated(
+        "{3}: Each player mills two cards.",
+        &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+        EffectDef::Mill {
+            player: EffectRecipientDef::EachPlayer,
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // USG 317 — Wirecat
@@ -3401,7 +4098,6 @@ pub(in crate::card::sets) static WIRECAT: CardRecord = CardRecord::new(
 );
 
 // USG 318 — Worn Powerstone
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static WORN_POWERSTONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2224d7ef-2e2f-47dd-a4a0-e36b3170b124"),
     "Worn Powerstone",
@@ -3410,27 +4106,45 @@ pub(in crate::card::sets) static WORN_POWERSTONE: CardRecord = CardRecord::new(
         "Henry G. Higginbotham",
     ),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::enters_tapped("This artifact enters tapped."),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}{C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+        ),
+    ]),
 );
 
 // USG 319 — Blasted Landscape
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static BLASTED_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ac71d910-6c50-4894-8092-d39cbb7a83b4"),
     "Blasted Landscape",
     crate::card::CardArt::new("ac71d910-6c50-4894-8092-d39cbb7a83b4", "Ciruelo"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 320 — Drifting Meadow
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static DRIFTING_MEADOW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a8f669f7-0b36-4c82-8e32-15314ec0c0c4"),
     "Drifting Meadow",
     crate::card::CardArt::new("a8f669f7-0b36-4c82-8e32-15314ec0c0c4", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::White),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 321 — Gaea's Cradle
@@ -3456,73 +4170,139 @@ pub(in crate::card::sets) static GAEAS_CRADLE: CardRecord = CardRecord::new_with
 );
 
 // USG 322 — Phyrexian Tower
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static PHYREXIAN_TOWER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f915cf0-6273-4896-bf24-fb0ec17b6096"),
     "Phyrexian Tower",
     crate::card::CardArt::new("4f915cf0-6273-4896-bf24-fb0ec17b6096", "Chippy"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated_mana(
+                "{T}, Sacrifice a creature: Add {B}{B}.",
+                &[
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::SacrificePermanent {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        controller: PlayerRelation::You,
+                    },
+                ],
+                EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black).with_amount(2)),
+            ),
+        ]),
 );
 
 // USG 323 — Polluted Mire
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static POLLUTED_MIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfe2c562-ac25-4395-a9f0-8b246c7954b6"),
     "Polluted Mire",
     crate::card::CardArt::new("cfe2c562-ac25-4395-a9f0-8b246c7954b6", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Black),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 324 — Remote Isle
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static REMOTE_ISLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e48d55ff-10d0-4d9b-9202-02ebb2137953"),
     "Remote Isle",
     crate::card::CardArt::new("e48d55ff-10d0-4d9b-9202-02ebb2137953", "Ciruelo"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Blue),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 325 — Serra's Sanctum
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SERRA_S_SANCTUM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7a18130-dbaa-4657-a885-3a96a985935a"),
     "Serra's Sanctum",
     crate::card::CardArt::new("f7a18130-dbaa-4657-a885-3a96a985935a", "Ciruelo"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::activated_mana(
+            "{T}: Add {W} for each enchantment you control.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddManaEqualTo {
+                color: ManaColor::White,
+                amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            },
+        )),
 );
 
 // USG 326 — Shivan Gorge
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIVAN_GORGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1531eb8c-af8a-45c6-9058-3337c44e609f"),
     "Shivan Gorge",
     crate::card::CardArt::new("1531eb8c-af8a-45c6-9058-3337c44e609f", "John Matson"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Colorless),
+            AbilityDef::activated(
+                "{2}{R}, {T}: This land deals 1 damage to each opponent.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}{R}")),
+                    AbilityCostDef::TapSource,
+                ],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::players(PlayerSetDef::Related(
+                        PlayerRelation::Opponent,
+                    )),
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // USG 327 — Slippery Karst
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SLIPPERY_KARST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6d01a6a7-c006-4fce-a546-8138baef421b"),
     "Slippery Karst",
     crate::card::CardArt::new("6d01a6a7-c006-4fce-a546-8138baef421b", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Green),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 328 — Smoldering Crater
-// Audit: metadata-only — Card rules have not been implemented.
 pub(in crate::card::sets) static SMOLDERING_CRATER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9940ce4-09d7-4e89-b456-e3126a83cfe1"),
     "Smoldering Crater",
     crate::card::CardArt::new("e9940ce4-09d7-4e89-b456-e3126a83cfe1", "Mark Tedin"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        abilities::tap_for(ManaColor::Red),
+        abilities::cycling(
+            "Cycling {2} ({2}, Discard this card: Draw a card.)",
+            mana_cost!("{2}"),
+        ),
+    ]),
 );
 
 // USG 329 — Thran Quarry

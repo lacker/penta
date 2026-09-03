@@ -383,6 +383,7 @@ fn every_nonland_mana_permanent_has_an_activated_mana_clause() {
         &y1994::the_dark::SISTERS_OF_THE_FLAME,
         &y1994::fallen_empires::BASAL_THRULL,
         &y1994::the_dark::FELLWAR_STONE,
+        &y1998::urzas_saga::WORN_POWERSTONE,
         &y2004::darksteel::DARKSTEEL_INGOT,
         &y2011::innistrad::AVACYNS_PILGRIM,
         &y2013::magic_2014::ELVISH_MYSTIC,

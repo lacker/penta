@@ -400,6 +400,7 @@ mod sacrifice_outlets;
 mod sacrifice_to_tax;
 mod sacrificed_toughness;
 mod scaling_upkeep;
+mod scars_of_mirrodin_compositions;
 mod scavenge;
 mod search_and_reveal;
 mod second_spell_each_turn;

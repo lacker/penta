@@ -5,18 +5,20 @@ use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef,
-    ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef, CostDef, CountConditionDef,
-    CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AggregateOperationDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef,
+    CollectionInspectionDef, ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef,
+    CostDef, CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
+    DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef,
+    ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, RevealAndClassifyCardsDef, SacrificedAmountDef, ScaledValueDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::ParentBinding;
+use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
 
 pub(in crate::card::sets) static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
@@ -410,13 +412,40 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
 );
 
 // SOM 17 — Razor Hippogriff
-// Audit: unsupported — Target mana value has last-known information, but zone moves cannot condition a following effect on whether the artifact was actually returned to hand, as required by “If you do.”
+const RAZOR_HIPPOGRIFF_RETURNED: Binding = Binding!("razor_hippogriff_returned");
 pub(in crate::card::sets) static RAZOR_HIPPOGRIFF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab"),
     "Razor Hippogriff",
     crate::card::CardArt::new("fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Hippogriff"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, return target artifact card from your graveyard to your hand. You gain life equal to that card's mana value.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Artifact),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: Some(PlayerRelation::You),
+            })],
+            EffectDef::WithZoneMoveResult {
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+                binding: RAZOR_HIPPOGRIFF_RETURNED,
+                then: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Binding(RAZOR_HIPPOGRIFF_RETURNED),
+                        select: ObjectValueDef::ManaValue,
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                },
+            },
+        ),
+    ]),
 );
 
 // SOM 18 — Revoke Existence
@@ -902,13 +931,31 @@ pub(in crate::card::sets) static RIDDLESMITH: CardRecord = CardRecord::new(
 );
 
 // SOM 41 — Scrapdiver Serpent
-// Audit: unsupported — Blocking restrictions cannot currently ask whether the source's defending player controls an artifact.
 pub(in crate::card::sets) static SCRAPDIVER_SERPENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8c6b5db0-7d2c-4337-b1c4-9e1219f603c7"),
     "Scrapdiver Serpent",
     crate::card::CardArt::new("8c6b5db0-7d2c-4337-b1c4-9e1219f603c7", "Adrian Smith"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Serpent"], 5, 5).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked as long as defending player controls an artifact.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::DefendingPlayer,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                },
+            },
+        ),
+    ),
 );
 
 // SOM 42 — Screeching Silcaw
@@ -932,7 +979,6 @@ pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new
 );
 
 // SOM 43 — Shape Anew
-// Audit: unsupported — Needs a target-controller procedure that sacrifices the artifact, reveals through that player's library to the first artifact, puts it onto the battlefield, and shuffles every other revealed card back.
 pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3d5462e-f60c-4550-b29e-4d9f9cd72385"),
     "Shape Anew",
@@ -941,7 +987,45 @@ pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
         "Zoltan Boros & Gabor Szikszai",
     ),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "The controller of target artifact sacrifices it, then reveals cards from the top of their library until they reveal an artifact card. That player puts that card onto the battlefield, then shuffles all other cards revealed this way into their library.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Artifact),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
+                    source: ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
+                        player: PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        )),
+                        object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    },
+                    object: ObjectPredicateDef::HasType(CardType::Artifact),
+                    matching: Binding!("shape_anew_artifact"),
+                    remainder: Binding!("shape_anew_other_cards"),
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::MoveObjects(MoveObjectsDef {
+                            input: ObjectSetDef::Binding(Binding!("shape_anew_artifact")),
+                            from: Some(ZoneKind::Library),
+                            zone: ZoneKind::Battlefield,
+                            placement: ZonePlacement::Top,
+                            moved: None,
+                            then: &EffectDef::None,
+                        }),
+                        EffectDef::ShuffleLibrary {
+                            player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                        },
+                    ]),
+                }),
+            ]),
+        ),
+    ),
 );
 
 // SOM 44 — Sky-Eel School
@@ -989,13 +1073,34 @@ pub(in crate::card::sets) static STEADY_PROGRESS: CardRecord = CardRecord::new(
 );
 
 // SOM 46 — Stoic Rebuttal
-// Audit: unsupported — Self spell-cost reductions support constant and object-count amounts, but cannot conditionally reduce this spell by exactly {1} only while metalcraft is true.
 pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2805239-f30a-4eca-a10b-41673daaa287"),
     "Stoic Rebuttal",
     crate::card::CardArt::new("f2805239-f30a-4eca-a10b-41673daaa287", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Metalcraft — This spell costs {1} less to cast if you control three or more artifacts.",
+            EffectDef::ReduceGenericCostBy(ValueDef::IfMatchingObjectCount(&metalcraft_value(
+                1, 0,
+            ))),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+        AbilityDef::spell_with_targets(
+            "Counter target spell.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::Counter {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Graveyard,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // SOM 47 — Thrummingbird
@@ -1365,13 +1470,33 @@ pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
 );
 
 // SOM 62 — Flesh Allergy
-// Audit: unsupported — Needs a value for the number of creatures that died this turn, read after paying the creature-sacrifice additional cost and destroying the target.
 pub(in crate::card::sets) static FLESH_ALLERGY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c729525-b954-42dd-9877-f4360d99b961"),
     "Flesh Allergy",
     crate::card::CardArt::new("9c729525-b954-42dd-9877-f4360d99b961", "Vance Kovacs"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{B}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, sacrifice a creature.\nDestroy target creature. Its controller loses life equal to the number of creatures that died this turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            CostDef::sacrifice(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                CostQuantityDef::Fixed(1),
+            ),
+            EffectDef::Sequence(&[
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::ControllerOfTarget(TargetIndex::PRIMARY),
+                    amount: ValueDef::CreaturesDiedThisTurn,
+                },
+            ]),
+        ),
+    ),
 );
 
 // SOM 63 — Fume Spitter
@@ -1559,13 +1684,104 @@ pub(in crate::card::sets) static INSTILL_INFECTION: CardRecord = CardRecord::new
 );
 
 // SOM 69 — Memoricide
-// Audit: unsupported — Needs one chosen nonland card name to drive a privacy-correct search across another player's graveyard, hand, and library and exile any number of matching cards.
 pub(in crate::card::sets) static MEMORICIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c9d74bae-0b96-4a78-b805-a0b764d0716c"),
     "Memoricide",
     crate::card::CardArt::new("acc5b944-a9fe-4a64-bf11-51817a26f22b", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{B}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Choose a nonland card name. Search target player's graveyard, hand, and library for any number of cards with that name and exile them. Then that player shuffles.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Any,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    binding: Binding!("memoricide_name"),
+                    effect: &EffectDef::ChooseCardName {
+                        chooser: PlayerRefDef::EffectController,
+                        names: crate::card::CardNameSetDef::NonlandCardNames,
+                    },
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(Binding!(
+                        "memoricide_graveyard"
+                    )),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
+                            Binding!("memoricide_name"),
+                        )),
+                        &[ZoneKind::Graveyard],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: usize::MAX,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "memoricide_graveyard"
+                        ))),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                }),
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_hand")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
+                            Binding!("memoricide_name"),
+                        )),
+                        &[ZoneKind::Hand],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: usize::MAX,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "memoricide_hand"
+                        ))),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                }),
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(Binding!("memoricide_library")),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
+                            Binding!("memoricide_name"),
+                        )),
+                        &[ZoneKind::Library],
+                        PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                    exclude: None,
+                    minimum: 0,
+                    maximum: usize::MAX,
+                    visibility: ChoiceVisibilityDef::Private,
+                    then: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(Binding!(
+                            "memoricide_library"
+                        ))),
+                        zone: ZoneKind::Exile,
+                        placement: ZonePlacement::Top,
+                    },
+                }),
+                EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::player(PlayerRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    )),
+                },
+            ]),
+        ),
+    ),
 );
 
 // SOM 70 — Moriok Reaver
@@ -1608,13 +1824,25 @@ pub(in crate::card::sets) static NECROTIC_OOZE: CardRecord = CardRecord::new(
 );
 
 // SOM 73 — Painful Quandary
-// Audit: unsupported — Needs an opponent-cast trigger whose event player chooses between discarding a card and losing 5 life, with the loss forced when discard is impossible.
 pub(in crate::card::sets) static PAINFUL_QUANDARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b"),
     "Painful Quandary",
     crate::card::CardArt::new("fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b", "Whit Brachna"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{B}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever an opponent casts a spell, that player loses 5 life unless they discard a card.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent)),
+        EffectDef::PayOr(
+            PayOrDef::unless(
+                &[CostDef::DiscardCards(1)],
+                &EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(5),
+                },
+            )
+            .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+        ),
+    )),
 );
 
 // SOM 74 — Painsmith
@@ -1933,7 +2161,7 @@ pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new
 );
 
 // SOM 86 — Cerebral Eruption
-// Audit: unsupported — Needs a top-card reveal continuation that branches on land, otherwise deals the revealed card's mana value to the opponent and every creature they control, and returns the source spell on the land branch.
+// Audit: unsupported — Needs a conditional spell-resolution destination: revealing a land must return the currently resolving sorcery to its owner's hand instead of completing its normal move to the graveyard.
 pub(in crate::card::sets) static CEREBRAL_ERUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77161159-ee2c-485d-8674-d8590ccc62e1"),
     "Cerebral Eruption",
@@ -2726,13 +2954,56 @@ pub(in crate::card::sets) static EZURI_S_BRIGADE: CardRecord = CardRecord::new(
 );
 
 // SOM 122 — Genesis Wave
-// Audit: unsupported — Needs a chosen-X top-of-library reveal procedure that lets its controller choose any number of permanent cards with mana value at most X, moves those to the battlefield, and puts every other revealed card into the graveyard.
+const GENESIS_WAVE_CHOSEN: Binding = Binding!("genesis_wave_chosen");
+const GENESIS_WAVE_REMAINDER: Binding = Binding!("genesis_wave_remainder");
 pub(in crate::card::sets) static GENESIS_WAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c920236f-c3d7-421c-b021-103996da790e"),
     "Genesis Wave",
     crate::card::CardArt::new("c920236f-c3d7-421c-b021-103996da790e", "James Paick"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{X}{G}{G}{G}")).with_ability(AbilityDef::spell(
+        "Reveal the top X cards of your library. You may put any number of permanent cards with mana value X or less from among them onto the battlefield. Then put all cards revealed this way that weren't put onto the battlefield into your graveyard.",
+        EffectDef::ChooseCardsFromCollection(ChooseCardsFromCollectionDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::ChosenX,
+            },
+            actor: PlayerRefDef::EffectController,
+            inspection: CollectionInspectionDef::Reveal,
+            object: ObjectPredicateDef::All(&[
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                ObjectPredicateDef::ManaValueAtMostValue(ValueDef::ChosenX),
+            ]),
+            minimum: 0,
+            maximum: usize::MAX,
+            chosen: GENESIS_WAVE_CHOSEN,
+            remainder: GENESIS_WAVE_REMAINDER,
+            then: &EffectDef::Sequence(&[
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(GENESIS_WAVE_CHOSEN),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Battlefield,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+                EffectDef::MoveObjects(MoveObjectsDef {
+                    input: ObjectSetDef::Binding(GENESIS_WAVE_REMAINDER),
+                    from: Some(ZoneKind::Library),
+                    zone: ZoneKind::Graveyard,
+                    placement: ZonePlacement::Top,
+                    moved: None,
+                    then: &EffectDef::None,
+                }),
+            ]),
+        }),
+    )),
 );
 
 // SOM 123 — Liege of the Tangle
@@ -2952,13 +3223,31 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
 );
 
 // SOM 133 — Wing Puncture
-// Audit: unsupported — Damage effects use the resolving spell as their source; this needs the first targeted creature to deal damage equal to its power to the second targeted flying creature.
 pub(in crate::card::sets) static WING_PUNCTURE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("05a5188b-9ae3-4ca0-8289-b8a266a9073b"),
     "Wing Puncture",
     crate::card::CardArt::new("05a5188b-9ae3-4ca0-8289-b8a266a9073b", "jD"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power to target creature with flying.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+            ])),
+        ],
+        EffectDef::damage_from(
+            ObjectRefDef::Target(TargetIndex::PRIMARY),
+            EffectRecipientDef::Target(TargetIndex(1)),
+            ValueDef::TargetPower(TargetIndex::PRIMARY),
+        ),
+    )),
 );
 
 // SOM 134 — Withstand Death
@@ -3073,7 +3362,6 @@ pub(in crate::card::sets) static ARGENTUM_ARMOR: CardRecord = CardRecord::new(
 );
 
 // SOM 138 — Auriok Replica
-// Audit: unsupported — Needs a source choice made during resolution and a prevention shield limited to damage that chosen source would deal to you this turn.
 pub(in crate::card::sets) static AURIOK_REPLICA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("02745a0a-9872-4c30-a25d-61695c5fa9cc"),
     "Auriok Replica",
@@ -3082,7 +3370,27 @@ pub(in crate::card::sets) static AURIOK_REPLICA: CardRecord = CardRecord::new(
         "Zoltan Boros & Gabor Szikszai",
     ),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Cleric"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{W}, Sacrifice this creature: Prevent all damage a source of your choice would deal to you this turn.",
+            &[
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::SacrificeSource,
+            ],
+            abilities::shield_against_a_chosen_source(
+                ObjectPredicateDef::Any,
+                &EffectDef::PreventDamage {
+                    prevention: DamagePreventionDef::unlimited(DamageEventMatcherDef {
+                        recipient: crate::card::DamageRecipientMatcherDef::Recipients(
+                            EffectRecipientDef::Controller,
+                        ),
+                        ..DamageEventMatcherDef::from(ObjectRefDef::Binding(ParentBinding))
+                    }),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ),
+    ),
 );
 
 // SOM 139 — Barbed Battlegear
@@ -3192,7 +3500,7 @@ pub(in crate::card::sets) static CHROME_STEED: CardRecord = CardRecord::new(
 );
 
 // SOM 143 — Clone Shell
-// Audit: unsupported — Needs a linked face-down imprint procedure that chooses a creature from the top four cards, bottoms the rest in a chosen order, and conditionally reveals and returns the linked card when the source dies.
+// Audit: unsupported — Needs an effect that turns the chosen linked face-down exile face up before conditionally returning it; the collection choice, ordered remainder, and linked face-down exile are otherwise declarative.
 pub(in crate::card::sets) static CLONE_SHELL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cc386c6c-c27e-4673-96eb-1d004fd71993"),
     "Clone Shell",
@@ -4449,13 +4757,59 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
 );
 
 // SOM 188 — Nim Deathmantle
-// Audit: unsupported — Needs a death trigger that remembers another nontoken creature card, accepts an optional {4}, returns that exact card, and attaches the source Equipment to it within the same continuation.
+const NIM_DEATHMANTLE_RETURNED: Binding = Binding!("nim_deathmantle_returned");
 pub(in crate::card::sets) static NIM_DEATHMANTLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f638bd96-8424-461f-87bf-4b7a7153fd35"),
     "Nim Deathmantle",
     crate::card::CardArt::new("f638bd96-8424-461f-87bf-4b7a7153fd35", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +2/+2, has intimidate, and is a black Zombie.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::intimidate()),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Black])),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Zombie",
+                        ])),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever a nontoken creature is put into your graveyard from the battlefield, you may pay {4}. If you do, return that card to the battlefield and attach this Equipment to it.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::PayOr(PayOrDef::optional(
+                    &[CostDef::Mana(mana_cost!("{4}"))],
+                    &EffectDef::PutOntoBattlefieldThen {
+                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                        binding: NIM_DEATHMANTLE_RETURNED,
+                        counters: None,
+                        then: &EffectDef::Attach {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                NIM_DEATHMANTLE_RETURNED,
+                            )),
+                        },
+                    },
+                )),
+            ),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+        ]),
 );
 
 // SOM 189 — Origin Spellbomb
@@ -4565,13 +4919,22 @@ pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
 );
 
 // SOM 193 — Platinum Emperion
-// Audit: unsupported — Applied rules can stop life gain, but there is no rule that prevents every increase, loss, payment, exchange, and set operation from changing your life total.
 pub(in crate::card::sets) static PLATINUM_EMPERION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7919474-db2b-441a-b368-9e430ddf70ab"),
     "Platinum Emperion",
     crate::card::CardArt::new("b7919474-db2b-441a-b368-9e430ddf70ab", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{8}"), &["Golem"], 8, 8).with_ability(
+        AbilityDef::static_ability(
+            "Your life total can't change. (You can't gain or lose life. You can't pay any amount of life except 0.)",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Controller,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                    crate::card::PlayerRuleDef::LifeTotalCannotChange,
+                )),
+            },
+        ),
+    ),
 );
 
 // SOM 194 — Precursor Golem
@@ -4585,7 +4948,7 @@ pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 195 — Prototype Portal
-// Audit: unsupported — Needs linked face-up imprint from hand, a value that reads the linked card's mana value as an activation cost, and token-copy creation from that linked exiled card.
+// Audit: unsupported — The activation planner cannot evaluate CostDef::GenericMana from the mana value of ObjectSetDef::LinkedExiles; the linked imprint and token-copy operations are otherwise declarative.
 pub(in crate::card::sets) static PROTOTYPE_PORTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10b264aa-303b-4982-a653-9573d39c28de"),
     "Prototype Portal",
@@ -4656,7 +5019,7 @@ pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
 );
 
 // SOM 201 — Semblance Anvil
-// Audit: unsupported — Needs linked face-up imprint from hand and a spell-cost reduction whose predicate is computed from every card type of the linked exiled card.
+// Audit: unsupported — Needs a spell-cost predicate that matches cards sharing any card type with a linked exile; the linked face-up imprint and generic reduction are otherwise declarative.
 pub(in crate::card::sets) static SEMBLANCE_ANVIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0380b46d-1660-404d-9d11-705d8809ea46"),
     "Semblance Anvil",

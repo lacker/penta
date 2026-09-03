@@ -20,6 +20,19 @@ impl EffectDef {
         ))
     }
 
+    /// Creates one creature token whose base power and toughness are fixed
+    /// from effect values as the token is created.
+    #[must_use]
+    pub const fn create_creature_token_with_stats(
+        subtypes: &'static [&'static str],
+        colors: &'static [ManaColor],
+        stats: &'static TokenStatsDef,
+    ) -> Self {
+        Self::create_token(TokenCharacteristics::creature_with_stats(
+            subtypes, colors, stats,
+        ))
+    }
+
     /// Creates one ordinary artifact creature token.
     #[must_use]
     pub const fn create_artifact_creature_token(
@@ -30,6 +43,19 @@ impl EffectDef {
     ) -> Self {
         Self::create_token(TokenCharacteristics::artifact_creature(
             subtypes, colors, power, toughness,
+        ))
+    }
+
+    /// Creates one artifact creature token whose base power and toughness are
+    /// fixed from effect values as the token is created.
+    #[must_use]
+    pub const fn create_artifact_creature_token_with_stats(
+        subtypes: &'static [&'static str],
+        colors: &'static [ManaColor],
+        stats: &'static TokenStatsDef,
+    ) -> Self {
+        Self::create_token(TokenCharacteristics::artifact_creature_with_stats(
+            subtypes, colors, stats,
         ))
     }
 
@@ -112,21 +138,6 @@ impl EffectDef {
     pub const fn with_name(mut self, name: &'static str) -> Self {
         let token = self.authored_token_mut();
         *token = (*token).with_name(name);
-        self
-    }
-
-    /// "Create an X/X blue Illusion creature token." The size is a pair of
-    /// amounts the creating effect works out rather than anything printed on
-    /// the token.
-    ///
-    /// # Panics
-    ///
-    /// Panics when called on an effect that does not carry authored token
-    /// characteristics.
-    #[must_use]
-    pub const fn with_variable_token_stats(mut self, stats: &'static TokenStatsDef) -> Self {
-        let token = self.authored_token_mut();
-        *token = (*token).with_variable_stats(stats);
         self
     }
 

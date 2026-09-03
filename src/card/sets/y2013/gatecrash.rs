@@ -5,24 +5,27 @@ use crate::card::sets::y1998::stronghold as catalog_sth;
 use crate::card::sets::y2001::odyssey as catalog_ody;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AbilityPredicateDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
+    AbilityPredicateDef, ActivationTimingDef, AddManaEffectDef, AggregateOperationDef,
+    AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
-    ChooseDef, ClassifyObjectsDef, CollectionInspectionDef, ColorChoiceOperationDef, ColorSet,
-    ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CostDef, CounterKind,
-    CounterKindDef, CounterOperationDef, CreatureTypeSetDef, DamageAssignmentDef,
-    DamageEventMatcherDef, DamageKindDef, DamagePreventionDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, DividedTotal, EffectChoiceDef,
-    EffectDef, EffectRecipientDef, IfNoObjectsDef, InstalledTriggerDef, KeywordAbility,
-    LookAtObjectsDef, ManaColor, ManaTypeSetDef, MillUntilDef, MoveObjectsDef,
-    ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCounterValueDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetPredicateDef,
-    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    QuantifierDef, ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, SacrificedAmountDef, SumValueDef,
-    TargetChooserDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChooseDef, ChooseForEachPlayerDef, ClassifyObjectsDef, CollectionInspectionDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CostDef, CounterKind, CounterKindDef, CounterOperationDef,
+    CreatureTypeSetDef,
+    DamageAssignmentDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef, DiscardSelectionDef,
+    DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, IfNoObjectsDef,
+    InstalledTriggerDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaTypeSetDef, MillUntilDef,
+    MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCounterValueDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PerPlayerSelectionDef,
+    PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RevealObjectsDef, SumValueDef, TargetChooserDef, TokenStatsDef, TriggerConditionDef,
+    TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -1533,20 +1536,30 @@ pub(in crate::card::sets) static DEVOUR_FLESH: CardRecord = CardRecord::new_with
         &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
             PlayerRelation::Any,
         ))],
-        EffectDef::SacrificeOfChoice {
-            count: ValueDef::Constant(1),
+        EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
             player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            object: ObjectPredicateDef::HasType(CardType::Creature),
+            candidates: ObjectPredicateDef::HasType(CardType::Creature),
+            zone: ZoneKind::Battlefield,
+            selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+            visibility: ChoiceVisibilityDef::Public,
+            chosen: ParentBinding,
+            unchosen: Binding!("objects_2"),
             // The life follows the sacrifice, so it belongs to the same continuation --
             // and it goes to the player who paid, not to whoever cast the spell.
-            then: Some(&EffectDef::GainLife {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::TriggerEventAmount,
-            }),
-            amount: SacrificedAmountDef::Toughness,
-            otherwise: None,
-            optional: false,
-        },
+            then: &EffectDef::Sequence(&[
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::AggregateObjectValues(&ObjectValueAggregateDef {
+                        objects: ObjectSetDef::Binding(ParentBinding),
+                        select: ObjectValueDef::Toughness,
+                        operation: AggregateOperationDef::Sum,
+                    }),
+                },
+            ]),
+        }),
     )),
 );
 
@@ -2612,26 +2625,40 @@ pub(in crate::card::sets) static STRUCTURAL_COLLAPSE: CardRecord = CardRecord::n
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
             ))],
-            EffectDef::SacrificeOfChoice {
+            EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
                 player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                object: ObjectPredicateDef::HasType(CardType::Artifact),
-                count: ValueDef::Constant(1),
-                then: Some(&EffectDef::SacrificeOfChoice {
-                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    object: ObjectPredicateDef::HasType(CardType::Land),
-                    count: ValueDef::Constant(1),
-                    then: Some(&EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
+                candidates: ObjectPredicateDef::HasType(CardType::Artifact),
+                zone: ZoneKind::Battlefield,
+                selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                visibility: ChoiceVisibilityDef::Public,
+                chosen: ParentBinding,
+                unchosen: Binding!("objects_2"),
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Sacrifice {
+                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                    },
+                    EffectDef::ChooseForEachPlayer(ChooseForEachPlayerDef {
+                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        candidates: ObjectPredicateDef::HasType(CardType::Land),
+                        zone: ZoneKind::Battlefield,
+                        selection: PerPlayerSelectionDef::Count(ValueDef::Constant(1)),
+                        visibility: ChoiceVisibilityDef::Public,
+                        chosen: ParentBinding,
+                        unchosen: Binding!("objects"),
+                        then: &EffectDef::Sequence(&[
+                            EffectDef::Sacrifice {
+                                object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                    ParentBinding,
+                                )),
+                            },
+                            EffectDef::DealDamage {
+                                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                                amount: ValueDef::Constant(2),
+                            },
+                        ]),
                     }),
-                    amount: SacrificedAmountDef::Power,
-                    otherwise: None,
-                    optional: false,
-                }),
-                amount: SacrificedAmountDef::Power,
-                otherwise: None,
-                optional: false,
-            },
+                ]),
+            }),
         ),
     ),
 );
@@ -3033,11 +3060,14 @@ pub(in crate::card::sets) static MIMING_SLIME: CardRecord = CardRecord::new(
     crate::card::CardSet::Gatecrash,
     CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
         "Create an X/X green Ooze creature token, where X is the greatest power among creatures you control.",
-        EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
-            .with_variable_token_stats(&TokenStatsDef {
+        EffectDef::create_creature_token_with_stats(
+            &["Ooze"],
+            &[ManaColor::Green],
+            &TokenStatsDef {
                 power: abilities::greatest_power_you_control(),
                 toughness: abilities::greatest_power_you_control(),
-            }),
+            },
+        ),
     )),
 );
 
@@ -4684,11 +4714,14 @@ pub(in crate::card::sets) static MYSTIC_GENESIS: CardRecord = CardRecord::new(
                     zone: ZoneKind::Graveyard,
                     placement: ZonePlacement::Top,
                 },
-                EffectDef::create_creature_token(&["Ooze"], &[ManaColor::Green], 0, 0)
-                    .with_variable_token_stats(&TokenStatsDef {
+                EffectDef::create_creature_token_with_stats(
+                    &["Ooze"],
+                    &[ManaColor::Green],
+                    &TokenStatsDef {
                         power: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
                         toughness: ValueDef::TargetManaValue(TargetIndex::PRIMARY),
-                    }),
+                    },
+                ),
             ]),
         ),
     ),

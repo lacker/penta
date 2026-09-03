@@ -68,6 +68,71 @@ fn realmwright_preserves_a_lands_existing_basic_land_types() {
     assert!(types[BasicLandType::Island.index()]);
 }
 
+/// The token's effect values are evaluated while it is created. A larger
+/// creature entering later does not turn the Ooze into a live */* token.
+#[test]
+fn miming_slime_fixes_its_token_stats_on_creation() {
+    let mut game = ready();
+    game.battlefield
+        .push(creature(10_000, cards::GRIZZLY_BEARS, PlayerId::One));
+    let slime = card(20_000, cards::MIMING_SLIME, PlayerId::One);
+    let slime_id = slime.id;
+    game.players[PlayerId::One.index()].hand.push(slime);
+    game.players[PlayerId::One.index()].mana_pool.green = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 2;
+
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| matches!(action, Action::CastSpell { card, .. } if *card == slime_id))
+        .expect("Miming Slime is castable");
+    game.apply(PlayerId::One, cast).expect("the cast is legal");
+    drain_pending(&mut game);
+
+    let ooze = game
+        .battlefield
+        .iter()
+        .find(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Ooze"], &[ManaColor::Green], 2, 2),
+            )
+        })
+        .expect("the 2/2 Ooze was created")
+        .card
+        .id;
+    game.battlefield
+        .push(creature(10_001, cards::SERRA_ANGEL, PlayerId::One));
+
+    assert_eq!(stats(&game, ooze), (Some(2), Some(2)));
+}
+
+/// A generic choice feeding `Sacrifice` must honor the same prohibition as
+/// the sacrifice itself: the protected player is not offered an unusable
+/// choice, and Devour Flesh consequently gains them no life.
+#[test]
+fn devour_flesh_respects_forced_sacrifice_prohibitions() {
+    let mut game = ready();
+    let mut tamiyo = creature(10_000, cards::TAMIYO_COLLECTOR_OF_TALES, PlayerId::Two);
+    tamiyo.add_counters(CounterKind::Loyalty, 5);
+    game.battlefield.extend([
+        tamiyo,
+        creature(10_001, cards::WALL_OF_STONE, PlayerId::Two),
+    ]);
+    let spell = card(20_000, cards::DEVOUR_FLESH, PlayerId::One);
+    let spell_id = spell.id;
+    game.players[PlayerId::One.index()].hand.push(spell);
+    game.players[PlayerId::One.index()].mana_pool.black = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+
+    cast_at(&mut game, spell_id, Target::Player(PlayerId::Two));
+
+    assert_eq!(game.players[PlayerId::Two.index()].life, 20);
+    assert!(game.battlefield.iter().any(|permanent| {
+        permanent.card.definition == cards::WALL_OF_STONE && permanent.controller == PlayerId::Two
+    }));
+}
+
 /// The pump runs once and then the ability is gone for the turn, however much
 /// green is left.
 #[test]

@@ -5,7 +5,7 @@ use crate::card::{
 };
 use crate::{GameObjectId, PlayerId};
 
-use super::decision_permanent_choice::effect_removes_binding;
+use super::decision_permanent_choice::{effect_removes_binding, effect_sacrifices_group};
 use super::{
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     EffectResolutionContext, Game, ScopedEffect, StackObject, Target,
@@ -65,21 +65,21 @@ impl Game {
         let EffectDef::ChooseForEachPlayer(definition) = scoped.effect else {
             return None;
         };
-        let (chooser, selector, count, prompt) = match definition.selection {
+        let (chooser, selector, mut count) = match definition.selection {
             PerPlayerSelectionDef::OneOfEach(selectors) => {
                 let chooser = *players.get(task.checked_div(selectors.len())?)?;
                 let selector = *selectors.get(task % selectors.len())?;
-                (chooser, Some(selector), 1, "Choose a permanent")
+                (chooser, Some(selector), 1)
             }
             PerPlayerSelectionDef::Count(amount) => {
                 let chooser = *players.get(task)?;
                 let count =
                     usize::try_from(self.effect_value(amount, object, context, scoped).max(0))
                         .unwrap_or(usize::MAX);
-                (chooser, None, count, "Choose objects to keep")
+                (chooser, None, count)
             }
         };
-        let candidates = self
+        let mut candidates = self
             .per_player_choice_candidates(definition, chooser, object)
             .into_iter()
             .filter(|candidate| !chosen.contains(candidate))
@@ -95,6 +95,12 @@ impl Game {
                 })
             })
             .collect::<Vec<_>>();
+        if effect_sacrifices_group(*definition.then, definition.chosen)
+            && !self.can_be_forced_to_sacrifice(chooser, object.controller)
+        {
+            candidates.clear();
+            count = 0;
+        }
         let preference = per_player_choice_preference(definition);
         let options = match definition.zone {
             ZoneKind::Battlefield => self.permanent_decision_options(&candidates),
@@ -114,7 +120,7 @@ impl Game {
             candidates,
             options,
             preference,
-            prompt,
+            prompt: per_player_choice_prompt(definition, count),
             visibility: match definition.visibility {
                 crate::card::ChoiceVisibilityDef::Public => DecisionVisibility::Public,
                 crate::card::ChoiceVisibilityDef::Private => DecisionVisibility::Private,
@@ -286,5 +292,22 @@ fn per_player_choice_preference(definition: ChooseForEachPlayerDef) -> DecisionP
         DecisionPreference::LowerCardValue
     } else {
         DecisionPreference::Neutral
+    }
+}
+
+fn per_player_choice_prompt(definition: ChooseForEachPlayerDef, count: usize) -> &'static str {
+    if effect_sacrifices_group(*definition.then, definition.chosen) {
+        if count == 1 {
+            "Choose a permanent to sacrifice"
+        } else {
+            "Choose permanents to sacrifice"
+        }
+    } else if effect_sacrifices_group(*definition.then, definition.unchosen) {
+        "Choose objects to keep"
+    } else {
+        match definition.selection {
+            PerPlayerSelectionDef::OneOfEach(_) => "Choose a permanent",
+            PerPlayerSelectionDef::Count(_) => "Choose objects to keep",
+        }
     }
 }

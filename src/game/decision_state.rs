@@ -658,7 +658,10 @@ pub(super) enum DecisionContinuation {
     /// of entering as itself.
     BattlefieldEntryCopy {
         choices: Vec<GameObjectId>,
+        name: Option<String>,
         added_types: CardTypeSet,
+        added_supertypes: [bool; crate::card::CardSupertype::COUNT],
+        removed_supertypes: [bool; crate::card::CardSupertype::COUNT],
         retain_printed_subtypes: bool,
         base_power_toughness: Option<(i16, i16)>,
         colors: Option<crate::card::ColorSet>,

@@ -1,7 +1,8 @@
 use crate::action::AbilityOrigin;
 use crate::card::{
-    AbilityDef, AbilityPredicateDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardTypeSet,
-    ColorSet, CreatureTypeSetDef, PlayRestrictionDef, SetOperationDef, ZoneKind,
+    AbilityDef, AbilityPredicateDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    CardSupertypeSet, CardTypeSet, ColorSet, CreatureTypeSetDef, PlayRestrictionDef,
+    SetOperationDef, ZoneKind,
 };
 use crate::ids::{GameObjectId, GrantId, PlayerId};
 
@@ -310,6 +311,7 @@ pub(super) enum ResolvedContinuousEffectKind {
     Abilities(ResolvedAbilityOperation),
     BasicLandTypes(SetOperationDef<&'static [BasicLandType]>),
     CardTypes(SetOperationDef<CardTypeSet>),
+    Supertypes(SetOperationDef<CardSupertypeSet>),
     Colors(SetOperationDef<ColorSet>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
     Subtypes(SetOperationDef<&'static [&'static str]>),

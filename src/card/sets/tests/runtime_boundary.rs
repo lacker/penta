@@ -607,7 +607,7 @@ fn long_lived_composite_ability_changes_accept_shared_activated_grants() {
 }
 
 #[test]
-fn supertype_changes_are_static_until_checkpoints_can_store_resolved_ones() {
+fn supertype_changes_are_supported_statically_and_as_resolved_effects() {
     let effect = AppliedEffectDef::add_supertype(CardSupertype::Legendary);
     let static_effect = EffectDef::StaticApply {
         recipient: EffectRecipientDef::matching_objects(
@@ -622,7 +622,7 @@ fn supertype_changes_are_static_until_checkpoints_can_store_resolved_ones() {
         &[ZoneKind::Battlefield],
         static_effect,
     ));
-    assert!(!shared_resolving_apply(
+    assert!(shared_resolving_apply(
         EffectRecipientDef::Target(TargetIndex::PRIMARY),
         effect,
         ResolvedEffectDurationDef::UntilEndOfTurn,

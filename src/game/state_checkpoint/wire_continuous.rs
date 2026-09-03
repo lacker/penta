@@ -33,9 +33,6 @@ fn parse_resolved_operation(
     definition: AppliedEffectDef,
     state: &ResolvedContinuousOperationSnapshot,
 ) -> Result<ResolvedContinuousEffectKind, String> {
-    let mismatch = || {
-        Err("checkpoint resolved-effect operation does not match its authored locator".to_owned())
-    };
     match (definition, state) {
         (
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
@@ -66,6 +63,12 @@ fn parse_resolved_operation(
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(value)),
             ResolvedContinuousOperationSnapshot::CardTypes { operation },
         ) => Ok(ResolvedContinuousEffectKind::CardTypes(
+            parse_set_operation(value, *operation)?,
+        )),
+        (
+            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Supertypes(value)),
+            ResolvedContinuousOperationSnapshot::Supertypes { operation },
+        ) => Ok(ResolvedContinuousEffectKind::Supertypes(
             parse_set_operation(value, *operation)?,
         )),
         (
@@ -127,8 +130,12 @@ fn parse_resolved_operation(
         ) => Ok(ResolvedContinuousEffectKind::PowerToughness(
             ResolvedPowerToughnessOperation::Switch,
         )),
-        _ => mismatch(),
+        _ => resolved_operation_mismatch(),
     }
+}
+
+fn resolved_operation_mismatch<T>() -> Result<T, String> {
+    Err("checkpoint resolved-effect operation does not match its authored locator".to_owned())
 }
 
 fn parse_set_operation<T: Copy>(

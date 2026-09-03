@@ -612,7 +612,10 @@ fn continuation_snapshot(
         },
         DecisionContinuation::BattlefieldEntryCopy {
             choices,
+            name,
             added_types,
+            added_supertypes,
+            removed_supertypes,
             retain_printed_subtypes,
             base_power_toughness,
             colors,
@@ -621,7 +624,10 @@ fn continuation_snapshot(
             added_abilities,
         } => DecisionContinuationSnapshot::BattlefieldEntryCopy {
             choices: ids(choices),
+            name: name.clone(),
             added_types: CardType::ALL.map(|card_type| added_types.contains(card_type)),
+            added_supertypes: *added_supertypes,
+            removed_supertypes: *removed_supertypes,
             retain_printed_subtypes: *retain_printed_subtypes,
             base_power_toughness: base_power_toughness.map(|(power, toughness)| [power, toughness]),
             colors: colors.map(crate::card::ColorSet::to_flags),

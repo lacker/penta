@@ -3617,13 +3617,42 @@ pub(in crate::card::sets) static KINGPINS_PET: CardRecord = CardRecord::new_with
 );
 
 // GTC 174 — Lazav, Dimir Mastermind
-// Audit: unsupported — Copy effects cannot copy a creature card from a graveyard while retaining the source's name, legendary supertype, hexproof, and trigger.
 pub(in crate::card::sets) static LAZAV_DIMIR_MASTERMIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("69c8fcdb-4798-4961-995a-e128a3ff431a"),
     "Lazav, Dimir Mastermind",
-    crate::card::CardArt::new("69c8fcdb-4798-4961-995a-e128a3ff431a", "David Rapoza"),
-    crate::card::CardSet::Gatecrash,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("69c8fcdb-4798-4961-995a-e128a3ff431a", "David Rapoza"),
+    CardSet::Gatecrash,
+    CardRules::new_creature(mana_cost!("{U}{U}{B}{B}"), &["Shapeshifter"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::hexproof(),
+            AbilityDef::triggered(
+                "Whenever a creature card is put into an opponent's graveyard from anywhere, you may have Lazav, Dimir Mastermind become a copy of that card except its name is Lazav, Dimir Mastermind, it's legendary in addition to its other types, and it has hexproof and this ability.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
+                    ]),
+                    None,
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::BecomeCopyOf {
+                        object: EffectRecipientDef::TriggeringZoneChangeResult,
+                        copier: None,
+                        exceptions: CopyExceptionsDef::NONE
+                            .with_name("Lazav, Dimir Mastermind")
+                            .with_added_supertypes(&[CardSupertype::Legendary])
+                            .with_abilities(&[
+                                CopyAbilityDef::Ability(&abilities::hexproof()),
+                                CopyAbilityDef::This,
+                            ]),
+                        duration: None,
+                    },
+                },
+            ),
+        ]),
 );
 
 // GTC 175 — Martial Glory

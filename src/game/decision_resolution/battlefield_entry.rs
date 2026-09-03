@@ -84,7 +84,10 @@ impl Game {
             }
             DecisionContinuation::BattlefieldEntryCopy {
                 choices,
+                name,
                 added_types,
+                added_supertypes,
+                removed_supertypes,
                 retain_printed_subtypes,
                 base_power_toughness,
                 colors,
@@ -104,7 +107,21 @@ impl Game {
                     })
                     .map(|permanent| {
                         let mut copy = Self::copiable_characteristics(permanent);
+                        if name.is_some() {
+                            copy.name = name;
+                        }
                         copy.added_types = copy.added_types.union(added_types);
+                        for supertype in crate::card::CardSupertype::ALL {
+                            let index = supertype.index();
+                            if added_supertypes[index] {
+                                copy.added_supertypes[index] = true;
+                                copy.removed_supertypes[index] = false;
+                            }
+                            if removed_supertypes[index] {
+                                copy.removed_supertypes[index] = true;
+                                copy.added_supertypes[index] = false;
+                            }
+                        }
                         copy.retain_printed_subtypes = retain_printed_subtypes;
                         if let Some(stats) = base_power_toughness {
                             copy.base_power_toughness = Some(stats);

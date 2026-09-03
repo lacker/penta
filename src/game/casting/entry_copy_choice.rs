@@ -49,7 +49,12 @@ impl Game {
             options,
             DecisionContinuation::BattlefieldEntryCopy {
                 choices,
+                name: exceptions.name.map(str::to_owned),
                 added_types: exceptions.added_types,
+                added_supertypes: crate::card::CardSupertype::ALL
+                    .map(|supertype| exceptions.added_supertypes.contains(&supertype)),
+                removed_supertypes: crate::card::CardSupertype::ALL
+                    .map(|supertype| exceptions.removed_supertypes.contains(&supertype)),
                 retain_printed_subtypes: false,
                 base_power_toughness: exceptions.base_power_toughness,
                 colors: exceptions.colors,

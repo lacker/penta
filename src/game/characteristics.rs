@@ -47,7 +47,7 @@ impl Game {
 
     pub(super) fn effective_permanent_name<'a>(
         &'a self,
-        permanent: &Permanent,
+        permanent: &'a Permanent,
     ) -> Option<Cow<'a, str>> {
         // A face-down permanent has no name at all, so nothing that reads
         // one -- naming a card, matching another object's name -- ever finds
@@ -55,6 +55,12 @@ impl Game {
         // a name the rules can see.
         if permanent.face_down.is_some() {
             return None;
+        }
+        if let Some(name) = permanent
+            .active_copy_values()
+            .and_then(|copy| copy.name.as_deref())
+        {
+            return Some(Cow::Borrowed(name));
         }
         match Self::effective_rules_source(permanent) {
             ObjectCharacteristics::Card { definition, part } => self
@@ -178,7 +184,10 @@ impl Game {
                         card.definition,
                         definition.primary_part_id(),
                     ),
+                    name: None,
                     added_types: CardTypeSet::empty(),
+                    added_supertypes: [false; CardSupertype::COUNT],
+                    removed_supertypes: [false; CardSupertype::COUNT],
                     added_abilities: Vec::new(),
                     retain_printed_subtypes: false,
                     base_power_toughness: None,
@@ -197,7 +206,10 @@ impl Game {
             .cloned()
             .unwrap_or_else(|| CopiableCharacteristics {
                 base: Self::effective_rules_source(permanent),
+                name: None,
                 added_types: CardTypeSet::empty(),
+                added_supertypes: [false; CardSupertype::COUNT],
+                removed_supertypes: [false; CardSupertype::COUNT],
                 added_abilities: Vec::new(),
                 retain_printed_subtypes: false,
                 base_power_toughness: None,
@@ -272,7 +284,10 @@ impl Game {
     ) -> Option<DoubleFacedCopiableCharacteristics> {
         let unmodified = |base| CopiableCharacteristics {
             base,
+            name: None,
             added_types: CardTypeSet::empty(),
+            added_supertypes: [false; CardSupertype::COUNT],
+            removed_supertypes: [false; CardSupertype::COUNT],
             added_abilities: Vec::new(),
             retain_printed_subtypes: false,
             base_power_toughness: None,

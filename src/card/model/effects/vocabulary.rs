@@ -30,6 +30,9 @@ pub enum AbilityPredicateDef {
     /// Every "bands with other" ability, whatever quality it names. Two cards
     /// strip them all at once, and neither says which qualities it means.
     AnyBandsWithOther,
+    /// Every landwalk ability, including legendary landwalk. This is the
+    /// structural meaning of "loses all landwalk abilities."
+    AnyLandwalk,
 }
 
 impl AbilityPredicateDef {
@@ -54,6 +57,12 @@ impl AbilityPredicateDef {
             Self::AnyBandsWithOther => matches!(
                 ability.definition,
                 DeclarativeAbilityDef::Keyword(KeywordAbility::BandsWithOther(_))
+            ),
+            Self::AnyLandwalk => matches!(
+                ability.definition,
+                DeclarativeAbilityDef::Keyword(
+                    KeywordAbility::Landwalk(_) | KeywordAbility::LegendaryLandwalk
+                )
             ),
         }
     }

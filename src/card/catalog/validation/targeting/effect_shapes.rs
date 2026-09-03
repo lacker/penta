@@ -506,9 +506,38 @@ fn validate_effect_target_shapes(
                 validate_recipient_shape(*copy.object, targets, RecipientExpectation::Object)?;
             }
             match created {
-                Some(created) => {
-                    validate_effect_target_shapes(*created.then, targets, triggering_object_zone)
-                }
+                // A created-token binding is known to contain battlefield
+                // permanents. Validate a direct characteristic grant without
+                // the ordinary conservative "a binding may name a card in
+                // any zone" rejection; reference validation separately
+                // proves that the continuation names this exact binding.
+                Some(created) => match *created.then {
+                    EffectDef::Apply {
+                        recipient:
+                            EffectRecipientDef(EffectRecipientSetDef::Objects(
+                                ObjectSetDef::Binding(binding),
+                            )),
+                        effect,
+                        duration,
+                    } if binding == created.binding => {
+                        validate_applied_effect_shapes(
+                            EffectRecipientDef::objects(ObjectSetDef::Binding(binding)),
+                            effect,
+                            targets,
+                            false,
+                        )?;
+                        if duration_is_valid_for_applied_effect(duration, effect) {
+                            Ok(())
+                        } else {
+                            Err(GrantedAbilityValidationError::UnsupportedResolvingAppliedEffect)
+                        }
+                    }
+                    _ => validate_effect_target_shapes(
+                        *created.then,
+                        targets,
+                        triggering_object_zone,
+                    ),
+                },
                 None => Ok(()),
             }
         }

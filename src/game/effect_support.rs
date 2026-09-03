@@ -77,7 +77,7 @@ impl Game {
             self.apply_applied_effect_component(
                 *target,
                 effect,
-                ResolvedAppliedEffect {
+                &ResolvedAppliedEffect {
                     duration,
                     timestamp,
                     object,
@@ -110,7 +110,7 @@ impl Game {
         let mut components = Vec::new();
         Self::flatten_applied_effect(effect, &mut components);
         for target in self.effect_recipients(recipient, object, context, scoped) {
-            Self::apply_components_to(self, target, &components, base_resolution);
+            Self::apply_components_to(self, target, &components, &base_resolution);
         }
     }
 
@@ -188,7 +188,7 @@ impl Game {
         let mut components = Vec::new();
         Self::flatten_applied_effect(effect, &mut components);
         for target in targets.iter().copied() {
-            Self::apply_components_to(self, target, &components, base_resolution);
+            Self::apply_components_to(self, target, &components, &base_resolution);
         }
     }
 
@@ -196,7 +196,7 @@ impl Game {
         game: &mut Self,
         target: Target,
         components: &[AppliedEffectDef],
-        base_resolution: ResolvedAppliedEffect<'_>,
+        base_resolution: &ResolvedAppliedEffect<'_>,
     ) {
         for (index, component) in components.iter().copied().enumerate() {
             let component_order = u16::try_from(index)
@@ -204,9 +204,9 @@ impl Game {
             game.apply_applied_effect_component(
                 target,
                 component,
-                ResolvedAppliedEffect {
+                &ResolvedAppliedEffect {
                     component_order,
-                    ..base_resolution
+                    ..*base_resolution
                 },
             );
         }
@@ -344,7 +344,7 @@ impl Game {
         &mut self,
         target: Target,
         effect: AppliedEffectDef,
-        resolution: ResolvedAppliedEffect<'_>,
+        resolution: &ResolvedAppliedEffect<'_>,
     ) {
         match effect {
             AppliedEffectDef::Composite(_) => {
@@ -364,7 +364,7 @@ impl Game {
         target: Target,
         definition: AppliedEffectDef,
         rule: AppliedRuleDef,
-        resolution: ResolvedAppliedEffect<'_>,
+        resolution: &ResolvedAppliedEffect<'_>,
     ) {
         // `CannotBeCountered` is meaningful on a stack object, whose lifetime
         // is already represented by `AppliedStackEffect`. A resolving Apply
@@ -416,7 +416,7 @@ impl Game {
                 Self::authored_ability_origin(resolution.object.presentation(), AbilityId::PRIMARY)
             }),
         };
-        if self.apply_player_play_rule(target, definition, rule, &resolution, source, expiration) {
+        if self.apply_player_play_rule(target, definition, rule, resolution, source, expiration) {
             return;
         }
         let Target::Permanent(target) = target else {
@@ -541,7 +541,7 @@ impl Game {
         target: Target,
         definition: AppliedEffectDef,
         operation: CharacteristicOperationDef,
-        resolution: ResolvedAppliedEffect<'_>,
+        resolution: &ResolvedAppliedEffect<'_>,
     ) {
         if let (
             Target::Spell(target),
@@ -649,7 +649,7 @@ impl Game {
         &self,
         target: GameObjectId,
         operation: CharacteristicOperationDef,
-        resolution: ResolvedAppliedEffect<'_>,
+        resolution: &ResolvedAppliedEffect<'_>,
     ) -> Option<ResolvedContinuousEffectKind> {
         Some(match operation {
             CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(ability)) => {
@@ -680,14 +680,16 @@ impl Game {
             | CharacteristicOperationDef::ChosenBasicLandType
             | CharacteristicOperationDef::AddChosenCreatureType
             | CharacteristicOperationDef::SetChosenCreatureType
-            | CharacteristicOperationDef::Color(_)
-            | CharacteristicOperationDef::Supertypes(_) => return None,
+            | CharacteristicOperationDef::Color(_) => return None,
             CharacteristicOperationDef::BasicLandTypes(operation) => {
                 ResolvedContinuousEffectKind::BasicLandTypes(operation)
             }
 
             CharacteristicOperationDef::CardTypes(operation) => {
                 ResolvedContinuousEffectKind::CardTypes(operation)
+            }
+            CharacteristicOperationDef::Supertypes(operation) => {
+                ResolvedContinuousEffectKind::Supertypes(operation)
             }
             CharacteristicOperationDef::Colors(operation) => {
                 ResolvedContinuousEffectKind::Colors(operation)

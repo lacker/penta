@@ -29,7 +29,10 @@ fn synthetic_double_faced_token(
         front,
         back: CopiableCharacteristics {
             base: back,
+            name: None,
             added_types: CardTypeSet::empty(),
+            added_supertypes: [false; CardSupertype::COUNT],
+            removed_supertypes: [false; CardSupertype::COUNT],
             added_abilities: Vec::new(),
             retain_printed_subtypes: false,
             base_power_toughness: None,
@@ -48,7 +51,10 @@ fn single_faced_card_copying_incubator_cannot_transform() {
     let mut copier = creature(90_000, cards::COPY_ARTIFACT, PlayerId::One);
     copier.copy_effect = Some(CopiableCharacteristics {
         base: ObjectCharacteristics::token(tokens::incubator(), CardPartId::PRIMARY),
+        name: None,
         added_types: CardTypeSet::empty(),
+        added_supertypes: [false; CardSupertype::COUNT],
+        removed_supertypes: [false; CardSupertype::COUNT],
         added_abilities: Vec::new(),
         retain_printed_subtypes: false,
         base_power_toughness: None,
@@ -227,7 +233,10 @@ fn sacrificed_card_copying_token_remains_nontoken_on_the_stack() {
     let mut copier = creature(90_005, cards::COPY_ARTIFACT, PlayerId::One);
     copier.copy_effect = Some(CopiableCharacteristics {
         base: ObjectCharacteristics::token(tokens::clue(), CardPartId::PRIMARY),
+        name: None,
         added_types: CardTypeSet::single(CardType::Enchantment),
+        added_supertypes: [false; CardSupertype::COUNT],
+        removed_supertypes: [false; CardSupertype::COUNT],
         added_abilities: Vec::new(),
         retain_printed_subtypes: false,
         base_power_toughness: None,

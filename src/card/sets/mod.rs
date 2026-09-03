@@ -353,6 +353,11 @@ const SET_MODULES: &[SetModule] = &[
         y2011::magic_2012::ADDITIONAL_PRINTINGS,
     ),
     SetModule::new(
+        CardSet::Commander2011,
+        y2011::commander_2011::CARDS,
+        y2011::commander_2011::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
         CardSet::Innistrad,
         y2011::innistrad::CARDS,
         y2011::innistrad::ADDITIONAL_PRINTINGS,

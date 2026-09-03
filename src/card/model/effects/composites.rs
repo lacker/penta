@@ -5,7 +5,7 @@
 //! reach for, rather than a variant of any one of them.
 
 use super::super::{
-    AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardTypeSet,
+    AbilityDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardSupertype, CardTypeSet,
     ChoiceVisibilityDef, ColorSet, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef,
     PlayerRelation, ResolvedEffectDurationDef, TargetPredicate, ValueDef, ZoneKind,
@@ -484,6 +484,8 @@ pub enum CopyAbilityDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CopyExceptionsDef {
+    /// "Except its name is ...": the copied name is replaced by this one.
+    pub name: Option<&'static str>,
     /// "Except it's a 1/1", or a 4/4.
     pub base_power_toughness: Option<(i16, i16)>,
     /// "Except it's black": the colours it has instead of the ones it
@@ -497,6 +499,10 @@ pub struct CopyExceptionsDef {
     /// them. Like every other exception it is a copiable value, so a copy of
     /// the copy is an artifact too.
     pub added_types: CardTypeSet,
+    /// Supertypes added to or removed from the copied type line. These are
+    /// separate because Lazav adds legendary while Helm of the Host removes it.
+    pub added_supertypes: &'static [CardSupertype],
+    pub removed_supertypes: &'static [CardSupertype],
     /// "With no mana cost", which is what makes an eternalized card's mana
     /// value zero.
     pub no_mana_cost: bool,
@@ -509,13 +515,38 @@ pub struct CopyExceptionsDef {
 impl CopyExceptionsDef {
     /// A plain copy, with nothing said after "except".
     pub const NONE: Self = Self {
+        name: None,
         base_power_toughness: None,
         colors: None,
         added_creature_types: CreatureTypeSetDef::named(&[]),
         added_types: CardTypeSet::empty(),
+        added_supertypes: &[],
+        removed_supertypes: &[],
         no_mana_cost: false,
         added_abilities: &[],
     };
+
+    /// "Except its name is ...".
+    #[must_use]
+    pub const fn with_name(mut self, name: &'static str) -> Self {
+        self.name = Some(name);
+        self
+    }
+
+    /// "It's legendary in addition to its other types", and analogous
+    /// additive supertype exceptions.
+    #[must_use]
+    pub const fn with_added_supertypes(mut self, supertypes: &'static [CardSupertype]) -> Self {
+        self.added_supertypes = supertypes;
+        self
+    }
+
+    /// "Except it isn't legendary", and analogous subtractive exceptions.
+    #[must_use]
+    pub const fn without_supertypes(mut self, supertypes: &'static [CardSupertype]) -> Self {
+        self.removed_supertypes = supertypes;
+        self
+    }
 
     /// "Except it's an artifact in addition to its other types."
     #[must_use]
@@ -570,9 +601,8 @@ impl CopyExceptionsDef {
             base_power_toughness: Some((power, toughness)),
             colors: Some(colors),
             added_creature_types: CreatureTypeSetDef::named(added_creature_types),
-            added_types: CardTypeSet::empty(),
             no_mana_cost: true,
-            added_abilities: &[],
+            ..Self::NONE
         }
     }
 }

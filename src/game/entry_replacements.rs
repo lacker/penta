@@ -937,6 +937,18 @@ fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -> Option<i3
         ValueDef::CardTypesAmongObjects(objects) => {
             Some(game.card_types_among_targets(&entry_objects(game, permanent, *objects)?))
         }
+        ValueDef::CountMatchingObjects(query) => Some(
+            i32::try_from(
+                game.objects_matching_query(
+                    *query,
+                    permanent.controller,
+                    permanent.card.id,
+                    TriggerContext::empty(),
+                )
+                .len(),
+            )
+            .unwrap_or(i32::MAX),
+        ),
         ValueDef::IfAdditionalCostPaid(conditional) => {
             let paid = permanent
                 .cast

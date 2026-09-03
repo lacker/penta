@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
+    ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -53,6 +54,22 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
                 ),
             ]),
     );
+// BOK 154 — Mirror Gallery
+pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("00beba34-54cc-4a30-8424-71a1215647a6"),
+    "Mirror Gallery",
+    CardArt::new("00beba34-54cc-4a30-8424-71a1215647a6", "Scott M. Fischer"),
+    CardSet::BetrayersOfKamigawa,
+    CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::static_ability(
+        "The \"legend rule\" doesn't apply.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::players(PlayerSetDef::All),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                PlayerRuleDef::LegendRuleDoesNotApply,
+            )),
+        },
+    )),
+);
 
 // BOK 163 — Umezawa's Jitte
 pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
@@ -125,7 +142,11 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&OKIBA_GANG_SHINOBI, &FUMIKO_THE_LOWBLOOD, &UMEZAWAS_JITTE];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &OKIBA_GANG_SHINOBI,
+    &FUMIKO_THE_LOWBLOOD,
+    &MIRROR_GALLERY,
+    &UMEZAWAS_JITTE,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

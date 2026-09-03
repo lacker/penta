@@ -178,7 +178,10 @@ fn parse_battlefield_entry_continuation(
         }
         DecisionContinuationSnapshot::BattlefieldEntryCopy {
             choices,
+            name,
             added_types,
+            added_supertypes,
+            removed_supertypes,
             retain_printed_subtypes,
             base_power_toughness,
             colors,
@@ -187,7 +190,10 @@ fn parse_battlefield_entry_continuation(
             added_abilities,
         } => DecisionContinuation::BattlefieldEntryCopy {
             choices: game_ids(choices),
+            name: name.clone(),
             added_types: parse_card_type_set(*added_types),
+            added_supertypes: *added_supertypes,
+            removed_supertypes: *removed_supertypes,
             retain_printed_subtypes: *retain_printed_subtypes,
             base_power_toughness: base_power_toughness.map(|stats| (stats[0], stats[1])),
             colors: colors.map(|flags| {

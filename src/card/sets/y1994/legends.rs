@@ -6027,13 +6027,28 @@ pub(in crate::card::sets) static CATHEDRAL_OF_SERRA: CardRecord = CardRecord::ne
 );
 
 // LEG 302 — Hammerheim
-// Audit: unsupported — Needs removing every ability of a class from a target for a duration; the vocabulary grants named abilities but does not take them away.
 pub(in crate::card::sets) static HAMMERHEIM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2816d30e-1e52-4323-b30e-1688fba23368"),
     "Hammerheim",
-    crate::card::CardArt::new("2816d30e-1e52-4323-b30e-1688fba23368", "Bryon Wackwitz"),
-    crate::card::CardSet::Legends,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2816d30e-1e52-4323-b30e-1688fba23368", "Bryon Wackwitz"),
+    CardSet::Legends,
+    CardRules::new_land(&[])
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::tap_for(ManaColor::Red),
+            AbilityDef::activated_with_targets(
+                "{T}: Target creature loses all landwalk abilities until end of turn.",
+                &[AbilityCostDef::TapSource],
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::AnyLandwalk),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // LEG 303 — Karakas

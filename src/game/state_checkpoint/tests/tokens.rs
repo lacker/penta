@@ -145,7 +145,12 @@ fn checkpoint_round_trips_authored_and_card_copy_tokens() {
         PlayerId::One,
         CopiableCharacteristics {
             base: ObjectCharacteristics::card(crate::card::cards::SERRA_ANGEL, CardPartId::PRIMARY),
+            name: Some("Copied Angel".to_owned()),
             added_types: CardTypeSet::empty(),
+            added_supertypes: crate::card::CardSupertype::ALL
+                .map(|supertype| supertype == crate::card::CardSupertype::Legendary),
+            removed_supertypes: crate::card::CardSupertype::ALL
+                .map(|supertype| supertype == crate::card::CardSupertype::World),
             added_abilities: Vec::new(),
             retain_printed_subtypes: false,
             base_power_toughness: None,
@@ -206,6 +211,13 @@ fn checkpoint_round_trips_authored_and_card_copy_tokens() {
             CardPartId::PRIMARY,
         )),
     );
+    let copy = copied
+        .copy_effect
+        .as_ref()
+        .expect("the copy effect reconstructs");
+    assert_eq!(copy.name.as_deref(), Some("Copied Angel"));
+    assert!(copy.added_supertypes[crate::card::CardSupertype::Legendary.index()]);
+    assert!(copy.removed_supertypes[crate::card::CardSupertype::World.index()]);
 }
 
 /// An X/X token's size is a copiable value the board cannot recompute: the

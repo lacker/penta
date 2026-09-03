@@ -18,7 +18,10 @@ pub(super) fn parse_copiable_characteristics(
     }
     Ok(CopiableCharacteristics {
         base,
+        name: snapshot.name.clone(),
         added_types,
+        added_supertypes: snapshot.added_supertypes,
+        removed_supertypes: snapshot.removed_supertypes,
         retain_printed_subtypes: snapshot.retain_printed_subtypes,
         base_power_toughness: snapshot
             .base_power_toughness

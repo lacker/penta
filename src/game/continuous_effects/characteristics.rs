@@ -145,7 +145,8 @@ impl Game {
         }
     }
 
-    /// The supertypes a permanent has after layer-4 operations.
+    /// The supertypes a permanent has after copy-process exceptions and
+    /// layer-4 continuous effects.
     ///
     /// The layer guard gives recipient predicates a below-static view when a
     /// supertype operation itself is selecting its affected objects. Card-type
@@ -176,7 +177,34 @@ impl Game {
             .into_iter()
             .filter(|supertype| rules.has_supertype(*supertype))
             .fold(CardSupertypeSet::empty(), CardSupertypeSet::with);
-        let mut operations = Vec::new();
+        if let Some(copy) = permanent.active_copy_values() {
+            for supertype in CardSupertype::ALL {
+                let index = supertype.index();
+                if copy.added_supertypes[index] {
+                    supertypes = Self::apply_supertype_operation(
+                        supertypes,
+                        SetOperationDef::Add(CardSupertypeSet::single(supertype)),
+                    );
+                }
+                if copy.removed_supertypes[index] {
+                    supertypes = Self::apply_supertype_operation(
+                        supertypes,
+                        SetOperationDef::Remove(CardSupertypeSet::single(supertype)),
+                    );
+                }
+            }
+        }
+        let mut operations = permanent
+            .resolved_continuous_effects
+            .iter()
+            .filter(|effect| self.resolved_continuous_effect_is_active(effect))
+            .filter_map(|effect| match effect.kind {
+                ResolvedContinuousEffectKind::Supertypes(operation) => {
+                    Some((effect.timestamp, effect.component_order, operation))
+                }
+                _ => None,
+            })
+            .collect::<Vec<_>>();
         let mut collect = |applied: super::StaticAppliedEffect| {
             let AppliedEffectDef::Characteristic(CharacteristicOperationDef::Supertypes(
                 operation,

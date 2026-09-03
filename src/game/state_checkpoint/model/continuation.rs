@@ -236,7 +236,13 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
     },
     BattlefieldEntryCopy {
         choices: Vec<u32>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
         added_types: [bool; crate::card::CardType::COUNT],
+        #[serde(default)]
+        added_supertypes: [bool; crate::card::CardSupertype::COUNT],
+        #[serde(default)]
+        removed_supertypes: [bool; crate::card::CardSupertype::COUNT],
         /// Additive: a checkpoint written before a copy could keep anything
         /// of its own restores with a copy that keeps nothing, which is what
         /// every copy did then.

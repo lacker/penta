@@ -28,6 +28,7 @@ impl<'de> Deserialize<'de> for CounterKindSnapshot {
 
 mod continuation;
 mod continuous;
+mod copy;
 mod decision_options;
 pub(super) use decision_options::*;
 mod emptiness;
@@ -43,6 +44,9 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 pub(super) use continuation::DecisionContinuationSnapshot;
 pub(super) use continuation::PregameAbilityActionSnapshot;
 pub(in crate::game::state_checkpoint) use continuous::*;
+pub(super) use copy::{
+    CopiableCharacteristicsSnapshot, DoubleFacedCopiableCharacteristicsSnapshot,
+};
 pub(super) use objects::{
     AbilityLocator, EmblemCharacteristicsLocator, FaceDownCharacteristicsSnapshot,
     ObjectCharacteristicsSnapshot, ObjectKindSnapshot, TokenCharacteristicsLocator,
@@ -544,41 +548,6 @@ pub(super) struct PermanentSnapshot {
 pub(super) struct AbilityActivationSnapshot {
     pub(super) origin: AbilityOriginSnapshot,
     pub(super) count: u8,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct CopiableCharacteristicsSnapshot {
-    pub(super) base: ObjectCharacteristicsSnapshot,
-    pub(super) added_types: [bool; crate::card::CardType::COUNT],
-    pub(super) added_abilities: Vec<CopiableAbilitySnapshot>,
-    /// Additive: a checkpoint written before a copy could keep its own
-    /// subtypes restores without them, which is what every copy did then.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) retain_printed_subtypes: bool,
-    /// "Except it's a 1/1", which is a copiable value of its own. Additive:
-    /// a checkpoint written before it existed restores a copy with none.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) base_power_toughness: Option<[i16; 2]>,
-    /// The other exceptions embalm and eternalize print. Additive for the
-    /// same reason: a checkpoint written before they existed restores a copy
-    /// that made none of them.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) colors: Option<[bool; 5]>,
-    #[serde(default, skip_serializing_if = "<[String]>::is_empty")]
-    pub(super) added_creature_types: Vec<String>,
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub(super) no_mana_cost: bool,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct DoubleFacedCopiableCharacteristicsSnapshot {
-    pub(super) modal: bool,
-    pub(super) front_part_id: u8,
-    pub(super) back_part_id: u8,
-    pub(super) front: CopiableCharacteristicsSnapshot,
-    pub(super) back: CopiableCharacteristicsSnapshot,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

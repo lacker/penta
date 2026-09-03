@@ -295,6 +295,11 @@ impl BlockRestrictionDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRuleDef {
+    /// The legend rule does not apply to the affected player. The rule is
+    /// controller-specific even though the source is usually a global
+    /// artifact, because CR 704.5j examines one player's permanents at a
+    /// time.
+    LegendRuleDoesNotApply,
     /// The affected player cannot be targeted by spells or abilities their
     /// opponents control. Unlike protection, this does not prevent damage or
     /// make an Aura that is already attached fall off.
@@ -835,6 +840,13 @@ impl AppliedEffectDef {
         Self::Characteristic(CharacteristicOperationDef::CardTypes(SetOperationDef::Set(
             types,
         )))
+    }
+
+    #[must_use]
+    pub const fn remove_supertype(supertype: CardSupertype) -> Self {
+        Self::Characteristic(CharacteristicOperationDef::Supertypes(
+            SetOperationDef::Remove(CardSupertypeSet::single(supertype)),
+        ))
     }
 
     #[must_use]

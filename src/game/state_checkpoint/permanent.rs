@@ -257,7 +257,10 @@ fn copiable_characteristics_snapshot(
     Some((
         CopiableCharacteristicsSnapshot {
             base,
+            name: copy.name.clone(),
             added_types: CardType::ALL.map(|card_type| copy.added_types.contains(card_type)),
+            added_supertypes: copy.added_supertypes,
+            removed_supertypes: copy.removed_supertypes,
             base_power_toughness: copy
                 .base_power_toughness
                 .map(|(power, toughness)| [power, toughness]),
@@ -321,6 +324,11 @@ fn resolved_operation_snapshot(
             ResolvedContinuousEffectKind::CardTypes(actual),
         ) => matching_set_operation(expected, *actual)
             .map(|operation| ResolvedContinuousOperationSnapshot::CardTypes { operation }),
+        (
+            AppliedEffectDef::Characteristic(CharacteristicOperationDef::Supertypes(expected)),
+            ResolvedContinuousEffectKind::Supertypes(actual),
+        ) => matching_set_operation(expected, *actual)
+            .map(|operation| ResolvedContinuousOperationSnapshot::Supertypes { operation }),
         (
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(expected)),
             ResolvedContinuousEffectKind::Colors(actual),

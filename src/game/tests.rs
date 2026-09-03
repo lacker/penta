@@ -200,6 +200,7 @@ mod land_and_ability_layers;
 mod land_characteristics;
 mod land_type_conditioned_statics;
 mod landwalk;
+mod legendary_copy_and_abilities;
 mod leyline_of_combustion;
 mod leyline_of_hope;
 mod leyline_of_mutation;

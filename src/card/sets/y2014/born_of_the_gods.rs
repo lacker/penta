@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardRules, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRelation, PlayerSetDef, TopOfLibraryCostDef, TriggerEventDef, ValueDef, ZoneKind,
+    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation, PlayerSetDef, SumValueDef,
+    TopOfLibraryCostDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -65,6 +66,63 @@ pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::ne
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COURSER_OF_KRUPHIX];
+static OTHER_LEGENDS_YOU_CONTROL: ValueDef = ValueDef::Sum(&SumValueDef::new(
+    ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+        ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+        ]),
+        &[ZoneKind::Battlefield],
+        PlayerRelation::You,
+    )),
+    ValueDef::Constant(-1),
+));
+
+// BNG 159 — Heroes' Podium
+pub(in crate::card::sets) static HEROES_PODIUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a3cb14f9-343c-4672-b4ee-db7f1d1a98ff"),
+    "Heroes' Podium",
+    CardArt::new("a3cb14f9-343c-4672-b4ee-db7f1d1a98ff", "Willian Murai"),
+    CardSet::BornOfTheGods,
+    CardRules::new_artifact(mana_cost!("{5}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Each legendary creature you control gets +1/+1 for each other legendary creature you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        OTHER_LEGENDS_YOU_CONTROL,
+                        OTHER_LEGENDS_YOU_CONTROL,
+                    ),
+                },
+            ),
+            AbilityDef::activated(
+                "{X}, {T}: Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{X}")),
+                    AbilityCostDef::TapSource,
+                ],
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                    ValueDef::ChosenX,
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Supertype(CardSupertype::Legendary),
+                    ]),
+                    0,
+                    1,
+                ),
+            ),
+        ]),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&COURSER_OF_KRUPHIX, &HEROES_PODIUM];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

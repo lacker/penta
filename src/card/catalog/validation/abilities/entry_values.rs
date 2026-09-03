@@ -7,6 +7,13 @@ fn entry_value_supported(value: ValueDef) -> bool {
         ValueDef::CountObjects(objects) | ValueDef::CardTypesAmongObjects(objects) => {
             entry_object_set_supported(*objects)
         }
+        // The entering permanent supplies the same source/controller frame a
+        // static query uses. It is not on the battlefield yet, so a query for
+        // "each other" permanent naturally excludes it.
+        ValueDef::CountMatchingObjects(query) => {
+            query.excluding_target.is_none()
+                && super::program_context::static_query_supported(*query)
+        }
         ValueDef::Negate(value) => entry_value_supported(*value),
         ValueDef::Scaled(scaled) => entry_value_supported(scaled.value),
         ValueDef::Sum(sum) => entry_value_supported(sum.left) && entry_value_supported(sum.right),

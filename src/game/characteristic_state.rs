@@ -1,5 +1,5 @@
 use crate::action::AbilityOrigin;
-use crate::card::{AbilityDef, BasicLandType, CardTypeSet, KeywordAbility};
+use crate::card::{AbilityDef, BasicLandType, CardSupertype, CardTypeSet, KeywordAbility};
 use crate::ids::{CardDefinitionId, MeldRecipeId};
 use crate::{
     EmblemCharacteristics, FaceDownCharacteristics, ObjectCharacteristics, TokenCharacteristics,
@@ -58,7 +58,10 @@ pub(super) struct CopiableAbility {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct CopiableCharacteristics {
     pub(super) base: ObjectCharacteristics,
+    pub(super) name: Option<String>,
     pub(super) added_types: CardTypeSet,
+    pub(super) added_supertypes: [bool; CardSupertype::COUNT],
+    pub(super) removed_supertypes: [bool; CardSupertype::COUNT],
     pub(super) added_abilities: Vec<CopiableAbility>,
     /// Whether the copying card's own printed subtypes stand beside the ones
     /// it copied, which is what "except it's an Illusion in addition to its

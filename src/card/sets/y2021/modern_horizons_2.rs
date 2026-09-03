@@ -741,6 +741,54 @@ pub(in crate::card::sets) static ABUNDANT_HARVEST: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// MH2 148 — Aeve, Progenitor Ooze
+pub(in crate::card::sets) static AEVE_PROGENITOR_OOZE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("dfe9b1b8-dffe-427d-be1e-2c6b8395bd54"),
+    "Aeve, Progenitor Ooze",
+    CardArt::new("dfe9b1b8-dffe-427d-be1e-2c6b8395bd54", "Andrew Mar"),
+    CardSet::ModernHorizons2,
+    CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ooze"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "Storm (When you cast this spell, copy it for each spell cast before it this turn. Copies become tokens.)",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+                EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
+                    object: EffectRecipientDef::Source,
+                    controller: PlayerRefDef::EffectController,
+                    count: ValueDef::SpellsCastBeforeThisTurn,
+                    retarget: false,
+                    colors: None,
+                }),
+            ),
+            AbilityDef::static_ability(
+                "Aeve isn't legendary if it's a token.",
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceMatches {
+                        object: ObjectPredicateDef::Token,
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::remove_supertype(CardSupertype::Legendary),
+                    },
+                },
+            ),
+            AbilityDef::as_enters(
+                "Aeve enters with a +1/+1 counter on it for each other Ooze you control.",
+                ReplacementEffectDef::ModifyBattlefieldEntry(
+                    BattlefieldEntryModificationDef::AddCountersValue {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype("Ooze"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        )),
+                    },
+                ),
+            ),
+        ]),
+);
+
 // MH2 149 — Bannerhide Krushok
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BANNERHIDE_KRUSHOK: CardRecord = CardRecord::new(
@@ -1320,6 +1368,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &RAGAVAN_NIMBLE_PILFERER,
     &UNHOLY_HEAT,
     &ABUNDANT_HARVEST,
+    &AEVE_PROGENITOR_OOZE,
     &BANNERHIDE_KRUSHOK,
     &ENDURANCE,
     &URBAN_DAGGERTOOTH,

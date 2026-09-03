@@ -95,6 +95,9 @@ pub(in crate::game::state_checkpoint) enum ResolvedContinuousOperationSnapshot {
     CardTypes {
         operation: SetOperationSnapshot,
     },
+    Supertypes {
+        operation: SetOperationSnapshot,
+    },
     Colors {
         operation: SetOperationSnapshot,
     },

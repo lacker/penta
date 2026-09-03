@@ -12,7 +12,8 @@ mod tests {
         gain_ability_until_end_of_turn_for_mana,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
-        flashback_for_card_mana_cost, flying, intimidate, living_weapon, look_at_top_cards,
+        flashback_for_card_mana_cost, flying, intimidate, legendary_landwalk, living_weapon,
+        look_at_top_cards, mountainwalk,
         look_at_top_cards_choose_to_hand_rest_bottom, overload, pain_land,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
         reveal_hand_and_exile_chosen_card,
@@ -760,6 +761,13 @@ mod tests {
             unreachable!("the helper always builds an alternative-cast ability")
         };
         assert_eq!(definition.mana_cost.resolve(None), None);
+    }
+
+    #[test]
+    fn any_landwalk_selector_covers_basic_and_legendary_landwalk_only() {
+        assert!(AbilityPredicateDef::AnyLandwalk.matches(&mountainwalk()));
+        assert!(AbilityPredicateDef::AnyLandwalk.matches(&legendary_landwalk()));
+        assert!(!AbilityPredicateDef::AnyLandwalk.matches(&flying()));
     }
 
     #[test]

@@ -98,7 +98,10 @@ impl Game {
                 let cast = object.cast.clone();
                 let copied_face = |part| CopiableCharacteristics {
                     base: crate::ObjectCharacteristics::card(definition, part),
+                    name: None,
                     added_types: crate::card::CardTypeSet::empty(),
+                    added_supertypes: [false; crate::card::CardSupertype::COUNT],
+                    removed_supertypes: [false; crate::card::CardSupertype::COUNT],
                     added_abilities: Vec::new(),
                     retain_printed_subtypes: false,
                     base_power_toughness: None,
@@ -133,7 +136,10 @@ impl Game {
                     object.controller,
                     CopiableCharacteristics {
                         base,
+                        name: None,
                         added_types: crate::card::CardTypeSet::empty(),
+                        added_supertypes: [false; crate::card::CardSupertype::COUNT],
+                        removed_supertypes: [false; crate::card::CardSupertype::COUNT],
                         added_abilities: Vec::new(),
                         retain_printed_subtypes: false,
                         base_power_toughness: None,

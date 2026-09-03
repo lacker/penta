@@ -328,14 +328,14 @@ pub(in crate::game) fn attach_constant_resolved_characteristics(
             CharacteristicOperationDef::CardTypes(operation) => {
                 ResolvedContinuousEffectKind::CardTypes(operation)
             }
+            CharacteristicOperationDef::Supertypes(operation) => {
+                ResolvedContinuousEffectKind::Supertypes(operation)
+            }
             CharacteristicOperationDef::Colors(operation) => {
                 ResolvedContinuousEffectKind::Colors(operation)
             }
             CharacteristicOperationDef::Color(_) => {
                 panic!("a source-derived color is read live rather than resolved")
-            }
-            CharacteristicOperationDef::Supertypes(_) => {
-                panic!("supertype operations are currently a static-only shape")
             }
             CharacteristicOperationDef::CreatureTypes(operation) => {
                 ResolvedContinuousEffectKind::CreatureTypes(operation)
@@ -400,7 +400,10 @@ pub(in crate::game) fn copied_characteristics(
 ) -> CopiableCharacteristics {
     CopiableCharacteristics {
         base: ObjectCharacteristics::card(definition, CardPartId::PRIMARY),
+        name: None,
         added_types: CardTypeSet::empty(),
+        added_supertypes: [false; CardSupertype::COUNT],
+        removed_supertypes: [false; CardSupertype::COUNT],
         added_abilities: Vec::new(),
         retain_printed_subtypes: false,
         base_power_toughness: None,

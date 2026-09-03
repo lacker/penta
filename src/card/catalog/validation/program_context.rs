@@ -816,7 +816,7 @@ fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
     }
 }
 
-fn static_query_supported(query: ObjectQueryDef) -> bool {
+pub(super) fn static_query_supported(query: ObjectQueryDef) -> bool {
     !query.zones.is_empty()
         && query.relative_position.is_none()
         && [query.related_player, query.controller, query.owner]

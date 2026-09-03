@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CounterKind, DrawEventMatcherDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, RevealObjectsDef, TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyExceptionsDef, CounterKind,
+    CreatedTokensDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    RevealObjectsDef, TokenCharacteristics, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -234,10 +235,47 @@ pub(in crate::card::sets) static DAMPING_SPHERE: CardRecord = CardRecord::new(
     CardRules::unsupported(),
 );
 
+// DOM 217 — Helm of the Host
+pub(in crate::card::sets) static HELM_OF_THE_HOST: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1d65d20c-09e5-4139-838b-7e0e48eb2b2b"),
+    "Helm of the Host",
+    CardArt::new("1d65d20c-09e5-4139-838b-7e0e48eb2b2b", "Igor Kieryluk"),
+    CardSet::Dominaria,
+    CardRules::new_artifact(mana_cost!("{4}"))
+        .with_supertype(CardSupertype::Legendary)
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::triggered(
+                "At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::BeginningOfCombat,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::create_token_from_copy(&crate::card::TokenCopyDef {
+                    object: &EffectRecipientDef::AttachedPermanent,
+                    exceptions: CopyExceptionsDef::NONE
+                        .without_supertypes(&[CardSupertype::Legendary]),
+                })
+                .with_created_tokens(CreatedTokensDef {
+                    binding: ParentBinding,
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                            ParentBinding,
+                        )),
+                        effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                        duration: ResolvedEffectDurationDef::Permanent,
+                    },
+                }),
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
+        ]),
+);
+
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KARN_SCION_OF_URZA,
     &TEFERI_HERO_OF_DOMINARIA,
     &DAMPING_SPHERE,
+    &HELM_OF_THE_HOST,
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

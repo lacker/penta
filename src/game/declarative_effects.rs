@@ -1,6 +1,6 @@
 use super::{
     AbilitySourceRef, ArrivalAttachment, BattlefieldArrival, BattlefieldExitCompletion, CardPartId,
-    CopiableAbility, CounteredSpellZone, DamageAssignment, DeclarativeAbilityDef, EffectDef,
+    CounteredSpellZone, DamageAssignment, DeclarativeAbilityDef, EffectDef,
     EffectResolutionContext, Game, Permanent, ResolvedOngoingEffect, SacrificeDeclined,
     SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, ZoneKind,
     ZoneMoveCause, ZonePlacement,
@@ -8,6 +8,7 @@ use super::{
 use crate::card::ArrivalAttachmentDef;
 mod attachment;
 mod bound_outputs;
+mod copy;
 mod damage;
 mod exile_to_play;
 mod hand_and_library;
@@ -864,30 +865,7 @@ impl Game {
                 let Some(mut copy) = self.copiable_values_of(target) else {
                     return;
                 };
-                if let Some(stats) = exceptions.base_power_toughness {
-                    copy.base_power_toughness = Some(stats);
-                }
-                if let Some(colors) = exceptions.colors {
-                    copy.colors = Some(colors);
-                }
-                copy.added_creature_types
-                    .extend(exceptions.added_creature_types.named);
-                copy.added_types = copy.added_types.union(exceptions.added_types);
-                copy.no_mana_cost |= exceptions.no_mana_cost;
-                if let Some(payload) = &object.ability {
-                    copy.added_abilities
-                        .extend(exceptions.added_abilities.iter().filter_map(|added| {
-                            Some(CopiableAbility {
-                                origin: payload.origin,
-                                definition: match added {
-                                    crate::card::CopyAbilityDef::This => {
-                                        *payload.definition.as_deref()?
-                                    }
-                                    crate::card::CopyAbilityDef::Ability(ability) => **ability,
-                                },
-                            })
-                        }));
-                }
+                copy::apply_copy_exceptions(&mut copy, exceptions, object);
                 let expiration = duration.map(|duration| {
                     Self::continuous_effect_expiration(
                         duration,

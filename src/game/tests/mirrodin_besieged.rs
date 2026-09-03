@@ -16,6 +16,168 @@ fn resolve(game: &mut Game) {
     game.check_state_based_actions();
 }
 
+fn staged_hero_of_bladehold() -> (Game, GameObjectId, GameObjectId) {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.players[0].hand.clear();
+    let hero = game
+        .put_onto_battlefield(PlayerId::One, cards::HERO_OF_BLADEHOLD)
+        .expect("Hero of Bladehold is cataloged");
+    let walker = game
+        .put_onto_battlefield(PlayerId::Two, cards::VRASKA_THE_UNSEEN)
+        .expect("Vraska is cataloged");
+    drain_pending(&mut game);
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == hero)
+        .expect("Hero is on the battlefield")
+        .entered_controller_turn = 0;
+    game.turns_started = [2, 1];
+    game.active_player = PlayerId::One;
+    game.step = Step::DeclareAttackers;
+    game.attackers_declared = false;
+    game.priority = PlayerId::One;
+
+    (game, hero, walker)
+}
+
+fn resolve_hero_tokens_before_battle_cry(game: &mut Game) {
+    let order = game
+        .pending_decisions
+        .first()
+        .map(|pending| pending.observation.clone())
+        .expect("Hero's two attack triggers need an order");
+    assert_eq!(order.kind, DecisionKind::TriggerOrder);
+    let trigger = |text: &str| {
+        order
+            .options
+            .iter()
+            .find(|option| {
+                option
+                    .ability_text
+                    .as_deref()
+                    .is_some_and(|ability| ability.contains(text))
+            })
+            .unwrap_or_else(|| panic!("{text} is one ordering option"))
+            .id
+    };
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: order.id,
+            options: vec![
+                trigger("create two 1/1 white Soldier"),
+                trigger("Battle cry"),
+            ],
+        },
+    )
+    .expect("the Soldiers may resolve before battle cry");
+    resolve(game);
+}
+
+fn choose_arriving_attacker_defender(game: &mut Game, defender: AttackDefender) {
+    let decision = game
+        .pending_decisions
+        .first()
+        .map(|pending| pending.observation.clone())
+        .expect("the Soldier chooses what it is attacking");
+    let option = decision
+        .options
+        .iter()
+        .find(|option| match defender {
+            AttackDefender::Player(_) => option.card.is_none(),
+            AttackDefender::Planeswalker(walker) => option.card.is_some_and(|(id, _)| id == walker),
+        })
+        .expect("the chosen defender is legal")
+        .id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: decision.id,
+            options: vec![option],
+        },
+    )
+    .expect("the Soldier may attack that defender");
+}
+
+fn soldier_tokens(game: &Game) -> Vec<&Permanent> {
+    game.battlefield
+        .iter()
+        .filter(|permanent| {
+            is_token_with(
+                permanent,
+                tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
+            )
+        })
+        .collect()
+}
+
+#[test]
+fn hero_of_bladehold_splits_her_soldiers_and_battle_cry_can_boost_them() {
+    let (mut game, hero, walker) = staged_hero_of_bladehold();
+
+    game.apply(
+        PlayerId::One,
+        Action::DeclareAttacker {
+            attacker: hero,
+            defender: AttackDefender::Player(PlayerId::Two),
+        },
+    )
+    .expect("Hero may attack");
+    game.apply(PlayerId::One, Action::FinishDeclaringAttackers)
+        .expect("the attack declaration finishes");
+
+    resolve_hero_tokens_before_battle_cry(&mut game);
+    choose_arriving_attacker_defender(&mut game, AttackDefender::Planeswalker(walker));
+    choose_arriving_attacker_defender(&mut game, AttackDefender::Player(PlayerId::Two));
+    resolve(&mut game);
+
+    let soldiers = soldier_tokens(&game);
+    assert_eq!(soldiers.len(), 2, "Hero creates two Soldiers");
+    assert!(
+        soldiers
+            .iter()
+            .all(|soldier| soldier.tapped && soldier.attacking),
+        "both Soldiers enter tapped and attacking",
+    );
+    assert_eq!(
+        soldiers
+            .iter()
+            .filter(|soldier| {
+                soldier.attack_defender == Some(AttackDefender::Planeswalker(walker))
+            })
+            .count(),
+        1,
+        "one Soldier attacks the planeswalker",
+    );
+    assert_eq!(
+        soldiers
+            .iter()
+            .filter(|soldier| {
+                soldier.attack_defender == Some(AttackDefender::Player(PlayerId::Two))
+            })
+            .count(),
+        1,
+        "and the other attacks the player",
+    );
+    assert!(
+        soldiers
+            .iter()
+            .all(|soldier| (game.power(soldier), game.toughness(soldier)) == (Some(2), Some(1))),
+        "battle cry resolves after token creation and boosts both Soldiers",
+    );
+    let hero = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == hero)
+        .expect("Hero remains on the battlefield");
+    assert_eq!(
+        (game.power(hero), game.toughness(hero)),
+        (Some(3), Some(4)),
+        "battle cry excludes its source",
+    );
+}
+
 #[test]
 fn leonin_relic_warder_returns_what_it_exiled_when_it_leaves() {
     let mut game = ready_game();

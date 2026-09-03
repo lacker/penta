@@ -175,13 +175,24 @@ pub(in crate::card::sets) static GORE_VASSAL: CardRecord = CardRecord::new(
 );
 
 // MBS 8 — Hero of Bladehold
-// Audit: unsupported — Needs a defending player or planeswalker choice for each attacking token.
 pub(in crate::card::sets) static HERO_OF_BLADEHOLD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8829efa0-498a-43ca-91aa-f9caeeafe298"),
     "Hero of Bladehold",
     crate::card::CardArt::new("8a3853ec-e307-46e0-96d7-0706b5c45c5e", "Austin Hsu"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 3, 4).with_abilities(
+        &[
+            battle_cry(),
+            AbilityDef::triggered(
+                "Whenever this creature attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.",
+                TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1)
+                    .with_amount(2)
+                    .entering_tapped()
+                    .entering_attacking(),
+            ),
+        ],
+    ),
 );
 
 // MBS 9 — Kemba's Legion

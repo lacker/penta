@@ -8,12 +8,12 @@ use crate::card::{
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CopyStackObjectDef, CounterKind, CreatureTypeSetDef,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
-    GraveyardPlayPermissionDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementConditionDef,
+    ChooseDef, ComparisonDef, CopyStackObjectDef, CostModificationDef, CounterKind,
+    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    EmblemCharacteristics, GraveyardPlayPermissionDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
     SpellAdditionalCostDef, SumValueDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
     TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -383,13 +383,28 @@ pub(in crate::card::sets) static FLESH_BURROWER: CardRecord = CardRecord::new(
 );
 
 // DSK 188 — Leyline of Mutation
-// Audit: unsupported — Needs a battlefield-granted alternative casting cost over every spell.
 pub(in crate::card::sets) static LEYLINE_OF_MUTATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2359b670-41f0-4ec7-8db9-3f87f7577bc3"),
     "Leyline of Mutation",
     CardArt::new("2359b670-41f0-4ec7-8db9-3f87f7577bc3", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::static_ability(
+            "You may pay {W}{U}{B}{R}{G} rather than pay the mana cost for spells you cast.",
+            EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
+                spell: ObjectPredicateDef::Any,
+                caster: PlayerRelation::You,
+                zones: &[
+                    ZoneKind::Library,
+                    ZoneKind::Hand,
+                    ZoneKind::Graveyard,
+                    ZoneKind::Exile,
+                ],
+                cost: mana_cost!("{W}{U}{B}{R}{G}"),
+            }),
+        ),
+    ]),
 );
 
 // DSK 191 — Monstrous Emergence

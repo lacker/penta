@@ -117,8 +117,10 @@ impl Game {
                             .iter()
                             .find(|grant| {
                                 grant.object == card.id
-                                    && crate::card::AbilityPredicateDef::Suspend
-                                        .matches(&grant.ability)
+                                    && crate::card::AbilityPredicateDef::Is(
+                                        crate::card::AbilityKindDef::Suspend,
+                                    )
+                                    .matches(&grant.ability)
                             })
                             .and_then(|grant| grant.source)
                     })

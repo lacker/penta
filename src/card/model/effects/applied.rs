@@ -295,11 +295,12 @@ impl BlockRestrictionDef {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRuleDef {
-    /// The legend rule does not apply to the affected player. The rule is
-    /// controller-specific even though the source is usually a global
-    /// artifact, because CR 704.5j examines one player's permanents at a
-    /// time.
-    LegendRuleDoesNotApply,
+    /// The legend rule ignores matching permanents the affected player
+    /// controls. The predicate is part of the rule because exemptions range
+    /// from every permanent (Mirror Gallery) to only tokens, creatures, or a
+    /// named creature type. Nonmatching legendary permanents still form
+    /// ordinary same-name groups with one another.
+    LegendRuleDoesNotApplyTo(&'static ObjectPredicateDef),
     /// The affected player cannot be targeted by spells or abilities their
     /// opponents control. Unlike protection, this does not prevent damage or
     /// make an Aura that is already attached fall off.

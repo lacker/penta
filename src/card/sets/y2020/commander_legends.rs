@@ -44,6 +44,17 @@ pub(in crate::card::sets) static HULLBREACHER: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&HULLBREACHER];
+// CMR 89 — Sakashima of a Thousand Faces
+// Audit: unsupported — Needs the Partner deck-construction permission and an entry-copy exception that retains every other ability printed on the source.
+pub(in crate::card::sets) static SAKASHIMA_OF_A_THOUSAND_FACES: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("714c3a1f-7b30-4ed8-8f38-6176758741fb"),
+    "Sakashima of a Thousand Faces",
+    CardArt::new("714c3a1f-7b30-4ed8-8f38-6176758741fb", "Jason A. Engle"),
+    CardSet::CommanderLegends,
+    CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&HULLBREACHER, &SAKASHIMA_OF_A_THOUSAND_FACES];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -414,6 +414,19 @@ pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// NEO 250 — Mirror Box
+// Audit: unsupported — Needs a static value evaluated relative to each affected creature so it can count other creatures sharing that creature's name.
+pub(in crate::card::sets) static MIRROR_BOX: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("d507daa3-3f16-4ab1-81ea-794e5bb488fc"),
+    "Mirror Box",
+    CardArt::new(
+        "d507daa3-3f16-4ab1-81ea-794e5bb488fc",
+        "Néstor Ossandón Leal",
+    ),
+    CardSet::KamigawaNeonDynasty,
+    CardRules::unsupported(),
+);
+
 // NEO 271 — Otawara, Soaring City
 /// The discount, which is what makes the land a spell: a legendary board
 /// takes the channel cost down toward the {U} that cannot be reduced away.
@@ -701,6 +714,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HINATA_DAWN_CROWNED,
     &TAMIYO_COMPLEATED_SAGE,
     &IRON_APPRENTICE,
+    &MIRROR_BOX,
     &OTAWARA_SOARING_CITY,
     &FABLE_OF_THE_MIRROR_BREAKER,
     &BOSEIJU_WHO_ENDURES,

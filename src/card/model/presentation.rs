@@ -8,10 +8,10 @@ use super::presentation_predicates::{
     predicate_subtype,
 };
 use super::{
-    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, CardEffectStatus,
-    CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef, DividedTotal,
-    ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRelation, TargetPredicate,
-    ZoneKind,
+    AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    CardEffectStatus, CardSupertype, CardType, ConditionalModeMaximumDef, DeclarativeAbilityDef,
+    DividedTotal, ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
+    TargetPredicate, ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -261,7 +261,7 @@ fn semantic_card_subject(object: ObjectPredicateDef) -> String {
     }
     if object_predicate_implies(
         object,
-        ObjectPredicateDef::HasAbility(AbilityPredicateDef::Flashback),
+        ObjectPredicateDef::HasAbility(AbilityPredicateDef::Is(AbilityKindDef::Flashback)),
     ) {
         "card with flashback".into()
     } else if object_predicate_implies(object, ObjectPredicateDef::HasType(CardType::Creature)) {

@@ -912,6 +912,21 @@ const SET_MODULES: &[SetModule] = &[
         y2018::guilds_of_ravnica::CARDS,
         y2018::guilds_of_ravnica::ADDITIONAL_PRINTINGS,
     ),
+    SetModule::new(
+        CardSet::CommanderMasters,
+        y2023::commander_masters::CARDS,
+        y2023::commander_masters::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::DoctorWho,
+        y2023::doctor_who::CARDS,
+        y2023::doctor_who::ADDITIONAL_PRINTINGS,
+    ),
+    SetModule::new(
+        CardSet::MarvelSuperHeroesCommander,
+        y2026::marvel_super_heroes_commander::CARDS,
+        y2026::marvel_super_heroes_commander::ADDITIONAL_PRINTINGS,
+    ),
 ];
 
 pub(super) fn definitions() -> Vec<CardDefinition> {

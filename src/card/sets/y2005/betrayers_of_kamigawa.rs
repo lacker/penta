@@ -65,7 +65,7 @@ pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::players(PlayerSetDef::All),
             effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
-                PlayerRuleDef::LegendRuleDoesNotApply,
+                PlayerRuleDef::LegendRuleDoesNotApplyTo(&ObjectPredicateDef::Any),
             )),
         },
     )),

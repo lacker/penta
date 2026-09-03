@@ -12,7 +12,7 @@ use std::ops::ControlFlow;
 use crate::card::{
     AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, DamageEventMatcherDef,
     DamageLimitDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ObjectPredicateDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
 };
 use crate::ids::{GameObjectId, PlayerId};
 
@@ -526,6 +526,16 @@ impl Game {
         affected_player: PlayerId,
         mut visitor: impl FnMut(AppliedRuleDef),
     ) {
+        self.visit_player_static_rules_with_source(affected_player, |_, rule| visitor(rule));
+    }
+
+    /// Every player rule a live static ability applies, retaining the source
+    /// whose perspective a predicate carried by that rule must use.
+    pub(in crate::game) fn visit_player_static_rules_with_source(
+        &self,
+        affected_player: PlayerId,
+        mut visitor: impl FnMut(GameObjectId, AppliedRuleDef),
+    ) {
         let land_type_sources = self.land_type_effect_sources(None);
         for source in self.battlefield.iter().chain(self.emblems.iter()) {
             let Some(rules) = self.effective_rules(source) else {
@@ -556,7 +566,7 @@ impl Game {
                 if !self.static_player_recipient_matches(recipient, source, affected_player) {
                     continue;
                 }
-                Self::visit_player_rule_leaves(effect, &mut visitor);
+                Self::visit_player_rule_leaves(effect, source.card.id, &mut visitor);
             }
         }
     }
@@ -565,17 +575,60 @@ impl Game {
     /// clause that applies several at once is written as.
     fn visit_player_rule_leaves(
         effect: AppliedEffectDef,
-        visitor: &mut impl FnMut(AppliedRuleDef),
+        source: GameObjectId,
+        visitor: &mut impl FnMut(GameObjectId, AppliedRuleDef),
     ) {
         match effect {
             AppliedEffectDef::Composite(components) => {
                 for component in components {
-                    Self::visit_player_rule_leaves(*component, visitor);
+                    Self::visit_player_rule_leaves(*component, source, visitor);
                 }
             }
-            AppliedEffectDef::Rule(rule) => visitor(rule),
+            AppliedEffectDef::Rule(rule) => visitor(source, rule),
             AppliedEffectDef::Characteristic(_) => {}
         }
+    }
+
+    /// Whether the legend-rule exemptions applying to this permanent's
+    /// controller match this particular permanent.
+    pub(in crate::game) fn legend_rule_does_not_apply_to(&self, permanent: &Permanent) -> bool {
+        let affected_player = permanent.controller;
+        let object = self.trigger_event_object(permanent);
+        let matches = |predicate: ObjectPredicateDef, source: GameObjectId| {
+            self.trigger_object_matches_for_controller(
+                predicate,
+                &object,
+                source,
+                false,
+                Some(affected_player),
+            )
+        };
+
+        if self.resolved_player_rules.iter().any(|resolved| {
+            resolved.affected_player == affected_player
+                && self.continuous_effect_expiration_is_active(
+                    resolved.expiration,
+                    resolved.source.object,
+                )
+                && matches!(
+                    resolved.rule,
+                    crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate)
+                        if matches(*predicate, resolved.source.object)
+                )
+        }) {
+            return true;
+        }
+
+        let mut exempt = false;
+        self.visit_player_static_rules_with_source(affected_player, |source, rule| {
+            if let AppliedRuleDef::PlayerRule(
+                crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
+            ) = rule
+            {
+                exempt = exempt || matches(*predicate, source);
+            }
+        });
+        exempt
     }
 
     fn collect_static_play_restrictions(

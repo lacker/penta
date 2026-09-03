@@ -136,7 +136,10 @@ impl Game {
     }
 
     pub(super) fn card_has_suspend(&self, card: &super::CardInstance) -> bool {
-        self.object_has_ability(card.id, crate::card::AbilityPredicateDef::Suspend)
+        self.object_has_ability(
+            card.id,
+            crate::card::AbilityPredicateDef::Is(crate::card::AbilityKindDef::Suspend),
+        )
     }
 
     pub(super) fn is_suspended(&self, object: GameObjectId) -> bool {

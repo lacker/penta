@@ -406,12 +406,10 @@ impl Game {
     /// state-based actions again, which finds the next.
     fn legend_rule_group(&self) -> Option<(PlayerId, Vec<GameObjectId>)> {
         for permanent in &self.battlefield {
-            if self.player_rule_applies(
-                permanent.controller,
-                AppliedRuleDef::PlayerRule(crate::card::PlayerRuleDef::LegendRuleDoesNotApply),
-            ) || !self
-                .permanent_supertypes(permanent)
-                .is_some_and(|supertypes| supertypes.contains(CardSupertype::Legendary))
+            if self.legend_rule_does_not_apply_to(permanent)
+                || !self
+                    .permanent_supertypes(permanent)
+                    .is_some_and(|supertypes| supertypes.contains(CardSupertype::Legendary))
             {
                 continue;
             }
@@ -423,6 +421,7 @@ impl Game {
                 .iter()
                 .filter(|other| {
                     other.controller == permanent.controller
+                        && !self.legend_rule_does_not_apply_to(other)
                         && self
                             .permanent_supertypes(other)
                             .is_some_and(|supertypes| supertypes.contains(CardSupertype::Legendary))

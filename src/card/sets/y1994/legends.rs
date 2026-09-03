@@ -4025,7 +4025,9 @@ pub(in crate::card::sets) static SHELKIN_BROWNIE: CardRecord = CardRecord::new_w
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::AnyBandsWithOther),
+                effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Is(
+                    crate::card::AbilityKindDef::BandsWithOther,
+                )),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -6044,7 +6046,9 @@ pub(in crate::card::sets) static HAMMERHEIM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::AnyLandwalk),
+                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Is(
+                        crate::card::AbilityKindDef::Landwalk,
+                    )),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },
             ),
@@ -6223,7 +6227,9 @@ pub(in crate::card::sets) static TOLARIA: CardRecord = CardRecord::new_with_lega
                         AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
                             KeywordAbility::Banding,
                         )),
-                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::AnyBandsWithOther),
+                        AppliedEffectDef::remove_abilities(AbilityPredicateDef::Is(
+                            crate::card::AbilityKindDef::BandsWithOther,
+                        )),
                     ]),
                     duration: ResolvedEffectDurationDef::UntilEndOfTurn,
                 },

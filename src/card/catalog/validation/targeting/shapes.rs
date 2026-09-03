@@ -872,6 +872,12 @@ fn validate_applied_effect_shapes(
             }
             Ok(())
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
+        )) => {
+            validate_recipient_shape(recipient, targets, RecipientExpectation::Player)?;
+            validate_object_predicate_shape(*predicate, targets)
+        }
         // Each names a player and carries nothing else.
         AppliedEffectDef::Rule(
             AppliedRuleDef::Ascend

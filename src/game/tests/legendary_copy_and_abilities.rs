@@ -77,6 +77,148 @@ fn mirror_gallery_suspends_the_legend_rule_for_every_player() {
 }
 
 #[test]
+fn cadric_exempts_tokens_without_hiding_a_nontoken_legend_group() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.put_onto_battlefield(PlayerId::One, definition(&game, "Cadric, Soul Kindler"))
+        .expect("Cadric is cataloged");
+    drain_pending(&mut game);
+
+    let mut token_copy = copied_characteristics(cards::SAVANNAH_LIONS);
+    token_copy.name = Some("Shared Legend".to_owned());
+    token_copy.added_supertypes[CardSupertype::Legendary.index()] = true;
+    game.create_token_copy(PlayerId::One, token_copy, None, CardPartId::PRIMARY);
+    drain_pending(&mut game);
+    let token = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition.is_token())
+        .expect("the token copy entered")
+        .card
+        .id;
+
+    game.battlefield.extend([
+        copied_legend(
+            90_104,
+            cards::SAVANNAH_LIONS,
+            "Shared Legend",
+            PlayerId::One,
+        ),
+        copied_legend(
+            90_105,
+            cards::SAVANNAH_LIONS,
+            "Shared Legend",
+            PlayerId::One,
+        ),
+    ]);
+    game.check_state_based_actions();
+
+    let decision = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("the two nonexempt nontokens still invoke the legend rule");
+    let candidates = decision
+        .options
+        .iter()
+        .filter_map(|option| option.card.map(|(object, _)| object))
+        .collect::<Vec<_>>();
+    assert_eq!(candidates.len(), 2);
+    assert!(!candidates.contains(&token));
+}
+
+#[test]
+fn cadric_copies_an_arriving_legend_and_grants_the_token_haste() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.put_onto_battlefield(PlayerId::One, definition(&game, "Cadric, Soul Kindler"))
+        .expect("Cadric is cataloged");
+    drain_pending(&mut game);
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+    let livonya = definition(&game, "Livonya Silone");
+    game.put_onto_battlefield(PlayerId::One, livonya)
+        .expect("Livonya is cataloged");
+
+    for _ in 0..12 {
+        if let Some(decision) = game
+            .pending_decisions
+            .first()
+            .map(|pending| pending.observation.clone())
+        {
+            let pay = decision
+                .options
+                .iter()
+                .find(|option| option.label != "Decline")
+                .expect("Cadric offers the payment")
+                .id;
+            game.apply(
+                decision.player,
+                Action::ChooseDecision {
+                    decision: decision.id,
+                    options: vec![pay],
+                },
+            )
+            .expect("the payment is accepted");
+            continue;
+        }
+        if game.stack.is_empty() && game.pending_triggers.is_empty() {
+            break;
+        }
+        let priority = game.priority;
+        game.apply(priority, Action::PassPriority)
+            .expect("priority advances the trigger");
+    }
+
+    let token = game
+        .battlefield
+        .iter()
+        .find(|permanent| {
+            permanent.card.definition.is_token()
+                && game.effective_permanent_name(permanent).as_deref() == Some("Livonya Silone")
+        })
+        .expect("Cadric made the copy token");
+    assert!(game.permanent_has_executable_keyword(token, KeywordAbility::Haste));
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .filter(|permanent| {
+                game.effective_permanent_name(permanent).as_deref() == Some("Livonya Silone")
+            })
+            .count(),
+        2,
+        "the token exemption lets the original and copy coexist",
+    );
+}
+
+#[test]
+fn council_of_reeds_exempts_creatures_but_not_other_permanents() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.put_onto_battlefield(PlayerId::One, definition(&game, "Council of Reeds"))
+        .expect("Council of Reeds is cataloged");
+    drain_pending(&mut game);
+    game.battlefield.extend([
+        copied_legend(90_106, cards::SAVANNAH_LIONS, "Council Pair", PlayerId::One),
+        copied_legend(90_107, cards::SAVANNAH_LIONS, "Council Pair", PlayerId::One),
+    ]);
+
+    game.check_state_based_actions();
+    assert!(
+        game.observe(PlayerId::One).decision.is_none(),
+        "same-named legendary creatures are exempt",
+    );
+
+    game.battlefield.extend([
+        copied_legend(90_108, cards::BLACK_LOTUS, "Relic Pair", PlayerId::One),
+        copied_legend(90_109, cards::BLACK_LOTUS, "Relic Pair", PlayerId::One),
+    ]);
+    game.check_state_based_actions();
+    assert!(
+        game.observe(PlayerId::One).decision.is_some(),
+        "same-named legendary noncreatures still invoke the legend rule",
+    );
+}
+
+#[test]
 fn sakashima_entry_copy_keeps_its_name_legendary_status_and_return_ability() {
     let mut game = ready_game();
     game.battlefield.clear();
@@ -245,6 +387,8 @@ fn audited_cards_are_complete_declarative_definitions() {
         "Helm of the Host",
         "Heroes' Podium",
         "Hammerheim",
+        "Cadric, Soul Kindler",
+        "Council of Reeds",
     ] {
         let card = game
             .catalog
@@ -253,6 +397,29 @@ fn audited_cards_are_complete_declarative_definitions() {
         assert_eq!(
             card.implementation_status(),
             ImplementationStatus::Complete,
+            "{name}",
+        );
+    }
+}
+
+#[test]
+fn audited_blockers_remain_whole_card_unsupported() {
+    let game = ready_game();
+    for name in [
+        "Mirror Box",
+        "Sakashima of a Thousand Faces",
+        "Brothers Yamazaki",
+        "Sliver Gravemother",
+        "The Master, Multiplied",
+        "Spider-Verse",
+    ] {
+        let card = game
+            .catalog
+            .get(definition(&game, name))
+            .expect("cataloged");
+        assert_eq!(
+            card.implementation_status(),
+            ImplementationStatus::Unsupported,
             "{name}",
         );
     }

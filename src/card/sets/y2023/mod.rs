@@ -1,5 +1,7 @@
 //! Card sets first released in 2023.
 
+pub(super) mod commander_masters;
+pub(super) mod doctor_who;
 pub(super) mod lord_of_the_rings;
 pub(super) mod lord_of_the_rings_commander;
 pub(super) mod lost_caverns_of_ixalan;

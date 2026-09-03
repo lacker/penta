@@ -333,6 +333,11 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("dark_ascension.rs") => source(CardSet::DarkAscension, "DKA"),
         Some("magic_2012.rs") => source(CardSet::Magic2012, "M12"),
         Some("commander_2011.rs") => source(CardSet::Commander2011, "CMD"),
+        Some("commander_masters.rs") => source(CardSet::CommanderMasters, "CMM"),
+        Some("doctor_who.rs") => source(CardSet::DoctorWho, "WHO"),
+        Some("marvel_super_heroes_commander.rs") => {
+            source(CardSet::MarvelSuperHeroesCommander, "MSC")
+        }
         Some("magic_2013.rs") => source(CardSet::Magic2013, "M13"),
         Some("return_to_ravnica.rs") => source(CardSet::ReturnToRavnica, "RTR"),
         Some("dragons_maze.rs") => source(CardSet::DragonsMaze, "DGM"),

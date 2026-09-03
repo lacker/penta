@@ -5,7 +5,7 @@
 //! continuously, to whom, and for how long.
 
 use super::*;
-use crate::ControlDurationDef;
+use crate::{ControlDurationDef, card::PlayerRuleDef};
 
 fn cast_source_zones_supported(zones: &[ZoneKind]) -> bool {
     !zones.is_empty()
@@ -651,6 +651,10 @@ pub(in super::super) fn shared_static_applied_effect(
 fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDef) -> bool {
     match rule {
         AppliedRuleDef::RedirectDamageFromTo { .. } => false,
+        AppliedRuleDef::PlayerRule(PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate)) => {
+            matches!(recipient.0, EffectRecipientSetDef::Players(_))
+                && shared_object_predicate(*predicate)
+        }
         AppliedRuleDef::BlockRestriction(restriction) => {
             (matches!(
                 recipient.object_reference(),

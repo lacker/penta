@@ -215,6 +215,9 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::MarchOfTheMachineCommander => "march-of-the-machine-commander",
         CardSet::LostCavernsOfIxalanCommander => "lost-caverns-of-ixalan-commander",
         CardSet::GuildsOfRavnica => "guilds-of-ravnica",
+        CardSet::CommanderMasters => "commander-masters",
+        CardSet::DoctorWho => "doctor-who",
+        CardSet::MarvelSuperHeroesCommander => "marvel-super-heroes-commander",
         CardSet::Token => "token",
     }
 }

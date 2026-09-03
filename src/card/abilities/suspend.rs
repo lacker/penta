@@ -28,12 +28,16 @@ pub(crate) static GRANTED_SUSPEND: AbilityDef = keyword(
 const SUSPEND_TIME: CounterKind = CounterKind::named("time");
 const SUSPENDED_CARD_PARTS: [ObjectPredicateDef; 2] = [
     ObjectPredicateDef::HasCounter(SUSPEND_TIME),
-    ObjectPredicateDef::HasAbility(crate::card::AbilityPredicateDef::Suspend),
+    ObjectPredicateDef::HasAbility(crate::card::AbilityPredicateDef::Is(
+        crate::card::AbilityKindDef::Suspend,
+    )),
 ];
 pub(crate) const SUSPENDED_CARD: ObjectPredicateDef =
     ObjectPredicateDef::All(&SUSPENDED_CARD_PARTS);
 const SOURCE_HAS_SUSPEND: ObjectPredicateDef =
-    ObjectPredicateDef::HasAbility(crate::card::AbilityPredicateDef::Suspend);
+    ObjectPredicateDef::HasAbility(crate::card::AbilityPredicateDef::Is(
+        crate::card::AbilityKindDef::Suspend,
+    ));
 const SUSPEND_SOURCE_IS_SUSPENDED_PARTS: [TriggerConditionDef; 3] = [
     TriggerConditionDef::SourceInZone(ZoneKind::Exile),
     TriggerConditionDef::SourceCounters {

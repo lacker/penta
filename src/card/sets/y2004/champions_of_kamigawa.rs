@@ -70,6 +70,16 @@ pub(in crate::card::sets) static BATTLE_MAD_RONIN: CardRecord = CardRecord::new(
     ]),
 );
 
+// CHK 160a — Brothers Yamazaki
+// Audit: unsupported — Needs bushido plus a static legend-rule exemption gated on exactly two same-named permanents across the battlefield.
+pub(in crate::card::sets) static BROTHERS_YAMAZAKI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("acef8c94-469b-4a76-b507-25b51f2501ab"),
+    "Brothers Yamazaki",
+    CardArt::new("acef8c94-469b-4a76-b507-25b51f2501ab", "Ron Spears"),
+    CardSet::ChampionsOfKamigawa,
+    CardRules::unsupported(),
+);
+
 // CHK 193 — Through the Breach
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
     2190,
@@ -220,6 +230,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &KONDA_LORD_OF_EIGANJO,
     &CURSED_RONIN,
     &BATTLE_MAD_RONIN,
+    &BROTHERS_YAMAZAKI,
     &THROUGH_THE_BREACH,
     &SAKURA_TRIBE_ELDER,
     &SENSEIS_DIVINING_TOP,

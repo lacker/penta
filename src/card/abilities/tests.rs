@@ -21,7 +21,7 @@ mod tests {
         tap_for, trample, ward_aura_protection, EQUIP_TARGET, equip,
     };
     use crate::card::{
-        AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef,
+        AbilityCostDef, AbilityCostList, AbilityDef, AbilityKindDef, AbilityPredicateDef,
         AbilityTargetDef, ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef,
         AlternativeCastManaCostDef, BasicLandType, CardRules, CardType, ConditionDef,
         CollectionInspectionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
@@ -728,8 +728,8 @@ mod tests {
                     && definition.mana_cost
                         == AlternativeCastManaCostDef::Fixed(mana_cost!("{2}{U}"))
         ));
-        assert!(AbilityPredicateDef::Flashback.matches(&flashback));
-        assert!(!AbilityPredicateDef::Flashback.matches(&overload));
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::Flashback).matches(&flashback));
+        assert!(!AbilityPredicateDef::Is(AbilityKindDef::Flashback).matches(&overload));
         assert_eq!(
             flashback.rules_text(),
             "Flashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
@@ -764,10 +764,10 @@ mod tests {
     }
 
     #[test]
-    fn any_landwalk_selector_covers_basic_and_legendary_landwalk_only() {
-        assert!(AbilityPredicateDef::AnyLandwalk.matches(&mountainwalk()));
-        assert!(AbilityPredicateDef::AnyLandwalk.matches(&legendary_landwalk()));
-        assert!(!AbilityPredicateDef::AnyLandwalk.matches(&flying()));
+    fn landwalk_ability_kind_covers_basic_and_legendary_landwalk_only() {
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::Landwalk).matches(&mountainwalk()));
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::Landwalk).matches(&legendary_landwalk()));
+        assert!(!AbilityPredicateDef::Is(AbilityKindDef::Landwalk).matches(&flying()));
     }
 
     #[test]

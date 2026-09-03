@@ -23,16 +23,24 @@ pub enum SacrificedAmountDef {
 pub enum AbilityPredicateDef {
     Any,
     Keyword(KeywordAbility),
-    /// A flashback alternative-cast ability, whatever cost it names.
+    /// An ability belonging to one structural family, whatever parameters
+    /// that instance carries. This is the reusable form for wording such as
+    /// "loses all landwalk abilities" and for predicates that ask whether a
+    /// card has suspend or flashback without naming its cost.
+    Is(AbilityKindDef),
+}
+
+/// A structural family an [`AbilityPredicateDef`] can recognize.
+///
+/// These are properties of authored ability definitions rather than keyword
+/// flags on an object: landwalk includes both ordinary and legendary
+/// landwalk, while bands with other ignores the quality it names.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum AbilityKindDef {
     Flashback,
-    /// Suspend, whatever time and mana parameters its hand action names.
     Suspend,
-    /// Every "bands with other" ability, whatever quality it names. Two cards
-    /// strip them all at once, and neither says which qualities it means.
-    AnyBandsWithOther,
-    /// Every landwalk ability, including legendary landwalk. This is the
-    /// structural meaning of "loses all landwalk abilities."
-    AnyLandwalk,
+    BandsWithOther,
+    Landwalk,
 }
 
 impl AbilityPredicateDef {
@@ -45,25 +53,27 @@ impl AbilityPredicateDef {
                 ability.definition,
                 DeclarativeAbilityDef::Keyword(actual) if actual == expected
             ),
-            Self::Flashback => matches!(
-                ability.definition,
-                DeclarativeAbilityDef::AlternativeCast(alternative)
-                    if alternative.kind == AlternativeCastKindDef::Flashback
-            ),
-            Self::Suspend => matches!(
-                ability.definition,
-                DeclarativeAbilityDef::Keyword(KeywordAbility::Suspend(_))
-            ),
-            Self::AnyBandsWithOther => matches!(
-                ability.definition,
-                DeclarativeAbilityDef::Keyword(KeywordAbility::BandsWithOther(_))
-            ),
-            Self::AnyLandwalk => matches!(
-                ability.definition,
-                DeclarativeAbilityDef::Keyword(
-                    KeywordAbility::Landwalk(_) | KeywordAbility::LegendaryLandwalk
-                )
-            ),
+            Self::Is(kind) => match kind {
+                AbilityKindDef::Flashback => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::AlternativeCast(alternative)
+                        if alternative.kind == AlternativeCastKindDef::Flashback
+                ),
+                AbilityKindDef::Suspend => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::Suspend(_))
+                ),
+                AbilityKindDef::BandsWithOther => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::BandsWithOther(_))
+                ),
+                AbilityKindDef::Landwalk => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Keyword(
+                        KeywordAbility::Landwalk(_) | KeywordAbility::LegendaryLandwalk
+                    )
+                ),
+            },
         }
     }
 }

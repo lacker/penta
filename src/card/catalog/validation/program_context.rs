@@ -407,6 +407,9 @@ fn static_player_applied_effect_supported(effect: AppliedEffectDef) -> bool {
             restriction.defender != AttackDefenderScopeDef::Any
                 && static_attack_restriction_supported(restriction)
         }
+        AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+            crate::card::PlayerRuleDef::LegendRuleDoesNotApplyTo(predicate),
+        )) => static_object_predicate_supported(*predicate),
         // Read by the cleanup step, by the same walk and for the same reason.
         // The colour permission is read the same way, from the mana payment
         // rather than the cleanup step.

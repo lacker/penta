@@ -13,6 +13,8 @@ impl Game {
                 | CharacteristicOperationDef::CardTypes(_)
                 | CharacteristicOperationDef::Supertypes(_)
                 | CharacteristicOperationDef::CreatureTypes(_)
+                | CharacteristicOperationDef::AddChosenCreatureType
+                | CharacteristicOperationDef::SetChosenCreatureType
                 | CharacteristicOperationDef::Subtypes(_),
             ) => true,
             AppliedEffectDef::Characteristic(

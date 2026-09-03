@@ -225,9 +225,12 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                     | PlayerSetDef::Related(_),
                 ) => true,
                 EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
-                    query.zones == [ZoneKind::Battlefield]
+                    (query.zones == [ZoneKind::Battlefield]
                         && shared_object_predicate(query.object)
-                        && shared_static_query(query)
+                        && shared_static_query(query))
+                        || source_zones == [ZoneKind::Battlefield]
+                            && shared_static_creature_type_effect(effect)
+                            && shared_static_creature_type_query(recipient)
                 }
                 // A static clause names one kind of thing or the other, and
                 // names it outright rather than by what it is attacking.
@@ -472,6 +475,24 @@ fn shared_stack_uncounterability_effect(effect: AppliedEffectDef) -> bool {
     }
 }
 
+fn shared_static_creature_type_effect(effect: AppliedEffectDef) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => {
+            !effects.is_empty()
+                && effects
+                    .iter()
+                    .copied()
+                    .all(shared_static_creature_type_effect)
+        }
+        AppliedEffectDef::Characteristic(
+            CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::AddChosenCreatureType
+            | CharacteristicOperationDef::SetChosenCreatureType,
+        ) => true,
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
+    }
+}
+
 fn shared_static_animation_query(recipient: EffectRecipientDef) -> bool {
     shared_direct_characteristic_recipient(recipient)
         || recipient.object_query().is_some_and(|query| {
@@ -486,6 +507,14 @@ fn shared_static_type_animation_query(recipient: EffectRecipientDef) -> bool {
         || recipient.object_query().is_some_and(|query| {
             query.zones == [ZoneKind::Battlefield]
                 && shared_static_query(query)
+                && Game::static_type_animation_predicate_is_supported(query.object)
+        })
+}
+
+fn shared_static_creature_type_query(recipient: EffectRecipientDef) -> bool {
+    shared_direct_characteristic_recipient(recipient)
+        || recipient.object_query().is_some_and(|query| {
+            shared_static_query(query)
                 && Game::static_type_animation_predicate_is_supported(query.object)
         })
 }
@@ -583,9 +612,11 @@ pub(in super::super) fn shared_static_applied_effect(
             };
             !supertypes.is_empty() && shared_static_animation_query(recipient)
         }
-        AppliedEffectDef::Characteristic(CharacteristicOperationDef::CreatureTypes(_)) => {
-            shared_direct_characteristic_recipient(recipient)
-        }
+        AppliedEffectDef::Characteristic(
+            CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::AddChosenCreatureType
+            | CharacteristicOperationDef::SetChosenCreatureType,
+        ) => shared_static_creature_type_query(recipient),
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
         )) => false,

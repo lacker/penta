@@ -1,24 +1,14 @@
 use super::continuous_effects::StaticEffectKind;
 use super::continuous_effects::StaticSetCharacteristicLayerGuard;
 use super::{
-    AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicOperationDef,
-    ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef, DeclarativeAbilityDef,
-    EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game, LandTypeOperation, ObjectKind,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent, ResolvedContinuousEffectKind,
-    SetOperationDef, TriggerContext, ZoneKind,
+    AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicContext,
+    CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
+    LandTypeOperation, ObjectKind, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent,
+    ResolvedContinuousEffectKind, SetOperationDef, StaticAffectedObject, TriggerContext,
+    TriggerEventObject, ZoneKind,
 };
 use crate::card::LAND_SUBTYPES;
-
-#[derive(Clone)]
-enum SubtypeLayerOperation {
-    BasicLand(LandTypeOperation),
-    Creature(SetOperationDef<CreatureTypeSetDef>),
-    Named(SetOperationDef<&'static [&'static str]>),
-    /// The same as adding named subtypes, over a list a copy carries rather
-    /// than one a card printed. Owned because the copy's exceptions are
-    /// interned per game rather than authored as a static slice.
-    AddedNamed(Vec<&'static str>),
-}
 
 impl Game {
     fn land_type_operations(
@@ -655,23 +645,7 @@ impl Game {
         }
         if let Some(_pass) = StaticSetCharacteristicLayerGuard::enter() {
             let mut collect = |applied: super::StaticAppliedEffect| {
-                match applied.effect {
-                    AppliedEffectDef::Characteristic(
-                        CharacteristicOperationDef::CreatureTypes(operation),
-                    ) => operations.push((
-                        applied.timestamp,
-                        applied.component_order,
-                        SubtypeLayerOperation::Creature(operation),
-                    )),
-                    AppliedEffectDef::Characteristic(CharacteristicOperationDef::Subtypes(
-                        operation,
-                    )) => operations.push((
-                        applied.timestamp,
-                        applied.component_order,
-                        SubtypeLayerOperation::Named(operation),
-                    )),
-                    _ => {}
-                }
+                self.collect_static_subtype_operation(&applied, prospective, &mut operations);
                 ControlFlow::Continue(())
             };
             let result = if let Some(prospective) = prospective {
@@ -821,6 +795,14 @@ impl Game {
                         if !subtypes.contains(subtype) {
                             subtypes.push(subtype);
                         }
+                    }
+                }
+                SubtypeLayerOperation::ChosenCreature { chosen, replace } => {
+                    if replace {
+                        subtypes.retain(|subtype| !CREATURE_TYPES.contains(subtype));
+                    }
+                    if !subtypes.contains(&chosen) {
+                        subtypes.push(chosen);
                     }
                 }
                 SubtypeLayerOperation::AddedNamed(types) => {
@@ -980,5 +962,6 @@ impl Game {
 }
 
 include!("land_type_layers/effect_inspection.rs");
+include!("land_type_layers/nonpermanent_objects.rs");
 include!("land_type_layers/prepared.rs");
 include!("land_type_layers/query_memo.rs");

@@ -321,7 +321,7 @@ impl Game {
                 }
             }
         }
-        Some(TriggerEventObject {
+        let mut object = TriggerEventObject {
             id,
             token: false,
             types,
@@ -341,7 +341,9 @@ impl Game {
             attacked_during_controllers_last_turn: false,
             attacked_this_turn: false,
             saddled: false,
-        })
+        };
+        self.apply_static_subtype_effects_to_object(&mut object, context);
+        Some(object)
     }
 
     /// Whether the step this spell would be cast in satisfies its own timing

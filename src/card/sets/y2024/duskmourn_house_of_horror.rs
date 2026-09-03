@@ -6,13 +6,14 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    CopyStackObjectDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, EmblemCharacteristics, GraveyardPlayPermissionDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementConditionDef,
+    BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, CopyStackObjectDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
+    GraveyardPlayPermissionDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
     SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
     TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -849,13 +850,41 @@ pub(in crate::card::sets) static SCREAMING_NEMESIS: CardRecord = CardRecord::new
 );
 
 // DSK 372 — Leyline of Transformation
-// Audit: unsupported — Needs an as-enters creature-type choice feeding type layers in every relevant zone.
 pub(in crate::card::sets) static LEYLINE_OF_TRANSFORMATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd545d86-9a3e-4e4f-b0fe-9363a85b9290"),
     "Leyline of Transformation",
     CardArt::new("fd545d86-9a3e-4e4f-b0fe-9363a85b9290", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::replacement(
+            "As this enchantment enters, choose a creature type.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                BattlefieldEntryScalarChoiceDef::CREATURE_TYPE,
+            )),
+        ),
+        AbilityDef::static_ability(
+            "Creatures you control are the chosen type in addition to their other types. The same is true for creature spells you control and creature cards you own that aren't on the battlefield.",
+            EffectDef::StaticApply {
+                // `matching` is deliberately zone-relative: controller on the
+                // battlefield and stack, owner for cards everywhere else.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[
+                        ZoneKind::Battlefield,
+                        ZoneKind::Stack,
+                        ZoneKind::Library,
+                        ZoneKind::Hand,
+                        ZoneKind::Graveyard,
+                        ZoneKind::Exile,
+                        ZoneKind::Command,
+                    ],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_chosen_creature_type(),
+            },
+        ),
+    ]),
 );
 
 // DSK 387 — Overlord of the Mistmoors

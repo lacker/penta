@@ -78,8 +78,7 @@ impl Game {
     fn visit_static_source_effects(
         &self,
         input: StaticEffectSource<'_>,
-        affected: &Permanent,
-        prospective: Option<&Permanent>,
+        affected: StaticAffectedObject<'_>,
         kind: StaticEffectKind,
         land_type_sources: &[(&Permanent, crate::game::ContinuousEffectTimestamp)],
         prepared: Option<&crate::prepared_engine::PreparedStaticProgram>,
@@ -97,7 +96,6 @@ impl Game {
                 input,
                 source_presentation,
                 affected,
-                prospective,
                 kind,
                 program,
                 visitor,
@@ -151,7 +149,6 @@ impl Game {
                 source_presentation,
                 source_origin: origin,
                 affected,
-                prospective,
                 next_grant: 0,
                 next_component_order: 0,
             };
@@ -170,8 +167,7 @@ impl Game {
         &self,
         input: StaticEffectSource<'_>,
         source_presentation: ObjectCharacteristics,
-        affected: &Permanent,
-        prospective: Option<&Permanent>,
+        affected: StaticAffectedObject<'_>,
         kind: StaticEffectKind,
         program: &crate::prepared_engine::PreparedStaticProgram,
         visitor: &mut impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
@@ -195,7 +191,6 @@ impl Game {
                     source_presentation,
                     source_origin: origin,
                     affected,
-                    prospective,
                     next_grant: 0,
                     next_component_order: 0,
                 };
@@ -224,7 +219,6 @@ impl Game {
                     application.recipient,
                     source,
                     affected,
-                    prospective,
                 ) || !application.trigger_conditions.iter().all(|(condition, expected)| {
                     self.trigger_condition_holds(
                         condition,

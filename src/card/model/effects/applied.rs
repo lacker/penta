@@ -126,6 +126,14 @@ pub enum CharacteristicOperationDef {
     /// A color operation whose value is read from the source permanent.
     Color(SetOperationDef<ManaTypeDef>),
     CreatureTypes(SetOperationDef<CreatureTypeSetDef>),
+    /// Add the creature type this effect's source chose as it entered. The
+    /// choice is object-local rather than part of the authored definition,
+    /// so it is read live from the source when layer 4 is assembled.
+    AddChosenCreatureType,
+    /// Replace the affected object's creature types with the one this
+    /// effect's source chose as it entered. Kept distinct from `Add` because
+    /// Conspiracy and Arcane Adaptation differ on exactly this word.
+    SetChosenCreatureType,
     /// Named subtype operations across every subtype family. Unlike
     /// `CreatureTypes`, this can remove a noncreature subtype such as
     /// Equipment without disturbing the permanent's other subtypes.
@@ -841,6 +849,16 @@ impl AppliedEffectDef {
         Self::Characteristic(CharacteristicOperationDef::CreatureTypes(
             SetOperationDef::Set(types),
         ))
+    }
+
+    #[must_use]
+    pub const fn add_chosen_creature_type() -> Self {
+        Self::Characteristic(CharacteristicOperationDef::AddChosenCreatureType)
+    }
+
+    #[must_use]
+    pub const fn set_chosen_creature_type() -> Self {
+        Self::Characteristic(CharacteristicOperationDef::SetChosenCreatureType)
     }
 
     /// Remove the named subtypes, regardless of which card-type family they

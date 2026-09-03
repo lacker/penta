@@ -270,7 +270,10 @@ fn static_lane(effect: AppliedEffectDef) -> PreparedStaticLane {
             PreparedStaticLane::Abilities
         }
         AppliedEffectDef::Characteristic(
-            CharacteristicOperationDef::CreatureTypes(_) | CharacteristicOperationDef::Subtypes(_),
+            CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::AddChosenCreatureType
+            | CharacteristicOperationDef::SetChosenCreatureType
+            | CharacteristicOperationDef::Subtypes(_),
         ) => PreparedStaticLane::Subtypes,
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::PowerToughness(_)) => {
             PreparedStaticLane::PowerToughness
@@ -294,6 +297,8 @@ fn applied_effect_starts_in_type_layer(effect: AppliedEffectDef) -> bool {
             | CharacteristicOperationDef::CardTypes(_)
             | CharacteristicOperationDef::Supertypes(_)
             | CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::AddChosenCreatureType
+            | CharacteristicOperationDef::SetChosenCreatureType
             | CharacteristicOperationDef::Subtypes(_),
         ) => true,
         AppliedEffectDef::Characteristic(

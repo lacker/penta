@@ -1,5 +1,6 @@
 use super::{
-    ControlFlow, Game, Permanent, StaticAppliedEffect, StaticEffectKind, StaticEffectSource,
+    ControlFlow, Game, Permanent, StaticAffectedObject, StaticAppliedEffect, StaticEffectKind,
+    StaticEffectSource,
 };
 
 impl Game {
@@ -9,6 +10,10 @@ impl Game {
         kind: StaticEffectKind,
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
+        let affected = StaticAffectedObject::Permanent {
+            affected,
+            prospective: None,
+        };
         // Emblems sit outside every zone but their abilities apply, so they
         // are walked alongside the battlefield and nowhere else.
         let land_type_sources = self.land_type_effect_sources(None);
@@ -22,7 +27,6 @@ impl Game {
                 .visit_static_source_effects(
                     StaticEffectSource::battlefield(source, source.timestamp),
                     affected,
-                    None,
                     kind,
                     &land_type_sources,
                     prepared,
@@ -43,7 +47,6 @@ impl Game {
                 .visit_static_source_effects(
                     StaticEffectSource::graveyard(&source),
                     affected,
-                    None,
                     kind,
                     &land_type_sources,
                     prepared,
@@ -65,6 +68,10 @@ impl Game {
         mut visitor: impl FnMut(StaticAppliedEffect) -> ControlFlow<()>,
     ) -> ControlFlow<()> {
         let prospective_source = (prospective.card.id == affected.card.id).then_some(prospective);
+        let affected = StaticAffectedObject::Permanent {
+            affected,
+            prospective: Some(prospective),
+        };
         let land_type_sources = self.land_type_effect_sources(prospective_source);
         for source in self.battlefield.iter().chain(prospective_source) {
             let source_presentation = Self::effective_rules_source(source);
@@ -83,7 +90,6 @@ impl Game {
                 .visit_static_source_effects(
                     StaticEffectSource::battlefield(source, timestamp),
                     affected,
-                    prospective_source,
                     kind,
                     &land_type_sources,
                     prepared,
@@ -104,7 +110,6 @@ impl Game {
                 .visit_static_source_effects(
                     StaticEffectSource::graveyard(&source),
                     affected,
-                    prospective_source,
                     kind,
                     &land_type_sources,
                     prepared,

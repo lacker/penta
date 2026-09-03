@@ -4,6 +4,8 @@ mod untap_limits;
 
 use std::cell::Cell;
 
+use super::continuous_state::StaticAffectedObject;
+
 #[cfg(test)]
 use super::{AbilityId, AbilityOrigin};
 use super::{
@@ -84,6 +86,8 @@ impl StaticEffectKind {
                     Self::Subtypes,
                     AppliedEffectDef::Characteristic(
                         CharacteristicOperationDef::CreatureTypes(_)
+                            | CharacteristicOperationDef::AddChosenCreatureType
+                            | CharacteristicOperationDef::SetChosenCreatureType
                             | CharacteristicOperationDef::Subtypes(_),
                     ),
                 )
@@ -341,12 +345,8 @@ impl Game {
                 // recipient does not match. Grant IDs identify structural
                 // grant sites, so later grants must not be renumbered by
                 // which permanent happens to be queried.
-                let recipient_matches = self.static_recipient_matches(
-                    recipient,
-                    traversal.source,
-                    traversal.affected,
-                    traversal.prospective,
-                );
+                let recipient_matches =
+                    self.static_recipient_matches(recipient, traversal.source, traversal.affected);
                 self.visit_static_applied_effect_components(
                     effect,
                     traversal,
@@ -819,86 +819,12 @@ impl Game {
             .find(|permanent| permanent.card.id == aura)
             .and_then(|permanent| permanent.attached_to)
     }
-
-    pub(super) fn static_recipient_matches(
-        &self,
-        recipient: EffectRecipientDef,
-        source: &Permanent,
-        affected: &Permanent,
-        prospective: Option<&Permanent>,
-    ) -> bool {
-        match recipient.0 {
-            EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::Source)) => {
-                source.card.id == affected.card.id
-            }
-            EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::AttachedToSource)) => {
-                source.attached_to == Some(affected.card.id)
-            }
-            EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
-                query.zones.contains(&ZoneKind::Battlefield)
-                    && self.query_player_constraints_match(
-                        Some(affected.controller),
-                        affected.card.owner,
-                        query,
-                        (source.controller, source.card.id),
-                        TriggerContext::empty(),
-                        None,
-                    )
-                    && self.static_object_predicate_matches(
-                        query.object,
-                        source,
-                        affected,
-                        prospective,
-                    )
-            }
-            // None of these name a permanent a static effect could apply to;
-            // a static effect has no chosen target either, and the mixed
-            // recipient belongs to a resolving damage clause.
-            EffectRecipientSetDef::LegalTargets(_)
-            | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
-            | EffectRecipientSetDef::Objects(
-                ObjectSetDef::One(
-                    ObjectRefDef::Binding(_)
-                    | ObjectRefDef::CreatingSource
-                    | ObjectRefDef::ZoneChangeSuccessor(_)
-                    | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-                    | ObjectRefDef::ResolvingObject
-                    | ObjectRefDef::AdditionalCostObject(_)
-                    | ObjectRefDef::AbilityGrantSource
-                    | ObjectRefDef::Target(_)
-                    | ObjectRefDef::SourceOfTargetedStackObject(_)
-                    | ObjectRefDef::TriggeringObject
-                    | ObjectRefDef::DamagedObject,
-                )
-                | ObjectSetDef::Binding(_)
-
-                | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
-                | ObjectSetDef::MatchingBinding { .. }
-                | ObjectSetDef::Matching { .. }
-                | ObjectSetDef::LegalTargets(_)
-                | ObjectSetDef::PermanentsTargetedBy(_)
-                | ObjectSetDef::PlayerAttachments(_)
-                | ObjectSetDef::LegalAttachmentHosts(_)
-                | ObjectSetDef::LinkedExiles
-                | ObjectSetDef::CardsDrawnThisTurnInHand(_)
-                | ObjectSetDef::PermanentsControlledBy(_)
-                | ObjectSetDef::TokensCreatedBy(_)
-                | ObjectSetDef::BottomOfGraveyard(_)
-                | ObjectSetDef::SharingNameWith(_)
-                | ObjectSetDef::SharingNameWithBinding { .. }
-                | ObjectSetDef::TopOfGraveyardMatching { .. },
-            )
-            // A static clause names what it affects outright; nothing static
-            // is scoped to what a creature happens to be attacking.
-            | EffectRecipientSetDef::DefenderOf(_)
-            | EffectRecipientSetDef::Players(_) => false,
-        }
-    }
 }
 
 include!("continuous_effects/aura_hosts.rs");
 include!("continuous_effects/characteristics.rs");
 include!("continuous_effects/effect_layers.rs");
 include!("continuous_effects/graveyard_sources.rs");
+include!("continuous_effects/nonpermanent_objects.rs");
 include!("continuous_effects/static_predicates.rs");
 include!("continuous_effects/player_auras.rs");

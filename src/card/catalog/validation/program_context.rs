@@ -307,7 +307,11 @@ fn validate_static_apply(
             }
         }
         EffectRecipientSetDef::Objects(objects) => {
-            if !static_object_set_supported(objects) {
+            if !(static_object_set_supported(objects)
+                || (source_zones == [ZoneKind::Battlefield]
+                    && static_creature_type_effect(effect)
+                    && static_creature_type_query_supported(recipient)))
+            {
                 return Err("StaticApply with an unavailable static object recipient");
             }
             if static_object_applied_effect_supported(recipient, effect) {
@@ -317,6 +321,20 @@ fn validate_static_apply(
             }
         }
         EffectRecipientSetDef::LegalTargets(_) => Err("StaticApply with a target-scoped recipient"),
+    }
+}
+
+fn static_creature_type_effect(effect: AppliedEffectDef) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => {
+            !effects.is_empty() && effects.iter().copied().all(static_creature_type_effect)
+        }
+        AppliedEffectDef::Characteristic(
+            CharacteristicOperationDef::CreatureTypes(_)
+            | CharacteristicOperationDef::AddChosenCreatureType
+            | CharacteristicOperationDef::SetChosenCreatureType,
+        ) => true,
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
     }
 }
 
@@ -493,8 +511,10 @@ fn static_object_characteristic_supported(
             };
             !supertypes.is_empty() && static_animation_query_supported(recipient)
         }
-        CharacteristicOperationDef::CreatureTypes(_) => {
-            static_direct_characteristic_recipient(recipient)
+        CharacteristicOperationDef::CreatureTypes(_)
+        | CharacteristicOperationDef::AddChosenCreatureType
+        | CharacteristicOperationDef::SetChosenCreatureType => {
+            static_creature_type_query_supported(recipient)
         }
         CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
@@ -818,6 +838,14 @@ fn static_type_animation_query_supported(recipient: EffectRecipientDef) -> bool 
         || recipient.object_query().is_some_and(|query| {
             query.zones == [ZoneKind::Battlefield]
                 && static_query_supported(query)
+                && static_animation_predicate_supported(query.object, true)
+        })
+}
+
+fn static_creature_type_query_supported(recipient: EffectRecipientDef) -> bool {
+    static_direct_characteristic_recipient(recipient)
+        || recipient.object_query().is_some_and(|query| {
+            static_query_supported(query)
                 && static_animation_predicate_supported(query.object, true)
         })
 }

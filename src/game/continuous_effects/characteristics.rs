@@ -506,10 +506,34 @@ impl Game {
                 .stack_trigger_event_object(stack)
                 .map(|event| event.subtypes.into_owned())
                 .unwrap_or_default(),
-            Some(RetiredObject::Card(_)) | None => self
-                .object_definition(object)
-                .and_then(|definition| self.catalog.get(definition))
-                .map(|definition| definition.rules.subtypes().to_vec())
+            Some(RetiredObject::Card(card)) => self
+                .printed_trigger_event_object(
+                    object,
+                    card.definition,
+                    card.owner,
+                    &CharacteristicContext::Graveyard,
+                )
+                .map(|event| event.subtypes.into_owned())
+                .unwrap_or_default(),
+            None => self
+                .card_in_nonbattlefield_zone(object)
+                .and_then(|(zone, card)| {
+                    let context = match zone {
+                        ZoneKind::Library => CharacteristicContext::Library,
+                        ZoneKind::Hand => CharacteristicContext::Hand,
+                        ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                        ZoneKind::Exile => CharacteristicContext::Exile,
+                        ZoneKind::Command => CharacteristicContext::Command,
+                        ZoneKind::Battlefield | ZoneKind::Stack => return None,
+                    };
+                    self.printed_trigger_event_object(
+                        object,
+                        card.definition,
+                        card.owner,
+                        &context,
+                    )
+                })
+                .map(|event| event.subtypes.into_owned())
                 .unwrap_or_default(),
         }
     }

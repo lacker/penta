@@ -679,9 +679,12 @@ fn combined_spell_trigger_and_target_characteristics_union_parts() {
     assert!(trigger_object.types.contains(CardType::Instant));
     assert!(trigger_object.types.contains(CardType::Sorcery));
     assert_eq!(trigger_object.subtypes.as_ref(), &["Arcane", "Lesson"]);
-    let event = CommittedTriggerEvent::SpellCast {
+    let event = CommittedTriggerEvent::StackObject {
         object: trigger_object,
-        from: CastSourceZone::Hand,
+        kind: StackObjectKind::Spell,
+        event: CommittedStackObjectEvent::Cast {
+            from: CastSourceZone::Hand,
+        },
     };
     for predicate in [
         ObjectPredicateDef::HasType(CardType::Instant),

@@ -425,11 +425,17 @@ fn validate_trigger_event_references(
             }
             validate_trigger_object_predicate(matcher.attacker, event, target_count, scope)
         }
-        TriggerEventDef::SpellCast { object, .. }
-        | TriggerEventDef::SpellCopied(object)
-            if trigger_predicate_requires_live_battlefield(object) =>
+        TriggerEventDef::StackObject(matcher)
+            if trigger_predicate_requires_live_battlefield(matcher.object) =>
         {
             Err(unsupported_trigger_event(event))
+        }
+        TriggerEventDef::StackObject(matcher) => {
+            validate_trigger_object_predicate(matcher.object, event, target_count, scope)?;
+            if let StackObjectEventDef::TargetSelection { target, .. } = matcher.event {
+                validate_stack_target_filter(target, event, target_count, scope)?;
+            }
+            Ok(())
         }
         // The batch is read from last-known information, so a predicate
         // that needs the object still standing on the battlefield cannot
@@ -457,13 +463,6 @@ fn validate_trigger_event_references(
         | TriggerEventDef::BecomesBlocked(predicate)
         | TriggerEventDef::Blocks { blocked: predicate }
         | TriggerEventDef::BecomesBlockedBy { blocker: predicate }
-        | TriggerEventDef::SpellCast {
-            object: predicate, ..
-        }
-        | TriggerEventDef::SpellCopied(predicate)
-        | TriggerEventDef::BecomesTargetOfSpell(predicate)
-        | TriggerEventDef::BecomesTargetOfSpellOrAbility(predicate)
-        | TriggerEventDef::YouOrYourPermanentBecomesTarget(predicate)
         | TriggerEventDef::CountersPlaced {
             object: predicate, ..
         }
@@ -495,5 +494,24 @@ fn validate_trigger_event_references(
         | TriggerEventDef::DiscardedCards(_)
         | TriggerEventDef::CardsExiled { .. }
         | TriggerEventDef::StateCondition => Ok(()),
+    }
+}
+
+fn validate_stack_target_filter(
+    filter: StackTargetFilterDef,
+    event: TriggerEventDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match filter {
+        StackTargetFilterDef::Player(_) => Ok(()),
+        StackTargetFilterDef::Permanent(predicate)
+        | StackTargetFilterDef::Card(predicate)
+        | StackTargetFilterDef::Spell(predicate) => {
+            validate_trigger_object_predicate(predicate, event, target_count, scope)
+        }
+        StackTargetFilterDef::AnyOf(filters) => filters
+            .iter()
+            .try_for_each(|filter| validate_stack_target_filter(*filter, event, target_count, scope)),
     }
 }

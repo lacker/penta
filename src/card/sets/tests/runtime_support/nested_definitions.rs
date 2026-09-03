@@ -15,6 +15,18 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
     }
 }
 
+fn shared_stack_target_filter(filter: StackTargetFilterDef) -> bool {
+    match filter {
+        StackTargetFilterDef::Player(_) => true,
+        StackTargetFilterDef::Permanent(predicate)
+        | StackTargetFilterDef::Card(predicate)
+        | StackTargetFilterDef::Spell(predicate) => shared_object_predicate(predicate),
+        StackTargetFilterDef::AnyOf(filters) => {
+            filters.iter().copied().all(shared_stack_target_filter)
+        }
+    }
+}
+
 #[allow(clippy::too_many_lines)]
 pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
     match event {
@@ -111,14 +123,17 @@ pub(in super::super) fn shared_trigger_event(event: TriggerEventDef) -> bool {
         | TriggerEventDef::Transforms(object) => {
             shared_object_predicate(object)
         }
-        // Both read the spell rather than the battlefield, and a spell on
-        // the stack is not a permanent the predicate can interrogate.
-        TriggerEventDef::SpellCast { object, .. }
-        | TriggerEventDef::SpellCopied(object)
-        | TriggerEventDef::BecomesTargetOfSpell(object)
-        | TriggerEventDef::BecomesTargetOfSpellOrAbility(object)
-        | TriggerEventDef::YouOrYourPermanentBecomesTarget(object) => {
-            shared_object_predicate(object) && !trigger_predicate_requires_live_battlefield(object)
+        // The event object is on the stack; a target predicate, when present,
+        // reads the newly targeted permanent on the battlefield.
+        TriggerEventDef::StackObject(matcher) => {
+            shared_object_predicate(matcher.object)
+                && !trigger_predicate_requires_live_battlefield(matcher.object)
+                && match matcher.event {
+                    StackObjectEventDef::TargetSelection { target, .. } => {
+                        shared_stack_target_filter(target)
+                    }
+                    StackObjectEventDef::Cast { .. } | StackObjectEventDef::Copied => true,
+                }
         }
         // A crime names only the player who committed it; what was targeted
         // is not part of the event. Cycling names no object of its own: the

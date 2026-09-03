@@ -1969,7 +1969,7 @@ pub(in crate::card::sets) static SPECTRAL_PRISON: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&AbilityDef::triggered(
                         "Whenever this creature becomes the target of a spell, sacrifice the Aura granting this ability.",
-                        TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+                        TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
                         EffectDef::Sacrifice {
                             object: EffectRecipientDef::object(ObjectRefDef::AbilityGrantSource),
                         },

@@ -103,47 +103,15 @@ impl Game {
             return;
         };
         let mut newly_targeted = Vec::new();
-        let mut newly_targeted_players = Vec::new();
         for target in new_targets {
             if old_targets.contains(&target) {
                 continue;
             }
-            match target {
-                Target::Permanent(id) | Target::Card(id) if !newly_targeted.contains(&id) => {
-                    newly_targeted.push(id);
-                }
-                Target::Player(player) if !newly_targeted_players.contains(&player) => {
-                    newly_targeted_players.push(player);
-                }
-                Target::Spell(_) | Target::Permanent(_) | Target::Card(_) | Target::Player(_) => {}
+            if !newly_targeted.contains(&target) {
+                newly_targeted.push(target);
             }
         }
-        for target in newly_targeted {
-            let event = match kind {
-                crate::game::StackObjectKind::Spell => {
-                    crate::game::CommittedTriggerEvent::BecameTargetOfSpell {
-                        target,
-                        object: event.clone(),
-                    }
-                }
-                crate::game::StackObjectKind::ActivatedAbility
-                | crate::game::StackObjectKind::TriggeredAbility => {
-                    crate::game::CommittedTriggerEvent::BecameTargetOfAbility {
-                        target,
-                        object: event.clone(),
-                    }
-                }
-            };
-            self.capture_battlefield_triggers(&event);
-        }
-        for player in newly_targeted_players {
-            self.capture_battlefield_triggers(
-                &crate::game::CommittedTriggerEvent::PlayerBecameTarget {
-                    player,
-                    object: event.clone(),
-                },
-            );
-        }
+        self.capture_targeting_triggers(kind, &event, &newly_targeted);
     }
 
     /// The same, several times over. Each copy is targeted before the next is
@@ -470,17 +438,25 @@ impl Game {
         // about mana or life actually spent.
         spell.cast = spell.cast.as_ref().map(CastContext::for_spell_copy);
         spell.is_copy = true;
-        // Published where the copy actually lands, so a clause reading "or
-        // copy" sees the same object anything else on the stack would.
-        let copied = (spell.kind == crate::game::StackObjectKind::Spell)
-            .then(|| self.stack_trigger_event_object(&spell))
-            .flatten();
+        // A copy is a new stack object whose final recipients all become its
+        // targets, even when none were changed from the original. Capture the
+        // completed object before moving it onto the stack, then publish both
+        // the copy occurrence (for spells) and its targeting occurrence.
+        let kind = spell.kind;
+        let event_object = self.stack_object_event_object(&spell);
+        let targets = spell.declared_targets();
         self.stack.push(spell);
-        if let Some(object) = copied {
-            self.capture_battlefield_triggers(&crate::game::CommittedTriggerEvent::SpellCopied {
-                object,
+        let Some(object) = event_object else {
+            return;
+        };
+        if kind == crate::game::StackObjectKind::Spell {
+            self.capture_battlefield_triggers(&crate::game::CommittedTriggerEvent::StackObject {
+                object: object.clone(),
+                kind: crate::game::StackObjectKind::Spell,
+                event: crate::game::CommittedStackObjectEvent::Copied,
             });
         }
+        self.capture_targeting_triggers(kind, &object, &targets);
     }
 }
 

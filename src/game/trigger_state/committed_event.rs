@@ -7,6 +7,20 @@
 // `trigger_state.rs`, so the paths and imports here are the parent module's.
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub(super) enum CommittedStackObjectEvent {
+    Cast {
+        from: CastSourceZone,
+    },
+    Copied,
+    /// One distinct recipient newly selected in an atomic target-selection
+    /// batch. Declarative aggregation decides whether matching recipients
+    /// trigger independently or collapse to one occurrence.
+    TargetSelection {
+        target: Target,
+    },
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
     ZoneChanged {
         /// Last-known information for the object before the move. Some entry
@@ -132,15 +146,13 @@ pub(super) enum CommittedTriggerEvent {
         amount: u16,
         combat: bool,
     },
-    SpellCast {
+    /// A committed occurrence involving an object on the stack. `kind` is
+    /// frozen separately because object characteristics do not distinguish a
+    /// spell from an activated or triggered ability.
+    StackObject {
         object: TriggerEventObject,
-        from: CastSourceZone,
-    },
-    /// A copy of a spell was put on the stack. Not a cast: nothing was
-    /// announced, nothing was paid, and only the clauses that say "or copy"
-    /// watch for it.
-    SpellCopied {
-        object: TriggerEventObject,
+        kind: StackObjectKind,
+        event: CommittedStackObjectEvent,
     },
     /// A player became the monarch.
     BecameMonarch {
@@ -168,36 +180,12 @@ pub(super) enum CommittedTriggerEvent {
         /// already moved on by the time a trigger resolves.
         nth_this_turn: u16,
     },
-    /// An object became the target of a spell as that spell was cast. The
-    /// object carried is the spell, so "that spell's controller" reads off
-    /// the event; `target` is what it pointed at.
-    BecameTargetOfSpell {
-        target: GameObjectId,
-        object: TriggerEventObject,
-    },
-    /// An object became the target of an activated or triggered ability as
-    /// that ability was put onto the stack. Kept apart from
-    /// [`Self::BecameTargetOfSpell`] because the printed clauses do: "becomes
-    /// the target of a spell" is not answered by an ability, and ward is
-    /// answered by both.
-    BecameTargetOfAbility {
-        target: GameObjectId,
-        object: TriggerEventObject,
-    },
     /// A land was played, which is a special action rather than a zone
     /// change of its own (CR 305.1). Kept apart from the entry it causes
     /// because the two are not the same event: a land put onto the
     /// battlefield by an effect enters without ever being played, and
     /// "when you play another land" is about the playing.
     LandPlayed {
-        player: PlayerId,
-        object: TriggerEventObject,
-    },
-    /// A player became the target of a spell or of an ability. Kept apart
-    /// from the two above because a player is not an object: nothing on the
-    /// battlefield was pointed at, so a clause watching this reads the side
-    /// of the table rather than a permanent.
-    PlayerBecameTarget {
         player: PlayerId,
         object: TriggerEventObject,
     },
@@ -489,20 +477,11 @@ impl CommittedTriggerEvent {
                 sacrificed_object: None,
                 cast_from_zone: None,
             },
-            Self::BecameTargetOfSpell { object, .. }
-            | Self::BecameTargetOfAbility { object, .. }
-            | Self::PlayerBecameTarget { object, .. }
-            | Self::SpellCopied { object } => TriggerContext {
-                object: Some(object.id),
-                zone_change_result: None,
-                object_controller: Some(object.controller),
-                event_player: Some(object.controller),
-                amount: None,
-                damaged_object: None,
-                sacrificed_object: None,
-                cast_from_zone: None,
-            },
-            Self::SpellCast { object, from } => TriggerContext {
+            Self::StackObject {
+                object,
+                event: CommittedStackObjectEvent::Cast { from },
+                ..
+            } => TriggerContext {
                 object: Some(object.id),
                 zone_change_result: None,
                 object_controller: Some(object.controller),
@@ -511,6 +490,16 @@ impl CommittedTriggerEvent {
                 damaged_object: None,
                 sacrificed_object: None,
                 cast_from_zone: Some(from.zone()),
+            },
+            Self::StackObject { object, .. } => TriggerContext {
+                object: Some(object.id),
+                zone_change_result: None,
+                object_controller: Some(object.controller),
+                event_player: Some(object.controller),
+                amount: None,
+                damaged_object: None,
+                sacrificed_object: None,
+                cast_from_zone: None,
             },
             Self::BecameLevel { object, .. } => TriggerContext {
                 object: Some(*object),

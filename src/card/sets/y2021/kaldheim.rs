@@ -49,7 +49,7 @@ pub(in crate::card::sets) static GOLDSPAN_DRAGON: CardRecord = CardRecord::new(
             // rather than what it does.
             TriggerEventDef::AnyOf(&[
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
-                TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+                TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
             ]),
             EffectDef::create_token(tokens::treasure()).with_art(CardArt::new(
                 "4ae9f454-4f8c-4123-9886-674bc439dfe7",

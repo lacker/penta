@@ -36,15 +36,9 @@ fn trigger_event_object_zone(event: TriggerEventDef) -> Option<ZoneKind> {
         | TriggerEventDef::BecomesBlockedBy { .. }
         | TriggerEventDef::CountersPlaced { .. }
         | TriggerEventDef::Transforms(_) => Some(ZoneKind::Battlefield),
-        // Both name the spell rather than what it points at, and a spell
-        // is on the stack.
-        TriggerEventDef::SpellCast { .. }
-        | TriggerEventDef::SpellCopied(_)
-        | TriggerEventDef::BecomesTargetOfSpell(_)
-        | TriggerEventDef::BecomesTargetOfSpellOrAbility(_)
-        | TriggerEventDef::YouOrYourPermanentBecomesTarget(_) => {
-            Some(ZoneKind::Stack)
-        }
+        // The named object is the spell or ability rather than what it
+        // points at.
+        TriggerEventDef::StackObject(_) => Some(ZoneKind::Stack),
         // The cycled card is in the graveyard by the time the trigger goes
         // on the stack, but nothing reads it as an object, so it names no
         // zone at all.

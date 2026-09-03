@@ -2,12 +2,12 @@ use super::{
     AbilityCostDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardDefinition,
     CardInstance, CardType, CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone,
-    CharacteristicContext, CommittedTriggerEvent, CostConfiguration, DecisionContinuation,
-    DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone, DeclarativeAbilityDef,
-    EntryCompletion, Game, GameEvent, GameObjectId, Mana, ManaAbilityActivation,
-    ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose, PendingBattlefieldEntry,
-    Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId, StackObject, StackObjectKind,
-    Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    CharacteristicContext, CommittedStackObjectEvent, CommittedTriggerEvent, CostConfiguration,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
+    ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
+    PendingBattlefieldEntry, Permanent, PlayActionKind, PlayOptionDef, PlayOptionId, PlayerId,
+    StackObject, StackObjectKind, Target, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
 };
 mod signature_validation;
 include!("casting/life_costs.rs");
@@ -806,47 +806,22 @@ impl Game {
         // Kept for the targeting triggers below, which run after the cast
         // event has taken the list.
         let crime_targets = targets.clone();
-        let mut targeted = Vec::new();
-        let mut targeted_players = Vec::new();
-        for target in &targets {
-            match target {
-                Target::Permanent(id) | Target::Card(id) if !targeted.contains(id) => {
-                    targeted.push(*id);
-                }
-                // Once per targeting spell however many of its slots name
-                // the same player, exactly as for an object (CR 115.7c).
-                Target::Player(player) if !targeted_players.contains(player) => {
-                    targeted_players.push(*player);
-                }
-                _ => {}
-            }
-        }
         self.events.push(GameEvent::SpellCast {
             player,
             card: stack_id,
             definition,
             targets,
         });
-        self.capture_battlefield_triggers(&CommittedTriggerEvent::SpellCast {
+        self.capture_battlefield_triggers(&CommittedTriggerEvent::StackObject {
             object: cast_event.clone(),
-            from: cast_from,
+            kind: StackObjectKind::Spell,
+            event: CommittedStackObjectEvent::Cast { from: cast_from },
         });
         self.capture_crime_triggers(player, &crime_targets);
-        // "Whenever this becomes the target of a spell" fires here, where the
-        // targets are locked in -- once per targeting spell however many of
-        // its slots name the same permanent (CR 115.7c).
-        for target in targeted {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::BecameTargetOfSpell {
-                target,
-                object: cast_event.clone(),
-            });
-        }
-        for player in targeted_players {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::PlayerBecameTarget {
-                player,
-                object: cast_event.clone(),
-            });
-        }
+        // Targets are locked in here. Publish one atomic batch so both
+        // recipient-local and "one or more" targeting clauses see the right
+        // number of events (CR 115.7c).
+        self.capture_targeting_triggers(StackObjectKind::Spell, &cast_event, &crime_targets);
         // The spell's own cast clause, which no battlefield listener carries.
         self.capture_own_cast_triggers(stack_id);
     }

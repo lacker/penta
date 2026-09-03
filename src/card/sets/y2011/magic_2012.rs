@@ -790,7 +790,7 @@ pub(in crate::card::sets) static PHANTASMAL_BEAR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{U}"), &["Bear", "Illusion"], 2, 2).with_ability(
         AbilityDef::triggered(
             "When this creature becomes the target of a spell or ability, sacrifice it.",
-            TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
             EffectDef::Sacrifice {
                 object: EffectRecipientDef::Source,
             },
@@ -811,7 +811,7 @@ pub(in crate::card::sets) static PHANTASMAL_DRAGON: CardRecord = CardRecord::new
 // M12 72 — Phantasmal Image
 static PHANTASMAL_IMAGE_SACRIFICE: AbilityDef = AbilityDef::triggered(
     "When this creature becomes the target of a spell or ability, sacrifice it.",
-    TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+    TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
     EffectDef::Sacrifice {
         object: EffectRecipientDef::Source,
     },

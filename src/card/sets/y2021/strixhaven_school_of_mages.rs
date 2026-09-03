@@ -271,7 +271,7 @@ static YOUR_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::All(&[
 /// means casting only.
 static MAGECRAFT: TriggerEventDef = TriggerEventDef::AnyOf(&[
     TriggerEventDef::spell_cast(YOUR_INSTANT_OR_SORCERY),
-    TriggerEventDef::SpellCopied(YOUR_INSTANT_OR_SORCERY),
+    TriggerEventDef::spell_copied(YOUR_INSTANT_OR_SORCERY),
 ]);
 
 // STX 247 — Witherbloom Apprentice

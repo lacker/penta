@@ -5,8 +5,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerSetDef, ResolvedEffectDurationDef, StackTargetAggregationDef, StackTargetFilterDef,
+    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -44,13 +45,31 @@ pub(in crate::card::sets) static CLOUDKIN_SEER: CardRecord = CardRecord::new(
 );
 
 // M20 148 — Leyline of Combustion
-// Audit: unsupported — Needs one grouped trigger for a spell or ability targeting the player and/or any controlled permanents.
 pub(in crate::card::sets) static LEYLINE_OF_COMBUSTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff"),
     "Leyline of Combustion",
     CardArt::new("3a93c8e2-fb27-43af-83a7-2bd4d40e0eff", "Noah Bradley"),
     CardSet::Magic2020,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(),
+        AbilityDef::triggered(
+            "Whenever you and/or at least one permanent you control becomes the target of a spell or ability an opponent controls, this enchantment deals 2 damage to that player.",
+            TriggerEventDef::targets_selected(
+                ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                StackTargetFilterDef::AnyOf(&[
+                    StackTargetFilterDef::Player(PlayerRelation::You),
+                    StackTargetFilterDef::Permanent(ObjectPredicateDef::ControlledBy(
+                        PlayerRelation::You,
+                    )),
+                ]),
+                StackTargetAggregationDef::OneOrMoreMatchingTargets,
+            ),
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::EventPlayer,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // M20 169 — Elvish Reclaimer

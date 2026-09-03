@@ -6,14 +6,16 @@ use crate::card::{
 
 use super::{
     AbilityDef, AbilityId, AbilityOrigin, AbilityProcedureDef, AbilitySourceRef, AddManaEffectDef,
-    BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedTriggerEvent,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientSetDef, EffectResolutionContext,
-    FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId, InstalledTriggerLifetime,
-    KeywordAbility, Mana, ManaSelectionDef, ManaSource, ObjectCharacteristics, ObjectPredicateDef,
-    ObjectRefDef, ObjectSetDef, PendingTrigger, Permanent, PlayerId, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, RetiredObject, ScopedEffect, StackAbilityResolver, TapPurposeDef, Target,
-    TriggerCapture, TriggerContext, TriggerEventDef, TriggerEventObject, ZoneKind,
+    BattlefieldTriggerListener, CardDefinitionId, CardPartId, CardType, CommittedStackObjectEvent,
+    CommittedTriggerEvent, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectRecipientSetDef,
+    EffectResolutionContext, FrozenActivatedAbility, Game, GameEvent, GameObjectId, GrantId,
+    InstalledTriggerLifetime, KeywordAbility, Mana, ManaSelectionDef, ManaSource,
+    ObjectCharacteristics, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PendingTrigger,
+    Permanent, PlayerId, PlayerRefDef, PlayerRelation, PlayerSetDef, RetiredObject, ScopedEffect,
+    StackAbilityResolver, StackObjectEventDef, StackObjectKind, StackTargetAggregationDef,
+    StackTargetFilterDef, TapPurposeDef, Target, TriggerCapture, TriggerContext, TriggerEventDef,
+    TriggerEventObject, ZoneKind,
 };
 
 mod exile;
@@ -21,6 +23,42 @@ mod graveyard;
 include!("trigger_capture/drawing.rs");
 
 impl Game {
+    /// Publish every distinct recipient that became a target as one atomic
+    /// targeting batch. Object-local clauses still see one event per
+    /// recipient, while clauses worded "you and/or at least one permanent"
+    /// can collapse the batch to one trigger.
+    pub(super) fn capture_targeting_triggers(
+        &mut self,
+        kind: StackObjectKind,
+        object: &TriggerEventObject,
+        targets: &[Target],
+    ) {
+        let mut targeted = Vec::new();
+        for target in targets {
+            match target {
+                Target::Permanent(_) | Target::Card(_) | Target::Player(_) | Target::Spell(_)
+                    if !targeted.contains(target) =>
+                {
+                    targeted.push(*target);
+                }
+                Target::Spell(_) | Target::Permanent(_) | Target::Card(_) | Target::Player(_) => {}
+            }
+        }
+        let events = targeted
+            .into_iter()
+            .map(|target| CommittedTriggerEvent::StackObject {
+                object: object.clone(),
+                kind,
+                event: CommittedStackObjectEvent::TargetSelection { target },
+            })
+            .collect::<Vec<_>>();
+        if events.is_empty() {
+            return;
+        }
+        let listeners = self.battlefield_trigger_listeners();
+        self.capture_battlefield_trigger_batch_from_snapshot(&listeners, &events);
+    }
+
     /// "When you do": the reflexive half of a "you may ..." clause, captured
     /// once its controller has accepted the offer and the optional clause has
     /// resolved. The reflexive ability is an ordinary trigger from there --
@@ -89,37 +127,15 @@ impl Game {
         let Some(event) = self.stack_object_event_object(object) else {
             return;
         };
-        let mut targeted = Vec::new();
-        let mut targeted_players = Vec::new();
-        for target in object
+        let targets = object
             .ability
             .as_ref()
             .into_iter()
             .flat_map(|payload| payload.targets.iter())
             .flat_map(crate::TargetSelection::targets)
-        {
-            match target {
-                Target::Permanent(id) | Target::Card(id) if !targeted.contains(id) => {
-                    targeted.push(*id);
-                }
-                Target::Player(player) if !targeted_players.contains(player) => {
-                    targeted_players.push(*player);
-                }
-                _ => {}
-            }
-        }
-        for target in targeted {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::BecameTargetOfAbility {
-                target,
-                object: event.clone(),
-            });
-        }
-        for player in targeted_players {
-            self.capture_battlefield_triggers(&CommittedTriggerEvent::PlayerBecameTarget {
-                player,
-                object: event.clone(),
-            });
-        }
+            .copied()
+            .collect::<Vec<_>>();
+        self.capture_targeting_triggers(object.kind, &event, &targets);
     }
 
     /// "When you cycle this card" (CR 702.29b), raised as the cycling ability
@@ -218,13 +234,16 @@ impl Game {
             let DeclarativeAbilityDef::Triggered(definition) = ability.definition else {
                 return;
             };
-            let watches_this_cast = match definition.event {
-                TriggerEventDef::SpellCast {
-                    object: ObjectPredicateDef::Source,
-                    from,
-                } => from.is_none_or(|zone| cast_from.zone() == zone),
-                _ => false,
-            };
+            let watches_this_cast = matches!(
+                definition.event,
+                TriggerEventDef::StackObject(matcher)
+                    if matcher.object == ObjectPredicateDef::Source
+                        && matches!(
+                            matcher.event,
+                            StackObjectEventDef::Cast { from }
+                                if from.is_none_or(|zone| cast_from.zone() == zone)
+                        )
+            );
             if !watches_this_cast || definition.procedure != AbilityProcedureDef::Shared {
                 return;
             }
@@ -261,9 +280,10 @@ impl Game {
         }
         self.capture_battlefield_triggers_from_snapshot(
             &listeners,
-            &CommittedTriggerEvent::SpellCast {
+            &CommittedTriggerEvent::StackObject {
                 object,
-                from: cast_from,
+                kind: StackObjectKind::Spell,
+                event: CommittedStackObjectEvent::Cast { from: cast_from },
             },
         );
     }
@@ -432,8 +452,25 @@ impl Game {
         event: &CommittedTriggerEvent,
         events: &[CommittedTriggerEvent],
         matched_damage_recipients: &mut Vec<(AbilitySourceRef, Option<u32>, Target)>,
+        matched_targeting_batches: &mut Vec<(AbilitySourceRef, Option<u32>, GameObjectId)>,
     ) -> Option<TriggerContext> {
         let mut context = event.context();
+        if self.groups_targeting_batch(listener, event)
+            && matches!(
+                event,
+                CommittedTriggerEvent::StackObject {
+                    event: CommittedStackObjectEvent::TargetSelection { .. },
+                    ..
+                }
+            )
+        {
+            let triggering = context.object?;
+            let occurrence = (listener.capture.source, listener.installed, triggering);
+            if matched_targeting_batches.contains(&occurrence) {
+                return None;
+            }
+            matched_targeting_batches.push(occurrence);
+        }
         let (
             TriggerEventDef::DamageDealt(DamageEventMatcherDef {
                 source: DamageSourceMatcherDef::Any,
@@ -474,6 +511,53 @@ impl Game {
         Some(context)
     }
 
+    fn groups_targeting_batch(
+        &self,
+        listener: &BattlefieldTriggerListener,
+        committed: &CommittedTriggerEvent,
+    ) -> bool {
+        self.event_groups_targeting_batch(
+            listener.event,
+            committed,
+            listener.capture.source.object,
+            listener.capture.controller,
+        )
+    }
+
+    fn event_groups_targeting_batch(
+        &self,
+        definition: TriggerEventDef,
+        committed: &CommittedTriggerEvent,
+        source: GameObjectId,
+        controller: PlayerId,
+    ) -> bool {
+        match definition {
+            TriggerEventDef::StackObject(matcher)
+                if matches!(
+                    matcher.event,
+                    StackObjectEventDef::TargetSelection {
+                        aggregation: StackTargetAggregationDef::OneOrMoreMatchingTargets,
+                        ..
+                    }
+                ) =>
+            {
+                self.trigger_event_matches_for_controller(
+                    definition,
+                    committed,
+                    source,
+                    Some(controller),
+                )
+            }
+            TriggerEventDef::While { event, .. } => {
+                self.event_groups_targeting_batch(*event, committed, source, controller)
+            }
+            TriggerEventDef::AnyOf(events) => events.iter().copied().any(|event| {
+                self.event_groups_targeting_batch(event, committed, source, controller)
+            }),
+            _ => false,
+        }
+    }
+
     pub(super) fn capture_battlefield_trigger_batch_with_mana_resolver(
         &mut self,
         listeners: &[BattlefieldTriggerListener],
@@ -487,6 +571,9 @@ impl Game {
         // was dealt damage sees one occurrence for that recipient, carrying
         // the total amount, rather than one occurrence per source.
         let mut matched_damage_recipients = Vec::new();
+        // A grouped targeting clause triggers once for the spell or ability
+        // whose targets were chosen, not once for every matching recipient.
+        let mut matched_targeting_batches = Vec::new();
         // "Triggers only once each turn" counts the triggering rather than
         // the resolution, and one batch can offer a capped ability several
         // matching events, so the count has to rise inside this loop as
@@ -507,6 +594,7 @@ impl Game {
                     event,
                     events,
                     &mut matched_damage_recipients,
+                    &mut matched_targeting_batches,
                 ) else {
                     continue;
                 };

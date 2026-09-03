@@ -47,6 +47,94 @@ impl Game {
         }
     }
 
+    fn stack_target_matches_for_controller(
+        &self,
+        filter: StackTargetFilterDef,
+        target: Target,
+        source: GameObjectId,
+        controller: Option<PlayerId>,
+        context: TriggerContext,
+    ) -> bool {
+        match filter {
+            StackTargetFilterDef::Player(relation) => match target {
+                Target::Player(player) => controller.is_some_and(|controller| {
+                    self.player_relation_matches(player, relation, controller, context)
+                }),
+                Target::Permanent(_) | Target::Card(_) | Target::Spell(_) => false,
+            },
+            StackTargetFilterDef::Permanent(predicate) => match target {
+                Target::Permanent(target) => self
+                    .battlefield
+                    .iter()
+                    .find(|candidate| candidate.card.id == target)
+                    .map(|candidate| self.trigger_event_object(candidate))
+                    .is_some_and(|target| {
+                        self.trigger_object_matches_for_controller(
+                            predicate,
+                            &target,
+                            source,
+                            false,
+                            controller,
+                        )
+                    }),
+                Target::Player(_) | Target::Card(_) | Target::Spell(_) => false,
+            },
+            StackTargetFilterDef::Card(predicate) => match target {
+                Target::Card(target) => self
+                    .card_in_nonbattlefield_zone(target)
+                    .and_then(|(zone, card)| {
+                        let context = match zone {
+                            ZoneKind::Library => CharacteristicContext::Library,
+                            ZoneKind::Hand => CharacteristicContext::Hand,
+                            ZoneKind::Graveyard => CharacteristicContext::Graveyard,
+                            ZoneKind::Exile => CharacteristicContext::Exile,
+                            ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                                return None;
+                            }
+                        };
+                        self.printed_trigger_event_object(
+                            target,
+                            card.definition,
+                            card.owner,
+                            &context,
+                        )
+                    })
+                    .is_some_and(|target| {
+                        self.trigger_object_matches_for_controller(
+                            predicate,
+                            &target,
+                            source,
+                            false,
+                            controller,
+                        )
+                    }),
+                Target::Player(_) | Target::Permanent(_) | Target::Spell(_) => false,
+            },
+            StackTargetFilterDef::Spell(predicate) => match target {
+                Target::Spell(target) => self
+                    .stack
+                    .iter()
+                    .find(|candidate| candidate.id == target)
+                    .and_then(|candidate| self.stack_object_event_object(candidate))
+                    .is_some_and(|target| {
+                        self.trigger_object_matches_for_controller(
+                            predicate,
+                            &target,
+                            source,
+                            true,
+                            controller,
+                        )
+                    }),
+                Target::Player(_) | Target::Permanent(_) | Target::Card(_) => false,
+            },
+            StackTargetFilterDef::AnyOf(filters) => filters.iter().copied().any(|filter| {
+                self.stack_target_matches_for_controller(
+                    filter, target, source, controller, context,
+                )
+            }),
+        }
+    }
+
     #[allow(clippy::too_many_lines)]
     pub(super) fn trigger_event_matches_for_controller(
         &self,
@@ -204,19 +292,47 @@ impl Game {
             ) => self.trigger_object_matches_for_controller(
                 predicate, object, source, false, controller,
             ),
-            // The listener was pointed at; the predicate reads the spell.
             (
-                TriggerEventDef::BecomesTargetOfSpell(predicate),
-                CommittedTriggerEvent::BecameTargetOfSpell { target, object },
-            )
-            | (
-                TriggerEventDef::BecomesTargetOfSpellOrAbility(predicate),
-                CommittedTriggerEvent::BecameTargetOfSpell { target, object }
-                | CommittedTriggerEvent::BecameTargetOfAbility { target, object },
+                TriggerEventDef::StackObject(matcher),
+                CommittedTriggerEvent::StackObject {
+                    object,
+                    kind,
+                    event: committed,
+                },
             ) => {
-                *target == source
+                let occurrence_matches = match (matcher.event, committed) {
+                    (
+                        StackObjectEventDef::Cast { from: expected },
+                        CommittedStackObjectEvent::Cast { from },
+                    ) => {
+                        *kind == StackObjectKind::Spell
+                            && expected.is_none_or(|zone| from.zone() == zone)
+                    }
+                    (StackObjectEventDef::Copied, CommittedStackObjectEvent::Copied) => {
+                        *kind == StackObjectKind::Spell
+                    }
+                    (
+                        StackObjectEventDef::TargetSelection {
+                            target: expected_target,
+                            ..
+                        },
+                        CommittedStackObjectEvent::TargetSelection { target },
+                    ) => self.stack_target_matches_for_controller(
+                        expected_target,
+                        *target,
+                        source,
+                        controller,
+                        event.context(),
+                    ),
+                    _ => false,
+                };
+                occurrence_matches
                     && self.trigger_object_matches_for_controller(
-                        predicate, object, source, false, controller,
+                        matcher.object,
+                        object,
+                        source,
+                        *kind == StackObjectKind::Spell,
+                        controller,
                     )
             }
             (
@@ -236,30 +352,6 @@ impl Game {
                 }) && self.trigger_object_matches_for_controller(
                     predicate, object, source, false, controller,
                 )
-            }
-            // The listener is not what was pointed at: what it watches is
-            // its controller's side of the table, so the target is checked
-            // against that rather than against the source.
-            (
-                TriggerEventDef::YouOrYourPermanentBecomesTarget(predicate),
-                CommittedTriggerEvent::BecameTargetOfSpell { target, object }
-                | CommittedTriggerEvent::BecameTargetOfAbility { target, object },
-            ) => {
-                controller.is_some_and(|controller| {
-                    self.current_or_last_known_controller(*target) == Some(controller)
-                })
-                    && self.trigger_object_matches_for_controller(
-                        predicate, object, source, false, controller,
-                    )
-            }
-            (
-                TriggerEventDef::YouOrYourPermanentBecomesTarget(predicate),
-                CommittedTriggerEvent::PlayerBecameTarget { player, object },
-            ) => {
-                controller == Some(*player)
-                    && self.trigger_object_matches_for_controller(
-                        predicate, object, source, false, controller,
-                    )
             }
             (
                 TriggerEventDef::BlocksOrBecomesBlockedBy {
@@ -482,23 +574,6 @@ impl Game {
                 ) && self.trigger_object_matches_for_controller(
                     predicate, object, source, false, controller,
                 )
-            }
-            (
-                TriggerEventDef::SpellCopied(predicate),
-                CommittedTriggerEvent::SpellCopied { object },
-            ) => self
-                .trigger_object_matches_for_controller(predicate, object, source, true, controller),
-            (
-                TriggerEventDef::SpellCast {
-                    object: predicate,
-                    from: expected_from,
-                },
-                CommittedTriggerEvent::SpellCast { object, from },
-            ) => {
-                expected_from.is_none_or(|zone| from.zone() == zone)
-                    && self.trigger_object_matches_for_controller(
-                        predicate, object, source, true, controller,
-                    )
             }
             (
                 TriggerEventDef::StepBegins { step, player },

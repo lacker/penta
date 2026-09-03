@@ -2042,7 +2042,7 @@ pub(in crate::card::sets) static NADU_WINGED_WISDOM: CardRecord = CardRecord::ne
                             "Whenever this creature becomes the target of a spell or ability, reveal the top card of \
                              your library. If it's a land card, put it onto the battlefield. Otherwise, put it into your \
                              hand. This ability triggers only twice each turn.",
-                            TriggerEventDef::BecomesTargetOfSpellOrAbility(
+                            TriggerEventDef::becomes_targeted(
                                 ObjectPredicateDef::Any,
                             ),
                             abilities::bind_top_cards_then(

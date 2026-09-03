@@ -15,7 +15,7 @@ use crate::Game;
 use crate::card::{
     ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef,
     CostAmountDef, CostModificationDef, ManaTypeDef, ReplacementConditionDef,
-    SpellCostConditionDef,
+    SpellCostConditionDef, StackObjectEventDef, StackTargetFilterDef,
 };
 
 use super::*;

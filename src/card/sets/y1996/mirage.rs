@@ -1870,7 +1870,7 @@ pub(in crate::card::sets) static SKULKING_GHOST: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::triggered(
             "When this creature becomes the target of a spell or ability, sacrifice it.",
-            TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::Any),
             EffectDef::Sacrifice {
                 object: EffectRecipientDef::Source,
             },

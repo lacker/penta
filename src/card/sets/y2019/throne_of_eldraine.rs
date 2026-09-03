@@ -203,7 +203,7 @@ const fn bonecrusher_rules() -> CardRules {
         // answer at all.
         .with_ability(AbilityDef::triggered(
             "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
-            TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+            TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
             EffectDef::DealDamage {
                 recipient: EffectRecipientDef::EventPlayer,
                 amount: ValueDef::Constant(2),

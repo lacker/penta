@@ -311,6 +311,44 @@ fn your_own_spell_targeting_him_pays_out_too() {
     assert_eq!(treasures(&game).len(), 1, "a spell of yours is a spell");
 }
 
+/// The object predicate says "spell", so an ability choosing the Dragon is
+/// deliberately outside this trigger even though it uses the same target event.
+#[test]
+fn an_ability_targeting_him_does_not_make_a_treasure() {
+    let (mut game, dragon) = staged();
+    let sorcerer = game
+        .put_onto_battlefield(PlayerId::Two, cards::PRODIGAL_SORCERER)
+        .expect("cataloged");
+    game.battlefield
+        .iter_mut()
+        .find(|permanent| permanent.card.id == sorcerer)
+        .expect("it is on the battlefield")
+        .entered_controller_turn = 0;
+    drain_pending(&mut game);
+    game.priority = PlayerId::Two;
+
+    let activation = game
+        .legal_actions(PlayerId::Two)
+        .into_iter()
+        .find(|action| match action {
+            Action::ActivateAbility {
+                source, targets, ..
+            } => {
+                *source == sorcerer
+                    && targets
+                        .iter()
+                        .any(|selection| selection.targets().contains(&Target::Permanent(dragon)))
+            }
+            _ => false,
+        })
+        .expect("the Sorcerer can target the Dragon");
+    game.apply(PlayerId::Two, activation)
+        .expect("the ability activates");
+    settle(&mut game);
+
+    assert!(treasures(&game).is_empty(), "an ability is not a spell");
+}
+
 /// "Players can cast spells and activate abilities after the triggered
 /// ability resolves but before the spell that caused it to trigger does."
 /// The Treasure is the point of that window: it is on the battlefield, and

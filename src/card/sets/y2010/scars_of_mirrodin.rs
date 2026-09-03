@@ -4050,7 +4050,7 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::add_ability(&AbilityDef::triggered_with_targets(
                         "Whenever this creature becomes the target of a spell, this creature deals 2 damage to any target.",
-                        TriggerEventDef::BecomesTargetOfSpell(ObjectPredicateDef::Any),
+                        TriggerEventDef::becomes_targeted(ObjectPredicateDef::Spell),
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
                         )],

@@ -9,6 +9,51 @@ use super::{
     TriggerConditionDef, TurnStepDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
 
+/// What a stack object must have newly targeted for the event to match.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum StackTargetFilterDef {
+    Player(PlayerRelation),
+    Permanent(ObjectPredicateDef),
+    Card(ObjectPredicateDef),
+    Spell(ObjectPredicateDef),
+    /// Any one of several recipient shapes in a single printed clause.
+    AnyOf(&'static [StackTargetFilterDef]),
+}
+
+/// How matches inside one atomic target-selection event become triggers.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum StackTargetAggregationDef {
+    /// Trigger for each distinct matching recipient.
+    EachMatchingTarget,
+    /// Trigger once if one or more recipients match.
+    OneOrMoreMatchingTargets,
+}
+
+/// The occurrence involving a matching object on the stack.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum StackObjectEventDef {
+    /// A spell was cast, optionally from a particular zone.
+    Cast { from: Option<ZoneKind> },
+    /// A copy of a spell was created on the stack. A copy is not cast.
+    Copied,
+    /// Targets were locked in while a spell or ability was put on the stack,
+    /// or changed later by an effect. Retargeting is deliberately the same
+    /// occurrence even though it is not another cast or activation.
+    TargetSelection {
+        target: StackTargetFilterDef,
+        aggregation: StackTargetAggregationDef,
+    },
+}
+
+/// A declarative match over an object on the stack and what just happened to
+/// it. The object predicate always reads the spell or ability; target clauses
+/// additionally constrain the recipients newly selected by that occurrence.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub struct StackObjectEventMatcherDef {
+    pub object: ObjectPredicateDef,
+    pub event: StackObjectEventDef,
+}
+
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
@@ -94,38 +139,11 @@ pub enum TriggerEventDef {
     BecomesBlockedBy {
         blocker: ObjectPredicateDef,
     },
-    /// A matching spell was cast. Every committed cast event carries its
-    /// actual source zone; `from` optionally constrains it for clauses that
-    /// care, while ordinary cast triggers leave it unconstrained.
-    SpellCast {
-        object: ObjectPredicateDef,
-        from: Option<ZoneKind>,
-    },
-    /// A copy of a matching spell was created on the stack. Distinct from
-    /// [`Self::SpellCast`] because a copy is not cast (CR 707.12): magecraft
-    /// prints both halves in one clause, and every other clause that watches
-    /// casting means casting only.
-    SpellCopied(ObjectPredicateDef),
-    /// This object became the target of a spell the predicate matches.
-    /// Raised where the targets are locked in -- as the spell is cast, which
-    /// is what "becomes the target" means -- and once per targeting spell
-    /// however many of its slots name the same object (CR 115.7c). Activated
-    /// abilities target too, and this is not about them.
-    BecomesTargetOfSpell(ObjectPredicateDef),
-    /// This object became the target of a spell or of an ability, which is
-    /// the pair ward asks about. Raised where each locks its targets in --
-    /// as the spell is cast, or as the ability goes onto the stack -- and
-    /// once per targeting object however many of its slots name this one.
-    BecomesTargetOfSpellOrAbility(ObjectPredicateDef),
-    /// "Whenever you or a permanent you control becomes the target of a
-    /// spell or ability an opponent controls."
-    ///
-    /// The listener is not what was pointed at, which is what separates this
-    /// from the two above: the clause watches a side of the table rather
-    /// than one object, and a player being targeted counts as much as a
-    /// permanent does. The predicate reads the spell or ability that did the
-    /// pointing, so "an opponent controls" is said there.
-    YouOrYourPermanentBecomesTarget(ObjectPredicateDef),
+    /// Something happened to a matching object on the stack: it was cast,
+    /// copied, or selected new targets. One representation keeps kind,
+    /// recipient, and aggregation filters orthogonal while retaining the
+    /// rules distinction between casting, copying, and retargeting.
+    StackObject(StackObjectEventMatcherDef),
     StepBegins {
         step: TurnStepDef,
         player: PlayerRelation,
@@ -309,15 +327,51 @@ impl TriggerEventDef {
 
     #[must_use]
     pub const fn spell_cast(object: ObjectPredicateDef) -> Self {
-        Self::SpellCast { object, from: None }
+        Self::StackObject(StackObjectEventMatcherDef {
+            object,
+            event: StackObjectEventDef::Cast { from: None },
+        })
     }
 
     #[must_use]
     pub const fn spell_cast_from(object: ObjectPredicateDef, from: ZoneKind) -> Self {
-        Self::SpellCast {
+        Self::StackObject(StackObjectEventMatcherDef {
             object,
-            from: Some(from),
-        }
+            event: StackObjectEventDef::Cast { from: Some(from) },
+        })
+    }
+
+    #[must_use]
+    pub const fn spell_copied(object: ObjectPredicateDef) -> Self {
+        Self::StackObject(StackObjectEventMatcherDef {
+            object,
+            event: StackObjectEventDef::Copied,
+        })
+    }
+
+    #[must_use]
+    pub const fn targets_selected(
+        stack_object: ObjectPredicateDef,
+        target: StackTargetFilterDef,
+        aggregation: StackTargetAggregationDef,
+    ) -> Self {
+        Self::StackObject(StackObjectEventMatcherDef {
+            object: stack_object,
+            event: StackObjectEventDef::TargetSelection {
+                target,
+                aggregation,
+            },
+        })
+    }
+
+    /// This permanent became the target of a matching stack object.
+    #[must_use]
+    pub const fn becomes_targeted(by: ObjectPredicateDef) -> Self {
+        Self::targets_selected(
+            by,
+            StackTargetFilterDef::Permanent(ObjectPredicateDef::Source),
+            StackTargetAggregationDef::EachMatchingTarget,
+        )
     }
 
     #[must_use]

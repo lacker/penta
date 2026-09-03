@@ -256,7 +256,7 @@ static AN_OPPONENTS_SPELL_OR_ABILITY: ObjectPredicateDef =
 pub const fn ward(amount: u16, text: &'static str) -> AbilityDef {
     AbilityDef::triggered(
         text,
-        TriggerEventDef::BecomesTargetOfSpellOrAbility(AN_OPPONENTS_SPELL_OR_ABILITY),
+        TriggerEventDef::becomes_targeted(AN_OPPONENTS_SPELL_OR_ABILITY),
         pay_or_counter(
             PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject),
             ValueDef::Constant(amount as i32),
@@ -272,7 +272,7 @@ pub const fn ward(amount: u16, text: &'static str) -> AbilityDef {
 pub const fn ward_life(amount: u16, text: &'static str) -> AbilityDef {
     AbilityDef::triggered(
         text,
-        TriggerEventDef::BecomesTargetOfSpellOrAbility(AN_OPPONENTS_SPELL_OR_ABILITY),
+        TriggerEventDef::becomes_targeted(AN_OPPONENTS_SPELL_OR_ABILITY),
         EffectDef::PayOr(PayOrDef {
             payment: EffectPaymentDef::life(
                 PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::TriggeringObject)),

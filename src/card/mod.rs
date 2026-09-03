@@ -78,14 +78,15 @@ pub use model::{
     RevealAndClassifyCardsDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef,
     ScalarChoiceListDef, ScaledValueDef, SetOperationDef, SourceMatchValueDef, SpecialActionDef,
     SpellAbilityDef, SpellAdditionalCostDef, SpellCastQueryDef, SpellCostConditionDef,
-    SpellCostModificationDef, SpellForm, SpellResolutionDestinationDef, StackTargetChangeDef,
-    StaticAbilityDef, StaticApplyDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef,
-    TapEventMatcherDef, TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate,
-    TargetSlotDef, TokenCharacteristics, TokenCopyDef, TokenCountersDef, TokenPart, TokenStatsDef,
-    TokenStructure, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef,
-    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef,
-    ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
+    SpellCostModificationDef, SpellForm, SpellResolutionDestinationDef, StackObjectEventDef,
+    StackObjectEventMatcherDef, StackTargetAggregationDef, StackTargetChangeDef,
+    StackTargetFilterDef, StaticAbilityDef, StaticApplyDef, SumValueDef, SuspendAbilityDef,
+    SuspendTimeDef, TapEventMatcherDef, TapPurposeDef, TargetChooserDef, TargetConditionDef,
+    TargetPredicate, TargetSlotDef, TokenCharacteristics, TokenCopyDef, TokenCountersDef,
+    TokenPart, TokenStatsDef, TokenStructure, TopOfLibraryCostDef, TriggerConditionDef,
+    TriggerEventDef, TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
 };
 pub use model::{DamageAssignmentDef, FightExcessDef};
 

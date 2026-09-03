@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ObjectPredicateDef, PlayerRefDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities,
+    ObjectPredicateDef, PlayerRefDef, PlayerRelation, StackTargetAggregationDef,
+    StackTargetFilterDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -116,9 +116,16 @@ pub(in crate::card::sets) static LEOVOLD_EMISSARY_OF_TREST: CardRecord = CardRec
             AbilityDef::triggered(
                 "Whenever you or a permanent you control becomes the target of a spell or ability an \
                  opponent controls, you may draw a card.",
-                TriggerEventDef::YouOrYourPermanentBecomesTarget(ObjectPredicateDef::ControlledBy(
-                    PlayerRelation::Opponent,
-                )),
+                TriggerEventDef::targets_selected(
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+                    StackTargetFilterDef::AnyOf(&[
+                        StackTargetFilterDef::Player(PlayerRelation::You),
+                        StackTargetFilterDef::Permanent(ObjectPredicateDef::ControlledBy(
+                            PlayerRelation::You,
+                        )),
+                    ]),
+                    StackTargetAggregationDef::EachMatchingTarget,
+                ),
                 EffectDef::May {
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::DrawCards {

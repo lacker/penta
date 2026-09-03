@@ -11,7 +11,7 @@ use crate::card::{
 use crate::casting::TargetSelection;
 use crate::ids::{Binding, GameObjectId, PlayerId};
 
-use super::{CastSourceZone, ObjectCharacteristics, StackAbilityResolver};
+use super::{CastSourceZone, ObjectCharacteristics, StackAbilityResolver, StackObjectKind};
 
 /// The prospective draw an ordinary effect inside a replacement program may
 /// resume. The applied sources are event-local CR 614.5 state.

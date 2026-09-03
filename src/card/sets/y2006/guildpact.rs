@@ -2,12 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
-    TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PayOrDef,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // GPT 10 — Leyline of the Meek
 pub(in crate::card::sets) static LEYLINE_OF_THE_MEEK: CardRecord = CardRecord::new(
@@ -108,13 +109,33 @@ pub(in crate::card::sets) static BLOODSCALE_PROWLER: CardRecord = CardRecord::ne
 );
 
 // GPT 68 — Leyline of Lightning
-// Audit: unsupported — Needs a paid trigger whose target is declared only after its optional payment.
 pub(in crate::card::sets) static LEYLINE_OF_LIGHTNING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("23d09839-b41e-4aab-8913-40d63052dbf3"),
     "Leyline of Lightning",
     CardArt::new("23d09839-b41e-4aab-8913-40d63052dbf3", "Paolo Parente"),
     CardSet::Guildpact,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
+        abilities::begin_game_on_battlefield(),
+        AbilityDef::triggered_with_targets(
+            "Whenever you cast a spell, you may pay {1}. If you do, this enchantment deals 1 damage to target player or planeswalker.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(
+                PlayerRelation::You,
+            )),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef::mana(
+                    PlayerSetDef::Related(PlayerRelation::You),
+                    mana_cost!("{1}"),
+                ),
+                &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            )),
+        ),
+    ]),
 );
 
 // GPT 74 — Scorched Rusalka

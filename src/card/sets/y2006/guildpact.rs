@@ -62,9 +62,11 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
         AbilityDef::replacement_for(
             "If a card would be put into an opponent's graveyard from anywhere, exile it instead.",
             ReplacementEventDef::AnyObjectWouldMove {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                ]),
                 to: ZoneKind::Graveyard,
-                owner: PlayerRelation::Opponent,
-                tokens: false,
             },
             ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
         ),

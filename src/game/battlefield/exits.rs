@@ -6,8 +6,8 @@
 // ordinary members of the same `impl Game`. The paths and imports are the
 // parent module's.
 
-use super::{PlayerRelation, TriggerEventObject};
-use crate::CharacteristicContext;
+use super::TriggerEventObject;
+use crate::{CharacteristicContext, card::ObjectPredicateDef};
 
 /// One permanent on its way off the battlefield, as the exit batch collects
 /// it: what it was, what had damaged it, where it is going, which counter it
@@ -305,15 +305,14 @@ impl Game {
         self.queue_next_battlefield_exit_order(batch, remaining);
     }
 
-    /// Whether the permanent about to leave is one this replacement's
-    /// wording covers: whose graveyard it is headed for, and whether a token
-    /// counts as the "card" the clause names.
-    fn exiting_object_matches_owner_and_kind(
+    /// Whether the permanent about to leave is one this replacement's object
+    /// predicate covers. Match the same stable owner and token properties as
+    /// the nonbattlefield zone-move path.
+    fn exiting_object_matches(
         &self,
         object: GameObjectId,
         controller: PlayerId,
-        owner: PlayerRelation,
-        tokens: bool,
+        predicate: ObjectPredicateDef,
     ) -> bool {
         let Some(permanent) = self
             .battlefield
@@ -322,16 +321,11 @@ impl Game {
         else {
             return false;
         };
-        // Token nature belongs to the physical object, not the characteristics
-        // it may currently be copying.
-        if !tokens && permanent.card.definition.is_token() {
-            return false;
-        }
-        self.player_relation_matches(
+        self.zone_move_object_matches(
+            predicate,
             permanent.card.owner,
-            owner,
+            permanent.card.definition.is_token(),
             controller,
-            TriggerContext::empty(),
         )
     }
 
@@ -378,13 +372,12 @@ impl Game {
                     to,
                     cause: ZoneMoveCauseDef::Any,
                 } => replacement.source.object == proposed.object && to == proposed.destination,
-                ReplacementEventDef::AnyObjectWouldMove { to, owner, tokens } => {
+                ReplacementEventDef::AnyObjectWouldMove { object, to } => {
                     to == proposed.destination
-                        && self.exiting_object_matches_owner_and_kind(
+                        && self.exiting_object_matches(
                             proposed.object,
                             replacement.controller,
-                            owner,
-                            tokens,
+                            object,
                         )
                 }
                 _ => false,

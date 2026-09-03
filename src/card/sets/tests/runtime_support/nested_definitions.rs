@@ -422,9 +422,33 @@ pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
         }
         ReplacementEventDef::WouldMove { cause, .. } => shared_zone_move_cause(cause),
         // Only graveyard placement funnels through one procedure the
-        // replacement can sit in front of.
-        ReplacementEventDef::AnyObjectWouldMove { to, .. } => to == ZoneKind::Graveyard,
+        // replacement can sit in front of. That path can read the object's
+        // stable token nature and owner, including their boolean composites.
+        ReplacementEventDef::AnyObjectWouldMove { object, to } => {
+            to == ZoneKind::Graveyard && shared_zone_move_object_predicate(object)
+        }
         ReplacementEventDef::Special(_) => false,
+    }
+}
+
+fn shared_zone_move_object_predicate(predicate: ObjectPredicateDef) -> bool {
+    match predicate {
+        ObjectPredicateDef::Any
+        | ObjectPredicateDef::Token
+        | ObjectPredicateDef::OwnedBy(
+            PlayerRelation::Any
+            | PlayerRelation::You
+            | PlayerRelation::NotYou
+            | PlayerRelation::Opponent
+            | PlayerRelation::ActivePlayer
+            | PlayerRelation::NonactivePlayer,
+        ) => true,
+        ObjectPredicateDef::All(predicates) | ObjectPredicateDef::AnyOf(predicates) => predicates
+            .iter()
+            .copied()
+            .all(shared_zone_move_object_predicate),
+        ObjectPredicateDef::Not(predicate) => shared_zone_move_object_predicate(*predicate),
+        _ => false,
     }
 }
 

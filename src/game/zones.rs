@@ -8,6 +8,7 @@ use super::{
 };
 
 mod exile_events;
+mod replacement_matching;
 
 /// Where a card headed for one zone actually goes when something on the
 /// battlefield replaces the move, and what that replacement puts on it.
@@ -371,21 +372,14 @@ impl Game {
                     return;
                 };
                 let ReplacementEventDef::AnyObjectWouldMove {
+                    object,
                     to: watched,
-                    owner: watched_owner,
-                    tokens,
                 } = definition.event
                 else {
                     return;
                 };
                 if watched != to
-                    || (!tokens && is_token)
-                    || !self.player_relation_matches(
-                        owner,
-                        watched_owner,
-                        permanent.controller,
-                        TriggerContext::empty(),
-                    )
+                    || !self.zone_move_object_matches(object, owner, is_token, permanent.controller)
                 {
                     return;
                 }
@@ -412,21 +406,14 @@ impl Game {
                     continue;
                 };
                 let ReplacementEventDef::AnyObjectWouldMove {
+                    object,
                     to: watched,
-                    owner: watched_owner,
-                    tokens,
                 } = definition.event
                 else {
                     continue;
                 };
                 if watched != to
-                    || (!tokens && is_token)
-                    || !self.player_relation_matches(
-                        owner,
-                        watched_owner,
-                        ongoing.controller,
-                        TriggerContext::empty(),
-                    )
+                    || !self.zone_move_object_matches(object, owner, is_token, ongoing.controller)
                 {
                     continue;
                 }

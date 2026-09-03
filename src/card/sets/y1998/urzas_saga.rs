@@ -2203,9 +2203,11 @@ pub(in crate::card::sets) static YAWGMOTH_S_WILL: CardRecord = CardRecord::new(
                 &AbilityDef::replacement_for(
                     "If a card would be put into your graveyard from anywhere this turn, exile that card instead.",
                     ReplacementEventDef::AnyObjectWouldMove {
+                        object: ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
                         to: ZoneKind::Graveyard,
-                        owner: PlayerRelation::You,
-                        tokens: false,
                     },
                     ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
                 ),

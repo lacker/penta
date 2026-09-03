@@ -420,9 +420,11 @@ const FORGOTTEN_CELLAR_DOOR: AbilityDef = AbilityDef::triggered(
             effect: AppliedEffectDef::add_ability(&AbilityDef::replacement_for(
                 "If a card would be put into your graveyard from anywhere, exile it instead.",
                 ReplacementEventDef::AnyObjectWouldMove {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::You),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
                     to: ZoneKind::Graveyard,
-                    owner: PlayerRelation::You,
-                    tokens: false,
                 },
                 ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
             )),

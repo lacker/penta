@@ -1257,10 +1257,12 @@ pub(in crate::card::sets) static DAUTHI_VOIDWALKER: CardRecord = CardRecord::new
                 // Their cards, not yours, and cards rather than tokens: a token that would
                 // die still dies, and ceases to exist as it always would.
                 ReplacementEventDef::AnyObjectWouldMove {
-                        to: ZoneKind::Graveyard,
-                        owner: PlayerRelation::Opponent,
-                        tokens: false,
-                    },
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::OwnedBy(PlayerRelation::Opponent),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                    ]),
+                    to: ZoneKind::Graveyard,
+                },
                 // The counter is the whole point: it marks the pile this creature is
                 // allowed to reach back into, which is what separates it from the
                 // graveyard hate that only takes things away.

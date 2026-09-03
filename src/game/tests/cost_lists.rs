@@ -119,6 +119,60 @@ fn resolving_cost_lists_cannot_discard_the_same_card_twice() {
 }
 
 #[test]
+fn resolving_cost_lists_require_distinct_permanents_for_repeated_returns() {
+    static COSTS: [CostDef; 2] = [
+        CostDef::MovePermanentMatching {
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+            zone: ZoneKind::Hand,
+        },
+        CostDef::MovePermanentMatching {
+            object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+            zone: ZoneKind::Hand,
+        },
+    ];
+    static PAID: EffectDef = EffectDef::GainLife {
+        recipient: EffectRecipientDef::Controller,
+        amount: ValueDef::Constant(1),
+    };
+
+    for forests in [1, 2] {
+        let mut game = ready_game();
+        game.battlefield.clear();
+        game.players[0].hand.clear();
+        for index in 0..forests {
+            game.battlefield
+                .push(creature(230_030 + index, cards::FOREST, PlayerId::One));
+        }
+        let source = spell(230_032, cards::LIGHTNING_BOLT, PlayerId::One, 0);
+        game.resolve_effect_def(
+            ScopedEffect::primary(EffectDef::PayOr(PayOrDef::optional(&COSTS, &PAID))),
+            &source,
+            TriggerContext::empty(),
+        );
+        let decision = game.observe(PlayerId::One).decision.unwrap();
+
+        if forests == 1 {
+            assert_eq!(decision.options.len(), 1, "one Forest cannot pay twice");
+            continue;
+        }
+
+        let payment = decision.options.last().expect("two Forests can pay");
+        assert_eq!(payment.members.len(), 2);
+        game.apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: vec![payment.id],
+            },
+        )
+        .unwrap();
+        assert!(game.battlefield.is_empty());
+        assert_eq!(game.players[0].hand.len(), 2);
+        assert_eq!(game.players[0].life, 21);
+    }
+}
+
+#[test]
 fn free_static_alternative_and_zero_mana_alternative_remain_distinct() {
     let costs_of = |id| {
         ready_game()

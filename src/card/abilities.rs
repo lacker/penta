@@ -680,7 +680,17 @@ pub const fn cannot_be_countered() -> AbilityDef {
     .with_source_zones(&[ZoneKind::Stack])
 }
 
-/// A common mana ability that taps its source to add one fixed kind of mana.
+/// A mana ability whose only cost is tapping its source.
+///
+/// The caller supplies the complete printed mana effect, including mixed
+/// output, quantity, restrictions, and spend riders. The text stays explicit
+/// because those semantic details cannot all be reconstructed from the effect.
+#[must_use]
+pub const fn tap_for_mana(text: &'static str, mana: AddManaEffectDef) -> AbilityDef {
+    AbilityDef::activated_mana(text, &[CostDef::TapSource], EffectDef::AddMana(mana))
+}
+
+/// The common single-mana form of [`tap_for_mana`].
 #[must_use]
 pub const fn tap_for(mana: ManaColor) -> AbilityDef {
     let text = match mana {
@@ -691,11 +701,7 @@ pub const fn tap_for(mana: ManaColor) -> AbilityDef {
         ManaColor::Green => "{T}: Add {G}.",
         ManaColor::Colorless => "{T}: Add {C}.",
     };
-    AbilityDef::activated_mana(
-        text,
-        &[CostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(mana)),
-    )
+    tap_for_mana(text, AddManaEffectDef::one(mana))
 }
 
 /// An unconditional battlefield-entry replacement. `printed_subject` selects

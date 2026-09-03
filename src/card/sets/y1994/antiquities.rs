@@ -1874,16 +1874,13 @@ pub(in crate::card::sets) static MISHRA_S_WORKSHOP: CardRecord = CardRecord::new
     "Mishra's Workshop",
     CardArt::new("135de5c7-6ac9-4b68-8f1a-97f120a4b125", "Kaja Foglio"),
     CardSet::Antiquities,
-    CardRules::new_land(&[]).with_abilities(&[AbilityDef::activated_mana(
+    CardRules::new_land(&[]).with_abilities(&[abilities::tap_for_mana(
         "{T}: Add {C}{C}{C}. Spend this mana only to cast artifact spells.",
-        &[CostDef::TapSource],
-        EffectDef::AddMana(
-            AddManaEffectDef::one(ManaColor::Colorless)
-                .with_amount(3)
-                .with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::HasType(
-                    CardType::Artifact,
-                ))]),
-        ),
+        AddManaEffectDef::one(ManaColor::Colorless)
+            .with_amount(3)
+            .with_restrictions(&[ManaRestrictionDef::CastSpell(ObjectPredicateDef::HasType(
+                CardType::Artifact,
+            ))]),
     )]),
 );
 

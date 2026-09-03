@@ -14,7 +14,7 @@ mod tests {
         look_at_top_cards_choose_to_hand_rest_bottom, mountainwalk, overload, pain_land, rampage,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
         reveal_hand_and_exile_chosen_card, reveal_top_cards_put_matching_in_hand_rest_graveyard,
-        shock_land_enters, storm, tap_for, trample, ward_aura_protection,
+        shock_land_enters, storm, tap_for, tap_for_mana, trample, ward_aura_protection,
     };
     use crate::card::{
         AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, ActivationTimingDef,
@@ -608,6 +608,23 @@ mod tests {
                 Some(EffectDef::AddMana(AddManaEffectDef::one(mana)))
             );
         }
+    }
+
+    #[test]
+    fn tap_for_mana_accepts_the_complete_mana_effect() {
+        let mana = AddManaEffectDef::one_of_each(ManaColor::Colorless, ManaColor::Blue);
+        let ability = tap_for_mana("{T}: Add {C}{U}.", mana);
+
+        assert_eq!(ability.text, "{T}: Add {C}{U}.");
+        assert!(matches!(
+            ability.definition,
+            DeclarativeAbilityDef::ActivatedMana(definition)
+                if definition.costs == [CostDef::TapSource]
+        ));
+        assert_eq!(
+            ability.declarative_effect(),
+            Some(EffectDef::AddMana(mana))
+        );
     }
 
     #[test]

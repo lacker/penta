@@ -7,17 +7,56 @@ use crate::card::sets::y2012::avacyn_restored as catalog_avr;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
-    AttackRestrictionDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, CostDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
+    ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, CardArt,
+    CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, CostDef, CostModificationDef,
+    CounterKind, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectRecipientDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
+
+static INSTANT_SPEED_ENCHANTMENT_CLEANUP: AbilityDef = AbilityDef::triggered(
+    "If you cast this spell any time a sorcery couldn't have been cast, the controller of the permanent it becomes sacrifices it at the beginning of the next cleanup step.",
+    TriggerEventDef::zone_changed(
+        ObjectPredicateDef::Source,
+        None,
+        Some(ZoneKind::Battlefield),
+    ),
+    EffectDef::IfCondition {
+        condition: &TriggerConditionDef::SourceCastAtInstantSpeed,
+        then: &EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+            "At the beginning of the next cleanup step, sacrifice this permanent.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Cleanup,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ))),
+    },
+);
+
+const fn enters_bounce_or_sacrifice(text: &'static str, costs: &'static [CostDef]) -> AbilityDef {
+    abilities::enters_trigger(
+        text,
+        EffectDef::PayOr(PayOrDef::unless(
+            costs,
+            &const {
+                EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                }
+            },
+        )),
+    )
+}
 
 // VIS 1 — Archangel (reprint)
 
@@ -326,13 +365,29 @@ pub(in crate::card::sets) static MIRACULOUS_RECOVERY: CardRecord = CardRecord::n
 );
 
 // VIS 14 — Parapet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PARAPET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7bbcaa9-edbf-48ad-bcd2-65e8fb9bb938"),
     "Parapet",
     crate::card::CardArt::new("a7bbcaa9-edbf-48ad-bcd2-65e8fb9bb938", "Mark Poole"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}")).with_abilities(&[
+        abilities::flash(),
+        INSTANT_SPEED_ENCHANTMENT_CLEANUP,
+        AbilityDef::static_ability(
+            "Creatures you control get +0/+1.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+            },
+        ),
+    ]),
 );
 
 // VIS 15 — Peace Talks
@@ -346,13 +401,25 @@ pub(in crate::card::sets) static PEACE_TALKS: CardRecord = CardRecord::new(
 );
 
 // VIS 16 — Relic Ward
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RELIC_WARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f0459667-b7da-43bd-b981-0e515432d147"),
     "Relic Ward",
     crate::card::CardArt::new("f0459667-b7da-43bd-b981-0e515432d147", "John Coulthart"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            INSTANT_SPEED_ENCHANTMENT_CLEANUP,
+            abilities::enchant_artifact(),
+            AbilityDef::static_ability(
+                "Enchanted artifact has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+                },
+            ),
+        ]),
 );
 
 // VIS 17 — Remedy
@@ -366,13 +433,28 @@ pub(in crate::card::sets) static REMEDY: CardRecord = CardRecord::new(
 );
 
 // VIS 18 — Resistance Fighter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESISTANCE_FIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21250bdb-9431-41b3-9fef-d66a4d3f6ecd"),
     "Resistance Fighter",
     crate::card::CardArt::new("21250bdb-9431-41b3-9fef-d66a4d3f6ecd", "Cecil Fernando"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Prevent all combat damage target creature would deal this turn.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::PreventDamage {
+                prevention: crate::card::DamagePreventionDef::unlimited(
+                    crate::card::DamageEventMatcherDef::combat_from(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    )),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // VIS 19 — Retribution of the Meek
@@ -507,13 +589,37 @@ pub(in crate::card::sets) static ZHALFIRIN_CRUSADER: CardRecord = CardRecord::ne
 );
 
 // VIS 26 — Betrayal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BETRAYAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f9b5c75-882e-4fe4-827f-584080e91485"),
     "Betrayal",
     crate::card::CardArt::new("7f9b5c75-882e-4fe4-827f-584080e91485", "Gary Leach"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            AbilityDef::spell_with_targets(
+                "Enchant creature an opponent controls",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: Some(PlayerRelation::Opponent),
+                        owner: None,
+                    },
+                )],
+                EffectDef::Attach {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever enchanted creature becomes tapped, you draw a card.",
+                TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // VIS 27 — Breezekeeper
@@ -636,7 +742,6 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_MISTS: CardRecord = CardRecord::n
 // VIS 37 — Man-o'-War (reprint)
 
 // VIS 38 — Mystic Veil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_VEIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ddb640d-5c54-4d0a-b8c2-e22fe04f96c2"),
     "Mystic Veil",
@@ -645,17 +750,69 @@ pub(in crate::card::sets) static MYSTIC_VEIL: CardRecord = CardRecord::new(
         "D. Alexander Gregory",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            INSTANT_SPEED_ENCHANTMENT_CLEANUP,
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+                },
+            ),
+        ]),
 );
 
 // VIS 39 — Ovinomancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static OVINOMANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("978eb187-50dc-4774-993b-7e95be360d25"),
     "Ovinomancer",
     crate::card::CardArt::new("ae4f0988-4194-4481-a6b7-27753261174a", "Kev Walker"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 0, 1).with_abilities(&[
+        enters_bounce_or_sacrifice(
+            "When this creature enters, sacrifice it unless you return three basic lands you control to their owner's hand.",
+            &[
+                CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&BasicLandType::ALL),
+                    zone: ZoneKind::Hand,
+                },
+                CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&BasicLandType::ALL),
+                    zone: ZoneKind::Hand,
+                },
+                CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&BasicLandType::ALL),
+                    zone: ZoneKind::Hand,
+                },
+            ],
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Return this creature to its owner's hand: Destroy target creature. It can't be regenerated. That creature's controller creates a 0/1 green Sheep creature token.",
+            &[CostDef::TapSource, CostDef::ReturnSourceToHand],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
+                EffectDef::create_creature_token(&["Sheep"], &[ManaColor::Green], 0, 1)
+                    .with_controller(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+            ]),
+        ),
+    ]),
 );
 
 // VIS 40 — Prosperity
@@ -676,13 +833,21 @@ pub(in crate::card::sets) static PROSPERITY: CardRecord = CardRecord::new(
 );
 
 // VIS 41 — Rainbow Efreet
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAINBOW_EFREET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1d6f03a6-3665-40e4-ae68-640913972770"),
     "Rainbow Efreet",
     crate::card::CardArt::new("1d6f03a6-3665-40e4-ae68-640913972770", "Nathalie Hertz"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Efreet"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{U}{U}: This creature phases out.",
+            &[CostDef::Mana(mana_cost!("{U}{U}"))],
+            EffectDef::PhaseOut {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ]),
 );
 
 // VIS 42 — Shimmering Efreet
@@ -696,13 +861,36 @@ pub(in crate::card::sets) static SHIMMERING_EFREET: CardRecord = CardRecord::new
 );
 
 // VIS 43 — Shrieking Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHRIEKING_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dae31023-2649-4f37-b1ec-d9f650d53f09"),
     "Shrieking Drake",
     crate::card::CardArt::new("63971a64-c5f3-4d1f-ae0d-489d7d5b18f0", "Ian Miller"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Drake"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, return a creature you control to its owner's hand.",
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(crate::ParentBinding),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::object(ObjectRefDef::Binding(crate::ParentBinding)),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            }),
+        ),
+    ]),
 );
 
 // VIS 44 — Teferi's Realm
@@ -764,13 +952,23 @@ pub(in crate::card::sets) static UNDO: CardRecord = CardRecord::new(
 );
 
 // VIS 48 — Vanishing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VANISHING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d1fb805-1382-458c-b98d-4491f13833b6"),
     "Vanishing",
     crate::card::CardArt::new("8d1fb805-1382-458c-b98d-4491f13833b6", "John Matson"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "{U}{U}: Enchanted creature phases out.",
+                &[CostDef::Mana(mana_cost!("{U}{U}"))],
+                EffectDef::PhaseOut {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // VIS 49 — Vision Charm
@@ -818,13 +1016,34 @@ pub(in crate::card::sets) static VISION_CHARM: CardRecord = CardRecord::new_with
 );
 
 // VIS 50 — Waterspout Djinn
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WATERSPOUT_DJINN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6946a75e-e9d1-4a56-86d1-dd81f7b1b125"),
     "Waterspout Djinn",
     crate::card::CardArt::new("6946a75e-e9d1-4a56-86d1-dd81f7b1b125", "Thomas Gianni"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Djinn"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, sacrifice this creature unless you return an untapped Island you control to its owner's hand.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::unless(
+                &[CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ]),
+                    zone: ZoneKind::Hand,
+                }],
+                &EffectDef::Sacrifice {
+                    object: EffectRecipientDef::Source,
+                },
+            )),
+        ),
+    ]),
 );
 
 // VIS 51 — Aku Djinn
@@ -857,17 +1076,25 @@ pub(in crate::card::sets) static AKU_DJINN: CardRecord = CardRecord::new(
 );
 
 // VIS 52 — Blanket of Night
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLANKET_OF_NIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fe012fd0-9ff0-4436-a890-3ab436e42201"),
     "Blanket of Night",
     crate::card::CardArt::new("fe012fd0-9ff0-4436-a890-3ab436e42201", "Cliff Nielsen"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::static_ability(
+        "Each land is a Swamp in addition to its other land types.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Land),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::add_basic_land_types(&[BasicLandType::Swamp]),
+        },
+    )),
 );
 
 // VIS 53 — Brood of Cockroaches
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BROOD_OF_COCKROACHES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30b6150e-7d0c-4361-b99b-79de96dfc53a"),
     "Brood of Cockroaches",
@@ -876,7 +1103,29 @@ pub(in crate::card::sets) static BROOD_OF_COCKROACHES: CardRecord = CardRecord::
         "Geofrey Darrow & I. Rabarot",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Insect"], 1, 1).with_ability(
+        abilities::dies_trigger(
+            "When this creature is put into your graveyard from the battlefield, at the beginning of the next end step, you lose 1 life and return this card to your hand.",
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next end step, you lose 1 life and return this card to your hand.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::Sequence(&[
+                    EffectDef::LoseLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                ]),
+            ))),
+        ),
+    ),
 );
 
 // VIS 54 — Coercion
@@ -1052,17 +1301,44 @@ pub(in crate::card::sets) static FUNERAL_CHARM: CardRecord = CardRecord::new(
 );
 
 // VIS 62 — Infernal Harvest
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INFERNAL_HARVEST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ccf85ac9-f5d8-4a36-aa6c-3a31427a0348"),
     "Infernal Harvest",
     crate::card::CardArt::new("ccf85ac9-f5d8-4a36-aa6c-3a31427a0348", "Nathalie Hertz"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
+        AbilityDef::spell_with_additional_cost(
+            "As an additional cost to cast this spell, return X Swamps you control to their owner's hand.\nInfernal Harvest deals X damage divided as you choose among any number of target creatures.",
+            &[AbilityTargetDef {
+                predicate: AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                minimum: 0,
+                maximum: AbilityTargetDef::UNLIMITED,
+                exact_count: None,
+                divided_total: Some(DividedTotal::ChosenX),
+                another: false,
+                excludes_source: false,
+                chooser: TargetChooserDef::Controller,
+            }],
+            CostDef::return_to_hand(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                CostQuantityDef::ChosenX,
+            ),
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::DividedAmongTargets,
+            ),
+        ),
+    ),
 );
 
 // VIS 63 — Kaervek's Spite
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Generic cost lists can combine the discard and sacrifice
+// clauses, but no cost quantity means "all permanents you control."
 pub(in crate::card::sets) static KAERVEK_S_SPITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d385b9e5-e13d-4098-ba74-ea55bde164d9"),
     "Kaervek's Spite",
@@ -1179,23 +1455,66 @@ pub(in crate::card::sets) static NECROSAVANT: CardRecord = CardRecord::new(
 );
 
 // VIS 66 — Nekrataal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NEKRATAAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dba3e342-88b7-4692-a3f7-a3f56c0cf6b5"),
     "Nekrataal",
     crate::card::CardArt::new("dba3e342-88b7-4692-a3f7-a3f56c0cf6b5", "Adrian Smith"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Assassin"], 2, 1)
+        .with_abilities(&[
+            abilities::first_strike(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, destroy target nonartifact, nonblack creature. That creature can't be regenerated.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )],
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        then: None,
+                    },
+                },
+            ),
+        ]),
 );
 
 // VIS 67 — Pillar Tombs of Aku
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PILLAR_TOMBS_OF_AKU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("153f93fd-4f2c-4dce-a774-4483031ed532"),
     "Pillar Tombs of Aku",
     crate::card::CardArt::new("153f93fd-4f2c-4dce-a774-4483031ed532", "Terese Nielsen"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}{B}"))
+        .with_supertype(CardSupertype::World)
+        .with_ability(AbilityDef::triggered(
+            "At the beginning of each player's upkeep, that player may sacrifice a creature of their choice. If that player doesn't, they lose 5 life and you sacrifice this enchantment.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::PayOr(
+                PayOrDef::unless(
+                    &[CostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    )],
+                    &EffectDef::Sequence(&[
+                        EffectDef::LoseLife {
+                            recipient: EffectRecipientDef::EventPlayer,
+                            amount: ValueDef::Constant(5),
+                        },
+                        EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ]),
+                )
+                .with_payer(PlayerSetDef::One(PlayerRefDef::EventPlayer)),
+            ),
+        )),
 );
 
 // VIS 68 — Python
@@ -1255,13 +1574,30 @@ pub(in crate::card::sets) static TAR_PIT_WARRIOR: CardRecord = CardRecord::new(
 );
 
 // VIS 71 — Urborg Mindsucker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBORG_MINDSUCKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8acbd8c6-da34-45d6-921a-11f370662833"),
     "Urborg Mindsucker",
     crate::card::CardArt::new("78405864-fc83-47ab-9238-8e0464a700ec", "DiTerlizzi"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Horror"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}, Sacrifice this creature: Target opponent discards a card at random. Activate only as a sorcery.",
+            &[
+                CostDef::Mana(mana_cost!("{B}")),
+                CostDef::SacrificeSource,
+            ],
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
+                PlayerRelation::Opponent,
+            ))],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::Random,
+                then: None,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // VIS 72 — Vampiric Tutor
@@ -1301,13 +1637,64 @@ pub(in crate::card::sets) static VAMPIRIC_TUTOR: CardRecord = CardRecord::new_wi
 );
 
 // VIS 73 — Vampirism
-// Audit: unsupported — Card rules have not been implemented.
+static VAMPIRISM_OTHER_CREATURES: ObjectPredicateDef = ObjectPredicateDef::All(&[
+    ObjectPredicateDef::HasType(CardType::Creature),
+    ObjectPredicateDef::Not(&ObjectPredicateDef::AttachedToSource),
+]);
+static VAMPIRISM_BONUS: ValueDef = ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+    VAMPIRISM_OTHER_CREATURES,
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+));
+
 pub(in crate::card::sets) static VAMPIRISM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c65b5cfd-d45b-4144-8608-541d455fb004"),
     "Vampirism",
     crate::card::CardArt::new("2dff2817-1813-410f-aca7-96e8f9f4ce81", "Gary Leach"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enters_trigger(
+                "When this Aura enters, draw a card at the beginning of the next turn's upkeep.",
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next turn's upkeep, draw a card.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ))),
+            ),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 for each other creature you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        VAMPIRISM_BONUS,
+                        VAMPIRISM_BONUS,
+                    ),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Other creatures you control get -1/-1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        VAMPIRISM_OTHER_CREATURES,
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-1),
+                        ValueDef::Constant(-1),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // VIS 74 — Wake of Vultures
@@ -1370,23 +1757,77 @@ pub(in crate::card::sets) static WICKED_REWARD: CardRecord = CardRecord::new(
 );
 
 // VIS 76 — Bogardan Phoenix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOGARDAN_PHOENIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("253db28a-3873-4364-80d7-a8164000ea9e"),
     "Bogardan Phoenix",
     crate::card::CardArt::new("253db28a-3873-4364-80d7-a8164000ea9e", "David O'Connor"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Phoenix"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::dies_trigger(
+            "When this creature dies, exile it if it had a death counter on it. Otherwise, return it to the battlefield under your control and put a death counter on it.",
+            EffectDef::IfElseCondition {
+                condition: &TriggerConditionDef::SourceCounters {
+                    kind: CounterKind::named("death"),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                then: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Source,
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+                otherwise: &EffectDef::WithZoneMoveResult {
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    },
+                    binding: crate::ParentBinding,
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::binding_zone_change_successors(
+                            crate::ParentBinding,
+                        ),
+                        kind: CounterKind::named("death"),
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            },
+        ),
+    ]),
 );
 
 // VIS 77 — Dwarven Vigilantes
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DWARVEN_VIGILANTES: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("077d33bb-41bf-440d-939b-67ab5aacb092"),
     "Dwarven Vigilantes",
     crate::card::CardArt::new("077d33bb-41bf-440d-939b-67ab5aacb092", "Pete Venters"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Dwarf"], 2, 2).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks and isn't blocked, you may have it deal damage equal to its power to target creature. If you do, this creature assigns no combat damage this turn.",
+            TriggerEventDef::AttacksAndIsNotBlocked {
+                attacker: ObjectPredicateDef::Source,
+            },
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::Sequence(&[
+                    EffectDef::damage(
+                        EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        ValueDef::SourcePower,
+                    ),
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Source,
+                        effect: AppliedEffectDef::Rule(AppliedRuleDef::AssignsNoCombatDamage),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ]),
+            },
+        ),
+    ),
 );
 
 // VIS 78 — Elkin Lair
@@ -1441,7 +1882,6 @@ pub(in crate::card::sets) static GOBLIN_RECRUITER: CardRecord = CardRecord::new(
 );
 
 // VIS 81 — Goblin Swine-Rider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SWINE_RIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("49980982-d534-4204-bc15-3e6c4ffa1a53"),
     "Goblin Swine-Rider",
@@ -1450,21 +1890,77 @@ pub(in crate::card::sets) static GOBLIN_SWINE_RIDER: CardRecord = CardRecord::ne
         "Geofrey Darrow & I. Rabarot",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it deals 2 damage to each attacking creature and each blocking creature.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::damage(
+                EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AttackingOrBlocking,
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                ValueDef::Constant(2),
+            ),
+        ),
+    ),
 );
 
 // VIS 82 — Hearth Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEARTH_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("caa9ac66-51b7-4aec-92dc-0f0656b0f7fe"),
     "Hearth Charm",
     crate::card::CardArt::new("caa9ac66-51b7-4aec-92dc-0f0656b0f7fe", "Greg Spalenka"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::destroy_target(
+                "Destroy target artifact creature.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                ])),
+            ),
+            AbilityDef::spell(
+                "Attacking creatures get +1/+0 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Attacking,
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature with power 2 or less can't be blocked this turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::PowerAtLeast(3)),
+                    ]),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // VIS 83 — Heat Wave
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — BlockRestrictionDef only supports a fixed mana payment;
+// this needs a life payment for each nonblue creature declared as a blocker.
 pub(in crate::card::sets) static HEAT_WAVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("42dd0810-4528-4a88-add8-923bb2057821"),
     "Heat Wave",
@@ -1516,23 +2012,80 @@ pub(in crate::card::sets) static KEEPER_OF_KOOKUS: CardRecord = CardRecord::new(
 );
 
 // VIS 86 — Kookus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KOOKUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8fb90922-99d2-4b36-9039-bb806fd01756"),
     "Kookus",
     crate::card::CardArt::new("8fb90922-99d2-4b36-9039-bb806fd01756", "Scott Hampton"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Djinn"], 3, 5).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered_if(
+            "At the beginning of your upkeep, if you don't control a creature named Keeper of Kookus, this creature deals 3 damage to you and attacks this turn if able.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::NameEquals(CardNameDef::Literal("Keeper of Kookus")),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::Equal,
+                amount: 0,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::damage(EffectRecipientDef::Controller, ValueDef::Constant(3)),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(
+                        &abilities::attacks_each_combat_if_able()
+                            .override_text("This creature attacks this turn if able."),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // VIS 87 — Lightning Cloud
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_CLOUD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7fcfc2ad-a1a4-4f65-a239-f11383aaafe1"),
     "Lightning Cloud",
     crate::card::CardArt::new("7fcfc2ad-a1a4-4f65-a239-f11383aaafe1", "John Matson"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{R}")).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever a player casts a red spell, you may pay {R}. If you do, this enchantment deals 1 damage to any target.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::Color(ManaColor::Red)),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PayOr(PayOrDef::optional(
+                &[CostDef::Mana(mana_cost!("{R}"))],
+                &EffectDef::damage(
+                    EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    ValueDef::Constant(1),
+                ),
+            )),
+        ),
+    ),
 );
 
 // VIS 88 — Mob Mentality
@@ -1583,7 +2136,6 @@ pub(in crate::card::sets) static RAGING_GORILLA: CardRecord = CardRecord::new(
 );
 
 // VIS 91 — Relentless Assault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RELENTLESS_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("747161ea-cb65-4960-84dd-a05bfe5f3ba0"),
     "Relentless Assault",
@@ -1592,27 +2144,100 @@ pub(in crate::card::sets) static RELENTLESS_ASSAULT: CardRecord = CardRecord::ne
         "Geofrey Darrow & I. Rabarot",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell(
+        "Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.",
+        EffectDef::Sequence(&[
+            EffectDef::Untap {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::AttackedThisTurn,
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+            },
+            EffectDef::ScheduleTurnPhases(&[
+                TurnPhaseDef::Combat,
+                TurnPhaseDef::PostcombatMain,
+            ]),
+        ]),
+    )),
 );
 
 // VIS 92 — Rock Slide
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCK_SLIDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e01717a-d6ed-42c1-9a9a-f3f4a3d73bca"),
     "Rock Slide",
     crate::card::CardArt::new("7e01717a-d6ed-42c1-9a9a-f3f4a3d73bca", "Mike Kerr"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{X}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "This spell deals X damage divided as you choose among any number of target attacking or blocking creatures without flying.",
+        &[AbilityTargetDef {
+            predicate: AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                        KeywordAbility::Flying,
+                    )),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            },
+            minimum: 0,
+            maximum: AbilityTargetDef::UNLIMITED,
+            exact_count: None,
+            divided_total: Some(DividedTotal::ChosenX),
+            another: false,
+            excludes_source: false,
+            chooser: TargetChooserDef::Controller,
+        }],
+        EffectDef::damage(
+            EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            ValueDef::DividedAmongTargets,
+        ),
+    )),
 );
 
 // VIS 93 — Solfatara
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLFATARA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c5d4bd6f-b019-4594-aa41-138fa58ba529"),
     "Solfatara",
     crate::card::CardArt::new("c5d4bd6f-b019-4594-aa41-138fa58ba529", "Omaha Pérez"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Target player can't play lands this turn. Draw a card at the beginning of the next turn's upkeep.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
+                        PlayRestrictionDef::new(
+                            PlayActionMatcherDef::PlayLand,
+                            ObjectPredicateDef::Any,
+                        ),
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next turn's upkeep, draw a card.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ))),
+            ]),
+        ),
+    ),
 );
 
 // VIS 94 — Song of Blood
@@ -1666,23 +2291,51 @@ pub(in crate::card::sets) static SUQ_ATA_LANCER: CardRecord = CardRecord::new(
 );
 
 // VIS 97 — Talruum Champion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TALRUUM_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1526a1e7-b874-4409-8c84-81996fbc8d12"),
     "Talruum Champion",
     crate::card::CardArt::new("33730a07-754c-4606-bfac-d73454af9567", "Pete Venters"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Minotaur", "Warrior"], 3, 3)
+        .with_abilities(&[
+            abilities::first_strike(),
+            AbilityDef::triggered(
+                "Whenever this creature blocks or becomes blocked by a creature, that creature loses first strike until end of turn.",
+                TriggerEventDef::BlocksOrBecomesBlockedBy {
+                    creature: ObjectPredicateDef::Source,
+                    other: ObjectPredicateDef::HasType(CardType::Creature),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::TriggeringObject,
+                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                        KeywordAbility::FirstStrike,
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ]),
 );
 
 // VIS 98 — Talruum Piper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TALRUUM_PIPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca2cb9a7-5063-4b31-9782-8bfd784bca0a"),
     "Talruum Piper",
     crate::card::CardArt::new("ca2cb9a7-5063-4b31-9782-8bfd784bca0a", "Pete Venters"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Minotaur"], 3, 3).with_ability(
+        AbilityDef::static_ability(
+            "All creatures with flying able to block this creature do so.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::MustBeBlockedBy(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                    ]),
+                )),
+            },
+        ),
+    ),
 );
 
 // VIS 99 — Tremor
@@ -1741,13 +2394,26 @@ pub(in crate::card::sets) static VIASHINO_SANDSTALKER: CardRecord = CardRecord::
 );
 
 // VIS 101 — Bull Elephant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BULL_ELEPHANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b161f83-a0d9-4b65-af36-6d71aa76c912"),
     "Bull Elephant",
     crate::card::CardArt::new("fa7f5f41-ed30-412b-b51e-37d26e9e6455", "Steve White"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Elephant"], 4, 4).with_ability(
+        enters_bounce_or_sacrifice(
+            "When this creature enters, sacrifice it unless you return two Forests you control to their owner's hand.",
+            &[
+                CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    zone: ZoneKind::Hand,
+                },
+                CostDef::MovePermanentMatching {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    zone: ZoneKind::Hand,
+                },
+            ],
+        ),
+    ),
 );
 
 // VIS 102 — City of Solitude
@@ -1859,33 +2525,109 @@ pub(in crate::card::sets) static ELVEN_CACHE: CardRecord = CardRecord::new(
 );
 
 // VIS 106 — Emerald Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMERALD_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9c9199b-61b3-4794-878b-f065058f50f3"),
     "Emerald Charm",
     crate::card::CardArt::new("e9c9199b-61b3-4794-878b-f065058f50f3", "Greg Spalenka"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Untap target permanent.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+            ),
+            AbilityDef::destroy_target(
+                "Destroy target non-Aura enchantment.",
+                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Subtype("Aura")),
+                ])),
+            ),
+            AbilityDef::spell_with_targets(
+                "Target creature loses flying until end of turn.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                        KeywordAbility::Flying,
+                    )),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // VIS 107 — Feral Instinct
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FERAL_INSTINCT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20dec7cf-2865-4642-9022-d3006fd7ac30"),
     "Feral Instinct",
     crate::card::CardArt::new("20dec7cf-2865-4642-9022-d3006fd7ac30", "Una Fricker"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Target creature gets +1/+1 until end of turn. Draw a card at the beginning of the next turn's upkeep.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next turn's upkeep, draw a card.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::Upkeep,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ))),
+            ]),
+        ),
+    ),
 );
 
 // VIS 108 — Giant Caterpillar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIANT_CATERPILLAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b7f602a6-3d35-49a3-b5cb-d754e03a9573"),
     "Giant Caterpillar",
     crate::card::CardArt::new("b7f602a6-3d35-49a3-b5cb-d754e03a9573", "Zina Saunders"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Insect"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{G}, Sacrifice this creature: Create a 1/1 green Insect creature token with flying named Butterfly at the beginning of the next end step.",
+            &[
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                "At the beginning of the next end step, create a 1/1 green Insect creature token with flying named Butterfly.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::End,
+                    player: PlayerRelation::Any,
+                },
+                EffectDef::create_creature_token(&["Insect"], &[ManaColor::Green], 1, 1)
+                    .with_name("Butterfly")
+                    .with_abilities(&[abilities::flying()]),
+            ))),
+        ),
+    ),
 );
 
 // VIS 109 — Katabatic Winds
@@ -1910,7 +2652,6 @@ pub(in crate::card::sets) static KING_CHEETAH: CardRecord = CardRecord::new(
 );
 
 // VIS 111 — Kyscu Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYSCU_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b6f14bbe-2436-4a5a-8e2a-8066b740b715"),
     "Kyscu Drake",
@@ -1919,7 +2660,49 @@ pub(in crate::card::sets) static KYSCU_DRAKE: CardRecord = CardRecord::new(
         "Geofrey Darrow & I. Rabarot",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Drake"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{G}: This creature gets +0/+1 until end of turn. Activate only once each turn.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .once_each_turn(),
+        AbilityDef::activated(
+            "Sacrifice this creature and a creature named Spitting Drake: Search your library for a card named Viashivan Dragon, put that card onto the battlefield, then shuffle.",
+            &[
+                CostDef::SacrificeSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::NameEquals(CardNameDef::Literal("Spitting Drake")),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                    "Viashivan Dragon",
+                )),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: false,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // VIS 112 — Lichenthrope
@@ -2018,13 +2801,32 @@ pub(in crate::card::sets) static PANTHER_WARRIORS: CardRecord = CardRecord::new(
 );
 
 // VIS 116 — Quirion Druid
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUIRION_DRUID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8ca5319a-5c26-487f-ba87-d317633122ba"),
     "Quirion Druid",
     crate::card::CardArt::new("8ca5319a-5c26-487f-ba87-d317633122ba", "John Matson"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Druid"], 1, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}: Target land becomes a 2/2 green creature that's still a land.",
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                    AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+    ),
 );
 
 // VIS 117 — Quirion Ranger
@@ -2065,23 +2867,74 @@ pub(in crate::card::sets) static ROWEN: CardRecord = CardRecord::new(
 );
 
 // VIS 120 — Spider Climb
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDER_CLIMB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a1818812-4cb8-4fe1-98c0-b40086b4991c"),
     "Spider Climb",
     crate::card::CardArt::new("a1818812-4cb8-4fe1-98c0-b40086b4991c", "Ron Spencer"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            INSTANT_SPEED_ENCHANTMENT_CLEANUP,
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +0/+3 and has reach.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::reach()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // VIS 121 — Stampeding Wildebeests
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAMPEDING_WILDEBEESTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ddb5f524-fad6-4a63-b20f-3348a844fefa"),
     "Stampeding Wildebeests",
     crate::card::CardArt::new("ddb5f524-fad6-4a63-b20f-3348a844fefa", "Randy Gallegos"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Antelope", "Beast"], 5, 4)
+        .with_abilities(&[
+            abilities::trample(),
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, return a green creature you control to its owner's hand.",
+                TriggerEventDef::StepBegins {
+                    step: TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Object(crate::ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    candidates: ObjectSetDef::Query(ObjectQueryDef::matching(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Color(ManaColor::Green),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    )),
+                    exclude: None,
+                    minimum: 1,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(
+                            crate::ParentBinding,
+                        )),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                }),
+            ),
+        ]),
 );
 
 // VIS 122 — Summer Bloom
@@ -2129,17 +2982,38 @@ pub(in crate::card::sets) static WARTHOG: CardRecord = CardRecord::new(
 );
 
 // VIS 125 — Wind Shear
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WIND_SHEAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8324f44-c7f5-41ee-bc8d-16822bd8942f"),
     "Wind Shear",
     crate::card::CardArt::new("b8324f44-c7f5-41ee-bc8d-16822bd8942f", "John Matson"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Attacking creatures with flying get -2/-2 and lose flying until end of turn.",
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Attacking,
+                    ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(-2),
+                ),
+                AppliedEffectDef::remove_abilities(AbilityPredicateDef::Keyword(
+                    KeywordAbility::Flying,
+                )),
+            ]),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // VIS 126 — Army Ants
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMY_ANTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e129be5-e2c5-4f69-b8e8-539ac2085c7a"),
     "Army Ants",
@@ -2148,7 +3022,25 @@ pub(in crate::card::sets) static ARMY_ANTS: CardRecord = CardRecord::new(
         "Geofrey Darrow & I. Rabarot",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{R}"), &["Insect"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice a land: Destroy target land.",
+            &[
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                then: None,
+            },
+        ),
+    ),
 );
 
 // VIS 127 — Breathstealer's Crypt
@@ -2172,7 +3064,6 @@ pub(in crate::card::sets) static CORROSION: CardRecord = CardRecord::new(
 );
 
 // VIS 129 — Femeref Enchantress
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEMEREF_ENCHANTRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20ba72c7-7957-4d02-b41e-c0132fe1f2e6"),
     "Femeref Enchantress",
@@ -2181,7 +3072,20 @@ pub(in crate::card::sets) static FEMEREF_ENCHANTRESS: CardRecord = CardRecord::n
         "D. Alexander Gregory",
     ),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{W}"), &["Human", "Druid"], 1, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever an enchantment is put into a graveyard from the battlefield, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // VIS 130 — Firestorm Hellkite
@@ -2209,13 +3113,29 @@ pub(in crate::card::sets) static GUIDING_SPIRIT: CardRecord = CardRecord::new(
 );
 
 // VIS 132 — Mundungu
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MUNDUNGU: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d6e320ca-848b-4743-93f1-ec04ef1ce402"),
     "Mundungu",
     crate::card::CardArt::new("d6e320ca-848b-4743-93f1-ec04ef1ce402", "Terese Nielsen"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Human", "Wizard"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Counter target spell unless its controller pays {1} and 1 life.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Spell,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(&[
+                CostDef::GenericMana(ValueDef::Constant(1)),
+                CostDef::PayLife(1),
+            ]),
+        ),
+    ),
 );
 
 // VIS 133 — Pygmy Hippo
@@ -2229,13 +3149,45 @@ pub(in crate::card::sets) static PYGMY_HIPPO: CardRecord = CardRecord::new(
 );
 
 // VIS 134 — Righteous War
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIGHTEOUS_WAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbcacb8e-1aff-4807-b70c-a17d6703d279"),
     "Righteous War",
     crate::card::CardArt::new("bbcacb8e-1aff-4807-b70c-a17d6703d279", "Ian Miller"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}{B}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "White creatures you control have protection from black.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::White),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                    ManaColor::Black,
+                )),
+            },
+        ),
+        AbilityDef::static_ability(
+            "Black creatures you control have protection from white.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Color(ManaColor::Black),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::protection_from_color(
+                    ManaColor::White,
+                )),
+            },
+        ),
+    ]),
 );
 
 // VIS 135 — Scalebane's Elite
@@ -2284,13 +3236,48 @@ pub(in crate::card::sets) static SQUANDERED_RESOURCES: CardRecord = CardRecord::
 );
 
 // VIS 138 — Suleiman's Legacy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SULEIMAN_S_LEGACY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3a15e970-e605-425a-b4ec-391d9cacde38"),
     "Suleiman's Legacy",
     crate::card::CardArt::new("3a15e970-e605-425a-b4ec-391d9cacde38", "Kaja Foglio"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{R}{W}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this enchantment enters, destroy all Djinns and Efreets. They can't be regenerated.",
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::Subtype("Djinn"),
+                            ObjectPredicateDef::Subtype("Efreet"),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
+            },
+        ),
+        AbilityDef::triggered(
+            "Whenever a Djinn or Efreet enters, destroy it. It can't be regenerated.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Subtype("Djinn"),
+                    ObjectPredicateDef::Subtype("Efreet"),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // VIS 139 — Tempest Drake
@@ -2306,53 +3293,182 @@ pub(in crate::card::sets) static TEMPEST_DRAKE: CardRecord = CardRecord::new(
 );
 
 // VIS 140 — Viashivan Dragon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VIASHIVAN_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7172ef0b-ca9e-47cf-8ec6-2d8cb18f2283"),
     "Viashivan Dragon",
     crate::card::CardArt::new("7172ef0b-ca9e-47cf-8ec6-2d8cb18f2283", "Ian Miller"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}{G}{G}"), &["Dragon"], 4, 4).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/+0 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated(
+            "{G}: This creature gets +0/+1 until end of turn.",
+            &[CostDef::Mana(mana_cost!("{G}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // VIS 141 — Anvil of Bogardan
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANVIL_OF_BOGARDAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ff965dd-54b4-4f21-a52f-81c0dd1e691e"),
     "Anvil of Bogardan",
     crate::card::CardArt::new("7ff965dd-54b4-4f21-a52f-81c0dd1e691e", "Roger Raupp"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Players have no maximum hand size.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::EachPlayer,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::PlayerRule(
+                    crate::card::PlayerRuleDef::NoMaximumHandSize,
+                )),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of each player's draw step, that player draws an additional card, then discards a card.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Draw,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::EventPlayer,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 142 — Brass-Talon Chimera
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRASS_TALON_CHIMERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("200c9655-e51c-4b63-96cf-7f3fba3ec75c"),
     "Brass-Talon Chimera",
     crate::card::CardArt::new("200c9655-e51c-4b63-96cf-7f3fba3ec75c", "Mike Dringenberg"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abilities(&[
+        abilities::first_strike(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a +2/+2 counter on target Chimera creature. It gains first strike.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Chimera"),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 143 — Diamond Kaleidoscope
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIAMOND_KALEIDOSCOPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("548ff852-274d-4068-818d-58a883e74a5f"),
     "Diamond Kaleidoscope",
     crate::card::CardArt::new("548ff852-274d-4068-818d-58a883e74a5f", "Ron Spencer"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
+        AbilityDef::activated(
+            "{3}, {T}: Create a 0/1 colorless Prism artifact creature token.",
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
+            EffectDef::create_artifact_creature_token(&["Prism"], &[], 0, 1),
+        ),
+        AbilityDef::activated_mana(
+            "Sacrifice a Prism token: Add one mana of any color.",
+            &[CostDef::SacrificePermanent {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Token,
+                    ObjectPredicateDef::Subtype("Prism"),
+                ]),
+                controller: PlayerRelation::You,
+            }],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // VIS 144 — Dragon Mask
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DRAGON_MASK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f098e329-adc8-42dd-b779-d00d9ccc3dbd"),
     "Dragon Mask",
     crate::card::CardArt::new("f098e329-adc8-42dd-b779-d00d9ccc3dbd", "Craig Hooper"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{3}, {T}: Target creature you control gets +2/+2 until end of turn. Return it to its owner's hand at the beginning of the next end step.",
+            &[
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
+                    "At the beginning of the next end step, return that creature to its owner's hand.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::End,
+                        player: PlayerRelation::Any,
+                    },
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                ))),
+            ]),
+        ),
+    ),
 );
 
 // VIS 145 — Helm of Awakening
@@ -2374,43 +3490,131 @@ pub(in crate::card::sets) static HELM_OF_AWAKENING: CardRecord = CardRecord::new
 );
 
 // VIS 146 — Iron-Heart Chimera
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRON_HEART_CHIMERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5899a575-a97d-4850-b55c-22ad6900ba20"),
     "Iron-Heart Chimera",
     crate::card::CardArt::new("5899a575-a97d-4850-b55c-22ad6900ba20", "Mike Dringenberg"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a +2/+2 counter on target Chimera creature. It gains vigilance.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Chimera"),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 147 — Juju Bubble
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JUJU_BUBBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5fa8208-7d65-4f8f-b07e-f5c3a66e1143"),
     "Juju Bubble",
     crate::card::CardArt::new("a5fa8208-7d65-4f8f-b07e-f5c3a66e1143", "Donato Giancola"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        abilities::cumulative_upkeep(&[CostDef::mana(mana_cost!("{1}"))]),
+        AbilityDef::triggered(
+            "When you play a card, sacrifice this artifact.",
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
+                TriggerEventDef::LandPlayed {
+                    land: ObjectPredicateDef::Any,
+                    player: PlayerRelation::You,
+                },
+            ]),
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+        AbilityDef::activated(
+            "{2}: You gain 1 life.",
+            &[CostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // VIS 148 — Lead-Belly Chimera
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LEAD_BELLY_CHIMERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d89b377-80d2-42a0-b84e-a455a72ed9fe"),
     "Lead-Belly Chimera",
     crate::card::CardArt::new("5d89b377-80d2-42a0-b84e-a455a72ed9fe", "Mike Dringenberg"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a +2/+2 counter on target Chimera creature. It gains trample.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Chimera"),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 149 — Magma Mine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGMA_MINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1aecc3df-7ce6-419c-b3d6-60fc28bfe941"),
     "Magma Mine",
     crate::card::CardArt::new("1aecc3df-7ce6-419c-b3d6-60fc28bfe941", "Ron Spencer"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
+        AbilityDef::activated(
+            "{4}: Put a pressure counter on this artifact.",
+            &[CostDef::Mana(mana_cost!("{4}"))],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("pressure"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{T}, Sacrifice this artifact: It deals damage equal to the number of pressure counters on it to any target.",
+            &[CostDef::TapSource, CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::damage(
+                EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                ValueDef::CountersOnSource(CounterKind::named("pressure")),
+            ),
+        ),
+    ]),
 );
 
 // VIS 150 — Matopi Golem
@@ -2424,7 +3628,8 @@ pub(in crate::card::sets) static MATOPI_GOLEM: CardRecord = CardRecord::new(
 );
 
 // VIS 151 — Phyrexian Marauder
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — AttackRestrictionDef only supports a fixed mana payment;
+// this needs a payment derived from the source's +1/+1 counter count.
 pub(in crate::card::sets) static PHYREXIAN_MARAUDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29a75dc8-1c24-4063-8944-d7e71b4a5755"),
     "Phyrexian Marauder",
@@ -2462,21 +3667,30 @@ pub(in crate::card::sets) static SISAY_S_RING: CardRecord = CardRecord::new(
     CardSet::Visions,
     // Four mana for two, which only pays off in a deck whose top end is
     // expensive enough to want the turn back.
-    CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_mana(
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(abilities::tap_for_mana(
         "{T}: Add {C}{C}.",
-        &[CostDef::TapSource],
-        EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
+        AddManaEffectDef::one(ManaColor::Colorless).with_amount(2),
     )),
 );
 
 // VIS 155 — Snake Basket
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAKE_BASKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfda9a16-9cdb-494a-b662-ac24e3b89d0c"),
     "Snake Basket",
     crate::card::CardArt::new("bfda9a16-9cdb-494a-b662-ac24e3b89d0c", "Roger Raupp"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(
+        AbilityDef::activated(
+            "{X}, Sacrifice this artifact: Create X 1/1 green Snake creature tokens. Activate only as a sorcery.",
+            &[
+                CostDef::Mana(mana_cost!("{X}")),
+                CostDef::SacrificeSource,
+            ],
+            EffectDef::create_creature_token(&["Snake"], &[ManaColor::Green], 1, 1)
+                .with_count(ValueDef::ChosenX),
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ),
 );
 
 // VIS 156 — Teferi's Puzzle Box
@@ -2490,13 +3704,36 @@ pub(in crate::card::sets) static TEFERI_S_PUZZLE_BOX: CardRecord = CardRecord::n
 );
 
 // VIS 157 — Tin-Wing Chimera
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIN_WING_CHIMERA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3375dcc6-9399-48eb-9aa4-7b40c3686cc5"),
     "Tin-Wing Chimera",
     crate::card::CardArt::new("3375dcc6-9399-48eb-9aa4-7b40c3686cc5", "Mike Dringenberg"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Chimera"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: Put a +2/+2 counter on target Chimera creature. It gains flying.",
+            &[CostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Chimera"),
+                ]),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 158 — Triangle of War
@@ -2548,31 +3785,23 @@ pub(in crate::card::sets) static CORAL_ATOLL: CardRecord = CardRecord::new(
     // -- which is a turn behind and a mana ahead.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
-        abilities::enters_trigger(
+        enters_bounce_or_sacrifice(
             "When this land enters, sacrifice it unless you return an untapped Island you control to its owner's hand.",
-            EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::MovePermanentMatching {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    zone: ZoneKind::Hand,
-                }],
-                &const {
-                    EffectDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }
-                },
-            )),
+            &[CostDef::MovePermanentMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
         ),
-        AbilityDef::activated_mana(
+        abilities::tap_for_mana(
             "{T}: Add {C}{U}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            AddManaEffectDef::one_of_each(
                 ManaColor::Colorless,
                 ManaColor::Blue,
-            )),
+            ),
         ),
     ]),
 );
@@ -2587,31 +3816,23 @@ pub(in crate::card::sets) static DORMANT_VOLCANO: CardRecord = CardRecord::new(
     // afford the tempo for.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
-        abilities::enters_trigger(
+        enters_bounce_or_sacrifice(
             "When this land enters, sacrifice it unless you return an untapped Mountain you control to its owner's hand.",
-            EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::MovePermanentMatching {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    zone: ZoneKind::Hand,
-                }],
-                &const {
-                    EffectDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }
-                },
-            )),
+            &[CostDef::MovePermanentMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
         ),
-        AbilityDef::activated_mana(
+        abilities::tap_for_mana(
             "{T}: Add {C}{R}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            AddManaEffectDef::one_of_each(
                 ManaColor::Colorless,
                 ManaColor::Red,
-            )),
+            ),
         ),
     ]),
 );
@@ -2626,43 +3847,62 @@ pub(in crate::card::sets) static EVERGLADES: CardRecord = CardRecord::new(
     // extra mana.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
-        abilities::enters_trigger(
+        enters_bounce_or_sacrifice(
             "When this land enters, sacrifice it unless you return an untapped Swamp you control to its owner's hand.",
-            EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::MovePermanentMatching {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    zone: ZoneKind::Hand,
-                }],
-                &const {
-                    EffectDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }
-                },
-            )),
+            &[CostDef::MovePermanentMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
         ),
-        AbilityDef::activated_mana(
+        abilities::tap_for_mana(
             "{T}: Add {C}{B}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            AddManaEffectDef::one_of_each(
                 ManaColor::Colorless,
                 ManaColor::Black,
-            )),
+            ),
         ),
     ]),
 );
 
 // VIS 163 — Griffin Canyon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIFFIN_CANYON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("705d8194-3ad0-41b7-ae32-9c0cd8cd46b9"),
     "Griffin Canyon",
     crate::card::CardArt::new("705d8194-3ad0-41b7-ae32-9c0cd8cd46b9", "Stuart Griffin"),
     crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{T}: Untap target Griffin. If it's a creature, it gets +1/+1 until end of turn.",
+            &[CostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Griffin"),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Untap {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::TargetMatches {
+                        slot: TargetIndex::PRIMARY,
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                    },
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // VIS 164 — Jungle Basin
@@ -2675,31 +3915,23 @@ pub(in crate::card::sets) static JUNGLE_BASIN: CardRecord = CardRecord::new(
     // hand back.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
-        abilities::enters_trigger(
+        enters_bounce_or_sacrifice(
             "When this land enters, sacrifice it unless you return an untapped Forest you control to its owner's hand.",
-            EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::MovePermanentMatching {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    zone: ZoneKind::Hand,
-                }],
-                &const {
-                    EffectDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }
-                },
-            )),
+            &[CostDef::MovePermanentMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
         ),
-        AbilityDef::activated_mana(
+        abilities::tap_for_mana(
             "{T}: Add {C}{G}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            AddManaEffectDef::one_of_each(
                 ManaColor::Colorless,
                 ManaColor::Green,
-            )),
+            ),
         ),
     ]),
 );
@@ -2714,31 +3946,23 @@ pub(in crate::card::sets) static KAROO: CardRecord = CardRecord::new(
     // entire turn of setup.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::enters_tapped(CardType::Land),
-        abilities::enters_trigger(
+        enters_bounce_or_sacrifice(
             "When this land enters, sacrifice it unless you return an untapped Plains you control to its owner's hand.",
-            EffectDef::PayOr(PayOrDef::unless(
-                &[CostDef::MovePermanentMatching {
-                    object: ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
-                        ObjectPredicateDef::ControlledBy(PlayerRelation::You),
-                    ]),
-                    zone: ZoneKind::Hand,
-                }],
-                &const {
-                    EffectDef::Sacrifice {
-                        object: EffectRecipientDef::Source,
-                    }
-                },
-            )),
+            &[CostDef::MovePermanentMatching {
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Tapped),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+                zone: ZoneKind::Hand,
+            }],
         ),
-        AbilityDef::activated_mana(
+        abilities::tap_for_mana(
             "{T}: Add {C}{W}.",
-            &[CostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one_of_each(
+            AddManaEffectDef::one_of_each(
                 ManaColor::Colorless,
                 ManaColor::White,
-            )),
+            ),
         ),
     ]),
 );

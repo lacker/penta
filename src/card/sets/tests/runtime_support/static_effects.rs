@@ -271,11 +271,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
                     | ObjectSetDef::PermanentsTargetedBy(_)
                     | ObjectSetDef::PlayerAttachments(_)
                     | ObjectSetDef::LegalAttachmentHosts(_)
-                    | ObjectSetDef::SharingNameWith(_)
-                    | ObjectSetDef::SharingNameWithIn { .. }
-                    | ObjectSetDef::NamesAppearingAtLeast { .. }
                     | ObjectSetDef::ExceptObject { .. }
-                    | ObjectSetDef::SharingNameWithBinding { .. }
                     | ObjectSetDef::TokensCreatedBy(_)
                     | ObjectSetDef::TopOfGraveyardMatching { .. },
                 )

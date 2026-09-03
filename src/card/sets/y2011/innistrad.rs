@@ -7,7 +7,7 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    CardChoiceSourceDef, CardNameDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
     ChooseDef, ChooseForEachPlayerDef, ChooseGroupDef, ClassifyObjectsDef, ColorSet, ComparisonDef,
     ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
     CostQuantityDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef,
@@ -1943,9 +1943,9 @@ pub(in crate::card::sets) static MIRROR_MAD_PHANTASM: CardRecord = CardRecord::n
                     },
                     EffectDef::MillUntil(&MillUntilDef {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(ObjectRefDef::Source)),
-                        until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::Named(
+                        until: ObjectSetPredicateDef::contains(&ObjectPredicateDef::NameEquals(CardNameDef::Literal(
                             "Mirror-Mad Phantasm",
-                        )),
+                        ))),
                         matched_zone: ZoneKind::Battlefield,
                     }),
                 ]),
@@ -3267,7 +3267,15 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        ))),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                ))),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
             },
@@ -5880,7 +5888,9 @@ pub(in crate::card::sets) static EVIL_TWIN: CardRecord = CardRecord::new(
                         &[AbilityTargetDef::exactly_one_permanent(
                             ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::HasName(ObjectRefDef::Source),
+                                ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                    ObjectRefDef::Source,
+                                )),
                             ]),
                         )],
                         EffectDef::Destroy {

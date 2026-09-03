@@ -415,7 +415,9 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                         // be used to pick a name that is already there.
                         then: &abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(
                             ValueDef::Constant(4),
-                            ObjectPredicateDef::HasChosenName,
+                            ObjectPredicateDef::NameEquals(
+                                crate::card::CardNameDef::EffectChoice,
+                            ),
                         ),
                     },
                 ),

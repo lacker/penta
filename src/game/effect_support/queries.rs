@@ -323,9 +323,19 @@ impl Game {
                         self.trigger_event_object_with_prospective(permanent, prospective)
                     },
                 );
-                if self.trigger_object_matches(query.object, &characteristics, source, false)
-                    && visitor(Target::Permanent(permanent.card.id)).is_break()
-                {
+                let matches = effect_context.map_or_else(
+                    || self.trigger_object_matches(query.object, &characteristics, source, false),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Permanent(permanent.card.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
+                if matches && visitor(Target::Permanent(permanent.card.id)).is_break() {
                     return ControlFlow::Break(());
                 }
             }
@@ -347,9 +357,19 @@ impl Game {
                 let Some(characteristics) = self.stack_trigger_event_object(candidate) else {
                     continue;
                 };
-                if self.trigger_object_matches(query.object, &characteristics, source, true)
-                    && visitor(Target::Spell(candidate.id)).is_break()
-                {
+                let matches = effect_context.map_or_else(
+                    || self.trigger_object_matches(query.object, &characteristics, source, true),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Spell(candidate.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
+                if matches && visitor(Target::Spell(candidate.id)).is_break() {
                     return ControlFlow::Break(());
                 }
             }
@@ -378,6 +398,18 @@ impl Game {
                 }) {
                     continue;
                 }
+                let matches = effect_context.map_or_else(
+                    || self.card_object_matches(query.object, card, zone, source),
+                    |(object, scoped, resolution)| {
+                        self.effect_collection_target_matches(
+                            query.object,
+                            Target::Card(card.id),
+                            object,
+                            resolution,
+                            scoped,
+                        )
+                    },
+                );
                 if self.query_player_constraints_match(
                     None,
                     card.owner,
@@ -385,7 +417,7 @@ impl Game {
                     (evaluation_controller, source),
                     context,
                     effect_context,
-                ) && self.card_object_matches(query.object, card, zone, source)
+                ) && matches
                     && visitor(Target::Card(card.id)).is_break()
                 {
                     return ControlFlow::Break(());

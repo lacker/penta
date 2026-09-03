@@ -11,12 +11,13 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardRules, CardSet,
+    CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -723,24 +724,32 @@ pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::AnyOf(&[
                         TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::SharingNameWithIn {
-                                reference: ObjectRefDef::TriggeringObject,
+                            objects: &ObjectSetDef::Matching {
                                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                                     ObjectPredicateDef::Any,
                                     &[ZoneKind::Graveyard],
                                 )),
+                                object: ObjectSetFilterDef::Predicate(
+                                    &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                        ObjectRefDef::TriggeringObject,
+                                    )),
+                                ),
                             },
                             filter: None,
                             comparison: ComparisonDef::GreaterOrEqual,
                             amount: 1,
                         }),
                         TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::SharingNameWithIn {
-                                reference: ObjectRefDef::TriggeringObject,
+                            objects: &ObjectSetDef::Matching {
                                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                                     &[ZoneKind::Battlefield],
                                 )),
+                                object: ObjectSetFilterDef::Predicate(
+                                    &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                        ObjectRefDef::TriggeringObject,
+                                    )),
+                                ),
                             },
                             filter: None,
                             comparison: ComparisonDef::GreaterOrEqual,

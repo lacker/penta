@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostAdjustmentDef, CostAmountDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeSetDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, SpellCostConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ChooseDef, CostAdjustmentDef, CostAmountDef, EffectDef, EffectRecipientDef, ManaColor,
+    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, SpellCostConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -189,7 +189,9 @@ pub(in crate::card::sets) static EXTRAPLANAR_LENS: CardRecord = CardRecord::new(
             "Whenever a land with the same name as the exiled card is tapped for mana, its controller adds one mana of any type that land produced.",
             TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::SharesNameWithAny(&ObjectSetDef::LinkedExiles),
+                ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                    &ObjectSetDef::LinkedExiles,
+                )),
             ])),
             EffectDef::AddMana(
                 AddManaEffectDef::choice_from(ManaTypeSetDef::produced_by(

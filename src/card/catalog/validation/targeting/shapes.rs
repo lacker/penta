@@ -219,7 +219,6 @@ fn validate_object_set_shape(
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::SharingNameWith(reference)
         | ObjectSetDef::TokensCreatedBy(reference) => {
             validate_object_reference_shape(reference, targets)
         }
@@ -227,13 +226,6 @@ fn validate_object_set_shape(
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
             validate_object_predicate_shape(object.predicate(), targets)
-        }
-        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
-            validate_object_set_shape(*objects, targets)
-        }
-        ObjectSetDef::SharingNameWithIn { reference, objects } => {
-            validate_object_reference_shape(reference, targets)?;
-            validate_object_set_shape(*objects, targets)
         }
         ObjectSetDef::ExceptObject { objects, object } => {
             validate_object_set_shape(*objects, targets)?;
@@ -255,7 +247,6 @@ fn validate_object_set_shape(
         | ObjectSetDef::MatchingBinding { .. }
         | ObjectSetDef::LinkedExiles
         | ObjectSetDef::BottomOfGraveyard(_)
-        | ObjectSetDef::SharingNameWithBinding { .. }
         | ObjectSetDef::TopOfGraveyardMatching { .. } => Ok(()),
     }
 }
@@ -452,11 +443,32 @@ fn validate_object_predicate_shape(
         | ObjectPredicateDef::PowerGreaterThan(value)
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => validate_value_shape(value, targets),
-        ObjectPredicateDef::HasName(reference) => {
-            validate_object_reference_shape(reference, targets)
-        }
-        ObjectPredicateDef::SharesNameWithAny(objects) => validate_object_set_shape(*objects, targets),
+        ObjectPredicateDef::NameEquals(name) => validate_card_name_shape(name, targets),
+        ObjectPredicateDef::NameIn(names) => validate_card_name_set_shape(names, targets),
         _ => Ok(()),
+    }
+}
+
+fn validate_card_name_shape(
+    name: CardNameDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    match name {
+        CardNameDef::Object(reference) => validate_object_reference_shape(reference, targets),
+        CardNameDef::Literal(_) | CardNameDef::EffectChoice | CardNameDef::SourceChoice => Ok(()),
+    }
+}
+
+fn validate_card_name_set_shape(
+    names: CardNameSetDef,
+    targets: &[AbilityTargetDef],
+) -> Result<(), GrantedAbilityValidationError> {
+    match names {
+        CardNameSetDef::NamesOf(objects)
+        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
+            validate_object_set_shape(*objects, targets)
+        }
+        CardNameSetDef::BasicLandNames => Ok(()),
     }
 }
 
@@ -546,7 +558,6 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
-        | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
         | TriggerConditionDef::SourceInZone(_)
@@ -702,8 +713,6 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::SharingNameWithIn { .. }
-            | ObjectSetDef::NamesAppearingAtLeast { .. }
             | ObjectSetDef::ExceptObject { .. }
             // A graveyard is not the battlefield, which is the whole point of
             // naming a card at either end of it.
@@ -712,9 +721,6 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         ) => true,
-        EffectRecipientSetDef::Objects(ObjectSetDef::SharingNameWithBinding { zone, .. }) => {
-            zone != ZoneKind::Battlefield
-        }
         EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::TriggeringObject)) => {
             triggering_object_zone != Some(ZoneKind::Battlefield)
         }
@@ -735,7 +741,6 @@ fn recipient_may_name_nonbattlefield_object(
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_)
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::TokensCreatedBy(_),
         )
@@ -780,13 +785,10 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
             | ObjectSetDef::MatchingBinding { .. }
             | ObjectSetDef::Matching { .. }
-            | ObjectSetDef::SharingNameWithIn { .. }
-            | ObjectSetDef::NamesAppearingAtLeast { .. }
             | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::LinkedExiles
             | ObjectSetDef::CardsDrawnThisTurnInHand(_)
             | ObjectSetDef::BottomOfGraveyard(_)
-            | ObjectSetDef::SharingNameWithBinding { .. }
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         ) => false,
         EffectRecipientSetDef::Objects(
@@ -806,7 +808,6 @@ fn recipient_nonbattlefield_zones_support_flashback(
             | ObjectSetDef::PermanentsTargetedBy(_)
             | ObjectSetDef::PlayerAttachments(_)
             | ObjectSetDef::LegalAttachmentHosts(_)
-            | ObjectSetDef::SharingNameWith(_)
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::TokensCreatedBy(_),
         )

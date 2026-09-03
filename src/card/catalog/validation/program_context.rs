@@ -1,13 +1,13 @@
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityProcedureDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BlockRestrictionDef,
-    BlockRestrictionMatchDef, CardType, CharacteristicOperationDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, DamageEventMatcherDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef, EffectRecipientDef,
-    EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef, SetOperationDef,
-    SpellCostConditionDef, TriggerConditionDef, ValueDef, ZoneKind,
+    BlockRestrictionMatchDef, CardNameDef, CardNameSetDef, CardType, CharacteristicOperationDef,
+    CostAdjustmentDef, CostAmountDef, CostModificationDef, DamageEventMatcherDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, EffectRecipientSetDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
+    SetOperationDef, SpellCostConditionDef, TriggerConditionDef, ValueDef, ZoneKind,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -798,25 +798,16 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::PermanentsControlledBy(_)
         | ObjectSetDef::TokensCreatedBy(_)
         | ObjectSetDef::BottomOfGraveyard(_)
-        | ObjectSetDef::SharingNameWith(_)
-        | ObjectSetDef::SharingNameWithBinding { .. }
         | ObjectSetDef::TopOfGraveyardMatching { .. } => false,
         ObjectSetDef::Matching { objects, object } => {
             static_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
-        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
-            static_object_set_supported(*objects)
-        }
         ObjectSetDef::ExceptObject {
             objects,
             object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
         } => static_object_set_supported(*objects),
-        ObjectSetDef::SharingNameWithIn {
-            reference: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-            objects,
-        } => static_object_set_supported(*objects),
-        ObjectSetDef::SharingNameWithIn { .. } | ObjectSetDef::ExceptObject { .. } => false,
+        ObjectSetDef::ExceptObject { .. } => false,
     }
 }
 
@@ -831,18 +822,11 @@ fn static_condition_object_set_supported(objects: ObjectSetDef) -> bool {
             static_condition_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
-        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
-            static_condition_object_set_supported(*objects)
-        }
         ObjectSetDef::ExceptObject {
             objects,
             object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-        }
-        | ObjectSetDef::SharingNameWithIn {
-            reference: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-            objects,
         } => static_condition_object_set_supported(*objects),
-        ObjectSetDef::SharingNameWithIn { .. } | ObjectSetDef::ExceptObject { .. } => false,
+        ObjectSetDef::ExceptObject { .. } => false,
         _ => static_object_set_supported(objects),
     }
 }

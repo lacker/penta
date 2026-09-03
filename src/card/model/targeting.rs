@@ -6,6 +6,36 @@ use super::{
     ObjectSetDef, PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
 };
 
+/// One card name read from rules text, an object, or a recorded choice.
+///
+/// This is a value rather than a predicate: callers decide whether to compare
+/// an object's name with it, collect it into a set, or use it elsewhere.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardNameDef {
+    Literal(&'static str),
+    Object(ObjectRefDef),
+    /// The card name chosen by the resolving effect.
+    EffectChoice,
+    /// The card name recorded on the ability's source as it entered.
+    SourceChoice,
+}
+
+/// A declarative set of card names.
+///
+/// Object collections are projected to names explicitly. Multiplicity is
+/// normally discarded, except when a rule asks which names occur a minimum
+/// number of times.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardNameSetDef {
+    NamesOf(&'static ObjectSetDef),
+    NamesAppearingAtLeast {
+        objects: &'static ObjectSetDef,
+        count: u8,
+    },
+    /// The canonical names of basic land cards in the catalog.
+    BasicLandNames,
+}
+
 /// A composable predicate over a card or game object.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ObjectPredicateDef {
@@ -27,10 +57,6 @@ pub enum ObjectPredicateDef {
     /// controller matches as readily as one that connected in combat.
     DealtDamageThisTurn,
     HasType(CardType),
-    /// Whether the object's effective name is the canonical name of a basic
-    /// land card in the catalog. This is about the name, not the object's
-    /// current supertypes: a copied Plains still has a basic land name.
-    NameIsBasicLandName,
     /// A land with at least one of the listed effective basic land subtypes.
     ///
     /// This uses the object's prospective/effective type line, so continuous
@@ -136,29 +162,17 @@ pub enum ObjectPredicateDef {
     /// the card's debut set rather than the printing in front of you. Tokens
     /// were printed in no expansion, so they never match.
     DebutSet(CardSet),
-    /// Has the same name as the referenced object. The common printed "with
-    /// the same name as this" form uses [`ObjectRefDef::Source`].
-    HasName(ObjectRefDef),
-    /// Shares its effective name with at least one member of the resolved
-    /// set. The tested object is not implicitly added to that set.
-    SharesNameWithAny(&'static ObjectSetDef),
+    /// Its effective name equals the resolved name value.
+    NameEquals(CardNameDef),
+    /// Its effective name belongs to the resolved set of names.
+    NameIn(CardNameSetDef),
     /// A spell or ability on the stack whose chosen targets include an object
     /// matching this. "That targets a land you control" reads the targets it
     /// already has rather than what it could have taken.
     TargetsObjectMatching(&'static ObjectPredicateDef),
-    /// Bears exactly this name. Printed name matching is rare enough that the
-    /// name is written out; "bands with other creatures named X" is the one
-    /// place the rules ask for it without a source to compare against.
-    Named(&'static str),
-    /// Bears the card name chosen earlier in this resolution, by
-    /// [`super::EffectDef::ChooseCardName`]. Nothing matches when no name was
-    /// chosen, and nothing matches outside a resolution that chose one --
-    /// the name lives in the resolution rather than on the board.
-    HasChosenName,
-    /// Matches the scalar the ability's source chose as it entered: the card
-    /// name Meddling Mage locked out, or the creature type Engineered Plague
-    /// named. The axis is the same one the entry choice was recorded on, so
-    /// the two halves cannot drift apart.
+    /// Matches the non-name scalar the ability's source chose as it entered,
+    /// such as the creature type Engineered Plague named. Card names use
+    /// [`Self::NameEquals`] and [`CardNameDef::SourceChoice`] instead.
     ///
     /// A source that never made its choice matches nothing rather than
     /// everything, which is the difference between a Plague that shrinks one

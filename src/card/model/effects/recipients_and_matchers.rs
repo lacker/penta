@@ -177,22 +177,6 @@ pub enum ObjectSetDef {
     /// this ignores hexproof and shroud while still enforcing the live Aura,
     /// Equipment, or Fortification attachment restriction and protection.
     LegalAttachmentHosts(ObjectRefDef),
-    /// Every battlefield permanent sharing the referenced object's effective
-    /// name, including the referenced object itself.
-    SharingNameWith(ObjectRefDef),
-    /// Members of an arbitrary object set sharing the referenced object's
-    /// effective name. Unlike [`Self::SharingNameWith`], the candidate set
-    /// decides both zones and player relations.
-    SharingNameWithIn {
-        reference: ObjectRefDef,
-        objects: &'static ObjectSetDef,
-    },
-    /// Members whose effective name appears at least `count` times in the
-    /// input set. Every member of each qualifying name group is retained.
-    NamesAppearingAtLeast {
-        objects: &'static ObjectSetDef,
-        count: u8,
-    },
     /// Every member of one set except the exact referenced object.
     ExceptObject {
         objects: &'static ObjectSetDef,
@@ -204,14 +188,6 @@ pub enum ObjectSetDef {
     TopOfGraveyardMatching {
         player: PlayerRefDef,
         object: ObjectPredicateDef,
-    },
-    /// Every card in one player's zone whose name matches something in a
-    /// bound set. "Search that player's library for all cards with the same
-    /// name" reads the set the graveyard gave up.
-    SharingNameWithBinding {
-        binding: Binding,
-        player: PlayerRefDef,
-        zone: ZoneKind,
     },
     /// The oldest card in a player's graveyard, which is what "the bottom
     /// card of target player's graveyard" names. Nothing is chosen: a
@@ -362,11 +338,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
                 | ObjectSetDef::Query(_)
-                | ObjectSetDef::SharingNameWith(_)
-                | ObjectSetDef::SharingNameWithIn { .. }
-                | ObjectSetDef::NamesAppearingAtLeast { .. }
                 | ObjectSetDef::ExceptObject { .. }
-                | ObjectSetDef::SharingNameWithBinding { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
             | EffectRecipientSetDef::Players(_) => None,
@@ -395,11 +367,7 @@ impl EffectRecipientDef {
                 | ObjectSetDef::LinkedExiles
                 | ObjectSetDef::BottomOfGraveyard(_)
                 | ObjectSetDef::LegalTargets(_)
-                | ObjectSetDef::SharingNameWith(_)
-                | ObjectSetDef::SharingNameWithIn { .. }
-                | ObjectSetDef::NamesAppearingAtLeast { .. }
                 | ObjectSetDef::ExceptObject { .. }
-                | ObjectSetDef::SharingNameWithBinding { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
             | EffectRecipientSetDef::Players(_)
@@ -437,11 +405,6 @@ impl EffectRecipientDef {
     #[must_use]
     pub const fn ControllerOfTarget(target: TargetIndex) -> Self {
         Self::player(PlayerRefDef::ControllerOf(ObjectRefDef::Target(target)))
-    }
-
-    #[must_use]
-    pub const fn ObjectsSharingNameWithTarget(target: TargetIndex) -> Self {
-        Self::objects(ObjectSetDef::SharingNameWith(ObjectRefDef::Target(target)))
     }
 
     #[must_use]

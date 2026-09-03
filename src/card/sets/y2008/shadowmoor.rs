@@ -3,12 +3,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CopyStackObjectDef,
-    CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef,
-    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    CardArt, CardNameDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    CopyStackObjectDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
@@ -85,8 +86,7 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                         )),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::SharingNameWithIn {
-                            reference: ObjectRefDef::Binding(Binding!("counterbore_target")),
+                        candidates: ObjectSetDef::Matching {
                             objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
                                 ObjectPredicateDef::Any,
                                 &[ZoneKind::Graveyard],
@@ -94,6 +94,11 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                                     ObjectRefDef::Binding(Binding!("counterbore_target")),
                                 )),
                             )),
+                            object: ObjectSetFilterDef::Predicate(
+                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
+                                )),
+                            ),
                         },
                         exclude: None,
                         minimum: 0,
@@ -111,8 +116,7 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                         binding: ObjectChoiceBindingDef::Objects(Binding!("counterbore_hand")),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::SharingNameWithIn {
-                            reference: ObjectRefDef::Binding(Binding!("counterbore_target")),
+                        candidates: ObjectSetDef::Matching {
                             objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
                                 ObjectPredicateDef::Any,
                                 &[ZoneKind::Hand],
@@ -120,6 +124,11 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                                     ObjectRefDef::Binding(Binding!("counterbore_target")),
                                 )),
                             )),
+                            object: ObjectSetFilterDef::Predicate(
+                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
+                                )),
+                            ),
                         },
                         exclude: None,
                         minimum: 0,
@@ -139,8 +148,7 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                         )),
                         unchosen: None,
                         chooser: PlayerRefDef::EffectController,
-                        candidates: ObjectSetDef::SharingNameWithIn {
-                            reference: ObjectRefDef::Binding(Binding!("counterbore_target")),
+                        candidates: ObjectSetDef::Matching {
                             objects: &ObjectSetDef::Query(ObjectQueryDef::owned_by(
                                 ObjectPredicateDef::Any,
                                 &[ZoneKind::Library],
@@ -148,6 +156,11 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                                     ObjectRefDef::Binding(Binding!("counterbore_target")),
                                 )),
                             )),
+                            object: ObjectSetFilterDef::Predicate(
+                                &ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                                    ObjectRefDef::Binding(Binding!("counterbore_target")),
+                                )),
+                            ),
                         },
                         exclude: None,
                         minimum: 0,

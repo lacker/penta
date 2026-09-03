@@ -1974,7 +1974,15 @@ pub(in crate::card::sets) static HOMING_LIGHTNING: CardRecord = CardRecord::new_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(
+                            ObjectRefDef::Target(TargetIndex::PRIMARY),
+                        )),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                ))),
                 amount: ValueDef::Constant(4),
             },
         ),
@@ -2941,7 +2949,9 @@ pub(in crate::card::sets) static BIOVISIONARY: CardRecord = CardRecord::new_with
             },
             &TriggerConditionDef::ObjectCount {
                 query: ObjectQueryDef::matching(
-                    ObjectPredicateDef::HasName(ObjectRefDef::Source),
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(
+                        ObjectRefDef::Source,
+                    )),
                     &[ZoneKind::Battlefield],
                     PlayerRelation::You,
                 ),

@@ -2636,7 +2636,7 @@ pub(in crate::card::sets) static PESTILENCE: CardRecord = CardRecord::new_with_l
 static CREATURES_NAMED_LIKE_THE_SOURCE: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasName(ObjectRefDef::Source),
+        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Object(ObjectRefDef::Source)),
     ]),
     &[ZoneKind::Battlefield],
     PlayerRelation::Any,

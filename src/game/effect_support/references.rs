@@ -188,7 +188,7 @@ impl Game {
         cost
     }
 
-    fn object_reference_id(
+    pub(super) fn object_reference_id(
         &self,
         reference: ObjectRefDef,
         object: &StackObject,
@@ -417,32 +417,6 @@ impl Game {
         self.players_in_set(players, object, context, scoped)
     }
 
-    fn objects_sharing_name_with_reference(
-        &self,
-        reference: ObjectRefDef,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) -> Vec<Target> {
-        if let ObjectRefDef::Target(target) = reference {
-            return self.objects_sharing_name_with_target(scoped.target_slot(target), object);
-        }
-        let Some(name) = self
-            .object_reference_id(reference, object, context, scoped)
-            .and_then(|referenced| self.object_card_name(referenced))
-        else {
-            return Vec::new();
-        };
-        self.battlefield
-            .iter()
-            .filter(|permanent| {
-                self.permanent_card_name(permanent.card.id)
-                    .is_some_and(|candidate| candidate == name)
-            })
-            .map(|permanent| Target::Permanent(permanent.card.id))
-            .collect()
-    }
-
     /// What an attacking permanent is attacking, as a target: the defending
     /// player, or the planeswalker the attack was declared against (CR
     /// 506.3b). Nothing when it is not attacking, or has already left.
@@ -653,28 +627,6 @@ impl Game {
                     self.bound_object_matches(*target, predicate.predicate(), source)
                 })
                 .collect(),
-            ObjectSetDef::SharingNameWithIn { reference, objects } => {
-                let Some(reference) = (match reference {
-                    ObjectRefDef::Source => Some(source),
-                    ObjectRefDef::AttachedToSource => {
-                        self.current_or_last_known_attached_host(source)
-                    }
-                    _ => None,
-                }) else {
-                    return Vec::new();
-                };
-                let Some(name) = self.object_card_name(reference) else {
-                    return Vec::new();
-                };
-                self.source_object_set_targets(*objects, source)
-                    .into_iter()
-                    .filter(|target| Self::target_object_id(*target).and_then(|id| self.object_card_name(id)).is_some_and(|candidate| candidate == name))
-                    .collect()
-            }
-            ObjectSetDef::NamesAppearingAtLeast { objects, count } => {
-                let candidates = self.source_object_set_targets(*objects, source);
-                self.names_appearing_at_least(candidates, count)
-            }
             ObjectSetDef::ExceptObject { objects, object } => {
                 let excluded = match object {
                     ObjectRefDef::Source => Some(source),
@@ -692,32 +644,11 @@ impl Game {
         }
     }
 
-    fn target_object_id(target: Target) -> Option<GameObjectId> {
+    pub(super) fn target_object_id(target: Target) -> Option<GameObjectId> {
         match target {
             Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
             Target::Player(_) => None,
         }
-    }
-
-    fn names_appearing_at_least(&self, candidates: Vec<Target>, count: u8) -> Vec<Target> {
-        candidates
-            .iter()
-            .copied()
-            .filter(|candidate| {
-                Self::target_object_id(*candidate)
-                    .and_then(|id| self.object_card_name(id))
-                    .is_some_and(|name| {
-                        candidates
-                            .iter()
-                            .filter_map(|other| Self::target_object_id(*other))
-                            .filter_map(|id| self.object_card_name(id))
-                            .filter(|other| *other == name)
-                            .take(usize::from(count))
-                            .count()
-                            >= usize::from(count)
-                    })
-            })
-            .collect()
     }
 
     fn legal_attachment_hosts(
@@ -820,7 +751,11 @@ impl Game {
                 .object_group(binding)
                 .iter()
                 .copied()
-                .filter(|bound| self.bound_object_matches(*bound, predicate, object.id))
+                .filter(|bound| {
+                    self.effect_collection_target_matches(
+                        predicate, *bound, object, context, scoped,
+                    )
+                })
                 .collect(),
             ObjectSetDef::Matching {
                 objects,
@@ -829,7 +764,13 @@ impl Game {
                 .effect_objects(*objects, object, context, scoped)
                 .into_iter()
                 .filter(|bound| {
-                    self.bound_object_matches(*bound, predicate.predicate(), object.id)
+                    self.effect_collection_target_matches(
+                        predicate.predicate(),
+                        *bound,
+                        object,
+                        context,
+                        scoped,
+                    )
                 })
                 .collect(),
             ObjectSetDef::PermanentsTargetedBy(reference) => self
@@ -845,63 +786,12 @@ impl Game {
             ObjectSetDef::LegalAttachmentHosts(reference) => {
                 self.legal_attachment_hosts(reference, object, context, scoped)
             }
-            ObjectSetDef::SharingNameWith(reference) => {
-                self.objects_sharing_name_with_reference(reference, object, context, scoped)
-            }
-            ObjectSetDef::SharingNameWithIn { reference, objects } => {
-                let Some(name) = self
-                    .object_reference_id(reference, object, context, scoped)
-                    .and_then(|referenced| self.object_card_name(referenced))
-                else {
-                    return Vec::new();
-                };
-                self.effect_objects(*objects, object, context, scoped)
-                    .into_iter()
-                    .filter(|candidate| {
-                        Self::target_object_id(*candidate)
-                            .and_then(|id| self.object_card_name(id))
-                            .is_some_and(|candidate| candidate == name)
-                    })
-                    .collect()
-            }
-            ObjectSetDef::NamesAppearingAtLeast { objects, count } => {
-                let candidates = self.effect_objects(*objects, object, context, scoped);
-                self.names_appearing_at_least(candidates, count)
-            }
             ObjectSetDef::ExceptObject { objects, object: excluded } => {
                 let excluded = self.object_reference_id(excluded, object, context, scoped);
                 self.effect_objects(*objects, object, context, scoped)
                     .into_iter()
                     .filter(|candidate| Self::target_object_id(*candidate) != excluded)
                     .collect()
-            }
-            ObjectSetDef::SharingNameWithBinding {
-                binding,
-                player,
-                zone,
-            } => {
-                let Some(player) = self.player_reference(player, object, context, scoped) else {
-                    return Vec::new();
-                };
-                let names: Vec<_> = context
-                    .object_group(binding)
-                    .iter()
-                    .filter_map(|bound| match bound {
-                        Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => {
-                            self.object_card_name(*id)
-                        }
-                        Target::Player(_) => None,
-                    })
-                    .collect();
-                let mut found = Vec::new();
-                for name in names {
-                    for card in self.cards_named_in_zone(player, zone, name.as_ref()) {
-                        if !found.contains(&card) {
-                            found.push(card);
-                        }
-                    }
-                }
-                found
             }
             // The back of the vector is the newest card, which is the one on
             // top of the pile.

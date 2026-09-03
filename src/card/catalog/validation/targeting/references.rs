@@ -620,10 +620,6 @@ fn validate_trigger_condition(
         TriggerConditionDef::BoundObjectMatches { binding, .. } => {
             validate_object_reference(ObjectRefDef::Binding(binding), target_count, scope)
         }
-        TriggerConditionDef::BoundObjectsShareName { first, second } => {
-            validate_object_set_target_references(*first, target_count, scope)?;
-            validate_object_set_target_references(*second, target_count, scope)
-        }
         TriggerConditionDef::ControllerHadPermanentLeaveThisTurn
         | TriggerConditionDef::ControllerHadCardLeaveGraveyardThisTurn
         | TriggerConditionDef::ControllerHasCitysBlessing
@@ -695,7 +691,6 @@ fn validate_object_set_target_references(
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
-        | ObjectSetDef::SharingNameWith(reference)
         | ObjectSetDef::TokensCreatedBy(reference) => {
             validate_object_reference(reference, target_count, scope)
         }
@@ -707,13 +702,6 @@ fn validate_object_set_target_references(
         ObjectSetDef::Matching { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
             validate_object_predicate_references(object.predicate(), target_count, scope)
-        }
-        ObjectSetDef::NamesAppearingAtLeast { objects, .. } => {
-            validate_object_set_target_references(*objects, target_count, scope)
-        }
-        ObjectSetDef::SharingNameWithIn { reference, objects } => {
-            validate_object_reference(reference, target_count, scope)?;
-            validate_object_set_target_references(*objects, target_count, scope)
         }
         ObjectSetDef::ExceptObject { objects, object } => {
             validate_object_set_target_references(*objects, target_count, scope)?;
@@ -732,7 +720,6 @@ fn validate_object_set_target_references(
         ObjectSetDef::BottomOfGraveyard(player)
             | ObjectSetDef::CardsDrawnThisTurnInHand(player)
             | ObjectSetDef::PermanentsControlledBy(player)
-            | ObjectSetDef::SharingNameWithBinding { player, .. }
             | ObjectSetDef::TopOfGraveyardMatching { player, .. } => {
             validate_player_reference(player, target_count, scope)
         }
@@ -981,16 +968,41 @@ fn validate_object_predicate_references(
         | ObjectPredicateDef::PowerLessThan(value) => {
             validate_value_target_references(value, target_count, scope)
         }
-        ObjectPredicateDef::HasName(reference) => {
-            validate_object_reference(reference, target_count, scope)
+        ObjectPredicateDef::NameEquals(name) => {
+            validate_card_name_references(name, target_count, scope)
         }
-        ObjectPredicateDef::SharesNameWithAny(objects) => {
-            validate_object_set_target_references(*objects, target_count, scope)
+        ObjectPredicateDef::NameIn(names) => {
+            validate_card_name_set_references(names, target_count, scope)
         }
-        ObjectPredicateDef::HasChosenName => {
+        _ => Ok(()),
+    }
+}
+
+fn validate_card_name_references(
+    name: CardNameDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match name {
+        CardNameDef::Object(reference) => validate_object_reference(reference, target_count, scope),
+        CardNameDef::EffectChoice => {
             scope.mark_chosen_name_read();
             Ok(())
         }
-        _ => Ok(()),
+        CardNameDef::Literal(_) | CardNameDef::SourceChoice => Ok(()),
+    }
+}
+
+fn validate_card_name_set_references(
+    names: CardNameSetDef,
+    target_count: usize,
+    scope: BindingScope<'_>,
+) -> Result<(), GrantedAbilityValidationError> {
+    match names {
+        CardNameSetDef::NamesOf(objects)
+        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
+            validate_object_set_target_references(*objects, target_count, scope)
+        }
+        CardNameSetDef::BasicLandNames => Ok(()),
     }
 }

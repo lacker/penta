@@ -13,8 +13,8 @@ pub(super) use stack_effects::shared_stack_effect;
 
 use crate::Game;
 use crate::card::{
-    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, ManaTypeDef, ReplacementConditionDef,
+    ActivatedAbilityDef, AppliedRuleDef, BlockRestrictionMatchDef, CardNameDef, CardNameSetDef,
+    CostAdjustmentDef, CostAmountDef, CostModificationDef, ManaTypeDef, ReplacementConditionDef,
     SpellCostConditionDef, StackObjectEventDef, StackTargetFilterDef,
 };
 
@@ -28,27 +28,13 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             shared_object_predicate(*predicate)
         }
-        ObjectPredicateDef::HasName(
-            ObjectRefDef::AbilityGrantSource
-            | ObjectRefDef::CreatingSource
-            | ObjectRefDef::ZoneChangeSuccessor(_)
-            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-            | ObjectRefDef::ResolvingObject
-            | ObjectRefDef::AttachedToSource
-            | ObjectRefDef::Target(_)
-            | ObjectRefDef::TriggeringObject
-            | ObjectRefDef::DamagedObject
-            | ObjectRefDef::Binding(_)
-            | ObjectRefDef::AdditionalCostObject(_)
-            | ObjectRefDef::SourceOfTargetedStackObject(_),
-        )
-        | ObjectPredicateDef::Special(_) => false,
-        ObjectPredicateDef::SharesNameWithAny(objects) => shared_source_object_set(*objects),
+        ObjectPredicateDef::NameEquals(name) => shared_card_name(name),
+        ObjectPredicateDef::NameIn(names) => shared_card_name_set(names),
+        ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
         | ObjectPredicateDef::HasType(_)
-        | ObjectPredicateDef::NameIsBasicLandName
         | ObjectPredicateDef::HasAnyBasicLandType(_)
         | ObjectPredicateDef::Spell
         | ObjectPredicateDef::Ability
@@ -61,8 +47,6 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -82,7 +66,6 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(ObjectRefDef::Source)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -107,6 +90,26 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::CameUnderControlThisTurn
         | ObjectPredicateDef::EnteredThisTurn
         | ObjectPredicateDef::AttackedDuringControllersLastTurn => true,
+    }
+}
+
+fn shared_card_name(name: CardNameDef) -> bool {
+    matches!(
+        name,
+        CardNameDef::Literal(_)
+            | CardNameDef::EffectChoice
+            | CardNameDef::SourceChoice
+            | CardNameDef::Object(_)
+    )
+}
+
+fn shared_card_name_set(names: CardNameSetDef) -> bool {
+    match names {
+        CardNameSetDef::NamesOf(objects)
+        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
+            matches!(objects, ObjectSetDef::Binding(_)) || shared_source_object_set(*objects)
+        }
+        CardNameSetDef::BasicLandNames => true,
     }
 }
 
@@ -145,11 +148,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
-            | ObjectSetDef::SharingNameWith(_)
-            | ObjectSetDef::SharingNameWithIn { .. }
-            | ObjectSetDef::NamesAppearingAtLeast { .. }
             | ObjectSetDef::ExceptObject { .. }
-            | ObjectSetDef::SharingNameWithBinding { .. }
             | ObjectSetDef::TokensCreatedBy(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         )

@@ -22,11 +22,17 @@ impl Game {
             ObjectPredicateDef::All(predicates) => predicates.iter().copied().all(nested),
             ObjectPredicateDef::AnyOf(predicates) => predicates.iter().copied().any(nested),
             ObjectPredicateDef::Not(predicate) => !nested(*predicate),
-            ObjectPredicateDef::HasChosenName => context.chosen_name.as_ref().is_some_and(|name| {
-                self.catalog
-                    .get(card.definition)
-                    .is_some_and(|definition| definition.name == *name)
-            }),
+            ObjectPredicateDef::NameEquals(name) => self
+                .catalog
+                .get(card.definition)
+                .zip(self.effect_card_name(name, object, context, scoped))
+                .is_some_and(|(definition, expected)| definition.name == expected),
+            ObjectPredicateDef::NameIn(names) => {
+                self.catalog.get(card.definition).is_some_and(|definition| {
+                    self.effect_card_name_set(names, object, context, scoped)
+                        .contains(&definition.name)
+                })
+            }
             ObjectPredicateDef::ManaValueAtMostValue(value) => self.card_object_matches(
                 ObjectPredicateDef::ManaValueAtMostValue(ValueDef::Constant(
                     self.effect_value(value, object, context, scoped),
@@ -60,6 +66,33 @@ impl Game {
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> bool {
+        let nested = |predicate| {
+            self.effect_collection_target_matches(predicate, target, object, context, scoped)
+        };
+        match predicate {
+            ObjectPredicateDef::All(predicates) => {
+                return predicates.iter().copied().all(nested);
+            }
+            ObjectPredicateDef::AnyOf(predicates) => {
+                return predicates.iter().copied().any(nested);
+            }
+            ObjectPredicateDef::Not(predicate) => return !nested(*predicate),
+            ObjectPredicateDef::NameEquals(name) => {
+                return Self::target_object_id(target)
+                    .and_then(|id| self.object_card_name(id))
+                    .zip(self.effect_card_name(name, object, context, scoped))
+                    .is_some_and(|(actual, expected)| actual == expected);
+            }
+            ObjectPredicateDef::NameIn(names) => {
+                return Self::target_object_id(target)
+                    .and_then(|id| self.object_card_name(id))
+                    .is_some_and(|actual| {
+                        self.effect_card_name_set(names, object, context, scoped)
+                            .contains(actual.as_ref())
+                    });
+            }
+            _ => {}
+        }
         let Target::Card(card) = target else {
             return self.bound_object_matches(
                 target,

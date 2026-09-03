@@ -1840,7 +1840,7 @@ pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardReco
 );
 
 // NPH 74 — Surgical Extraction
-// Audit: unsupported — SharingNameWithBinding can find every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
+// Audit: unsupported — NameIn(NamesOf(...)) can identify every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
 pub(in crate::card::sets) static SURGICAL_EXTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114834d8-4da5-48b9-9ac7-5e3e4b7ddf2d"),
     "Surgical Extraction",

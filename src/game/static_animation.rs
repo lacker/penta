@@ -18,6 +18,7 @@
 //! catalog-time refusal; the two are meant to say the same thing.
 
 use super::{BasicLandType, CardType, Game, ObjectPredicateDef};
+use crate::card::{CardNameDef, CardNameSetDef, ObjectRefDef};
 
 /// Whether a subtype name is one a static effect can itself supply. Basic
 /// land subtypes are: the layer-4 basic-land-type operations set and remove
@@ -36,6 +37,12 @@ impl Game {
     ) -> bool {
         match predicate {
             ObjectPredicateDef::Subtype(name) => !subtype_is_supplied_by_a_static_effect(name),
+            ObjectPredicateDef::NameEquals(
+                CardNameDef::Literal(_)
+                | CardNameDef::SourceChoice
+                | CardNameDef::Object(ObjectRefDef::Source | ObjectRefDef::AttachedToSource),
+            )
+            | ObjectPredicateDef::NameIn(CardNameSetDef::BasicLandNames) => true,
             ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::AttachedToSource

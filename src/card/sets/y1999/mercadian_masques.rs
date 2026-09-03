@@ -17,11 +17,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardNameDef,
+    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ComparisonDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -186,11 +187,11 @@ pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
                     PlayRestrictionDef::new(
                         PlayActionMatcherDef::CastSpell,
-                        ObjectPredicateDef::SharesNameWithAny(&ObjectSetDef::Query(
-                            ObjectQueryDef::new(
+                        ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                            &ObjectSetDef::Query(ObjectQueryDef::new(
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                                 &[ZoneKind::Battlefield],
-                            ),
+                            )),
                         )),
                     ),
                 )),
@@ -204,11 +205,11 @@ pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
                                 CardSupertype::Basic,
                             )),
-                            ObjectPredicateDef::SharesNameWithAny(&ObjectSetDef::Query(
-                                ObjectQueryDef::new(
+                            ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                                &ObjectSetDef::Query(ObjectQueryDef::new(
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                                     &[ZoneKind::Battlefield],
-                                ),
+                                )),
                             )),
                         ]),
                     ),
@@ -2966,8 +2967,8 @@ pub(in crate::card::sets) static ASSEMBLY_HALL: CardRecord = CardRecord::new(
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
             source: ZoneKind::Library,
-            object: ObjectPredicateDef::HasName(ObjectRefDef::AdditionalCostObject(
-                AdditionalCostObjectIndex::PRIMARY,
+            object: ObjectPredicateDef::NameEquals(CardNameDef::Object(
+                ObjectRefDef::AdditionalCostObject(AdditionalCostObjectIndex::PRIMARY),
             )),
             minimum: 0,
             maximum: ValueDef::Constant(1),

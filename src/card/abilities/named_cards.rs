@@ -5,14 +5,14 @@
 // clause; every predicate below therefore resolves relative to that source.
 
 use super::model::{
-    BattlefieldEntryChoiceDestinationDef, BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef,
-    PlayRestrictionDef, ReplacementChoiceDef,
+    BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef, PlayRestrictionDef,
+    ReplacementChoiceDef,
 };
 
 /// A spell or permanent whose effective card-part name is the one this
 /// ability's source chose as it entered.
 pub const SOURCES_CHOSEN_CARD_NAME: ObjectPredicateDef =
-    ObjectPredicateDef::HasSourcesChosenScalar(BattlefieldEntryChoiceDestinationDef::CardName);
+    ObjectPredicateDef::NameEquals(CardNameDef::SourceChoice);
 
 static LOOK_AT_OPPONENT_HAND_THEN_CHOOSE_CARD_NAME: [ReplacementEffectDef; 2] = [
     ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),

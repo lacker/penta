@@ -38,13 +38,6 @@ pub enum TriggerConditionDef {
     /// Graveyard triggers use this for intervening-if clauses whose source
     /// may have moved again before the trigger resolves.
     SourceInZone(ZoneKind),
-    /// Whether two bound objects share a card name. Naming a card and then
-    /// revealing one is a comparison of names rather than of identity: a
-    /// second copy of the named card is still the named card.
-    BoundObjectsShareName {
-        first: &'static ObjectSetDef,
-        second: &'static ObjectSetDef,
-    },
     /// Whether the source came under its controller's control since the
     /// beginning of that player's previous upkeep -- the condition echo is
     /// written against, and what makes an echo cost come due exactly once.

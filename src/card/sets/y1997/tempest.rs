@@ -14,7 +14,7 @@ use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
+    CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
     CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
     ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
@@ -3003,9 +3003,11 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
                     binding: Binding!("revealed_card"),
                 },
                 EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::BoundObjectsShareName {
-                        first: &ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
-                        second: &ObjectSetDef::Binding(Binding!("revealed_card")),
+                    condition: &TriggerConditionDef::BoundObjectMatches {
+                        binding: ParentBinding,
+                        object: ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                            &ObjectSetDef::Binding(Binding!("revealed_card")),
+                        )),
                     },
                     then: &EffectDef::DealDamage {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),

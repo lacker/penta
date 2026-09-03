@@ -21,7 +21,7 @@ use crate::mana_cost;
 /// the record so that what a reader sees and what the engine matches agree.
 const fn controls_named(name: &'static str) -> ConditionDef {
     ConditionDef::Exists(ObjectQueryDef::matching(
-        ObjectPredicateDef::Named(name),
+        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Literal(name)),
         &[ZoneKind::Battlefield],
         PlayerRelation::You,
     ))

@@ -13,12 +13,12 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedEffectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
+    CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1332,11 +1332,13 @@ pub(in crate::card::sets) static CABAL_SHRINE: CardRecord = CardRecord::new(
             recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
                 ObjectRefDef::TriggeringObject,
             )),
-            amount: ValueDef::CountObjects(&ObjectSetDef::SharingNameWithIn {
-                reference: ObjectRefDef::TriggeringObject,
+            amount: ValueDef::CountObjects(&ObjectSetDef::Matching {
                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Graveyard],
+                )),
+                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                    CardNameDef::Object(ObjectRefDef::TriggeringObject),
                 )),
             }),
             selection: DiscardSelectionDef::RecipientChooses,
@@ -1581,13 +1583,15 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                             placement: ZonePlacement::Top,
                         },
                         EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(
-                                ObjectSetDef::SharingNameWithBinding {
-                                    binding: ParentBinding,
-                                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                                    zone: ZoneKind::Library,
-                                },
-                            ),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                                        &ObjectSetDef::Binding(ParentBinding),
+                                    )),
+                                    &[ZoneKind::Library],
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                ),
+                            )),
                             zone: ZoneKind::Exile,
                             placement: ZonePlacement::Top,
                         },

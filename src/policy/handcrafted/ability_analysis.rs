@@ -500,9 +500,7 @@ impl HandcraftedPolicy {
             crate::card::ObjectSetDef::PlayerAttachments(query) => {
                 Self::target_condition_in_object_predicate(query.object)
             }
-            crate::card::ObjectSetDef::SharingNameWithIn { objects, .. }
-            | crate::card::ObjectSetDef::NamesAppearingAtLeast { objects, .. }
-            | crate::card::ObjectSetDef::ExceptObject { objects, .. } => {
+            crate::card::ObjectSetDef::ExceptObject { objects, .. } => {
                 Self::target_condition_in_object_set(*objects)
             }
             crate::card::ObjectSetDef::One(_)
@@ -518,8 +516,6 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::TokensCreatedBy(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)
             | crate::card::ObjectSetDef::LegalTargets(_)
-            | crate::card::ObjectSetDef::SharingNameWith(_)
-            | crate::card::ObjectSetDef::SharingNameWithBinding { .. }
             | crate::card::ObjectSetDef::TopOfGraveyardMatching { .. } => None,
         }
     }

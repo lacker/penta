@@ -136,8 +136,17 @@ impl Game {
                 )
             }
             ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
+            ObjectPredicateDef::NameEquals(name) => self
+                .source_card_name(name, source.card.id)
+                .zip(self.object_card_name(affected.card.id))
+                .map(|(expected, actual)| actual == expected),
+            ObjectPredicateDef::NameIn(names) => self
+                .object_card_name(affected.card.id)
+                .map(|actual| {
+                    self.source_card_name_set(names, source.card.id)
+                        .contains(actual.as_ref())
+                }),
             ObjectPredicateDef::ManaValueAtMost(_)
-            | ObjectPredicateDef::NameIsBasicLandName
             | ObjectPredicateDef::GenericManaCostAtMost(_)
             | ObjectPredicateDef::ManaValueEqualTo(_)
             | ObjectPredicateDef::ManaValueAtMostValue(_)
@@ -156,9 +165,6 @@ impl Game {
             | ObjectPredicateDef::ControlledBy(_)
             | ObjectPredicateDef::OwnedBy(_)
             | ObjectPredicateDef::DebutSet(_)
-            | ObjectPredicateDef::HasName(_)
-            | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::AttackingOrBlocking
             | ObjectPredicateDef::HasKeyword(_)
             | ObjectPredicateDef::HasAbility(_)
@@ -196,7 +202,6 @@ impl Game {
             | ObjectPredicateDef::DeclaredTargetCount { .. }
             | ObjectPredicateDef::HasDeclaredTarget(_)
             | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
-            | ObjectPredicateDef::SharesNameWithAny(_)
             | ObjectPredicateDef::Special(_) => None,
         }
     }

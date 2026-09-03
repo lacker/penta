@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::ManaColor;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardNameDef, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -23,11 +23,13 @@ pub(in crate::card::sets) static ECHOING_TRUTH: CardRecord = CardRecord::new(
             &ObjectPredicateDef::HasType(CardType::Land),
         ))],
         EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::SharingNameWithIn {
-                reference: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            object: EffectRecipientDef::objects(ObjectSetDef::Matching {
                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::Any,
                     &[ZoneKind::Battlefield],
+                )),
+                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             zone: ZoneKind::Hand,
@@ -48,11 +50,13 @@ pub(in crate::card::sets) static ECHOING_RUIN: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Artifact),
         )],
         EffectDef::Destroy {
-            object: EffectRecipientDef::objects(ObjectSetDef::SharingNameWithIn {
-                reference: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            object: EffectRecipientDef::objects(ObjectSetDef::Matching {
                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     &[ZoneKind::Battlefield],
+                )),
+                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             can_regenerate: true,
@@ -73,11 +77,13 @@ pub(in crate::card::sets) static ECHOING_COURAGE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Apply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::SharingNameWithIn {
-                reference: ObjectRefDef::Target(TargetIndex::PRIMARY),
+            recipient: EffectRecipientDef::objects(ObjectSetDef::Matching {
                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     &[ZoneKind::Battlefield],
+                )),
+                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                    CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                 )),
             }),
             effect: AppliedEffectDef::modify_power_toughness(

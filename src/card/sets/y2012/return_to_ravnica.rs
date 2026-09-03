@@ -5,7 +5,7 @@ use crate::card::sets::{y1993::alpha, y1999::mercadian_masques as mmq, y2012::ma
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef,
-    BindObjectsDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    BindObjectsDef, CardArt, CardNameDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
     CastTimingPermissionDef, ChooseCardsFromCollectionDef, ClassifyObjectsDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionalStaticEffectDef,
     ControlDurationDef, CopyExceptionsDef, CostModificationDef, CostQuantityDef, CounterKind,
@@ -18,7 +18,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticApplyDef,
     TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -3917,7 +3917,9 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                     ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                     // By name rather than by identity, so a second Sphere is
                     // no more a legal target than this one.
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasName(ObjectRefDef::Source)),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::Object(ObjectRefDef::Source),
+                    )),
                 ]),
                 zones: &[ZoneKind::Battlefield],
                 controller: None,
@@ -3927,7 +3929,12 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ExileLinkedToSource {
                 until_source_leaves: false,
-                object: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                        TargetIndex::PRIMARY,
+                    ))),
+                    &[ZoneKind::Battlefield],
+                ))),
 face_down: false,
 then: None,
 },
@@ -4478,7 +4485,15 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
         )], // The target and every other creature sharing its name are one
             // set, so the two printed halves are a single sweep.
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::ObjectsSharingNameWithTarget(TargetIndex::PRIMARY),
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::NameEquals(CardNameDef::Object(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        ))),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                ))),
                 amount: ValueDef::Constant(1),
             }),
     ]),

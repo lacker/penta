@@ -5,12 +5,14 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
-    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
-    ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility,
-    ManaColor, ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
-    SacrificedAmountDef, SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardEffectStatus, CardNameDef, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
+    CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DeckConstructionDef,
+    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PlayOptionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
@@ -32,12 +34,14 @@ pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
                 owner: None,
             })],
             abilities::exile_until_source_leaves(EffectRecipientDef::objects(
-                ObjectSetDef::SharingNameWithIn {
-                    reference: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                ObjectSetDef::Matching {
                     objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Opponent,
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::Object(ObjectRefDef::Target(TargetIndex::PRIMARY)),
                     )),
                 },
             )),

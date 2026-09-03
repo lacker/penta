@@ -769,11 +769,18 @@ impl Game {
                         .is_some_and(|cost| cost.is_generic_at_most(u16::from(limit)))
                 });
             }
-            ObjectPredicateDef::Named(name) => {
+            ObjectPredicateDef::NameEquals(name) => {
                 return self
                     .catalog
                     .get(card.definition)
-                    .is_some_and(|definition| definition.name == name);
+                    .zip(self.source_card_name(name, source))
+                    .is_some_and(|(definition, expected)| definition.name == expected);
+            }
+            ObjectPredicateDef::NameIn(names) => {
+                return self.catalog.get(card.definition).is_some_and(|definition| {
+                    self.source_card_name_set(names, source)
+                        .contains(&definition.name)
+                });
             }
             ObjectPredicateDef::All(predicates) => {
                 return predicates

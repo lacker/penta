@@ -4,28 +4,25 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1998::stronghold as catalog_sth;
 use crate::card::sets::y2001::odyssey as catalog_ody;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AbilityPredicateDef, ActivationTimingDef, AddManaEffectDef, AggregateOperationDef,
-    AlternativeCastKindDef,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseCardsFromCollectionDef,
     ChooseDef, ChooseForEachPlayerDef, ClassifyObjectsDef, CollectionInspectionDef,
     ColorChoiceOperationDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
     CopyExceptionsDef, CostDef, CounterKind, CounterKindDef, CounterOperationDef,
-    CreatureTypeSetDef,
-    DamageAssignmentDef, DamageEventMatcherDef, DamageKindDef, DamagePreventionDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, IfNoObjectsDef,
+    CreatureTypeSetDef, DamageAssignmentDef, DamageEventMatcherDef, DamageKindDef,
+    DamagePreventionDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DestroyFollowUpDef,
+    DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef, IfNoObjectsDef,
     InstalledTriggerDef, KeywordAbility, LookAtObjectsDef, ManaColor, ManaTypeSetDef, MillUntilDef,
     MoveObjectsDef, ObjectChoiceBindingDef, ObjectCollectionSourceDef, ObjectCounterValueDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PerPlayerSelectionDef,
-    PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
     ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, SumValueDef, TargetChooserDef, TokenStatsDef, TriggerConditionDef,
-    TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    RevealObjectsDef, SumValueDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef,
+    TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;

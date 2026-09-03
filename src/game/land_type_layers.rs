@@ -91,16 +91,6 @@ impl Game {
         operations
     }
 
-    const fn resolved_land_type_operation(
-        operation: SetOperationDef<&'static [BasicLandType]>,
-    ) -> LandTypeOperation {
-        match operation {
-            SetOperationDef::Add(types) => LandTypeOperation::Add(types),
-            SetOperationDef::Remove(types) => LandTypeOperation::Remove(types),
-            SetOperationDef::Set(types) => LandTypeOperation::SetTo(types),
-        }
-    }
-
     fn resolved_land_type_set_applies(&self, permanent: &Permanent) -> bool {
         permanent.resolved_continuous_effects.iter().any(|effect| {
             self.resolved_continuous_effect_is_active(effect)

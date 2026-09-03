@@ -130,7 +130,12 @@ fn prepared_source_ability_grant_preserves_live_nonbattlefield_sources() {
 #[test]
 fn prepared_static_summary_matches_reference_inspection() {
     let mut game = ready_game();
-    for (id, definition) in [(98_100, cards::BLOOD_MOON), (98_101, cards::MOUNTAIN)] {
+    for (id, definition) in [
+        (98_100, cards::BLOOD_MOON),
+        (98_101, cards::MOUNTAIN),
+        (98_102, cards::MULTIVERSAL_PASSAGE),
+        (98_103, cards::REALMWRIGHT),
+    ] {
         let source = creature(id, definition, PlayerId::One);
 
         game.set_prepared_engine_enabled(false);

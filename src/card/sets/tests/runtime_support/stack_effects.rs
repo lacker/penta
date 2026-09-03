@@ -333,8 +333,12 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
 
         // Naming a card is a decision window, and what follows it is bound by
         // the same rule as anything after one.
-        EffectDef::ChooseCardName { then, .. }
-        | EffectDef::SearchZone { then: Some(then), .. } => {
+        EffectDef::ChooseCardName { names, then, .. } => {
+            names.is_catalog_defined()
+                && deferred_decision_allowed
+                && shared_stack_effect_at_position(*then, true)
+        }
+        EffectDef::SearchZone { then: Some(then), .. } => {
             deferred_decision_allowed && shared_stack_effect_at_position(*then, true)
         }
         EffectDef::SelectAtRandomFromZone {

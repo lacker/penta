@@ -57,7 +57,7 @@ fn validate_trigger_object_predicate(
             validate_card_name_references(name, target_count, scope)
         }
         ObjectPredicateDef::NameIn(names) => {
-            validate_card_name_set_references(names, target_count, scope)
+            validate_card_name_set_references(*names, target_count, scope)
         }
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)

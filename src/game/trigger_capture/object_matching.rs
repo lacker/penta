@@ -341,7 +341,7 @@ impl Game {
                 .is_some_and(|(actual, expected)| actual == expected),
             ObjectPredicateDef::NameIn(names) => self
                 .object_card_name(object.id)
-                .is_some_and(|actual| self.source_card_name_set(names, source).contains(actual.as_ref())),
+                .is_some_and(|actual| self.source_card_name_set(*names, source).contains(actual.as_ref())),
             ObjectPredicateDef::TargetsObjectMatching(predicate) => {
                 self.stack_object_targets_match(object.id, *predicate, source, controller)
             }
@@ -454,8 +454,8 @@ impl Game {
             // neither is matched as a scalar against an object here.
             BattlefieldEntryChoiceDestinationDef::Player
             | BattlefieldEntryChoiceDestinationDef::BasicLandType
-            | BattlefieldEntryChoiceDestinationDef::Color => false,
-            BattlefieldEntryChoiceDestinationDef::CardName => false,
+            | BattlefieldEntryChoiceDestinationDef::Color
+            | BattlefieldEntryChoiceDestinationDef::CardName => false,
             BattlefieldEntryChoiceDestinationDef::CreatureType => chooser
                 .and_then(|permanent| permanent.chosen_creature_type.as_deref())
                 .is_some_and(|chosen| {

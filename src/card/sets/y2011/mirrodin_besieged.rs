@@ -2614,12 +2614,18 @@ pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Horror"], 2, 1)
         .with_abilities(&[
-            abilities::choose_nonland_card_name(
+            AbilityDef::as_enters(
                 "As this creature enters, choose a nonland card name.",
+                crate::card::ReplacementEffectDef::BindOutput {
+                    effect: &abilities::choose_card_name_as_enters(
+                        crate::card::CardNameSetDef::NonlandCardNames,
+                    ),
+                    binding: Binding!("phyrexian_revoker_name"),
+                },
             ),
             abilities::cannot_activate_abilities_with_name(
                 "Activated abilities of sources with the chosen name can't be activated.",
-                crate::card::CardNameDef::SourceChoice,
+                crate::card::CardNameDef::Binding(Binding!("phyrexian_revoker_name")),
             ),
         ]),
 );

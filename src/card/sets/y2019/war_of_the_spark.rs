@@ -407,7 +407,7 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                     // selection reads the name itself.
                     EffectDef::ChooseCardName {
                         chooser: PlayerRefDef::EffectController,
-                        nonland_only: true,
+                        names: crate::card::CardNameSetDef::NonlandCardNames,
                         matched_in: PlayerRefDef::EffectController,
                         zone: ZoneKind::Library,
                         binding: ParentBinding,

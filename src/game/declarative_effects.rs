@@ -699,7 +699,7 @@ impl Game {
             }
             EffectDef::ChooseCardName {
                 chooser,
-                nonland_only,
+                names,
                 matched_in,
                 zone,
                 binding,
@@ -711,7 +711,7 @@ impl Game {
                 {
                     self.queue_card_name_choice(
                         player,
-                        nonland_only,
+                        names,
                         searched,
                         zone,
                         binding,

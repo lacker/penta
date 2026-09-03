@@ -1974,15 +1974,18 @@ pub(in crate::card::sets) static HOMING_LIGHTNING: CardRecord = CardRecord::new_
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
-                            ObjectRefDef::Target(TargetIndex::PRIMARY),
-                        )),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                ))),
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                    )),
+                ])),
                 amount: ValueDef::Constant(4),
             },
         ),

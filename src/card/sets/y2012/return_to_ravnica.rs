@@ -18,7 +18,7 @@ use crate::card::{
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, RoundingDef,
     SacrificedAmountDef, SpellAdditionalCostDef, SpellResolutionDestinationDef, StaticApplyDef,
     TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
+    ZoneChangeEventMatcherDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -3929,12 +3929,15 @@ pub(in crate::card::sets) static DETENTION_SPHERE: CardRecord = CardRecord::new_
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::ExileLinkedToSource {
                 until_source_leaves: false,
-                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
-                        TargetIndex::PRIMARY,
-                    ))),
-                    &[ZoneKind::Battlefield],
-                ))),
+                object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
+                            TargetIndex::PRIMARY,
+                        ))),
+                        &[ZoneKind::Battlefield],
+                    )),
+                ])),
 face_down: false,
 then: None,
 },
@@ -4485,15 +4488,18 @@ pub(in crate::card::sets) static IZZET_STATICASTER: CardRecord = CardRecord::new
         )], // The target and every other creature sharing its name are one
             // set, so the two printed halves are a single sweep.
             EffectDef::DealDamage {
-                recipient: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
-                            TargetIndex::PRIMARY,
-                        ))),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                ))),
+                recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                    )),
+                ])),
                 amount: ValueDef::Constant(1),
             }),
     ]),
@@ -6201,13 +6207,18 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new_wi
     CardArt::new("786c1e91-9d75-46a3-9e0d-56d29fcb01a7", "Anthony Palumbo"),
     CardSet::ReturnToRavnica,
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
-        abilities::choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this artifact enters, choose a card name.",
-            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::AllCardNames,
+                ),
+                binding: Binding!("pithing_needle_name"),
+            },
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
-            CardNameDef::SourceChoice,
+            CardNameDef::Binding(Binding!("pithing_needle_name")),
         ),
     ]),
 );

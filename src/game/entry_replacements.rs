@@ -191,7 +191,20 @@ impl Game {
             ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
                 let player = Self::pending_event_controller(&pending);
                 self.pending_events.push_front(pending);
-                self.queue_entry_scalar_choice(player, context, choice);
+                self.queue_entry_scalar_choice(player, context, effect, choice);
+                None
+            }
+            ReplacementEffectDef::BindOutput {
+                effect: producer,
+                binding: _,
+            } => {
+                let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) = *producer
+                else {
+                    return Some(pending);
+                };
+                let player = Self::pending_event_controller(&pending);
+                self.pending_events.push_front(pending);
+                self.queue_entry_scalar_choice(player, context, effect, choice);
                 None
             }
             ReplacementEffectDef::CopyEntering { object, exceptions } => {

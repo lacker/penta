@@ -494,6 +494,10 @@ impl HandcraftedPolicy {
         objects: crate::card::ObjectSetDef,
     ) -> Option<&'static crate::card::TargetConditionDef> {
         match objects {
+            crate::card::ObjectSetDef::Union(sets) => sets
+                .iter()
+                .copied()
+                .find_map(Self::target_condition_in_object_set),
             crate::card::ObjectSetDef::Query(query) => {
                 Self::target_condition_in_object_predicate(query.object)
             }

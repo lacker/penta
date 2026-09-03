@@ -507,6 +507,48 @@ fn echoing_truth_moves_every_matching_permanent_and_no_others() {
 }
 
 #[test]
+fn echoing_truth_returns_its_nameless_target_without_matching_other_nameless_permanents() {
+    let mut game = ready_game();
+    let first = game
+        .put_onto_battlefield(PlayerId::One, cards::GRIZZLY_BEARS)
+        .unwrap();
+    let second = game
+        .put_onto_battlefield(PlayerId::Two, cards::GRIZZLY_BEARS)
+        .unwrap();
+    for permanent in &mut game.battlefield {
+        if permanent.card.id == first || permanent.card.id == second {
+            permanent.face_down = Some(crate::card::face_down::ordinary());
+        }
+    }
+    assert_eq!(game.object_card_name(first), None);
+    assert_eq!(game.object_card_name(second), None);
+
+    let truth = card(10_051, cards::ECHOING_TRUTH, PlayerId::One);
+    game.players[PlayerId::One.index()].hand.push(truth.clone());
+    game.players[PlayerId::One.index()].mana_pool.blue = 1;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 1;
+    game.apply(
+        PlayerId::One,
+        cast_action(truth.id, vec![Target::Permanent(first)], Vec::new(), 0),
+    )
+    .unwrap();
+    pass_priority_pair(&mut game);
+
+    assert!(
+        game.battlefield
+            .iter()
+            .all(|permanent| permanent.card.id != first),
+        "the target is returned even though it has no name",
+    );
+    assert!(
+        game.battlefield
+            .iter()
+            .any(|permanent| permanent.card.id == second),
+        "two absent names do not compare equal",
+    );
+}
+
+#[test]
 fn eye_of_singularity_ignores_basic_land_names_and_removes_only_older_duplicates() {
     let mut game = ready_game();
     game.put_onto_battlefield(PlayerId::One, cards::EYE_OF_SINGULARITY)
@@ -621,6 +663,109 @@ fn extirpate_searches_another_players_zones_without_giving_them_the_choices() {
             .filter(|card| card.definition == cards::LIGHTNING_BOLT)
             .count(),
         exiled_before + matching_before,
+    );
+}
+
+#[test]
+fn surgical_extraction_can_leave_matching_cards_in_every_searched_zone() {
+    let mut game = ready_game();
+    let target = card(10_064, cards::LIGHTNING_BOLT, PlayerId::Two);
+    let other_graveyard_copy = card(10_065, cards::LIGHTNING_BOLT, PlayerId::Two);
+    game.players[PlayerId::Two.index()]
+        .graveyard
+        .extend([target.clone(), other_graveyard_copy.clone()]);
+    let hand_copy = card(10_066, cards::LIGHTNING_BOLT, PlayerId::Two);
+    game.players[PlayerId::Two.index()]
+        .hand
+        .push(hand_copy.clone());
+    let library_copy = card(10_067, cards::LIGHTNING_BOLT, PlayerId::Two);
+    game.players[PlayerId::Two.index()]
+        .library
+        .push(library_copy.clone());
+    let surgical = card(10_068, cards::SURGICAL_EXTRACTION, PlayerId::One);
+    game.players[PlayerId::One.index()]
+        .hand
+        .push(surgical.clone());
+
+    let cast = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::CastSpell { card, choices, .. }
+            if *card == surgical.id
+                && !choices.mana_payment().alternatives().is_empty()
+                && choices.iter_targets().any(|candidate| {
+                    *candidate == Target::Card(target.id)
+                }))
+        })
+        .expect("two life offers Surgical Extraction at the graveyard card");
+    game.apply(PlayerId::One, cast)
+        .expect("two life pays Surgical Extraction's Phyrexian symbol");
+    assert_eq!(game.players[PlayerId::One.index()].life, 18);
+    pass_priority_pair(&mut game);
+
+    let graveyard_choice = game
+        .observe(PlayerId::One)
+        .decision
+        .expect("Surgical Extraction offers its public graveyard matches");
+    assert_eq!(graveyard_choice.visibility, DecisionVisibility::Public);
+    let target_option = graveyard_choice
+        .options
+        .iter()
+        .find(|option| option.card.is_some_and(|(card, _)| card == target.id))
+        .expect("the targeted card may be chosen")
+        .id;
+    game.apply(
+        PlayerId::One,
+        Action::ChooseDecision {
+            decision: graveyard_choice.id,
+            options: vec![target_option],
+        },
+    )
+    .unwrap();
+
+    for zone in ["hand", "library"] {
+        let decision = game
+            .observe(PlayerId::One)
+            .decision
+            .unwrap_or_else(|| panic!("Surgical Extraction offers the target owner's {zone}"));
+        assert_eq!(decision.visibility, DecisionVisibility::Private);
+        game.apply(
+            PlayerId::One,
+            Action::ChooseDecision {
+                decision: decision.id,
+                options: Vec::new(),
+            },
+        )
+        .unwrap();
+    }
+
+    assert_eq!(
+        game.players[PlayerId::Two.index()]
+            .exile
+            .iter()
+            .filter(|card| card.definition == cards::LIGHTNING_BOLT)
+            .count(),
+        1,
+        "only the selected graveyard copy is exiled",
+    );
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .graveyard
+            .iter()
+            .any(|card| card.id == other_graveyard_copy.id)
+    );
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .hand
+            .iter()
+            .any(|card| card.id == hand_copy.id)
+    );
+    assert!(
+        game.players[PlayerId::Two.index()]
+            .library
+            .iter()
+            .any(|card| card.id == library_copy.id)
     );
 }
 
@@ -751,7 +896,7 @@ fn bazaar_of_wonders_unions_names_from_graveyards_and_nontoken_permanents() {
             )),
             ZoneKind::Battlefield => {
                 game.battlefield
-                    .push(creature(10_081, cards::LIGHTNING_BOLT, PlayerId::One))
+                    .push(creature(10_081, cards::LIGHTNING_BOLT, PlayerId::One));
             }
             _ => unreachable!(),
         }

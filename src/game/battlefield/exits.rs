@@ -477,6 +477,7 @@ impl Game {
                 batch.moves[move_index].counters = Some((kind, amount));
             }
             ReplacementEffectDef::ModifyBattlefieldEntry(_)
+            | ReplacementEffectDef::BindOutput { .. }
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_)
             | ReplacementEffectDef::Choose(_)

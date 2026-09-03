@@ -651,6 +651,7 @@ pub(super) enum DecisionContinuation {
     },
     BattlefieldEntryScalarChoice {
         context: ReplacementEffectContext,
+        authored_effect: ReplacementEffectDef,
         choice: BattlefieldEntryScalarChoiceDef,
         choices: Vec<String>,
     },

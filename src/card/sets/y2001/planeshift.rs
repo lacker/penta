@@ -1277,13 +1277,18 @@ pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_wit
     // Both players, which is why the mirror is miserable: the Mage does not
     // care who was going to cast the card it named.
     CardRules::new_creature(mana_cost!("{W}{U}"), &["Human", "Wizard"], 2, 2).with_abilities(&[
-        abilities::choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this creature enters, choose a nonland card name.",
-            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::NonlandCardNames,
+                ),
+                binding: Binding!("meddling_mage_name"),
+            },
         ),
         abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(Binding!("meddling_mage_name")),
         ),
     ]),
 );

@@ -1,13 +1,19 @@
+use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::*;
+use crate::{Binding, CardRules, CardSet, CardSupertype, CardType};
+
+use super::{
+    CardNameDef, CardNameSetDef, EffectResolutionContext, Game, GameObjectId, ObjectRefDef,
+    ScopedEffect, StackObject, Target,
+};
 
 impl Game {
     fn names_of_targets(&self, targets: Vec<Target>) -> BTreeSet<String> {
         targets
             .into_iter()
             .filter_map(Self::target_object_id)
-            .filter_map(|object| self.object_card_name(object).map(|name| name.into_owned()))
+            .filter_map(|object| self.object_card_name(object).map(Cow::into_owned))
             .collect()
     }
 
@@ -16,7 +22,7 @@ impl Game {
         for name in targets
             .into_iter()
             .filter_map(Self::target_object_id)
-            .filter_map(|object| self.object_card_name(object).map(|name| name.into_owned()))
+            .filter_map(|object| self.object_card_name(object).map(Cow::into_owned))
         {
             *counts.entry(name).or_default() += 1;
         }
@@ -26,13 +32,62 @@ impl Game {
             .collect()
     }
 
-    fn basic_land_names(&self) -> BTreeSet<String> {
-        self.catalog
-            .definitions()
-            .into_iter()
-            .filter(|definition| definition.is_basic_land())
-            .flat_map(|definition| definition.parts.iter().map(|part| part.name.clone()))
-            .collect()
+    pub(in crate::game) fn catalog_card_names(
+        &self,
+        names: CardNameSetDef,
+    ) -> Option<BTreeSet<String>> {
+        if let CardNameSetDef::Union(sets) = names {
+            let mut union = BTreeSet::new();
+            for names in sets {
+                union.extend(self.catalog_card_names(*names)?);
+            }
+            return Some(union);
+        }
+        if matches!(
+            names,
+            CardNameSetDef::NamesOf(_) | CardNameSetDef::NamesAppearingAtLeast { .. }
+        ) {
+            return None;
+        }
+        let matches = |rules: &CardRules| match names {
+            CardNameSetDef::AllCardNames => true,
+            CardNameSetDef::NonlandCardNames => !rules.has_type(CardType::Land),
+            CardNameSetDef::LandCardNames => rules.has_type(CardType::Land),
+            CardNameSetDef::NonbasicLandCardNames => {
+                rules.has_type(CardType::Land) && !rules.has_supertype(CardSupertype::Basic)
+            }
+            CardNameSetDef::CardNamesOtherThanBasicLands => {
+                !rules.has_type(CardType::Land) || !rules.has_supertype(CardSupertype::Basic)
+            }
+            CardNameSetDef::BasicLandNames => {
+                rules.has_type(CardType::Land) && rules.has_supertype(CardSupertype::Basic)
+            }
+            CardNameSetDef::NamesOf(_)
+            | CardNameSetDef::Union(_)
+            | CardNameSetDef::NamesAppearingAtLeast { .. } => false,
+        };
+        Some(
+            self.catalog
+                .definitions()
+                .into_iter()
+                .filter(|definition| definition.debut_set != CardSet::Token)
+                .flat_map(|definition| definition.parts.iter())
+                .filter(|part| matches(&part.rules))
+                .map(|part| part.name.clone())
+                .collect(),
+        )
+    }
+
+    fn permanent_bound_card_name(&self, source: GameObjectId, binding: Binding) -> Option<String> {
+        self.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == source)
+            .and_then(|permanent| {
+                (permanent.chosen_card_name_binding.is_none()
+                    || permanent.chosen_card_name_binding == Some(binding))
+                .then(|| permanent.chosen_card_name.clone())
+                .flatten()
+            })
     }
 
     pub(in crate::game) fn source_card_name(
@@ -43,17 +98,13 @@ impl Game {
         match name {
             CardNameDef::Literal(name) => Some(name.to_owned()),
             CardNameDef::NameOf(ObjectRefDef::Source) => {
-                self.object_card_name(source).map(|name| name.into_owned())
+                self.object_card_name(source).map(Cow::into_owned)
             }
             CardNameDef::NameOf(ObjectRefDef::AttachedToSource) => self
                 .current_or_last_known_attached_host(source)
                 .and_then(|host| self.object_card_name(host))
-                .map(|name| name.into_owned()),
-            CardNameDef::SourceChoice => self
-                .battlefield
-                .iter()
-                .find(|permanent| permanent.card.id == source)
-                .and_then(|permanent| permanent.chosen_card_name.clone()),
+                .map(Cow::into_owned),
+            CardNameDef::Binding(binding) => self.permanent_bound_card_name(source, binding),
             CardNameDef::EffectChoice | CardNameDef::NameOf(_) => None,
         }
     }
@@ -64,6 +115,12 @@ impl Game {
         source: GameObjectId,
     ) -> BTreeSet<String> {
         match names {
+            CardNameSetDef::AllCardNames
+            | CardNameSetDef::NonlandCardNames
+            | CardNameSetDef::LandCardNames
+            | CardNameSetDef::NonbasicLandCardNames
+            | CardNameSetDef::CardNamesOtherThanBasicLands
+            | CardNameSetDef::BasicLandNames => self.catalog_card_names(names).unwrap_or_default(),
             CardNameSetDef::NamesOf(objects) => {
                 self.names_of_targets(self.source_object_set_targets(*objects, source))
             }
@@ -76,7 +133,6 @@ impl Game {
             }
             CardNameSetDef::NamesAppearingAtLeast { objects, count } => self
                 .names_appearing_at_least(self.source_object_set_targets(*objects, source), count),
-            CardNameSetDef::BasicLandNames => self.basic_land_names(),
         }
     }
 
@@ -92,16 +148,11 @@ impl Game {
             CardNameDef::NameOf(reference) => self
                 .object_reference_id(reference, object, context, scoped)
                 .and_then(|referenced| self.object_card_name(referenced))
-                .map(|name| name.into_owned()),
+                .map(Cow::into_owned),
             CardNameDef::EffectChoice => context.chosen_name.clone(),
-            CardNameDef::SourceChoice => object
+            CardNameDef::Binding(binding) => object
                 .source
-                .and_then(|source| {
-                    self.battlefield
-                        .iter()
-                        .find(|permanent| permanent.card.id == source)
-                })
-                .and_then(|permanent| permanent.chosen_card_name.clone()),
+                .and_then(|source| self.permanent_bound_card_name(source, binding)),
         }
     }
 
@@ -113,6 +164,12 @@ impl Game {
         scoped: ScopedEffect,
     ) -> BTreeSet<String> {
         match names {
+            CardNameSetDef::AllCardNames
+            | CardNameSetDef::NonlandCardNames
+            | CardNameSetDef::LandCardNames
+            | CardNameSetDef::NonbasicLandCardNames
+            | CardNameSetDef::CardNamesOtherThanBasicLands
+            | CardNameSetDef::BasicLandNames => self.catalog_card_names(names).unwrap_or_default(),
             CardNameSetDef::NamesOf(objects) => {
                 self.names_of_targets(self.effect_objects(*objects, object, context, scoped))
             }
@@ -128,7 +185,6 @@ impl Game {
                     self.effect_objects(*objects, object, context, scoped),
                     count,
                 ),
-            CardNameSetDef::BasicLandNames => self.basic_land_names(),
         }
     }
 }

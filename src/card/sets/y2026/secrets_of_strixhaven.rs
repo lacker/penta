@@ -211,10 +211,18 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
     CardArt::new("355dd460-b0e9-41f2-a058-b7f7e39ac387", "Richard Wright"),
     CardSet::SecretsOfStrixhaven,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::choose_land_card_name("As this land enters, choose a land card name."),
+        AbilityDef::as_enters(
+            "As this land enters, choose a land card name.",
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::LandCardNames,
+                ),
+                binding: Binding!("petrified_hamlet_name"),
+            },
+        ),
         abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(Binding!("petrified_hamlet_name")),
         ),
         AbilityDef::static_ability(
             "Lands with the chosen name have “{T}: Add {C}.”",
@@ -223,7 +231,7 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::NameEquals(
-                            crate::card::CardNameDef::SourceChoice,
+                            crate::card::CardNameDef::Binding(Binding!("petrified_hamlet_name")),
                         ),
                     ]),
                     &[ZoneKind::Battlefield],

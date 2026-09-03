@@ -145,7 +145,10 @@ impl Game {
                 }
             }
             DecisionContinuation::BattlefieldEntryScalarChoice {
-                choice, choices, ..
+                authored_effect,
+                choice,
+                choices,
+                ..
             } => {
                 let Some(selected) = options
                     .first()
@@ -166,7 +169,12 @@ impl Game {
                             };
                         }
                         BattlefieldEntryChoiceDestinationDef::CardName => {
+                            let ReplacementEffectDef::BindOutput { binding, .. } = authored_effect
+                            else {
+                                return;
+                            };
                             entry.permanent.chosen_card_name = Some(selected);
+                            entry.permanent.chosen_card_name_binding = Some(binding);
                         }
                         BattlefieldEntryChoiceDestinationDef::CreatureType => {
                             entry.permanent.chosen_creature_type = Some(selected);

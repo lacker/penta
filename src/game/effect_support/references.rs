@@ -524,8 +524,9 @@ impl Game {
         predicate: ObjectPredicateDef,
         source: GameObjectId,
     ) -> bool {
-        let (Target::Card(id) | Target::Permanent(id) | Target::Spell(id)) = bound else {
-            return false;
+        let id = match bound {
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => id,
+            Target::Player(_) => return false,
         };
         if let Some(permanent) = self
             .battlefield
@@ -538,6 +539,18 @@ impl Game {
                 source,
                 false,
             );
+        }
+        if let Some(stack_object) = self.stack.iter().find(|candidate| candidate.id == id) {
+            return self
+                .stack_trigger_event_object(stack_object)
+                .is_some_and(|object| {
+                    self.trigger_object_matches(
+                        predicate,
+                        &object,
+                        source,
+                        stack_object.kind == StackObjectKind::Spell,
+                    )
+                });
         }
         if let Some((zone, card)) = self.card_in_nonbattlefield_zone(id) {
             return self.card_object_matches(predicate, card, zone, source);
@@ -557,7 +570,17 @@ impl Game {
             Some(crate::game::RetiredObject::Card(card)) => {
                 self.card_object_matches(predicate, card, ZoneKind::Graveyard, source)
             }
-            Some(crate::game::RetiredObject::Stack(_)) | None => false,
+            Some(crate::game::RetiredObject::Stack(stack_object)) => self
+                .stack_trigger_event_object(stack_object)
+                .is_some_and(|object| {
+                    self.trigger_object_matches(
+                        predicate,
+                        &object,
+                        source,
+                        stack_object.kind == StackObjectKind::Spell,
+                    )
+                }),
+            None => false,
         }
     }
 
@@ -599,6 +622,17 @@ impl Game {
         source: GameObjectId,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::Union(sets) => {
+                let mut union = Vec::new();
+                for objects in sets {
+                    for target in self.source_object_set_targets(*objects, source) {
+                        if !union.contains(&target) {
+                            union.push(target);
+                        }
+                    }
+                }
+                union
+            }
             ObjectSetDef::Query(query) => self
                 .current_or_last_known_controller(source)
                 .or_else(|| self.current_or_last_known_owner(source))
@@ -701,6 +735,17 @@ impl Game {
         scoped: ScopedEffect,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::Union(sets) => {
+                let mut union = Vec::new();
+                for objects in sets {
+                    for target in self.effect_objects(*objects, object, context, scoped) {
+                        if !union.contains(&target) {
+                            union.push(target);
+                        }
+                    }
+                }
+                union
+            }
             ObjectSetDef::One(reference) => self
                 .object_reference_target(reference, object, context, scoped)
                 .into_iter()

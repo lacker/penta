@@ -10,6 +10,7 @@ use super::{
     TurnKindDef, ValueDef, ZoneKind,
 };
 use crate::{AdditionalCostIndex, card::AlternativeCastKindDef};
+use crate::{Binding, card::CardNameSetDef};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementEventDef {
@@ -148,23 +149,9 @@ pub enum ScalarChoiceListDef {
     /// entry and its checkpoint continuation use the same public decision
     /// machinery as card-name and creature-type choices.
     Players,
-    /// Every independently nameable card part in the catalog, including split
-    /// halves and back faces rather than only top-level card identities.
-    CardNames,
-    /// The same, without the lands. "Choose a nonland card name" is a real
-    /// restriction on Meddling Mage rather than flavor: naming a land would
-    /// otherwise lock out a fetch that was never castable anyway.
-    NonlandCardNames,
-    /// Only land card names, basic or nonbasic.
-    LandCardNames,
-    /// Only nonbasic lands. Alpine Moon cannot name a spell, a basic land,
-    /// or a nonland permanent even though all of them are ordinary card
-    /// names elsewhere.
-    NonbasicLandCardNames,
-    /// Every card name except a basic land card name. Booby Trap may name a
-    /// nonbasic land or any nonland card, which is deliberately wider than
-    /// [`Self::NonlandCardNames`].
-    CardNamesOtherThanBasicLands,
+    /// Names drawn from an explicit declarative set. Only catalog-defined
+    /// sets are valid here: object-derived sets would disclose hidden zones.
+    CardNames(CardNameSetDef),
     /// Every creature subtype available to the current game.
     CreatureTypes,
     /// The five basic land types, which are fixed rather than catalog-derived.
@@ -204,30 +191,13 @@ impl BattlefieldEntryScalarChoiceDef {
         destination: BattlefieldEntryChoiceDestinationDef::Player,
     };
 
-    pub const CARD_NAME: Self = Self {
-        list: ScalarChoiceListDef::CardNames,
-        destination: BattlefieldEntryChoiceDestinationDef::CardName,
-    };
-
-    pub const NONLAND_CARD_NAME: Self = Self {
-        list: ScalarChoiceListDef::NonlandCardNames,
-        destination: BattlefieldEntryChoiceDestinationDef::CardName,
-    };
-
-    pub const LAND_CARD_NAME: Self = Self {
-        list: ScalarChoiceListDef::LandCardNames,
-        destination: BattlefieldEntryChoiceDestinationDef::CardName,
-    };
-
-    pub const NONBASIC_LAND_CARD_NAME: Self = Self {
-        list: ScalarChoiceListDef::NonbasicLandCardNames,
-        destination: BattlefieldEntryChoiceDestinationDef::CardName,
-    };
-
-    pub const CARD_NAME_OTHER_THAN_BASIC_LAND: Self = Self {
-        list: ScalarChoiceListDef::CardNamesOtherThanBasicLands,
-        destination: BattlefieldEntryChoiceDestinationDef::CardName,
-    };
+    #[must_use]
+    pub const fn card_name(names: CardNameSetDef) -> Self {
+        Self {
+            list: ScalarChoiceListDef::CardNames(names),
+            destination: BattlefieldEntryChoiceDestinationDef::CardName,
+        }
+    }
 
     pub const CREATURE_TYPE: Self = Self {
         list: ScalarChoiceListDef::CreatureTypes,
@@ -268,6 +238,14 @@ pub enum ReplacementChoiceDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementEffectDef {
     Sequence(&'static [ReplacementEffectDef]),
+    /// Declare a durable labeled binding and let an entry-time producer
+    /// populate it. Keeping the label outside the producer makes the data
+    /// flow explicit at the card declaration, just as [`EffectDef::BindOutput`]
+    /// does for resolving effects.
+    BindOutput {
+        effect: &'static ReplacementEffectDef,
+        binding: Binding,
+    },
     /// Consume the prospective event without committing it.
     ReplaceEventWithNothing,
     /// Change the destination of a prospective zone move. The source object

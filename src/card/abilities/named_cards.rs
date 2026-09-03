@@ -4,52 +4,21 @@
 // module's.
 
 use super::model::{
-    BattlefieldEntryScalarChoiceDef, PlayActionMatcherDef, PlayRestrictionDef,
+    BattlefieldEntryScalarChoiceDef, CardNameSetDef, PlayActionMatcherDef, PlayRestrictionDef,
     ReplacementChoiceDef,
 };
 
-static LOOK_AT_OPPONENT_HAND_THEN_CHOOSE_CARD_NAME: [ReplacementEffectDef; 2] = [
-    ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
-    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-        BattlefieldEntryScalarChoiceDef::CARD_NAME,
-    )),
-];
-
-/// Records one catalog-derived card name on a permanent as it enters.
+/// Chooses one catalog-derived card name as a permanent enters.
+///
+/// Wrap this producer in [`ReplacementEffectDef::BindOutput`] to record the
+/// result under an authored binding on the entering permanent.
 #[must_use]
 pub const fn choose_card_name_as_enters(
-    text: &'static str,
-    choice: BattlefieldEntryScalarChoiceDef,
-) -> AbilityDef {
-    AbilityDef::as_enters(
-        text,
-        ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)),
-    )
-}
-
-/// Records one catalog-derived nonland card name on a permanent as it enters.
-#[must_use]
-pub const fn choose_nonland_card_name(text: &'static str) -> AbilityDef {
-    choose_card_name_as_enters(text, BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME)
-}
-
-/// Records one catalog-derived land card name on a permanent as it enters.
-#[must_use]
-pub const fn choose_land_card_name(text: &'static str) -> AbilityDef {
-    choose_card_name_as_enters(text, BattlefieldEntryScalarChoiceDef::LAND_CARD_NAME)
-}
-
-/// Privately inspects the opponent's hand, then records any card name on the
-/// entering permanent. The hand observation is available while the public
-/// naming decision is pending.
-#[must_use]
-pub const fn look_at_opponent_hand_then_choose_card_name_as_enters(
-    text: &'static str,
-) -> AbilityDef {
-    AbilityDef::as_enters(
-        text,
-        ReplacementEffectDef::Sequence(&LOOK_AT_OPPONENT_HAND_THEN_CHOOSE_CARD_NAME),
-    )
+    names: CardNameSetDef,
+) -> ReplacementEffectDef {
+    ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+        BattlefieldEntryScalarChoiceDef::card_name(names),
+    ))
 }
 
 /// No player can cast spells with the resolved name.
@@ -154,6 +123,14 @@ const SEARCH_AND_EXILE_LIBRARY_MOVE: EffectDef = EffectDef::MoveToZone {
     zone: ZoneKind::Exile,
     placement: ZonePlacement::Top,
 };
+const SEARCH_AND_EXILE_GRAVEYARD_BINDING: Binding = Binding!("search_and_exile_graveyard");
+const SEARCH_AND_EXILE_GRAVEYARD_MOVE: EffectDef = EffectDef::MoveToZone {
+    object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+        SEARCH_AND_EXILE_GRAVEYARD_BINDING,
+    )),
+    zone: ZoneKind::Exile,
+    placement: ZonePlacement::Top,
+};
 
 /// Searches one player's graveyard, hand, or library for matching cards and
 /// exiles the cards found. Public graveyards contribute every match; hidden
@@ -161,11 +138,48 @@ const SEARCH_AND_EXILE_LIBRARY_MOVE: EffectDef = EffectDef::MoveToZone {
 #[must_use]
 pub const fn search_and_exile(
     zone: ZoneKind,
+    binding: Binding,
+) -> EffectDef {
+    search_named_cards_and_exile(
+        zone,
+        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(binding)),
+        binding,
+        false,
+    )
+}
+
+/// Searches the target owner's named zone and lets the effect controller exile
+/// any number of matches, including zero cards from a public graveyard.
+#[must_use]
+pub const fn search_and_exile_any_number(zone: ZoneKind, binding: Binding) -> EffectDef {
+    search_named_cards_and_exile(
+        zone,
+        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(binding)),
+        binding,
+        true,
+    )
+}
+
+/// Counterbore's corresponding search follows the countered spell's
+/// controller rather than the physical card's owner.
+#[must_use]
+pub const fn search_controllers_zone_and_exile(zone: ZoneKind, binding: Binding) -> EffectDef {
+    search_named_cards_and_exile(
+        zone,
+        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(binding)),
+        binding,
+        false,
+    )
+}
+
+const fn search_named_cards_and_exile(
+    zone: ZoneKind,
     player: PlayerRefDef,
-    object: ObjectPredicateDef,
+    binding: Binding,
+    choose_from_graveyard: bool,
 ) -> EffectDef {
     let candidates = ObjectSetDef::Query(ObjectQueryDef::owned_by(
-        object,
+        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Binding(binding))),
         match zone {
             ZoneKind::Graveyard => &[ZoneKind::Graveyard],
             ZoneKind::Hand => &[ZoneKind::Hand],
@@ -175,6 +189,17 @@ pub const fn search_and_exile(
         PlayerSetDef::One(player),
     ));
     match zone {
+        ZoneKind::Graveyard if choose_from_graveyard => EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Objects(SEARCH_AND_EXILE_GRAVEYARD_BINDING),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates,
+            exclude: None,
+            minimum: 0,
+            maximum: usize::MAX,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &SEARCH_AND_EXILE_GRAVEYARD_MOVE,
+        }),
         ZoneKind::Graveyard => EffectDef::MoveToZone {
             object: EffectRecipientDef::objects(candidates),
             zone: ZoneKind::Exile,

@@ -77,9 +77,14 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
     crate::card::CardArt::new("2435c810-2baf-4e3b-80ce-542b94694901", "Alayna Danner"),
     crate::card::CardSet::CoreSet2019,
     CardRules::new_enchantment(mana_cost!("{R}")).with_abilities(&[
-        abilities::choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this enchantment enters, choose a nonbasic land card name.",
-            crate::card::BattlefieldEntryScalarChoiceDef::NONBASIC_LAND_CARD_NAME,
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::NonbasicLandCardNames,
+                ),
+                binding: Binding!("alpine_moon_name"),
+            },
         ),
         AbilityDef::static_ability(
             "Lands your opponents control with the chosen name lose all land types and abilities, and they gain \"{T}: Add one mana of any color.\"",
@@ -88,7 +93,7 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Land),
                         ObjectPredicateDef::NameEquals(
-                            crate::card::CardNameDef::SourceChoice,
+                            crate::card::CardNameDef::Binding(Binding!("alpine_moon_name")),
                         ),
                     ]),
                     &[ZoneKind::Battlefield],

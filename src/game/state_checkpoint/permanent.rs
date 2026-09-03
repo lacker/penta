@@ -434,5 +434,9 @@ pub(super) fn detached_permanent_snapshot(
             .map(basic_land_type_snapshot),
         chosen_color: permanent.chosen_color.map(mana_color_snapshot),
         chosen_card_name: permanent.chosen_card_name.clone(),
+        chosen_card_name_binding: permanent
+            .chosen_card_name_binding
+            .and_then(crate::Binding::label)
+            .map(str::to_owned),
     }
 }

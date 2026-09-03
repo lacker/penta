@@ -3,13 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardNameDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CopyStackObjectDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CopyStackObjectDef,
+    CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -79,32 +78,17 @@ pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
                         zone: ZoneKind::Graveyard,
                         placement: ZonePlacement::Top,
                     },
-                    abilities::search_and_exile(
+                    abilities::search_controllers_zone_and_exile(
                         ZoneKind::Graveyard,
-                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
-                            "counterbore_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("counterbore_target")),
-                        )),
+                        Binding!("counterbore_target"),
                     ),
-                    abilities::search_and_exile(
+                    abilities::search_controllers_zone_and_exile(
                         ZoneKind::Hand,
-                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
-                            "counterbore_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("counterbore_target")),
-                        )),
+                        Binding!("counterbore_target"),
                     ),
-                    abilities::search_and_exile(
+                    abilities::search_controllers_zone_and_exile(
                         ZoneKind::Library,
-                        PlayerRefDef::ControllerOf(ObjectRefDef::Binding(Binding!(
-                            "counterbore_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("counterbore_target")),
-                        )),
+                        Binding!("counterbore_target"),
                     ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(

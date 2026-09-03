@@ -4,8 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardNameSetDef, CardRules, CardSet,
     CardType, ComparisonDef, ControlDurationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, PlayerRefDef,
-    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
+    ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -90,7 +91,7 @@ pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     )),
-                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameIn(
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameIn(&
                         CardNameSetDef::NamesAppearingAtLeast {
                             objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
                                 ObjectPredicateDef::HasType(CardType::Land),
@@ -101,9 +102,11 @@ pub(in crate::card::sets) static ENDLESS_ATLAS: CardRecord = CardRecord::new(
                         },
                     )),
                 },
-                filter: None,
-                comparison: ComparisonDef::GreaterOrEqual,
-                amount: 1,
+                predicate: ObjectSetPredicateDef {
+                    filter: None,
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
             },
         )),
     ),

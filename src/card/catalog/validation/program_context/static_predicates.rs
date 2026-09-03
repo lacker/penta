@@ -22,8 +22,8 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
             .iter()
             .any(|land_type| land_type.subtype() == name),
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
-        ObjectPredicateDef::NameIn(CardNameSetDef::BasicLandNames) => true,
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::NameIn(&CardNameSetDef::BasicLandNames)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
@@ -56,7 +56,7 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
             static_player_relation_supported(relation)
         }
         ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
-        ObjectPredicateDef::NameIn(names) => static_card_name_set_supported(names),
+        ObjectPredicateDef::NameIn(names) => static_card_name_set_supported(*names),
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -127,7 +127,7 @@ fn static_card_name_supported(name: CardNameDef) -> bool {
     matches!(
         name,
         CardNameDef::Literal(_)
-            | CardNameDef::SourceChoice
+            | CardNameDef::Binding(_)
             | CardNameDef::NameOf(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
     )
 }
@@ -142,6 +142,11 @@ fn static_card_name_set_supported(names: CardNameSetDef) -> bool {
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             static_condition_object_set_supported(*objects)
         }
-        CardNameSetDef::BasicLandNames => true,
+        CardNameSetDef::AllCardNames
+        | CardNameSetDef::NonlandCardNames
+        | CardNameSetDef::LandCardNames
+        | CardNameSetDef::NonbasicLandCardNames
+        | CardNameSetDef::CardNamesOtherThanBasicLands
+        | CardNameSetDef::BasicLandNames => true,
     }
 }

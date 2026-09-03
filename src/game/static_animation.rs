@@ -39,11 +39,18 @@ impl Game {
             ObjectPredicateDef::Subtype(name) => !subtype_is_supplied_by_a_static_effect(name),
             ObjectPredicateDef::NameEquals(
                 CardNameDef::Literal(_)
-                | CardNameDef::SourceChoice
+                | CardNameDef::Binding(_)
                 | CardNameDef::NameOf(ObjectRefDef::Source | ObjectRefDef::AttachedToSource),
             )
-            | ObjectPredicateDef::NameIn(CardNameSetDef::BasicLandNames) => true,
-            ObjectPredicateDef::Any
+            | ObjectPredicateDef::NameIn(
+                CardNameSetDef::AllCardNames
+                | CardNameSetDef::NonlandCardNames
+                | CardNameSetDef::LandCardNames
+                | CardNameSetDef::NonbasicLandCardNames
+                | CardNameSetDef::CardNamesOtherThanBasicLands
+                | CardNameSetDef::BasicLandNames,
+            )
+            | ObjectPredicateDef::Any
             | ObjectPredicateDef::Source
             | ObjectPredicateDef::AttachedToSource
             | ObjectPredicateDef::HasSourcesChosenScalar(_)

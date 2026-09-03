@@ -1585,7 +1585,7 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                         EffectDef::MoveToZone {
                             object: EffectRecipientDef::objects(ObjectSetDef::Query(
                                 ObjectQueryDef::owned_by(
-                                    ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                                    ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
                                         &ObjectSetDef::Binding(ParentBinding),
                                     )),
                                     &[ZoneKind::Library],

@@ -680,7 +680,7 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             )],
             EffectDef::ChooseCardName {
                 chooser: PlayerRefDef::EffectController,
-                nonland_only: true,
+                names: crate::card::CardNameSetDef::NonlandCardNames,
                 matched_in: PlayerRefDef::Target(TargetIndex::PRIMARY),
                 zone: ZoneKind::Hand,
                 binding: ParentBinding,

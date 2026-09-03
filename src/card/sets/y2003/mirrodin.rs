@@ -189,7 +189,7 @@ pub(in crate::card::sets) static EXTRAPLANAR_LENS: CardRecord = CardRecord::new(
             "Whenever a land with the same name as the exiled card is tapped for mana, its controller adds one mana of any type that land produced.",
             TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
                 ObjectPredicateDef::HasType(CardType::Land),
-                ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
                     &ObjectSetDef::LinkedExiles,
                 )),
             ])),

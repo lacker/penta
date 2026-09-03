@@ -231,6 +231,7 @@ impl Game {
                 true
             }
             ReplacementEffectDef::ModifyBattlefieldEntry(_)
+            | ReplacementEffectDef::BindOutput { .. }
             | ReplacementEffectDef::MoveToZone(_)
             | ReplacementEffectDef::Conditional { .. }
             | ReplacementEffectDef::PayOr { .. }
@@ -273,6 +274,7 @@ impl Game {
                 false
             }
             ReplacementEffectDef::ModifyBattlefieldEntry(_)
+            | ReplacementEffectDef::BindOutput { .. }
             | ReplacementEffectDef::MoveToZone(_)
             | ReplacementEffectDef::Conditional { .. }
             | ReplacementEffectDef::PayOr { .. }

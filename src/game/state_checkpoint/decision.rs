@@ -599,14 +599,15 @@ fn continuation_snapshot(
         }
         DecisionContinuation::BattlefieldEntryScalarChoice {
             context,
-            choice,
+            authored_effect,
+            choice: _,
             choices,
         } => DecisionContinuationSnapshot::BattlefieldEntryScalarChoice {
             context: replacement_context_snapshot(*context),
             effect: resolved_replacement_effect_locator(
                 &game.catalog,
                 context.source,
-                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(*choice)),
+                *authored_effect,
             )?,
             choices: choices.clone(),
         },

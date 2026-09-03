@@ -1795,19 +1795,24 @@ pub(in crate::card::sets) static DISRUPTOR_FLUTE: CardRecord = CardRecord::new(
     crate::card::CardSet::ModernHorizons3,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         abilities::flash(),
-        abilities::choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this artifact enters, choose a card name.",
-            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME,
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::AllCardNames,
+                ),
+                binding: Binding!("disruptor_flute_name"),
+            },
         ),
         abilities::spell_cost_increase_for_name(
             "Spells with the chosen name cost {3} more to cast.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(Binding!("disruptor_flute_name")),
             PlayerRelation::Any,
             mana_cost!("{3}"),
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated unless they're mana abilities.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(Binding!("disruptor_flute_name")),
         ),
     ]),
 );

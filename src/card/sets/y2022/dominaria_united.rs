@@ -18,18 +18,27 @@ pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::
     crate::card::CardSet::DominariaUnited,
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 3).with_abilities(&[
         abilities::vigilance(),
-        abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this creature enters, look at an opponent's hand, then choose any card name.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
+                crate::card::ReplacementEffectDef::BindOutput {
+                    effect: &abilities::choose_card_name_as_enters(
+                        crate::card::CardNameSetDef::AllCardNames,
+                    ),
+                    binding: crate::Binding!("anointed_peacekeeper_name"),
+                },
+            ]),
         ),
         abilities::spell_cost_increase_for_name(
             "Spells your opponents cast with the chosen name cost {2} more to cast.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(crate::Binding!("anointed_peacekeeper_name")),
             PlayerRelation::Opponent,
             mana_cost!("{2}"),
         ),
         abilities::ability_cost_increase_for_name(
             "Activated abilities of sources with the chosen name cost {2} more to activate unless they're mana abilities.",
-            crate::card::CardNameDef::SourceChoice,
+            crate::card::CardNameDef::Binding(crate::Binding!("anointed_peacekeeper_name")),
             mana_cost!("{2}"),
         ),
     ]),

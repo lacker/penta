@@ -1,4 +1,4 @@
-use crate::ids::TargetIndex;
+use crate::ids::{Binding, TargetIndex};
 
 use super::{
     AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
@@ -18,8 +18,8 @@ pub enum CardNameDef {
     NameOf(ObjectRefDef),
     /// The card name chosen by the resolving effect.
     EffectChoice,
-    /// The card name recorded on the ability's source as it entered.
-    SourceChoice,
+    /// A card name explicitly recorded under this authored binding.
+    Binding(Binding),
 }
 
 /// A declarative set of card names.
@@ -29,6 +29,16 @@ pub enum CardNameDef {
 /// number of times.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CardNameSetDef {
+    /// Every independently nameable nontoken card part in the catalog.
+    AllCardNames,
+    /// Every catalog card name whose named part is not a land.
+    NonlandCardNames,
+    /// Every catalog card name whose named part is a land.
+    LandCardNames,
+    /// Every catalog land-card name that is not basic.
+    NonbasicLandCardNames,
+    /// Every catalog card name except basic land-card names.
+    CardNamesOtherThanBasicLands,
     NamesOf(&'static ObjectSetDef),
     /// Every name in any of the listed sets.
     Union(&'static [CardNameSetDef]),
@@ -38,6 +48,33 @@ pub enum CardNameSetDef {
     },
     /// The canonical names of basic land cards in the catalog.
     BasicLandNames,
+}
+
+impl CardNameSetDef {
+    /// Whether this set is derived only from public catalog characteristics
+    /// and is therefore safe to expose as a name-choice vocabulary.
+    #[must_use]
+    pub const fn is_catalog_defined(self) -> bool {
+        match self {
+            Self::AllCardNames
+            | Self::NonlandCardNames
+            | Self::LandCardNames
+            | Self::NonbasicLandCardNames
+            | Self::CardNamesOtherThanBasicLands
+            | Self::BasicLandNames => true,
+            Self::Union(sets) => {
+                let mut index = 0;
+                while index < sets.len() {
+                    if !sets[index].is_catalog_defined() {
+                        return false;
+                    }
+                    index += 1;
+                }
+                true
+            }
+            Self::NamesOf(_) | Self::NamesAppearingAtLeast { .. } => false,
+        }
+    }
 }
 
 /// A composable predicate over a card or game object.
@@ -169,14 +206,14 @@ pub enum ObjectPredicateDef {
     /// Its effective name equals the resolved name value.
     NameEquals(CardNameDef),
     /// Its effective name belongs to the resolved set of names.
-    NameIn(CardNameSetDef),
+    NameIn(&'static CardNameSetDef),
     /// A spell or ability on the stack whose chosen targets include an object
     /// matching this. "That targets a land you control" reads the targets it
     /// already has rather than what it could have taken.
     TargetsObjectMatching(&'static ObjectPredicateDef),
     /// Matches the non-name scalar the ability's source chose as it entered,
     /// such as the creature type Engineered Plague named. Card names use
-    /// [`Self::NameEquals`] and [`CardNameDef::SourceChoice`] instead.
+    /// [`Self::NameEquals`] and [`CardNameDef::Binding`] instead.
     ///
     /// A source that never made its choice matches nothing rather than
     /// everything, which is the difference between a Plague that shrinks one

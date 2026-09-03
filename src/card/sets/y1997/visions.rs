@@ -56,15 +56,15 @@ pub(in crate::card::sets) static EYE_OF_SINGULARITY: CardRecord = CardRecord::ne
                 EffectDef::Destroy {
                     object: EffectRecipientDef::objects(ObjectSetDef::Matching {
                         objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                            ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(&
                                 CardNameSetDef::BasicLandNames,
                             )),
                             &[ZoneKind::Battlefield],
                         )),
-                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameIn(
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameIn(&
                             CardNameSetDef::NamesAppearingAtLeast {
                                 objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                                    ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(&
                                         CardNameSetDef::BasicLandNames,
                                     )),
                                     &[ZoneKind::Battlefield],
@@ -80,7 +80,7 @@ pub(in crate::card::sets) static EYE_OF_SINGULARITY: CardRecord = CardRecord::ne
             AbilityDef::triggered(
                 "Whenever a permanent with a name other than a basic land name enters, destroy all other permanents with that name. They can't be regenerated.",
                 TriggerEventDef::zone_changed(
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(&
                         CardNameSetDef::BasicLandNames,
                     )),
                     None,
@@ -90,7 +90,7 @@ pub(in crate::card::sets) static EYE_OF_SINGULARITY: CardRecord = CardRecord::ne
                     object: EffectRecipientDef::objects(ObjectSetDef::ExceptObject {
                         objects: &ObjectSetDef::Matching {
                             objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                                ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::NameIn(&
                                     CardNameSetDef::BasicLandNames,
                                 )),
                                 &[ZoneKind::Battlefield],

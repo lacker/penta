@@ -2894,9 +2894,12 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             "As this artifact enters, choose an opponent and a card name other than a basic land card name.",
             ReplacementEffectDef::Sequence(&[
                 ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
-                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-                    crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME_OTHER_THAN_BASIC_LAND,
-                )),
+                ReplacementEffectDef::BindOutput {
+                    effect: &abilities::choose_card_name_as_enters(
+                        CardNameSetDef::CardNamesOtherThanBasicLands,
+                    ),
+                    binding: Binding!("booby_trap_name"),
+                },
             ]),
         ),
         AbilityDef::static_ability(
@@ -2912,7 +2915,9 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             "When the chosen player draws a card with the chosen name, sacrifice this artifact. If you do, it deals 10 damage to that player.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::matching(
                 PlayerRelation::ChosenPlayer,
-                ObjectPredicateDef::NameEquals(CardNameDef::SourceChoice),
+                ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                    "booby_trap_name"
+                ))),
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[
@@ -3005,7 +3010,7 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
                 EffectDef::IfCondition {
                     condition: &TriggerConditionDef::BoundObjectMatches {
                         binding: ParentBinding,
-                        object: ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                        object: ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
                             &ObjectSetDef::Binding(Binding!("revealed_card")),
                         )),
                     },

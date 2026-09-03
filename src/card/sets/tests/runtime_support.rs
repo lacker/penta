@@ -1,11 +1,13 @@
 mod conditions;
 mod costs;
+mod names;
 mod nested_definitions;
 mod stack_effects;
 mod static_effects;
 
 pub(super) use conditions::*;
 pub(super) use costs::*;
+use names::{shared_card_name, shared_card_name_set};
 pub(super) use static_effects::shared_static_effect;
 
 pub(super) use nested_definitions::*;
@@ -29,7 +31,7 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
             shared_object_predicate(*predicate)
         }
         ObjectPredicateDef::NameEquals(name) => shared_card_name(name),
-        ObjectPredicateDef::NameIn(names) => shared_card_name_set(names),
+        ObjectPredicateDef::NameIn(names) => shared_card_name_set(*names),
         ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
@@ -93,29 +95,12 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
     }
 }
 
-fn shared_card_name(name: CardNameDef) -> bool {
-    matches!(
-        name,
-        CardNameDef::Literal(_)
-            | CardNameDef::EffectChoice
-            | CardNameDef::SourceChoice
-            | CardNameDef::NameOf(_)
-    )
-}
-
-fn shared_card_name_set(names: CardNameSetDef) -> bool {
-    match names {
-        CardNameSetDef::Union(sets) => sets.iter().copied().all(shared_card_name_set),
-        CardNameSetDef::NamesOf(objects)
-        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
-            matches!(objects, ObjectSetDef::Binding(_)) || shared_source_object_set(*objects)
-        }
-        CardNameSetDef::BasicLandNames => true,
-    }
-}
-
 pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets
+            .iter()
+            .copied()
+            .all(|objects| shared_effect_recipient(EffectRecipientDef::objects(objects))),
         EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
             let ObjectQueryDef { object, zones, .. } = query;
             !zones.is_empty()

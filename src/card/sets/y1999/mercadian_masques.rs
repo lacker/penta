@@ -187,7 +187,7 @@ pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotPlay(
                     PlayRestrictionDef::new(
                         PlayActionMatcherDef::CastSpell,
-                        ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                        ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
                             &ObjectSetDef::Query(ObjectQueryDef::new(
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                                 &[ZoneKind::Battlefield],
@@ -205,7 +205,7 @@ pub(in crate::card::sets) static CORNERED_MARKET: CardRecord = CardRecord::new(
                             ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
                                 CardSupertype::Basic,
                             )),
-                            ObjectPredicateDef::NameIn(CardNameSetDef::NamesOf(
+                            ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
                                 &ObjectSetDef::Query(ObjectQueryDef::new(
                                     ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
                                     &[ZoneKind::Battlefield],

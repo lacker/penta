@@ -213,7 +213,7 @@ pub enum EffectDef {
     /// permanent records, which outlives its resolution.
     ChooseCardName {
         chooser: PlayerRefDef,
-        nonland_only: bool,
+        names: CardNameSetDef,
         /// Whose cards the name is matched against, and where.
         matched_in: PlayerRefDef,
         zone: ZoneKind,

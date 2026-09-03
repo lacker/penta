@@ -325,8 +325,8 @@ fn an_entering_copy_with_added_characteristics_reconstructs() {
 }
 
 /// A permanent that named a card as it entered carries that name for the rest
-/// of the game. The name is free text rather than a catalog id, so it is the
-/// one piece of permanent state a locator cannot address.
+/// of the game. The name remains free text rather than a catalog id, while its
+/// authored binding label makes the producing and consuming clauses explicit.
 #[test]
 fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
     let mut game = staged_modern_game();
@@ -352,12 +352,14 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
                 .first()
                 .map(|pending| &pending.continuation),
             Some(DecisionContinuation::BattlefieldEntryScalarChoice {
-                choice: crate::card::BattlefieldEntryScalarChoiceDef {
-                    destination: crate::card::BattlefieldEntryChoiceDestinationDef::CardName,
+                authored_effect: crate::card::ReplacementEffectDef::BindOutput {
+                    binding,
                     ..
                 },
+                choice,
                 ..
-            })
+            }) if *binding == Binding!("pithing_needle_name")
+                && choice.destination == crate::card::BattlefieldEntryChoiceDestinationDef::CardName
         ),
         "entering must ask for a card name, not {:?}",
         game.pending_decisions

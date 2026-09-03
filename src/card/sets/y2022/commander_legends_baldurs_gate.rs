@@ -34,16 +34,19 @@ pub(in crate::card::sets) static BANISHMENT: CardRecord = CardRecord::new(
                 owner: None,
             })],
             abilities::exile_until_source_leaves(EffectRecipientDef::objects(
-                ObjectSetDef::Matching {
-                    objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
-                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
-                        &[ZoneKind::Battlefield],
-                        PlayerRelation::Opponent,
-                    )),
-                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                    )),
-                },
+                ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::Query(ObjectQueryDef::matching(
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::Opponent,
+                        )),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                            CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                        )),
+                    },
+                ]),
             )),
         ),
     ]),

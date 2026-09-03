@@ -216,6 +216,10 @@ fn validate_object_set_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     match objects {
+        ObjectSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .try_for_each(|objects| validate_object_set_shape(objects, targets)),
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
@@ -444,7 +448,7 @@ fn validate_object_predicate_shape(
         | ObjectPredicateDef::ToughnessGreaterThan(value)
         | ObjectPredicateDef::PowerLessThan(value) => validate_value_shape(value, targets),
         ObjectPredicateDef::NameEquals(name) => validate_card_name_shape(name, targets),
-        ObjectPredicateDef::NameIn(names) => validate_card_name_set_shape(names, targets),
+        ObjectPredicateDef::NameIn(names) => validate_card_name_set_shape(*names, targets),
         _ => Ok(()),
     }
 }
@@ -455,7 +459,7 @@ fn validate_card_name_shape(
 ) -> Result<(), GrantedAbilityValidationError> {
     match name {
         CardNameDef::NameOf(reference) => validate_object_reference_shape(reference, targets),
-        CardNameDef::Literal(_) | CardNameDef::EffectChoice | CardNameDef::SourceChoice => Ok(()),
+        CardNameDef::Literal(_) | CardNameDef::EffectChoice | CardNameDef::Binding(_) => Ok(()),
     }
 }
 
@@ -472,7 +476,12 @@ fn validate_card_name_set_shape(
         | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
             validate_object_set_shape(*objects, targets)
         }
-        CardNameSetDef::BasicLandNames => Ok(()),
+        CardNameSetDef::AllCardNames
+        | CardNameSetDef::NonlandCardNames
+        | CardNameSetDef::LandCardNames
+        | CardNameSetDef::NonbasicLandCardNames
+        | CardNameSetDef::CardNamesOtherThanBasicLands
+        | CardNameSetDef::BasicLandNames => Ok(()),
     }
 }
 
@@ -697,6 +706,15 @@ fn recipient_may_name_nonbattlefield_object(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
+            |objects| {
+                recipient_may_name_nonbattlefield_object(
+                    EffectRecipientDef::objects(objects),
+                    targets,
+                    triggering_object_zone,
+                )
+            },
+        ),
         EffectRecipientSetDef::LegalTargets(target)
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::LegalTargets(target) | ObjectSetDef::One(ObjectRefDef::Target(target)),
@@ -764,6 +782,15 @@ fn recipient_nonbattlefield_zones_support_flashback(
     triggering_object_zone: Option<ZoneKind>,
 ) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().all(
+            |objects| {
+                recipient_nonbattlefield_zones_support_flashback(
+                    EffectRecipientDef::objects(objects),
+                    targets,
+                    triggering_object_zone,
+                )
+            },
+        ),
         EffectRecipientSetDef::LegalTargets(target)
         | EffectRecipientSetDef::Objects(
             ObjectSetDef::LegalTargets(target) | ObjectSetDef::One(ObjectRefDef::Target(target)),

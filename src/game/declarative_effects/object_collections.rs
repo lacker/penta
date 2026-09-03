@@ -29,7 +29,7 @@ impl Game {
                 .is_some_and(|(definition, expected)| definition.name == expected),
             ObjectPredicateDef::NameIn(names) => {
                 self.catalog.get(card.definition).is_some_and(|definition| {
-                    self.effect_card_name_set(names, object, context, scoped)
+                    self.effect_card_name_set(*names, object, context, scoped)
                         .contains(&definition.name)
                 })
             }
@@ -87,7 +87,7 @@ impl Game {
                 return Self::target_object_id(target)
                     .and_then(|id| self.object_card_name(id))
                     .is_some_and(|actual| {
-                        self.effect_card_name_set(names, object, context, scoped)
+                        self.effect_card_name_set(*names, object, context, scoped)
                             .contains(actual.as_ref())
                     });
             }

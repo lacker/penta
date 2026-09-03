@@ -618,6 +618,8 @@ pub(super) struct DetachedPermanentSnapshot {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) chosen_color: Option<ManaColorSnapshot>,
     pub(super) chosen_card_name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_card_name_binding: Option<String>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]

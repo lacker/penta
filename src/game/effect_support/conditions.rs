@@ -123,7 +123,7 @@ impl Game {
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> bool {
-        let count = condition.filter.map_or(objects.len(), |filter| {
+        let count = condition.predicate.filter.map_or(objects.len(), |filter| {
             objects
                 .into_iter()
                 .filter(|target| {
@@ -139,8 +139,8 @@ impl Game {
         });
         compare(
             &count,
-            condition.comparison,
-            &usize::from(condition.amount),
+            condition.predicate.comparison,
+            &usize::from(condition.predicate.amount),
         )
     }
 

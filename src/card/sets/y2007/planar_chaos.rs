@@ -7,8 +7,7 @@ use crate::card::{
     ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, TriggerEventDef,
-    ValueDef, ZoneKind,
-    abilities,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -20,14 +19,22 @@ pub(in crate::card::sets) static VOIDSTONE_GARGOYLE: CardRecord = CardRecord::ne
     CardSet::PlanarChaos,
     CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Gargoyle"], 3, 3).with_abilities(&[
         abilities::flying(),
-        abilities::choose_nonland_card_name("As this creature enters, choose a nonland card name."),
+        AbilityDef::as_enters(
+            "As this creature enters, choose a nonland card name.",
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::NonlandCardNames,
+                ),
+                binding: Binding!("voidstone_gargoyle_name"),
+            },
+        ),
         abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
-            CardNameDef::SourceChoice,
+            CardNameDef::Binding(Binding!("voidstone_gargoyle_name")),
         ),
         abilities::cannot_activate_abilities_with_name(
             "Activated abilities of sources with the chosen name can't be activated.",
-            CardNameDef::SourceChoice,
+            CardNameDef::Binding(Binding!("voidstone_gargoyle_name")),
         ),
     ]),
 );
@@ -107,30 +114,15 @@ pub(in crate::card::sets) static EXTIRPATE: CardRecord = CardRecord::new(
                 then: &EffectDef::Sequence(&[
                     abilities::search_and_exile(
                         ZoneKind::Graveyard,
-                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
-                            "extirpate_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("extirpate_target")),
-                        )),
+                        Binding!("extirpate_target"),
                     ),
                     abilities::search_and_exile(
                         ZoneKind::Hand,
-                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
-                            "extirpate_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("extirpate_target")),
-                        )),
+                        Binding!("extirpate_target"),
                     ),
                     abilities::search_and_exile(
                         ZoneKind::Library,
-                        PlayerRefDef::OwnerOf(ObjectRefDef::Binding(Binding!(
-                            "extirpate_target"
-                        ))),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
-                            ObjectRefDef::Binding(Binding!("extirpate_target")),
-                        )),
+                        Binding!("extirpate_target"),
                     ),
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(

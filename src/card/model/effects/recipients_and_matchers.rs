@@ -130,6 +130,9 @@ pub enum ObjectSetDef {
     /// A set of objects saved by an earlier choice or partition in this
     /// resolution.
     Binding(Binding),
+    /// Every distinct object in any of the listed sets, preserving the first
+    /// occurrence's order.
+    Union(&'static [ObjectSetDef]),
     /// The live object created by one zone change of each bound object.
     /// Missing or subsequently moved successors are omitted.
     ZoneChangeSuccessorsOfBinding(Binding),
@@ -324,7 +327,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::PlayersAndCreaturesTheyControl(_)
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::Binding(_)
-
+                | ObjectSetDef::Union(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)
@@ -354,7 +357,7 @@ impl EffectRecipientDef {
             | EffectRecipientSetDef::Objects(
                 ObjectSetDef::One(_)
                 | ObjectSetDef::Binding(_)
-
+                | ObjectSetDef::Union(_)
                 | ObjectSetDef::ZoneChangeSuccessorsOfBinding(_)
                 | ObjectSetDef::CardsDrawnThisTurnInHand(_)
                 | ObjectSetDef::PermanentsControlledBy(_)

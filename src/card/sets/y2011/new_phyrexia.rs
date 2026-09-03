@@ -9,13 +9,14 @@ use crate::card::{
     AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef,
     AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ControlDurationDef, CopyExceptionsDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ManaRestrictionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellAdditionalCostDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyExceptionsDef,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
@@ -1840,13 +1841,49 @@ pub(in crate::card::sets) static SHEOLDRED_WHISPERING_ONE: CardRecord = CardReco
 );
 
 // NPH 74 — Surgical Extraction
-// Audit: unsupported — NameIn(NamesOf(...)) can identify every copy, but this needs the spell's controller to choose any number across the target owner's public graveyard and private hand/library before the final shuffle; SearchZone gives the hidden-zone decision to that zone's owner.
 pub(in crate::card::sets) static SURGICAL_EXTRACTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("114834d8-4da5-48b9-9ac7-5e3e4b7ddf2d"),
     "Surgical Extraction",
     crate::card::CardArt::new("dca7e072-edb5-4f7e-bdec-a3a393053c80", "Steven Belledin"),
     crate::card::CardSet::NewPhyrexia,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{B/P}")).with_ability(AbilityDef::spell_with_targets(
+        "Choose target card in a graveyard other than a basic land card. Search its owner's graveyard, hand, and library for any number of cards with the same name as that card and exile them. Then that player shuffles.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
+            zones: &[ZoneKind::Graveyard],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::Choose(ChooseDef {
+            binding: ObjectChoiceBindingDef::Object(Binding!("surgical_extraction_target")),
+            unchosen: None,
+            chooser: PlayerRefDef::EffectController,
+            candidates: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+            exclude: None,
+            minimum: 1,
+            maximum: 1,
+            visibility: ChoiceVisibilityDef::Public,
+            then: &EffectDef::Sequence(&[
+                abilities::search_and_exile_any_number(
+                    ZoneKind::Graveyard,
+                    Binding!("surgical_extraction_target"),
+                ),
+                abilities::search_and_exile_any_number(
+                    ZoneKind::Hand,
+                    Binding!("surgical_extraction_target"),
+                ),
+                abilities::search_and_exile_any_number(
+                    ZoneKind::Library,
+                    Binding!("surgical_extraction_target"),
+                ),
+                EffectDef::ShuffleLibrary {
+                    player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
+                        ObjectRefDef::Binding(Binding!("surgical_extraction_target")),
+                    )),
+                },
+            ]),
+        }),
+    )),
 );
 
 // NPH 75 — Toxic Nim

@@ -23,15 +23,18 @@ pub(in crate::card::sets) static ECHOING_TRUTH: CardRecord = CardRecord::new(
             &ObjectPredicateDef::HasType(CardType::Land),
         ))],
         EffectDef::MoveToZone {
-            object: EffectRecipientDef::objects(ObjectSetDef::Matching {
-                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::Any,
-                    &[ZoneKind::Battlefield],
-                )),
-                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-            }),
+            object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
             zone: ZoneKind::Hand,
             placement: ZonePlacement::Top,
         },
@@ -50,15 +53,18 @@ pub(in crate::card::sets) static ECHOING_RUIN: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Artifact),
         )],
         EffectDef::Destroy {
-            object: EffectRecipientDef::objects(ObjectSetDef::Matching {
-                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    &[ZoneKind::Battlefield],
-                )),
-                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-            }),
+            object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
             can_regenerate: true,
             then: None,
         },
@@ -77,15 +83,18 @@ pub(in crate::card::sets) static ECHOING_COURAGE: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
         )],
         EffectDef::Apply {
-            recipient: EffectRecipientDef::objects(ObjectSetDef::Matching {
-                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                )),
-                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
-                    CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
-                )),
-            }),
+            recipient: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                ObjectSetDef::Matching {
+                    objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                    )),
+                    object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                        CardNameDef::NameOf(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    )),
+                },
+            ])),
             effect: AppliedEffectDef::modify_power_toughness(
                 ValueDef::Constant(2),
                 ValueDef::Constant(2),

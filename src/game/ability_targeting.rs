@@ -778,7 +778,7 @@ impl Game {
             }
             ObjectPredicateDef::NameIn(names) => {
                 return self.catalog.get(card.definition).is_some_and(|definition| {
-                    self.source_card_name_set(names, source)
+                    self.source_card_name_set(*names, source)
                         .contains(&definition.name)
                 });
             }

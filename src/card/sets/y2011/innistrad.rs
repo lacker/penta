@@ -7,19 +7,19 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, BasicLandType, BattlefieldEntryModificationDef, CardArt,
-    CardChoiceSourceDef, CardNameDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
-    ChooseDef, ChooseForEachPlayerDef, ChooseGroupDef, ClassifyObjectsDef, ColorSet, ComparisonDef,
-    ConditionalValueDef, ControlDurationDef, CopyExceptionsDef, CostModificationDef,
-    CostQuantityDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef, DamageEventMatcherDef,
-    DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, HalvedValueDef, IfNoObjectsDef, InstalledTriggerDef,
-    KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef, PartitionGroupDef, PayOrDef,
-    PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerAttachmentQueryDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ReplacementConditionDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef,
-    SacrificedAmountDef, SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef,
+    CardChoiceSourceDef, CardNameDef, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef, ChooseGroupDef, ClassifyObjectsDef,
+    ColorSet, ComparisonDef, ConditionalValueDef, ControlDurationDef, CopyExceptionsDef,
+    CostModificationDef, CostQuantityDef, CounterKind, CreatedTokensDef, CreatureTypeSetDef,
+    DamageEventMatcherDef, DestroyFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, GraveyardPlayPermissionDef, HalvedValueDef, IfNoObjectsDef,
+    InstalledTriggerDef, KeywordAbility, ManaColor, MillUntilDef, MoveObjectsDef,
+    ObjectChoiceBindingDef, ObjectCounterValueDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef, ObjectValueDef,
+    PartitionGroupDef, PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerAttachmentQueryDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ReplacementConditionDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    RoundingDef, SacrificedAmountDef, SpellAdditionalCostDef, TargetChooserDef, TargetConditionDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
     abilities,
 };
@@ -816,13 +816,18 @@ pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("67b610fe-36ee-4d58-8ed4-04e7a12587b2", "Jason A. Engle"),
     crate::card::CardSet::Innistrad,
     CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_abilities(&[
-        abilities::choose_card_name_as_enters(
+        AbilityDef::as_enters(
             "As this enchantment enters, choose a nonland card name.",
-            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME,
+            crate::card::ReplacementEffectDef::BindOutput {
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::NonlandCardNames,
+                ),
+                binding: Binding!("nevermore_name"),
+            },
         ),
         abilities::cannot_cast_spells_with_name(
             "Spells with the chosen name can't be cast.",
-            CardNameDef::SourceChoice,
+            CardNameDef::Binding(Binding!("nevermore_name")),
         ),
     ]),
 );
@@ -3268,15 +3273,18 @@ pub(in crate::card::sets) static SEVER_THE_BLOODLINE: CardRecord = CardRecord::n
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
             EffectDef::MoveToZone {
-                object: EffectRecipientDef::objects(ObjectSetDef::Query(ObjectQueryDef::new(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::NameEquals(CardNameDef::NameOf(ObjectRefDef::Target(
-                            TargetIndex::PRIMARY,
-                        ))),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                ))),
+                object: EffectRecipientDef::objects(ObjectSetDef::Union(&[
+                    ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                    ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::NameEquals(CardNameDef::NameOf(
+                                ObjectRefDef::Target(TargetIndex::PRIMARY),
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                    )),
+                ])),
                 zone: ZoneKind::Exile,
                 placement: ZonePlacement::Top,
             },

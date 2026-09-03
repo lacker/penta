@@ -588,6 +588,9 @@ fn collect_replacement_effects(
 ) {
     found.push(effect);
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            collect_replacement_effects(*effect, found);
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 collect_replacement_effects(*effect, found);
@@ -638,6 +641,7 @@ fn locate_effect(current: EffectDef, needle: EffectDef, path: &mut Vec<usize>) -
 
 pub(super) fn replacement_child_effects(effect: ReplacementEffectDef) -> Vec<EffectDef> {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => replacement_child_effects(*effect),
         ReplacementEffectDef::Sequence(effects) => effects
             .iter()
             .flat_map(|effect| replacement_child_effects(*effect))
@@ -836,6 +840,9 @@ fn collect_replacement_copy_abilities(
     abilities: &mut Vec<&'static AbilityDef>,
 ) {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            collect_replacement_copy_abilities(*effect, abilities);
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 collect_replacement_copy_abilities(*effect, abilities);

@@ -407,6 +407,15 @@ impl Game {
         affected: &Permanent,
     ) -> bool {
         match recipient.0 {
+            EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
+                |objects| {
+                    self.land_type_recipient_matches(
+                        EffectRecipientDef::objects(objects),
+                        source,
+                        affected,
+                    )
+                },
+            ),
             EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::Source)) => {
                 source.card.id == affected.card.id
             }
@@ -502,7 +511,7 @@ impl Game {
             ObjectPredicateDef::NameIn(names) => self
                 .object_card_name(affected.card.id)
                 .is_some_and(|actual| {
-                    self.source_card_name_set(names, source.card.id)
+                    self.source_card_name_set(*names, source.card.id)
                         .contains(actual.as_ref())
                 }),
             ObjectPredicateDef::HasAnyBasicLandType(_)

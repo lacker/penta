@@ -769,11 +769,16 @@ fn static_player_relation_supported(relation: PlayerRelation) -> bool {
 
 fn static_object_set_supported(objects: ObjectSetDef) -> bool {
     match objects {
+        ObjectSetDef::Union(sets) => sets.iter().copied().all(static_object_set_supported),
         ObjectSetDef::One(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
         | ObjectSetDef::LinkedExiles => true,
         ObjectSetDef::Query(query) => {
             query.zones == [ZoneKind::Battlefield] && static_query_supported(query)
         }
+        ObjectSetDef::ExceptObject {
+            objects,
+            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
+        } => static_object_set_supported(*objects),
         ObjectSetDef::LegalTargets(_)
         | ObjectSetDef::One(
             ObjectRefDef::ResolvingObject
@@ -798,16 +803,12 @@ fn static_object_set_supported(objects: ObjectSetDef) -> bool {
         | ObjectSetDef::PermanentsControlledBy(_)
         | ObjectSetDef::TokensCreatedBy(_)
         | ObjectSetDef::BottomOfGraveyard(_)
-        | ObjectSetDef::TopOfGraveyardMatching { .. } => false,
+        | ObjectSetDef::TopOfGraveyardMatching { .. }
+        | ObjectSetDef::ExceptObject { .. } => false,
         ObjectSetDef::Matching { objects, object } => {
             static_object_set_supported(*objects)
                 && static_object_predicate_supported(object.predicate())
         }
-        ObjectSetDef::ExceptObject {
-            objects,
-            object: ObjectRefDef::Source | ObjectRefDef::AttachedToSource,
-        } => static_object_set_supported(*objects),
-        ObjectSetDef::ExceptObject { .. } => false,
     }
 }
 

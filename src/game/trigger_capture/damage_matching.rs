@@ -125,6 +125,20 @@ impl Game {
                 })
             }
             DamageRecipientMatcherDef::Recipients(recipients) => match recipients.0 {
+                EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => {
+                    sets.iter().copied().any(|objects| {
+                        self.damage_trigger_recipient_matches(
+                            DamageRecipientMatcherDef::Recipients(
+                                crate::card::EffectRecipientDef::objects(objects),
+                            ),
+                            recipient,
+                            recipient_object,
+                            ability_source,
+                            controller,
+                            event,
+                        )
+                    })
+                }
                 EffectRecipientSetDef::Objects(ObjectSetDef::One(reference)) => self
                     .trigger_event_object_reference(reference, ability_source, event)
                     .is_some_and(|expected| match recipient {

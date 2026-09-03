@@ -688,6 +688,9 @@ fn validate_object_set_target_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match objects {
+        ObjectSetDef::Union(sets) => sets.iter().copied().try_for_each(|objects| {
+            validate_object_set_target_references(objects, target_count, scope)
+        }),
         ObjectSetDef::One(reference)
         | ObjectSetDef::PermanentsTargetedBy(reference)
         | ObjectSetDef::LegalAttachmentHosts(reference)
@@ -972,7 +975,7 @@ fn validate_object_predicate_references(
             validate_card_name_references(name, target_count, scope)
         }
         ObjectPredicateDef::NameIn(names) => {
-            validate_card_name_set_references(names, target_count, scope)
+            validate_card_name_set_references(*names, target_count, scope)
         }
         _ => Ok(()),
     }
@@ -989,24 +992,8 @@ fn validate_card_name_references(
             scope.mark_chosen_name_read();
             Ok(())
         }
-        CardNameDef::Literal(_) | CardNameDef::SourceChoice => Ok(()),
+        CardNameDef::Literal(_) | CardNameDef::Binding(_) => Ok(()),
     }
 }
 
-fn validate_card_name_set_references(
-    names: CardNameSetDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    match names {
-        CardNameSetDef::Union(sets) => sets
-            .iter()
-            .copied()
-            .try_for_each(|names| validate_card_name_set_references(names, target_count, scope)),
-        CardNameSetDef::NamesOf(objects)
-        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
-            validate_object_set_target_references(*objects, target_count, scope)
-        }
-        CardNameSetDef::BasicLandNames => Ok(()),
-    }
-}
+include!("name_references.rs");

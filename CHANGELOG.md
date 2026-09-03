@@ -109,6 +109,18 @@ distinguishes snapshots of the covered source and build inputs.
   `complete` or `unsupported`; this closed-enum change moves the bot wire to
   protocol 30.
 
+- **Card names are first-class bound values and public name choices consume
+  explicit catalog name sets.** Entry declarations now label the name they
+  record and every later restriction names that same binding; the former
+  implicit `SourceChoice` channel and the specialized nonland/land choice
+  helpers are gone. Catalog-derived sets cover all names, nonlands, lands,
+  nonbasic lands, and names other than basic lands without inspecting a
+  player's hand or library. Object-set union keeps the target in every
+  "target and all others with the same name" effect even when that target is
+  face down and nameless, while absent names still never compare equal. The
+  optional checkpoint binding label is additive; checkpoint format 11,
+  replay version 2, and protocol 30 are unchanged.
+
 - **Effect bindings are unified and checkpoint format 11 preserves their
   lexical shape.** Declarative effects now use `Binding!("label")` for every
   durable singular or object-set value and `ParentBinding` only when a producer

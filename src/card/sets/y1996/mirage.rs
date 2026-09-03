@@ -12,12 +12,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardNameDef, CardNameSetDef,
-    CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, ObjectSetPredicateDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -725,8 +725,8 @@ pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new
                     condition: &TriggerConditionDef::ObjectSetCount(
                         &ObjectSetCountConditionDef {
                             objects: &ObjectSetDef::One(ObjectRefDef::TriggeringObject),
-                            filter: Some(ObjectSetFilterDef::Predicate(
-                                &ObjectPredicateDef::NameIn(CardNameSetDef::Union(&[
+                            predicate: ObjectSetPredicateDef::contains(
+                                &ObjectPredicateDef::NameIn(&CardNameSetDef::Union(&[
                                     CardNameSetDef::NamesOf(&ObjectSetDef::Query(
                                         ObjectQueryDef::new(
                                             ObjectPredicateDef::Any,
@@ -742,9 +742,7 @@ pub(in crate::card::sets) static BAZAAR_OF_WONDERS: CardRecord = CardRecord::new
                                         ),
                                     )),
                                 ])),
-                            )),
-                            comparison: ComparisonDef::GreaterOrEqual,
-                            amount: 1,
+                            ),
                         },
                     ),
                     then: &EffectDef::Counter {

@@ -223,7 +223,7 @@ impl Game {
     pub(super) fn queue_card_name_choice(
         &mut self,
         player: PlayerId,
-        nonland_only: bool,
+        names: crate::card::CardNameSetDef,
         searched: PlayerId,
         zone: ZoneKind,
         binding: crate::Binding,
@@ -231,11 +231,7 @@ impl Game {
         context: EffectResolutionContext,
         effect: ScopedEffect,
     ) {
-        let choice = if nonland_only {
-            crate::card::BattlefieldEntryScalarChoiceDef::NONLAND_CARD_NAME
-        } else {
-            crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME
-        };
+        let choice = crate::card::BattlefieldEntryScalarChoiceDef::card_name(names);
         let (prompt, choices) = self.entry_scalar_choices(player, choice);
         let options = choices
             .iter()

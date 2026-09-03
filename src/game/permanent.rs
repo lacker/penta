@@ -95,6 +95,9 @@ struct Permanent {
     pub(super) chosen_color: Option<crate::card::ManaColor>,
     /// The card name a permanent named as it entered, for Pithing Needle.
     chosen_card_name: Option<String>,
+    /// The authored identity of that name choice. Older checkpoints may omit
+    /// it; `None` retains their former single-choice interpretation.
+    chosen_card_name_binding: Option<crate::Binding>,
     /// The copiable values supplied by the rule, ability, or effect that made
     /// this permanent face down (CR 708.2). `None` means face up. The physical
     /// card is unchanged: `card.definition` still names it, which is what lets
@@ -287,6 +290,7 @@ impl Permanent {
             chosen_basic_land_type: None,
             chosen_color: None,
             chosen_card_name: None,
+            chosen_card_name_binding: None,
             face_down: None,
             turn_up_for_mana_cost: false,
             destroy_at_end: false,

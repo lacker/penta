@@ -3824,7 +3824,7 @@ pub(in crate::card::sets) static DIMIR_CHARM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f3f4cfa7-8ee4-4a85-9e6a-65a7541f62c1", "Zoltan Boros"),
     crate::card::CardSet::Gatecrash,
     CardRules::new_instant(mana_cost!("{U}{B}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Counter target sorcery spell.\n• Destroy target creature with power 2 or less.\n• Look at the top three cards of target player's library. Put one back and the rest into that player's graveyard.",
+        "Choose one —",
         &[
             AbilityDef::spell_with_targets(
                 "Counter target sorcery spell",
@@ -3883,9 +3883,6 @@ pub(in crate::card::sets) static DIMIR_CHARM: CardRecord = CardRecord::new(
                 }),
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 
@@ -4341,7 +4338,7 @@ pub(in crate::card::sets) static GRUUL_CHARM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("9235afe5-0a6b-43c2-921c-18524cf032f1", "Zoltan Boros"),
     crate::card::CardSet::Gatecrash,
     CardRules::new_instant(mana_cost!("{R}{G}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Creatures without flying can't block this turn.\n• Gain control of all permanents you own.\n• Gruul Charm deals 3 damage to each creature with flying.",
+        "Choose one —",
         &[
             AbilityDef::spell(
                 "Creatures without flying can't block this turn",
@@ -4389,9 +4386,6 @@ pub(in crate::card::sets) static GRUUL_CHARM: CardRecord = CardRecord::new(
                 )]),
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 
@@ -4578,17 +4572,15 @@ pub(in crate::card::sets) static MERCILESS_EVICTION: CardRecord = CardRecord::ne
     crate::card::CardArt::new("d9876a4c-714b-47e5-9589-148a623af96a", "Richard Wright"),
     crate::card::CardSet::Gatecrash,
     CardRules::new_sorcery(mana_cost!("{4}{W}{B}")).with_ability(AbilityDef::modal_spell(
-        "Choose one —\n• Exile all artifacts.\n• Exile all creatures.\n• Exile all enchantments.\n• Exile all planeswalkers.",
+        "Choose one —",
         &[
             AbilityDef::spell(
                 "Exile all artifacts",
                 abilities::bind_objects_then(
-                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::HasType(CardType::Artifact),
-                            &[ZoneKind::Battlefield],
-                        ),
-                    )),
+                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        &[ZoneKind::Battlefield],
+                    ))),
                     &EffectDef::MoveObjects(MoveObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Battlefield),
@@ -4602,12 +4594,10 @@ pub(in crate::card::sets) static MERCILESS_EVICTION: CardRecord = CardRecord::ne
             AbilityDef::spell(
                 "Exile all creatures",
                 abilities::bind_objects_then(
-                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::HasType(CardType::Creature),
-                            &[ZoneKind::Battlefield],
-                        ),
-                    )),
+                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                    ))),
                     &EffectDef::MoveObjects(MoveObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Battlefield),
@@ -4621,12 +4611,10 @@ pub(in crate::card::sets) static MERCILESS_EVICTION: CardRecord = CardRecord::ne
             AbilityDef::spell(
                 "Exile all enchantments",
                 abilities::bind_objects_then(
-                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::HasType(CardType::Enchantment),
-                            &[ZoneKind::Battlefield],
-                        ),
-                    )),
+                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                        &[ZoneKind::Battlefield],
+                    ))),
                     &EffectDef::MoveObjects(MoveObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Battlefield),
@@ -4640,12 +4628,10 @@ pub(in crate::card::sets) static MERCILESS_EVICTION: CardRecord = CardRecord::ne
             AbilityDef::spell(
                 "Exile all planeswalkers",
                 abilities::bind_objects_then(
-                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::HasType(CardType::Planeswalker),
-                            &[ZoneKind::Battlefield],
-                        ),
-                    )),
+                    ObjectCollectionSourceDef::ObjectSet(ObjectSetDef::Query(ObjectQueryDef::new(
+                        ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        &[ZoneKind::Battlefield],
+                    ))),
                     &EffectDef::MoveObjects(MoveObjectsDef {
                         input: ObjectSetDef::Binding(ParentBinding),
                         from: Some(ZoneKind::Battlefield),
@@ -4657,9 +4643,6 @@ pub(in crate::card::sets) static MERCILESS_EVICTION: CardRecord = CardRecord::ne
                 ),
             ),
         ],
-        1,
-        1,
-        false,
     )),
 );
 

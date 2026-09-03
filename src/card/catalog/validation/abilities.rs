@@ -671,7 +671,11 @@ fn validate_replacement_program_for_event(
             ..
         } => validate_battlefield_exit_replacement_program(effect),
         ReplacementEventDef::WouldGainLife(_)
-            if matches!(effect, ReplacementEffectDef::MultiplyEventAmount(_)) =>
+            if matches!(
+                effect,
+                ReplacementEffectDef::MultiplyEventAmount(_)
+                    | ReplacementEffectDef::AddToEventAmount(_)
+            ) =>
         {
             Ok(())
         }

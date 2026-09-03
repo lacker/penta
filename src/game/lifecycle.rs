@@ -272,6 +272,15 @@ impl Game {
         self.format
     }
 
+    /// The match-wide starting life total supplied by this game's format.
+    /// Keeping the format as the authority avoids storing a second value that
+    /// could disagree with it while still making starting life readable from
+    /// every rules context that has the game state.
+    #[must_use]
+    pub const fn starting_life_total(&self) -> u8 {
+        self.format.rules().starting_life
+    }
+
     /// The seed the libraries were shuffled from. It reproduces the whole
     /// game, so it belongs to whoever owns the engine rather than to a seat.
     /// [`Self::events_for`] keeps it out of a seat's event stream.

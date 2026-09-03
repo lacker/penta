@@ -344,10 +344,9 @@ impl Game {
                     })
                     .map_or(0, i32::from)
             }
-            // A rule of the format rather than anything on the board, so
-            // the relation only says whose game it is and every player's
-            // answer is the same one.
-            ValueDef::StartingLifeTotal(_) => i32::from(self.format.rules().starting_life),
+            // A match-wide rule of the stored format rather than anything on
+            // the board or anything belonging to one player.
+            ValueDef::StartingLifeTotal => i32::from(self.starting_life_total()),
             ValueDef::LifeTotal(relation) => [PlayerId::One, PlayerId::Two]
                 .into_iter()
                 .find(|candidate| {

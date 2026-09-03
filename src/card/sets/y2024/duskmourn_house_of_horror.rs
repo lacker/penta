@@ -14,8 +14,8 @@ use crate::card::{
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
-    SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    SpellAdditionalCostDef, SumValueDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
+    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -87,13 +87,43 @@ pub(in crate::card::sets) static ENDURING_INNOCENCE: CardRecord = CardRecord::ne
 );
 
 // DSK 18 — Leyline of Hope
-// Audit: unsupported — Needs ordered additive life-gain replacement effects and a starting-life-relative static condition.
 pub(in crate::card::sets) static LEYLINE_OF_HOPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("40960e47-3065-485e-aede-29a62411034e"),
     "Leyline of Hope",
     CardArt::new("40960e47-3065-485e-aede-29a62411034e", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
-    CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
+        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        AbilityDef::replacement_for(
+            "If you would gain life, you gain that much life plus 1 instead.",
+            ReplacementEventDef::WouldGainLife(PlayerRelation::You),
+            ReplacementEffectDef::AddToEventAmount(1),
+        ),
+        AbilityDef::static_ability(
+            "As long as you have at least 7 life more than your starting life total, creatures you control get +2/+2.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                    left: ValueDef::LifeTotal(PlayerRelation::You),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    right: ValueDef::Sum(&SumValueDef::new(
+                        ValueDef::StartingLifeTotal,
+                        ValueDef::Constant(7),
+                    )),
+                }),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                },
+            },
+        ),
+    ]),
 );
 
 // DSK 36 — Trapped in the Screen

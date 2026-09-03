@@ -38,8 +38,13 @@ fn shared_condition_value(value: ValueDef, static_context: bool) -> bool {
         // by the layer being assembled, so asking cannot re-enter the walk.
         // The pile a linked exile keeps is read live off that pile, which
         // nothing in the layer walk sizes -- so asking cannot re-enter it.
-        ValueDef::Constant(_) | ValueDef::LifeTotal(_) | ValueDef::CardTypesAmongGraveyards(_) => {
-            true
+        ValueDef::Constant(_)
+        | ValueDef::LifeTotal(_)
+        | ValueDef::StartingLifeTotal
+        | ValueDef::CardTypesAmongGraveyards(_) => true,
+        ValueDef::Sum(sum) => {
+            shared_condition_value(sum.left, static_context)
+                && shared_condition_value(sum.right, static_context)
         }
         ValueDef::CardTypesAmongObjects(objects) | ValueDef::CountObjects(objects) => {
             shared_source_object_set(*objects)

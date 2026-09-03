@@ -373,7 +373,7 @@ fn validate_value_shape(
         | ValueDef::CardTypesAmongGraveyards(_)
         | ValueDef::IfCardTypesAmongGraveyards(_)
         | ValueDef::LifeTotal(_)
-        | ValueDef::StartingLifeTotal(_)
+        | ValueDef::StartingLifeTotal
         | ValueDef::Constant(_)
         | ValueDef::ChosenX
         | ValueDef::SourceCastX

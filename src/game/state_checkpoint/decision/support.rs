@@ -36,6 +36,18 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         DecisionContinuation::LegendRule { candidates, .. } => {
             ids.extend(candidates.iter().copied());
         }
+        DecisionContinuation::LifeGainReplacement {
+            applied,
+            replacements,
+            ..
+        } => {
+            ids.extend(applied.iter().map(|source| source.object));
+            ids.extend(
+                replacements
+                    .iter()
+                    .map(|replacement| replacement.context.source.object),
+            );
+        }
         DecisionContinuation::PregameActions { actions, .. } => {
             for action in actions {
                 ids.push(action.source);

@@ -823,7 +823,7 @@ fn validate_value_target_references(
         | ValueDef::TriggeringObjectPower
         | ValueDef::TriggeringObjectToughness
         | ValueDef::LifeTotal(_)
-        | ValueDef::StartingLifeTotal(_)
+        | ValueDef::StartingLifeTotal
         | ValueDef::SourceToughness
         | ValueDef::TriggerEventAmount
         | ValueDef::DamageEventAmount

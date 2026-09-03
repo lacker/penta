@@ -198,6 +198,9 @@ impl Game {
                     self.player_relation_matches(*player, relation, controller, context)
                 })
                 .map_or(0, |player| i32::from(self.players[player.index()].life)),
+            crate::card::ValueDef::StartingLifeTotal => {
+                i32::from(self.starting_life_total())
+            }
             // "Activate only if this creature's power is 3 or greater": read
             // live off the source, so a pump that resolved in response is
             // part of the answer.
@@ -261,6 +264,9 @@ impl Game {
                 })
                 .map(|player| i32::from(self.cards_drawn_this_turn[player.index()]))
                 .sum(),
+            crate::card::ValueDef::Sum(sum) => self
+                .condition_value(sum.left, source, controller, context)
+                .saturating_add(self.condition_value(sum.right, source, controller, context)),
             // The life tally beside it, read the same way and for the same
             // reason: "if you gained 3 or more life this turn" is asked
             // before anything is resolving.
@@ -683,7 +689,7 @@ impl Game {
                 // is: at twenty the boundary is ten, and at an odd total it
                 // is the higher half.
                 TriggerConditionDef::ControllerLifeAtMostHalfStartingLife => {
-                    let starting = i32::from(self.format.rules().starting_life);
+                    let starting = i32::from(self.starting_life_total());
                     i32::from(self.players[controller.index()].life) <= starting.div_euclid(2)
                 }
                 TriggerConditionDef::ObjectCount { .. } => {

@@ -506,7 +506,11 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                 !definition.optional
                     && definition.condition.is_none()
                     && battlefield_only(definition.source_zones)
-                    && matches!(effect, ReplacementEffectDef::MultiplyEventAmount(_))
+                    && matches!(
+                        effect,
+                        ReplacementEffectDef::MultiplyEventAmount(_)
+                            | ReplacementEffectDef::AddToEventAmount(_)
+                    )
             }
             ReplacementEventDef::WouldBeginTurn { .. } => {
                 definition

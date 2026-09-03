@@ -425,11 +425,12 @@ pub enum ValueDef {
     /// land drop is: "if it wasn't the first land you played this turn"
     /// asks whether this count has passed one.
     LandsPlayedThisTurn(PlayerRelation),
-    /// What a player began the game on, which is a rule of the format
+    /// What every player began the game on, which is a rule of the format
     /// rather than anything on the board: "half your starting life total"
     /// is ten in a game that started at twenty and twenty in one that
-    /// started at forty, whatever has happened since.
-    StartingLifeTotal(PlayerRelation),
+    /// started at forty, whatever has happened since. This carries no player
+    /// relation because the format supplies one match-wide value.
+    StartingLifeTotal,
     /// How many objects the step before this one matched: the land cards a
     /// discard actually took. Zero without such a step behind it.
     MatchedCount,

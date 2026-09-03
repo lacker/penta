@@ -66,6 +66,7 @@ fn continuation_snapshot(
     visible_rebindings: &[GameObjectId],
 ) -> Option<DecisionContinuationSnapshot> {
     let value = match continuation {
+        DecisionContinuation::LifeGainReplacement { .. } => return None,
         DecisionContinuation::PregameActions { player, actions } => {
             DecisionContinuationSnapshot::PregameActions {
                 player: player.index(),

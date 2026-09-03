@@ -330,6 +330,15 @@ pub(super) enum DecisionContinuation {
         applied: Vec<AbilitySourceRef>,
         replacements: Vec<DrawReplacement>,
     },
+    /// The affected player chooses the next noncommuting amount replacement
+    /// for one prospective life-gain event. The amount has not changed in
+    /// game state yet; `applied` enforces CR 614.5 as the event is resumed.
+    LifeGainReplacement {
+        player: PlayerId,
+        amount: u16,
+        applied: Vec<AbilitySourceRef>,
+        replacements: Vec<ApplicableReplacement>,
+    },
     BasicLandTypeTextChange {
         target: Target,
     },

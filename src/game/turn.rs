@@ -1,13 +1,13 @@
 use super::{
-    Action, AppliedRuleDef, CombatDamageStage, CommittedTriggerEvent, CounterKind,
-    DeclarativeAbilityDef, DeferredBeginTurnEffect, EffectDef, EffectResolutionContext, Game,
-    GameEvent, GameObjectId, GameResult, InstalledTriggerLifetime, ManaPool, PendingProcedure,
-    PlayerId, ReplacementEffectDef, ReplacementEventDef, Step, TriggerContext, TurnPhaseDef,
+    Action, CombatDamageStage, CommittedTriggerEvent, CounterKind, DeferredBeginTurnEffect,
+    EffectDef, EffectResolutionContext, Game, GameEvent, GameObjectId, GameResult,
+    InstalledTriggerLifetime, ManaPool, PendingProcedure, PlayerId, Step, TurnPhaseDef,
     TurnPhaseResume, TurnStepDef, one_or_none,
 };
 
 mod begin_turn;
 mod drawing;
+mod life_gain;
 
 impl Game {
     pub(in crate::game) fn skips_turn_based_untap(&self, permanent: &super::Permanent) -> bool {
@@ -149,76 +149,6 @@ impl Game {
             .counters
             .remove(CounterKind::named("energy"), amount);
         true
-    }
-
-    /// Whether this player has been told they cannot gain life for the rest
-    /// of the game (Screaming Nemesis). A prohibition rather than a
-    /// replacement: the life never arrives, so nothing watching for a gain
-    /// sees one.
-    pub(super) fn cannot_gain_life(&self, player: PlayerId) -> bool {
-        self.cannot_gain_life[player.index()]
-            || self.player_rule_applies(player, AppliedRuleDef::CannotGainLife)
-    }
-
-    pub(super) fn life_total_cannot_change(&self, player: PlayerId) -> bool {
-        self.player_rule_applies(
-            player,
-            AppliedRuleDef::PlayerRule(crate::card::PlayerRuleDef::LifeTotalCannotChange),
-        )
-    }
-
-    /// CR 118.4: a nonzero life payment is impossible while the player's
-    /// life total cannot change, even when they have enough life numerically.
-    pub(super) fn can_pay_life(&self, player: PlayerId, amount: u16) -> bool {
-        amount == 0
-            || (!self.life_total_cannot_change(player)
-                && i16::try_from(amount)
-                    .is_ok_and(|amount| self.players[player.index()].life >= amount))
-    }
-
-    pub(super) fn gain_life(&mut self, player: PlayerId, amount: u16) {
-        if amount == 0 || self.cannot_gain_life(player) || self.life_total_cannot_change(player) {
-            return;
-        }
-        let amount = amount.saturating_mul(self.life_gain_multiplier(player));
-        self.players[player.index()].life = self.players[player.index()]
-            .life
-            .saturating_add(i16::try_from(amount).unwrap_or(i16::MAX));
-        let gained = &mut self.life_gained_this_turn[player.index()];
-        *gained = gained.saturating_add(amount);
-        self.capture_battlefield_triggers(&CommittedTriggerEvent::LifeGained { player, amount });
-    }
-
-    /// How much a life gain is scaled by the replacement effects on the
-    /// battlefield. CR 616.1 lets the affected player order these, but the
-    /// order of pure multipliers cannot change their product.
-    pub(super) fn life_gain_multiplier(&self, player: PlayerId) -> u16 {
-        let mut multiplier = 1u16;
-        for permanent in &self.battlefield {
-            self.for_each_effective_ability(permanent, |effective| {
-                let ability = effective.ability;
-                let DeclarativeAbilityDef::Replacement(definition) = ability.definition else {
-                    return;
-                };
-                let ReplacementEventDef::WouldGainLife(relation) = definition.event else {
-                    return;
-                };
-                let Some(ReplacementEffectDef::MultiplyEventAmount(factor)) =
-                    ability.declarative_replacement()
-                else {
-                    return;
-                };
-                if self.player_relation_matches(
-                    player,
-                    relation,
-                    permanent.controller,
-                    TriggerContext::empty(),
-                ) {
-                    multiplier = multiplier.saturating_mul(u16::from(factor));
-                }
-            });
-        }
-        multiplier
     }
 
     /// Life loss that is not damage: no source deals it, nothing that

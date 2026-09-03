@@ -829,6 +829,18 @@ impl Game {
                 self.apply_draw_replacement(player, replacement, applied);
                 self.pending_procedures.append(&mut later_procedures);
             }
+            DecisionContinuation::LifeGainReplacement {
+                player,
+                amount,
+                applied,
+                replacements,
+            } => self.choose_life_gain_replacement(
+                player,
+                amount,
+                applied,
+                &replacements,
+                options.first().copied(),
+            ),
             trigger @ (DecisionContinuation::TriggerOrder { .. }
             | DecisionContinuation::TriggerPlacement { .. }
             | DecisionContinuation::TriggerMode { .. }

@@ -580,7 +580,7 @@ pub(in crate::card::sets) static THE_ENDSTONE: CardRecord = CardRecord::new(
                     // the total to the same number every end step, which is a gain from below
                     // it and a loss from above.
                     total: ValueDef::Halved(&HalvedValueDef::new(
-                        ValueDef::StartingLifeTotal(PlayerRelation::You),
+                        ValueDef::StartingLifeTotal,
                         RoundingDef::Up,
                     )),
                 },

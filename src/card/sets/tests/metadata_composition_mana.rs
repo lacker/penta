@@ -306,6 +306,13 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
             "Arena",
             // Spends its own tap fetching a basic rather than making mana.
             "Thawing Glaciers",
+            // The original allied-color fetchlands enter tapped and trade
+            // themselves for either of two land types without charging life.
+            "Bad River",
+            "Flood Plain",
+            "Grasslands",
+            "Mountain Valley",
+            "Rocky Tar Pit",
             "Bloodstained Mire",
             "Flooded Strand",
             "Polluted Delta",

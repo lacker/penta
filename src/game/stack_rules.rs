@@ -419,23 +419,28 @@ impl Game {
         self.retire_stack_object(&object);
         if object.kind == StackObjectKind::Spell && !object.is_copy {
             let owner = object.card.owner;
-            let (card, _zone_change) = self.zone_change_card(
-                object
-                    .card
-                    .into_card()
-                    .expect("a nontoken spell is backed by a card"),
-            );
+            let card = object
+                .card
+                .into_card()
+                .expect("a nontoken spell is backed by a card");
             match if object.cast.as_ref().is_some_and(|cast| cast.via_flashback) {
                 CounteredSpellZone::Exile
             } else {
                 zone
             } {
                 CounteredSpellZone::Graveyard => {
-                    self.put_card_into_graveyard_replacing(owner, card, ZoneKind::Stack);
+                    let _ = self.put_card_into_graveyard_replacing(owner, card, ZoneKind::Stack);
                 }
-                CounteredSpellZone::Exile => self.players[owner.index()].exile.push(card),
-                CounteredSpellZone::Hand => self.players[owner.index()].hand.push(card),
+                CounteredSpellZone::Exile => {
+                    let (card, _zone_change) = self.zone_change_card(card);
+                    self.players[owner.index()].exile.push(card);
+                }
+                CounteredSpellZone::Hand => {
+                    let (card, _zone_change) = self.zone_change_card(card);
+                    self.players[owner.index()].hand.push(card);
+                }
                 CounteredSpellZone::Library(placement) => {
+                    let (card, _zone_change) = self.zone_change_card(card);
                     let library = &mut self.players[owner.index()].library;
                     let index = placement.library_index(library.len());
                     library.insert(index, card);

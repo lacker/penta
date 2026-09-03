@@ -276,7 +276,7 @@ impl Game {
                 });
                 // "An X/X blue Illusion": the size is worked out once, here,
                 // and the tokens arrive that size rather than growing into it.
-                let token = self.resolved_token_stats(token, object, context, scoped);
+                let token = self.resolve_token_creation_stats(token, object, context, scoped);
                 let mut minted = Vec::new();
                 let count =
                     usize::try_from(self.effect_value(count, object, context, scoped).max(0))
@@ -333,14 +333,14 @@ impl Game {
     /// The token an effect is actually creating: an authored token whose
     /// size is a pair of amounts becomes one with the numbers those amounts
     /// came to, and every other token is itself.
-    pub(super) fn resolved_token_stats(
+    pub(super) fn resolve_token_creation_stats(
         &self,
         token: TokenCharacteristics,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> TokenCharacteristics {
-        let Some(stats) = token.variable_stats else {
+        let Some(stats) = token.creation_stats else {
             return token;
         };
         let amount = |value| {

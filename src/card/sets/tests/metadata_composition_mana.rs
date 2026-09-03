@@ -267,7 +267,8 @@ fn every_builtin_land_without_mana_is_named_explicitly() {
                             ability.declarative_effect(),
                             Some(EffectDef::StaticApply {
                                 effect: AppliedEffectDef::Characteristic(
-                                    CharacteristicOperationDef::ChosenBasicLandType
+                                    CharacteristicOperationDef::SetChosenBasicLandType
+                                        | CharacteristicOperationDef::AddChosenBasicLandType
                                 ),
                                 ..
                             })

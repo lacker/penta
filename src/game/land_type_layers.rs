@@ -101,16 +101,6 @@ impl Game {
         operations
     }
 
-    const fn resolved_land_type_operation(
-        operation: SetOperationDef<&'static [BasicLandType]>,
-    ) -> LandTypeOperation {
-        match operation {
-            SetOperationDef::Add(types) => LandTypeOperation::Add(types),
-            SetOperationDef::Remove(types) => LandTypeOperation::Remove(types),
-            SetOperationDef::Set(types) => LandTypeOperation::SetTo(types),
-        }
-    }
-
     fn resolved_land_type_set_applies(&self, permanent: &Permanent) -> bool {
         permanent.resolved_continuous_effects.iter().any(|effect| {
             self.resolved_continuous_effect_is_active(effect)
@@ -397,13 +387,22 @@ impl Game {
             // A permanent that was never told which type to be says nothing
             // at all, which is what a Multiversal Passage put onto the
             // battlefield without choosing comes to.
-            AppliedEffectDef::Characteristic(CharacteristicOperationDef::ChosenBasicLandType) => {
+            AppliedEffectDef::Characteristic(
+                operation @ (CharacteristicOperationDef::SetChosenBasicLandType
+                | CharacteristicOperationDef::AddChosenBasicLandType),
+            ) => {
                 if let Some(chosen) = chosen {
                     let order = *component_order;
                     *component_order = component_order
                         .checked_add(1)
                         .expect("one static ability contains at most 65,536 components");
-                    operations.push((source, order, LandTypeOperation::SetToChosen(chosen)));
+                    let operation = match operation {
+                        CharacteristicOperationDef::SetChosenBasicLandType => {
+                            LandTypeOperation::SetToChosen(chosen)
+                        }
+                        _ => LandTypeOperation::AddChosen(chosen),
+                    };
+                    operations.push((source, order, operation));
                 }
             }
             AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => {}
@@ -761,7 +760,15 @@ impl Game {
                     insertion += 1;
                 }
             }
-            LandTypeOperation::Add(types) => {
+            LandTypeOperation::Add(_) | LandTypeOperation::AddChosen(_) => {
+                let chosen = [match operation {
+                    LandTypeOperation::AddChosen(chosen) => chosen,
+                    _ => BasicLandType::Plains,
+                }];
+                let types: &[BasicLandType] = match operation {
+                    LandTypeOperation::Add(types) => types,
+                    _ => &chosen,
+                };
                 let mut insertion = subtypes
                     .iter()
                     .position(|subtype| !is_land_subtype(subtype))

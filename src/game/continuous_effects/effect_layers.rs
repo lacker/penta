@@ -8,7 +8,8 @@ impl Game {
                 .copied()
                 .any(Self::applied_effect_starts_in_type_layer),
             AppliedEffectDef::Characteristic(
-                CharacteristicOperationDef::ChosenBasicLandType
+                CharacteristicOperationDef::SetChosenBasicLandType
+                | CharacteristicOperationDef::AddChosenBasicLandType
                 | CharacteristicOperationDef::BasicLandTypes(_)
                 | CharacteristicOperationDef::CardTypes(_)
                 | CharacteristicOperationDef::CreatureTypes(_)

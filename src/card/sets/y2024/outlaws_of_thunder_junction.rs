@@ -368,11 +368,14 @@ pub(in crate::card::sets) static DANCE_OF_THE_TUMBLEWEEDS: CardRecord = CardReco
             mana_cost!("{3}"),
             AbilityDef::spell(
                 "Create an X/X green Elemental creature token, where X is the number of lands you control.",
-                EffectDef::create_creature_token(&["Elemental"], &[ManaColor::Green], 0, 0)
-                    .with_variable_token_stats(&TokenStatsDef {
+                EffectDef::create_creature_token_with_stats(
+                    &["Elemental"],
+                    &[ManaColor::Green],
+                    &TokenStatsDef {
                         power: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
                         toughness: ValueDef::CountMatchingObjects(&DANCE_LANDS_YOU_CONTROL),
-                    }),
+                    },
+                ),
             ),
         ),
     ])),

@@ -271,7 +271,7 @@ impl Game {
         self.players[player.index()]
             .hand
             .iter()
-            .chain(&self.players[player.index()].graveyard)
+            .chain(self.cards_in_zone(ZoneKind::Graveyard))
             .find(|card| card.id == card_id)
             .and_then(|card| self.catalog.get(card.definition))
             .and_then(|definition| {
@@ -467,8 +467,17 @@ impl Game {
             CastSourceZone::Graveyard => {
                 // Cast out of a graveyard is a card leaving it, which the
                 // clauses that ask about the turn have to see.
-                self.note_card_left_graveyard(player);
-                remove_card(&mut self.players[player.index()].graveyard, card_id)
+                let owner = [PlayerId::One, PlayerId::Two]
+                    .into_iter()
+                    .find(|owner| {
+                        self.players[owner.index()]
+                            .graveyard
+                            .iter()
+                            .any(|card| card.id == card_id)
+                    })
+                    .expect("a validated graveyard cast still has an owner");
+                self.note_card_left_graveyard(owner);
+                remove_card(&mut self.players[owner.index()].graveyard, card_id)
             }
             CastSourceZone::Exile => {
                 self.consume_exile_play_permission(card_id);

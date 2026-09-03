@@ -79,13 +79,16 @@ pub(in crate::card::sets) static SKYCLAVE_APPARITION: CardRecord = CardRecord::n
                         binding: ParentBinding,
                         // The token is the exiled card's owner's, not the Apparition controller's:
                         // what they get back for the permanent that is not coming back.
-                        effect: &EffectDef::create_creature_token(&["Illusion"], &[ManaColor::Blue], 0, 0)
+                        effect: &EffectDef::create_creature_token_with_stats(
+                                &["Illusion"],
+                                &[ManaColor::Blue],
                                 // "Where X is the mana value of the exiled card": both halves read the same
                                 // card, which is the one the leave trigger just bound.
-                                .with_variable_token_stats(&TokenStatsDef {
+                                &TokenStatsDef {
                                     power: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
                                     toughness: ValueDef::ObjectManaValue(ObjectRefDef::Binding(ParentBinding)),
-                                })
+                                },
+                            )
                                 .with_controller(PlayerRefDef::OwnerOf(ObjectRefDef::Binding(
                                     ParentBinding,
                                 ))),

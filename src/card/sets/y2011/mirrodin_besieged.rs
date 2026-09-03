@@ -285,11 +285,14 @@ pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new
             can_regenerate: true,
             then: Some(DestroyFollowUpDef {
                 binding: ParentBinding,
-                effect: &EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
-                        .with_variable_token_stats(&TokenStatsDef {
+                effect: &EffectDef::create_artifact_creature_token_with_stats(
+                        &["Phyrexian", "Horror"],
+                        &[],
+                        &TokenStatsDef {
                             power: ValueDef::BoundObjectCount(ParentBinding),
                             toughness: ValueDef::BoundObjectCount(ParentBinding),
-                        }),
+                        },
+                    ),
             }),
         },
     )),

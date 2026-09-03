@@ -595,13 +595,13 @@ fn parse_permanent(
     // the authored token, which carries the amounts rather than a size.
     let token_characteristics = match (token_characteristics, state.token_stats) {
         (Some(token), Some([power, toughness])) => {
-            if token.variable_stats.is_none() {
+            if token.creation_stats.is_none() {
                 return Err("checkpoint token has a size its authored token prints".into());
             }
             Some(token.with_resolved_stats(power, toughness))
         }
         (Some(token), None) => {
-            if token.variable_stats.is_some() {
+            if token.creation_stats.is_some() {
                 return Err("checkpoint X/X token does not say what size it came out at".into());
             }
             Some(token)

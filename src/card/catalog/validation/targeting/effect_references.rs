@@ -704,7 +704,7 @@ fn validate_effect_references(
             if let Some(controller) = controller {
                 validate_player_reference(controller, target_count, scope)?;
             }
-            if let Some(stats) = token.variable_stats {
+            if let Some(stats) = token.creation_stats {
                 validate_value_target_references(stats.power, target_count, scope)?;
                 validate_value_target_references(stats.toughness, target_count, scope)?;
             }

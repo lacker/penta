@@ -112,13 +112,11 @@ pub struct TokenCharacteristics {
     pub art: Option<CardArt>,
     rules: InlineRules,
     pub structure: TokenStructure,
-    /// "An X/X blue Illusion creature token, where X is ...": the size is
-    /// not printed on the token but worked out by the effect that creates
-    /// it, and what arrives is a token of that size rather than a smaller
-    /// one wearing counters. The authored token carries the two amounts;
-    /// the one on the battlefield carries the numbers they came to, which is
-    /// what a copy of it would copy.
-    pub variable_stats: Option<&'static TokenStatsDef>,
+    /// "An X/X blue Illusion creature token, where X is ...": the effect
+    /// works out these values as it creates the token. What arrives has the
+    /// resulting fixed base stats, which are copiable values rather than a
+    /// live characteristic-defining ability.
+    pub creation_stats: Option<&'static TokenStatsDef>,
 }
 
 /// The two amounts an X/X token's size is read from.
@@ -143,7 +141,7 @@ impl TokenCharacteristics {
             art: None,
             rules: InlineRules::new(card_types, subtypes, colors, creature_stats),
             structure: TokenStructure::Single,
-            variable_stats: None,
+            creation_stats: None,
         }
     }
 
@@ -162,6 +160,17 @@ impl TokenCharacteristics {
         )
     }
 
+    /// Builds a creature token whose effect computes its fixed base stats as
+    /// the token is created.
+    #[must_use]
+    pub const fn creature_with_stats(
+        subtypes: &'static [&'static str],
+        colors: &'static [ManaColor],
+        stats: &'static TokenStatsDef,
+    ) -> Self {
+        Self::creature(subtypes, colors, 0, 0).with_creation_stats(stats)
+    }
+
     #[must_use]
     pub const fn artifact_creature(
         subtypes: &'static [&'static str],
@@ -175,6 +184,17 @@ impl TokenCharacteristics {
             colors,
             Some(CreatureStats { power, toughness }),
         )
+    }
+
+    /// Builds an artifact creature token whose effect computes its fixed base
+    /// stats as the token is created.
+    #[must_use]
+    pub const fn artifact_creature_with_stats(
+        subtypes: &'static [&'static str],
+        colors: &'static [ManaColor],
+        stats: &'static TokenStatsDef,
+    ) -> Self {
+        Self::artifact_creature(subtypes, colors, 0, 0).with_creation_stats(stats)
     }
 
     /// One noncreature enchantment token. A Role is one of these: an Aura
@@ -202,19 +222,15 @@ impl TokenCharacteristics {
         )
     }
 
-    /// "Create an X/X blue Illusion creature token." The printed stats stay
-    /// as the placeholder the authored token was built with; what the
-    /// amounts come to is settled when a token is actually created.
-    #[must_use]
-    pub const fn with_variable_stats(mut self, stats: &'static TokenStatsDef) -> Self {
-        self.variable_stats = Some(stats);
+    /// Adds the values an effect evaluates as it creates this creature token.
+    const fn with_creation_stats(mut self, stats: &'static TokenStatsDef) -> Self {
+        self.creation_stats = Some(stats);
         self
     }
 
-    /// The same token with the size an effect just worked out. The variable
-    /// amounts stay on it: they are what says this token's size was computed
-    /// rather than printed, and the checkpoint reads them to tell the two
-    /// apart.
+    /// The same token with the size its creation effect just worked out. The
+    /// authored amounts stay on it only to distinguish computed base stats
+    /// from printed ones when checkpointing and discovering token shapes.
     #[must_use]
     pub(crate) const fn with_resolved_stats(mut self, power: i16, toughness: i16) -> Self {
         self.rules = self
@@ -289,7 +305,7 @@ impl TokenCharacteristics {
         // filled in, so the placeholder size is what both are compared by:
         // one authored X/X token is the origin of every size it comes out
         // at, and the checkpoint records the numbers separately.
-        match self.variable_stats {
+        match self.creation_stats {
             Some(_) => self.with_resolved_stats(0, 0),
             None => self,
         }

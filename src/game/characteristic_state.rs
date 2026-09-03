@@ -39,6 +39,9 @@ pub(super) enum LandTypeOperation {
     /// it entered. A chosen type is not something a card could have written
     /// down, so it cannot ride in the static slice above.
     SetToChosen(BasicLandType),
+    /// The corresponding additive operation for "the chosen type in addition
+    /// to their other types."
+    AddChosen(BasicLandType),
     Add(&'static [BasicLandType]),
     Remove(&'static [BasicLandType]),
 }

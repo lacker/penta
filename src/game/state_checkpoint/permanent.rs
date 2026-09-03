@@ -59,7 +59,7 @@ pub(super) fn permanent_snapshot(
     // amounts were read as.
     let token_stats = permanent
         .token_characteristics
-        .filter(|token| token.variable_stats.is_some())
+        .filter(|token| token.creation_stats.is_some())
         .and_then(|token| token.rules().creature_stats())
         .map(|stats| [stats.power, stats.toughness]);
     PermanentSnapshot {

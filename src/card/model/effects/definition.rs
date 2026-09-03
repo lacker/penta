@@ -861,13 +861,12 @@ pub enum EffectDef {
     /// Several players make non-targeting permanent choices before the
     /// resulting partition is exposed to an ordinary nested effect.
     ChooseForEachPlayer(super::ChooseForEachPlayerDef),
-    /// Each recipient player chooses one permanent they control that matches,
-    /// and sacrifices it. This remains a dedicated multi-player procedure:
-    /// every affected player's APNAP-ordered choice is frozen before any
-    /// permanent moves, forced-sacrifice prohibitions are applied, and an
-    /// optional follow-up can read the sacrificed permanent's last-known
-    /// power. A generic [`Self::Choose`] followed by [`Self::Sacrifice`] cannot
-    /// preserve those multiplayer and LKI semantics.
+    /// Legacy combined choice-and-sacrifice procedure. New declarations
+    /// should compose [`Self::Choose`] or [`Self::ChooseForEachPlayer`] with
+    /// [`Self::Sacrifice`]; object bindings now preserve APNAP-frozen choices
+    /// and expose last-known characteristics to a later aggregate value. This
+    /// remains while older declarations and its checkpoint continuation are
+    /// migrated.
     SacrificeOfChoice {
         player: EffectRecipientDef,
         object: ObjectPredicateDef,

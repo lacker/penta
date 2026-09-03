@@ -129,10 +129,19 @@ impl Game {
             .iter()
             .map(|card| (card, CastSourceZone::Hand))
             .chain(
-                state
-                    .graveyard
+                self.players
                     .iter()
-                    .map(|card| (card, CastSourceZone::Graveyard)),
+                    .enumerate()
+                    .flat_map(|(owner, state)| {
+                        state.graveyard.iter().map(move |card| (owner, card))
+                    })
+                    // Ordinary graveyard permissions remain scoped to the
+                    // caster's own graveyard. A resolving instruction may,
+                    // however, offer one exact card where its owner left it.
+                    .filter(|(owner, card)| {
+                        *owner == player.index() || offer.is_some_and(|offer| offer.card == card.id)
+                    })
+                    .map(|(_, card)| (card, CastSourceZone::Graveyard)),
             )
             // Exile is walked for both players: a card on an adventure is
             // its owner's, but a card somebody took off the top of a library

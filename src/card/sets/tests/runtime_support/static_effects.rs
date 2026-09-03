@@ -598,7 +598,8 @@ pub(in super::super) fn shared_static_applied_effect(
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::Abilities(AbilityOperationDef::Remove(_))
             | CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
-            | CharacteristicOperationDef::ChosenBasicLandType,
+            | CharacteristicOperationDef::SetChosenBasicLandType
+            | CharacteristicOperationDef::AddChosenBasicLandType,
         ) => true,
     }
 }

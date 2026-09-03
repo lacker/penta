@@ -444,12 +444,12 @@ impl Game {
         replacement
     }
 
-    /// Puts a card into its owner's graveyard from `from`, honouring a
-    /// replacement the card itself carries about that move. The card has
-    /// already been taken out of `from`, so there was no zone move left to
-    /// consult: a countered spell and a milled card both reach the graveyard
-    /// by paths that go straight to the arrival, which is where "if this
-    /// would be put into a graveyard from anywhere" was going unread.
+    /// Moves a card into its owner's graveyard from `from`, honouring a
+    /// replacement the card itself carries about that move. The caller has
+    /// already taken the card out of `from`, so this path owns the remaining
+    /// identity change, replacement, destination, and arrival publication.
+    /// A countered spell and a milled card both reach the graveyard through
+    /// this path instead of rebuilding those pieces independently.
     ///
     /// Audit: unsupported -- the move is read as a rules move, so a clause that
     /// asks *whose* effect moved the card ([`ZoneMoveCauseDef::EffectControlledBy`])
@@ -460,29 +460,49 @@ impl Game {
         owner: PlayerId,
         card: CardInstance,
         from: ZoneKind,
-    ) {
+    ) -> Option<CardInstance> {
+        let before_move = card.clone();
         let program = self.zone_move_replacement_program(
             &card,
             from,
             ZoneKind::Graveyard,
             ZoneMoveCause::Rules,
         );
-        let Some(destination) = program.and_then(Self::replacement_move_destination) else {
-            self.put_card_into_graveyard(owner, card);
-            return;
-        };
+        let (card, _zone_change) = self.zone_change_card(card);
+        let destination = program
+            .and_then(Self::replacement_move_destination)
+            .unwrap_or(ZoneKind::Graveyard);
         match destination {
             ZoneKind::Library => {
                 self.players[owner.index()].library.push(card);
                 if program.is_some_and(Self::replacement_shuffles_library) {
                     self.rng.shuffle(&mut self.players[owner.index()].library);
                 }
+                None
             }
-            ZoneKind::Hand => self.players[owner.index()].hand.push(card),
-            ZoneKind::Exile => self.players[owner.index()].exile.push(card),
+            ZoneKind::Hand => {
+                self.players[owner.index()].hand.push(card);
+                None
+            }
+            ZoneKind::Exile => {
+                self.players[owner.index()].exile.push(card);
+                None
+            }
             // A replacement that names the graveyard, the battlefield, or a
             // zone this arrival cannot build is left to the ordinary path.
-            _ => self.put_card_into_graveyard(owner, card),
+            ZoneKind::Graveyard | ZoneKind::Battlefield | ZoneKind::Stack | ZoneKind::Command => {
+                self.put_card_into_graveyard(owner, card.clone());
+                if self.players[owner.index()]
+                    .graveyard
+                    .iter()
+                    .any(|candidate| candidate.id == card.id)
+                {
+                    self.capture_nonbattlefield_graveyard_arrival(&before_move, &card, from);
+                    Some(card)
+                } else {
+                    None
+                }
+            }
         }
     }
 

@@ -157,6 +157,12 @@ impl Game {
                     .map(|card| (card, CastSourceZone::Graveyard))
             })
             .or_else(|| {
+                self.current_cast_offer(player, card_id, CastSourceZone::Graveyard)?;
+                self.cards_in_zone(ZoneKind::Graveyard)
+                    .find(|card| card.id == card_id)
+                    .map(|card| (card, CastSourceZone::Graveyard))
+            })
+            .or_else(|| {
                 self.players
                     .iter()
                     .flat_map(|state| &state.exile)
@@ -222,9 +228,8 @@ impl Game {
                 .hand
                 .iter()
                 .find(|card| card.id == card_id),
-            CastSourceZone::Graveyard => self.players[player.index()]
-                .graveyard
-                .iter()
+            CastSourceZone::Graveyard => self
+                .cards_in_zone(ZoneKind::Graveyard)
                 .find(|card| card.id == card_id),
             CastSourceZone::Exile => self
                 .players

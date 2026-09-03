@@ -818,9 +818,11 @@ impl Game {
                 // burying them mints new objects, and "from among them"
                 // means the ones lying there now.
                 for card in milled {
-                    let (card, _zone_change) = self.zone_change_card(card);
-                    buried.push(Target::Card(card.id));
-                    self.put_card_into_graveyard_replacing(player, card, ZoneKind::Library);
+                    if let Some(card) =
+                        self.put_card_into_graveyard_replacing(player, card, ZoneKind::Library)
+                    {
+                        buried.push(Target::Card(card.id));
+                    }
                 }
             }
         }
@@ -854,8 +856,7 @@ impl Game {
                 ZoneKind::Library,
                 object.source.unwrap_or(object.id),
             );
-            let (card, _zone_change) = self.zone_change_card(card);
-            self.put_card_into_graveyard_replacing(player, card, ZoneKind::Library);
+            let _ = self.put_card_into_graveyard_replacing(player, card, ZoneKind::Library);
             if !matches {
                 return;
             }

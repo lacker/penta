@@ -117,7 +117,11 @@ pub enum CharacteristicOperationDef {
     /// one this permanent was told to be as it entered, so what it says is a
     /// layer-4 set with the same rules consequences and a subject nothing
     /// could have written down.
-    ChosenBasicLandType,
+    SetChosenBasicLandType,
+    /// "... are the chosen type in addition to their other types." The type
+    /// is read from this effect's source, but joins rather than replaces the
+    /// affected land's existing basic land types.
+    AddChosenBasicLandType,
     CardTypes(SetOperationDef<CardTypeSet>),
     Colors(SetOperationDef<ColorSet>),
     /// A color operation whose value is read from the source permanent.
@@ -793,7 +797,12 @@ impl AppliedEffectDef {
 
     #[must_use]
     pub const fn set_chosen_basic_land_type() -> Self {
-        Self::Characteristic(CharacteristicOperationDef::ChosenBasicLandType)
+        Self::Characteristic(CharacteristicOperationDef::SetChosenBasicLandType)
+    }
+
+    #[must_use]
+    pub const fn add_chosen_basic_land_type() -> Self {
+        Self::Characteristic(CharacteristicOperationDef::AddChosenBasicLandType)
     }
 
     #[must_use]

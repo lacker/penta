@@ -443,7 +443,8 @@ fn static_object_characteristic_supported(
         // the same story.
         CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
         | CharacteristicOperationDef::Abilities(_)
-        | CharacteristicOperationDef::ChosenBasicLandType => true,
+        | CharacteristicOperationDef::SetChosenBasicLandType
+        | CharacteristicOperationDef::AddChosenBasicLandType => true,
         CharacteristicOperationDef::BasicLandTypes(operation) => match operation {
             SetOperationDef::Add(types)
             | SetOperationDef::Remove(types)

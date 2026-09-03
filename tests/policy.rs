@@ -98,6 +98,7 @@ fn permanent(
         types: penta::CardTypeSet::empty(),
         chosen_creature_type: None,
         chosen_basic_land_type: None,
+        chosen_basic_land_type_substitution: None,
         chosen_color: None,
         chosen_card_name: None,
         chosen_labels: std::collections::BTreeMap::new(),

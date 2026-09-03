@@ -47,6 +47,8 @@ use crate::card::ObjectSetPredicateDef;
 use crate::card::PayOrDef;
 use crate::card::PlayerRefDef;
 use crate::card::PlayerRelation;
+use crate::card::ReplacementChoiceDef;
+use crate::card::ReplacementEffectDef;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::RevealAndClassifyCardsDef;
 use crate::card::ScaledValueDef;
@@ -1049,12 +1051,28 @@ pub(in crate::card::sets) static ILLUSIONARY_PRESENCE: CardRecord = CardRecord::
 );
 
 // ICE 77 — Illusionary Terrain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUSIONARY_TERRAIN: CardRecord = CardRecord::new(
     "Illusionary Terrain",
     "691f4a1b-4706-41aa-82da-ae920739f036",
     "Rob Alexander",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
+        abilities::cumulative_upkeep(&[CostDef::Mana(mana_cost!("{2}"))]),
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose two basic land types.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair),
+        ),
+        AbilityDef::static_ability(
+            "Basic lands of the first chosen type are the second chosen type.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::substitute_chosen_basic_land_types(),
+            },
+        ),
+    ]),
 );
 
 // ICE 78 — Illusionary Wall

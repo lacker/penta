@@ -37,6 +37,7 @@ use crate::card::PlayerRelation;
 use crate::card::ResolvedEffectDurationDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::SubtypeDef;
+use crate::card::TextChangeKindDef;
 use crate::card::TriggerConditionDef;
 use crate::card::TriggerEventDef;
 use crate::card::TurnStepDef;
@@ -305,12 +306,27 @@ pub(in crate::card::sets) static VENGEFUL_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 22 — Alter Reality
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALTER_REALITY: CardRecord = CardRecord::new(
     "Alter Reality",
     "64cd68be-6e6a-4577-8465-a892463b6d6c",
     "Justin Sweet",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Change the text of target spell or permanent by replacing all instances of one color word with another. (This effect lasts indefinitely.)",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::ColorWord,
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+        abilities::flashback(&[CostDef::Mana(mana_cost!("{1}{U}"))]),
+    ]),
 );
 
 // TOR 23 — Ambassador Laquatus

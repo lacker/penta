@@ -85,6 +85,14 @@ conditional checks, and preassign component order and ability-grant identity.
 Callers can reject definitions or applications that do not supply the lane
 being evaluated before walking their components.
 
+Layer-3 text changes do not produce a rewritten card tree. The reference
+walker keeps the authored tree authoritative and interprets typed land and
+color words through one small effective-word map for the source. Prepared
+static execution reuses that same map while evaluating its flattened
+applications and carries it with each emitted component. This keeps recipient
+predicates, granted abilities, values, and characteristic operations on one
+semantic path without making the prepared cache depend on mutable game state.
+
 An `IfCondition` or `IfElseCondition` whose branches have a stable structure
 can be represented as runtime trigger-condition checks. A live
 `ConditionalStatic` can change whether a structural subtree exists, which can

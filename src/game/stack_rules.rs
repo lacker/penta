@@ -222,7 +222,7 @@ impl Game {
             | EffectDef::ChooseEffect { .. }
             | EffectDef::ModifyCounters { .. }
             | EffectDef::RemoveCounters { .. }
-            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::ChangeText { .. }
             | EffectDef::ChooseColor { .. }
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::May { .. }

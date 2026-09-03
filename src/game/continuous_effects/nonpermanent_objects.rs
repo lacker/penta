@@ -33,11 +33,45 @@ impl Game {
         ControlFlow::Continue(())
     }
 
+    fn static_recipient_object_matches(
+        &self,
+        predicate: ObjectPredicateDef,
+        source: &Permanent,
+        affected: StaticAffectedObject<'_>,
+        text_words: TextWordMap,
+    ) -> bool {
+        match affected {
+            StaticAffectedObject::Permanent {
+                affected,
+                prospective,
+            } => self.static_object_predicate_matches(
+                predicate,
+                source,
+                affected,
+                prospective,
+                text_words,
+            ),
+            StaticAffectedObject::Object {
+                characteristics,
+                is_spell,
+                ..
+            } => self.trigger_object_matches_with_text_words(
+                predicate,
+                characteristics,
+                source.card.id,
+                is_spell,
+                self.controller_of_object(source.card.id),
+                text_words,
+            ),
+        }
+    }
+
     pub(super) fn static_recipient_matches(
         &self,
         recipient: EffectRecipientDef,
         source: &Permanent,
         affected: StaticAffectedObject<'_>,
+        text_words: TextWordMap,
     ) -> bool {
         let (affected_id, controller, owner, zone) = match affected {
             StaticAffectedObject::Permanent { affected, .. } => (
@@ -61,6 +95,7 @@ impl Game {
                         EffectRecipientDef::objects(objects),
                         source,
                         affected,
+                        text_words,
                     )
                 },
             ),
@@ -80,27 +115,12 @@ impl Game {
                         TriggerContext::empty(),
                         None,
                     )
-                    && match affected {
-                        StaticAffectedObject::Permanent {
-                            affected,
-                            prospective,
-                        } => self.static_object_predicate_matches(
-                            query.object,
-                            source,
-                            affected,
-                            prospective,
-                        ),
-                        StaticAffectedObject::Object {
-                            characteristics,
-                            is_spell,
-                            ..
-                        } => self.trigger_object_matches(
-                            query.object,
-                            characteristics,
-                            source.card.id,
-                            is_spell,
-                        ),
-                    }
+                    && self.static_recipient_object_matches(
+                        query.object,
+                        source,
+                        affected,
+                        text_words,
+                    )
             }
             // None of these name a permanent a static effect could apply to;
             // a static effect has no chosen target either, and the mixed

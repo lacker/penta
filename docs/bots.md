@@ -269,7 +269,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v17` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v18` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -509,7 +509,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 32 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v17`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; includes `reconstruction.checkpoint.v18`, `match.first-to-two-wins.v1` and `rules.restart-game.v1`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -621,9 +621,12 @@ transform.
 
 Public choices remembered by a permanent use optional fields such as
 `chosenCardName`, `chosenCreatureType`, `chosenBasicLandType`, and
-`chosenColor`. `chosenColor` is a lower-case mana-color name and is absent or
-null when that permanent made no color choice. These fields belong to the
-permanent incarnation and therefore disappear when it changes zones.
+`chosenColor`. `chosenBasicLandTypeSubstitution` is an ordered two-element
+array of distinct basic-land-type names: the first is the type to find and the
+second is the type that replaces it. `chosenColor` is a lower-case mana-color
+name and is absent or null when that permanent made no color choice. These
+fields belong to the permanent incarnation and therefore disappear when it
+changes zones.
 
 Permanent observations may include a `chosenLabels` object mapping authored
 binding names to opaque selected labels. For example, Sarpadian Empires records
@@ -1226,6 +1229,21 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Migrating checkpoint format 17 to 18
+
+The ordinary bot protocol and replay format remain in place. Checkpoint format
+18 replaces the basic-land-only `textChanges` entries on permanents and stack
+objects with a tagged `word` value that distinguishes basic land types from
+color words and adds the duration-derived `expiration`. The pending text-change
+continuation likewise records its word domain and expiration. Token locators
+also preserve color and land-word substitutions baked into copiable values,
+including tokens selected by an entry choice.
+
+Format 17 cannot reconstruct color-word changes or temporary text changes.
+Reconstruction consumers should require `reconstruction.checkpoint.v18`, keep
+checking the exact simulation fingerprint, and regenerate older checkpoints
+with the current engine.
+
 ### Migrating checkpoint format 16 to 17
 
 Format 17 replaces `forage` decisions with generic `actionChoice` selections
@@ -1403,7 +1421,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v17`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v18`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

@@ -7,9 +7,10 @@ use super::{
     PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
+    ScopedEffect, StackObject, StackObjectKind, Target, TextChangeKindDef, TriggerContext,
+    ZoneKind, public_cards,
 };
-use crate::CharacteristicContext;
+use crate::{BattlefieldEntryScalarChoiceDef, CharacteristicContext};
 
 mod discovery;
 mod entry_copy;
@@ -135,10 +136,7 @@ impl Game {
         let PendingReplacementEffect { context, effect } = pending_effect;
         match effect {
             ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
-                let player = Self::pending_event_controller(&pending);
-                self.pending_events.push_front(pending);
-                self.queue_entry_scalar_choice(player, context, effect, choice);
-                None
+                self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
             }
             ReplacementEffectDef::BindOutput {
                 effect: producer,
@@ -148,10 +146,10 @@ impl Game {
                 else {
                     return Some(pending);
                 };
-                let player = Self::pending_event_controller(&pending);
-                self.pending_events.push_front(pending);
-                self.queue_entry_scalar_choice(player, context, effect, choice);
-                None
+                self.suspend_for_entry_scalar_choice(pending, context, effect, choice)
+            }
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair) => {
+                self.suspend_for_basic_land_type_pair_choice(pending, context)
             }
             ReplacementEffectDef::CopyEntering { object, exceptions } => {
                 self.offer_entry_copy(pending, object, exceptions, context.source.ability)
@@ -240,6 +238,30 @@ impl Game {
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_) => Some(pending),
         }
+    }
+
+    fn suspend_for_basic_land_type_pair_choice(
+        &mut self,
+        pending: PendingEvent,
+        context: ReplacementEffectContext,
+    ) -> Option<PendingEvent> {
+        let player = Self::pending_event_controller(&pending);
+        self.pending_events.push_front(pending);
+        self.queue_entry_basic_land_type_pair_choice(player, context);
+        None
+    }
+
+    fn suspend_for_entry_scalar_choice(
+        &mut self,
+        pending: PendingEvent,
+        context: ReplacementEffectContext,
+        effect: ReplacementEffectDef,
+        choice: BattlefieldEntryScalarChoiceDef,
+    ) -> Option<PendingEvent> {
+        let player = Self::pending_event_controller(&pending);
+        self.pending_events.push_front(pending);
+        self.queue_entry_scalar_choice(player, context, effect, choice);
+        None
     }
 
     fn record_chosen_entry_player(

@@ -79,9 +79,12 @@ fn dire_wolves_gains_banding_only_while_its_controller_has_a_plains() {
         .push(creature(10_002, cards::PLAINS, PlayerId::One));
     assert!(has_banding(&game));
 
-    game.battlefield[2].text_changes.push(BasicLandTypeChange {
-        from: BasicLandType::Plains,
-        to: BasicLandType::Island,
+    game.battlefield[2].text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Plains,
+            to: BasicLandType::Island,
+        },
+        expiration: ContinuousEffectExpiration::Never,
     });
     assert!(
         !has_banding(&game),

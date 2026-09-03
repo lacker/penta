@@ -44,7 +44,32 @@ pub(in crate::game::state_checkpoint) fn token_characteristics_locator(
     let expected = expected.semantic_identity();
     authored_tokens(catalog)
         .into_iter()
-        .find_map(|(token, locator)| (token.semantic_identity() == expected).then_some(locator))
+        .find_map(|(token, mut locator)| {
+            let colors = expected.rules().color_set();
+            let basic_land_type_words = expected.basic_land_type_word_map();
+            let color_words = expected.color_word_map();
+            if token
+                .with_color_set(colors)
+                .with_word_maps(basic_land_type_words, color_words)
+                .semantic_identity()
+                != expected
+            {
+                return None;
+            }
+            let override_colors =
+                (token.rules().color_set() != colors).then_some(colors.to_flags());
+            let override_basic_land_type_words = (token.basic_land_type_word_map()
+                != basic_land_type_words)
+                .then_some(basic_land_type_words.map(super::super::basic_land_type_snapshot));
+            let override_color_words = (token.color_word_map() != color_words)
+                .then_some(color_words.map(super::super::mana_color_snapshot));
+            locator.set_word_overrides(
+                override_colors,
+                override_basic_land_type_words,
+                override_color_words,
+            );
+            Some(locator)
+        })
 }
 
 pub(in crate::game::state_checkpoint) fn catalog_token_characteristics(
@@ -52,28 +77,58 @@ pub(in crate::game::state_checkpoint) fn catalog_token_characteristics(
     locator: &TokenCharacteristicsLocator,
 ) -> Option<TokenCharacteristics> {
     let creator = catalog_ability(catalog, locator.creator())?;
-    match locator {
-        TokenCharacteristicsLocator::EntryChoice { choice_index, .. } => {
+    let (token, colors, basic_land_type_words, color_words) = match locator {
+        TokenCharacteristicsLocator::EntryChoice {
+            choice_index,
+            colors,
+            basic_land_type_words,
+            color_words,
+            ..
+        } => {
             let crate::card::AbilityProgramDef::Replacement(effect) = creator.effect.definition
             else {
                 return None;
             };
-            crate::card::replacement_tokens(effect)
+            let token = crate::card::replacement_tokens(effect)
                 .get(*choice_index)
-                .copied()
+                .copied()?;
+            (token, colors, basic_land_type_words, color_words)
         }
-        TokenCharacteristicsLocator::EffectPath { effect_path, .. } => {
+        TokenCharacteristicsLocator::EffectPath {
+            effect_path,
+            colors,
+            basic_land_type_words,
+            color_words,
+            ..
+        } => {
             let effect = effect_at_path(&creator, effect_path)?;
-            match effect {
+            let token = match effect {
                 EffectDef::CreateToken(crate::card::CreateTokenDef {
                     token: crate::card::TokenDef::Literal(token),
                     ..
                 })
                 | EffectDef::CreateAttachedToken { token, .. } => Some(token),
                 _ => None,
-            }
+            }?;
+            (token, colors, basic_land_type_words, color_words)
         }
-    }
+    };
+    let token = colors.map_or(token, |colors| {
+        let colors = crate::card::ManaColor::COLORS
+            .into_iter()
+            .zip(colors)
+            .filter_map(|(color, present)| present.then_some(color))
+            .fold(crate::card::ColorSet::empty(), crate::card::ColorSet::with);
+        token.with_color_set(colors)
+    });
+    let basic_land_type_words = basic_land_type_words
+        .map_or(token.basic_land_type_word_map(), |words| {
+            words.map(super::super::parse_basic_land_type)
+        });
+    let color_words = color_words.map_or(token.color_word_map(), |words| {
+        words.map(super::super::parse_mana_color)
+    });
+    Some(token.with_word_maps(basic_land_type_words, color_words))
 }
 
 pub(in crate::game::state_checkpoint) fn object_characteristics_snapshot(

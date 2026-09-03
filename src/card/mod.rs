@@ -84,11 +84,12 @@ pub use model::{
     StackTargetAggregationDef, StackTargetChangeDef, StackTargetFilterDef, StaticAbilityDef,
     StaticApplyDef, SubtypeDef, SumValueDef, SuspendAbilityDef, SuspendTimeDef, TapEventMatcherDef,
     TapPurposeDef, TargetChooserDef, TargetConditionDef, TargetPredicate, TargetSlotDef,
-    TokenCharacteristics, TokenChoiceDef, TokenCopyDef, TokenCountersDef, TokenDef, TokenPart,
-    TokenStatsDef, TokenStructure, TopOfLibraryCostDef, TriggerConditionDef, TriggerEventDef,
-    TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind, ZoneMoveCauseDef, ZonePickDef,
-    ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef, actions,
+    TextChangeKindDef, TokenCharacteristics, TokenChoiceDef, TokenCopyDef, TokenCountersDef,
+    TokenDef, TokenPart, TokenStatsDef, TokenStructure, TopOfLibraryCostDef, TriggerConditionDef,
+    TriggerEventDef, TriggeredAbilityDef, TurnKindDef, TurnPhaseDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneChangeEventMatcherDef, ZoneChangeObservationDef, ZoneKind,
+    ZoneMoveCauseDef, ZonePickDef, ZonePickModeDef, ZonePlacement, ZoneRelativePositionDef,
+    actions,
 };
 pub use model::{
     DamageAssignmentDef, DamageAssignmentsDef, DamageDef, DamageFollowUpDef, FightExcessDef,

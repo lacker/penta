@@ -3,22 +3,23 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use serde_json::Value;
 
 use super::{
-    AbilitySourceRef, ApplicableReplacement, AppliedStackEffect, BasicLandTypeChange, CardInstance,
-    CastContext, CharacteristicSource, CombatDamageStage, ContinuousEffectExpiration,
-    ContinuousEffectTimestamp, CopiableAbility, CopiableCharacteristics, CounterKind,
-    DamageSourceGroupDef, DoubleFacedCopiableCharacteristics, EffectResolutionContext,
-    EntryCompletion, EnumeratedActions, ExilePlayCost, ExilePlayPermission, Game, GameEvent,
-    GameObjectId, GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaColor,
-    ManaSource, NonbattlefieldAbilityGrant, ObjectBacking, ObjectInstance, ObjectKind,
-    PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent, PlayerId,
-    PlayerState, Pregame, RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext,
-    ReplayRng, ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
+    AbilitySourceRef, ApplicableReplacement, AppliedStackEffect, CardInstance, CastContext,
+    CharacteristicSource, CombatDamageStage, ContinuousEffectExpiration, ContinuousEffectTimestamp,
+    CopiableAbility, CopiableCharacteristics, CounterKind, DamageSourceGroupDef,
+    DoubleFacedCopiableCharacteristics, EffectResolutionContext, EntryCompletion,
+    EnumeratedActions, ExilePlayCost, ExilePlayPermission, Game, GameEvent, GameObjectId,
+    GameStack, InstalledTrigger, InstalledTriggerLifetime, Mana, ManaColor, ManaSource,
+    NonbattlefieldAbilityGrant, ObjectBacking, ObjectInstance, ObjectKind, PendingBattlefieldEntry,
+    PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerState, Pregame,
+    RelationalSourceFilter, ReplaceableEvent, ReplacementEffectContext, ReplayRng,
+    ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
     ResolvedContinuousEffectKind, ResolvedDamagePrevention, ResolvedDamagePreventionCapacity,
     ResolvedDamageRecipientMatcher, ResolvedDamageRedirect, ResolvedDamageSourceMatcher,
     ResolvedOngoingEffect, ResolvedPlayPermission, ResolvedPlayRestriction,
     ResolvedPlayerProtection, ResolvedPlayerRule, ResolvedPowerToughnessOperation, RetiredObject,
     ScopedEffect, StackAbilityPayload, StackAbilityResolver, StackObject, StackObjectKind, Step,
-    TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause, cast_source_zone_from_label,
+    TextChange, TextWordChange, TriggerCapture, TriggerContext, TurnPhaseResume, ZoneMoveCause,
+    cast_source_zone_from_label,
 };
 use crate::card::ManaCost;
 use crate::card::{

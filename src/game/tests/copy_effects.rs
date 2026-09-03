@@ -9,9 +9,12 @@ fn stage_copies_dryad_arbors_copiable_values_but_not_hack_or_presence() {
     let aura_id = CardInstanceId(10_002);
     let stage = creature(stage_id.0, cards::THESPIANS_STAGE, PlayerId::One);
     let mut arbor = creature(arbor_id.0, cards::DRYAD_ARBOR, PlayerId::One);
-    arbor.text_changes.push(BasicLandTypeChange {
-        from: BasicLandType::Forest,
-        to: BasicLandType::Island,
+    arbor.text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Forest,
+            to: BasicLandType::Island,
+        },
+        expiration: ContinuousEffectExpiration::Never,
     });
     let mut presence = creature(aura_id.0, cards::NYLEAS_PRESENCE, PlayerId::One);
     presence.attached_to = Some(arbor_id);

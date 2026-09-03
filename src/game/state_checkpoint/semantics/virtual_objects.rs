@@ -102,6 +102,9 @@ fn collect_from_ability(
                     TokenCharacteristicsLocator::EntryChoice {
                         creator: Box::new(creator.clone()),
                         choice_index,
+                        colors: None,
+                        basic_land_type_words: None,
+                        color_words: None,
                     },
                 ));
             }
@@ -141,6 +144,9 @@ fn collect_effects(
                 TokenCharacteristicsLocator::EffectPath {
                     creator: Box::new(creator.clone()),
                     effect_path: path.clone(),
+                    colors: None,
+                    basic_land_type_words: None,
+                    color_words: None,
                 },
             ));
         }

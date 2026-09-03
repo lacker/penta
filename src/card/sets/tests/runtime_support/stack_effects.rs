@@ -676,7 +676,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
         | EffectDef::Unattach { object }
         | EffectDef::PairWithSource { object }
         | EffectDef::PhaseOut { object }
-        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChangeText { object, .. }
+        // The colour is named at resolution, so the declaration only has to
+        // say who receives it and for how long.
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::PutSpellIntoOwnersLibrary { object }

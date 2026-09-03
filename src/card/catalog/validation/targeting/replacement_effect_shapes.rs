@@ -136,7 +136,8 @@ fn validate_replacement_effect_target_shapes(
         | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::Choose(
             ReplacementChoiceDef::Player(_)
-            | ReplacementChoiceDef::ExileMatchingFromGraveyard(_),
+            | ReplacementChoiceDef::ExileMatchingFromGraveyard(_)
+            | ReplacementChoiceDef::BasicLandTypePair,
         )
         | ReplacementEffectDef::CopyEntering { .. } => Ok(()),
     }

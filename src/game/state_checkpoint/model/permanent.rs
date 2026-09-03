@@ -179,7 +179,7 @@ pub(super) struct PermanentSnapshot {
     pub(super) copy_effect: Option<CopiableCharacteristicsSnapshot>,
     pub(super) copy_expiration: Option<ContinuousEffectExpirationSnapshot>,
     pub(super) copied_from: Option<CopiedFromSnapshot>,
-    pub(super) text_changes: Vec<BasicLandTypeChangeSnapshot>,
+    pub(super) text_changes: Vec<TextChangeSnapshot>,
     pub(super) has_dynamic_characteristics: bool,
 }
 

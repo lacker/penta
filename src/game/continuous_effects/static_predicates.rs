@@ -13,10 +13,11 @@ impl Game {
         source: &Permanent,
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
     ) -> bool {
-        self.lazy_match(predicate, source, affected, prospective)
+        self.lazy_match(predicate, source, affected, prospective, text_words)
             .unwrap_or_else(|| {
-                self.trigger_object_matches(
+                self.trigger_object_matches_with_text_words(
                     predicate,
                     &prospective.map_or_else(
                         || self.trigger_event_object(affected),
@@ -26,6 +27,8 @@ impl Game {
                     ),
                     source.card.id,
                     false,
+                    self.controller_of_object(source.card.id),
+                    text_words,
                 )
             })
     }
@@ -41,6 +44,7 @@ impl Game {
         land_types: &[crate::card::BasicLandType],
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
     ) -> Option<bool> {
         if !self.permanent_types(affected)?.contains(CardType::Land) {
             return Some(false);
@@ -52,6 +56,7 @@ impl Game {
         Some(
             land_types
                 .iter()
+                .map(|land_type| text_words.basic_land_type(*land_type))
                 .any(|land_type| subtypes.contains(&land_type.subtype())),
         )
     }
@@ -109,29 +114,29 @@ impl Game {
         }
     }
 
-    fn lazy_match(
+    fn static_characteristic_predicate_matches_lazily(
         &self,
         predicate: ObjectPredicateDef,
         source: &Permanent,
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
     ) -> Option<bool> {
-        if let Some(answer) = Self::static_leaf_predicate_matches_lazily(predicate, source, affected)
-        {
-            return Some(answer);
-        }
-        let nested = |predicate| self.lazy_match(predicate, source, affected, prospective);
         match predicate {
-            ObjectPredicateDef::HasAnyBasicLandType(land_types) => {
-                self.static_basic_land_type_matches(land_types, affected, prospective)
-            }
+            ObjectPredicateDef::HasAnyBasicLandType(land_types) => self
+                .static_basic_land_type_matches(land_types, affected, prospective, text_words),
             ObjectPredicateDef::HasType(card_type) => self
                 .permanent_types(affected)
                 .map(|types| types.contains(card_type)),
             ObjectPredicateDef::Color(color) => {
                 let rules = self.effective_rules(affected)?;
                 let colors = self.effective_colors(affected, &rules);
-                Some(color.color_index().is_some_and(|index| colors[index]))
+                Some(
+                    text_words
+                        .color(color)
+                        .color_index()
+                        .is_some_and(|index| colors[index]),
+                )
             }
             ObjectPredicateDef::ColorCount(count) => {
                 let rules = self.effective_rules(affected)?;
@@ -139,17 +144,56 @@ impl Game {
                 Some(colors.iter().filter(|present| **present).count() == usize::from(count))
             }
             ObjectPredicateDef::Subtype(subtype) => Some(self.static_subtype_matches(
-                subtype, source, affected, prospective,
+                subtype,
+                source,
+                affected,
+                prospective,
+                text_words,
             )),
             ObjectPredicateDef::Supertype(supertype) => {
                 self.static_supertype_matches(supertype, affected, prospective)
             }
+            _ => unreachable!("caller only forwards characteristic predicates"),
+        }
+    }
+
+    fn lazy_match(
+        &self,
+        predicate: ObjectPredicateDef,
+        source: &Permanent,
+        affected: &Permanent,
+        prospective: Option<&Permanent>,
+        text_words: TextWordMap,
+    ) -> Option<bool> {
+        if let Some(answer) = Self::static_leaf_predicate_matches_lazily(predicate, source, affected)
+        {
+            return Some(answer);
+        }
+        let nested = |predicate| {
+            self.lazy_match(predicate, source, affected, prospective, text_words)
+        };
+        match predicate {
+            predicate
+                @ (ObjectPredicateDef::HasAnyBasicLandType(_)
+                | ObjectPredicateDef::HasType(_)
+                | ObjectPredicateDef::Color(_)
+                | ObjectPredicateDef::ColorCount(_)
+                | ObjectPredicateDef::Subtype(_)
+                | ObjectPredicateDef::Supertype(_)) => self
+                .static_characteristic_predicate_matches_lazily(
+                    predicate,
+                    source,
+                    affected,
+                    prospective,
+                    text_words,
+                ),
             predicate @ (ObjectPredicateDef::All(_) | ObjectPredicateDef::AnyOf(_)) => {
                 self.static_composite_predicate_match_lazily(
                     predicate,
                     source,
                     affected,
                     prospective,
+                    text_words,
                 )
             }
             ObjectPredicateDef::Not(predicate) => nested(*predicate).map(|matches| !matches),
@@ -223,8 +267,14 @@ impl Game {
         source: &Permanent,
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
     ) -> bool {
         self.source_subtype(subtype, source.card.id).is_some_and(|subtype| {
+            let subtype = if let Some(land_type) = BasicLandType::from_subtype(subtype) {
+                text_words.basic_land_type(land_type).subtype()
+            } else {
+                subtype
+            };
             let subtypes = prospective.map_or_else(
                 || self.effective_subtypes(affected),
                 |prospective| self.effective_subtypes_with_prospective(affected, prospective),
@@ -255,6 +305,7 @@ impl Game {
         source: &Permanent,
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
     ) -> Option<bool> {
         match predicate {
             ObjectPredicateDef::All(predicates) => self
@@ -263,6 +314,7 @@ impl Game {
                     source,
                     affected,
                     prospective,
+                    text_words,
                     false,
                 ),
             ObjectPredicateDef::AnyOf(predicates) => self
@@ -271,6 +323,7 @@ impl Game {
                     source,
                     affected,
                     prospective,
+                    text_words,
                     true,
                 ),
             _ => unreachable!("caller only forwards composite predicates"),
@@ -283,6 +336,7 @@ impl Game {
         source: &Permanent,
         affected: &Permanent,
         prospective: Option<&Permanent>,
+        text_words: TextWordMap,
         decisive_match: bool,
     ) -> Option<bool> {
         let mut needs_snapshot = false;
@@ -292,6 +346,7 @@ impl Game {
                 source,
                 affected,
                 prospective,
+                text_words,
             ) {
                 Some(matches) if matches == decisive_match => return Some(decisive_match),
                 Some(_) => {}

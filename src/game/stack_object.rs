@@ -29,7 +29,7 @@ struct StackObject {
     /// Indefinite text changes applied while this object is on the stack.
     /// They transfer to a resolving permanent but are not copied by spell-copy
     /// effects.
-    text_changes: Vec<BasicLandTypeChange>,
+    text_changes: Vec<TextChange>,
     /// Colours imposed on this object by a copy effect or a resolving
     /// characteristic effect, such as "except that the copy is red" or a
     /// Lace. The override lasts for this stack incarnation.

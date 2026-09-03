@@ -8,13 +8,16 @@ use crate::card::AbilityTargetDef;
 use crate::card::AbilityTargetPredicate;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::BasicLandType;
 use crate::card::BindObjectsDef;
 use crate::card::CardArt;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseDef;
+use crate::card::ColorSet;
 use crate::card::CopyStackObjectDef;
 use crate::card::CostDef;
 use crate::card::CreateTokenDef;
@@ -157,6 +160,35 @@ abilities::enters_trigger_with_targets("When this creature enters, copy target i
 ]),
 );
 
+// C14 47 — Song of the Dryads
+pub(in crate::card::sets) static SONG_OF_THE_DRYADS: CardRecord = CardRecord::new(
+    "Song of the Dryads",
+    "94914c52-498d-4e15-89e5-7b23e02cf453",
+    "Lars Grant-West",
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant permanent",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent is a colorless Forest land.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Land)),
+                        AppliedEffectDef::set_subtypes(&[]),
+                        AppliedEffectDef::set_basic_land_types(&[BasicLandType::Forest]),
+                        AppliedEffectDef::set_colors(ColorSet::empty()),
+                    ]),
+                },
+            ),
+        ]),
+);
+
 // C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
     CardRecord::new(
@@ -213,6 +245,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &TEFERI_TEMPORAL_ARCHMAGE_19,
     &DARETTI_SCRAP_SAVANT_33,
     &DUALCASTER_MAGE_34,
+    &SONG_OF_THE_DRYADS,
     &TITANIA_PROTECTOR_OF_ARGOTH,
 ];
 

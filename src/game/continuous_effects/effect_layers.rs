@@ -10,6 +10,7 @@ impl Game {
             AppliedEffectDef::Characteristic(
                 CharacteristicOperationDef::SetChosenBasicLandType
                 | CharacteristicOperationDef::AddChosenBasicLandType
+                | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution
                 | CharacteristicOperationDef::BasicLandTypes(_)
                 | CharacteristicOperationDef::CardTypes(_)
                 | CharacteristicOperationDef::Supertypes(_)

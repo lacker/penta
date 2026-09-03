@@ -630,7 +630,7 @@ fn validate_effect_references(
             | GameActionDef::MoveToZone { object, .. },
         )
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
-        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChangeText { object, .. }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }

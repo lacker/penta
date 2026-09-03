@@ -3,9 +3,11 @@ impl Game {
         operation: SetOperationDef<&'static [BasicLandType]>,
     ) -> LandTypeOperation {
         match operation {
-            SetOperationDef::Add(types) => LandTypeOperation::Add(types),
-            SetOperationDef::Remove(types) => LandTypeOperation::Remove(types),
-            SetOperationDef::Set(types) => LandTypeOperation::SetTo(types),
+            SetOperationDef::Add(types) => LandTypeOperation::Add(Self::land_type_mask(types)),
+            SetOperationDef::Remove(types) => {
+                LandTypeOperation::Remove(Self::land_type_mask(types))
+            }
+            SetOperationDef::Set(types) => LandTypeOperation::SetTo(Self::land_type_mask(types)),
         }
     }
 
@@ -43,7 +45,8 @@ impl Game {
             AppliedEffectDef::Characteristic(
                 CharacteristicOperationDef::BasicLandTypes(_)
                 | CharacteristicOperationDef::SetChosenBasicLandType
-                | CharacteristicOperationDef::AddChosenBasicLandType,
+                | CharacteristicOperationDef::AddChosenBasicLandType
+                | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
             ) => true,
             AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
         }

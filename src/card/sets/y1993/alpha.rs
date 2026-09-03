@@ -68,6 +68,7 @@ use crate::card::ResolvedEffectDurationDef;
 use crate::card::RoundingDef;
 use crate::card::SourceMatchValueDef;
 use crate::card::SubtypeDef;
+use crate::card::TextChangeKindDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
@@ -1425,12 +1426,26 @@ pub(in crate::card::sets) static LORD_OF_ATLANTIS: CardRecord = CardRecord::new(
 );
 
 // LEA 63 — Magical Hack
-// Audit: unsupported — Needs full rules-text basic-land-type rewriting across spells, abilities, predicates, and landwalk.
 pub(in crate::card::sets) static MAGICAL_HACK: CardRecord = CardRecord::new(
     "Magical Hack",
     "2bd4202c-0477-45aa-82fd-83c85d6d4bef",
     "Julie Baroh",
-    CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the text of target spell or permanent by replacing all instances of one basic land type with another. (For example, you may change \"swampwalk\" to \"plainswalk.\" This effect lasts indefinitely.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::ChangeText {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: TextChangeKindDef::BasicLandType,
+            duration: ResolvedEffectDurationDef::Permanent,
+        },
+    )),
 );
 
 // LEA 64 — Mahamoti Djinn
@@ -1652,12 +1667,24 @@ pub(in crate::card::sets) static SIREN_S_CALL: CardRecord = CardRecord::new(
 );
 
 // LEA 78 — Sleight of Mind
-// Audit: unsupported — Needs copiable-value or rules-text mutation support for “Change the text of target spell or permanent by replacing all instances of one color word with another”.
 pub(in crate::card::sets) static SLEIGHT_OF_MIND: CardRecord = CardRecord::new(
     "Sleight of Mind",
     "d427790c-e322-446e-8d7d-a6b48ad41a42",
     "Mark Poole",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the text of target spell or permanent by replacing all instances of one color word with another. (For example, you may change \"target black spell\" to \"target blue spell.\" This effect lasts indefinitely.)",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Any,
+            zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::ChangeText {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: TextChangeKindDef::ColorWord,
+            duration: ResolvedEffectDurationDef::Permanent,
+        },
+    )),
 );
 
 // LEA 79 — Spell Blast

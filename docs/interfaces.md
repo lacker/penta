@@ -101,7 +101,7 @@ not one exact-version comparison:
   removed, renamed, retyped, or reinterpreted, not when an optional field or a
   legal action expressed through existing vocabulary is added.
 - `protocolCapabilities` advertises named, additive facilities such as
-  `reconstruction.checkpoint.v17`. A consumer may ignore capabilities it does
+  `reconstruction.checkpoint.v18`. A consumer may ignore capabilities it does
   not use. Hosted bots declare both supported vocabulary and facilities they
   require; compatibility needs an equal `protocolVersion` and each side's
   required subset to be supplied by the other.

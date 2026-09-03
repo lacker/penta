@@ -218,6 +218,109 @@ fn static_effects(
     effects
 }
 
+fn hacked_kormus_bell_board(prepared: bool) -> Game {
+    let mut game = ready_game();
+    game.set_prepared_engine_enabled(prepared);
+    game.battlefield.clear();
+
+    let mut bell = creature(98_175, cards::KORMUS_BELL, PlayerId::One);
+    bell.text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Swamp,
+            to: BasicLandType::Island,
+        },
+        expiration: ContinuousEffectExpiration::Never,
+    });
+    bell.text_changes.push(TextChange {
+        word: TextWordChange::Color {
+            from: ManaColor::Black,
+            to: ManaColor::Red,
+        },
+        expiration: ContinuousEffectExpiration::Never,
+    });
+    game.battlefield.extend([
+        bell,
+        creature(98_176, cards::SWAMP, PlayerId::One),
+        creature(98_177, cards::ISLAND, PlayerId::Two),
+    ]);
+    game
+}
+
+#[test]
+fn prepared_static_recipients_use_the_same_effective_text_as_the_reference_tree() {
+    let mut reference = hacked_kormus_bell_board(false);
+    let mut prepared = hacked_kormus_bell_board(true);
+    let program = prepared
+        .prepared_static_program(ObjectCharacteristics::card(
+            cards::KORMUS_BELL,
+            CardPartId::PRIMARY,
+        ))
+        .expect("Kormus Bell has a catalog-backed prepared static program");
+    assert!(
+        program
+            .abilities()
+            .iter()
+            .all(|ability| ability.applications.is_some()),
+        "the prepared half of this differential must use flattened applications",
+    );
+
+    for affected in [GameObjectId(98_176), GameObjectId(98_177)] {
+        for kind in [
+            StaticEffectKind::CardTypes,
+            StaticEffectKind::Colors,
+            StaticEffectKind::PowerToughness,
+        ] {
+            assert_eq!(
+                static_effects(&mut prepared, affected, kind, true),
+                static_effects(&mut reference, affected, kind, false),
+                "affected {affected:?}, lane {kind:?}",
+            );
+        }
+    }
+
+    for game in [&reference, &prepared] {
+        let swamp = &game.battlefield[1];
+        let island = &game.battlefield[2];
+        assert!(
+            !game
+                .permanent_types(swamp)
+                .is_some_and(|types| types.contains(CardType::Creature))
+        );
+        assert!(
+            game.permanent_types(island)
+                .is_some_and(|types| types.contains(CardType::Creature))
+        );
+        assert_eq!(
+            game.permanent_colors(island),
+            [false, false, false, true, false]
+        );
+        assert_eq!(game.power(island), Some(1));
+        assert_eq!(game.toughness(island), Some(1));
+    }
+
+    assert_eq!(prepared.battlefield, reference.battlefield);
+    for (reference_permanent, prepared_permanent) in
+        reference.battlefield.iter().zip(&prepared.battlefield)
+    {
+        assert_eq!(
+            prepared.permanent_types(prepared_permanent),
+            reference.permanent_types(reference_permanent),
+        );
+        assert_eq!(
+            prepared.permanent_colors(prepared_permanent),
+            reference.permanent_colors(reference_permanent),
+        );
+        assert_eq!(
+            prepared.power(prepared_permanent),
+            reference.power(reference_permanent),
+        );
+        assert_eq!(
+            prepared.toughness(prepared_permanent),
+            reference.toughness(reference_permanent),
+        );
+    }
+}
+
 #[test]
 fn prepared_static_program_matches_reference_lanes_and_component_identity() {
     let mut game = ready_game();

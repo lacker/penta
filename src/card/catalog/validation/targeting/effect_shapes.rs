@@ -448,7 +448,7 @@ fn validate_effect_target_shapes(
         | EffectDef::DoubleCounters { object, .. }
         | EffectDef::RemoveAllCounters { object, .. }
         | EffectDef::SkipNextUntapSteps { object, .. }
-        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChangeText { object, .. }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }

@@ -1,9 +1,10 @@
 //! Shared application of copiable-value exceptions.
 
-use super::super::{CopiableAbility, CopiableCharacteristics, StackObject};
+use super::super::{CopiableAbility, CopiableCharacteristics, Game, StackObject};
 use crate::card::{CopyAbilityDef, CopyExceptionsDef};
 
 pub(super) fn apply_copy_exceptions(
+    game: &Game,
     copy: &mut CopiableCharacteristics,
     exceptions: CopyExceptionsDef,
     object: &StackObject,
@@ -15,7 +16,7 @@ pub(super) fn apply_copy_exceptions(
         copy.base_power_toughness = Some(stats);
     }
     if let Some(colors) = exceptions.colors {
-        copy.colors = Some(colors);
+        copy.colors = Some(game.text_changed_color_set(object.id, colors));
     }
     copy.added_creature_types
         .extend(exceptions.added_creature_types.named);

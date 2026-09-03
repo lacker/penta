@@ -7,7 +7,8 @@ use crate::card::{
 use crate::ids::{GameObjectId, GrantId, PlayerId};
 
 use super::{
-    AbilitySourceRef, EffectResolutionContext, ObjectCharacteristics, Permanent, TriggerEventObject,
+    AbilitySourceRef, EffectResolutionContext, ObjectCharacteristics, Permanent, TextWordMap,
+    TriggerEventObject,
 };
 
 /// Timestamp shared by the continuous-effect slices currently modeled. Static
@@ -458,6 +459,7 @@ pub(super) struct ResolvedOngoingEffect {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct StaticAppliedEffect {
     pub(super) source: GameObjectId,
+    pub(super) text_words: TextWordMap,
     pub(super) timestamp: ContinuousEffectTimestamp,
     pub(super) source_presentation: ObjectCharacteristics,
     pub(super) source_origin: AbilityOrigin,
@@ -505,6 +507,7 @@ pub(super) struct StaticEffectTraversal<'a> {
     pub(super) source_timestamp: ContinuousEffectTimestamp,
     pub(super) source_presentation: ObjectCharacteristics,
     pub(super) source_origin: AbilityOrigin,
+    pub(super) text_words: TextWordMap,
     pub(super) affected: StaticAffectedObject<'a>,
     pub(super) next_grant: usize,
     pub(super) next_component_order: u16,

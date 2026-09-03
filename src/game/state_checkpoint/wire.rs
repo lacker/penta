@@ -512,6 +512,10 @@ pub(super) fn parse_battlefield(
                         .get("chosenBasicLandType")
                         .and_then(Value::as_str)
                         .and_then(BasicLandType::from_subtype),
+                    chosen_basic_land_type_substitution:
+                        parse_observed_basic_land_type_substitution(
+                            shown.get("chosenBasicLandTypeSubstitution"),
+                        ),
                     chosen_color: shown
                         .get("chosenColor")
                         .and_then(Value::as_str)
@@ -783,6 +787,7 @@ fn parse_permanent(
         .chosen_creature_type_binding
         .clone_from(&state.chosen_creature_type_binding);
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
+    permanent.chosen_basic_land_type_substitution = shown.chosen_basic_land_type_substitution;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
     permanent.chosen_tokens = state
@@ -871,11 +876,8 @@ fn parse_permanent(
     permanent.text_changes = state
         .text_changes
         .iter()
-        .map(|change| BasicLandTypeChange {
-            from: parse_basic_land_type(change.from),
-            to: parse_basic_land_type(change.to),
-        })
-        .collect();
+        .map(parse_text_change)
+        .collect::<Result<Vec<_>, _>>()?;
     permanent.destroy_at_end = state.destroy_at_end;
     permanent.counters = counters;
     permanent.attached_to = state.attached_to.map(GameObjectId);
@@ -951,6 +953,9 @@ pub(super) fn parse_detached_permanent(
             activated_loyalty_this_turn: snapshot.activated_loyalty_this_turn,
             chosen_creature_type: snapshot.chosen_creature_type.clone(),
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
+            chosen_basic_land_type_substitution: snapshot
+                .chosen_basic_land_type_substitution
+                .map(|[from, to]| (parse_basic_land_type(from), parse_basic_land_type(to))),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
             chosen_card_name_binding: snapshot.chosen_card_name_binding.clone(),

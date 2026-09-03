@@ -1,7 +1,7 @@
 use super::{
-    BasicLandTypeChangeSnapshot, Game, PlayerId, StackObject, StackObjectKind, StackSnapshot,
-    applied_stack_effect_snapshots, basic_land_type_snapshot, face_down_characteristics_snapshot,
-    object_kind_snapshot, stack_ability_snapshot, stack_object_requires_retired,
+    Game, PlayerId, StackObject, StackObjectKind, StackSnapshot, applied_stack_effect_snapshots,
+    face_down_characteristics_snapshot, object_kind_snapshot, stack_ability_snapshot,
+    stack_object_requires_retired, text_change_snapshot,
 };
 
 pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
@@ -35,10 +35,7 @@ pub(in crate::game::state_checkpoint) fn current_stack_snapshot(
         text_changes: object
             .text_changes
             .iter()
-            .map(|change| BasicLandTypeChangeSnapshot {
-                from: basic_land_type_snapshot(change.from),
-                to: basic_land_type_snapshot(change.to),
-            })
+            .map(text_change_snapshot)
             .collect(),
         colors: object.colors.map(crate::card::ColorSet::to_flags),
         colors_of_mana_spent: object

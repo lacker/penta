@@ -987,6 +987,27 @@ AbilityDef::spell("Search your library for up to two basic land cards, reveal th
 ]),
 );
 
+// M11 169 — Dryad's Favor
+pub(in crate::card::sets) static DRYADS_FAVOR: CardRecord = CardRecord::new(
+    "Dryad's Favor",
+    "c259509e-9f95-4566-b78a-ba34107539f7",
+    "Jesper Ejsing",
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has forestwalk. (It can't be blocked as long as defending player controls a Forest.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::landwalk(
+                        BasicLandType::Forest,
+                    )),
+                },
+            ),
+        ]),
+);
+
 // M11 172 — Fauna Shaman
 pub(in crate::card::sets) static FAUNA_SHAMAN_172: CardRecord = CardRecord::new(
     "Fauna Shaman",
@@ -1266,6 +1287,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &AUTUMN_S_VEIL,
     &BRINDLE_BOAR,
     &CULTIVATE_168,
+    &DRYADS_FAVOR,
     &FAUNA_SHAMAN_172,
     &GARRUK_S_COMPANION,
     &GARRUK_S_PACKLEADER,

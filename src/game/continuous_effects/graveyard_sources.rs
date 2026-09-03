@@ -126,6 +126,7 @@ impl Game {
         {
             return ControlFlow::Continue(());
         }
+        let text_words = self.text_word_map_for_permanent(source);
         for attached in rules.indexed_abilities() {
             let ability = attached.definition;
             let DeclarativeAbilityDef::Static(definition) = ability.definition else {
@@ -148,6 +149,7 @@ impl Game {
                 source_timestamp: input.timestamp,
                 source_presentation,
                 source_origin: origin,
+                text_words,
                 affected,
                 next_grant: 0,
                 next_component_order: 0,
@@ -174,6 +176,7 @@ impl Game {
     ) -> ControlFlow<()> {
         let source = input.permanent;
         let lane = kind.prepared_lane();
+        let text_words = self.text_word_map_for_permanent(source);
         for ability in program.abilities() {
             if !ability.source_zones.contains(&input.zone) {
                 continue;
@@ -190,6 +193,7 @@ impl Game {
                     source_timestamp: input.timestamp,
                     source_presentation,
                     source_origin: origin,
+                    text_words,
                     affected,
                     next_grant: 0,
                     next_component_order: 0,
@@ -219,6 +223,7 @@ impl Game {
                     application.recipient,
                     source,
                     affected,
+                    text_words,
                 ) || !application.trigger_conditions.iter().all(|(condition, expected)| {
                     self.trigger_condition_holds(
                         condition,
@@ -235,6 +240,7 @@ impl Game {
                     if component.supplies(lane)
                         && visitor(StaticAppliedEffect {
                             source: source.card.id,
+                            text_words,
                             timestamp: input.timestamp,
                             source_presentation,
                             source_origin: origin,

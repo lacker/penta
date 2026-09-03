@@ -6,18 +6,23 @@ use crate::card::AbilityDef;
 use crate::card::AbilityTargetDef;
 use crate::card::AppliedEffectDef;
 use crate::card::AppliedRuleDef;
+use crate::card::BasicLandType;
 use crate::card::CardRules;
 use crate::card::CardSupertype;
 use crate::card::CardType;
+use crate::card::CardTypeSet;
 use crate::card::ChoiceVisibilityDef;
 use crate::card::ChooseForEachPlayerDef;
+use crate::card::ColorSet;
 use crate::card::CostDef;
 use crate::card::CounterKind;
+use crate::card::CreatureTypeSetDef;
 use crate::card::DamageAssignmentDef;
 use crate::card::DiscardSelectionDef;
 use crate::card::EffectDef;
 use crate::card::EffectRecipientDef;
 use crate::card::HalvedValueDef;
+use crate::card::ManaColor;
 use crate::card::ObjectPredicateDef;
 use crate::card::ObjectSetDef;
 use crate::card::PerPlayerSelectionDef;
@@ -29,6 +34,7 @@ use crate::card::RoundingDef;
 use crate::card::TriggerEventDef;
 use crate::card::ValueDef;
 use crate::card::ZoneKind;
+use crate::card::ZonePlacement;
 use crate::card::abilities;
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -181,6 +187,61 @@ AbilityDef::activated("{T}: Heartless Hidetsugu deals damage to each player equa
 ]),
 );
 
+// BOK 126 — Genju of the Cedars
+pub(in crate::card::sets) static GENJU_OF_THE_CEDARS: CardRecord = CardRecord::new(
+    "Genju of the Cedars",
+    "9d621b82-c863-437b-b42c-31a0872be6d4",
+    "Arnie Swekel",
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant Forest",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                )],
+            ),
+            AbilityDef::activated(
+                "{2}: Enchanted Forest becomes a 4/4 green Spirit creature until end of turn. It's still a land.",
+                &[CostDef::Mana(mana_cost!("{2}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Spirit",
+                        ])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::triggered(
+                "When enchanted Forest is put into a graveyard, you may return this card from your graveyard to your hand.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AttachedToSource,
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::move_to_zone(
+                        EffectRecipientDef::SourceZoneChangeSuccessor,
+                        ZoneKind::Hand,
+                        ZonePlacement::Top,
+                    ),
+                },
+            ),
+        ]),
+);
+
 // BOK 154 — Mirror Gallery
 pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
     "Mirror Gallery",
@@ -275,6 +336,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRACK_THE_EARTH_98,
     &FUMIKO_THE_LOWBLOOD,
     &HEARTLESS_HIDETSUGU_107,
+    &GENJU_OF_THE_CEDARS,
     &MIRROR_GALLERY,
     &UMEZAWAS_JITTE,
 ];

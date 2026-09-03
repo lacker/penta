@@ -286,7 +286,6 @@ fn a_blood_moon_takes_both_of_a_duals_types() {
 /// leave the other type unaffected." A Magical Hack turning its Swamp into
 /// an Island leaves the Mountain where it was.
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_changes_one_of_a_duals_types_and_leaves_the_other() {
     let mut game = ready_game();
     game.battlefield.clear();

@@ -7,15 +7,15 @@ use std::cell::Cell;
 use super::continuous_state::StaticAffectedObject;
 use super::{
     AbilityDef, AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    AppliedRuleEffect, CardDefinitionId, CardPartId, CardRules, CardSet, CardSupertype,
-    CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext, CharacteristicOperationDef,
-    ColorSet, ContinuousEffectExpiration, ControlFlow, DeclarativeAbilityDef, EffectDef,
-    EffectRecipientDef, EffectRecipientSetDef, Game, GameObjectId, GrantId, KeywordAbility,
-    ManaColor, ObjectCharacteristics, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent,
-    PlayerId, PlayerRelation, ResolvedContinuousEffect, ResolvedContinuousEffectKind,
-    RetiredObject, SetOperationDef, StackAbilityResolver, StackObject, StaticAppliedEffect,
-    StaticEffectTraversal, Target, TargetIndex, TriggerConditionDef, TriggerContext,
-    TriggerEventObject, ZoneKind,
+    AppliedRuleEffect, BasicLandType, CardDefinitionId, CardPartId, CardRules, CardSet,
+    CardSupertype, CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext,
+    CharacteristicOperationDef, ColorSet, ContinuousEffectExpiration, ControlFlow,
+    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
+    GameObjectId, GrantId, KeywordAbility, ManaColor, ObjectCharacteristics, ObjectPredicateDef,
+    ObjectRefDef, ObjectSetDef, Permanent, PlayerId, PlayerRelation, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, RetiredObject, SetOperationDef, StackAbilityResolver,
+    StackObject, StaticAppliedEffect, StaticEffectTraversal, Target, TargetIndex, TextWordMap,
+    TriggerConditionDef, TriggerContext, TriggerEventObject, ZoneKind,
 };
 #[cfg(test)]
 use super::{AbilityId, AbilityOrigin};
@@ -352,8 +352,12 @@ impl Game {
                 // recipient does not match. Grant IDs identify structural
                 // grant sites, so later grants must not be renumbered by
                 // which permanent happens to be queried.
-                let recipient_matches =
-                    self.static_recipient_matches(recipient, traversal.source, traversal.affected);
+                let recipient_matches = self.static_recipient_matches(
+                    recipient,
+                    traversal.source,
+                    traversal.affected,
+                    traversal.text_words,
+                );
                 self.visit_static_applied_effect_components(
                     effect,
                     traversal,
@@ -433,6 +437,7 @@ impl Game {
                 if include_effect {
                     visitor(StaticAppliedEffect {
                         source: traversal.source.card.id,
+                        text_words: traversal.text_words,
                         timestamp: traversal.source_timestamp,
                         source_presentation: traversal.source_presentation,
                         source_origin: traversal.source_origin,
@@ -606,7 +611,7 @@ impl Game {
                 | EffectDef::ChooseEffect { .. }
                 | EffectDef::ModifyCounters { .. }
                 | EffectDef::RemoveCounters { .. }
-                | EffectDef::ChangeTextBasicLandType { .. }
+                | EffectDef::ChangeText { .. }
                 | EffectDef::ChooseColor { .. }
                 | EffectDef::BecomeCopyOf { .. }
                 | EffectDef::May { .. }

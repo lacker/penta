@@ -586,7 +586,7 @@ impl HandcraftedPolicy {
             | EffectDef::IfFormat { .. }
             | EffectDef::AddCounters { .. }
             | EffectDef::RemoveCounters { .. }
-            | EffectDef::ChangeTextBasicLandType { .. }
+            | EffectDef::ChangeText { .. }
             | EffectDef::ChooseColor { .. }
             | EffectDef::ChooseCounterKind { .. }
             | EffectDef::ChooseEffect { .. }

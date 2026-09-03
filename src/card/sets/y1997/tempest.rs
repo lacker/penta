@@ -64,6 +64,7 @@ use crate::card::ScaledValueDef;
 use crate::card::SubtypeDef;
 use crate::card::SumValueDef;
 use crate::card::TargetChooserDef;
+use crate::card::TextChangeKindDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
@@ -1850,12 +1851,27 @@ pub(in crate::card::sets) static VOLRATH_S_CURSE: CardRecord = CardRecord::new(
 );
 
 // TMP 102 — Whim of Volrath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIM_OF_VOLRATH: CardRecord = CardRecord::new(
     "Whim of Volrath",
     "e259da60-c8bc-4a77-98ed-e529dc067732",
     "Anthony S. Waters",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        abilities::buyback(&[CostDef::Mana(mana_cost!("{2}"))]),
+        AbilityDef::spell_with_targets(
+            "Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another until end of turn. (For example, you may change \"nonred creature\" to \"nongreen creature\" or \"plainswalk\" to \"swampwalk.\")",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::BasicLandTypeOrColorWord,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 103 — Whispers of the Muse

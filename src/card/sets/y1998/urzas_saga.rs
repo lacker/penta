@@ -3806,12 +3806,33 @@ pub(in crate::card::sets) static FERTILE_GROUND: CardRecord = CardRecord::new(
 );
 
 // USG 253 — Fortitude
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORTITUDE: CardRecord = CardRecord::new(
     "Fortitude",
     "d54d5240-8afc-4c61-aaf6-a78d2b92e5c9",
     "Daren Bader",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "Sacrifice a Forest: Regenerate enchanted creature.",
+                &[CostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    controller: PlayerRelation::You,
+                }],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+            abilities::dies_trigger(
+                "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
+                EffectDef::move_to_zone(
+                    EffectRecipientDef::TriggeringZoneChangeResult,
+                    ZoneKind::Hand,
+                    ZonePlacement::Top,
+                ),
+            ),
+        ]),
 );
 
 // USG 254 — Gaea's Bounty

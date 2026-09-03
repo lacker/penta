@@ -49,6 +49,7 @@ use crate::card::RevealObjectsDef;
 use crate::card::SacrificedAmountDef;
 use crate::card::ScaledValueDef;
 use crate::card::SubtypeDef;
+use crate::card::TextChangeKindDef;
 use crate::card::TokenCharacteristics;
 use crate::card::TokenDef;
 use crate::card::TriggerConditionDef;
@@ -846,12 +847,30 @@ pub(in crate::card::sets) static COLLECTIVE_RESTRAINT: CardRecord = CardRecord::
 );
 
 // INV 50 — Crystal Spray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYSTAL_SPRAY: CardRecord = CardRecord::new(
     "Crystal Spray",
     "8798a4f1-34bb-449d-a8cc-faf8bda8e0ab",
     "Jeff Miracola",
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the text of target spell or permanent by replacing all instances of one color word with another or one basic land type with another until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Any,
+            zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::Sequence(&[
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::BasicLandTypeOrColorWord,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // INV 51 — Disrupt (reprint)

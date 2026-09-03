@@ -469,7 +469,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::ChooseEffect { .. }
         | EffectDef::ModifyCounters { .. }
         | EffectDef::RemoveCounters { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
+        | EffectDef::ChangeText { .. }
         | EffectDef::ChooseColor { .. }
         | EffectDef::BecomeCopyOf { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
@@ -665,7 +665,8 @@ pub(in super::super) fn shared_static_applied_effect(
             CharacteristicOperationDef::Abilities(AbilityOperationDef::Remove(_))
             | CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
             | CharacteristicOperationDef::SetChosenBasicLandType
-            | CharacteristicOperationDef::AddChosenBasicLandType,
+            | CharacteristicOperationDef::AddChosenBasicLandType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
         ) => true,
     }
 }

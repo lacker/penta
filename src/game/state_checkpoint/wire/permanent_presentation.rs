@@ -13,6 +13,7 @@ struct PermanentPresentation {
     activated_loyalty_this_turn: bool,
     chosen_creature_type: Option<String>,
     chosen_basic_land_type: Option<BasicLandType>,
+    chosen_basic_land_type_substitution: Option<(BasicLandType, BasicLandType)>,
     chosen_color: Option<ManaColor>,
     chosen_card_name: Option<String>,
     chosen_card_name_binding: Option<String>,

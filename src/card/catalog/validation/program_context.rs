@@ -478,7 +478,8 @@ fn static_object_characteristic_supported(
         CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
         | CharacteristicOperationDef::Abilities(_)
         | CharacteristicOperationDef::SetChosenBasicLandType
-        | CharacteristicOperationDef::AddChosenBasicLandType => true,
+        | CharacteristicOperationDef::AddChosenBasicLandType
+        | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution => true,
         CharacteristicOperationDef::BasicLandTypes(operation) => match operation {
             SetOperationDef::Add(types)
             | SetOperationDef::Remove(types)

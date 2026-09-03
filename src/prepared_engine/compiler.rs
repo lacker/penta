@@ -289,7 +289,8 @@ fn static_lane(effect: AppliedEffectDef) -> PreparedStaticLane {
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::BasicLandTypes(_)
             | CharacteristicOperationDef::SetChosenBasicLandType
-            | CharacteristicOperationDef::AddChosenBasicLandType,
+            | CharacteristicOperationDef::AddChosenBasicLandType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
         ) => PreparedStaticLane::Other,
     }
 }
@@ -303,6 +304,7 @@ fn applied_effect_starts_in_type_layer(effect: AppliedEffectDef) -> bool {
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::SetChosenBasicLandType
             | CharacteristicOperationDef::AddChosenBasicLandType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution
             | CharacteristicOperationDef::BasicLandTypes(_)
             | CharacteristicOperationDef::CardTypes(_)
             | CharacteristicOperationDef::Supertypes(_)
@@ -355,7 +357,8 @@ fn applied_effect_contains_land_type_operation(effect: AppliedEffectDef) -> bool
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::BasicLandTypes(_)
             | CharacteristicOperationDef::SetChosenBasicLandType
-            | CharacteristicOperationDef::AddChosenBasicLandType,
+            | CharacteristicOperationDef::AddChosenBasicLandType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
         ) => true,
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
     }

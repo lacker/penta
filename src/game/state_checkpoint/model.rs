@@ -43,6 +43,7 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 
 pub(super) use continuation::DecisionContinuationSnapshot;
 pub(super) use continuation::PregameAbilityActionSnapshot;
+pub(in crate::game::state_checkpoint) use continuation::TextChangeKindSnapshot;
 pub(in crate::game::state_checkpoint) use continuous::*;
 pub(super) use copy::{
     CopiableCharacteristicsSnapshot, DoubleFacedCopiableCharacteristicsSnapshot,
@@ -94,7 +95,7 @@ const fn default_nonbattlefield_grant_expiration() -> ContinuousEffectExpiration
     ContinuousEffectExpirationSnapshot::EndOfTurn
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum ManaColorSnapshot {
     White,
@@ -180,7 +181,7 @@ pub(super) enum AbilityOriginSnapshot {
     },
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum BasicLandTypeSnapshot {
     Plains,
@@ -292,6 +293,9 @@ pub(super) struct DetachedPermanentSnapshot {
     pub(super) chosen_creature_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<BasicLandTypeSnapshot>,
+    /// An ordered find-and-replace pair chosen as this permanent entered.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(super) chosen_basic_land_type_substitution: Option<[BasicLandTypeSnapshot; 2]>,
     /// The color this permanent was told to remember as it entered.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub(super) chosen_color: Option<ManaColorSnapshot>,

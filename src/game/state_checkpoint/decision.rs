@@ -30,7 +30,10 @@ use super::model::{
 mod option;
 use option::parse_option;
 
-use super::procedure::{draw_replacement_snapshot_allowing, parse_draw_replacement};
+use super::procedure::{
+    draw_replacement_snapshot_allowing, parse_draw_replacement, parse_pending_procedure,
+    pending_procedure_snapshot,
+};
 use super::semantics::{
     ability_locator, ability_locator_for_origin, ability_target_defs, catalog_ability,
     catalog_replacement_effect, catalog_scoped_effect, replacement_effect_locator_matches_source,
@@ -878,20 +881,16 @@ fn continuation_snapshot(
         DecisionContinuation::CardNameChoice {
             choices,
             binding,
-            object,
-            context,
-            effect,
+            resume,
         } => DecisionContinuationSnapshot::CardNameChoice {
             choices: choices.clone(),
             binding: binding_snapshot(binding),
-            continuation: effect_continuation_snapshot(
+            resume: Box::new(pending_procedure_snapshot(
                 game,
                 viewer,
-                object,
-                context,
-                *effect,
+                resume,
                 visible_rebindings,
-            )?,
+            )?),
         },
         // A run of sacrifices is one resolution answered a creature at a
         // time, so what it carries is the resolution plus how much is still

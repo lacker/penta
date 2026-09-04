@@ -209,18 +209,12 @@ fn parse_continuation(
         DecisionContinuationSnapshot::CardNameChoice {
             choices,
             binding,
-            continuation,
-        } => {
-            // Locate the follow-up the chosen name feeds, not the choice itself.
-            let continuation = parse_effect_continuation(continuation, game)?;
-            DecisionContinuation::CardNameChoice {
-                choices: choices.clone(),
-                binding: parse_binding_snapshot(binding),
-                object: continuation.object,
-                context: continuation.context,
-                effect: continuation.effect,
-            }
-        }
+            resume,
+        } => DecisionContinuation::CardNameChoice {
+            choices: choices.clone(),
+            binding: parse_binding_snapshot(binding),
+            resume: Box::new(parse_pending_procedure(resume, game)?),
+        },
         DecisionContinuationSnapshot::ChainLightning {
             player: owner,
             spell,

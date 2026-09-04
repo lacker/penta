@@ -101,13 +101,9 @@ impl Game {
             DecisionContinuation::CardNameChoice {
                 choices,
                 binding,
-                object,
-                context,
-                effect,
+                resume,
             } => {
-                self.resolve_card_name_choice(
-                    &choices, &binding, &object, context, effect, options,
-                );
+                self.resolve_card_name_choice(&choices, &binding, resume, options);
             }
             DecisionContinuation::ChooseForEachPlayer {
                 definition,

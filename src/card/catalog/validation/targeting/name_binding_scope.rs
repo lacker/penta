@@ -1,20 +1,25 @@
 impl BindingScope<'_> {
-    fn with_card_name(self, binding: Binding) -> Result<Self, GrantedAbilityValidationError> {
-        if binding == crate::ParentBinding {
-            return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-                context: "card-name binding",
-                operation: "a chosen card name requires a durable labeled binding",
-            });
+    fn with_known_binding_labels(
+        self,
+        bindings: &[Binding],
+    ) -> Result<Self, GrantedAbilityValidationError> {
+        for binding in bindings {
+            let _ = self.binding_bit(*binding, true)?;
         }
-        let bit = self.declare_binding(binding)?;
-        if (self.objects | self.object_sets | self.card_names) & bit != 0 {
-            Err(GrantedAbilityValidationError::BindingAlreadyDeclared { binding })
-        } else {
-            Ok(Self {
-                card_names: self.card_names | bit,
-                ..self
-            })
-        }
+        Ok(self)
+    }
+
+    fn with_declared_card_name(
+        self,
+        binding: Binding,
+    ) -> Result<Self, GrantedAbilityValidationError> {
+        let bit = self
+            .binding_bit(binding, false)?
+            .expect("the card-name output binding was declared while validating the effect");
+        Ok(Self {
+            card_names: self.card_names | bit,
+            ..self
+        })
     }
 
     fn validate_card_name_binding_reference(

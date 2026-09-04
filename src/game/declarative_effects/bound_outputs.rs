@@ -17,12 +17,7 @@ impl Game {
         let Some(label) = binding.label() else {
             unreachable!("catalog validation rejected a parent binding on BindOutput")
         };
-        if let EffectDef::ChooseCardName {
-            chooser,
-            names,
-            then,
-        } = *effect
-        {
+        if let EffectDef::ChooseCardName { chooser, names } = *effect {
             if let Some(player) = self.player_reference(chooser, object, &context, scoped) {
                 self.queue_card_name_choice(
                     player,
@@ -30,7 +25,6 @@ impl Game {
                     binding,
                     object.clone(),
                     context.fork_resolution(),
-                    scoped.with_effect(*then),
                 );
             }
             return context;

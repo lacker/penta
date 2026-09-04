@@ -45,23 +45,6 @@ fn validate_object_set_continuation(
     Ok(())
 }
 
-fn validate_card_name_continuation(
-    binding: Binding,
-    effect: EffectDef,
-    target_count: usize,
-    scope: BindingScope<'_>,
-) -> Result<(), GrantedAbilityValidationError> {
-    let nested = scope.with_card_name(binding)?;
-    validate_effect_references(effect, target_count, nested)?;
-    if !nested.binding_was_read(binding) {
-        return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation",
-            operation: "a continuation that does not read its chosen-name binding; use Sequence",
-        });
-    }
-    Ok(())
-}
-
 #[allow(clippy::too_many_lines)]
 fn validate_effect_references(
     effect: EffectDef,
@@ -76,9 +59,10 @@ fn validate_effect_references(
                     operation: "BindOutput requires a durable labeled binding",
                 });
             }
-            if let EffectDef::ChooseCardName { chooser, then, .. } = *effect {
+            if let EffectDef::ChooseCardName { chooser, .. } = *effect {
                 validate_player_reference(chooser, target_count, scope)?;
-                return validate_card_name_continuation(binding, *then, target_count, scope);
+                let _ = scope.declare_binding(binding)?;
+                return Ok(());
             }
             validate_effect_references(*effect, target_count, scope)?;
             let _ = has_bindable_output(*effect)?;
@@ -112,7 +96,11 @@ fn validate_effect_references(
             )
         }
         EffectDef::Sequence(effects) => {
-            let mut scope = scope;
+            let mut name_outputs = Vec::new();
+            for effect in effects {
+                durable_card_name_outputs(*effect, &mut name_outputs);
+            }
+            let mut scope = scope.with_known_binding_labels(&name_outputs)?;
             for effect in effects {
                 let mut outputs = Vec::new();
                 durable_object_set_outputs(*effect, &mut outputs);

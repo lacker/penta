@@ -215,7 +215,6 @@ pub enum EffectDef {
     ChooseCardName {
         chooser: PlayerRefDef,
         names: CardNameSetDef,
-        then: &'static EffectDef,
     },
     /// Copies one or more named spells or abilities on the stack.
     CopyStackObject(&'static CopyStackObjectDef),

@@ -11,10 +11,11 @@ use super::{
     ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, CounterKindSnapshot,
     DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DetachedStackSnapshot,
     DiscardChoiceSnapshot, DrawReplacementSnapshot, EffectContinuationSnapshot,
-    EffectResolutionContextSnapshot, ManaSnapshot, PendingTriggerSnapshot,
-    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedEffectPaymentSnapshot,
-    ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot,
-    TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    EffectResolutionContextSnapshot, ManaSnapshot, PendingProcedureSnapshot,
+    PendingTriggerSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
+    ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot,
+    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot,
+    ZonePlacementSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -129,7 +130,7 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// offered is part of the pending question.
         choices: Vec<String>,
         binding: super::BindingSnapshot,
-        continuation: EffectContinuationSnapshot,
+        resume: Box<PendingProcedureSnapshot>,
     },
     ChainLightning {
         player: usize,

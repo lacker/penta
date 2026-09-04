@@ -81,9 +81,8 @@ fn validate_effect_target_shapes(
             }
             Ok(())
         }
-        EffectDef::ChooseCardName { chooser, then, .. } => {
-            validate_player_reference_shape(chooser, targets)?;
-            validate_effect_target_shapes(*then, targets, None)
+        EffectDef::ChooseCardName { chooser, .. } => {
+            validate_player_reference_shape(chooser, targets)
         }
         EffectDef::Choose(choice) => {
             validate_player_reference_shape(choice.chooser, targets)?;

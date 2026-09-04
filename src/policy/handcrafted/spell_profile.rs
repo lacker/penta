@@ -410,8 +410,7 @@ impl HandcraftedPolicy {
             EffectDef::ChooseForEachPlayer(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
-            EffectDef::ChooseCardName { then, .. }
-            | EffectDef::PermitLookAtExiled { then, .. }
+            EffectDef::PermitLookAtExiled { then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
             } => {
@@ -589,6 +588,7 @@ impl HandcraftedPolicy {
             | EffectDef::TakeExtraTurn { .. }
             | EffectDef::PutSourceOntoBattlefieldAttacking
             | EffectDef::SetLifeTotal { .. }
+            | EffectDef::ChooseCardName { .. }
             | EffectDef::BecomeMonarch { .. }
             | EffectDef::VoteForPermanentToExile { .. }
             | EffectDef::DamageCannotBePreventedThisTurn

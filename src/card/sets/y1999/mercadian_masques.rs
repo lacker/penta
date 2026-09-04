@@ -20,30 +20,64 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // MMQ 1 — Afterlife (reprint)
 
 // MMQ 2 — Alabaster Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALABASTER_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9cf393a3-831e-4d3a-8404-ee83f60970aa"),
     "Alabaster Wall",
     crate::card::CardArt::new("9cf393a3-831e-4d3a-8404-ee83f60970aa", "Randy Gallegos"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::PreventDamage {
+                prevention: crate::card::DamagePreventionDef::amount(
+                    crate::card::DamageEventMatcherDef::to(EffectRecipientDef::Target(
+                        TargetIndex::PRIMARY,
+                    )),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 3 — Armistice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMISTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1eb4402a-f263-4f82-b4c0-cf0aa58dc946"),
     "Armistice",
     crate::card::CardArt::new("1eb4402a-f263-4f82-b4c0-cf0aa58dc946", "Dan Frazier"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{3}{W}{W}: You draw a card and target opponent gains 3 life.",
+            &[AbilityCostDef::Mana(mana_cost!("{3}{W}{W}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(3),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MMQ 4 — Arrest
@@ -76,13 +110,30 @@ pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legac
 );
 
 // MMQ 5 — Ballista Squad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALLISTA_SQUAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("30d51d84-23d2-41ff-ab68-a633beddba06"),
     "Ballista Squad",
     crate::card::CardArt::new("30d51d84-23d2-41ff-ab68-a633beddba06", "Matthew D. Wilson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Human", "Rebel"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{X}{W}, {T}: This creature deals X damage to target attacking or blocking creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{X}{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::ChosenX,
+            },
+        ),
+    ),
 );
 
 // MMQ 6 — Charm Peddler
@@ -126,17 +177,45 @@ pub(in crate::card::sets) static CHO_ARRIM_BRUISER: CardRecord = CardRecord::new
 );
 
 // MMQ 10 — Cho-Arrim Legate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHO_ARRIM_LEGATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1427a3a1-24e1-4697-b5eb-1c0a24f89e75"),
     "Cho-Arrim Legate",
     crate::card::CardArt::new("1427a3a1-24e1-4697-b5eb-1c0a24f89e75", "rk post"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 1, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent controls a Swamp and you control a Plains, you may cast this spell without paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::All(&[
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+        ])),
+        abilities::protection_from_color(ManaColor::Black),
+    ]),
 );
 
 // MMQ 11 — Cho-Manno, Revolutionary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHO_MANNO_REVOLUTIONARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3dc51393-de63-4ce3-ab02-c695e4448018"),
     "Cho-Manno, Revolutionary",
@@ -145,7 +224,15 @@ pub(in crate::card::sets) static CHO_MANNO_REVOLUTIONARY: CardRecord = CardRecor
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Rebel"], 2, 2)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(AbilityDef::static_ability(
+            "Prevent all damage that would be dealt to this creature.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::prevent_damage_from(ObjectPredicateDef::Any),
+            },
+        )),
 );
 
 // MMQ 12 — Cho-Manno's Blessing
@@ -192,7 +279,6 @@ pub(in crate::card::sets) static CRACKDOWN: CardRecord = CardRecord::new(
 );
 
 // MMQ 16 — Crossbow Infantry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CROSSBOW_INFANTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("744c2177-3140-48a1-95a4-2f0a27ca5b2f"),
     "Crossbow Infantry",
@@ -201,39 +287,81 @@ pub(in crate::card::sets) static CROSSBOW_INFANTRY: CardRecord = CardRecord::new
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier", "Archer"], 1, 1)
+        .with_ability(AbilityDef::activated_with_targets(
+            "{T}: This creature deals 1 damage to target attacking or blocking creature.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AttackingOrBlocking,
+                ]),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        )),
 );
 
 // MMQ 17 — Devout Witness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEVOUT_WITNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("48ca7aeb-09db-4409-9ba2-c5c5500ad72f"),
     "Devout Witness",
     crate::card::CardArt::new("48ca7aeb-09db-4409-9ba2-c5c5500ad72f", "Don Hazeltine"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{W}, {T}, Discard a card: Destroy target artifact or enchantment.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                ]),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
 );
 
 // MMQ 18 — Disenchant (reprint)
 
 // MMQ 19 — Fountain Watch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOUNTAIN_WATCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("690daa19-1842-4605-9bda-bf67e4ede3c4"),
     "Fountain Watch",
     crate::card::CardArt::new("690daa19-1842-4605-9bda-bf67e4ede3c4", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Human", "Cleric"], 2, 4).with_ability(
+        AbilityDef::static_ability(
+            "Artifacts and enchantments you control have shroud.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Artifact),
+                        ObjectPredicateDef::HasType(CardType::Enchantment),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+            },
+        ),
+    ),
 );
 
 // MMQ 20 — Fresh Volunteers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FRESH_VOLUNTEERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e070ea4a-c417-405f-b788-78fb7ca2eaa5"),
     "Fresh Volunteers",
     crate::card::CardArt::new("e070ea4a-c417-405f-b788-78fb7ca2eaa5", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Rebel"], 2, 2),
 );
 
 // MMQ 21 — Honor the Fallen
@@ -257,13 +385,23 @@ pub(in crate::card::sets) static IGNOBLE_SOLDIER: CardRecord = CardRecord::new(
 );
 
 // MMQ 23 — Inviolability
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INVIOLABILITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9ece8504-389a-43e3-b178-7067722c4b75"),
     "Inviolability",
     crate::card::CardArt::new("9ece8504-389a-43e3-b178-7067722c4b75", "DiTerlizzi"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Prevent all damage that would be dealt to enchanted creature.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::prevent_damage_from(ObjectPredicateDef::Any),
+                },
+            ),
+        ]),
 );
 
 // MMQ 24 — Ivory Mask
@@ -277,23 +415,23 @@ pub(in crate::card::sets) static IVORY_MASK: CardRecord = CardRecord::new(
 );
 
 // MMQ 25 — Jhovall Queen
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHOVALL_QUEEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b8eb55cc-ddde-4f15-9262-b9aee28059d3"),
     "Jhovall Queen",
     crate::card::CardArt::new("b8eb55cc-ddde-4f15-9262-b9aee28059d3", "Michael Sutfin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Cat", "Rebel"], 4, 7)
+        .with_ability(abilities::vigilance()),
 );
 
 // MMQ 26 — Jhovall Rider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHOVALL_RIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7e1f7c51-0011-4ea5-b123-3c26293f5dab"),
     "Jhovall Rider",
     crate::card::CardArt::new("7e1f7c51-0011-4ea5-b123-3c26293f5dab", "Scott M. Fischer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{W}"), &["Human", "Rebel"], 3, 3)
+        .with_ability(abilities::trample()),
 );
 
 // MMQ 27 — Last Breath
@@ -320,7 +458,6 @@ pub(in crate::card::sets) static MOMENT_OF_SILENCE: CardRecord = CardRecord::new
 );
 
 // MMQ 29 — Moonlit Wake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOONLIT_WAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1eba9595-6789-4d7a-9e46-8d1f75993b21"),
     "Moonlit Wake",
@@ -329,7 +466,18 @@ pub(in crate::card::sets) static MOONLIT_WAKE: CardRecord = CardRecord::new(
         "Greg Hildebrandt & Tim Hildebrandt",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature dies, you gain 1 life.",
+        TriggerEventDef::zone_changed(
+            ObjectPredicateDef::HasType(CardType::Creature),
+            Some(ZoneKind::Battlefield),
+            Some(ZoneKind::Graveyard),
+        ),
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // MMQ 30 — Muzzle
@@ -343,13 +491,15 @@ pub(in crate::card::sets) static MUZZLE: CardRecord = CardRecord::new(
 );
 
 // MMQ 31 — Nightwind Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NIGHTWIND_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0968401d-522f-4def-92a1-d504471ac54e"),
     "Nightwind Glider",
     crate::card::CardArt::new("0968401d-522f-4def-92a1-d504471ac54e", "Randy Gallegos"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Black),
+    ]),
 );
 
 // MMQ 32 — Noble Purpose
@@ -466,13 +616,24 @@ pub(in crate::card::sets) static RENOUNCE: CardRecord = CardRecord::new(
 );
 
 // MMQ 43 — Revered Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REVERED_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b0793175-e56b-4ff8-9e22-3a96a698068c"),
     "Revered Elder",
     crate::card::CardArt::new("b0793175-e56b-4ff8-9e22-3a96a698068c", "Donato Giancola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        AbilityDef::activated(
+            "{1}: Prevent the next 1 damage that would be dealt to this creature this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::PreventDamage {
+                prevention: crate::card::DamagePreventionDef::amount(
+                    crate::card::DamageEventMatcherDef::to(EffectRecipientDef::Source),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 44 — Reverent Mantra
@@ -508,13 +669,21 @@ pub(in crate::card::sets) static SECURITY_DETAIL: CardRecord = CardRecord::new(
 );
 
 // MMQ 48 — Soothing Balm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOOTHING_BALM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("96b8f4be-9f4d-4373-8141-a03518ecd38a"),
     "Soothing Balm",
     crate::card::CardArt::new("96b8f4be-9f4d-4373-8141-a03518ecd38a", "Scott M. Fischer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player gains 5 life.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::GainLife {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(5),
+        },
+    )),
 );
 
 // MMQ 49 — Spiritual Focus
@@ -528,13 +697,13 @@ pub(in crate::card::sets) static SPIRITUAL_FOCUS: CardRecord = CardRecord::new(
 );
 
 // MMQ 50 — Steadfast Guard
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STEADFAST_GUARD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6381774b-fb91-46cc-9bf6-6eeb4d67a165"),
     "Steadfast Guard",
     crate::card::CardArt::new("6381774b-fb91-46cc-9bf6-6eeb4d67a165", "Adam Rex"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Rebel"], 2, 2)
+        .with_ability(abilities::vigilance()),
 );
 
 // MMQ 51 — Story Circle
@@ -548,33 +717,62 @@ pub(in crate::card::sets) static STORY_CIRCLE: CardRecord = CardRecord::new(
 );
 
 // MMQ 52 — Task Force
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TASK_FORCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17a58c5b-28c2-4261-992c-2ecadb721880"),
     "Task Force",
     crate::card::CardArt::new("17a58c5b-28c2-4261-992c-2ecadb721880", "Gary Ruddell"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 1, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes the target of a spell or ability, it gets +0/+3 until end of turn.",
+            TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 53 — Thermal Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THERMAL_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd909c26-930d-4af0-b19a-c899847338b4"),
     "Thermal Glider",
     crate::card::CardArt::new("fd909c26-930d-4af0-b19a-c899847338b4", "Mark Zug"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Rebel"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::protection_from_color(ManaColor::Red),
+    ]),
 );
 
 // MMQ 54 — Tonic Peddler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TONIC_PEDDLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("334bbd9d-3549-4352-9635-d772aab28503"),
     "Tonic Peddler",
     crate::card::CardArt::new("334bbd9d-3549-4352-9635-d772aab28503", "Adam Rex"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{W}, {T}, Discard a card: Target player gains 3 life.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{W}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ),
 );
 
 // MMQ 55 — Trap Runner
@@ -618,23 +816,48 @@ pub(in crate::card::sets) static AERIAL_CARAVAN: CardRecord = CardRecord::new(
 );
 
 // MMQ 59 — Balloon Peddler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BALLOON_PEDDLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c34963e6-850e-4ce4-b04f-5e623ce5b73f"),
     "Balloon Peddler",
     crate::card::CardArt::new("c34963e6-850e-4ce4-b04f-5e623ce5b73f", "Paolo Parente"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}, {T}, Discard a card: Target creature gains flying until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 60 — Blockade Runner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOCKADE_RUNNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59e483df-b58a-401e-85bc-0afda4bf7cac"),
     "Blockade Runner",
     crate::card::CardArt::new("59e483df-b58a-401e-85bc-0afda4bf7cac", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Merfolk"], 2, 2).with_ability(
+        AbilityDef::activated(
+            "{U}: This creature can't be blocked this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 61 — Brainstorm (reprint)
@@ -650,23 +873,45 @@ pub(in crate::card::sets) static BRIBERY: CardRecord = CardRecord::new(
 );
 
 // MMQ 63 — Buoyancy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BUOYANCY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b208dad2-a412-45fd-b19a-d370426ef5b8"),
     "Buoyancy",
     crate::card::CardArt::new("b208dad2-a412-45fd-b19a-d370426ef5b8", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                },
+            ),
+        ]),
 );
 
 // MMQ 64 — Chambered Nautilus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CHAMBERED_NAUTILUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("860c613d-d031-4c2a-922b-39f4eec04e18"),
     "Chambered Nautilus",
     crate::card::CardArt::new("860c613d-d031-4c2a-922b-39f4eec04e18", "John Matson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Nautilus", "Beast"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may draw a card.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 65 — Chameleon Spirit
@@ -690,13 +935,23 @@ pub(in crate::card::sets) static CHARISMA: CardRecord = CardRecord::new(
 );
 
 // MMQ 67 — Cloud Sprite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOUD_SPRITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d14352c-ac8c-45b5-b930-63822408ba3d"),
     "Cloud Sprite",
     crate::card::CardArt::new("3d14352c-ac8c-45b5-b930-63822408ba3d", "Mark Zug"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{U}"), &["Faerie"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MMQ 68 — Coastal Piracy
@@ -732,23 +987,42 @@ pub(in crate::card::sets) static CUSTOMS_DEPOT: CardRecord = CardRecord::new(
 );
 
 // MMQ 72 — Darting Merfolk
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DARTING_MERFOLK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("438e15f7-59bb-4047-af1f-ef92cc1866b8"),
     "Darting Merfolk",
     crate::card::CardArt::new("438e15f7-59bb-4047-af1f-ef92cc1866b8", "Sam Wood"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{U}: Return this creature to its owner's hand.",
+            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 73 — Dehydration
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEHYDRATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c9e4043-e7a6-4c68-aa03-ef2f88e46451"),
     "Dehydration",
     crate::card::CardArt::new("2c9e4043-e7a6-4c68-aa03-ef2f88e46451", "Val Mayerik"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature doesn't untap during its controller's untap step.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+                },
+            ),
+        ]),
 );
 
 // MMQ 74 — Diplomatic Escort
@@ -762,13 +1036,24 @@ pub(in crate::card::sets) static DIPLOMATIC_ESCORT: CardRecord = CardRecord::new
 );
 
 // MMQ 75 — Diplomatic Immunity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIPLOMATIC_IMMUNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb1e610e-a4a2-460b-8e4c-13674badbce3"),
     "Diplomatic Immunity",
     crate::card::CardArt::new("fb1e610e-a4a2-460b-8e4c-13674badbce3", "Terese Nielsen"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::shroud(),
+            AbilityDef::static_ability(
+                "Enchanted creature has shroud.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::shroud()),
+                },
+            ),
+        ]),
 );
 
 // MMQ 76 — Drake Hatchling
@@ -782,13 +1067,35 @@ pub(in crate::card::sets) static DRAKE_HATCHLING: CardRecord = CardRecord::new(
 );
 
 // MMQ 77 — Embargo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EMBARGO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3fca3c65-f20e-4978-bfbb-ee7f9e1d829f"),
     "Embargo",
     crate::card::CardArt::new("3fca3c65-f20e-4978-bfbb-ee7f9e1d829f", "Nelson DeCastro"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}")).with_abilities(&[
+        AbilityDef::static_ability(
+            "Nonland permanents don't untap during their controllers' untap steps.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
+            },
+        ),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you lose 2 life.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::LoseLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 // MMQ 78 — Energy Flux (reprint)
@@ -809,13 +1116,27 @@ pub(in crate::card::sets) static EXTRAVAGANT_SPIRIT: CardRecord = CardRecord::ne
 // MMQ 80 — False Demise (reprint)
 
 // MMQ 81 — Glowing Anemone
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLOWING_ANEMONE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("708593e6-787b-4f76-a86c-1d52857493ea"),
     "Glowing Anemone",
     crate::card::CardArt::new("708593e6-787b-4f76-a86c-1d52857493ea", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Jellyfish", "Beast"], 1, 3).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may return target land to its owner's hand.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: crate::card::ZonePlacement::Top,
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 82 — Gush
@@ -869,13 +1190,26 @@ pub(in crate::card::sets) static HIGH_SEAS: CardRecord = CardRecord::new(
 );
 
 // MMQ 84 — Hoodwink
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOODWINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d505fbb-ec85-475b-a0e1-6670627ec017"),
     "Hoodwink",
     crate::card::CardArt::new("8d505fbb-ec85-475b-a0e1-6670627ec017", "Arnie Swekel"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target artifact, enchantment, or land to its owner's hand.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Enchantment),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+        )],
+        EffectDef::MoveToZone {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            zone: ZoneKind::Hand,
+            placement: crate::card::ZonePlacement::Top,
+        },
+    )),
 );
 
 // MMQ 85 — Indentured Djinn
@@ -977,13 +1311,23 @@ pub(in crate::card::sets) static PORT_INSPECTOR: CardRecord = CardRecord::new(
 );
 
 // MMQ 91 — Rishadan Airship
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RISHADAN_AIRSHIP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d8e596b-f5ef-405a-8910-c5d0b5c8c0fc"),
     "Rishadan Airship",
     crate::card::CardArt::new("5d8e596b-f5ef-405a-8910-c5d0b5c8c0fc", "Kev Walker"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Pirate"], 3, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can block only creatures with flying.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::can_block_only(
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                )),
+            },
+        ),
+    ]),
 );
 
 // MMQ 92 — Rishadan Brigand
@@ -1020,13 +1364,26 @@ pub(in crate::card::sets) static RISHADAN_FOOTPAD: CardRecord = CardRecord::new(
 );
 
 // MMQ 95 — Sailmonger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAILMONGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("142479d8-8956-44a2-8c54-9dd6dc1774c0"),
     "Sailmonger",
     crate::card::CardArt::new("142479d8-8956-44a2-8c54-9dd6dc1774c0", "Michael Sutfin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Human", "Monger"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target creature gains flying until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::flying()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+    ),
 );
 
 // MMQ 96 — Sand Squid
@@ -1060,23 +1417,64 @@ pub(in crate::card::sets) static SAPRAZZAN_BREAKER: CardRecord = CardRecord::new
 );
 
 // MMQ 99 — Saprazzan Heir
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_HEIR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0e3d913d-2dcf-4747-8169-0c44ec895864"),
     "Saprazzan Heir",
     crate::card::CardArt::new("0e3d913d-2dcf-4747-8169-0c44ec895864", "Terese Nielsen"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you may draw three cards.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 100 — Saprazzan Legate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_LEGATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db9adf84-ee7e-472b-bd96-9abf853afa83"),
     "Saprazzan Legate",
     crate::card::CardArt::new("db9adf84-ee7e-472b-bd96-9abf853afa83", "Andrew Goldhawk"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{U}"), &["Merfolk", "Soldier"], 1, 3)
+        .with_abilities(&[
+            AbilityDef::alternative_cast(
+                mana_cost!("{0}"),
+                AlternativeCastKindDef::AlternativeCost,
+                Some(
+                    "If an opponent controls a Mountain and you control an Island, you may cast this spell without paying its mana cost.",
+                ),
+                EffectDef::None,
+            )
+            .with_alternative_condition(&TriggerConditionDef::All(&[
+                TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Opponent,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+                TriggerConditionDef::ObjectCount {
+                    query: ObjectQueryDef::matching(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    comparison: ComparisonDef::GreaterOrEqual,
+                    amount: 1,
+                },
+            ])),
+            abilities::flying(),
+        ]),
 );
 
 // MMQ 101 — Saprazzan Outrigger
@@ -1090,13 +1488,22 @@ pub(in crate::card::sets) static SAPRAZZAN_OUTRIGGER: CardRecord = CardRecord::n
 );
 
 // MMQ 102 — Saprazzan Raider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_RAIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("62493f34-cea8-4d9f-8781-005947b69c9d"),
     "Saprazzan Raider",
     crate::card::CardArt::new("62493f34-cea8-4d9f-8781-005947b69c9d", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk"], 1, 2).with_ability(
+        AbilityDef::triggered(
+            "When this creature becomes blocked, return it to its owner's hand.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 103 — Shoving Match
@@ -1134,23 +1541,54 @@ pub(in crate::card::sets) static SQUEEZE: CardRecord = CardRecord::new(
 );
 
 // MMQ 106 — Statecraft
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STATECRAFT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76dcd19e-8daf-4d53-946b-c07d5eca3cc9"),
     "Statecraft",
     crate::card::CardArt::new("76dcd19e-8daf-4d53-946b-c07d5eca3cc9", "Mike Ploog"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{U}")).with_ability(AbilityDef::static_ability(
+        "Prevent all combat damage that would be dealt to and dealt by creatures you control.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                    crate::card::DamageEventMatcherDef::COMBAT_FROM_AFFECTED,
+                )),
+                AppliedEffectDef::Rule(AppliedRuleDef::PreventDamage(
+                    crate::card::DamageEventMatcherDef::COMBAT_TO_AFFECTED,
+                )),
+            ]),
+        },
+    )),
 );
 
 // MMQ 107 — Stinging Barrier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STINGING_BARRIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ca7f7cd5-4e91-474a-9f60-a66f3f462b1c"),
     "Stinging Barrier",
     crate::card::CardArt::new("ca7f7cd5-4e91-474a-9f60-a66f3f462b1c", "Pat Lewis"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{U}, {T}: This creature deals 1 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MMQ 108 — Thwart
@@ -1192,7 +1630,6 @@ pub(in crate::card::sets) static TIDAL_BORE: CardRecord = CardRecord::new(
 );
 
 // MMQ 110 — Tidal Kraken
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIDAL_KRAKEN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("356a9dcd-1a4b-4371-8f1d-aa7cb65e97e8"),
     "Tidal Kraken",
@@ -1201,7 +1638,9 @@ pub(in crate::card::sets) static TIDAL_KRAKEN: CardRecord = CardRecord::new(
         "Christopher Moeller",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{5}{U}{U}{U}"), &["Kraken"], 6, 6).with_ability(
+        abilities::cannot_be_blocked("This creature can't be blocked."),
+    ),
 );
 
 // MMQ 111 — Timid Drake (reprint)
@@ -1230,23 +1669,51 @@ pub(in crate::card::sets) static WAR_TAX: CardRecord = CardRecord::new(
 );
 
 // MMQ 114 — Waterfront Bouncer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WATERFRONT_BOUNCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8dbdce9e-94fa-4ed5-9b97-d2026cffe7cb"),
     "Waterfront Bouncer",
     crate::card::CardArt::new("8dbdce9e-94fa-4ed5-9b97-d2026cffe7cb", "Paolo Parente"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Merfolk", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{U}, {T}, Discard a card: Return target creature to its owner's hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{U}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 115 — Alley Grifters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALLEY_GRIFTERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfb648e3-f5ad-4b33-afa3-d4cda0d369a1"),
     "Alley Grifters",
     crate::card::CardArt::new("cfb648e3-f5ad-4b33-afa3-d4cda0d369a1", "Paolo Parente"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Human", "Mercenary"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, defending player discards a card.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::players(crate::card::PlayerSetDef::Related(
+                    PlayerRelation::DefendingPlayer,
+                )),
+                amount: ValueDef::Constant(1),
+                selection: crate::card::DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 116 — Black Market
@@ -1260,17 +1727,17 @@ pub(in crate::card::sets) static BLACK_MARKET: CardRecord = CardRecord::new(
 );
 
 // MMQ 117 — Bog Smugglers
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOG_SMUGGLERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c2103a44-87e5-40cd-a0de-cd19456a8366"),
     "Bog Smugglers",
     crate::card::CardArt::new("c2103a44-87e5-40cd-a0de-cd19456a8366", "Mike Ploog"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Human", "Mercenary"], 2, 2)
+        .with_ability(abilities::landwalk(BasicLandType::Swamp)),
 );
 
 // MMQ 118 — Bog Witch
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Activated mana abilities cannot currently combine the shared mana path with a chosen discard-card cost.
 pub(in crate::card::sets) static BOG_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a926f9e-ee63-4b6e-8e5b-0650b74344a5"),
     "Bog Witch",
@@ -1280,13 +1747,32 @@ pub(in crate::card::sets) static BOG_WITCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 119 — Cackling Witch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CACKLING_WITCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cec755ee-b4c0-47fd-9e61-9a3161766de6"),
     "Cackling Witch",
     crate::card::CardArt::new("cec755ee-b4c0-47fd-9e61-9a3161766de6", "Brian Despain"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{X}{B}, {T}, Discard a card: Target creature gets +X/+0 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{X}{B}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::ChosenX,
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 120 — Cateran Brute
@@ -1398,23 +1884,67 @@ pub(in crate::card::sets) static DEATHGAZER: CardRecord = CardRecord::new(
 );
 
 // MMQ 131 — Deepwood Ghoul
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_GHOUL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29cd6685-37ca-47c7-8f64-1fb86e9610ca"),
     "Deepwood Ghoul",
     crate::card::CardArt::new("29cd6685-37ca-47c7-8f64-1fb86e9610ca", "Alan Pollack"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 1).with_ability(
+        abilities::regenerate_self(
+            "Pay 2 life: Regenerate this creature.",
+            &[AbilityCostDef::PayLife(2)],
+        ),
+    ),
 );
 
 // MMQ 132 — Deepwood Legate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_LEGATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("54f01925-7fd0-472d-91a4-3309e615f22f"),
     "Deepwood Legate",
     crate::card::CardArt::new("54f01925-7fd0-472d-91a4-3309e615f22f", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Shade"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent controls a Forest and you control a Swamp, you may cast this spell without paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::All(&[
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+        ])),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 133 — Delraich
@@ -1461,33 +1991,82 @@ pub(in crate::card::sets) static FORCED_MARCH: CardRecord = CardRecord::new(
 );
 
 // MMQ 137 — Ghoul's Feast
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GHOUL_S_FEAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6a0054c1-6510-41dd-8695-9bf50296b615"),
     "Ghoul's Feast",
     crate::card::CardArt::new("6a0054c1-6510-41dd-8695-9bf50296b615", "Alan Pollack"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature gets +X/+0 until end of turn, where X is the number of creature cards in your graveyard.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Graveyard],
+                    PlayerRelation::You,
+                )),
+                ValueDef::Constant(0),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MMQ 138 — Haunted Crossroads
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HAUNTED_CROSSROADS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c065cae-1ed5-445e-ace3-e81cf4c773de"),
     "Haunted Crossroads",
     crate::card::CardArt::new("3c065cae-1ed5-445e-ace3-e81cf4c773de", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}: Put target creature card from your graveyard on top of your library.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Library,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 139 — Highway Robber
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGHWAY_ROBBER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc826c88-fe3c-4004-8283-27910c550fae"),
     "Highway Robber",
     crate::card::CardArt::new("fc826c88-fe3c-4004-8283-27910c550fae", "Kev Walker"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Human", "Mercenary"], 2, 2).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent loses 2 life and you gain 2 life.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::LoseLife {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MMQ 140 — Instigator
@@ -1511,7 +2090,7 @@ pub(in crate::card::sets) static INSUBORDINATION: CardRecord = CardRecord::new(
 );
 
 // MMQ 142 — Intimidation
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs the distinct Fear evasion keyword; Intimidate would change the blocker set if a creature's color changes.
 pub(in crate::card::sets) static INTIMIDATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1b9e1724-91cf-422e-909b-ddb69a6f9f76"),
     "Intimidation",
@@ -1544,13 +2123,27 @@ pub(in crate::card::sets) static LIABILITY: CardRecord = CardRecord::new(
 );
 
 // MMQ 145 — Maggot Therapy
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGGOT_THERAPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6ab963aa-2304-4ee6-a8c7-c485c5133b40"),
     "Maggot Therapy",
     crate::card::CardArt::new("6ab963aa-2304-4ee6-a8c7-c485c5133b40", "Jeff Easley"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/-2.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(-2),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // MMQ 146 — Midnight Ritual
@@ -1564,13 +2157,13 @@ pub(in crate::card::sets) static MIDNIGHT_RITUAL: CardRecord = CardRecord::new(
 );
 
 // MMQ 147 — Misshapen Fiend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MISSHAPEN_FIEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a43cf59e-7583-4651-968a-2a7201c69b6b"),
     "Misshapen Fiend",
     crate::card::CardArt::new("a43cf59e-7583-4651-968a-2a7201c69b6b", "Adam Rex"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Horror", "Mercenary"], 1, 1)
+        .with_ability(abilities::flying()),
 );
 
 // MMQ 148 — Molting Harpy
@@ -1594,13 +2187,32 @@ pub(in crate::card::sets) static NETHER_SPIRIT: CardRecord = CardRecord::new(
 );
 
 // MMQ 150 — Notorious Assassin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static NOTORIOUS_ASSASSIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("239e48d8-e2ba-4e25-88ef-301420c796b4"),
     "Notorious Assassin",
     crate::card::CardArt::new("239e48d8-e2ba-4e25-88ef-301420c796b4", "Heather Hudson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(
+        mana_cost!("{3}{B}"),
+        &["Human", "Spellshaper", "Assassin"],
+        2,
+        2,
+    )
+    .with_ability(AbilityDef::activated_with_targets(
+        "{2}{B}, {T}, Discard a card: Destroy target nonblack creature. It can't be regenerated.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+            AbilityCostDef::TapSource,
+            AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            ]),
+        )],
+        EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+    )),
 );
 
 // MMQ 151 — Pretender's Claim
@@ -1617,13 +2229,25 @@ pub(in crate::card::sets) static PRETENDER_S_CLAIM: CardRecord = CardRecord::new
 );
 
 // MMQ 152 — Primeval Shambler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PRIMEVAL_SHAMBLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d6ed1fb-2f7d-4a21-bbf3-660cad631975"),
     "Primeval Shambler",
     crate::card::CardArt::new("5d6ed1fb-2f7d-4a21-bbf3-660cad631975", "Chippy"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{B}"), &["Horror", "Mercenary"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 153 — Putrefaction
@@ -1649,33 +2273,89 @@ pub(in crate::card::sets) static QUAGMIRE_LAMPREY: CardRecord = CardRecord::new(
 // MMQ 155 — Rain of Tears (reprint)
 
 // MMQ 156 — Rampart Crawler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAMPART_CRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8b60f86f-c78a-4dfb-bb18-e9bcf21b26c4"),
     "Rampart Crawler",
     crate::card::CardArt::new("8b60f86f-c78a-4dfb-bb18-e9bcf21b26c4", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{B}"), &["Lizard", "Mercenary"], 1, 1).with_ability(
+        AbilityDef::static_ability(
+            "This creature can't be blocked by Walls.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
+                    ObjectPredicateDef::Subtype("Wall"),
+                )),
+            },
+        ),
+    ),
 );
 
 // MMQ 157 — Rouse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROUSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ad01a8e2-5dc5-49a3-ad1c-7d5bf006b774"),
     "Rouse",
     crate::card::CardArt::new("ad01a8e2-5dc5-49a3-ad1c-7d5bf006b774", "Dave Dorman"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If you control a Swamp, you may pay 2 life rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_life(2)
+        .with_alternative_condition(&TriggerConditionDef::ObjectCount {
+            query: ObjectQueryDef::matching(
+                ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Swamp]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            comparison: ComparisonDef::GreaterOrEqual,
+            amount: 1,
+        }),
+        AbilityDef::spell_with_targets(
+            "Target creature gets +2/+0 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 158 — Scandalmonger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCANDALMONGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10c97baa-9bc0-4894-867c-ad1f56c469fd"),
     "Scandalmonger",
     crate::card::CardArt::new("10c97baa-9bc0-4894-867c-ad1f56c469fd", "Matt Cavotta"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Boar", "Monger"], 3, 3).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}: Target player discards a card. Any player may activate this ability but only as a sorcery.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: crate::card::DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )
+        .with_activation_timing(crate::card::ActivationTimingDef::SorcerySpeed)
+        .open_to_any_player(),
+    ),
 );
 
 // MMQ 159 — Sever Soul
@@ -1699,13 +2379,20 @@ pub(in crate::card::sets) static SILENT_ASSASSIN: CardRecord = CardRecord::new(
 );
 
 // MMQ 161 — Skulking Fugitive
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULKING_FUGITIVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("175ed19c-9635-45ee-bb2c-32b96270a246"),
     "Skulking Fugitive",
     crate::card::CardArt::new("175ed19c-9635-45ee-bb2c-32b96270a246", "Scott M. Fischer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Horror", "Mercenary"], 3, 4).with_ability(
+        AbilityDef::triggered(
+            "When this creature becomes the target of a spell or ability, sacrifice it.",
+            TriggerEventDef::BecomesTargetOfSpellOrAbility(ObjectPredicateDef::Any),
+            EffectDef::Sacrifice {
+                object: EffectRecipientDef::Source,
+            },
+        ),
+    ),
 );
 
 // MMQ 162 — Snuff Out
@@ -1748,53 +2435,131 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_le
 );
 
 // MMQ 163 — Soul Channeling
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_CHANNELING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55cd09ef-1655-4a62-b6c5-6eda33d2607a"),
     "Soul Channeling",
     crate::card::CardArt::new("55cd09ef-1655-4a62-b6c5-6eda33d2607a", "DiTerlizzi"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "Pay 2 life: Regenerate enchanted creature.",
+                &[AbilityCostDef::PayLife(2)],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // MMQ 164 — Specter's Wail
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTER_S_WAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d1637b62-e364-4250-aad5-841c6a47a11e"),
     "Specter's Wail",
     crate::card::CardArt::new("d1637b62-e364-4250-aad5-841c6a47a11e", "Randy Gallegos"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Target player discards a card at random.",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Player(PlayerRelation::Any),
+        )],
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(1),
+            selection: crate::card::DiscardSelectionDef::Random,
+            then: None,
+        },
+    )),
 );
 
 // MMQ 165 — Strongarm Thug
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRONGARM_THUG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("20aa9108-470c-484d-908a-c31cf6935765"),
     "Strongarm Thug",
     crate::card::CardArt::new("20aa9108-470c-484d-908a-c31cf6935765", "Rebecca Guay"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Mercenary"], 1, 1).with_ability(
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may return target Mercenary card from your graveyard to your hand.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype("Mercenary"),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: crate::card::ZonePlacement::Top,
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 166 — Thrashing Wumpus
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRASHING_WUMPUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("86bc07c6-2ba7-41f8-90ab-f9bbac86dd08"),
     "Thrashing Wumpus",
     crate::card::CardArt::new("86bc07c6-2ba7-41f8-90ab-f9bbac86dd08", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Beast"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{B}: This creature deals 1 damage to each creature and each player.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        ),
+    ),
 );
 
 // MMQ 167 — Undertaker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERTAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f615f531-e8af-4f7b-a4ea-fb962149093f"),
     "Undertaker",
     crate::card::CardArt::new("f615f531-e8af-4f7b-a4ea-fb962149093f", "Jeff Easley"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}, {T}, Discard a card: Return target creature card from your graveyard to your hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{B}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 168 — Unmask
@@ -1820,25 +2585,56 @@ pub(in crate::card::sets) static UNNATURAL_HUNGER: CardRecord = CardRecord::new(
 // MMQ 170 — Vendetta (reprint)
 
 // MMQ 171 — Wall of Distortion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WALL_OF_DISTORTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d2b2d07a-9ea1-430d-b432-ae507f4fe73b"),
     "Wall of Distortion",
     crate::card::CardArt::new("d2b2d07a-9ea1-430d-b432-ae507f4fe73b", "Mark Tedin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Wall"], 1, 3).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{2}{B}, {T}: Target player discards a card. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: crate::card::DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )
+        .with_activation_timing(crate::card::ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // MMQ 172 — Arms Dealer (reprint)
 
 // MMQ 173 — Battle Rampart
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BATTLE_RAMPART: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f27f6658-0f00-4934-8d12-cd0dda3958c9"),
     "Battle Rampart",
     crate::card::CardArt::new("f27f6658-0f00-4934-8d12-cd0dda3958c9", "Ron Spencer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Wall"], 1, 3).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gains haste until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 174 — Battle Squadron
@@ -1852,13 +2648,25 @@ pub(in crate::card::sets) static BATTLE_SQUADRON: CardRecord = CardRecord::new(
 );
 
 // MMQ 175 — Blaster Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLASTER_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("801b0fd1-bbb2-47c0-a4c3-4129a67473b9"),
     "Blaster Mage",
     crate::card::CardArt::new("801b0fd1-bbb2-47c0-a4c3-4129a67473b9", "George Pratt"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, {T}, Discard a card: Destroy target Wall.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::Subtype("Wall"),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
 );
 
 // MMQ 176 — Blood Hound
@@ -1895,33 +2703,90 @@ pub(in crate::card::sets) static BRAWL: CardRecord = CardRecord::new(
 );
 
 // MMQ 179 — Cave Sense
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVE_SENSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d718421-c742-489c-a243-3adb19f6716a"),
     "Cave Sense",
     crate::card::CardArt::new("2d718421-c742-489c-a243-3adb19f6716a", "Mark Romanoski"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has mountainwalk.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::mountainwalk()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 180 — Cave-In
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVE_IN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("440d9d26-f304-467d-af79-914cc65f082e"),
     "Cave-In",
     crate::card::CardArt::new("440d9d26-f304-467d-af79-914cc65f082e", "Mark Tedin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{R}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some("You may exile a red card from your hand rather than pay this spell's mana cost."),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Color(ManaColor::Red),
+            ZoneKind::Hand,
+            CostQuantityDef::Fixed(1),
+        )),
+        AbilityDef::spell(
+            "Cave-In deals 2 damage to each creature and each player.",
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(2),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(2),
+                },
+            ]),
+        ),
+    ]),
 );
 
 // MMQ 181 — Cavern Crawler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAVERN_CRAWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bd0a8af9-2e86-4639-a6c9-209f115e95f8"),
     "Cavern Crawler",
     crate::card::CardArt::new("bd0a8af9-2e86-4639-a6c9-209f115e95f8", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Insect"], 0, 3).with_abilities(&[
+        abilities::mountainwalk(),
+        AbilityDef::activated(
+            "{R}: This creature gets +1/-1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 182 — Ceremonial Guard
@@ -1957,73 +2822,201 @@ pub(in crate::card::sets) static CRAG_SAURIAN: CardRecord = CardRecord::new(
 );
 
 // MMQ 186 — Crash
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a26bde3-8392-4476-b347-f223d52554a6"),
     "Crash",
     crate::card::CardArt::new("7a26bde3-8392-4476-b347-f223d52554a6", "Doug Chaffee"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some("You may sacrifice a Mountain rather than pay this spell's mana cost."),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            CostQuantityDef::Fixed(1),
+        )),
+        AbilityDef::destroy_target(
+            "Destroy target artifact.",
+            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Artifact,
+            )),
+            true,
+        ),
+    ]),
 );
 
 // MMQ 187 — Flailing Manticore
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAILING_MANTICORE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6eee8c2e-bda7-4bf9-80fe-87d96024ca8b"),
     "Flailing Manticore",
     crate::card::CardArt::new("6eee8c2e-bda7-4bf9-80fe-87d96024ca8b", "Roger Raupp"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Manticore"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::first_strike(),
+        AbilityDef::activated(
+            "{1}: This creature gets +1/+1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+        AbilityDef::activated(
+            "{1}: This creature gets -1/-1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+    ]),
 );
 
 // MMQ 188 — Flailing Ogre
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAILING_OGRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e400e520-b2b8-4c13-a4ea-f8810c927bf7"),
     "Flailing Ogre",
     crate::card::CardArt::new("e400e520-b2b8-4c13-a4ea-f8810c927bf7", "Daniel R. Horne"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ogre"], 3, 3).with_abilities(&[
+        AbilityDef::activated(
+            "{1}: This creature gets +1/+1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+        AbilityDef::activated(
+            "{1}: This creature gets -1/-1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+    ]),
 );
 
 // MMQ 189 — Flailing Soldier
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAILING_SOLDIER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fb44b0f6-0608-40d6-9eaa-48e5a834701f"),
     "Flailing Soldier",
     crate::card::CardArt::new("fb44b0f6-0608-40d6-9eaa-48e5a834701f", "Dany Orizio"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Soldier"], 2, 2).with_abilities(&[
+        AbilityDef::activated(
+            "{1}: This creature gets +1/+1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+        AbilityDef::activated(
+            "{1}: This creature gets -1/-1 until end of turn. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .open_to_any_player(),
+    ]),
 );
 
 // MMQ 190 — Flaming Sword
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FLAMING_SWORD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("17ecd9ff-8c30-4e17-8cff-dd40d653c4af"),
     "Flaming Sword",
     crate::card::CardArt::new("17ecd9ff-8c30-4e17-8cff-dd40d653c4af", "Randy Gallegos"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+0 and has first strike.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 191 — Furious Assault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FURIOUS_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("27a07fae-0f34-45e7-b22d-97eea9031022"),
     "Furious Assault",
     crate::card::CardArt::new("27a07fae-0f34-45e7-b22d-97eea9031022", "Greg Staples"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever you cast a creature spell, this enchantment deals 1 damage to target player or planeswalker.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 192 — Gerrard's Irregulars
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GERRARD_S_IRREGULARS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8a88f507-3d78-4f7f-a91f-8489ad9250f2"),
     "Gerrard's Irregulars",
     crate::card::CardArt::new("8a88f507-3d78-4f7f-a91f-8489ad9250f2", "Eric Peterson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Human", "Soldier"], 4, 2)
+        .with_abilities(&[abilities::trample(), abilities::haste()]),
 );
 
 // MMQ 193 — Hammer Mage
@@ -2047,33 +3040,85 @@ pub(in crate::card::sets) static HIRED_GIANT: CardRecord = CardRecord::new(
 );
 
 // MMQ 195 — Kris Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4389fbcd-182a-4cac-b14f-aa971948cf8e"),
     "Kris Mage",
     crate::card::CardArt::new("4389fbcd-182a-4cac-b14f-aa971948cf8e", "Matthew D. Wilson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{R}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{R}, {T}, Discard a card: This creature deals 1 damage to any target.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{R}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 196 — Kyren Glider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_GLIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bc55e01-342e-4856-937e-14561b8d165b"),
     "Kyren Glider",
     crate::card::CardArt::new("0bc55e01-342e-4856-937e-14561b8d165b", "Daren Bader"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+    ]),
 );
 
 // MMQ 197 — Kyren Legate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_LEGATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f0e9806-be8c-4b88-a4be-0111d1be81d9"),
     "Kyren Legate",
     crate::card::CardArt::new("6f0e9806-be8c-4b88-a4be-0111d1be81d9", "Dave Dorman"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 1).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent controls a Plains and you control a Mountain, you may cast this spell without paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::All(&[
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Plains]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+        ])),
+        abilities::haste(),
+    ]),
 );
 
 // MMQ 198 — Kyren Negotiations
@@ -2087,13 +3132,30 @@ pub(in crate::card::sets) static KYREN_NEGOTIATIONS: CardRecord = CardRecord::ne
 );
 
 // MMQ 199 — Kyren Sniper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYREN_SNIPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4df99e19-0b1e-48ec-a146-38cf147eab61"),
     "Kyren Sniper",
     crate::card::CardArt::new("4df99e19-0b1e-48ec-a146-38cf147eab61", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::triggered_with_targets(
+            "At the beginning of your upkeep, you may have this creature deal 1 damage to target player or planeswalker.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 200 — Lava Runner
@@ -2107,13 +3169,13 @@ pub(in crate::card::sets) static LAVA_RUNNER: CardRecord = CardRecord::new(
 );
 
 // MMQ 201 — Lightning Hounds
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LIGHTNING_HOUNDS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("38c82a1d-5db1-4090-b446-cc5bc6dc811d"),
     "Lightning Hounds",
     crate::card::CardArt::new("38c82a1d-5db1-4090-b446-cc5bc6dc811d", "Andrew Robinson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Dog"], 3, 2)
+        .with_ability(abilities::first_strike()),
 );
 
 // MMQ 202 — Lithophage
@@ -2127,23 +3189,57 @@ pub(in crate::card::sets) static LITHOPHAGE: CardRecord = CardRecord::new(
 );
 
 // MMQ 203 — Lunge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LUNGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e9e43349-429c-43f7-b808-c4bf37370a9f"),
     "Lunge",
     crate::card::CardArt::new("e9e43349-429c-43f7-b808-c4bf37370a9f", "Dan Frazier"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Lunge deals 2 damage to target creature and 2 damage to target player or planeswalker.",
+        &[
+            AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            )),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::PlayerOrPlaneswalker(
+                PlayerRelation::Any,
+            )),
+        ],
+        EffectDef::Sequence(&[
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // MMQ 204 — Magistrate's Veto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGISTRATE_S_VETO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2f83d39e-bf49-4968-829e-c0e9abf2fb86"),
     "Magistrate's Veto",
     crate::card::CardArt::new("2f83d39e-bf49-4968-829e-c0e9abf2fb86", "Brian Snõddy"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::static_ability(
+        "White creatures and blue creatures can't block.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::Color(ManaColor::White),
+                        ObjectPredicateDef::Color(ManaColor::Blue),
+                    ]),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+        },
+    )),
 );
 
 // MMQ 205 — Mercadia's Downfall
@@ -2159,13 +3255,35 @@ pub(in crate::card::sets) static MERCADIA_S_DOWNFALL: CardRecord = CardRecord::n
 // MMQ 206 — Ogre Taskmaster (reprint)
 
 // MMQ 207 — Pulverize
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PULVERIZE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("afbbc44d-60fb-45fc-a588-14aab0340134"),
     "Pulverize",
     crate::card::CardArt::new("afbbc44d-60fb-45fc-a588-14aab0340134", "Scott M. Fischer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{R}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some("You may sacrifice two Mountains rather than pay this spell's mana cost."),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            CostQuantityDef::Fixed(2),
+        )),
+        AbilityDef::spell(
+            "Destroy all artifacts.",
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Artifact),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ]),
 );
 
 // MMQ 208 — Puppet's Verdict
@@ -2192,53 +3310,99 @@ pub(in crate::card::sets) static ROBBER_FLY: CardRecord = CardRecord::new(
 );
 
 // MMQ 210 — Rock Badger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROCK_BADGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dff05df8-76f5-48c6-ac96-7b4e6a7050f6"),
     "Rock Badger",
     crate::card::CardArt::new("dff05df8-76f5-48c6-ac96-7b4e6a7050f6", "Heather Hudson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Badger", "Beast"], 3, 3)
+        .with_ability(abilities::mountainwalk()),
 );
 
 // MMQ 211 — Seismic Mage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEISMIC_MAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9524432a-3186-4c7b-a780-28bdbe36053f"),
     "Seismic Mage",
     crate::card::CardArt::new("9524432a-3186-4c7b-a780-28bdbe36053f", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{R}, {T}, Discard a card: Destroy target land.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{R}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Land),
+            )],
+            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        ),
+    ),
 );
 
 // MMQ 212 — Shock Troops
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHOCK_TROOPS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7a918ca-3e60-46de-9f29-56bdc6430a77"),
     "Shock Troops",
     crate::card::CardArt::new("e7a918ca-3e60-46de-9f29-56bdc6430a77", "Jeff Miracola"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Soldier"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "Sacrifice this creature: It deals 2 damage to any target.",
+            &[AbilityCostDef::SacrificeSource],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::AnyTarget,
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // MMQ 213 — Sizzle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SIZZLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f1ca1eee-d97d-48c6-84f1-7d1f972c3ca9"),
     "Sizzle",
     crate::card::CardArt::new("f1ca1eee-d97d-48c6-84f1-7d1f972c3ca9", "Brian Snõddy"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Sizzle deals 3 damage to each opponent.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Opponent,
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // MMQ 214 — Squee, Goblin Nabob
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUEE_GOBLIN_NABOB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ba8325a-1203-4125-9111-94d9e2b1f14b"),
     "Squee, Goblin Nabob",
     crate::card::CardArt::new("4ba8325a-1203-4125-9111-94d9e2b1f14b", "David Monette"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin"], 1, 1)
+        .with_supertype(CardSupertype::Legendary)
+        .with_ability(
+            AbilityDef::triggered(
+                "At the beginning of your upkeep, you may return this card from your graveyard to your hand.",
+                TriggerEventDef::StepBegins {
+                    step: crate::card::TurnStepDef::Upkeep,
+                    player: PlayerRelation::You,
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Hand,
+                        placement: crate::card::ZonePlacement::Top,
+                    },
+                },
+            )
+            .with_source_zones(&[ZoneKind::Graveyard]),
+        ),
 );
 
 // MMQ 215 — Stone Rain (reprint)
@@ -2274,13 +3438,33 @@ pub(in crate::card::sets) static THIEVES_AUCTION: CardRecord = CardRecord::new(
 );
 
 // MMQ 219 — Thunderclap
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THUNDERCLAP: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3f8c5ee-2179-4c05-adc9-0b66d02b59ad"),
     "Thunderclap",
     crate::card::CardArt::new("b3f8c5ee-2179-4c05-adc9-0b66d02b59ad", "Tom Wänerstrand"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some("You may sacrifice a Mountain rather than pay this spell's mana cost."),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+            ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Mountain]),
+            CostQuantityDef::Fixed(1),
+        )),
+        AbilityDef::spell_with_targets(
+            "Thunderclap deals 3 damage to target creature.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(3),
+            },
+        ),
+    ]),
 );
 
 // MMQ 220 — Tremor (reprint)
@@ -2326,13 +3510,37 @@ pub(in crate::card::sets) static WAR_CADENCE: CardRecord = CardRecord::new(
 );
 
 // MMQ 225 — Warmonger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARMONGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2c4077d6-d98c-4fdd-ba57-0781aa21f68b"),
     "Warmonger",
     crate::card::CardArt::new("5577ac30-ee84-4d3c-b407-82578779dc90", "Heather Hudson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Minotaur", "Monger"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature deals 1 damage to each creature without flying and each player. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                crate::card::KeywordAbility::Flying,
+                            )),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )
+        .open_to_any_player(),
+    ),
 );
 
 // MMQ 226 — Warpath
@@ -2346,13 +3554,12 @@ pub(in crate::card::sets) static WARPATH: CardRecord = CardRecord::new(
 );
 
 // MMQ 227 — Wild Jhovall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WILD_JHOVALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64bcc06a-de86-4387-882d-ead33e9c9e01"),
     "Wild Jhovall",
     crate::card::CardArt::new("64bcc06a-de86-4387-882d-ead33e9c9e01", "Daren Bader"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{R}"), &["Cat"], 3, 3),
 );
 
 // MMQ 228 — Word of Blasting (reprint)
@@ -2381,13 +3588,25 @@ pub(in crate::card::sets) static BIFURCATE: CardRecord = CardRecord::new(
 );
 
 // MMQ 231 — Boa Constrictor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOA_CONSTRICTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7369cbf-6986-4a39-b07c-a283b40aee40"),
     "Boa Constrictor",
     crate::card::CardArt::new("f7369cbf-6986-4a39-b07c-a283b40aee40", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Snake"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{T}: This creature gets +3/+3 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(3),
+                    ValueDef::Constant(3),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 232 — Briar Patch
@@ -2431,35 +3650,77 @@ pub(in crate::card::sets) static CLEAR_THE_LAND: CardRecord = CardRecord::new(
 );
 
 // MMQ 236 — Collective Unconscious
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static COLLECTIVE_UNCONSCIOUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8fa7d6a8-9190-403f-bbdd-ab71d9c89e4d"),
     "Collective Unconscious",
     crate::card::CardArt::new("8fa7d6a8-9190-403f-bbdd-ab71d9c89e4d", "Andrew Goldhawk"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{4}{G}{G}")).with_ability(AbilityDef::spell(
+        "Draw a card for each creature you control.",
+        EffectDef::DrawCards {
+            recipient: EffectRecipientDef::Controller,
+            amount: ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            )),
+        },
+    )),
 );
 
 // MMQ 237 — Dawnstrider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DAWNSTRIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2d193a35-8950-4a77-ace3-c4d4085727f4"),
     "Dawnstrider",
     crate::card::CardArt::new("2d193a35-8950-4a77-ace3-c4d4085727f4", "rk post"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{G}, {T}, Discard a card: Prevent all combat damage that would be dealt this turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::PreventDamage {
+                prevention: crate::card::DamagePreventionDef::unlimited(
+                    crate::card::DamageEventMatcherDef::COMBAT,
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 238 — Deadly Insect (reprint)
 
 // MMQ 239 — Deepwood Drummer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_DRUMMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("acbed0f5-2ac0-48d8-b5ab-b4cd7176fde2"),
     "Deepwood Drummer",
     crate::card::CardArt::new("acbed0f5-2ac0-48d8-b5ab-b4cd7176fde2", "Ron Spears"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Discard a card: Target creature gets +2/+2 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 240 — Deepwood Elder
@@ -2476,23 +3737,43 @@ pub(in crate::card::sets) static DEEPWOOD_ELDER: CardRecord = CardRecord::new(
 );
 
 // MMQ 241 — Deepwood Tantiv
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_TANTIV: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bfa2028e-4e73-4ff2-a9e2-9ac347d67893"),
     "Deepwood Tantiv",
     crate::card::CardArt::new("bfa2028e-4e73-4ff2-a9e2-9ac347d67893", "Joel Biske"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 2, 4).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you gain 2 life.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ),
 );
 
 // MMQ 242 — Deepwood Wolverine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEEPWOOD_WOLVERINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("db9a9a76-741a-4ba3-bd4b-0eb87d678253"),
     "Deepwood Wolverine",
     crate::card::CardArt::new("db9a9a76-741a-4ba3-bd4b-0eb87d678253", "Ray Lago"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Wolverine"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+0 until end of turn.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 243 — Desert Twister (reprint)
@@ -2508,13 +3789,31 @@ pub(in crate::card::sets) static ERITHIZON: CardRecord = CardRecord::new(
 );
 
 // MMQ 245 — Ferocity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FEROCITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4afda489-8397-4ad4-89dc-e8bad92db133"),
     "Ferocity",
     crate::card::CardArt::new("4afda489-8397-4ad4-89dc-e8bad92db133", "Pete Venters"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::triggered(
+                "Whenever enchanted creature blocks or becomes blocked, you may put a +1/+1 counter on it.",
+                TriggerEventDef::BlocksOrBecomesBlockedBy {
+                    creature: ObjectPredicateDef::AttachedToSource,
+                    other: ObjectPredicateDef::Any,
+                },
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::AttachedPermanent,
+                        kind: crate::card::CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(1),
+                    },
+                },
+            ),
+        ]),
 );
 
 // MMQ 246 — Food Chain
@@ -2550,23 +3849,47 @@ pub(in crate::card::sets) static GAME_PRESERVE: CardRecord = CardRecord::new(
 // MMQ 249 — Giant Caterpillar (reprint)
 
 // MMQ 250 — Groundskeeper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GROUNDSKEEPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("31d9fe16-562a-4a86-84ed-15cd90b8afc0"),
     "Groundskeeper",
     crate::card::CardArt::new("31d9fe16-562a-4a86-84ed-15cd90b8afc0", "Alan Rabinowitz"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Druid"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}{G}: Return target basic land card from your graveyard to your hand.",
+            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 251 — Horned Troll
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORNED_TROLL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7f2a6d10-054e-4d6f-aeb7-4204f02490c7"),
     "Horned Troll",
     crate::card::CardArt::new("7f2a6d10-054e-4d6f-aeb7-4204f02490c7", "Heather Hudson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Troll"], 2, 2).with_ability(
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ),
 );
 
 // MMQ 252 — Howling Wolf
@@ -2656,13 +3979,24 @@ pub(in crate::card::sets) static LEY_LINE: CardRecord = CardRecord::new(
 );
 
 // MMQ 257 — Lumbering Satyr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LUMBERING_SATYR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5d897088-0667-4864-91c3-5f0ac7f9b220"),
     "Lumbering Satyr",
     crate::card::CardArt::new("5d897088-0667-4864-91c3-5f0ac7f9b220", "Alan Pollack"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Satyr", "Beast"], 5, 4).with_ability(
+        AbilityDef::static_ability(
+            "All creatures have forestwalk.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::forestwalk()),
+            },
+        ),
+    ),
 );
 
 // MMQ 258 — Lure (reprint)
@@ -2688,55 +4022,125 @@ pub(in crate::card::sets) static NATURAL_AFFINITY: CardRecord = CardRecord::new(
 );
 
 // MMQ 261 — Pangosaur
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PANGOSAUR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0335d282-cd1a-4be3-8eb2-82aaee91401a"),
     "Pangosaur",
     crate::card::CardArt::new("0335d282-cd1a-4be3-8eb2-82aaee91401a", "Mark Tedin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Dinosaur"], 6, 6).with_ability(
+        AbilityDef::triggered(
+            "Whenever a player plays a land, return this creature to its owner's hand.",
+            TriggerEventDef::LandPlayed {
+                land: ObjectPredicateDef::Any,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: crate::card::ZonePlacement::Top,
+            },
+        ),
+    ),
 );
 
 // MMQ 262 — Revive (reprint)
 
 // MMQ 263 — Rushwood Dryad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_DRYAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("55367a94-b343-4a04-bfa9-47722e32cc45"),
     "Rushwood Dryad",
     crate::card::CardArt::new("55367a94-b343-4a04-bfa9-47722e32cc45", "Todd Lockwood"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad"], 2, 1)
+        .with_ability(abilities::forestwalk()),
 );
 
 // MMQ 264 — Rushwood Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52128694-d9f5-4acb-b684-bb02a4e766b8"),
     "Rushwood Elemental",
     crate::card::CardArt::new("52128694-d9f5-4acb-b684-bb02a4e766b8", "Hannibal King"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}{G}{G}{G}{G}"), &["Elemental"], 4, 4).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you may put a +1/+1 counter on this creature.",
+            TriggerEventDef::StepBegins {
+                step: crate::card::TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: crate::card::CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ]),
 );
 
 // MMQ 265 — Rushwood Herbalist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_HERBALIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9afde98f-a429-4eff-9d06-8582267ac74b"),
     "Rushwood Herbalist",
     crate::card::CardArt::new("9afde98f-a429-4eff-9d06-8582267ac74b", "Terese Nielsen"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Spellshaper"], 2, 2).with_ability(
+        AbilityDef::activated_with_targets(
+            "{G}, {T}, Discard a card: Regenerate target creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Regenerate {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // MMQ 266 — Rushwood Legate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_LEGATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("827b9c99-87d7-493c-9dc3-0c6aa4a61b49"),
     "Rushwood Legate",
     crate::card::CardArt::new("827b9c99-87d7-493c-9dc3-0c6aa4a61b49", "Mark Romanoski"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Dryad"], 2, 1).with_ability(
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "If an opponent controls an Island and you control a Forest, you may cast this spell without paying its mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_condition(&TriggerConditionDef::All(&[
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Opponent,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+            TriggerConditionDef::ObjectCount {
+                query: ObjectQueryDef::matching(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                comparison: ComparisonDef::GreaterOrEqual,
+                amount: 1,
+            },
+        ])),
+    ),
 );
 
 // MMQ 267 — Saber Ants
@@ -2750,123 +4154,318 @@ pub(in crate::card::sets) static SABER_ANTS: CardRecord = CardRecord::new(
 );
 
 // MMQ 268 — Sacred Prey
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SACRED_PREY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e965d32c-3151-48e8-b256-0b7fa8a8a211"),
     "Sacred Prey",
     crate::card::CardArt::new("e965d32c-3151-48e8-b256-0b7fa8a8a211", "Rebecca Guay"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{G}"), &["Horse"], 1, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, you gain 1 life.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // MMQ 269 — Silverglade Elemental
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVERGLADE_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f222fe90-ac92-4ba9-b060-9b64075bf139"),
     "Silverglade Elemental",
     crate::card::CardArt::new("f222fe90-ac92-4ba9-b060-9b64075bf139", "Chippy"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{4}{G}"), &["Elemental"], 4, 4).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for a Forest card, put that card onto the battlefield, then shuffle.",
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: false,
+                    destination: ZoneKind::Battlefield,
+                    placement: crate::card::ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 // MMQ 270 — Silverglade Pathfinder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVERGLADE_PATHFINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bc99b33-ce06-4a44-8b23-300b41b2b2fe"),
     "Silverglade Pathfinder",
     crate::card::CardArt::new("9bc99b33-ce06-4a44-8b23-300b41b2b2fe", "rk post"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dryad", "Spellshaper"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{1}{G}, {T}, Discard a card: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{G}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: crate::card::ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // MMQ 271 — Snake Pit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAKE_PIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("059a70a5-d4fb-445e-af98-e81821df2c59"),
     "Snake Pit",
     crate::card::CardArt::new("059a70a5-d4fb-445e-af98-e81821df2c59", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{3}{G}")).with_ability(AbilityDef::triggered(
+        "Whenever an opponent casts a blue or black spell, you may create a 1/1 green Snake creature token.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::Color(ManaColor::Blue),
+                ObjectPredicateDef::Color(ManaColor::Black),
+            ]),
+        ])),
+        EffectDef::May {
+            player: EffectRecipientDef::Controller,
+            effect: &EffectDef::create_creature_token(
+                &["Snake"],
+                &[ManaColor::Green],
+                1,
+                1,
+            ),
+        },
+    )),
 );
 
 // MMQ 272 — Snorting Gahr
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNORTING_GAHR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e568503e-a886-4c8b-9d46-8520c2cdda48"),
     "Snorting Gahr",
     crate::card::CardArt::new("e568503e-a886-4c8b-9d46-8520c2cdda48", "Andrew Goldhawk"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Rhino", "Beast"], 3, 3).with_ability(
+        AbilityDef::triggered(
+            "Whenever this creature becomes blocked, it gets +2/+2 until end of turn.",
+            TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 273 — Spidersilk Armor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPIDERSILK_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9eb7694f-af4c-4152-b868-528257d05154"),
     "Spidersilk Armor",
     crate::card::CardArt::new("9eb7694f-af4c-4152-b868-528257d05154", "Scott Hampton"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}")).with_ability(AbilityDef::static_ability(
+        "Creatures you control get +0/+1 and have reach.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            effect: AppliedEffectDef::Composite(&[
+                AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(1),
+                ),
+                AppliedEffectDef::add_ability(&abilities::reach()),
+            ]),
+        },
+    )),
 );
 
 // MMQ 274 — Spontaneous Generation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPONTANEOUS_GENERATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ce5765cb-00cd-4920-9fe8-68791048ec4a"),
     "Spontaneous Generation",
     crate::card::CardArt::new("ce5765cb-00cd-4920-9fe8-68791048ec4a", "Alan Pollack"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
+        "Create a 1/1 green Saproling creature token for each card in your hand.",
+        EffectDef::create_creature_token(&["Saproling"], &[ManaColor::Green], 1, 1).with_count(
+            ValueDef::CardsInHandAbove {
+                player: PlayerRelation::You,
+                threshold: 0,
+            },
+        ),
+    )),
 );
 
 // MMQ 275 — Squall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("63c1b2f6-e47f-4f18-a94a-1d08eb009ef3"),
     "Squall",
     crate::card::CardArt::new("e5409b54-66ed-4add-bf43-cfeb074b1c50", "Val Mayerik"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_sorcery(mana_cost!("{2}{G}")).with_ability(AbilityDef::spell(
+        "Squall deals 2 damage to each creature with flying.",
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                ]),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Any,
+            ),
+            amount: ValueDef::Constant(2),
+        },
+    )),
 );
 
 // MMQ 276 — Squallmonger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SQUALLMONGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c845e1b8-6a39-456c-aa67-d180ae63e200"),
     "Squallmonger",
     crate::card::CardArt::new("c845e1b8-6a39-456c-aa67-d180ae63e200", "Heather Hudson"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Monger"], 3, 3).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature deals 1 damage to each creature with flying and each player. Any player may activate this ability.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flying),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::EachPlayer,
+                    amount: ValueDef::Constant(1),
+                },
+            ]),
+        )
+        .open_to_any_player(),
+    ),
 );
 
 // MMQ 277 — Stamina
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STAMINA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ed8abca3-6e31-49cd-b9bf-86ad68e1cc83"),
     "Stamina",
     crate::card::CardArt::new("ed8abca3-6e31-49cd-b9bf-86ad68e1cc83", "Paolo Parente"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                },
+            ),
+            AbilityDef::activated(
+                "Sacrifice this Aura: Regenerate enchanted creature.",
+                &[AbilityCostDef::SacrificeSource],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+        ]),
 );
 
 // MMQ 278 — Sustenance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUSTENANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5a61db44-80dc-4058-9c9d-65cd18e63fd4"),
     "Sustenance",
     crate::card::CardArt::new("5a61db44-80dc-4058-9c9d-65cd18e63fd4", "Qiao Dafu"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{1}, Sacrifice a land: Target creature gets +1/+1 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Land),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 279 — Tiger Claws
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TIGER_CLAWS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0146a689-4817-4849-a90d-4cc64566960d"),
     "Tiger Claws",
     crate::card::CardArt::new("0146a689-4817-4849-a90d-4cc64566960d", "Adam Rex"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::flash(),
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 and has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // MMQ 280 — Tranquility (reprint)
@@ -2894,23 +4493,38 @@ pub(in crate::card::sets) static VERNAL_EQUINOX: CardRecord = CardRecord::new(
 );
 
 // MMQ 284 — Vine Dryad
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINE_DRYAD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fc9c9158-faed-42ae-9f6b-71dee49ff79f"),
     "Vine Dryad",
     crate::card::CardArt::new("fc9c9158-faed-42ae-9f6b-71dee49ff79f", "Jeff Laubenstein"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Dryad"], 1, 3).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{0}"),
+            AlternativeCastKindDef::AlternativeCost,
+            Some(
+                "You may exile a green card from your hand rather than pay this spell's mana cost.",
+            ),
+            EffectDef::None,
+        )
+        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+            ObjectPredicateDef::Color(ManaColor::Green),
+            ZoneKind::Hand,
+            CostQuantityDef::Fixed(1),
+        )),
+        abilities::flash(),
+        abilities::forestwalk(),
+    ]),
 );
 
 // MMQ 285 — Vine Trellis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINE_TRELLIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e660241f-0976-4206-8149-7dac8466a2a3"),
     "Vine Trellis",
     crate::card::CardArt::new("e660241f-0976-4206-8149-7dac8466a2a3", "DiTerlizzi"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Plant", "Wall"], 0, 4)
+        .with_abilities(&[abilities::defender(), abilities::tap_for(ManaColor::Green)]),
 );
 
 // MMQ 286 — Assembly Hall
@@ -2957,13 +4571,29 @@ pub(in crate::card::sets) static CREDIT_VOUCHER: CardRecord = CardRecord::new(
 );
 
 // MMQ 290 — Crenellated Wall
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRENELLATED_WALL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d85ad08d-1120-411a-8bbe-ac93a56476bd"),
     "Crenellated Wall",
     crate::card::CardArt::new("d85ad08d-1120-411a-8bbe-ac93a56476bd", "Arnie Swekel"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{4}"), &["Wall"], 0, 4).with_abilities(&[
+        abilities::defender(),
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gets +0/+4 until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(0),
+                    ValueDef::Constant(4),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 291 — Crooked Scales
@@ -2997,13 +4627,19 @@ pub(in crate::card::sets) static DISTORTING_LENS: CardRecord = CardRecord::new(
 );
 
 // MMQ 294 — Eye of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EYE_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("78d22400-39f6-444d-b508-783a7df7e945"),
     "Eye of Ramos",
     crate::card::CardArt::new("78d22400-39f6-444d-b508-783a7df7e945", "David Martin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Blue),
+        AbilityDef::activated_mana(
+            "Sacrifice this artifact: Add {U}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Blue)),
+        ),
+    ]),
 );
 
 // MMQ 295 — General's Regalia
@@ -3017,23 +4653,38 @@ pub(in crate::card::sets) static GENERAL_S_REGALIA: CardRecord = CardRecord::new
 );
 
 // MMQ 296 — Heart of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HEART_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0046226-7563-4345-aa4b-a2c732c2780a"),
     "Heart of Ramos",
     crate::card::CardArt::new("a0046226-7563-4345-aa4b-a2c732c2780a", "David Martin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Red),
+        AbilityDef::activated_mana(
+            "Sacrifice this artifact: Add {R}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Red)),
+        ),
+    ]),
 );
 
 // MMQ 297 — Henge Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HENGE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("028e5e18-b639-4461-87e4-5306371440b5"),
     "Henge Guardian",
     crate::card::CardArt::new("028e5e18-b639-4461-87e4-5306371440b5", "Chippy"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact_creature(mana_cost!("{5}"), &["Dragon", "Wurm"], 3, 4).with_ability(
+        AbilityDef::activated(
+            "{2}: This creature gains trample until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 298 — Horn of Plenty
@@ -3047,23 +4698,42 @@ pub(in crate::card::sets) static HORN_OF_PLENTY: CardRecord = CardRecord::new(
 );
 
 // MMQ 299 — Horn of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORN_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b17f541-8e9d-43b0-b688-e3f2e7fa55c8"),
     "Horn of Ramos",
     crate::card::CardArt::new("6b17f541-8e9d-43b0-b688-e3f2e7fa55c8", "David Martin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Green),
+        AbilityDef::activated_mana(
+            "Sacrifice this artifact: Add {G}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Green)),
+        ),
+    ]),
 );
 
 // MMQ 300 — Iron Lance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRON_LANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41f7d212-faf2-4a6f-a338-d9e5014b56d5"),
     "Iron Lance",
     crate::card::CardArt::new("41f7d212-faf2-4a6f-a338-d9e5014b56d5", "Scott M. Fischer"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
+        "{3}, {T}: Target creature gains first strike until end of turn.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{3}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // MMQ 301 — Jeweled Torque
@@ -3097,13 +4767,38 @@ pub(in crate::card::sets) static KYREN_TOY: CardRecord = CardRecord::new(
 );
 
 // MMQ 304 — Magistrate's Scepter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MAGISTRATE_S_SCEPTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d4785ed7-c948-4ad2-b24d-2f45806d9fcc"),
     "Magistrate's Scepter",
     crate::card::CardArt::new("d4785ed7-c948-4ad2-b24d-2f45806d9fcc", "Adam Rex"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        AbilityDef::activated(
+            "{4}, {T}: Put a charge counter on this artifact.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Remove three charge counters from this artifact: Take an extra turn after this one.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("charge"),
+                    amount: 3,
+                },
+            ],
+            EffectDef::TakeExtraTurn {
+                player: EffectRecipientDef::Controller,
+            },
+        ),
+    ]),
 );
 
 // MMQ 305 — Mercadian Atlas
@@ -3147,13 +4842,33 @@ pub(in crate::card::sets) static PANACEA: CardRecord = CardRecord::new(
 );
 
 // MMQ 309 — Power Matrix
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static POWER_MATRIX: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a578599c-7d90-4881-b59a-9cf64b90d917"),
     "Power Matrix",
     crate::card::CardArt::new("a578599c-7d90-4881-b59a-9cf64b90d917", "Alan Pollack"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{4}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: Target creature gets +1/+1 and gains flying, first strike, and trample until end of turn.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::flying()),
+                    AppliedEffectDef::add_ability(&abilities::first_strike()),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // MMQ 310 — Puffer Extract
@@ -3177,23 +4892,35 @@ pub(in crate::card::sets) static RISHADAN_PAWNSHOP: CardRecord = CardRecord::new
 );
 
 // MMQ 312 — Skull of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SKULL_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f071957c-9bea-4d00-9ffd-30f98d57b8d2"),
     "Skull of Ramos",
     crate::card::CardArt::new("f071957c-9bea-4d00-9ffd-30f98d57b8d2", "David Martin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::Black),
+        AbilityDef::activated_mana(
+            "Sacrifice this artifact: Add {B}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Black)),
+        ),
+    ]),
 );
 
 // MMQ 313 — Tooth of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOOTH_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a3b999d-8e63-4647-a921-15e169022096"),
     "Tooth of Ramos",
     crate::card::CardArt::new("9a3b999d-8e63-4647-a921-15e169022096", "David Martin"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
+        abilities::tap_for(ManaColor::White),
+        AbilityDef::activated_mana(
+            "Sacrifice this artifact: Add {W}.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::White)),
+        ),
+    ]),
 );
 
 // MMQ 314 — Toymaker
@@ -3207,13 +4934,22 @@ pub(in crate::card::sets) static TOYMAKER: CardRecord = CardRecord::new(
 );
 
 // MMQ 315 — Worry Beads
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WORRY_BEADS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("400edfe9-9efa-43f9-b713-13ad4eae2fa4"),
     "Worry Beads",
     crate::card::CardArt::new("400edfe9-9efa-43f9-b713-13ad4eae2fa4", "rk post"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::triggered(
+        "At the beginning of each player's upkeep, that player mills a card.",
+        TriggerEventDef::StepBegins {
+            step: crate::card::TurnStepDef::Upkeep,
+            player: PlayerRelation::Any,
+        },
+        EffectDef::Mill {
+            player: EffectRecipientDef::EventPlayer,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // MMQ 316 — Dust Bowl
@@ -3246,17 +4982,36 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
 );
 
 // MMQ 317 — Fountain of Cho
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOUNTAIN_OF_CHO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41f352c3-4b63-4174-b2b4-6c19fb8c06ff"),
     "Fountain of Cho",
     crate::card::CardArt::new("41f352c3-4b63-4174-b2b4-6c19fb8c06ff", "Scott Hampton"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated(
+            "{T}: Put a storage counter on this land.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("storage"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove any number of storage counters from this land: Add {W} for each storage counter removed this way.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(
+                    crate::card::CounterKind::named("storage"),
+                ),
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::White)),
+        ),
+    ]),
 );
 
 // MMQ 318 — Henge of Ramos
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HENGE_OF_RAMOS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0582b42f-5ae5-4be2-ba2d-ed62b3cb20c5"),
     "Henge of Ramos",
@@ -3265,57 +5020,189 @@ pub(in crate::card::sets) static HENGE_OF_RAMOS: CardRecord = CardRecord::new(
         "Edward P. Beard, Jr.",
     ),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{2}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // MMQ 319 — Hickory Woodlot
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HICKORY_WOODLOT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af7aafb7-6870-4d09-a191-70786766c459"),
     "Hickory Woodlot",
     crate::card::CardArt::new("af7aafb7-6870-4d09-a191-70786766c459", "Sean McConnell"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                ),
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::AddCounters {
+                        kind: crate::card::CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {G}{G}. If there are no depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                crate::card::AddManaEffectDef::one(ManaColor::Green)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(crate::card::CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 320 — High Market
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIGH_MARKET: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f4c58683-65a6-4df9-8952-458e397b1374"),
     "High Market",
     crate::card::CardArt::new("f4c58683-65a6-4df9-8952-458e397b1374", "Carl Critchlow"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{T}, Sacrifice a creature: You gain 1 life.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MMQ 321 — Mercadian Bazaar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MERCADIAN_BAZAAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6f787cb6-78cb-4baa-a9cf-cee8b7d8d6b1"),
     "Mercadian Bazaar",
     crate::card::CardArt::new("6f787cb6-78cb-4baa-a9cf-cee8b7d8d6b1", "Terese Nielsen"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated(
+            "{T}: Put a storage counter on this land.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("storage"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove any number of storage counters from this land: Add {R} for each storage counter removed this way.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(
+                    crate::card::CounterKind::named("storage"),
+                ),
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Red)),
+        ),
+    ]),
 );
 
 // MMQ 322 — Peat Bog
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PEAT_BOG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcc9d1e0-c8f4-4bac-90d4-8167f7a1515a"),
     "Peat Bog",
     crate::card::CardArt::new("bcc9d1e0-c8f4-4bac-90d4-8167f7a1515a", "Val Mayerik"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                ),
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::AddCounters {
+                        kind: crate::card::CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {B}{B}. If there are no depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                crate::card::AddManaEffectDef::one(ManaColor::Black)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(crate::card::CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 323 — Remote Farm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REMOTE_FARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("115cab84-60d7-4bf2-9beb-b4ed7b5ceaf4"),
     "Remote Farm",
     crate::card::CardArt::new("115cab84-60d7-4bf2-9beb-b4ed7b5ceaf4", "Rob Alexander"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                ),
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::AddCounters {
+                        kind: crate::card::CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {W}{W}. If there are no depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                crate::card::AddManaEffectDef::one(ManaColor::White)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(crate::card::CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 324 — Rishadan Port
@@ -3343,63 +5230,202 @@ pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new_wit
 );
 
 // MMQ 325 — Rushwood Grove
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUSHWOOD_GROVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c315c72c-3e2f-4aff-b7d7-2f709ccec332"),
     "Rushwood Grove",
     crate::card::CardArt::new("c315c72c-3e2f-4aff-b7d7-2f709ccec332", "George Pratt"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated(
+            "{T}: Put a storage counter on this land.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("storage"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove any number of storage counters from this land: Add {G} for each storage counter removed this way.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(
+                    crate::card::CounterKind::named("storage"),
+                ),
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Green)),
+        ),
+    ]),
 );
 
 // MMQ 326 — Sandstone Needle
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SANDSTONE_NEEDLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("82bc7c6b-2e3d-42d1-b2bb-b37b6f34d33b"),
     "Sandstone Needle",
     crate::card::CardArt::new("82bc7c6b-2e3d-42d1-b2bb-b37b6f34d33b", "Alan Rabinowitz"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                ),
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::AddCounters {
+                        kind: crate::card::CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {R}{R}. If there are no depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                crate::card::AddManaEffectDef::one(ManaColor::Red)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(crate::card::CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 327 — Saprazzan Cove
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_COVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("52a69122-19c0-47ec-8bea-478511ba88e6"),
     "Saprazzan Cove",
     crate::card::CardArt::new("52a69122-19c0-47ec-8bea-478511ba88e6", "Rebecca Guay"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated(
+            "{T}: Put a storage counter on this land.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("storage"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove any number of storage counters from this land: Add {U} for each storage counter removed this way.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(
+                    crate::card::CounterKind::named("storage"),
+                ),
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Blue)),
+        ),
+    ]),
 );
 
 // MMQ 328 — Saprazzan Skerry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAPRAZZAN_SKERRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("006871fd-2641-42cb-a2ac-a33d05fc5a35"),
     "Saprazzan Skerry",
     crate::card::CardArt::new("006871fd-2641-42cb-a2ac-a33d05fc5a35", "Pat Lewis"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped with two depletion counters on it.",
+            crate::card::ReplacementEffectDef::Sequence(&[
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::Tapped,
+                ),
+                crate::card::ReplacementEffectDef::ModifyBattlefieldEntry(
+                    crate::card::BattlefieldEntryModificationDef::AddCounters {
+                        kind: crate::card::CounterKind::named("depletion"),
+                        amount: 2,
+                    },
+                ),
+            ]),
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove a depletion counter from this land: Add {U}{U}. If there are no depletion counters on this land, sacrifice it.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveCountersFromSource {
+                    kind: crate::card::CounterKind::named("depletion"),
+                    amount: 1,
+                },
+            ],
+            EffectDef::AddMana(
+                crate::card::AddManaEffectDef::one(ManaColor::Blue)
+                    .with_amount(2)
+                    .sacrificing_source_when_out_of(crate::card::CounterKind::named("depletion")),
+            ),
+        ),
+    ]),
 );
 
 // MMQ 329 — Subterranean Hangar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBTERRANEAN_HANGAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("edc199d1-970b-489f-b713-8285151f16ae"),
     "Subterranean Hangar",
     crate::card::CardArt::new("edc199d1-970b-489f-b713-8285151f16ae", "Matt Cavotta"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped("This land enters tapped."),
+        AbilityDef::activated(
+            "{T}: Put a storage counter on this land.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: crate::card::CounterKind::named("storage"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}, Remove any number of storage counters from this land: Add {B} for each storage counter removed this way.",
+            &[
+                AbilityCostDef::TapSource,
+                AbilityCostDef::RemoveAnyNumberOfCountersFromSource(
+                    crate::card::CounterKind::named("storage"),
+                ),
+            ],
+            EffectDef::AddMana(crate::card::AddManaEffectDef::one(ManaColor::Black)),
+        ),
+    ]),
 );
 
 // MMQ 330 — Tower of the Magistrate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TOWER_OF_THE_MAGISTRATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee0481db-15ae-46b4-89a3-01c95a9626c7"),
     "Tower of the Magistrate",
     crate::card::CardArt::new("ee0481db-15ae-46b4-89a3-01c95a9626c7", "Thomas Gianni"),
     crate::card::CardSet::MercadianMasques,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{1}, {T}: Target creature gains protection from artifacts until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&AbilityDef::keyword(
+                    "Protection from artifacts",
+                    crate::card::KeywordAbility::ProtectionFrom(&ObjectPredicateDef::HasType(
+                        CardType::Artifact,
+                    )),
+                )),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // MMQ 331 — Plains (reprint)

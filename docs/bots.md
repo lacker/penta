@@ -775,7 +775,9 @@ executable even though the cards are not legal in either shipped format.
 `allowed` means the definition belongs to the format's card pool; `legal` is
 `allowed && !banned`, so a restricted card is still legal. Definitions include
 their structure, parts, play options, legality, printings, and clause-derived
-implementation status.
+implementation status. Each printing carries its exact set, variant, and
+optional `art` object (`scryfallId` and `artist`); presentation clients may use
+that metadata without treating a reprint as a second rules identity.
 
 Catalog contents may grow compatibly within one protocol version because new
 opaque definition IDs can be added while existing card identities never move.

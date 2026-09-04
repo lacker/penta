@@ -10,4 +10,4 @@ pub(super) mod phyrexia_all_will_be_one;
 pub(super) mod phyrexia_all_will_be_one_commander;
 pub(super) mod wilds_of_eldraine;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

@@ -14,6 +14,7 @@ pub mod tokens;
 
 mod catalog;
 mod characteristics;
+mod compatibility;
 mod creature_types;
 mod model;
 mod record;
@@ -36,16 +37,17 @@ pub use model::{
     BasicLandType, BattlefieldArrivalDef, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, BindObjectsDef,
     BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef, CardAbilityList,
-    CardArt, CardChoiceSourceDef, CardComposition, CardDefinition, CardEffectStatus, CardPart,
-    CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure, CardSupertype,
-    CardSupertypeSet, CardType, CardTypeSet, CastTimingPermissionDef, ChangeStackTargetsDef,
-    CharacteristicOperationDef, ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef,
-    ChooseExactDef, ChooseForEachPlayerDef, ChooseGroupDef, ChooseObjectOrderDef,
-    ChooseOneOfEachDef, ClassifyObjectsDef, CollectionInspectionDef, ColorChoiceOperationDef,
-    ColorSet, CombineObjectsDef, CompanionConditionDef, ComparisonDef, ConditionDef,
-    ConditionValueDef, ConditionalStaticEffectDef, ConditionalValueDef, ControlDurationDef,
-    CopyAbilityDef, CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef,
-    CostDef, CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily, CounterKind,
+    CardArt, CardArtPreference, CardChoiceSourceDef, CardComposition, CardDefinition,
+    CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardRules, CardSet, CardStructure,
+    CardSupertype, CardSupertypeSet, CardType, CardTypeSet, CastTimingPermissionDef,
+    ChangeStackTargetsDef, CharacteristicOperationDef, ChoiceVisibilityDef,
+    ChooseCardsFromCollectionDef, ChooseDef, ChooseExactDef, ChooseForEachPlayerDef,
+    ChooseGroupDef, ChooseObjectOrderDef, ChooseOneOfEachDef, ClassifyObjectsDef,
+    CollectionInspectionDef, ColorChoiceOperationDef, ColorSet, CombineObjectsDef,
+    CompanionConditionDef, ComparisonDef, ConditionDef, ConditionValueDef,
+    ConditionalStaticEffectDef, ConditionalValueDef, ControlDurationDef, CopyAbilityDef,
+    CopyExceptionsDef, CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostDef,
+    CostModificationDef, CostQuantityDef, CountConditionDef, CounterFamily, CounterKind,
     CounterKindDef, CounterName, CounterOperationDef, CreatedTokensDef, CreatureStats,
     CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageLimitDef,
     DamagePreventionCapacityDef, DamagePreventionDef, DamagePreventionFollowUpDef,

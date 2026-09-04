@@ -1,6 +1,6 @@
 //! Commander 2021 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ExilePlayDurationDef,
@@ -11,11 +11,11 @@ use crate::{TargetIndex, mana_cost};
 
 // C21 53 — Laelia, the Blade Reforged
 pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2302,
-        "Laelia, the Blade Reforged",
-        CardArt::new("a3bb2881-e8fb-4fba-a9f9-d93e6ca24378", "Wisnu Tan"),
+    CardRecord::new(
         CardSet::Commander2021,
+    "Laelia, the Blade Reforged",
+    "a3bb2881-e8fb-4fba-a9f9-d93e6ca24378",
+    "Wisnu Tan",
         // Three mana with haste that attacks as a 3/3 on the turn it lands, and
         // grows every attack after because her own trigger feeds the other one.
         CardRules::new_creature(mana_cost!("{2}{R}"), &["Spirit", "Warrior"], 2, 2)
@@ -63,10 +63,10 @@ pub(in crate::card::sets) static LAELIA_THE_BLADE_REFORGED: CardRecord =
 
 // C21 65 — Pest Infestation
 pub(in crate::card::sets) static PEST_INFESTATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4720b4f2-e6af-4223-9250-a0ed21ed5693"),
-    "Pest Infestation",
-    crate::card::CardArt::new("4720b4f2-e6af-4223-9250-a0ed21ed5693", "Brian Valeza"),
     crate::card::CardSet::Commander2021,
+    "Pest Infestation",
+    "4720b4f2-e6af-4223-9250-a0ed21ed5693",
+    "Brian Valeza",
     // Two mana per artifact answered, and the two Pests that come with each
     // are what makes paying it twice over worth doing.
     CardRules::new_sorcery(mana_cost!("{X}{X}{G}")).with_ability(AbilityDef::spell_with_targets(

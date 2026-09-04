@@ -10,6 +10,7 @@ fn suspend_actions_have_a_card_named_ability_label() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -43,6 +44,7 @@ fn cast_action_labels_distinguish_normal_flashback_and_overload() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -114,6 +116,7 @@ fn cast_action_labels_name_a_battlefield_granted_alternative_without_calling_it_
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -145,6 +148,7 @@ fn cast_action_labels_distinguish_optional_buyback() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let mut observation = game.session.engine().observe(game.human);
@@ -189,6 +193,7 @@ fn a_sacrificing_mana_ability_names_what_it_eats() {
         true,
         2,
         Some("old-school-93-94".into()),
+        None,
     )
     .unwrap();
     let prospector = game
@@ -248,6 +253,7 @@ fn activated_action_labels_distinguish_exact_ability_origins() {
         true,
         2,
         Some("old-school-93-94".into()),
+        None,
     )
     .unwrap();
     let source = game
@@ -333,6 +339,7 @@ fn activated_action_labels_show_distinct_x_and_every_selected_target() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let source = game
@@ -598,6 +605,7 @@ fn visible_card_status_comes_from_whole_card_support() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let snapshot = game.snapshot_value(false);

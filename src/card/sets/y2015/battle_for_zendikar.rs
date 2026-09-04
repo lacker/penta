@@ -1,10 +1,10 @@
 //! BFZ card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
-    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef, ZoneKind, abilities,
+    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -12,29 +12,29 @@ use crate::mana_cost;
 // BFZ 58 — Eldrazi Skyspawner
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELDRAZI_SKYSPAWNER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9c9c1a10-446e-492a-95cc-a459dc6c08a0"),
-    "Eldrazi Skyspawner",
-    crate::card::CardArt::new("9c9c1a10-446e-492a-95cc-a459dc6c08a0", "Chase Stone"),
     crate::card::CardSet::BattleForZendikar,
+    "Eldrazi Skyspawner",
+    "9c9c1a10-446e-492a-95cc-a459dc6c08a0",
+    "Chase Stone",
     crate::card::CardRules::unsupported(),
 );
 
 // BFZ 106 — Carrier Thrall
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CARRIER_THRALL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bd2ab895-9225-4eba-90c3-4023db4f8b70"),
-    "Carrier Thrall",
-    crate::card::CardArt::new("bd2ab895-9225-4eba-90c3-4023db4f8b70", "Lius Lasahido"),
     crate::card::CardSet::BattleForZendikar,
+    "Carrier Thrall",
+    "bd2ab895-9225-4eba-90c3-4023db4f8b70",
+    "Lius Lasahido",
     crate::card::CardRules::unsupported(),
 );
 
 // BFZ 168 — Unnatural Aggression
 pub(in crate::card::sets) static UNNATURAL_AGGRESSION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8293c66d-9a9b-4817-9bc3-ffd57fda290c"),
-    "Unnatural Aggression",
-    CardArt::new("8293c66d-9a9b-4817-9bc3-ffd57fda290c", "James Ryman"),
     CardSet::BattleForZendikar,
+    "Unnatural Aggression",
+    "8293c66d-9a9b-4817-9bc3-ffd57fda290c",
+    "James Ryman",
     CardRules::new_instant(mana_cost!("{2}{G}"))
         .printed_colors(&[])
         .with_abilities(&[

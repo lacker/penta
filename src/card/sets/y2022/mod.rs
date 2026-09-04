@@ -9,4 +9,4 @@ pub(super) mod streets_of_new_capenna;
 pub(super) mod streets_of_new_capenna_commander;
 pub(super) mod the_brothers_war;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

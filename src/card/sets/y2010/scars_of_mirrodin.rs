@@ -1,21 +1,20 @@
 //! Scars of Mirrodin cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef,
-    CopyExceptionsDef, CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef,
-    EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    BattlefieldEntryModificationDef, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ChooseDef, ColorSet, ComparisonDef, ControlDurationDef, CopyExceptionsDef,
+    CountConditionDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamagePreventionDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    ScaledValueDef, SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -80,10 +79,10 @@ static SOURCE_IS_EQUIPPED: TriggerConditionDef = TriggerConditionDef::ObjectCoun
 
 // SOM 1 — Abuna Acolyte
 pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9e17bbf7-00c0-46f2-9718-2762fd7388d3"),
-    "Abuna Acolyte",
-    crate::card::CardArt::new("9e17bbf7-00c0-46f2-9718-2762fd7388d3", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Abuna Acolyte",
+    "9e17bbf7-00c0-46f2-9718-2762fd7388d3",
+    "Igor Kieryluk",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Cleric"], 1, 1).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}: Prevent the next 1 damage that would be dealt to any target this turn.",
@@ -118,13 +117,18 @@ pub(in crate::card::sets) static ABUNA_ACOLYTE: CardRecord = CardRecord::new(
 );
 
 // SOM 2 — Arrest (reprint)
+const ARREST_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1999::mercadian_masques::ARREST,
+    "f52d6cf9-1d92-4d3b-8631-0db19a073b44",
+    "Daarken",
+);
 
 // SOM 3 — Auriok Edgewright
 pub(in crate::card::sets) static AURIOK_EDGEWRIGHT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0f76b18a-396b-41f5-b34b-ac232b7f316b"),
-    "Auriok Edgewright",
-    crate::card::CardArt::new("0f76b18a-396b-41f5-b34b-ac232b7f316b", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Auriok Edgewright",
+    "0f76b18a-396b-41f5-b34b-ac232b7f316b",
+    "Mike Bierek",
     CardRules::new_creature(mana_cost!("{W}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature has double strike as long as you control three or more artifacts.",
@@ -141,10 +145,10 @@ pub(in crate::card::sets) static AURIOK_EDGEWRIGHT: CardRecord = CardRecord::new
 
 // SOM 4 — Auriok Sunchaser
 pub(in crate::card::sets) static AURIOK_SUNCHASER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e274a8b3-2d92-43d9-a436-d3f6f619ca95"),
-    "Auriok Sunchaser",
-    crate::card::CardArt::new("e274a8b3-2d92-43d9-a436-d3f6f619ca95", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Auriok Sunchaser",
+    "e274a8b3-2d92-43d9-a436-d3f6f619ca95",
+    "James Ryman",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 1).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — As long as you control three or more artifacts, this creature gets +2/+2 and has flying.",
@@ -167,10 +171,10 @@ pub(in crate::card::sets) static AURIOK_SUNCHASER: CardRecord = CardRecord::new(
 
 // SOM 5 — Dispense Justice
 pub(in crate::card::sets) static DISPENSE_JUSTICE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7b3330a1-98b6-4b09-9bca-6c7c89447ba2"),
-    "Dispense Justice",
-    crate::card::CardArt::new("7b3330a1-98b6-4b09-9bca-6c7c89447ba2", "Austin Hsu"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Dispense Justice",
+    "7b3330a1-98b6-4b09-9bca-6c7c89447ba2",
+    "Austin Hsu",
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::spell_with_targets(
             "Target player sacrifices an attacking creature. Metalcraft — That player sacrifices two attacking creatures instead if you control three or more artifacts.",
@@ -195,10 +199,10 @@ pub(in crate::card::sets) static DISPENSE_JUSTICE: CardRecord = CardRecord::new(
 
 // SOM 6 — Elspeth Tirel
 pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ebe9116e-7b04-4f2a-aa67-89a42c6e1801"),
-    "Elspeth Tirel",
-    crate::card::CardArt::new("ebe9116e-7b04-4f2a-aa67-89a42c6e1801", "Michael Komarck"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Elspeth Tirel",
+    "ebe9116e-7b04-4f2a-aa67-89a42c6e1801",
+    "Michael Komarck",
     CardRules::new_planeswalker(mana_cost!("{3}{W}{W}"), &["Elspeth"], 4)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -243,19 +247,19 @@ pub(in crate::card::sets) static ELSPETH_TIREL: CardRecord = CardRecord::new(
 // SOM 7 — Fulgent Distraction
 // Audit: unsupported — Needs one resolution to find and unattach every Equipment attached to each of two targeted creatures after tapping them.
 pub(in crate::card::sets) static FULGENT_DISTRACTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c33a8cf1-e413-4633-b348-2ef594a945a5"),
-    "Fulgent Distraction",
-    crate::card::CardArt::new("c33a8cf1-e413-4633-b348-2ef594a945a5", "Nic Klein"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Fulgent Distraction",
+    "c33a8cf1-e413-4633-b348-2ef594a945a5",
+    "Nic Klein",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 8 — Ghalma's Warden
 pub(in crate::card::sets) static GHALMA_S_WARDEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("efbf5ff1-6539-4116-ad4f-ce412ae20640"),
-    "Ghalma's Warden",
-    crate::card::CardArt::new("efbf5ff1-6539-4116-ad4f-ce412ae20640", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ghalma's Warden",
+    "efbf5ff1-6539-4116-ad4f-ce412ae20640",
+    "Mike Bierek",
     CardRules::new_creature(mana_cost!("{3}{W}"), &["Elephant", "Soldier"], 2, 4).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
@@ -275,10 +279,10 @@ pub(in crate::card::sets) static GHALMA_S_WARDEN: CardRecord = CardRecord::new(
 
 // SOM 9 — Glimmerpoint Stag
 pub(in crate::card::sets) static GLIMMERPOINT_STAG: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5fb553f3-b1f6-47e7-94c1-8c09410c7163"),
-    "Glimmerpoint Stag",
-    crate::card::CardArt::new("5fb553f3-b1f6-47e7-94c1-8c09410c7163", "Ryan Pancoast"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Glimmerpoint Stag",
+    "5fb553f3-b1f6-47e7-94c1-8c09410c7163",
+    "Ryan Pancoast",
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Elk"], 3, 3).with_abilities(&[
         abilities::vigilance(),
         abilities::enters_trigger_with_targets(
@@ -295,10 +299,10 @@ pub(in crate::card::sets) static GLIMMERPOINT_STAG: CardRecord = CardRecord::new
 
 // SOM 10 — Glint Hawk
 pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("284c4710-4183-4743-9c8b-515cc98cbbb8"),
-    "Glint Hawk",
-    crate::card::CardArt::new("284c4710-4183-4743-9c8b-515cc98cbbb8", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Glint Hawk",
+    "284c4710-4183-4743-9c8b-515cc98cbbb8",
+    "Dave Allsop",
     CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 2, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
@@ -321,10 +325,10 @@ pub(in crate::card::sets) static GLINT_HAWK: CardRecord = CardRecord::new(
 
 // SOM 11 — Indomitable Archangel
 pub(in crate::card::sets) static INDOMITABLE_ARCHANGEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a50e72a2-1e94-43cf-a605-bf3bb456d12f"),
-    "Indomitable Archangel",
-    crate::card::CardArt::new("a50e72a2-1e94-43cf-a605-bf3bb456d12f", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Indomitable Archangel",
+    "a50e72a2-1e94-43cf-a605-bf3bb456d12f",
+    "Allen Williams",
     CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Angel"], 4, 4).with_abilities(&[
         abilities::flying(),
         AbilityDef::static_ability(
@@ -346,10 +350,10 @@ pub(in crate::card::sets) static INDOMITABLE_ARCHANGEL: CardRecord = CardRecord:
 
 // SOM 12 — Kemba, Kha Regent
 pub(in crate::card::sets) static KEMBA_KHA_REGENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1964ca48-3260-4e2d-9014-984c1efc9a43"),
-    "Kemba, Kha Regent",
-    crate::card::CardArt::new("1964ca48-3260-4e2d-9014-984c1efc9a43", "Todd Lockwood"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Kemba, Kha Regent",
+    "1964ca48-3260-4e2d-9014-984c1efc9a43",
+    "Todd Lockwood",
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Cat", "Cleric"], 2, 4)
         .with_supertype(CardSupertype::Legendary)
         .with_ability(AbilityDef::triggered(
@@ -365,10 +369,10 @@ pub(in crate::card::sets) static KEMBA_KHA_REGENT: CardRecord = CardRecord::new(
 
 // SOM 13 — Kemba's Skyguard
 pub(in crate::card::sets) static KEMBA_S_SKYGUARD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("66ce7c11-09bf-4884-893c-fc8bdbe776d4"),
-    "Kemba's Skyguard",
-    crate::card::CardArt::new("b9f20a74-7614-4bd9-ac08-0e098f98df0c", "Whit Brachna"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Kemba's Skyguard",
+    "b9f20a74-7614-4bd9-ac08-0e098f98df0c",
+    "Whit Brachna",
     CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Cat", "Knight"], 2, 2).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
@@ -384,28 +388,28 @@ pub(in crate::card::sets) static KEMBA_S_SKYGUARD: CardRecord = CardRecord::new(
 // SOM 14 — Leonin Arbiter
 // Audit: unsupported — Needs a player search prohibition with an any-player {2} special-action payment that suspends only that player's restriction until end of turn.
 pub(in crate::card::sets) static LEONIN_ARBITER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4b0453cd-62ab-41ba-8d9c-9d6d25dc9a56"),
-    "Leonin Arbiter",
-    crate::card::CardArt::new("4b0453cd-62ab-41ba-8d9c-9d6d25dc9a56", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Leonin Arbiter",
+    "4b0453cd-62ab-41ba-8d9c-9d6d25dc9a56",
+    "Shelly Wan",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 15 — Loxodon Wayfarer
 pub(in crate::card::sets) static LOXODON_WAYFARER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("356c5e6a-c0bd-43f7-bc84-a6ae8718a7a2"),
-    "Loxodon Wayfarer",
-    crate::card::CardArt::new("356c5e6a-c0bd-43f7-bc84-a6ae8718a7a2", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Loxodon Wayfarer",
+    "356c5e6a-c0bd-43f7-bc84-a6ae8718a7a2",
+    "Steven Belledin",
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Elephant", "Monk"], 1, 5),
 );
 
 // SOM 16 — Myrsmith
 pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("13429b63-085c-4c78-9ce3-247db5841b9d"),
-    "Myrsmith",
-    crate::card::CardArt::new("13429b63-085c-4c78-9ce3-247db5841b9d", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Myrsmith",
+    "13429b63-085c-4c78-9ce3-247db5841b9d",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, create a 1/1 colorless Myr artifact creature token.",
@@ -427,19 +431,19 @@ pub(in crate::card::sets) static MYRSMITH: CardRecord = CardRecord::new(
 // SOM 17 — Razor Hippogriff
 // Audit: unsupported — Target mana value has last-known information, but zone moves cannot condition a following effect on whether the artifact was actually returned to hand, as required by “If you do.”
 pub(in crate::card::sets) static RAZOR_HIPPOGRIFF: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab"),
-    "Razor Hippogriff",
-    crate::card::CardArt::new("fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Razor Hippogriff",
+    "fc7ac3bf-eed2-417d-8b60-e8c84bfb98ab",
+    "David Rapoza",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 18 — Revoke Existence
 pub(in crate::card::sets) static REVOKE_EXISTENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("18ae62f9-361c-4849-b0af-2b08fc0421c8"),
-    "Revoke Existence",
-    crate::card::CardArt::new("18ae62f9-361c-4849-b0af-2b08fc0421c8", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Revoke Existence",
+    "18ae62f9-361c-4849-b0af-2b08fc0421c8",
+    "Allen Williams",
     CardRules::new_sorcery(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Exile target artifact or enchantment.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -458,10 +462,10 @@ pub(in crate::card::sets) static REVOKE_EXISTENCE: CardRecord = CardRecord::new(
 
 // SOM 19 — Salvage Scout
 pub(in crate::card::sets) static SALVAGE_SCOUT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5909e77e-a930-4713-bca4-c6b265238c17"),
-    "Salvage Scout",
-    crate::card::CardArt::new("5909e77e-a930-4713-bca4-c6b265238c17", "Randis Albion"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Salvage Scout",
+    "5909e77e-a930-4713-bca4-c6b265238c17",
+    "Randis Albion",
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Scout"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{W}, Sacrifice this creature: Return target artifact card from your graveyard to your hand.",
@@ -495,10 +499,10 @@ pub(in crate::card::sets) static SALVAGE_SCOUT: CardRecord = CardRecord::new(
 
 // SOM 20 — Seize the Initiative
 pub(in crate::card::sets) static SEIZE_THE_INITIATIVE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6d745f35-944a-4157-a351-baa06f67b725"),
-    "Seize the Initiative",
-    crate::card::CardArt::new("6d745f35-944a-4157-a351-baa06f67b725", "Steve Argyle"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Seize the Initiative",
+    "6d745f35-944a-4157-a351-baa06f67b725",
+    "Steve Argyle",
     CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gets +1/+1 and gains first strike until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -521,19 +525,19 @@ pub(in crate::card::sets) static SEIZE_THE_INITIATIVE: CardRecord = CardRecord::
 // SOM 21 — Soul Parry
 // Audit: unsupported — Damage prevention cannot currently use the one-or-two members of a target slot as the complete set of damage sources it prevents.
 pub(in crate::card::sets) static SOUL_PARRY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e241ea47-cbbe-4241-94f9-315cc7cfd79b"),
-    "Soul Parry",
-    crate::card::CardArt::new("e241ea47-cbbe-4241-94f9-315cc7cfd79b", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Soul Parry",
+    "e241ea47-cbbe-4241-94f9-315cc7cfd79b",
+    "Igor Kieryluk",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 22 — Sunblast Angel
 pub(in crate::card::sets) static SUNBLAST_ANGEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("32217d3b-8a44-40e3-a4fd-c849fdffc1e4"),
-    "Sunblast Angel",
-    crate::card::CardArt::new("32217d3b-8a44-40e3-a4fd-c849fdffc1e4", "Jason Chan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sunblast Angel",
+    "32217d3b-8a44-40e3-a4fd-c849fdffc1e4",
+    "Jason Chan",
     CardRules::new_creature(mana_cost!("{4}{W}{W}"), &["Angel"], 4, 5).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
@@ -556,10 +560,10 @@ pub(in crate::card::sets) static SUNBLAST_ANGEL: CardRecord = CardRecord::new(
 
 // SOM 23 — Sunspear Shikari
 pub(in crate::card::sets) static SUNSPEAR_SHIKARI: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("20ac29ef-02e1-4500-bb83-5987beeaa849"),
-    "Sunspear Shikari",
-    crate::card::CardArt::new("20ac29ef-02e1-4500-bb83-5987beeaa849", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sunspear Shikari",
+    "20ac29ef-02e1-4500-bb83-5987beeaa849",
+    "Allen Williams",
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Cat", "Soldier"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "As long as this creature is equipped, it has first strike and lifelink.",
@@ -579,10 +583,10 @@ pub(in crate::card::sets) static SUNSPEAR_SHIKARI: CardRecord = CardRecord::new(
 
 // SOM 24 — Tempered Steel
 pub(in crate::card::sets) static TEMPERED_STEEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6661b39d-505a-48f4-bc06-59084c6a3b0c"),
-    "Tempered Steel",
-    crate::card::CardArt::new("6661b39d-505a-48f4-bc06-59084c6a3b0c", "Wayne Reynolds"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tempered Steel",
+    "6661b39d-505a-48f4-bc06-59084c6a3b0c",
+    "Wayne Reynolds",
     CardRules::new_enchantment(mana_cost!("{1}{W}{W}")).with_ability(AbilityDef::static_ability(
         "Artifact creatures you control get +2/+2.",
         EffectDef::StaticApply {
@@ -604,10 +608,10 @@ pub(in crate::card::sets) static TEMPERED_STEEL: CardRecord = CardRecord::new(
 
 // SOM 25 — True Conviction
 pub(in crate::card::sets) static TRUE_CONVICTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("23a1d384-1b36-42d0-957f-48103f9cdbdd"),
-    "True Conviction",
-    crate::card::CardArt::new("23a1d384-1b36-42d0-957f-48103f9cdbdd", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "True Conviction",
+    "23a1d384-1b36-42d0-957f-48103f9cdbdd",
+    "Svetlin Velinov",
     CardRules::new_enchantment(mana_cost!("{3}{W}{W}{W}")).with_ability(
         AbilityDef::static_ability(
             "Creatures you control have double strike and lifelink.",
@@ -628,10 +632,10 @@ pub(in crate::card::sets) static TRUE_CONVICTION: CardRecord = CardRecord::new(
 
 // SOM 26 — Vigil for the Lost
 pub(in crate::card::sets) static VIGIL_FOR_THE_LOST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a87b48b-2ae9-4753-8719-62411f94ca87"),
-    "Vigil for the Lost",
-    crate::card::CardArt::new("4a87b48b-2ae9-4753-8719-62411f94ca87", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vigil for the Lost",
+    "4a87b48b-2ae9-4753-8719-62411f94ca87",
+    "Igor Kieryluk",
     CardRules::new_enchantment(mana_cost!("{3}{W}")).with_ability(AbilityDef::triggered(
         "Whenever a creature you control dies, you may pay {X}. If you do, you gain X life.",
         TriggerEventDef::zone_changed(
@@ -657,10 +661,10 @@ pub(in crate::card::sets) static VIGIL_FOR_THE_LOST: CardRecord = CardRecord::ne
 
 // SOM 27 — Whitesun's Passage
 pub(in crate::card::sets) static WHITESUN_S_PASSAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a74d1bf3-4630-4be0-af5f-590789d27a0c"),
-    "Whitesun's Passage",
-    crate::card::CardArt::new("a74d1bf3-4630-4be0-af5f-590789d27a0c", "John Avon"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Whitesun's Passage",
+    "a74d1bf3-4630-4be0-af5f-590789d27a0c",
+    "John Avon",
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
         "You gain 5 life.",
         EffectDef::GainLife {
@@ -672,10 +676,10 @@ pub(in crate::card::sets) static WHITESUN_S_PASSAGE: CardRecord = CardRecord::ne
 
 // SOM 28 — Argent Sphinx
 pub(in crate::card::sets) static ARGENT_SPHINX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("280e75af-7e43-4c15-a8a8-bec7389c6c4e"),
-    "Argent Sphinx",
-    crate::card::CardArt::new("280e75af-7e43-4c15-a8a8-bec7389c6c4e", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Argent Sphinx",
+    "280e75af-7e43-4c15-a8a8-bec7389c6c4e",
+    "Chris Rahn",
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Sphinx"], 4, 3).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
@@ -689,10 +693,10 @@ pub(in crate::card::sets) static ARGENT_SPHINX: CardRecord = CardRecord::new(
 
 // SOM 29 — Bonds of Quicksilver
 pub(in crate::card::sets) static BONDS_OF_QUICKSILVER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c071dca0-fccb-48b8-b65a-74741b12e3f0"),
-    "Bonds of Quicksilver",
-    crate::card::CardArt::new("c071dca0-fccb-48b8-b65a-74741b12e3f0", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Bonds of Quicksilver",
+    "c071dca0-fccb-48b8-b65a-74741b12e3f0",
+    "Steven Belledin",
     CardRules::new_enchantment(mana_cost!("{3}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
@@ -710,10 +714,10 @@ pub(in crate::card::sets) static BONDS_OF_QUICKSILVER: CardRecord = CardRecord::
 
 // SOM 30 — Darkslick Drake
 pub(in crate::card::sets) static DARKSLICK_DRAKE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("234f4131-1e7f-4220-b46c-bb4a6713876e"),
-    "Darkslick Drake",
-    crate::card::CardArt::new("234f4131-1e7f-4220-b46c-bb4a6713876e", "Chippy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Darkslick Drake",
+    "234f4131-1e7f-4220-b46c-bb4a6713876e",
+    "Chippy",
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Phyrexian", "Drake"], 2, 4).with_abilities(
         &[
             abilities::flying(),
@@ -729,13 +733,18 @@ pub(in crate::card::sets) static DARKSLICK_DRAKE: CardRecord = CardRecord::new(
 );
 
 // SOM 31 — Disperse (reprint)
+const DISPERSE_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2008::morningtide::DISPERSE,
+    "1572457f-90e0-4ffc-a403-6f877c6a8186",
+    "Adrian Smith",
+);
 
 // SOM 32 — Dissipation Field
 pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("247694c5-5813-4256-9fd8-478d4be52081"),
-    "Dissipation Field",
-    crate::card::CardArt::new("247694c5-5813-4256-9fd8-478d4be52081", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Dissipation Field",
+    "247694c5-5813-4256-9fd8-478d4be52081",
+    "Matt Cavotta",
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_ability(AbilityDef::triggered(
         "Whenever a permanent deals damage to you, return it to its owner's hand.",
         TriggerEventDef::damage_to_player(
@@ -759,19 +768,19 @@ pub(in crate::card::sets) static DISSIPATION_FIELD: CardRecord = CardRecord::new
 // SOM 33 — Grand Architect
 // Audit: unsupported — Needs an activation cost that taps another chosen untapped blue creature and produces {C}{C} restricted to artifact spells and artifact abilities.
 pub(in crate::card::sets) static GRAND_ARCHITECT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c59599de-c781-4c26-a159-cbf0cd72d361"),
-    "Grand Architect",
-    crate::card::CardArt::new("c59599de-c781-4c26-a159-cbf0cd72d361", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Grand Architect",
+    "c59599de-c781-4c26-a159-cbf0cd72d361",
+    "Steven Belledin",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 34 — Halt Order
 pub(in crate::card::sets) static HALT_ORDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7fed18af-7301-4d03-ba7c-e94f07f078b3"),
-    "Halt Order",
-    crate::card::CardArt::new("7fed18af-7301-4d03-ba7c-e94f07f078b3", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Halt Order",
+    "7fed18af-7301-4d03-ba7c-e94f07f078b3",
+    "Izzy",
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target artifact spell. Draw a card.",
         &[AbilityTargetDef::exactly_one(
@@ -801,10 +810,10 @@ pub(in crate::card::sets) static HALT_ORDER: CardRecord = CardRecord::new(
 
 // SOM 35 — Inexorable Tide
 pub(in crate::card::sets) static INEXORABLE_TIDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8f41e281-fcbb-450b-8a67-7b072c55c6f0"),
-    "Inexorable Tide",
-    crate::card::CardArt::new("8f41e281-fcbb-450b-8a67-7b072c55c6f0", "Dave Kendall"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Inexorable Tide",
+    "8f41e281-fcbb-450b-8a67-7b072c55c6f0",
+    "Dave Kendall",
     CardRules::new_enchantment(mana_cost!("{3}{U}{U}")).with_ability(AbilityDef::triggered(
         "Whenever you cast a spell, proliferate.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::ControlledBy(PlayerRelation::You)),
@@ -814,10 +823,10 @@ pub(in crate::card::sets) static INEXORABLE_TIDE: CardRecord = CardRecord::new(
 
 // SOM 36 — Lumengrid Drake
 pub(in crate::card::sets) static LUMENGRID_DRAKE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f44e9820-2209-40a2-bc4f-46b440c05e9d"),
-    "Lumengrid Drake",
-    crate::card::CardArt::new("f44e9820-2209-40a2-bc4f-46b440c05e9d", "Johann Bodin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Lumengrid Drake",
+    "f44e9820-2209-40a2-bc4f-46b440c05e9d",
+    "Johann Bodin",
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Drake"], 2, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered_if_with_targets(
@@ -842,10 +851,10 @@ pub(in crate::card::sets) static LUMENGRID_DRAKE: CardRecord = CardRecord::new(
 
 // SOM 37 — Neurok Invisimancer
 pub(in crate::card::sets) static NEUROK_INVISIMANCER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e88f78f4-77d8-4c3e-a5bf-a9dd902aaae1"),
-    "Neurok Invisimancer",
-    crate::card::CardArt::new("e88f78f4-77d8-4c3e-a5bf-a9dd902aaae1", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Neurok Invisimancer",
+    "e88f78f4-77d8-4c3e-a5bf-a9dd902aaae1",
+    "Izzy",
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Human", "Wizard"], 2, 1).with_abilities(&[
         abilities::cannot_be_blocked("This creature can't be blocked."),
         abilities::enters_trigger_with_targets(
@@ -864,19 +873,19 @@ pub(in crate::card::sets) static NEUROK_INVISIMANCER: CardRecord = CardRecord::n
 
 // SOM 38 — Plated Seastrider
 pub(in crate::card::sets) static PLATED_SEASTRIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("97171611-c677-48a6-b081-98a27ecef979"),
-    "Plated Seastrider",
-    crate::card::CardArt::new("97171611-c677-48a6-b081-98a27ecef979", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Plated Seastrider",
+    "97171611-c677-48a6-b081-98a27ecef979",
+    "Izzy",
     CardRules::new_creature(mana_cost!("{U}{U}"), &["Beast"], 1, 4),
 );
 
 // SOM 39 — Quicksilver Gargantuan
 pub(in crate::card::sets) static QUICKSILVER_GARGANTUAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b83f5aea-80f2-4f3d-8508-9619413e0087"),
-    "Quicksilver Gargantuan",
-    crate::card::CardArt::new("b83f5aea-80f2-4f3d-8508-9619413e0087", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Quicksilver Gargantuan",
+    "b83f5aea-80f2-4f3d-8508-9619413e0087",
+    "Steven Belledin",
     CardRules::new_creature(mana_cost!("{5}{U}{U}"), &["Shapeshifter"], 7, 7).with_ability(
         AbilityDef::replacement(
             "You may have this creature enter as a copy of any creature on the battlefield, except it's 7/7.",
@@ -890,10 +899,10 @@ pub(in crate::card::sets) static QUICKSILVER_GARGANTUAN: CardRecord = CardRecord
 
 // SOM 40 — Riddlesmith
 pub(in crate::card::sets) static RIDDLESMITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("08e25713-05ea-4eed-aa7f-5ca4e57a8152"),
-    "Riddlesmith",
-    crate::card::CardArt::new("08e25713-05ea-4eed-aa7f-5ca4e57a8152", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Riddlesmith",
+    "08e25713-05ea-4eed-aa7f-5ca4e57a8152",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may draw a card. If you do, discard a card.",
@@ -923,19 +932,19 @@ pub(in crate::card::sets) static RIDDLESMITH: CardRecord = CardRecord::new(
 // SOM 41 — Scrapdiver Serpent
 // Audit: unsupported — Blocking restrictions cannot currently ask whether the source's defending player controls an artifact.
 pub(in crate::card::sets) static SCRAPDIVER_SERPENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8c6b5db0-7d2c-4337-b1c4-9e1219f603c7"),
-    "Scrapdiver Serpent",
-    crate::card::CardArt::new("8c6b5db0-7d2c-4337-b1c4-9e1219f603c7", "Adrian Smith"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Scrapdiver Serpent",
+    "8c6b5db0-7d2c-4337-b1c4-9e1219f603c7",
+    "Adrian Smith",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 42 — Screeching Silcaw
 pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1767355d-82a2-495e-ae95-d91984a9c62a"),
-    "Screeching Silcaw",
-    crate::card::CardArt::new("1767355d-82a2-495e-ae95-d91984a9c62a", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Screeching Silcaw",
+    "1767355d-82a2-495e-ae95-d91984a9c62a",
+    "Mike Bierek",
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Bird"], 1, 2).with_abilities(&[
         abilities::flying(),
         AbilityDef::triggered_if(
@@ -953,22 +962,19 @@ pub(in crate::card::sets) static SCREECHING_SILCAW: CardRecord = CardRecord::new
 // SOM 43 — Shape Anew
 // Audit: unsupported — Needs a target-controller procedure that sacrifices the artifact, reveals through that player's library to the first artifact, puts it onto the battlefield, and shuffles every other revealed card back.
 pub(in crate::card::sets) static SHAPE_ANEW: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b3d5462e-f60c-4550-b29e-4d9f9cd72385"),
-    "Shape Anew",
-    crate::card::CardArt::new(
-        "b3d5462e-f60c-4550-b29e-4d9f9cd72385",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Shape Anew",
+    "b3d5462e-f60c-4550-b29e-4d9f9cd72385",
+    "Zoltan Boros & Gabor Szikszai",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 44 — Sky-Eel School
 pub(in crate::card::sets) static SKY_EEL_SCHOOL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5cfc4db7-13b5-4c88-91f2-581c9792f1ff"),
-    "Sky-Eel School",
-    crate::card::CardArt::new("5cfc4db7-13b5-4c88-91f2-581c9792f1ff", "Daniel Ljunggren"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sky-Eel School",
+    "5cfc4db7-13b5-4c88-91f2-581c9792f1ff",
+    "Daniel Ljunggren",
     CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Fish"], 3, 3).with_abilities(&[
         abilities::flying(),
         abilities::enters_trigger(
@@ -991,10 +997,10 @@ pub(in crate::card::sets) static SKY_EEL_SCHOOL: CardRecord = CardRecord::new(
 
 // SOM 45 — Steady Progress
 pub(in crate::card::sets) static STEADY_PROGRESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6fe212ed-31cb-4f10-8ba7-e97af1d30d24"),
-    "Steady Progress",
-    crate::card::CardArt::new("6fe212ed-31cb-4f10-8ba7-e97af1d30d24", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Steady Progress",
+    "6fe212ed-31cb-4f10-8ba7-e97af1d30d24",
+    "Efrem Palacios",
     CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell(
         "Proliferate.\nDraw a card.",
         EffectDef::Sequence(&[
@@ -1010,19 +1016,19 @@ pub(in crate::card::sets) static STEADY_PROGRESS: CardRecord = CardRecord::new(
 // SOM 46 — Stoic Rebuttal
 // Audit: unsupported — Self spell-cost reductions support constant and object-count amounts, but cannot conditionally reduce this spell by exactly {1} only while metalcraft is true.
 pub(in crate::card::sets) static STOIC_REBUTTAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f2805239-f30a-4eca-a10b-41673daaa287"),
-    "Stoic Rebuttal",
-    crate::card::CardArt::new("f2805239-f30a-4eca-a10b-41673daaa287", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Stoic Rebuttal",
+    "f2805239-f30a-4eca-a10b-41673daaa287",
+    "Chris Rahn",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 47 — Thrummingbird
 pub(in crate::card::sets) static THRUMMINGBIRD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dc2dd336-e457-49a1-88ae-c35f0c846e99"),
-    "Thrummingbird",
-    crate::card::CardArt::new("dc2dd336-e457-49a1-88ae-c35f0c846e99", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Thrummingbird",
+    "dc2dd336-e457-49a1-88ae-c35f0c846e99",
+    "Efrem Palacios",
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Phyrexian", "Bird", "Horror"], 1, 1)
         .with_abilities(&[
             abilities::flying(),
@@ -1034,43 +1040,19 @@ pub(in crate::card::sets) static THRUMMINGBIRD: CardRecord = CardRecord::new(
         ]),
 );
 
-// SOM 48 — Trinket Mage
-pub(in crate::card::sets) static TRINKET_MAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4c5a41ab-1840-4abb-a8bb-f0b1e7d1b450"),
-    "Trinket Mage",
-    crate::card::CardArt::new("cb52e7ba-5340-44e1-9b63-775e1f387925", "Scott Chou"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 2, 2).with_ability(
-        abilities::enters_trigger(
-            "When this creature enters, you may search your library for an artifact card with mana value 1 or less, reveal that card, put it into your hand, then shuffle.",
-            EffectDef::SearchZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Artifact),
-                    ObjectPredicateDef::ManaValueAtMost(1),
-                ]),
-                minimum: 0,
-                maximum: ValueDef::Constant(1),
-                reveal: true,
-                destination: ZoneKind::Hand,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: false,
-                attachment: None,
-                binding: None,
-                then: None,
-            },
-        ),
-    ),
+// SOM 48 — Trinket Mage (reprint)
+const TRINKET_MAGE_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2004::fifth_dawn::TRINKET_MAGE,
+    "cb52e7ba-5340-44e1-9b63-775e1f387925",
+    "Scott Chou",
 );
 
 // SOM 49 — Turn Aside
 pub(in crate::card::sets) static TURN_ASIDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("56226f57-6ff0-430e-aba6-6b3dd51f8d3c"),
-    "Turn Aside",
-    crate::card::CardArt::new("56226f57-6ff0-430e-aba6-6b3dd51f8d3c", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Turn Aside",
+    "56226f57-6ff0-430e-aba6-6b3dd51f8d3c",
+    "Shelly Wan",
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Counter target spell that targets a permanent you control.",
         &[AbilityTargetDef::exactly_one(
@@ -1092,10 +1074,10 @@ pub(in crate::card::sets) static TURN_ASIDE: CardRecord = CardRecord::new(
 
 // SOM 50 — Twisted Image
 pub(in crate::card::sets) static TWISTED_IMAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aa18c2c2-f1a1-469d-acd8-9d6e0605bcf9"),
-    "Twisted Image",
-    crate::card::CardArt::new("aa18c2c2-f1a1-469d-acd8-9d6e0605bcf9", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Twisted Image",
+    "aa18c2c2-f1a1-469d-acd8-9d6e0605bcf9",
+    "Izzy",
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Switch target creature's power and toughness until end of turn.\nDraw a card.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1117,10 +1099,10 @@ pub(in crate::card::sets) static TWISTED_IMAGE: CardRecord = CardRecord::new(
 
 // SOM 51 — Vault Skyward
 pub(in crate::card::sets) static VAULT_SKYWARD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e934192-2ea3-48fe-a2a9-42c2ee9b22f7"),
-    "Vault Skyward",
-    crate::card::CardArt::new("4e934192-2ea3-48fe-a2a9-42c2ee9b22f7", "Dan Murayama Scott"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vault Skyward",
+    "4e934192-2ea3-48fe-a2a9-42c2ee9b22f7",
+    "Dan Murayama Scott",
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gains flying until end of turn. Untap it.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1141,10 +1123,10 @@ pub(in crate::card::sets) static VAULT_SKYWARD: CardRecord = CardRecord::new(
 
 // SOM 52 — Vedalken Certarch
 pub(in crate::card::sets) static VEDALKEN_CERTARCH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ffbc2a26-32f1-4d9c-8ee7-74698f64dce0"),
-    "Vedalken Certarch",
-    crate::card::CardArt::new("ffbc2a26-32f1-4d9c-8ee7-74698f64dce0", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vedalken Certarch",
+    "ffbc2a26-32f1-4d9c-8ee7-74698f64dce0",
+    "Karl Kopinski",
     CardRules::new_creature(mana_cost!("{U}"), &["Vedalken", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "Metalcraft — {T}: Tap target artifact, creature, or land. Activate only if you control three or more artifacts.",
@@ -1166,10 +1148,10 @@ pub(in crate::card::sets) static VEDALKEN_CERTARCH: CardRecord = CardRecord::new
 
 // SOM 53 — Volition Reins
 pub(in crate::card::sets) static VOLITION_REINS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aa8fa025-56e6-4d24-a615-a51b6be937e9"),
-    "Volition Reins",
-    crate::card::CardArt::new("aa8fa025-56e6-4d24-a615-a51b6be937e9", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Volition Reins",
+    "aa8fa025-56e6-4d24-a615-a51b6be937e9",
+    "Svetlin Velinov",
     CardRules::new_enchantment(mana_cost!("{3}{U}{U}{U}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
@@ -1211,10 +1193,10 @@ pub(in crate::card::sets) static VOLITION_REINS: CardRecord = CardRecord::new(
 
 // SOM 54 — Blackcleave Goblin
 pub(in crate::card::sets) static BLACKCLEAVE_GOBLIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("95986875-59f5-414f-867f-94f30cefa5d6"),
-    "Blackcleave Goblin",
-    crate::card::CardArt::new("95986875-59f5-414f-867f-94f30cefa5d6", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Blackcleave Goblin",
+    "95986875-59f5-414f-867f-94f30cefa5d6",
+    "Nils Hamm",
     CardRules::new_creature(
         mana_cost!("{3}{B}"),
         &["Phyrexian", "Goblin", "Zombie"],
@@ -1226,10 +1208,10 @@ pub(in crate::card::sets) static BLACKCLEAVE_GOBLIN: CardRecord = CardRecord::ne
 
 // SOM 55 — Bleak Coven Vampires
 pub(in crate::card::sets) static BLEAK_COVEN_VAMPIRES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d3386e4-bbd6-4756-b29d-f55619e98d0d"),
-    "Bleak Coven Vampires",
-    crate::card::CardArt::new("9d3386e4-bbd6-4756-b29d-f55619e98d0d", "Randis Albion"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Bleak Coven Vampires",
+    "9d3386e4-bbd6-4756-b29d-f55619e98d0d",
+    "Randis Albion",
     CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Warrior"], 4, 3)
         .with_ability(AbilityDef::triggered_if_with_targets(
             "Metalcraft — When this creature enters, if you control three or more artifacts, target player loses 4 life and you gain 4 life.",
@@ -1257,10 +1239,10 @@ pub(in crate::card::sets) static BLEAK_COVEN_VAMPIRES: CardRecord = CardRecord::
 
 // SOM 56 — Blistergrub
 pub(in crate::card::sets) static BLISTERGRUB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5431debc-0037-49ff-a38f-3fa2f9f5ee33"),
-    "Blistergrub",
-    crate::card::CardArt::new("5431debc-0037-49ff-a38f-3fa2f9f5ee33", "Daarken"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Blistergrub",
+    "5431debc-0037-49ff-a38f-3fa2f9f5ee33",
+    "Daarken",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Horror"], 2, 2).with_abilities(
         &[
             abilities::landwalk(BasicLandType::Swamp),
@@ -1277,10 +1259,10 @@ pub(in crate::card::sets) static BLISTERGRUB: CardRecord = CardRecord::new(
 
 // SOM 57 — Carnifex Demon
 pub(in crate::card::sets) static CARNIFEX_DEMON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c191dba2-659d-40e7-a558-c99ece872197"),
-    "Carnifex Demon",
-    crate::card::CardArt::new("c191dba2-659d-40e7-a558-c99ece872197", "Aleksi Briclot"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Carnifex Demon",
+    "c191dba2-659d-40e7-a558-c99ece872197",
+    "Aleksi Briclot",
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Demon"], 6, 6)
         .with_abilities(&[
             abilities::flying(),
@@ -1320,20 +1302,20 @@ pub(in crate::card::sets) static CARNIFEX_DEMON: CardRecord = CardRecord::new(
 
 // SOM 58 — Contagious Nim
 pub(in crate::card::sets) static CONTAGIOUS_NIM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e83a9dea-2aa1-48cd-afe2-f98057b95f6e"),
-    "Contagious Nim",
-    crate::card::CardArt::new("e83a9dea-2aa1-48cd-afe2-f98057b95f6e", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Contagious Nim",
+    "e83a9dea-2aa1-48cd-afe2-f98057b95f6e",
+    "Efrem Palacios",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Zombie"], 2, 2)
         .with_abilities(&[abilities::infect()]),
 );
 
 // SOM 59 — Corrupted Harvester
 pub(in crate::card::sets) static CORRUPTED_HARVESTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b54625ac-484f-4522-8048-38e01c545ac3"),
-    "Corrupted Harvester",
-    crate::card::CardArt::new("b54625ac-484f-4522-8048-38e01c545ac3", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Corrupted Harvester",
+    "b54625ac-484f-4522-8048-38e01c545ac3",
+    "Nils Hamm",
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Horror"], 6, 3).with_ability(
         AbilityDef::activated(
             "{B}, Sacrifice a creature: Regenerate this creature.",
@@ -1353,10 +1335,10 @@ pub(in crate::card::sets) static CORRUPTED_HARVESTER: CardRecord = CardRecord::n
 
 // SOM 60 — Dross Hopper
 pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1a0656f6-a016-479a-a003-72e106e986b0"),
-    "Dross Hopper",
-    crate::card::CardArt::new("1a0656f6-a016-479a-a003-72e106e986b0", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Dross Hopper",
+    "1a0656f6-a016-479a-a003-72e106e986b0",
+    "Dave Allsop",
     CardRules::new_creature(
         mana_cost!("{1}{B}"),
         &["Phyrexian", "Insect", "Horror"],
@@ -1380,29 +1362,29 @@ pub(in crate::card::sets) static DROSS_HOPPER: CardRecord = CardRecord::new(
 // SOM 61 — Exsanguinate
 // Audit: unsupported — Needs multiplayer life-drain accounting that gains exactly the total life actually lost by all opponents, including replacements and opponents unable to lose the full X.
 pub(in crate::card::sets) static EXSANGUINATE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0878b541-a730-49db-b062-5a01656e269d"),
-    "Exsanguinate",
-    crate::card::CardArt::new("0878b541-a730-49db-b062-5a01656e269d", "Carl Critchlow"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Exsanguinate",
+    "0878b541-a730-49db-b062-5a01656e269d",
+    "Carl Critchlow",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 62 — Flesh Allergy
 // Audit: unsupported — Needs a value for the number of creatures that died this turn, read after paying the creature-sacrifice additional cost and destroying the target.
 pub(in crate::card::sets) static FLESH_ALLERGY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9c729525-b954-42dd-9877-f4360d99b961"),
-    "Flesh Allergy",
-    crate::card::CardArt::new("9c729525-b954-42dd-9877-f4360d99b961", "Vance Kovacs"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Flesh Allergy",
+    "9c729525-b954-42dd-9877-f4360d99b961",
+    "Vance Kovacs",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 63 — Fume Spitter
 pub(in crate::card::sets) static FUME_SPITTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("58cd149b-ecf4-43ed-b6e5-98870953b4b8"),
-    "Fume Spitter",
-    crate::card::CardArt::new("58cd149b-ecf4-43ed-b6e5-98870953b4b8", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Fume Spitter",
+    "58cd149b-ecf4-43ed-b6e5-98870953b4b8",
+    "Nils Hamm",
     CardRules::new_creature(mana_cost!("{B}"), &["Phyrexian", "Horror"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Put a -1/-1 counter on target creature.",
@@ -1421,10 +1403,10 @@ pub(in crate::card::sets) static FUME_SPITTER: CardRecord = CardRecord::new(
 
 // SOM 64 — Geth, Lord of the Vault
 pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fed31f2f-370d-4bbe-aa57-82249ed1b4d4"),
-    "Geth, Lord of the Vault",
-    crate::card::CardArt::new("fed31f2f-370d-4bbe-aa57-82249ed1b4d4", "Whit Brachna"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Geth, Lord of the Vault",
+    "fed31f2f-370d-4bbe-aa57-82249ed1b4d4",
+    "Whit Brachna",
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Phyrexian", "Zombie"], 5, 5)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -1470,10 +1452,10 @@ pub(in crate::card::sets) static GETH_LORD_OF_THE_VAULT: CardRecord = CardRecord
 
 // SOM 65 — Grasp of Darkness
 pub(in crate::card::sets) static GRASP_OF_DARKNESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cda628ba-19f4-4e24-9500-cca295a992bb"),
-    "Grasp of Darkness",
-    crate::card::CardArt::new("cda628ba-19f4-4e24-9500-cca295a992bb", "Johann Bodin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Grasp of Darkness",
+    "cda628ba-19f4-4e24-9500-cca295a992bb",
+    "Johann Bodin",
     CardRules::new_instant(mana_cost!("{B}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gets -4/-4 until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1492,10 +1474,10 @@ pub(in crate::card::sets) static GRASP_OF_DARKNESS: CardRecord = CardRecord::new
 
 // SOM 66 — Hand of the Praetors
 pub(in crate::card::sets) static HAND_OF_THE_PRAETORS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("94ca493e-f09b-4b11-bb47-0562dfc203ca"),
-    "Hand of the Praetors",
-    crate::card::CardArt::new("94ca493e-f09b-4b11-bb47-0562dfc203ca", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Hand of the Praetors",
+    "94ca493e-f09b-4b11-bb47-0562dfc203ca",
+    "Izzy",
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Phyrexian", "Zombie"], 3, 2).with_abilities(&[
         abilities::infect(),
         AbilityDef::static_ability(
@@ -1537,10 +1519,10 @@ pub(in crate::card::sets) static HAND_OF_THE_PRAETORS: CardRecord = CardRecord::
 
 // SOM 67 — Ichor Rats
 pub(in crate::card::sets) static ICHOR_RATS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2013aed6-7415-4bf0-a3bb-46d6beecbaff"),
-    "Ichor Rats",
-    crate::card::CardArt::new("2013aed6-7415-4bf0-a3bb-46d6beecbaff", "Matt Stewart"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ichor Rats",
+    "2013aed6-7415-4bf0-a3bb-46d6beecbaff",
+    "Matt Stewart",
     CardRules::new_creature(mana_cost!("{1}{B}{B}"), &["Phyrexian", "Rat"], 2, 1).with_abilities(
         &[
             abilities::infect(),
@@ -1558,10 +1540,10 @@ pub(in crate::card::sets) static ICHOR_RATS: CardRecord = CardRecord::new(
 
 // SOM 68 — Instill Infection
 pub(in crate::card::sets) static INSTILL_INFECTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("82ef2567-f798-4447-9735-c7c0d88aba85"),
-    "Instill Infection",
-    crate::card::CardArt::new("82ef2567-f798-4447-9735-c7c0d88aba85", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Instill Infection",
+    "82ef2567-f798-4447-9735-c7c0d88aba85",
+    "Chris Rahn",
     CardRules::new_instant(mana_cost!("{3}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Put a -1/-1 counter on target creature. Draw a card.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1584,28 +1566,28 @@ pub(in crate::card::sets) static INSTILL_INFECTION: CardRecord = CardRecord::new
 // SOM 69 — Memoricide
 // Audit: unsupported — Needs one chosen nonland card name to drive a privacy-correct search across another player's graveyard, hand, and library and exile any number of matching cards.
 pub(in crate::card::sets) static MEMORICIDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9d74bae-0b96-4a78-b805-a0b764d0716c"),
-    "Memoricide",
-    crate::card::CardArt::new("acc5b944-a9fe-4a64-bf11-51817a26f22b", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Memoricide",
+    "acc5b944-a9fe-4a64-bf11-51817a26f22b",
+    "James Ryman",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 70 — Moriok Reaver
 pub(in crate::card::sets) static MORIOK_REAVER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e2a0410f-95c5-49bf-856d-dea796c96e3b"),
-    "Moriok Reaver",
-    crate::card::CardArt::new("e2a0410f-95c5-49bf-856d-dea796c96e3b", "Marc Simonetti"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Moriok Reaver",
+    "e2a0410f-95c5-49bf-856d-dea796c96e3b",
+    "Marc Simonetti",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Warrior"], 3, 2),
 );
 
 // SOM 71 — Necrogen Scudder
 pub(in crate::card::sets) static NECROGEN_SCUDDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7d69c045-d705-478b-9e8f-272a24737225"),
-    "Necrogen Scudder",
-    crate::card::CardArt::new("7d69c045-d705-478b-9e8f-272a24737225", "Raymond Swanland"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Necrogen Scudder",
+    "7d69c045-d705-478b-9e8f-272a24737225",
+    "Raymond Swanland",
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Phyrexian", "Horror"], 3, 3).with_abilities(
         &[
             abilities::flying(),
@@ -1623,29 +1605,29 @@ pub(in crate::card::sets) static NECROGEN_SCUDDER: CardRecord = CardRecord::new(
 // SOM 72 — Necrotic Ooze
 // Audit: unsupported — Static ability grants cannot aggregate every activated ability of every creature card in all graveyards.
 pub(in crate::card::sets) static NECROTIC_OOZE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8af2c79f-a151-4628-90fe-c0ff7ccd9c2c"),
-    "Necrotic Ooze",
-    crate::card::CardArt::new("8af2c79f-a151-4628-90fe-c0ff7ccd9c2c", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Necrotic Ooze",
+    "8af2c79f-a151-4628-90fe-c0ff7ccd9c2c",
+    "James Ryman",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 73 — Painful Quandary
 // Audit: unsupported — Needs an opponent-cast trigger whose event player chooses between discarding a card and losing 5 life, with the loss forced when discard is impossible.
 pub(in crate::card::sets) static PAINFUL_QUANDARY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b"),
-    "Painful Quandary",
-    crate::card::CardArt::new("fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b", "Whit Brachna"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Painful Quandary",
+    "fecf3dae-1a0c-4cf3-b9bd-ec2ad6acaa1b",
+    "Whit Brachna",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 74 — Painsmith
 pub(in crate::card::sets) static PAINSMITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b8e531ab-29ed-4e54-ae9c-681a220666ad"),
-    "Painsmith",
-    crate::card::CardArt::new("b8e531ab-29ed-4e54-ae9c-681a220666ad", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Painsmith",
+    "b8e531ab-29ed-4e54-ae9c-681a220666ad",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast an artifact spell, you may have target creature get +2/+0 and gain deathtouch until end of turn.",
@@ -1676,10 +1658,10 @@ pub(in crate::card::sets) static PAINSMITH: CardRecord = CardRecord::new(
 
 // SOM 75 — Plague Stinger
 pub(in crate::card::sets) static PLAGUE_STINGER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aae856bc-f65f-42ba-9344-1a30b356c041"),
-    "Plague Stinger",
-    crate::card::CardArt::new("aae856bc-f65f-42ba-9344-1a30b356c041", "Ryan Pancoast"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Plague Stinger",
+    "aae856bc-f65f-42ba-9344-1a30b356c041",
+    "Ryan Pancoast",
     CardRules::new_creature(
         mana_cost!("{1}{B}"),
         &["Phyrexian", "Insect", "Horror"],
@@ -1691,10 +1673,10 @@ pub(in crate::card::sets) static PLAGUE_STINGER: CardRecord = CardRecord::new(
 
 // SOM 76 — Psychic Miasma
 pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fd9c3267-7988-416c-85a4-0e314e42ddb9"),
-    "Psychic Miasma",
-    crate::card::CardArt::new("fd9c3267-7988-416c-85a4-0e314e42ddb9", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Psychic Miasma",
+    "fd9c3267-7988-416c-85a4-0e314e42ddb9",
+    "Svetlin Velinov",
     CardRules::new_sorcery(mana_cost!("{1}{B}")).with_ability(
         AbilityDef::spell_with_targets(
             "Target player discards a card. If a land card is discarded this way, return this spell to its owner's hand.",
@@ -1728,10 +1710,10 @@ pub(in crate::card::sets) static PSYCHIC_MIASMA: CardRecord = CardRecord::new(
 
 // SOM 77 — Relic Putrescence
 pub(in crate::card::sets) static RELIC_PUTRESCENCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ca940b4e-6f5e-4492-b6e0-dbf619eddadd"),
-    "Relic Putrescence",
-    crate::card::CardArt::new("ca940b4e-6f5e-4492-b6e0-dbf619eddadd", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Relic Putrescence",
+    "ca940b4e-6f5e-4492-b6e0-dbf619eddadd",
+    "Allen Williams",
     CardRules::new_enchantment(mana_cost!("{2}{B}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
@@ -1758,10 +1740,10 @@ pub(in crate::card::sets) static RELIC_PUTRESCENCE: CardRecord = CardRecord::new
 
 // SOM 78 — Skinrender
 pub(in crate::card::sets) static SKINRENDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("be358357-2abe-4ead-bb18-76cad8274489"),
-    "Skinrender",
-    crate::card::CardArt::new("be358357-2abe-4ead-bb18-76cad8274489", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Skinrender",
+    "be358357-2abe-4ead-bb18-76cad8274489",
+    "David Rapoza",
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Zombie"], 3, 3).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, put three -1/-1 counters on target creature.",
@@ -1779,10 +1761,10 @@ pub(in crate::card::sets) static SKINRENDER: CardRecord = CardRecord::new(
 
 // SOM 79 — Skithiryx, the Blight Dragon
 pub(in crate::card::sets) static SKITHIRYX_THE_BLIGHT_DRAGON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c930c9cc-1b64-4f36-afe2-6bf120a74ce2"),
-    "Skithiryx, the Blight Dragon",
-    crate::card::CardArt::new("c930c9cc-1b64-4f36-afe2-6bf120a74ce2", "Chippy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Skithiryx, the Blight Dragon",
+    "c930c9cc-1b64-4f36-afe2-6bf120a74ce2",
+    "Chippy",
     CardRules::new_creature(
         mana_cost!("{3}{B}{B}"),
         &["Phyrexian", "Dragon", "Skeleton"],
@@ -1811,10 +1793,10 @@ pub(in crate::card::sets) static SKITHIRYX_THE_BLIGHT_DRAGON: CardRecord = CardR
 
 // SOM 80 — Tainted Strike
 pub(in crate::card::sets) static TAINTED_STRIKE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d0f82007-99f6-4c6c-8182-ee631c33531f"),
-    "Tainted Strike",
-    crate::card::CardArt::new("d0f82007-99f6-4c6c-8182-ee631c33531f", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tainted Strike",
+    "d0f82007-99f6-4c6c-8182-ee631c33531f",
+    "James Ryman",
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gets +1/+0 and gains infect until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1836,10 +1818,10 @@ pub(in crate::card::sets) static TAINTED_STRIKE: CardRecord = CardRecord::new(
 
 // SOM 81 — Arc Trail
 pub(in crate::card::sets) static ARC_TRAIL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("445e3a0a-29a7-4dc0-80fe-569b9e751db3"),
-    "Arc Trail",
-    crate::card::CardArt::new("445e3a0a-29a7-4dc0-80fe-569b9e751db3", "Marc Simonetti"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Arc Trail",
+    "445e3a0a-29a7-4dc0-80fe-569b9e751db3",
+    "Marc Simonetti",
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Arc Trail deals 2 damage to any target and 1 damage to any other target.",
         &[
@@ -1861,10 +1843,10 @@ pub(in crate::card::sets) static ARC_TRAIL: CardRecord = CardRecord::new(
 
 // SOM 82 — Assault Strobe
 pub(in crate::card::sets) static ASSAULT_STROBE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9b505c78-5dbd-483d-92bb-5144060e962f"),
-    "Assault Strobe",
-    crate::card::CardArt::new("9b505c78-5dbd-483d-92bb-5144060e962f", "Kev Walker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Assault Strobe",
+    "9b505c78-5dbd-483d-92bb-5144060e962f",
+    "Kev Walker",
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gains double strike until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -1880,10 +1862,10 @@ pub(in crate::card::sets) static ASSAULT_STROBE: CardRecord = CardRecord::new(
 
 // SOM 83 — Barrage Ogre
 pub(in crate::card::sets) static BARRAGE_OGRE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e02c6f71-2448-47e1-9133-7af6a4d4577a"),
-    "Barrage Ogre",
-    crate::card::CardArt::new("e02c6f71-2448-47e1-9133-7af6a4d4577a", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Barrage Ogre",
+    "e02c6f71-2448-47e1-9133-7af6a4d4577a",
+    "David Rapoza",
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Ogre", "Warrior"], 3, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice an artifact: This creature deals 2 damage to any target.",
@@ -1907,10 +1889,10 @@ pub(in crate::card::sets) static BARRAGE_OGRE: CardRecord = CardRecord::new(
 
 // SOM 84 — Blade-Tribe Berserkers
 pub(in crate::card::sets) static BLADE_TRIBE_BERSERKERS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("acd124bb-1ed1-469c-8527-d7261ea720b9"),
-    "Blade-Tribe Berserkers",
-    crate::card::CardArt::new("acd124bb-1ed1-469c-8527-d7261ea720b9", "Kev Walker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Blade-Tribe Berserkers",
+    "acd124bb-1ed1-469c-8527-d7261ea720b9",
+    "Kev Walker",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Berserker"], 3, 3).with_ability(
         AbilityDef::triggered_if(
             "Metalcraft — When this creature enters, if you control three or more artifacts, this creature gets +3/+3 and gains haste until end of turn.",
@@ -1935,46 +1917,29 @@ pub(in crate::card::sets) static BLADE_TRIBE_BERSERKERS: CardRecord = CardRecord
     ),
 );
 
-// SOM 85 — Bloodshot Trainee
-pub(in crate::card::sets) static BLOODSHOT_TRAINEE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b930b146-d132-454f-b35d-4a247c14c054"),
-    "Bloodshot Trainee",
-    crate::card::CardArt::new("c2d5ce81-6cca-4990-a515-34ac44cae039", "Matt Stewart"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_creature(mana_cost!("{3}{R}"), &["Goblin", "Warrior"], 2, 3).with_ability(
-        AbilityDef::activated_with_targets(
-            "{T}: This creature deals 4 damage to target creature. Activate only if this creature's power is 4 or greater.",
-            &[AbilityCostDef::TapSource],
-            &[AbilityTargetDef::exactly_one_permanent(
-                ObjectPredicateDef::HasType(CardType::Creature),
-            )],
-            EffectDef::DealDamage {
-                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                amount: ValueDef::Constant(4),
-            },
-        )
-        .with_activation_condition(&TriggerConditionDef::SourceMatches {
-            object: ObjectPredicateDef::PowerAtLeast(4),
-        }),
-    ),
+// SOM 85 — Bloodshot Trainee (reprint)
+const BLOODSHOT_TRAINEE_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2007::future_sight::BLOODSHOT_TRAINEE,
+    "c2d5ce81-6cca-4990-a515-34ac44cae039",
+    "Matt Stewart",
 );
 
 // SOM 86 — Cerebral Eruption
 // Audit: unsupported — Needs a top-card reveal continuation that branches on land, otherwise deals the revealed card's mana value to the opponent and every creature they control, and returns the source spell on the land branch.
 pub(in crate::card::sets) static CEREBRAL_ERUPTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("77161159-ee2c-485d-8674-d8590ccc62e1"),
-    "Cerebral Eruption",
-    crate::card::CardArt::new("77161159-ee2c-485d-8674-d8590ccc62e1", "Kev Walker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Cerebral Eruption",
+    "77161159-ee2c-485d-8674-d8590ccc62e1",
+    "Kev Walker",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 87 — Embersmith
 pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ee86cfc8-9faa-474c-90a9-5405f3f6037c"),
-    "Embersmith",
-    crate::card::CardArt::new("ee86cfc8-9faa-474c-90a9-5405f3f6037c", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Embersmith",
+    "ee86cfc8-9faa-474c-90a9-5405f3f6037c",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, this creature deals 1 damage to any target.",
@@ -2001,10 +1966,10 @@ pub(in crate::card::sets) static EMBERSMITH: CardRecord = CardRecord::new(
 
 // SOM 88 — Ferrovore
 pub(in crate::card::sets) static FERROVORE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8dcc7170-38d9-4b9e-a5f9-73ac1208c439"),
-    "Ferrovore",
-    crate::card::CardArt::new("8dcc7170-38d9-4b9e-a5f9-73ac1208c439", "Austin Hsu"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ferrovore",
+    "8dcc7170-38d9-4b9e-a5f9-73ac1208c439",
+    "Austin Hsu",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Beast"], 2, 2).with_ability(
         AbilityDef::activated(
             "{R}, Sacrifice an artifact: This creature gets +3/+0 until end of turn.",
@@ -2029,10 +1994,10 @@ pub(in crate::card::sets) static FERROVORE: CardRecord = CardRecord::new(
 
 // SOM 89 — Flameborn Hellion
 pub(in crate::card::sets) static FLAMEBORN_HELLION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("84e0e5f5-b51a-4386-827b-c0eb8c877efb"),
-    "Flameborn Hellion",
-    crate::card::CardArt::new("84e0e5f5-b51a-4386-827b-c0eb8c877efb", "Aleksi Briclot"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Flameborn Hellion",
+    "84e0e5f5-b51a-4386-827b-c0eb8c877efb",
+    "Aleksi Briclot",
     CardRules::new_creature(mana_cost!("{5}{R}"), &["Hellion"], 5, 4).with_abilities(&[
         abilities::haste(),
         abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
@@ -2041,10 +2006,10 @@ pub(in crate::card::sets) static FLAMEBORN_HELLION: CardRecord = CardRecord::new
 
 // SOM 90 — Furnace Celebration
 pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a21fa7cb-a8ac-4312-80d4-82ee87650a55"),
-    "Furnace Celebration",
-    crate::card::CardArt::new("a21fa7cb-a8ac-4312-80d4-82ee87650a55", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Furnace Celebration",
+    "a21fa7cb-a8ac-4312-80d4-82ee87650a55",
+    "Svetlin Velinov",
     CardRules::new_enchantment(mana_cost!("{1}{R}{R}")).with_ability(
         AbilityDef::triggered_with_targets(
             "Whenever you sacrifice another permanent, you may pay {2}. If you do, this enchantment deals 2 damage to any target.",
@@ -2071,10 +2036,10 @@ pub(in crate::card::sets) static FURNACE_CELEBRATION: CardRecord = CardRecord::n
 
 // SOM 91 — Galvanic Blast
 pub(in crate::card::sets) static GALVANIC_BLAST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f5881bbc-8600-464d-9dcd-5a7780918d1d"),
-    "Galvanic Blast",
-    CardArt::new("f5881bbc-8600-464d-9dcd-5a7780918d1d", "Marc Simonetti"),
     CardSet::ScarsOfMirrodin,
+    "Galvanic Blast",
+    "f5881bbc-8600-464d-9dcd-5a7780918d1d",
+    "Marc Simonetti",
     // One red mana for two damage, or for four in the deck that is playing
     // it -- which is every deck that plays it.
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::spell_with_targets(
@@ -2092,10 +2057,10 @@ pub(in crate::card::sets) static GALVANIC_BLAST: CardRecord = CardRecord::new(
 
 // SOM 92 — Goblin Gaveleer
 pub(in crate::card::sets) static GOBLIN_GAVELEER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6f65af25-8007-415d-a3fa-7736f6118284"),
-    "Goblin Gaveleer",
-    crate::card::CardArt::new("6f65af25-8007-415d-a3fa-7736f6118284", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Goblin Gaveleer",
+    "6f65af25-8007-415d-a3fa-7736f6118284",
+    "Svetlin Velinov",
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
         abilities::trample(),
         AbilityDef::static_ability(
@@ -2116,10 +2081,10 @@ pub(in crate::card::sets) static GOBLIN_GAVELEER: CardRecord = CardRecord::new(
 
 // SOM 93 — Hoard-Smelter Dragon
 pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fcdd1d89-719d-4552-aeae-499c09b2ec6e"),
-    "Hoard-Smelter Dragon",
-    crate::card::CardArt::new("fcdd1d89-719d-4552-aeae-499c09b2ec6e", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Hoard-Smelter Dragon",
+    "fcdd1d89-719d-4552-aeae-499c09b2ec6e",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{3}{R}{R}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated_with_targets(
@@ -2149,10 +2114,10 @@ pub(in crate::card::sets) static HOARD_SMELTER_DRAGON: CardRecord = CardRecord::
 
 // SOM 94 — Koth of the Hammer
 pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("af8b9c79-a161-4d7d-944d-82a44a5f2ab9"),
-    "Koth of the Hammer",
-    crate::card::CardArt::new("af8b9c79-a161-4d7d-944d-82a44a5f2ab9", "Jason Chan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Koth of the Hammer",
+    "af8b9c79-a161-4d7d-944d-82a44a5f2ab9",
+    "Jason Chan",
     CardRules::new_planeswalker(mana_cost!("{2}{R}{R}"), &["Koth"], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -2239,10 +2204,10 @@ pub(in crate::card::sets) static KOTH_OF_THE_HAMMER: CardRecord = CardRecord::ne
 
 // SOM 95 — Kuldotha Phoenix
 pub(in crate::card::sets) static KULDOTHA_PHOENIX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6bb79b56-81f1-417f-b5ad-030ad29f904b"),
-    "Kuldotha Phoenix",
-    crate::card::CardArt::new("6bb79b56-81f1-417f-b5ad-030ad29f904b", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Kuldotha Phoenix",
+    "6bb79b56-81f1-417f-b5ad-030ad29f904b",
+    "Mike Bierek",
     CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Phoenix"], 4, 4).with_abilities(&[
         abilities::flying(),
         abilities::haste(),
@@ -2269,10 +2234,10 @@ pub(in crate::card::sets) static KULDOTHA_PHOENIX: CardRecord = CardRecord::new(
 
 // SOM 96 — Kuldotha Rebirth
 pub(in crate::card::sets) static KULDOTHA_REBIRTH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7ee07266-a95d-4cd8-9863-1664922e9490"),
-    "Kuldotha Rebirth",
-    crate::card::CardArt::new("7ee07266-a95d-4cd8-9863-1664922e9490", "Goran Josic"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Kuldotha Rebirth",
+    "7ee07266-a95d-4cd8-9863-1664922e9490",
+    "Goran Josic",
     CardRules::new_sorcery(mana_cost!("{R}")).with_ability(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice an artifact.\nCreate three 1/1 red Goblin creature tokens.",
@@ -2289,10 +2254,10 @@ pub(in crate::card::sets) static KULDOTHA_REBIRTH: CardRecord = CardRecord::new(
 
 // SOM 97 — Melt Terrain
 pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1d94a1d1-6d24-46e1-9568-42e1a810ad31"),
-    "Melt Terrain",
-    crate::card::CardArt::new("1d94a1d1-6d24-46e1-9568-42e1a810ad31", "John Avon"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Melt Terrain",
+    "1d94a1d1-6d24-46e1-9568-42e1a810ad31",
+    "John Avon",
     CardRules::new_sorcery(mana_cost!("{2}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target land. Melt Terrain deals 2 damage to that land's controller.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -2315,29 +2280,29 @@ pub(in crate::card::sets) static MELT_TERRAIN: CardRecord = CardRecord::new(
 // SOM 98 — Molten Psyche
 // Audit: unsupported — Needs each player to shuffle a separately remembered hand into their library, draw that many, and a metalcraft branch that reads each opponent's cards-drawn-this-turn count.
 pub(in crate::card::sets) static MOLTEN_PSYCHE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("57e2382d-1f27-40d1-b809-c188c19ebc72"),
-    "Molten Psyche",
-    crate::card::CardArt::new("57e2382d-1f27-40d1-b809-c188c19ebc72", "Ryan Yee"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Molten Psyche",
+    "57e2382d-1f27-40d1-b809-c188c19ebc72",
+    "Ryan Yee",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 99 — Ogre Geargrabber
 // Audit: unsupported — Needs an attack trigger that temporarily steals an opposing Equipment, attaches it to the source, and automatically unattaches it when that temporary control effect ends.
 pub(in crate::card::sets) static OGRE_GEARGRABBER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f0f6e2c3-0e0d-47ff-9d92-afc86a8c8aac"),
-    "Ogre Geargrabber",
-    crate::card::CardArt::new("f0f6e2c3-0e0d-47ff-9d92-afc86a8c8aac", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ogre Geargrabber",
+    "f0f6e2c3-0e0d-47ff-9d92-afc86a8c8aac",
+    "David Rapoza",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 100 — Oxidda Daredevil
 pub(in crate::card::sets) static OXIDDA_DAREDEVIL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9"),
-    "Oxidda Daredevil",
-    crate::card::CardArt::new("4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Oxidda Daredevil",
+    "4b0bde7b-dc2d-45d2-b124-69b4b51ef3d9",
+    "Pete Venters",
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Artificer"], 2, 1).with_ability(
         AbilityDef::activated(
             "Sacrifice an artifact: This creature gains haste until end of turn.",
@@ -2356,10 +2321,10 @@ pub(in crate::card::sets) static OXIDDA_DAREDEVIL: CardRecord = CardRecord::new(
 
 // SOM 101 — Oxidda Scrapmelter
 pub(in crate::card::sets) static OXIDDA_SCRAPMELTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c64fe85b-e471-489a-8c38-2357da1c7969"),
-    "Oxidda Scrapmelter",
-    crate::card::CardArt::new("c64fe85b-e471-489a-8c38-2357da1c7969", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Oxidda Scrapmelter",
+    "c64fe85b-e471-489a-8c38-2357da1c7969",
+    "Igor Kieryluk",
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Beast"], 3, 3).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, destroy target artifact.",
@@ -2377,21 +2342,26 @@ pub(in crate::card::sets) static OXIDDA_SCRAPMELTER: CardRecord = CardRecord::ne
 
 // SOM 102 — Scoria Elemental
 pub(in crate::card::sets) static SCORIA_ELEMENTAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ca4d9198-52a7-4dfe-8f7f-4fa6e19a2479"),
-    "Scoria Elemental",
-    crate::card::CardArt::new("ca4d9198-52a7-4dfe-8f7f-4fa6e19a2479", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Scoria Elemental",
+    "ca4d9198-52a7-4dfe-8f7f-4fa6e19a2479",
+    "Karl Kopinski",
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Elemental"], 6, 1),
 );
 
 // SOM 103 — Shatter (reprint)
+const SHATTER_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::SHATTER,
+    "04d70f7e-5ae9-455f-8430-123623920a92",
+    "jD",
+);
 
 // SOM 104 — Spikeshot Elder
 pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fad5621d-eb77-4b4a-80e7-1bfa75a6fcfb"),
-    "Spikeshot Elder",
-    crate::card::CardArt::new("fad5621d-eb77-4b4a-80e7-1bfa75a6fcfb", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Spikeshot Elder",
+    "fad5621d-eb77-4b4a-80e7-1bfa75a6fcfb",
+    "Izzy",
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Shaman"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{1}{R}{R}: This creature deals damage equal to its power to any target.",
@@ -2410,21 +2380,29 @@ pub(in crate::card::sets) static SPIKESHOT_ELDER: CardRecord = CardRecord::new(
 // SOM 105 — Tunnel Ignus
 // Audit: unsupported — Trigger conditions cannot ask whether the event player already had another land enter under their control earlier this turn.
 pub(in crate::card::sets) static TUNNEL_IGNUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c3016e6b-32b2-4fa7-91c0-ec8fbe345760"),
-    "Tunnel Ignus",
-    crate::card::CardArt::new("c3016e6b-32b2-4fa7-91c0-ec8fbe345760", "Scott Chou"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tunnel Ignus",
+    "c3016e6b-32b2-4fa7-91c0-ec8fbe345760",
+    "Scott Chou",
     crate::card::CardRules::unsupported(),
 );
 
-// SOM 106 — Turn to Slag (reprint)
+// SOM 106 — Turn to Slag
+// Audit: unsupported — Attachment queries cannot select Equipment attached to an arbitrary target object.
+pub(in crate::card::sets) static TURN_TO_SLAG: CardRecord = CardRecord::new(
+    crate::card::CardSet::ScarsOfMirrodin,
+    "Turn to Slag",
+    "66fd5b49-b4f2-40da-94d5-6d6fc69506f6",
+    "Zoltan Boros & Gabor Szikszai",
+    crate::card::CardRules::unsupported(),
+);
 
 // SOM 107 — Vulshok Heartstoker
 pub(in crate::card::sets) static VULSHOK_HEARTSTOKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d3152bc-5c59-4e98-95de-a51de05a3c98"),
-    "Vulshok Heartstoker",
-    crate::card::CardArt::new("9d3152bc-5c59-4e98-95de-a51de05a3c98", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vulshok Heartstoker",
+    "9d3152bc-5c59-4e98-95de-a51de05a3c98",
+    "Shelly Wan",
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Shaman"], 2, 2).with_ability(
         abilities::enters_trigger_with_targets(
             "When this creature enters, target creature gets +2/+0 until end of turn.",
@@ -2445,10 +2423,10 @@ pub(in crate::card::sets) static VULSHOK_HEARTSTOKER: CardRecord = CardRecord::n
 
 // SOM 108 — Acid Web Spider
 pub(in crate::card::sets) static ACID_WEB_SPIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("968a25a5-9ec1-47fa-bf1f-e65eb75fdb00"),
-    "Acid Web Spider",
-    crate::card::CardArt::new("968a25a5-9ec1-47fa-bf1f-e65eb75fdb00", "Austin Hsu"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Acid Web Spider",
+    "968a25a5-9ec1-47fa-bf1f-e65eb75fdb00",
+    "Austin Hsu",
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Spider"], 3, 5).with_abilities(&[
         abilities::reach(),
         abilities::enters_trigger_with_targets(
@@ -2470,19 +2448,19 @@ pub(in crate::card::sets) static ACID_WEB_SPIDER: CardRecord = CardRecord::new(
 
 // SOM 109 — Alpha Tyrranax
 pub(in crate::card::sets) static ALPHA_TYRRANAX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a2e5279-f28c-4a78-9f8a-16c9f72f8d38"),
-    "Alpha Tyrranax",
-    crate::card::CardArt::new("4a2e5279-f28c-4a78-9f8a-16c9f72f8d38", "Dave Kendall"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Alpha Tyrranax",
+    "4a2e5279-f28c-4a78-9f8a-16c9f72f8d38",
+    "Dave Kendall",
     CardRules::new_creature(mana_cost!("{4}{G}{G}"), &["Dinosaur", "Beast"], 6, 5),
 );
 
 // SOM 110 — Asceticism
 pub(in crate::card::sets) static ASCETICISM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ec2b56b0-126c-411b-8c43-b690fc8c194b"),
-    "Asceticism",
-    crate::card::CardArt::new("ec2b56b0-126c-411b-8c43-b690fc8c194b", "Daarken"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Asceticism",
+    "ec2b56b0-126c-411b-8c43-b690fc8c194b",
+    "Daarken",
     CardRules::new_enchantment(mana_cost!("{3}{G}{G}")).with_abilities(&[
         AbilityDef::static_ability(
             "Creatures you control have hexproof.",
@@ -2510,10 +2488,10 @@ pub(in crate::card::sets) static ASCETICISM: CardRecord = CardRecord::new(
 
 // SOM 111 — Bellowing Tanglewurm
 pub(in crate::card::sets) static BELLOWING_TANGLEWURM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("44eb3e3a-60ee-4293-a321-daa452d4c70d"),
-    "Bellowing Tanglewurm",
-    crate::card::CardArt::new("44eb3e3a-60ee-4293-a321-daa452d4c70d", "jD"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Bellowing Tanglewurm",
+    "44eb3e3a-60ee-4293-a321-daa452d4c70d",
+    "jD",
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Wurm"], 4, 4).with_abilities(&[
         abilities::intimidate(),
         AbilityDef::static_ability(
@@ -2536,10 +2514,10 @@ pub(in crate::card::sets) static BELLOWING_TANGLEWURM: CardRecord = CardRecord::
 
 // SOM 112 — Blight Mamba
 pub(in crate::card::sets) static BLIGHT_MAMBA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cf9b3335-565c-406d-bd94-f36974602552"),
-    "Blight Mamba",
-    crate::card::CardArt::new("cf9b3335-565c-406d-bd94-f36974602552", "Drew Baker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Blight Mamba",
+    "cf9b3335-565c-406d-bd94-f36974602552",
+    "Drew Baker",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Phyrexian", "Snake"], 1, 1).with_abilities(&[
         abilities::infect(),
         abilities::regenerate_self(
@@ -2551,10 +2529,10 @@ pub(in crate::card::sets) static BLIGHT_MAMBA: CardRecord = CardRecord::new(
 
 // SOM 113 — Blunt the Assault
 pub(in crate::card::sets) static BLUNT_THE_ASSAULT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6ecff12a-37d5-4a7b-b615-4c5e3bd950bb"),
-    "Blunt the Assault",
-    crate::card::CardArt::new("6ecff12a-37d5-4a7b-b615-4c5e3bd950bb", "Matt Stewart"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Blunt the Assault",
+    "6ecff12a-37d5-4a7b-b615-4c5e3bd950bb",
+    "Matt Stewart",
     CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
         "You gain 1 life for each creature on the battlefield. Prevent all combat damage that would be dealt this turn.",
         EffectDef::Sequence(&[
@@ -2572,10 +2550,10 @@ pub(in crate::card::sets) static BLUNT_THE_ASSAULT: CardRecord = CardRecord::new
 
 // SOM 114 — Carapace Forger
 pub(in crate::card::sets) static CARAPACE_FORGER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e9948e4c-d583-4fde-a305-df926cf00199"),
-    "Carapace Forger",
-    crate::card::CardArt::new("e9948e4c-d583-4fde-a305-df926cf00199", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Carapace Forger",
+    "e9948e4c-d583-4fde-a305-df926cf00199",
+    "Matt Cavotta",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Artificer"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
@@ -2595,10 +2573,10 @@ pub(in crate::card::sets) static CARAPACE_FORGER: CardRecord = CardRecord::new(
 
 // SOM 115 — Carrion Call
 pub(in crate::card::sets) static CARRION_CALL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bc3c1a8e-3bdb-42cf-9442-5de7e4670d66"),
-    "Carrion Call",
-    crate::card::CardArt::new("bc3c1a8e-3bdb-42cf-9442-5de7e4670d66", "Adrian Smith"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Carrion Call",
+    "bc3c1a8e-3bdb-42cf-9442-5de7e4670d66",
+    "Adrian Smith",
     CardRules::new_instant(mana_cost!("{3}{G}")).with_ability(AbilityDef::spell(
         "Create two 1/1 green Phyrexian Insect creature tokens with infect.",
         EffectDef::create_creature_token(&["Phyrexian", "Insect"], &[ManaColor::Green], 1, 1)
@@ -2609,10 +2587,10 @@ pub(in crate::card::sets) static CARRION_CALL: CardRecord = CardRecord::new(
 
 // SOM 116 — Copperhorn Scout
 pub(in crate::card::sets) static COPPERHORN_SCOUT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4ee7f99e-7324-4d16-b163-8f1b2edb7b89"),
-    "Copperhorn Scout",
-    crate::card::CardArt::new("4ee7f99e-7324-4d16-b163-8f1b2edb7b89", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Copperhorn Scout",
+    "4ee7f99e-7324-4d16-b163-8f1b2edb7b89",
+    "Shelly Wan",
     CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Scout"], 1, 1).with_ability(
         AbilityDef::triggered(
             "Whenever this creature attacks, untap each other creature you control.",
@@ -2633,20 +2611,20 @@ pub(in crate::card::sets) static COPPERHORN_SCOUT: CardRecord = CardRecord::new(
 
 // SOM 117 — Cystbearer
 pub(in crate::card::sets) static CYSTBEARER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b6c10302-f0b3-4076-ae5c-a8c8c09a7d41"),
-    "Cystbearer",
-    crate::card::CardArt::new("b6c10302-f0b3-4076-ae5c-a8c8c09a7d41", "Kev Walker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Cystbearer",
+    "b6c10302-f0b3-4076-ae5c-a8c8c09a7d41",
+    "Kev Walker",
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Phyrexian", "Beast"], 2, 3)
         .with_abilities(&[abilities::infect()]),
 );
 
 // SOM 118 — Engulfing Slagwurm
 pub(in crate::card::sets) static ENGULFING_SLAGWURM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8aeabc4a-7b4f-4e3d-bcc7-423bb703563a"),
-    "Engulfing Slagwurm",
-    crate::card::CardArt::new("8aeabc4a-7b4f-4e3d-bcc7-423bb703563a", "Jaime Jones"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Engulfing Slagwurm",
+    "8aeabc4a-7b4f-4e3d-bcc7-423bb703563a",
+    "Jaime Jones",
     CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Wurm"], 7, 7).with_ability(
         AbilityDef::triggered(
             "Whenever this creature blocks or becomes blocked by a creature, destroy that creature. You gain life equal to that creature's toughness.",
@@ -2671,10 +2649,10 @@ pub(in crate::card::sets) static ENGULFING_SLAGWURM: CardRecord = CardRecord::ne
 
 // SOM 119 — Ezuri, Renegade Leader
 pub(in crate::card::sets) static EZURI_RENEGADE_LEADER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e9544132-bbb5-4ec4-af82-dad56e5091af"),
-    "Ezuri, Renegade Leader",
-    crate::card::CardArt::new("e9544132-bbb5-4ec4-af82-dad56e5091af", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ezuri, Renegade Leader",
+    "e9544132-bbb5-4ec4-af82-dad56e5091af",
+    "Karl Kopinski",
     CardRules::new_creature(mana_cost!("{1}{G}{G}"), &["Elf", "Warrior"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -2717,10 +2695,10 @@ pub(in crate::card::sets) static EZURI_RENEGADE_LEADER: CardRecord = CardRecord:
 
 // SOM 120 — Ezuri's Archers
 pub(in crate::card::sets) static EZURI_S_ARCHERS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("32cc93af-d9a0-4ed8-8c22-686d005ea77e"),
-    "Ezuri's Archers",
-    crate::card::CardArt::new("32cc93af-d9a0-4ed8-8c22-686d005ea77e", "Shelly Wan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ezuri's Archers",
+    "32cc93af-d9a0-4ed8-8c22-686d005ea77e",
+    "Shelly Wan",
     CardRules::new_creature(mana_cost!("{G}"), &["Elf", "Archer"], 1, 2).with_abilities(&[
         abilities::reach(),
         AbilityDef::triggered(
@@ -2745,10 +2723,10 @@ pub(in crate::card::sets) static EZURI_S_ARCHERS: CardRecord = CardRecord::new(
 
 // SOM 121 — Ezuri's Brigade
 pub(in crate::card::sets) static EZURI_S_BRIGADE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("079a6b44-3492-4484-aed1-5cd2449e702d"),
-    "Ezuri's Brigade",
-    crate::card::CardArt::new("079a6b44-3492-4484-aed1-5cd2449e702d", "Nic Klein"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ezuri's Brigade",
+    "079a6b44-3492-4484-aed1-5cd2449e702d",
+    "Nic Klein",
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Elf", "Warrior"], 4, 4).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — As long as you control three or more artifacts, this creature gets +4/+4 and has trample.",
@@ -2772,29 +2750,29 @@ pub(in crate::card::sets) static EZURI_S_BRIGADE: CardRecord = CardRecord::new(
 // SOM 122 — Genesis Wave
 // Audit: unsupported — Needs a chosen-X top-of-library reveal procedure that lets its controller choose any number of permanent cards with mana value at most X, moves those to the battlefield, and puts every other revealed card into the graveyard.
 pub(in crate::card::sets) static GENESIS_WAVE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c920236f-c3d7-421c-b021-103996da790e"),
-    "Genesis Wave",
-    crate::card::CardArt::new("c920236f-c3d7-421c-b021-103996da790e", "James Paick"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Genesis Wave",
+    "c920236f-c3d7-421c-b021-103996da790e",
+    "James Paick",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 123 — Liege of the Tangle
 // Audit: unsupported — Needs any-number land targeting plus a persistent counter-defined animation: each chosen land gets eight awakening counters and remains an 8/8 Elemental in addition to its other types even after the Liege leaves.
 pub(in crate::card::sets) static LIEGE_OF_THE_TANGLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f7fc5b67-f521-4ba4-a10f-103e8b6af688"),
-    "Liege of the Tangle",
-    crate::card::CardArt::new("f7fc5b67-f521-4ba4-a10f-103e8b6af688", "Jason Chan"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Liege of the Tangle",
+    "f7fc5b67-f521-4ba4-a10f-103e8b6af688",
+    "Jason Chan",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 124 — Lifesmith
 pub(in crate::card::sets) static LIFESMITH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("28e5dcac-0d59-4bcc-8a0e-036cc23065b5"),
-    "Lifesmith",
-    crate::card::CardArt::new("28e5dcac-0d59-4bcc-8a0e-036cc23065b5", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Lifesmith",
+    "28e5dcac-0d59-4bcc-8a0e-036cc23065b5",
+    "Eric Deschamps",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Artificer"], 2, 1).with_ability(
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may pay {1}. If you do, you gain 3 life.",
@@ -2818,10 +2796,10 @@ pub(in crate::card::sets) static LIFESMITH: CardRecord = CardRecord::new(
 
 // SOM 125 — Molder Beast
 pub(in crate::card::sets) static MOLDER_BEAST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d1340a63-f549-440b-aad3-14247113896a"),
-    "Molder Beast",
-    crate::card::CardArt::new("d1340a63-f549-440b-aad3-14247113896a", "Randis Albion"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Molder Beast",
+    "d1340a63-f549-440b-aad3-14247113896a",
+    "Randis Albion",
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Beast"], 5, 3).with_abilities(&[
         abilities::trample(),
         AbilityDef::triggered(
@@ -2845,10 +2823,10 @@ pub(in crate::card::sets) static MOLDER_BEAST: CardRecord = CardRecord::new(
 
 // SOM 126 — Putrefax
 pub(in crate::card::sets) static PUTREFAX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b2b2c3f9-a831-4fd2-80e8-b67b0df3e98b"),
-    "Putrefax",
-    crate::card::CardArt::new("b2b2c3f9-a831-4fd2-80e8-b67b0df3e98b", "Steven Belledin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Putrefax",
+    "b2b2c3f9-a831-4fd2-80e8-b67b0df3e98b",
+    "Steven Belledin",
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Phyrexian", "Horror"], 5, 3)
         .with_abilities(&[
             abilities::trample(),
@@ -2869,10 +2847,10 @@ pub(in crate::card::sets) static PUTREFAX: CardRecord = CardRecord::new(
 
 // SOM 127 — Slice in Twain
 pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("de9c572a-6dc0-432f-92e9-c52fb0efddb5"),
-    "Slice in Twain",
-    crate::card::CardArt::new("de9c572a-6dc0-432f-92e9-c52fb0efddb5", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Slice in Twain",
+    "de9c572a-6dc0-432f-92e9-c52fb0efddb5",
+    "Efrem Palacios",
     CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target artifact or enchantment. Draw a card.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -2898,19 +2876,19 @@ pub(in crate::card::sets) static SLICE_IN_TWAIN: CardRecord = CardRecord::new(
 // SOM 128 — Tangle Angler
 // Audit: unsupported — Applied rules can require a creature to block every attacker, but cannot require one targeted creature to block this specific source this turn if able.
 pub(in crate::card::sets) static TANGLE_ANGLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b678bd68-e866-4081-95f9-2bd93a84d400"),
-    "Tangle Angler",
-    crate::card::CardArt::new("b678bd68-e866-4081-95f9-2bd93a84d400", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tangle Angler",
+    "b678bd68-e866-4081-95f9-2bd93a84d400",
+    "Igor Kieryluk",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 129 — Tel-Jilad Defiance
 pub(in crate::card::sets) static TEL_JILAD_DEFIANCE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ef01d3f6-c172-43fb-bc65-ff12567111da"),
-    "Tel-Jilad Defiance",
-    crate::card::CardArt::new("ef01d3f6-c172-43fb-bc65-ff12567111da", "Goran Josic"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tel-Jilad Defiance",
+    "ef01d3f6-c172-43fb-bc65-ff12567111da",
+    "Goran Josic",
     CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gains protection from artifacts until end of turn.\nDraw a card.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -2937,10 +2915,10 @@ pub(in crate::card::sets) static TEL_JILAD_DEFIANCE: CardRecord = CardRecord::ne
 
 // SOM 130 — Tel-Jilad Fallen
 pub(in crate::card::sets) static TEL_JILAD_FALLEN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("643891b6-23d0-4734-81e0-b315d2d58f50"),
-    "Tel-Jilad Fallen",
-    crate::card::CardArt::new("643891b6-23d0-4734-81e0-b315d2d58f50", "James Ryman"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tel-Jilad Fallen",
+    "643891b6-23d0-4734-81e0-b315d2d58f50",
+    "James Ryman",
     CardRules::new_creature(
         mana_cost!("{2}{G}{G}"),
         &["Phyrexian", "Elf", "Warrior"],
@@ -2958,10 +2936,10 @@ pub(in crate::card::sets) static TEL_JILAD_FALLEN: CardRecord = CardRecord::new(
 
 // SOM 131 — Untamed Might
 pub(in crate::card::sets) static UNTAMED_MIGHT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("17979f0e-bd39-449f-b4ed-9156c229223b"),
-    "Untamed Might",
-    crate::card::CardArt::new("17979f0e-bd39-449f-b4ed-9156c229223b", "Erica Yang"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Untamed Might",
+    "17979f0e-bd39-449f-b4ed-9156c229223b",
+    "Erica Yang",
     CardRules::new_instant(mana_cost!("{X}{G}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gets +X/+X until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -2977,10 +2955,10 @@ pub(in crate::card::sets) static UNTAMED_MIGHT: CardRecord = CardRecord::new(
 
 // SOM 132 — Viridian Revel
 pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2d7f565e-0fb8-40c8-9540-213d35af846a"),
-    "Viridian Revel",
-    crate::card::CardArt::new("2d7f565e-0fb8-40c8-9540-213d35af846a", "rk post"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Viridian Revel",
+    "2d7f565e-0fb8-40c8-9540-213d35af846a",
+    "rk post",
     CardRules::new_enchantment(mana_cost!("{1}{G}{G}")).with_ability(
         abilities::dies_trigger_matching(
             "Whenever an artifact is put into an opponent's graveyard from the battlefield, you may draw a card.",
@@ -3002,19 +2980,19 @@ pub(in crate::card::sets) static VIRIDIAN_REVEL: CardRecord = CardRecord::new(
 // SOM 133 — Wing Puncture
 // Audit: unsupported — Damage effects use the resolving spell as their source; this needs the first targeted creature to deal damage equal to its power to the second targeted flying creature.
 pub(in crate::card::sets) static WING_PUNCTURE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("05a5188b-9ae3-4ca0-8289-b8a266a9073b"),
-    "Wing Puncture",
-    crate::card::CardArt::new("05a5188b-9ae3-4ca0-8289-b8a266a9073b", "jD"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Wing Puncture",
+    "05a5188b-9ae3-4ca0-8289-b8a266a9073b",
+    "jD",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 134 — Withstand Death
 pub(in crate::card::sets) static WITHSTAND_DEATH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b059cca0-2373-428b-a3a6-c8be5523c96f"),
-    "Withstand Death",
-    crate::card::CardArt::new("b059cca0-2373-428b-a3a6-c8be5523c96f", "Tomasz Jedruszek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Withstand Death",
+    "b059cca0-2373-428b-a3a6-c8be5523c96f",
+    "Tomasz Jedruszek",
     CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
         "Target creature gains indestructible until end of turn.",
         &[AbilityTargetDef::exactly_one_permanent(
@@ -3030,10 +3008,10 @@ pub(in crate::card::sets) static WITHSTAND_DEATH: CardRecord = CardRecord::new(
 
 // SOM 135 — Venser, the Sojourner
 pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3d48d62e-5c1f-464c-aa81-8a5d2690f48e"),
-    "Venser, the Sojourner",
-    crate::card::CardArt::new("3d48d62e-5c1f-464c-aa81-8a5d2690f48e", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Venser, the Sojourner",
+    "3d48d62e-5c1f-464c-aa81-8a5d2690f48e",
+    "Eric Deschamps",
     CardRules::new_planeswalker(mana_cost!("{3}{W}{U}"), &["Venser"], 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -3084,14 +3062,42 @@ pub(in crate::card::sets) static VENSER_THE_SOJOURNER: CardRecord = CardRecord::
         ]),
 );
 
-// SOM 136 — Accorder's Shield (reprint)
+// SOM 136 — Accorder's Shield
+pub(in crate::card::sets) static ACCORDERS_SHIELD: CardRecord = CardRecord::new(
+    CardSet::ScarsOfMirrodin,
+    "Accorder's Shield",
+    "a7305c18-5058-42dd-b62a-7f6a42624036",
+    "Alan Pollack",
+    CardRules::new_artifact(mana_cost!("{0}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            AbilityDef::static_ability(
+                "Equipped creature gets +0/+3 and has vigilance.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(0),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    ]),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+                "Equip {3} ({3}: Attach to target creature you control. Equip only as a \
+                 sorcery.)",
+            ),
+        ]),
+);
 
 // SOM 137 — Argentum Armor
 pub(in crate::card::sets) static ARGENTUM_ARMOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1283c05a-905b-421a-9096-e86b9c807aaf"),
-    "Argentum Armor",
-    crate::card::CardArt::new("1283c05a-905b-421a-9096-e86b9c807aaf", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Argentum Armor",
+    "1283c05a-905b-421a-9096-e86b9c807aaf",
+    "Matt Cavotta",
     CardRules::new_artifact(mana_cost!("{6}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3124,22 +3130,19 @@ pub(in crate::card::sets) static ARGENTUM_ARMOR: CardRecord = CardRecord::new(
 // SOM 138 — Auriok Replica
 // Audit: unsupported — Needs a source choice made during resolution and a prevention shield limited to damage that chosen source would deal to you this turn.
 pub(in crate::card::sets) static AURIOK_REPLICA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("02745a0a-9872-4c30-a25d-61695c5fa9cc"),
-    "Auriok Replica",
-    crate::card::CardArt::new(
-        "02745a0a-9872-4c30-a25d-61695c5fa9cc",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Auriok Replica",
+    "02745a0a-9872-4c30-a25d-61695c5fa9cc",
+    "Zoltan Boros & Gabor Szikszai",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 139 — Barbed Battlegear
 pub(in crate::card::sets) static BARBED_BATTLEGEAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("03b80b2f-8d07-4ad3-9b20-4ba0fe9f37a2"),
-    "Barbed Battlegear",
-    crate::card::CardArt::new("03b80b2f-8d07-4ad3-9b20-4ba0fe9f37a2", "Steve Argyle"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Barbed Battlegear",
+    "03b80b2f-8d07-4ad3-9b20-4ba0fe9f37a2",
+    "Steve Argyle",
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3159,10 +3162,10 @@ pub(in crate::card::sets) static BARBED_BATTLEGEAR: CardRecord = CardRecord::new
 
 // SOM 140 — Bladed Pinions
 pub(in crate::card::sets) static BLADED_PINIONS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bf479c90-c791-4152-a8e6-fd3123f698df"),
-    "Bladed Pinions",
-    crate::card::CardArt::new("bf479c90-c791-4152-a8e6-fd3123f698df", "Steve Argyle"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Bladed Pinions",
+    "bf479c90-c791-4152-a8e6-fd3123f698df",
+    "Steve Argyle",
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3182,10 +3185,10 @@ pub(in crate::card::sets) static BLADED_PINIONS: CardRecord = CardRecord::new(
 
 // SOM 141 — Chimeric Mass
 pub(in crate::card::sets) static CHIMERIC_MASS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bcdb3af4-eaba-47b0-b242-dafa25ff0969"),
-    "Chimeric Mass",
-    crate::card::CardArt::new("bcdb3af4-eaba-47b0-b242-dafa25ff0969", "David Palumbo"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Chimeric Mass",
+    "bcdb3af4-eaba-47b0-b242-dafa25ff0969",
+    "David Palumbo",
     CardRules::new_artifact(mana_cost!("{X}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with X charge counters on it.",
@@ -3216,13 +3219,10 @@ pub(in crate::card::sets) static CHIMERIC_MASS: CardRecord = CardRecord::new(
 
 // SOM 142 — Chrome Steed
 pub(in crate::card::sets) static CHROME_STEED: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ce881675-690f-4d4c-a951-ab8302e904ab"),
-    "Chrome Steed",
-    crate::card::CardArt::new(
-        "ce881675-690f-4d4c-a951-ab8302e904ab",
-        "Jana Schirmer & Johannes Voss",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Chrome Steed",
+    "ce881675-690f-4d4c-a951-ab8302e904ab",
+    "Jana Schirmer & Johannes Voss",
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Horse"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature gets +2/+2 as long as you control three or more artifacts.",
@@ -3243,19 +3243,19 @@ pub(in crate::card::sets) static CHROME_STEED: CardRecord = CardRecord::new(
 // SOM 143 — Clone Shell
 // Audit: unsupported — Needs a linked face-down imprint procedure that chooses a creature from the top four cards, bottoms the rest in a chosen order, and conditionally reveals and returns the linked card when the source dies.
 pub(in crate::card::sets) static CLONE_SHELL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cc386c6c-c27e-4673-96eb-1d004fd71993"),
-    "Clone Shell",
-    crate::card::CardArt::new("cc386c6c-c27e-4673-96eb-1d004fd71993", "Volkan Baǵa"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Clone Shell",
+    "cc386c6c-c27e-4673-96eb-1d004fd71993",
+    "Volkan Baǵa",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 144 — Contagion Clasp
 pub(in crate::card::sets) static CONTAGION_CLASP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d134d21d-4a18-4fbe-a6c2-428e99a86466"),
-    "Contagion Clasp",
-    crate::card::CardArt::new("7fafcefa-d33c-4d73-b3b7-2930f28b845e", "Anthony Palumbo"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Contagion Clasp",
+    "7fafcefa-d33c-4d73-b3b7-2930f28b845e",
+    "Anthony Palumbo",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
             "When this artifact enters, put a -1/-1 counter on target creature.",
@@ -3281,10 +3281,10 @@ pub(in crate::card::sets) static CONTAGION_CLASP: CardRecord = CardRecord::new(
 
 // SOM 145 — Contagion Engine
 pub(in crate::card::sets) static CONTAGION_ENGINE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dce72636-08e4-484e-ad81-4d1597a31ffb"),
-    "Contagion Engine",
-    crate::card::CardArt::new("dce72636-08e4-484e-ad81-4d1597a31ffb", "Daarken"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Contagion Engine",
+    "dce72636-08e4-484e-ad81-4d1597a31ffb",
+    "Daarken",
     CardRules::new_artifact(mana_cost!("{6}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
             "When this artifact enters, put a -1/-1 counter on each creature target player controls.",
@@ -3311,27 +3311,19 @@ pub(in crate::card::sets) static CONTAGION_ENGINE: CardRecord = CardRecord::new(
     ]),
 );
 
-// SOM 146 — Copper Myr
-pub(in crate::card::sets) static COPPER_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a52b2dc4-4fb3-4ddf-bdb6-c63e8c8efc09"),
-    "Copper Myr",
-    crate::card::CardArt::new("323efe27-da58-4207-9c0c-dba5031bfa04", "Alan Pollack"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Myr"], 1, 1).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add {G}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
-        ),
-    ),
+// SOM 146 — Copper Myr (reprint)
+const COPPER_MYR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::COPPER_MYR,
+    "323efe27-da58-4207-9c0c-dba5031bfa04",
+    "Alan Pollack",
 );
 
 // SOM 147 — Corpse Cur
 pub(in crate::card::sets) static CORPSE_CUR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9c6e19a1-b9ea-4724-96d6-63c4b4967257"),
-    "Corpse Cur",
-    crate::card::CardArt::new("9c6e19a1-b9ea-4724-96d6-63c4b4967257", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Corpse Cur",
+    "9c6e19a1-b9ea-4724-96d6-63c4b4967257",
+    "Pete Venters",
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Dog"], 2, 2)
         .with_abilities(&[
             abilities::infect(),
@@ -3369,10 +3361,10 @@ pub(in crate::card::sets) static CORPSE_CUR: CardRecord = CardRecord::new(
 
 // SOM 148 — Culling Dais
 pub(in crate::card::sets) static CULLING_DAIS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ba7665c7-c211-45d7-bde1-f7952548025f"),
-    "Culling Dais",
-    crate::card::CardArt::new("ba7665c7-c211-45d7-bde1-f7952548025f", "Anthony Palumbo"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Culling Dais",
+    "ba7665c7-c211-45d7-bde1-f7952548025f",
+    "Anthony Palumbo",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated(
             "{T}, Sacrifice a creature: Put a charge counter on this artifact.",
@@ -3405,10 +3397,10 @@ pub(in crate::card::sets) static CULLING_DAIS: CardRecord = CardRecord::new(
 
 // SOM 149 — Darksteel Axe
 pub(in crate::card::sets) static DARKSTEEL_AXE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b997c3e6-4b0e-4f4a-9f66-3fc1d8395494"),
-    "Darksteel Axe",
-    crate::card::CardArt::new("b997c3e6-4b0e-4f4a-9f66-3fc1d8395494", "Daniel Ljunggren"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Darksteel Axe",
+    "b997c3e6-4b0e-4f4a-9f66-3fc1d8395494",
+    "Daniel Ljunggren",
     CardRules::new_artifact(mana_cost!("{1}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3429,10 +3421,10 @@ pub(in crate::card::sets) static DARKSTEEL_AXE: CardRecord = CardRecord::new(
 
 // SOM 150 — Darksteel Juggernaut
 pub(in crate::card::sets) static DARKSTEEL_JUGGERNAUT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ed1f540f-0d51-4e32-a4f9-c8977834572a"),
-    "Darksteel Juggernaut",
-    crate::card::CardArt::new("ed1f540f-0d51-4e32-a4f9-c8977834572a", "Randis Albion"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Darksteel Juggernaut",
+    "ed1f540f-0d51-4e32-a4f9-c8977834572a",
+    "Randis Albion",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Juggernaut"], 0, 0).with_abilities(&[
         abilities::indestructible(),
         AbilityDef::static_ability(
@@ -3451,20 +3443,20 @@ pub(in crate::card::sets) static DARKSTEEL_JUGGERNAUT: CardRecord = CardRecord::
 
 // SOM 151 — Darksteel Myr
 pub(in crate::card::sets) static DARKSTEEL_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0f5712cf-c6a9-4a2e-90db-8ca17c621724"),
-    "Darksteel Myr",
-    crate::card::CardArt::new("0f5712cf-c6a9-4a2e-90db-8ca17c621724", "Randis Albion"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Darksteel Myr",
+    "0f5712cf-c6a9-4a2e-90db-8ca17c621724",
+    "Randis Albion",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 0, 1)
         .with_abilities(&[abilities::indestructible()]),
 );
 
 // SOM 152 — Darksteel Sentinel
 pub(in crate::card::sets) static DARKSTEEL_SENTINEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("768e9dde-59e5-4b50-9b38-b46e2a593107"),
-    "Darksteel Sentinel",
-    crate::card::CardArt::new("768e9dde-59e5-4b50-9b38-b46e2a593107", "Erica Yang"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Darksteel Sentinel",
+    "768e9dde-59e5-4b50-9b38-b46e2a593107",
+    "Erica Yang",
     CardRules::new_artifact_creature(mana_cost!("{6}"), &["Golem"], 3, 3).with_abilities(&[
         abilities::flash(),
         abilities::vigilance(),
@@ -3474,10 +3466,10 @@ pub(in crate::card::sets) static DARKSTEEL_SENTINEL: CardRecord = CardRecord::ne
 
 // SOM 153 — Echo Circlet
 pub(in crate::card::sets) static ECHO_CIRCLET: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("49e661c6-bc3e-45b4-ae1c-5002e381faf3"),
-    "Echo Circlet",
-    crate::card::CardArt::new("49e661c6-bc3e-45b4-ae1c-5002e381faf3", "Daarken"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Echo Circlet",
+    "49e661c6-bc3e-45b4-ae1c-5002e381faf3",
+    "Daarken",
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3494,10 +3486,10 @@ pub(in crate::card::sets) static ECHO_CIRCLET: CardRecord = CardRecord::new(
 
 // SOM 154 — Etched Champion
 pub(in crate::card::sets) static ETCHED_CHAMPION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ab2242c2-7379-4fff-a745-d180685da6db"),
-    "Etched Champion",
-    crate::card::CardArt::new("ab2242c2-7379-4fff-a745-d180685da6db", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Etched Champion",
+    "ab2242c2-7379-4fff-a745-d180685da6db",
+    "Matt Cavotta",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Soldier"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature has protection from each color as long as you control three or more artifacts.",
@@ -3530,10 +3522,10 @@ pub(in crate::card::sets) static ETCHED_CHAMPION: CardRecord = CardRecord::new(
 
 // SOM 155 — Flight Spellbomb
 pub(in crate::card::sets) static FLIGHT_SPELLBOMB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0fa09e06-08fd-4ecd-83fe-f0e0856547a5"),
-    "Flight Spellbomb",
-    crate::card::CardArt::new("0fa09e06-08fd-4ecd-83fe-f0e0856547a5", "Franz Vohwinkel"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Flight Spellbomb",
+    "0fa09e06-08fd-4ecd-83fe-f0e0856547a5",
+    "Franz Vohwinkel",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Target creature gains flying until end of turn.",
@@ -3578,10 +3570,10 @@ static GLINT_HAWK_IDOL_ANIMATION: EffectDef = EffectDef::Apply {
 };
 
 pub(in crate::card::sets) static GLINT_HAWK_IDOL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0a742da4-638d-4888-94f1-db2f4ada9f94"),
-    "Glint Hawk Idol",
-    crate::card::CardArt::new("0a742da4-638d-4888-94f1-db2f4ada9f94", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Glint Hawk Idol",
+    "0a742da4-638d-4888-94f1-db2f4ada9f94",
+    "Dave Allsop",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever another artifact you control enters, you may have this artifact become a 2/2 Bird artifact creature with flying until end of turn.",
@@ -3607,27 +3599,19 @@ pub(in crate::card::sets) static GLINT_HAWK_IDOL: CardRecord = CardRecord::new(
     ]),
 );
 
-// SOM 157 — Gold Myr
-pub(in crate::card::sets) static GOLD_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fa9b4040-ab49-476b-b101-5ef2b1824e10"),
-    "Gold Myr",
-    crate::card::CardArt::new("ac92126c-fb22-4b97-bbc5-b0533a0baad8", "Alan Pollack"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Myr"], 1, 1).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add {W}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
-        ),
-    ),
+// SOM 157 — Gold Myr (reprint)
+const GOLD_MYR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::GOLD_MYR,
+    "ac92126c-fb22-4b97-bbc5-b0533a0baad8",
+    "Alan Pollack",
 );
 
 // SOM 158 — Golden Urn
 pub(in crate::card::sets) static GOLDEN_URN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ec7abeca-da01-4962-b107-dd7a77469753"),
-    "Golden Urn",
-    crate::card::CardArt::new("ec7abeca-da01-4962-b107-dd7a77469753", "Charles Urbach"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Golden Urn",
+    "ec7abeca-da01-4962-b107-dd7a77469753",
+    "Charles Urbach",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::triggered(
             "At the beginning of your upkeep, you may put a charge counter on this artifact.",
@@ -3657,10 +3641,10 @@ pub(in crate::card::sets) static GOLDEN_URN: CardRecord = CardRecord::new(
 
 // SOM 159 — Golem Artisan
 pub(in crate::card::sets) static GOLEM_ARTISAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9"),
-    "Golem Artisan",
-    crate::card::CardArt::new("7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9", "Nic Klein"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Golem Artisan",
+    "7ccfc314-2f18-43c2-9ccd-59bb5dbe35e9",
+    "Nic Klein",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 3).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{2}: Target artifact creature gets +1/+1 until end of turn.",
@@ -3734,10 +3718,10 @@ pub(in crate::card::sets) static GOLEM_ARTISAN: CardRecord = CardRecord::new(
 
 // SOM 160 — Golem Foundry
 pub(in crate::card::sets) static GOLEM_FOUNDRY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3cef2e6a-e46b-4425-b507-3213cfd1400c"),
-    "Golem Foundry",
-    crate::card::CardArt::new("3cef2e6a-e46b-4425-b507-3213cfd1400c", "Nic Klein"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Golem Foundry",
+    "3cef2e6a-e46b-4425-b507-3213cfd1400c",
+    "Nic Klein",
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::triggered(
             "Whenever you cast an artifact spell, you may put a charge counter on this artifact.",
@@ -3767,10 +3751,10 @@ pub(in crate::card::sets) static GOLEM_FOUNDRY: CardRecord = CardRecord::new(
 
 // SOM 161 — Golem's Heart
 pub(in crate::card::sets) static GOLEM_S_HEART: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("647ecb81-2d23-40f3-8570-0b86e2ed1c5e"),
-    "Golem's Heart",
-    crate::card::CardArt::new("647ecb81-2d23-40f3-8570-0b86e2ed1c5e", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Golem's Heart",
+    "647ecb81-2d23-40f3-8570-0b86e2ed1c5e",
+    "Matt Cavotta",
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::triggered(
         "Whenever a player casts an artifact spell, you may gain 1 life.",
         TriggerEventDef::spell_cast(ObjectPredicateDef::HasType(CardType::Artifact)),
@@ -3787,19 +3771,19 @@ pub(in crate::card::sets) static GOLEM_S_HEART: CardRecord = CardRecord::new(
 // SOM 162 — Grafted Exoskeleton
 // Audit: unsupported — Needs an Equipment trigger that captures the creature it just became unattached from and makes that former bearer sacrifice itself.
 pub(in crate::card::sets) static GRAFTED_EXOSKELETON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9aa64374-0693-47c9-8b69-56def3817b14"),
-    "Grafted Exoskeleton",
-    crate::card::CardArt::new("9aa64374-0693-47c9-8b69-56def3817b14", "Allen Williams"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Grafted Exoskeleton",
+    "9aa64374-0693-47c9-8b69-56def3817b14",
+    "Allen Williams",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 163 — Grindclock
 pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a6df2e7f-e46e-4808-8125-42a3aa66377c"),
-    "Grindclock",
-    crate::card::CardArt::new("a6df2e7f-e46e-4808-8125-42a3aa66377c", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Grindclock",
+    "a6df2e7f-e46e-4808-8125-42a3aa66377c",
+    "Nils Hamm",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::activated(
             "{T}: Put a charge counter on this artifact.",
@@ -3826,10 +3810,10 @@ pub(in crate::card::sets) static GRINDCLOCK: CardRecord = CardRecord::new(
 
 // SOM 164 — Heavy Arbalest
 pub(in crate::card::sets) static HEAVY_ARBALEST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5737246f-1292-4af6-aecf-8f161f5300cb"),
-    "Heavy Arbalest",
-    crate::card::CardArt::new("5737246f-1292-4af6-aecf-8f161f5300cb", "David Rapoza"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Heavy Arbalest",
+    "5737246f-1292-4af6-aecf-8f161f5300cb",
+    "David Rapoza",
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -3863,10 +3847,10 @@ pub(in crate::card::sets) static HEAVY_ARBALEST: CardRecord = CardRecord::new(
 
 // SOM 165 — Horizon Spellbomb
 pub(in crate::card::sets) static HORIZON_SPELLBOMB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d93378e-1de2-4954-9458-dd3306f2996e"),
-    "Horizon Spellbomb",
-    crate::card::CardArt::new("9d93378e-1de2-4954-9458-dd3306f2996e", "Franz Vohwinkel"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Horizon Spellbomb",
+    "9d93378e-1de2-4954-9458-dd3306f2996e",
+    "Franz Vohwinkel",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated(
             "{2}, {T}, Sacrifice this artifact: Search your library for a basic land card, reveal it, put it into your hand, then shuffle.",
@@ -3914,10 +3898,10 @@ pub(in crate::card::sets) static HORIZON_SPELLBOMB: CardRecord = CardRecord::new
 
 // SOM 166 — Ichorclaw Myr
 pub(in crate::card::sets) static ICHORCLAW_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("faef8b8b-2c45-4fed-b6ba-a8ac49c66330"),
-    "Ichorclaw Myr",
-    crate::card::CardArt::new("faef8b8b-2c45-4fed-b6ba-a8ac49c66330", "Eric Deschamps"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Ichorclaw Myr",
+    "faef8b8b-2c45-4fed-b6ba-a8ac49c66330",
+    "Eric Deschamps",
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Myr"], 1, 1)
         .with_abilities(&[
             abilities::infect(),
@@ -3939,34 +3923,26 @@ pub(in crate::card::sets) static ICHORCLAW_MYR: CardRecord = CardRecord::new(
 // SOM 167 — Infiltration Lens
 // Audit: unsupported — Needs one trigger for each creature that blocks the attached creature; the attachment-aware combat trigger currently combines the blocks and becomes-blocked directions.
 pub(in crate::card::sets) static INFILTRATION_LENS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1baa10da-2733-4657-a1ea-74eb5a5a82b1"),
-    "Infiltration Lens",
-    crate::card::CardArt::new("1baa10da-2733-4657-a1ea-74eb5a5a82b1", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Infiltration Lens",
+    "1baa10da-2733-4657-a1ea-74eb5a5a82b1",
+    "Izzy",
     crate::card::CardRules::unsupported(),
 );
 
-// SOM 168 — Iron Myr
-pub(in crate::card::sets) static IRON_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("08e17883-0767-40b5-ac44-a52a1ea54993"),
-    "Iron Myr",
-    crate::card::CardArt::new("5bd0a588-b695-4060-b5d5-c6a74710ff0f", "Alan Pollack"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Myr"], 1, 1).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add {R}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
-        ),
-    ),
+// SOM 168 — Iron Myr (reprint)
+const IRON_MYR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::IRON_MYR,
+    "5bd0a588-b695-4060-b5d5-c6a74710ff0f",
+    "Alan Pollack",
 );
 
 // SOM 169 — Kuldotha Forgemaster
 pub(in crate::card::sets) static KULDOTHA_FORGEMASTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ad590bea-b872-4af7-a612-c8e8759d59df"),
-    "Kuldotha Forgemaster",
-    crate::card::CardArt::new("ad590bea-b872-4af7-a612-c8e8759d59df", "jD"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Kuldotha Forgemaster",
+    "ad590bea-b872-4af7-a612-c8e8759d59df",
+    "jD",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Construct"], 3, 5).with_ability(
         AbilityDef::activated(
             "{T}, Sacrifice three artifacts: Search your library for an artifact card, put it onto the battlefield, then shuffle.",
@@ -3997,27 +3973,19 @@ pub(in crate::card::sets) static KULDOTHA_FORGEMASTER: CardRecord = CardRecord::
     ),
 );
 
-// SOM 170 — Leaden Myr
-pub(in crate::card::sets) static LEADEN_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("555efe5f-848f-44da-92b5-69c8e852f179"),
-    "Leaden Myr",
-    crate::card::CardArt::new("3a709559-fec3-44f4-a2bf-3396989b9189", "Alan Pollack"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Myr"], 1, 1).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add {B}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
-        ),
-    ),
+// SOM 170 — Leaden Myr (reprint)
+const LEADEN_MYR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::LEADEN_MYR,
+    "3a709559-fec3-44f4-a2bf-3396989b9189",
+    "Alan Pollack",
 );
 
 // SOM 171 — Liquimetal Coating
 pub(in crate::card::sets) static LIQUIMETAL_COATING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("43ec9201-06e7-4a70-8dcf-7462a019965d"),
-    "Liquimetal Coating",
-    crate::card::CardArt::new("43ec9201-06e7-4a70-8dcf-7462a019965d", "Johann Bodin"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Liquimetal Coating",
+    "43ec9201-06e7-4a70-8dcf-7462a019965d",
+    "Johann Bodin",
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
         "{T}: Target permanent becomes an artifact in addition to its other types until end of turn.",
         &[AbilityCostDef::TapSource],
@@ -4036,10 +4004,10 @@ pub(in crate::card::sets) static LIQUIMETAL_COATING: CardRecord = CardRecord::ne
 
 // SOM 172 — Livewire Lash
 pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bbef3e31-eb5a-43f7-a0b2-12348df6968d"),
-    "Livewire Lash",
-    crate::card::CardArt::new("bbef3e31-eb5a-43f7-a0b2-12348df6968d", "Daniel Ljunggren"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Livewire Lash",
+    "bbef3e31-eb5a-43f7-a0b2-12348df6968d",
+    "Daniel Ljunggren",
     CardRules::new_artifact(mana_cost!("{2}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -4076,10 +4044,10 @@ pub(in crate::card::sets) static LIVEWIRE_LASH: CardRecord = CardRecord::new(
 
 // SOM 173 — Lux Cannon
 pub(in crate::card::sets) static LUX_CANNON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("95e274ea-e8f6-48ea-a877-c84b77c96d0c"),
-    "Lux Cannon",
-    crate::card::CardArt::new("95e274ea-e8f6-48ea-a877-c84b77c96d0c", "Martina Pilcerova"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Lux Cannon",
+    "95e274ea-e8f6-48ea-a877-c84b77c96d0c",
+    "Martina Pilcerova",
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::activated(
             "{T}: Put a charge counter on this artifact.",
@@ -4113,39 +4081,36 @@ pub(in crate::card::sets) static LUX_CANNON: CardRecord = CardRecord::new(
 
 // SOM 174 — Memnite
 pub(in crate::card::sets) static MEMNITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("469cc4e0-49c0-4009-97ea-28e44addec69"),
-    "Memnite",
-    crate::card::CardArt::new("469cc4e0-49c0-4009-97ea-28e44addec69", "Svetlin Velinov"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Memnite",
+    "469cc4e0-49c0-4009-97ea-28e44addec69",
+    "Svetlin Velinov",
     CardRules::new_artifact_creature(mana_cost!("{0}"), &["Construct"], 1, 1),
 );
 
 // SOM 175 — Mimic Vat
 // Audit: unsupported — Needs linked optional imprint replacement across repeated creature deaths, moving the previously imprinted card back, then copying the current linked card and scheduling the token's exile at the next end step.
 pub(in crate::card::sets) static MIMIC_VAT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("736fff86-2417-4a77-b8eb-be2d1d142a9f"),
-    "Mimic Vat",
-    crate::card::CardArt::new("736fff86-2417-4a77-b8eb-be2d1d142a9f", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Mimic Vat",
+    "736fff86-2417-4a77-b8eb-be2d1d142a9f",
+    "Matt Cavotta",
     crate::card::CardRules::unsupported(),
 );
 
-// SOM 176 — Mindslaver
-// Audit: unsupported — The engine has no continuous effect that lets one player make every game choice for another player during that player's next turn.
-pub(in crate::card::sets) static MINDSLAVER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("98fb1eaa-2871-491a-a4f5-3e358778ba40"),
-    "Mindslaver",
-    crate::card::CardArt::new("00d03b17-75ae-40d2-8570-b219ef0dfd4a", "Volkan Baǵa"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    crate::card::CardRules::unsupported(),
+// SOM 176 — Mindslaver (reprint)
+const MINDSLAVER_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::MINDSLAVER,
+    "00d03b17-75ae-40d2-8570-b219ef0dfd4a",
+    "Volkan Baǵa",
 );
 
 // SOM 177 — Molten-Tail Masticore
 pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("48311a45-c0e1-4170-8dab-2b3495096c48"),
-    "Molten-Tail Masticore",
-    crate::card::CardArt::new("48311a45-c0e1-4170-8dab-2b3495096c48", "Whit Brachna"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Molten-Tail Masticore",
+    "48311a45-c0e1-4170-8dab-2b3495096c48",
+    "Whit Brachna",
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Masticore"], 4, 4).with_abilities(&[
         AbilityDef::triggered(
             "At the beginning of your upkeep, sacrifice this creature unless you discard a card.",
@@ -4188,13 +4153,10 @@ pub(in crate::card::sets) static MOLTEN_TAIL_MASTICORE: CardRecord = CardRecord:
 
 // SOM 178 — Moriok Replica
 pub(in crate::card::sets) static MORIOK_REPLICA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("480311ae-b9af-4fb7-881b-35566598cf07"),
-    "Moriok Replica",
-    crate::card::CardArt::new(
-        "480311ae-b9af-4fb7-881b-35566598cf07",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Moriok Replica",
+    "480311ae-b9af-4fb7-881b-35566598cf07",
+    "Zoltan Boros & Gabor Szikszai",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Warrior"], 2, 2).with_ability(
         AbilityDef::activated(
             "{1}{B}, Sacrifice this creature: You draw two cards and you lose 2 life.",
@@ -4218,10 +4180,10 @@ pub(in crate::card::sets) static MORIOK_REPLICA: CardRecord = CardRecord::new(
 
 // SOM 179 — Mox Opal
 pub(in crate::card::sets) static MOX_OPAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6be9b1d5-9ab8-4adb-ba54-2c0117e842fa"),
-    "Mox Opal",
-    CardArt::new("6be9b1d5-9ab8-4adb-ba54-2c0117e842fa", "Volkan Baǵa"),
     CardSet::ScarsOfMirrodin,
+    "Mox Opal",
+    "6be9b1d5-9ab8-4adb-ba54-2c0117e842fa",
+    "Volkan Baǵa",
     // A free artifact that does nothing on its own and any color once the
     // board has caught up with it.
     CardRules::new_artifact(mana_cost!("{0}"))
@@ -4238,10 +4200,10 @@ pub(in crate::card::sets) static MOX_OPAL: CardRecord = CardRecord::new(
 
 // SOM 180 — Myr Battlesphere
 pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b0ae94ed-7314-470b-baba-f2f58bbc894a"),
-    "Myr Battlesphere",
-    CardArt::new("b0ae94ed-7314-470b-baba-f2f58bbc894a", "Franz Vohwinkel"),
     CardSet::ScarsOfMirrodin,
+    "Myr Battlesphere",
+    "b0ae94ed-7314-470b-baba-f2f58bbc894a",
+    "Franz Vohwinkel",
     // Seven mana for eleven power across five bodies, and an attack that
     // cashes the little ones in for damage that no blocker can stop.
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Myr", "Construct"], 4, 7)
@@ -4305,10 +4267,10 @@ pub(in crate::card::sets) static MYR_BATTLESPHERE: CardRecord = CardRecord::new(
 
 // SOM 181 — Myr Galvanizer
 pub(in crate::card::sets) static MYR_GALVANIZER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e55ca835-b7f3-497c-b0bc-50a182cabecf"),
-    "Myr Galvanizer",
-    crate::card::CardArt::new("e55ca835-b7f3-497c-b0bc-50a182cabecf", "Greg Staples"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Myr Galvanizer",
+    "e55ca835-b7f3-497c-b0bc-50a182cabecf",
+    "Greg Staples",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 2, 2).with_abilities(&[
         AbilityDef::static_ability(
             "Other Myr creatures you control get +1/+1.",
@@ -4350,10 +4312,10 @@ pub(in crate::card::sets) static MYR_GALVANIZER: CardRecord = CardRecord::new(
 
 // SOM 182 — Myr Propagator
 pub(in crate::card::sets) static MYR_PROPAGATOR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("837e4b25-d70b-48d8-aaad-9622ad93e154"),
-    "Myr Propagator",
-    crate::card::CardArt::new("837e4b25-d70b-48d8-aaad-9622ad93e154", "Ryan Pancoast"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Myr Propagator",
+    "837e4b25-d70b-48d8-aaad-9622ad93e154",
+    "Ryan Pancoast",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 1, 1).with_ability(
         AbilityDef::activated(
             "{3}, {T}: Create a token that's a copy of this creature.",
@@ -4372,19 +4334,19 @@ pub(in crate::card::sets) static MYR_PROPAGATOR: CardRecord = CardRecord::new(
 // SOM 183 — Myr Reservoir
 // Audit: unsupported — Restricted mana cannot currently combine “cast a Myr spell” with “activate an ability of a Myr source” in one produced-mana permission while retaining the source subtype check.
 pub(in crate::card::sets) static MYR_RESERVOIR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("60678391-44b2-4525-94dc-ffc5a433b79b"),
-    "Myr Reservoir",
-    crate::card::CardArt::new("60678391-44b2-4525-94dc-ffc5a433b79b", "Jung Park"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Myr Reservoir",
+    "60678391-44b2-4525-94dc-ffc5a433b79b",
+    "Jung Park",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 184 — Necrogen Censer
 pub(in crate::card::sets) static NECROGEN_CENSER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4f707119-ede9-4697-b723-d6cea96e6f2b"),
-    "Necrogen Censer",
-    crate::card::CardArt::new("4f707119-ede9-4697-b723-d6cea96e6f2b", "Pete Venters"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Necrogen Censer",
+    "4f707119-ede9-4697-b723-d6cea96e6f2b",
+    "Pete Venters",
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with two charge counters on it.",
@@ -4417,10 +4379,10 @@ pub(in crate::card::sets) static NECROGEN_CENSER: CardRecord = CardRecord::new(
 
 // SOM 185 — Necropede
 pub(in crate::card::sets) static NECROPEDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8d2e522b-e6f8-4fae-8c08-ce2bb8bed04f"),
-    "Necropede",
-    crate::card::CardArt::new("8d2e522b-e6f8-4fae-8c08-ce2bb8bed04f", "Nic Klein"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Necropede",
+    "8d2e522b-e6f8-4fae-8c08-ce2bb8bed04f",
+    "Nic Klein",
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Insect"], 1, 1)
         .with_abilities(&[
             abilities::infect(),
@@ -4443,13 +4405,10 @@ pub(in crate::card::sets) static NECROPEDE: CardRecord = CardRecord::new(
 
 // SOM 186 — Neurok Replica
 pub(in crate::card::sets) static NEUROK_REPLICA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e32d5a8-0916-4728-9cb2-3903262bf873"),
-    "Neurok Replica",
-    crate::card::CardArt::new(
-        "4e32d5a8-0916-4728-9cb2-3903262bf873",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Neurok Replica",
+    "4e32d5a8-0916-4728-9cb2-3903262bf873",
+    "Zoltan Boros & Gabor Szikszai",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Wizard"], 1, 4).with_ability(
         AbilityDef::activated_with_targets(
             "{1}{U}, Sacrifice this creature: Return target creature to its owner's hand.",
@@ -4471,10 +4430,10 @@ pub(in crate::card::sets) static NEUROK_REPLICA: CardRecord = CardRecord::new(
 
 // SOM 187 — Nihil Spellbomb
 pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("603d217b-6375-46fc-992a-8dbd779da1e5"),
-    "Nihil Spellbomb",
-    crate::card::CardArt::new("603d217b-6375-46fc-992a-8dbd779da1e5", "Franz Vohwinkel"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Nihil Spellbomb",
+    "603d217b-6375-46fc-992a-8dbd779da1e5",
+    "Franz Vohwinkel",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Exile target player's graveyard.",
@@ -4513,19 +4472,19 @@ pub(in crate::card::sets) static NIHIL_SPELLBOMB: CardRecord = CardRecord::new(
 // SOM 188 — Nim Deathmantle
 // Audit: unsupported — Needs a death trigger that remembers another nontoken creature card, accepts an optional {4}, returns that exact card, and attaches the source Equipment to it within the same continuation.
 pub(in crate::card::sets) static NIM_DEATHMANTLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f638bd96-8424-461f-87bf-4b7a7153fd35"),
-    "Nim Deathmantle",
-    crate::card::CardArt::new("f638bd96-8424-461f-87bf-4b7a7153fd35", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Nim Deathmantle",
+    "f638bd96-8424-461f-87bf-4b7a7153fd35",
+    "Karl Kopinski",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 189 — Origin Spellbomb
 pub(in crate::card::sets) static ORIGIN_SPELLBOMB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("91e7faa4-160e-47d9-a9a1-5928d9d2b5e4"),
-    "Origin Spellbomb",
-    crate::card::CardArt::new("91e7faa4-160e-47d9-a9a1-5928d9d2b5e4", "Franz Vohwinkel"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Origin Spellbomb",
+    "91e7faa4-160e-47d9-a9a1-5928d9d2b5e4",
+    "Franz Vohwinkel",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated(
             "{1}, {T}, Sacrifice this artifact: Create a 1/1 colorless Myr artifact creature token.",
@@ -4556,10 +4515,10 @@ pub(in crate::card::sets) static ORIGIN_SPELLBOMB: CardRecord = CardRecord::new(
 
 // SOM 190 — Palladium Myr
 pub(in crate::card::sets) static PALLADIUM_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("18c016ad-bb82-4944-8c06-ab180b808041"),
-    "Palladium Myr",
-    crate::card::CardArt::new("18c016ad-bb82-4944-8c06-ab180b808041", "Alan Pollack"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Palladium Myr",
+    "18c016ad-bb82-4944-8c06-ab180b808041",
+    "Alan Pollack",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 2, 2).with_ability(
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}.",
@@ -4571,10 +4530,10 @@ pub(in crate::card::sets) static PALLADIUM_MYR: CardRecord = CardRecord::new(
 
 // SOM 191 — Panic Spellbomb
 pub(in crate::card::sets) static PANIC_SPELLBOMB: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e9a29832-8630-498a-9ac3-bc709a6dc95d"),
-    "Panic Spellbomb",
-    crate::card::CardArt::new("e9a29832-8630-498a-9ac3-bc709a6dc95d", "Franz Vohwinkel"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Panic Spellbomb",
+    "e9a29832-8630-498a-9ac3-bc709a6dc95d",
+    "Franz Vohwinkel",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this artifact: Target creature can't block this turn.",
@@ -4608,10 +4567,10 @@ pub(in crate::card::sets) static PANIC_SPELLBOMB: CardRecord = CardRecord::new(
 
 // SOM 192 — Perilous Myr
 pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4b942605-eb4a-452d-9b07-a4f912f96958"),
-    "Perilous Myr",
-    crate::card::CardArt::new("4b942605-eb4a-452d-9b07-a4f912f96958", "Jason Felix"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Perilous Myr",
+    "4b942605-eb4a-452d-9b07-a4f912f96958",
+    "Jason Felix",
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Myr"], 1, 1).with_ability(
         abilities::dies_trigger_with_targets(
             "When this creature dies, it deals 2 damage to any target.",
@@ -4629,60 +4588,93 @@ pub(in crate::card::sets) static PERILOUS_MYR: CardRecord = CardRecord::new(
 // SOM 193 — Platinum Emperion
 // Audit: unsupported — Applied rules can stop life gain, but there is no rule that prevents every increase, loss, payment, exchange, and set operation from changing your life total.
 pub(in crate::card::sets) static PLATINUM_EMPERION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b7919474-db2b-441a-b368-9e430ddf70ab"),
-    "Platinum Emperion",
-    crate::card::CardArt::new("b7919474-db2b-441a-b368-9e430ddf70ab", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Platinum Emperion",
+    "b7919474-db2b-441a-b368-9e430ddf70ab",
+    "Chris Rahn",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 194 — Precursor Golem
 // Audit: unsupported — Needs a target-lock trigger that copies an instant or sorcery once for every other targetable Golem, retargeting each copy to exactly one different Golem.
 pub(in crate::card::sets) static PRECURSOR_GOLEM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1c4625ad-1c83-4095-a5a2-0fc9fa4dd5f2"),
-    "Precursor Golem",
-    crate::card::CardArt::new("1c4625ad-1c83-4095-a5a2-0fc9fa4dd5f2", "Chippy"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Precursor Golem",
+    "1c4625ad-1c83-4095-a5a2-0fc9fa4dd5f2",
+    "Chippy",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 195 — Prototype Portal
 // Audit: unsupported — Needs linked face-up imprint from hand, a value that reads the linked card's mana value as an activation cost, and token-copy creation from that linked exiled card.
 pub(in crate::card::sets) static PROTOTYPE_PORTAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("10b264aa-303b-4982-a653-9573d39c28de"),
-    "Prototype Portal",
-    crate::card::CardArt::new("10b264aa-303b-4982-a653-9573d39c28de", "Drew Baker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Prototype Portal",
+    "10b264aa-303b-4982-a653-9573d39c28de",
+    "Drew Baker",
     crate::card::CardRules::unsupported(),
 );
 
-// SOM 196 — Ratchet Bomb (reprint)
+// SOM 196 — Ratchet Bomb
+pub(in crate::card::sets) static RATCHET_BOMB: CardRecord = CardRecord::new(
+    CardSet::ScarsOfMirrodin,
+    "Ratchet Bomb",
+    "c3db7645-20b9-4884-849b-a7d4b6d3aa00",
+    "Austin Hsu",
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::activated(
+            "{T}: Put a charge counter on this artifact.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::named("charge"),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated(
+            "{T}, Sacrifice this artifact: Destroy each nonland permanent with mana value equal to the number of charge counters on this artifact.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            EffectDef::Destroy {
+                object: EffectRecipientDef::matching_objects(ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                        // The Bomb is already gone by the time this resolves,
+                        // so the count comes from last-known information.
+                        ObjectPredicateDef::ManaValueEqualTo(ValueDef::CountersOnSource(
+                            CounterKind::named("charge"),
+                        )),
+                    ]), &[ZoneKind::Battlefield], PlayerRelation::Any),
+                can_regenerate: true,
+                then: None,
+            },
+        ),
+    ]),
+);
 
 // SOM 197 — Razorfield Thresher
 pub(in crate::card::sets) static RAZORFIELD_THRESHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b0a74203-d342-489d-a584-bca78ef3331d"),
-    "Razorfield Thresher",
-    crate::card::CardArt::new("b0a74203-d342-489d-a584-bca78ef3331d", "Karl Kopinski"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Razorfield Thresher",
+    "b0a74203-d342-489d-a584-bca78ef3331d",
+    "Karl Kopinski",
     CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct"], 6, 4),
 );
 
 // SOM 198 — Rust Tick
 // Audit: unsupported — Source-tapped duration exists, but the tap-or-untap resolution must add the untap prohibition only if its tap branch actually changed the targeted artifact from untapped to tapped.
 pub(in crate::card::sets) static RUST_TICK: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1d638741-1cfe-4496-8d7e-7849a82dcb24"),
-    "Rust Tick",
-    crate::card::CardArt::new("1d638741-1cfe-4496-8d7e-7849a82dcb24", "Carl Critchlow"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Rust Tick",
+    "1d638741-1cfe-4496-8d7e-7849a82dcb24",
+    "Carl Critchlow",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 199 — Rusted Relic
 pub(in crate::card::sets) static RUSTED_RELIC: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d2419dd5-9c31-42b2-b6ef-bbdf11c558ac"),
-    "Rusted Relic",
-    crate::card::CardArt::new("d2419dd5-9c31-42b2-b6ef-bbdf11c558ac", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Rusted Relic",
+    "d2419dd5-9c31-42b2-b6ef-bbdf11c558ac",
+    "Igor Kieryluk",
     CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::static_ability(
         "Metalcraft — This artifact is a 5/5 Golem artifact creature as long as you control three or more artifacts.",
         EffectDef::IfCondition {
@@ -4704,10 +4696,10 @@ pub(in crate::card::sets) static RUSTED_RELIC: CardRecord = CardRecord::new(
 
 // SOM 200 — Saberclaw Golem
 pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6656b6d1-1c92-4da4-8afb-36f11610b0b4"),
-    "Saberclaw Golem",
-    crate::card::CardArt::new("6656b6d1-1c92-4da4-8afb-36f11610b0b4", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Saberclaw Golem",
+    "6656b6d1-1c92-4da4-8afb-36f11610b0b4",
+    "Mike Bierek",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 4, 2).with_ability(
         AbilityDef::activated(
             "{R}: This creature gains first strike until end of turn.",
@@ -4724,34 +4716,26 @@ pub(in crate::card::sets) static SABERCLAW_GOLEM: CardRecord = CardRecord::new(
 // SOM 201 — Semblance Anvil
 // Audit: unsupported — Needs linked face-up imprint from hand and a spell-cost reduction whose predicate is computed from every card type of the linked exiled card.
 pub(in crate::card::sets) static SEMBLANCE_ANVIL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0380b46d-1660-404d-9d11-705d8809ea46"),
-    "Semblance Anvil",
-    crate::card::CardArt::new("0380b46d-1660-404d-9d11-705d8809ea46", "Dan Murayama Scott"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Semblance Anvil",
+    "0380b46d-1660-404d-9d11-705d8809ea46",
+    "Dan Murayama Scott",
     crate::card::CardRules::unsupported(),
 );
 
-// SOM 202 — Silver Myr
-pub(in crate::card::sets) static SILVER_MYR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b83a73a2-fedb-40bd-8e29-82a7abd6f211"),
-    "Silver Myr",
-    crate::card::CardArt::new("fdd60081-3942-4e0e-aacd-a0c121bb08c7", "Alan Pollack"),
-    crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_artifact_creature(mana_cost!("{2}"), &["Myr"], 1, 1).with_ability(
-        AbilityDef::activated_mana(
-            "{T}: Add {U}.",
-            &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
-        ),
-    ),
+// SOM 202 — Silver Myr (reprint)
+const SILVER_MYR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::mirrodin::SILVER_MYR,
+    "fdd60081-3942-4e0e-aacd-a0c121bb08c7",
+    "Alan Pollack",
 );
 
 // SOM 203 — Snapsail Glider
 pub(in crate::card::sets) static SNAPSAIL_GLIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fc98e0af-b18e-4172-bc56-19952ebd0303"),
-    "Snapsail Glider",
-    crate::card::CardArt::new("fc98e0af-b18e-4172-bc56-19952ebd0303", "Efrem Palacios"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Snapsail Glider",
+    "fc98e0af-b18e-4172-bc56-19952ebd0303",
+    "Efrem Palacios",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Construct"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Metalcraft — This creature has flying as long as you control three or more artifacts.",
@@ -4768,10 +4752,10 @@ pub(in crate::card::sets) static SNAPSAIL_GLIDER: CardRecord = CardRecord::new(
 
 // SOM 204 — Soliton
 pub(in crate::card::sets) static SOLITON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7b608c28-18cc-47d6-861e-2fd783aa3ade"),
-    "Soliton",
-    crate::card::CardArt::new("7b608c28-18cc-47d6-861e-2fd783aa3ade", "Jason Felix"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Soliton",
+    "7b608c28-18cc-47d6-861e-2fd783aa3ade",
+    "Jason Felix",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Construct"], 3, 4).with_ability(
         AbilityDef::activated(
             "{U}: Untap this creature.",
@@ -4785,10 +4769,10 @@ pub(in crate::card::sets) static SOLITON: CardRecord = CardRecord::new(
 
 // SOM 205 — Steel Hellkite
 pub(in crate::card::sets) static STEEL_HELLKITE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b268cd3b-af91-4c22-ac73-347babb69200"),
-    "Steel Hellkite",
-    crate::card::CardArt::new("b126ee24-9597-4ee8-9c4d-5caed585424a", "James Paick"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Steel Hellkite",
+    "b126ee24-9597-4ee8-9c4d-5caed585424a",
+    "James Paick",
     CardRules::new_artifact_creature(mana_cost!("{6}"), &["Dragon"], 5, 5).with_abilities(&[
         abilities::flying(),
         AbilityDef::activated(
@@ -4829,19 +4813,19 @@ pub(in crate::card::sets) static STEEL_HELLKITE: CardRecord = CardRecord::new(
 // SOM 206 — Strata Scythe
 // Audit: unsupported — Needs linked basic-land imprint from the library and a dynamic count of all battlefield lands sharing the linked card's name to scale the attached creature's power and toughness.
 pub(in crate::card::sets) static STRATA_SCYTHE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8f2cb906-3748-4675-89b3-bde2f9a8444a"),
-    "Strata Scythe",
-    crate::card::CardArt::new("8f2cb906-3748-4675-89b3-bde2f9a8444a", "Scott Chou"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Strata Scythe",
+    "8f2cb906-3748-4675-89b3-bde2f9a8444a",
+    "Scott Chou",
     crate::card::CardRules::unsupported(),
 );
 
 // SOM 207 — Strider Harness
 pub(in crate::card::sets) static STRIDER_HARNESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9d7b9e54-b3ef-44fb-9240-0d67c1c4b7f6"),
-    "Strider Harness",
-    crate::card::CardArt::new("9d7b9e54-b3ef-44fb-9240-0d67c1c4b7f6", "Matt Stewart"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Strider Harness",
+    "9d7b9e54-b3ef-44fb-9240-0d67c1c4b7f6",
+    "Matt Stewart",
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -4867,10 +4851,10 @@ pub(in crate::card::sets) static STRIDER_HARNESS: CardRecord = CardRecord::new(
 
 // SOM 208 — Sword of Body and Mind
 pub(in crate::card::sets) static SWORD_OF_BODY_AND_MIND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5bc29686-a89c-46e6-b32c-a70733aba389"),
-    "Sword of Body and Mind",
-    crate::card::CardArt::new("03cc5caf-b2d7-4211-a1a4-f0ad6e70e3f4", "Chris Rahn"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sword of Body and Mind",
+    "03cc5caf-b2d7-4211-a1a4-f0ad6e70e3f4",
+    "Chris Rahn",
     CardRules::new_artifact(mana_cost!("{3}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -4917,10 +4901,10 @@ pub(in crate::card::sets) static SWORD_OF_BODY_AND_MIND: CardRecord = CardRecord
 
 // SOM 209 — Sylvok Lifestaff
 pub(in crate::card::sets) static SYLVOK_LIFESTAFF: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("abbc5ae5-8e8b-4106-844f-2d49d2a51ed9"),
-    "Sylvok Lifestaff",
-    crate::card::CardArt::new("abbc5ae5-8e8b-4106-844f-2d49d2a51ed9", "Martina Pilcerova"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sylvok Lifestaff",
+    "abbc5ae5-8e8b-4106-844f-2d49d2a51ed9",
+    "Martina Pilcerova",
     CardRules::new_artifact(mana_cost!("{1}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -4952,13 +4936,10 @@ pub(in crate::card::sets) static SYLVOK_LIFESTAFF: CardRecord = CardRecord::new(
 
 // SOM 210 — Sylvok Replica
 pub(in crate::card::sets) static SYLVOK_REPLICA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7caa3ce3-15a9-40ca-ad45-baff0f276483"),
-    "Sylvok Replica",
-    crate::card::CardArt::new(
-        "7caa3ce3-15a9-40ca-ad45-baff0f276483",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Sylvok Replica",
+    "7caa3ce3-15a9-40ca-ad45-baff0f276483",
+    "Zoltan Boros & Gabor Szikszai",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Shaman"], 1, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{G}, Sacrifice this creature: Destroy target artifact or enchantment.",
@@ -4983,13 +4964,10 @@ pub(in crate::card::sets) static SYLVOK_REPLICA: CardRecord = CardRecord::new(
 
 // SOM 211 — Throne of Geth
 pub(in crate::card::sets) static THRONE_OF_GETH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("583d7386-3eb5-4f1d-8da9-f00e020a307b"),
-    "Throne of Geth",
-    crate::card::CardArt::new(
-        "583d7386-3eb5-4f1d-8da9-f00e020a307b",
-        "Jana Schirmer & Johannes Voss",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Throne of Geth",
+    "583d7386-3eb5-4f1d-8da9-f00e020a307b",
+    "Jana Schirmer & Johannes Voss",
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
         "{T}, Sacrifice an artifact: Proliferate.",
         &[
@@ -5005,10 +4983,10 @@ pub(in crate::card::sets) static THRONE_OF_GETH: CardRecord = CardRecord::new(
 
 // SOM 212 — Tower of Calamities
 pub(in crate::card::sets) static TOWER_OF_CALAMITIES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8a77391b-5727-4408-bb50-970f7a13a83c"),
-    "Tower of Calamities",
-    crate::card::CardArt::new("8a77391b-5727-4408-bb50-970f7a13a83c", "Aleksi Briclot"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tower of Calamities",
+    "8a77391b-5727-4408-bb50-970f7a13a83c",
+    "Aleksi Briclot",
     CardRules::new_artifact(mana_cost!("{4}")).with_ability(AbilityDef::activated_with_targets(
         "{8}, {T}: This artifact deals 12 damage to target creature.",
         &[
@@ -5027,10 +5005,10 @@ pub(in crate::card::sets) static TOWER_OF_CALAMITIES: CardRecord = CardRecord::n
 
 // SOM 213 — Trigon of Corruption
 pub(in crate::card::sets) static TRIGON_OF_CORRUPTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("26e215e0-836c-4b37-8f9a-9093a535bff1"),
-    "Trigon of Corruption",
-    crate::card::CardArt::new("26e215e0-836c-4b37-8f9a-9093a535bff1", "Nils Hamm"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Trigon of Corruption",
+    "26e215e0-836c-4b37-8f9a-9093a535bff1",
+    "Nils Hamm",
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5077,10 +5055,10 @@ pub(in crate::card::sets) static TRIGON_OF_CORRUPTION: CardRecord = CardRecord::
 
 // SOM 214 — Trigon of Infestation
 pub(in crate::card::sets) static TRIGON_OF_INFESTATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("be409a80-846c-4883-8aee-c2e3f973fc0f"),
-    "Trigon of Infestation",
-    crate::card::CardArt::new("be409a80-846c-4883-8aee-c2e3f973fc0f", "Dave Allsop"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Trigon of Infestation",
+    "be409a80-846c-4883-8aee-c2e3f973fc0f",
+    "Dave Allsop",
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5126,10 +5104,10 @@ pub(in crate::card::sets) static TRIGON_OF_INFESTATION: CardRecord = CardRecord:
 
 // SOM 215 — Trigon of Mending
 pub(in crate::card::sets) static TRIGON_OF_MENDING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("241142e0-3a79-4bce-8535-18ae7e392f5e"),
-    "Trigon of Mending",
-    crate::card::CardArt::new("241142e0-3a79-4bce-8535-18ae7e392f5e", "Igor Kieryluk"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Trigon of Mending",
+    "241142e0-3a79-4bce-8535-18ae7e392f5e",
+    "Igor Kieryluk",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5175,10 +5153,10 @@ pub(in crate::card::sets) static TRIGON_OF_MENDING: CardRecord = CardRecord::new
 
 // SOM 216 — Trigon of Rage
 pub(in crate::card::sets) static TRIGON_OF_RAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1135f3b7-8c6b-47ff-b895-b7127836b0bf"),
-    "Trigon of Rage",
-    crate::card::CardArt::new("1135f3b7-8c6b-47ff-b895-b7127836b0bf", "Marc Simonetti"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Trigon of Rage",
+    "1135f3b7-8c6b-47ff-b895-b7127836b0bf",
+    "Marc Simonetti",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5228,10 +5206,10 @@ pub(in crate::card::sets) static TRIGON_OF_RAGE: CardRecord = CardRecord::new(
 
 // SOM 217 — Trigon of Thought
 pub(in crate::card::sets) static TRIGON_OF_THOUGHT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f8da37ba-52e3-417e-8d7b-6c3e060552a4"),
-    "Trigon of Thought",
-    crate::card::CardArt::new("f8da37ba-52e3-417e-8d7b-6c3e060552a4", "Mike Bierek"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Trigon of Thought",
+    "f8da37ba-52e3-417e-8d7b-6c3e060552a4",
+    "Mike Bierek",
     CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5274,10 +5252,10 @@ pub(in crate::card::sets) static TRIGON_OF_THOUGHT: CardRecord = CardRecord::new
 
 // SOM 218 — Tumble Magnet
 pub(in crate::card::sets) static TUMBLE_MAGNET: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e6478389-15be-405f-b755-108c942d72ec"),
-    "Tumble Magnet",
-    crate::card::CardArt::new("e6478389-15be-405f-b755-108c942d72ec", "Drew Baker"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Tumble Magnet",
+    "e6478389-15be-405f-b755-108c942d72ec",
+    "Drew Baker",
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::as_enters(
             "This artifact enters with three charge counters on it.",
@@ -5312,10 +5290,10 @@ pub(in crate::card::sets) static TUMBLE_MAGNET: CardRecord = CardRecord::new(
 
 // SOM 219 — Vector Asp
 pub(in crate::card::sets) static VECTOR_ASP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7ffe86e1-ad47-4ccb-aa55-119dc681d370"),
-    "Vector Asp",
-    crate::card::CardArt::new("7ffe86e1-ad47-4ccb-aa55-119dc681d370", "Erica Yang"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vector Asp",
+    "7ffe86e1-ad47-4ccb-aa55-119dc681d370",
+    "Erica Yang",
     CardRules::new_artifact_creature(mana_cost!("{1}"), &["Phyrexian", "Snake"], 1, 1)
         .with_ability(AbilityDef::activated(
             "{B}: This creature gains infect until end of turn.",
@@ -5330,13 +5308,10 @@ pub(in crate::card::sets) static VECTOR_ASP: CardRecord = CardRecord::new(
 
 // SOM 220 — Venser's Journal
 pub(in crate::card::sets) static VENSER_S_JOURNAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2763643d-5b53-49d0-bc3d-5626bf00f3f4"),
-    "Venser's Journal",
-    crate::card::CardArt::new(
-        "2763643d-5b53-49d0-bc3d-5626bf00f3f4",
-        "Christopher Moeller",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Venser's Journal",
+    "2763643d-5b53-49d0-bc3d-5626bf00f3f4",
+    "Christopher Moeller",
     CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
         AbilityDef::static_ability(
             "You have no maximum hand size.",
@@ -5366,13 +5341,10 @@ pub(in crate::card::sets) static VENSER_S_JOURNAL: CardRecord = CardRecord::new(
 
 // SOM 221 — Vulshok Replica
 pub(in crate::card::sets) static VULSHOK_REPLICA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("32885a6c-b293-405f-9f2e-9e0dd7d1cb8c"),
-    "Vulshok Replica",
-    crate::card::CardArt::new(
-        "32885a6c-b293-405f-9f2e-9e0dd7d1cb8c",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Vulshok Replica",
+    "32885a6c-b293-405f-9f2e-9e0dd7d1cb8c",
+    "Zoltan Boros & Gabor Szikszai",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Berserker"], 3, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{1}{R}, Sacrifice this creature: It deals 3 damage to target player or planeswalker.",
@@ -5393,10 +5365,10 @@ pub(in crate::card::sets) static VULSHOK_REPLICA: CardRecord = CardRecord::new(
 
 // SOM 222 — Wall of Tanglecord
 pub(in crate::card::sets) static WALL_OF_TANGLECORD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("792e2aed-ce6e-4fa1-a31c-a4574e5cf1f5"),
-    "Wall of Tanglecord",
-    crate::card::CardArt::new("792e2aed-ce6e-4fa1-a31c-a4574e5cf1f5", "Vance Kovacs"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Wall of Tanglecord",
+    "792e2aed-ce6e-4fa1-a31c-a4574e5cf1f5",
+    "Vance Kovacs",
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Wall"], 0, 6).with_abilities(&[
         abilities::defender(),
         AbilityDef::activated(
@@ -5413,10 +5385,10 @@ pub(in crate::card::sets) static WALL_OF_TANGLECORD: CardRecord = CardRecord::ne
 
 // SOM 223 — Wurmcoil Engine
 pub(in crate::card::sets) static WURMCOIL_ENGINE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b9bdfa34-f608-40d4-b634-b260ad620f18"),
-    "Wurmcoil Engine",
-    crate::card::CardArt::new("33672990-4860-4aa6-ac1b-f9da66f5da59", "Raymond Swanland"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Wurmcoil Engine",
+    "33672990-4860-4aa6-ac1b-f9da66f5da59",
+    "Raymond Swanland",
     CardRules::new_artifact_creature(mana_cost!("{6}"), &["Phyrexian", "Wurm"], 6, 6)
         .with_abilities(&[
             abilities::deathtouch(),
@@ -5444,11 +5416,11 @@ pub(in crate::card::sets) static WURMCOIL_ENGINE: CardRecord = CardRecord::new(
 );
 
 // SOM 224 — Blackcleave Cliffs
-pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new_with_legacy_id(
-    2131,
-    "Blackcleave Cliffs",
-    CardArt::new("3d71be5f-0fd7-4a88-8041-f4d6bc4cc9ac", "Dave Kendall"),
+pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::new(
     CardSet::ScarsOfMirrodin,
+    "Blackcleave Cliffs",
+    "3d71be5f-0fd7-4a88-8041-f4d6bc4cc9ac",
+    "Dave Kendall",
     CardRules::new_land(&[]).with_abilities(&[
         FAST_LAND_ENTERS,
         AbilityDef::activated_mana(
@@ -5463,14 +5435,11 @@ pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::ne
 );
 
 // SOM 225 — Copperline Gorge
-pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_with_legacy_id(
-    2132,
-    "Copperline Gorge",
-    CardArt::new(
-        "28f1d784-f286-418d-a712-bc07ad10d4a2",
-        "Zoltan Boros & Gabor Szikszai",
-    ),
+pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new(
     CardSet::ScarsOfMirrodin,
+    "Copperline Gorge",
+    "28f1d784-f286-418d-a712-bc07ad10d4a2",
+    "Zoltan Boros & Gabor Szikszai",
     CardRules::new_land(&[]).with_abilities(&[
         FAST_LAND_ENTERS,
         AbilityDef::activated_mana(
@@ -5485,11 +5454,11 @@ pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_
 );
 
 // SOM 226 — Darkslick Shores
-pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_with_legacy_id(
-    2133,
-    "Darkslick Shores",
-    CardArt::new("e530388b-eb19-4211-abd8-8a4c3c38c3af", "Charles Urbach"),
+pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new(
     CardSet::ScarsOfMirrodin,
+    "Darkslick Shores",
+    "e530388b-eb19-4211-abd8-8a4c3c38c3af",
+    "Charles Urbach",
     CardRules::new_land(&[]).with_abilities(&[
         FAST_LAND_ENTERS,
         AbilityDef::activated_mana(
@@ -5505,10 +5474,10 @@ pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_
 
 // SOM 227 — Glimmerpost
 pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8b63efb6-249c-4f57-9af1-baffe938520c"),
-    "Glimmerpost",
-    crate::card::CardArt::new("8b63efb6-249c-4f57-9af1-baffe938520c", "Matt Cavotta"),
     crate::card::CardSet::ScarsOfMirrodin,
+    "Glimmerpost",
+    "8b63efb6-249c-4f57-9af1-baffe938520c",
+    "Matt Cavotta",
     CardRules::new_land(&["Locus"]).with_abilities(&[
         abilities::enters_trigger(
             "When this land enters, you gain 1 life for each Locus on the battlefield.",
@@ -5530,11 +5499,11 @@ pub(in crate::card::sets) static GLIMMERPOST: CardRecord = CardRecord::new(
 );
 
 // SOM 228 — Razorverge Thicket
-pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new_with_legacy_id(
-    2134,
-    "Razorverge Thicket",
-    CardArt::new("345e053a-3178-485c-8602-1624bbf2f064", "James Paick"),
+pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::new(
     CardSet::ScarsOfMirrodin,
+    "Razorverge Thicket",
+    "345e053a-3178-485c-8602-1624bbf2f064",
+    "James Paick",
     CardRules::new_land(&[]).with_abilities(&[
         FAST_LAND_ENTERS,
         AbilityDef::activated_mana(
@@ -5549,11 +5518,11 @@ pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::ne
 );
 
 // SOM 229 — Seachrome Coast
-pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_with_legacy_id(
-    2135,
-    "Seachrome Coast",
-    CardArt::new("99939b90-e88c-4c2f-ba78-56d455611703", "Lars Grant-West"),
+pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new(
     CardSet::ScarsOfMirrodin,
+    "Seachrome Coast",
+    "99939b90-e88c-4c2f-ba78-56d455611703",
+    "Lars Grant-West",
     CardRules::new_land(&[]).with_abilities(&[
         FAST_LAND_ENTERS,
         AbilityDef::activated_mana(
@@ -5568,44 +5537,159 @@ pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_w
 );
 
 // SOM 230 — Plains (reprint)
+const PLAINS_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::PLAINS,
+    "a410e95b-afd0-4ac4-beb5-96163b411fe2",
+    "James Paick",
+);
 
 // SOM 231 — Plains (alternate printing)
+const PLAINS_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::PLAINS,
+    1,
+    "440680d3-1eea-442a-b58e-96db09bc279e",
+    "James Paick",
+);
 
 // SOM 232 — Plains (alternate printing)
+const PLAINS_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::PLAINS,
+    2,
+    "4315d5ea-eb76-4378-a3da-5d5cdad809b8",
+    "James Paick",
+);
 
 // SOM 233 — Plains (alternate printing)
+const PLAINS_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::PLAINS,
+    3,
+    "e4f48ac3-f0cb-4e5c-8ea6-e423aa92ce11",
+    "James Paick",
+);
 
 // SOM 234 — Island (reprint)
+const ISLAND_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::ISLAND,
+    "d2748f53-0d81-4656-8e4b-5f0128215879",
+    "Jung Park",
+);
 
 // SOM 235 — Island (alternate printing)
+const ISLAND_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::ISLAND,
+    1,
+    "b6549f83-e3da-4df2-a1e4-f01773607d56",
+    "Jung Park",
+);
 
 // SOM 236 — Island (alternate printing)
+const ISLAND_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::ISLAND,
+    2,
+    "27e879fe-a79b-427f-9901-c989fa73e234",
+    "Jung Park",
+);
 
 // SOM 237 — Island (alternate printing)
+const ISLAND_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::ISLAND,
+    3,
+    "e160cb2a-1d8a-47cb-b136-8347eaab67d7",
+    "Jung Park",
+);
 
 // SOM 238 — Swamp (reprint)
+const SWAMP_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::SWAMP,
+    "42a1264f-bda3-45ac-b959-463c6e532fd3",
+    "Lars Grant-West",
+);
 
 // SOM 239 — Swamp (alternate printing)
+const SWAMP_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::SWAMP,
+    1,
+    "fd8897b2-0ef2-4812-9772-cd99c5ce5586",
+    "Lars Grant-West",
+);
 
 // SOM 240 — Swamp (alternate printing)
+const SWAMP_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::SWAMP,
+    2,
+    "239511f0-34b7-423c-b53b-1327d6b7da28",
+    "Lars Grant-West",
+);
 
 // SOM 241 — Swamp (alternate printing)
+const SWAMP_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::SWAMP,
+    3,
+    "aeccfafb-0b3e-4e22-8c5c-6d5a0f5896c5",
+    "Lars Grant-West",
+);
 
 // SOM 242 — Mountain (reprint)
+const MOUNTAIN_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::MOUNTAIN,
+    "6df2f49d-097e-4685-8ddb-69c55f07f60c",
+    "Tomasz Jedruszek",
+);
 
 // SOM 243 — Mountain (alternate printing)
+const MOUNTAIN_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::MOUNTAIN,
+    1,
+    "a68647c2-a343-4314-8abb-00e7de6ecf0d",
+    "Tomasz Jedruszek",
+);
 
 // SOM 244 — Mountain (alternate printing)
+const MOUNTAIN_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::MOUNTAIN,
+    2,
+    "46bad0eb-807f-4391-82c9-edc9d14070f5",
+    "Tomasz Jedruszek",
+);
 
 // SOM 245 — Mountain (alternate printing)
+const MOUNTAIN_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::MOUNTAIN,
+    3,
+    "58dcb5ef-85f8-48ce-be39-d0a4eb8345af",
+    "Tomasz Jedruszek",
+);
 
 // SOM 246 — Forest (reprint)
+const FOREST_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1993::alpha::FOREST,
+    "34cc6a36-b551-40c7-b081-53beffbca235",
+    "Mark Tedin",
+);
 
 // SOM 247 — Forest (alternate printing)
+const FOREST_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::FOREST,
+    1,
+    "46c661a6-322a-4460-9d75-a2c95d1a49de",
+    "Mark Tedin",
+);
 
 // SOM 248 — Forest (alternate printing)
+const FOREST_ALTERNATE_2: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::FOREST,
+    2,
+    "798b4f41-1e33-4da6-99c1-de926297c073",
+    "Mark Tedin",
+);
 
 // SOM 249 — Forest (alternate printing)
+const FOREST_ALTERNATE_3: PrintingRecord = PrintingRecord::alternate(
+    &catalog_lea::FOREST,
+    3,
+    "edb2bf35-efe6-4ad4-bf6e-55848ba71dfe",
+    "Mark Tedin",
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ABUNA_ACOLYTE,
@@ -5653,7 +5737,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &STEADY_PROGRESS,
     &STOIC_REBUTTAL,
     &THRUMMINGBIRD,
-    &TRINKET_MAGE,
     &TURN_ASIDE,
     &TWISTED_IMAGE,
     &VAULT_SKYWARD,
@@ -5690,7 +5773,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ASSAULT_STROBE,
     &BARRAGE_OGRE,
     &BLADE_TRIBE_BERSERKERS,
-    &BLOODSHOT_TRAINEE,
     &CEREBRAL_ERUPTION,
     &EMBERSMITH,
     &FERROVORE,
@@ -5710,6 +5792,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SCORIA_ELEMENTAL,
     &SPIKESHOT_ELDER,
     &TUNNEL_IGNUS,
+    &TURN_TO_SLAG,
     &VULSHOK_HEARTSTOKER,
     &ACID_WEB_SPIDER,
     &ALPHA_TYRRANAX,
@@ -5739,6 +5822,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WING_PUNCTURE,
     &WITHSTAND_DEATH,
     &VENSER_THE_SOJOURNER,
+    &ACCORDERS_SHIELD,
     &ARGENTUM_ARMOR,
     &AURIOK_REPLICA,
     &BARBED_BATTLEGEAR,
@@ -5748,7 +5832,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CLONE_SHELL,
     &CONTAGION_CLASP,
     &CONTAGION_ENGINE,
-    &COPPER_MYR,
     &CORPSE_CUR,
     &CULLING_DAIS,
     &DARKSTEEL_AXE,
@@ -5759,7 +5842,6 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ETCHED_CHAMPION,
     &FLIGHT_SPELLBOMB,
     &GLINT_HAWK_IDOL,
-    &GOLD_MYR,
     &GOLDEN_URN,
     &GOLEM_ARTISAN,
     &GOLEM_FOUNDRY,
@@ -5770,15 +5852,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &HORIZON_SPELLBOMB,
     &ICHORCLAW_MYR,
     &INFILTRATION_LENS,
-    &IRON_MYR,
     &KULDOTHA_FORGEMASTER,
-    &LEADEN_MYR,
     &LIQUIMETAL_COATING,
     &LIVEWIRE_LASH,
     &LUX_CANNON,
     &MEMNITE,
     &MIMIC_VAT,
-    &MINDSLAVER,
     &MOLTEN_TAIL_MASTICORE,
     &MORIOK_REPLICA,
     &MOX_OPAL,
@@ -5798,12 +5877,12 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &PLATINUM_EMPERION,
     &PRECURSOR_GOLEM,
     &PROTOTYPE_PORTAL,
+    &RATCHET_BOMB,
     &RAZORFIELD_THRESHER,
     &RUST_TICK,
     &RUSTED_RELIC,
     &SABERCLAW_GOLEM,
     &SEMBLANCE_ANVIL,
-    &SILVER_MYR,
     &SNAPSAIL_GLIDER,
     &SOLITON,
     &STEEL_HELLKITE,
@@ -5834,30 +5913,35 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
 ];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::reprint(&crate::card::sets::y1999::mercadian_masques::ARREST), // SOM 2
-    PrintingRecord::reprint(&crate::card::sets::y2013::magic_2014::DISPERSE),      // SOM 31
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SHATTER),            // SOM 103
-    PrintingRecord::reprint(&crate::card::sets::y2012::magic_2013::TURN_TO_SLAG),  // SOM 106
-    PrintingRecord::reprint(&crate::card::sets::y2013::magic_2014::ACCORDERS_SHIELD), // SOM 136
-    PrintingRecord::reprint(&crate::card::sets::y2013::magic_2014::RATCHET_BOMB),  // SOM 196
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::PLAINS),             // SOM 230
-    PrintingRecord::alternate(&catalog_lea::PLAINS, 1),                            // SOM 231
-    PrintingRecord::alternate(&catalog_lea::PLAINS, 2),                            // SOM 232
-    PrintingRecord::alternate(&catalog_lea::PLAINS, 3),                            // SOM 233
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::ISLAND),             // SOM 234
-    PrintingRecord::alternate(&catalog_lea::ISLAND, 1),                            // SOM 235
-    PrintingRecord::alternate(&catalog_lea::ISLAND, 2),                            // SOM 236
-    PrintingRecord::alternate(&catalog_lea::ISLAND, 3),                            // SOM 237
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::SWAMP),              // SOM 238
-    PrintingRecord::alternate(&catalog_lea::SWAMP, 1),                             // SOM 239
-    PrintingRecord::alternate(&catalog_lea::SWAMP, 2),                             // SOM 240
-    PrintingRecord::alternate(&catalog_lea::SWAMP, 3),                             // SOM 241
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::MOUNTAIN),           // SOM 242
-    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 1),                          // SOM 243
-    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 2),                          // SOM 244
-    PrintingRecord::alternate(&catalog_lea::MOUNTAIN, 3),                          // SOM 245
-    PrintingRecord::reprint(&crate::card::sets::y1993::alpha::FOREST),             // SOM 246
-    PrintingRecord::alternate(&catalog_lea::FOREST, 1),                            // SOM 247
-    PrintingRecord::alternate(&catalog_lea::FOREST, 2),                            // SOM 248
-    PrintingRecord::alternate(&catalog_lea::FOREST, 3),                            // SOM 249
+    ARREST_REPRINT,
+    DISPERSE_REPRINT,
+    TRINKET_MAGE_REPRINT,
+    BLOODSHOT_TRAINEE_REPRINT,
+    SHATTER_REPRINT,
+    COPPER_MYR_REPRINT,
+    GOLD_MYR_REPRINT,
+    IRON_MYR_REPRINT,
+    LEADEN_MYR_REPRINT,
+    MINDSLAVER_REPRINT,
+    SILVER_MYR_REPRINT,
+    PLAINS_REPRINT,
+    PLAINS_ALTERNATE_1,
+    PLAINS_ALTERNATE_2,
+    PLAINS_ALTERNATE_3,
+    ISLAND_REPRINT,
+    ISLAND_ALTERNATE_1,
+    ISLAND_ALTERNATE_2,
+    ISLAND_ALTERNATE_3,
+    SWAMP_REPRINT,
+    SWAMP_ALTERNATE_1,
+    SWAMP_ALTERNATE_2,
+    SWAMP_ALTERNATE_3,
+    MOUNTAIN_REPRINT,
+    MOUNTAIN_ALTERNATE_1,
+    MOUNTAIN_ALTERNATE_2,
+    MOUNTAIN_ALTERNATE_3,
+    FOREST_REPRINT,
+    FOREST_ALTERNATE_1,
+    FOREST_ALTERNATE_2,
+    FOREST_ALTERNATE_3,
 ];

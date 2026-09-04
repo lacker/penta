@@ -1,15 +1,15 @@
 //! Theros Beyond Death cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AlternativeCastManaCostDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardChoiceSourceDef,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    RandomizeObjectOrderDef, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AlternativeCastManaCostDef, AppliedEffectDef, AppliedRuleDef, CardChoiceSourceDef, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef,
+    EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, RandomizeObjectOrderDef,
+    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -34,24 +34,21 @@ pub(in crate::card::sets) const fn escape(
     )
 }
 
-// THB 20 — Heliod's Pilgrim
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7ea54b97-9182-4d46-9d70-3cc7f9b18ada"),
-    "Heliod's Pilgrim",
-    crate::card::CardArt::new("cafce2f5-f4f4-465b-96dc-bcdd29d4e4bb", "Micah Epstein"),
-    crate::card::CardSet::TherosBeyondDeath,
-    crate::card::CardRules::unsupported(),
+// THB 20 — Heliod's Pilgrim (reprint)
+const HELIOD_S_PILGRIM_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2014::magic_2015::HELIOD_S_PILGRIM,
+    "cafce2f5-f4f4-465b-96dc-bcdd29d4e4bb",
+    "Micah Epstein",
 );
 
 // THB 73 — Thassa's Oracle
 const ORACLE_TOP: Binding = Binding!("oracle_top");
 const ORACLE_REST: Binding = Binding!("oracle_rest");
-pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_with_legacy_id(
-    2212,
-    "Thassa's Oracle",
-    CardArt::new("13d7e352-4d01-4947-a76f-f8a01dd876cc", "Jesper Ejsing"),
+pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new(
     CardSet::TherosBeyondDeath,
+    "Thassa's Oracle",
+    "726e8b29-13e9-4138-b6a9-d2a0d8188d1c",
+    "Jesper Ejsing",
     // Two blue mana and an empty library is the whole card. The looking is
     // what it does when the library is not empty yet.
     CardRules::new_creature(mana_cost!("{U}{U}"), &["Merfolk", "Wizard"], 1, 3).with_ability(
@@ -124,52 +121,49 @@ pub(in crate::card::sets) static THASSAS_ORACLE: CardRecord = CardRecord::new_wi
     ),
 );
 
-// THB 99 — Gray Merchant of Asphodel
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static GRAY_MERCHANT_OF_ASPHODEL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b06078ce-f534-4e16-9a70-d51620a33eb2"),
-    "Gray Merchant of Asphodel",
-    crate::card::CardArt::new("7c1a7dd8-8034-4f59-a351-33666b26ff5a", "Scott Murphy"),
-    crate::card::CardSet::TherosBeyondDeath,
-    crate::card::CardRules::unsupported(),
+// THB 99 — Gray Merchant of Asphodel (reprint)
+const GRAY_MERCHANT_OF_ASPHODEL_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2013::theros::GRAY_MERCHANT_OF_ASPHODEL,
+    "7c1a7dd8-8034-4f59-a351-33666b26ff5a",
+    "Scott Murphy",
 );
 
 // THB 105 — Mire Triton
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRE_TRITON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3f8427d3-4d9e-48c9-838b-239fd1357d95"),
-    "Mire Triton",
-    crate::card::CardArt::new("3f8427d3-4d9e-48c9-838b-239fd1357d95", "Seb McKinnon"),
     crate::card::CardSet::TherosBeyondDeath,
+    "Mire Triton",
+    "3f8427d3-4d9e-48c9-838b-239fd1357d95",
+    "Seb McKinnon",
     crate::card::CardRules::unsupported(),
 );
 
 // THB 120 — Underworld Charger
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERWORLD_CHARGER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9"),
-    "Underworld Charger",
-    crate::card::CardArt::new("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9", "Johann Bodin"),
     crate::card::CardSet::TherosBeyondDeath,
+    "Underworld Charger",
+    "f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9",
+    "Johann Bodin",
     crate::card::CardRules::unsupported(),
 );
 
 // THB 128 — Blood Aspirant
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_ASPIRANT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8d4f3fa3-ba1f-48dc-a56b-738936f1bf86"),
-    "Blood Aspirant",
-    crate::card::CardArt::new("8d4f3fa3-ba1f-48dc-a56b-738936f1bf86", "Tyler Walpole"),
     crate::card::CardSet::TherosBeyondDeath,
+    "Blood Aspirant",
+    "8d4f3fa3-ba1f-48dc-a56b-738936f1bf86",
+    "Tyler Walpole",
     crate::card::CardRules::unsupported(),
 );
 
 // THB 161 — Underworld Breach
-pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new_with_legacy_id(
-    2271,
-    "Underworld Breach",
-    CardArt::new("0e51d796-7279-4c06-87f0-37adbdaa41df", "Lie Setiawan"),
+pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new(
     CardSet::TherosBeyondDeath,
+    "Underworld Breach",
+    "0e51d796-7279-4c06-87f0-37adbdaa41df",
+    "Lie Setiawan",
     // Two mana that turns a graveyard into a hand for one turn, which is as
     // long as anything playing it needs.
     CardRules::new_enchantment(mana_cost!("{1}{R}")).with_abilities(&[
@@ -205,19 +199,19 @@ pub(in crate::card::sets) static UNDERWORLD_BREACH: CardRecord = CardRecord::new
 // THB 163 — Underworld Rage-Hound
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERWORLD_RAGE_HOUND: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a04eef82-fd53-41f4-9c7e-28b9ac039032"),
-    "Underworld Rage-Hound",
-    crate::card::CardArt::new("a04eef82-fd53-41f4-9c7e-28b9ac039032", "Tyler Walpole"),
     crate::card::CardSet::TherosBeyondDeath,
+    "Underworld Rage-Hound",
+    "a04eef82-fd53-41f4-9c7e-28b9ac039032",
+    "Tyler Walpole",
     crate::card::CardRules::unsupported(),
 );
 
 // THB 229 — Uro, Titan of Nature's Wrath
 pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d"),
-    "Uro, Titan of Nature's Wrath",
-    CardArt::new("a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d", "Vincent Proce"),
     CardSet::TherosBeyondDeath,
+    "Uro, Titan of Nature's Wrath",
+    "a0b6a71e-56cb-4d25-8f2b-7a4f1b60900d",
+    "Vincent Proce",
     // Three mana for a ramp spell that gains three and draws, and the same
     // card again later as a 6/6 that does it every attack.
     CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Elder", "Giant"], 6, 6)
@@ -290,10 +284,10 @@ pub(in crate::card::sets) static URO_TITAN_OF_NATURE_S_WRATH: CardRecord = CardR
 
 // THB 237 — Soul-Guide Lantern
 pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7c850b94-75c9-4457-8b5e-1193352d6fcb"),
-    "Soul-Guide Lantern",
-    crate::card::CardArt::new("7c850b94-75c9-4457-8b5e-1193352d6fcb", "Cliff Childs"),
     crate::card::CardSet::TherosBeyondDeath,
+    "Soul-Guide Lantern",
+    "7c850b94-75c9-4457-8b5e-1193352d6fcb",
+    "Cliff Childs",
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         abilities::enters_trigger_with_targets(
             "When this artifact enters, exile target card from a graveyard.",
@@ -348,9 +342,7 @@ pub(in crate::card::sets) static SOUL_GUIDE_LANTERN: CardRecord = CardRecord::ne
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &HELIOD_S_PILGRIM,
     &THASSAS_ORACLE,
-    &GRAY_MERCHANT_OF_ASPHODEL,
     &MIRE_TRITON,
     &UNDERWORLD_CHARGER,
     &BLOOD_ASPIRANT,
@@ -360,4 +352,5 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SOUL_GUIDE_LANTERN,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =
+    &[HELIOD_S_PILGRIM_REPRINT, GRAY_MERCHANT_OF_ASPHODEL_REPRINT];

@@ -1,6 +1,6 @@
 //! Innistrad: Midnight Hunt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
@@ -10,11 +10,11 @@ use crate::{TargetIndex, mana_cost};
 
 // MID 1 — Adeline, Resplendent Cathar
 pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2280,
-        "Adeline, Resplendent Cathar",
-        CardArt::new("18092f68-b96e-4084-9eba-b240d2195d81", "Bryan Sola"),
+    CardRecord::new(
         CardSet::InnistradMidnightHunt,
+    "Adeline, Resplendent Cathar",
+    "18092f68-b96e-4084-9eba-b240d2195d81",
+    "Bryan Sola",
         // Three mana that attacks for four the turn after it lands and for more
         // every turn after that, because each token it makes makes it bigger.
         CardRules::new_creature(mana_cost!("{1}{W}{W}"), &["Human", "Knight"], 0, 4)
@@ -63,11 +63,11 @@ pub(in crate::card::sets) static ADELINE_RESPLENDENT_CATHAR: CardRecord =
     );
 
 // MID 10 — Cathar Commando
-pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_with_legacy_id(
-    2273,
-    "Cathar Commando",
-    CardArt::new("98cbc1c2-b76e-4da3-aa43-00e10b2ce532", "Evyn Fong"),
+pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new(
     CardSet::InnistradMidnightHunt,
+    "Cathar Commando",
+    "98cbc1c2-b76e-4da3-aa43-00e10b2ce532",
+    "Evyn Fong",
     // Flash is what makes the two halves one card: it can be held up as
     // removal and cashed in as a 3/1 when nothing needs killing.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 3, 1).with_abilities(&[
@@ -92,29 +92,29 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
 // MID 24 — Homestead Courage
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("73a9c49f-fcd3-4572-bac7-6eb06fdc0815"),
-    "Homestead Courage",
-    crate::card::CardArt::new("73a9c49f-fcd3-4572-bac7-6eb06fdc0815", "Colin Boyer"),
     crate::card::CardSet::InnistradMidnightHunt,
+    "Homestead Courage",
+    "73a9c49f-fcd3-4572-bac7-6eb06fdc0815",
+    "Colin Boyer",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 32 — Search Party Captain
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEARCH_PARTY_CAPTAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964"),
-    "Search Party Captain",
-    crate::card::CardArt::new("cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964", "Mike Bierek"),
     crate::card::CardSet::InnistradMidnightHunt,
+    "Search Party Captain",
+    "cb9006c1-2e6f-4bca-a1c4-3cf2a8b6e964",
+    "Mike Bierek",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 44 — Consider
 pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0b3f40a0-5f58-4157-aed9-b1a52e922c3c"),
-    "Consider",
-    CardArt::new("a211d505-4d40-4914-a9da-220770d6ddbc", "Zezhou Chen"),
     CardSet::InnistradMidnightHunt,
+    "Consider",
+    "a211d505-4d40-4914-a9da-220770d6ddbc",
+    "Zezhou Chen",
     // One mana to see two cards deep and choose which of them the deck is
     // better off having in the graveyard.
     CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell(
@@ -133,29 +133,29 @@ pub(in crate::card::sets) static CONSIDER: CardRecord = CardRecord::new(
 // MID 96 — Diregraf Horde
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("153be768-ddad-44f2-bcdd-c40353c807d7"),
-    "Diregraf Horde",
-    crate::card::CardArt::new("153be768-ddad-44f2-bcdd-c40353c807d7", "Alex Negrea"),
     crate::card::CardSet::InnistradMidnightHunt,
+    "Diregraf Horde",
+    "153be768-ddad-44f2-bcdd-c40353c807d7",
+    "Alex Negrea",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 100 — Ecstatic Awakener // Awoken Demon
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),
-    "Ecstatic Awakener",
-    crate::card::CardArt::new("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9", "Tuan Duong Chu"),
     crate::card::CardSet::InnistradMidnightHunt,
+    "Ecstatic Awakener",
+    "bbdad18e-e262-41f9-b252-1cbdcdd1b5f9",
+    "Tuan Duong Chu",
     crate::card::CardRules::unsupported(),
 );
 
 // MID 107 — Infernal Grasp
 pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("17824929-f131-4b8d-addb-66c25323155e"),
-    "Infernal Grasp",
-    CardArt::new("17824929-f131-4b8d-addb-66c25323155e", "Naomi Baker"),
     CardSet::InnistradMidnightHunt,
+    "Infernal Grasp",
+    "17824929-f131-4b8d-addb-66c25323155e",
+    "Naomi Baker",
     // Two mana, no restriction on what it answers, and the two life is the
     // whole of the price.
     CardRules::new_instant(mana_cost!("{1}{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -183,10 +183,10 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
 // MID 128 — Ardent Elementalist
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARDENT_ELEMENTALIST: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f58592f7-1df5-428d-9dde-e6acd9a5d1d5"),
-    "Ardent Elementalist",
-    crate::card::CardArt::new("f58592f7-1df5-428d-9dde-e6acd9a5d1d5", "Miguel Mercado"),
     crate::card::CardSet::InnistradMidnightHunt,
+    "Ardent Elementalist",
+    "f58592f7-1df5-428d-9dde-e6acd9a5d1d5",
+    "Miguel Mercado",
     crate::card::CardRules::unsupported(),
 );
 

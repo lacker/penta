@@ -1,13 +1,12 @@
 //! Streets of New Capenna Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    tokens,
+    AbilityCostDef, AbilityDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::mana_cost;
@@ -22,10 +21,10 @@ static CONVERTER_RETURNS_THE_CARD: EffectDef = EffectDef::MoveToZone {
 };
 
 pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("187b6719-e5ed-4615-a00b-3313ceca055b"),
-    "Currency Converter",
-    CardArt::new("187b6719-e5ed-4615-a00b-3313ceca055b", "Sean Murray"),
     CardSet::StreetsOfNewCapennaCommander,
+    "Currency Converter",
+    "187b6719-e5ed-4615-a00b-3313ceca055b",
+    "Sean Murray",
     // One mana for a bank: every card you throw away is held rather than
     // spent, and later it comes back out as a Treasure or a body.
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[

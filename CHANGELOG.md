@@ -25,6 +25,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Card rules stay with their debut set while artwork can follow the chosen
+  format.** Every cataloged reprint now carries its exact Scryfall printing and
+  artist independently of the canonical definition. Browser games offer debut
+  artwork or the earliest artwork-bearing printing in the selected format,
+  preserve that presentation choice in local and hosted replays, and fall back
+  to debut artwork for cubes or missing metadata. Catalog JSON adds an optional
+  `art` object to each printing; the additive field does not change protocol 29
+  or replay version 2. Card declarations now carry that exact debut UUID and
+  artist directly; historical numeric IDs are isolated in a compatibility
+  table rather than embedded in declarations.
+
 - **A clause that exiles several cards at once is one exile event.** Moving a
   set of cards out of a graveyard, library, or hand into exile now publishes a
   single "one or more cards are put into exile" event rather than one per
@@ -132,6 +143,17 @@ distinguishes snapshots of the covered source and build inputs.
   two lands in front of it, the castable card was not castable at all. An
   unusable card now drops only its own permission, and the group is spent only
   when a spell is actually cast off it.
+
+- **Canonical card definitions now live in their debut English-language paper
+  sets.** The catalog moved definitions that had been authored under later
+  reprints back to their first English paper sets while retaining the later
+  appearances as reprints and preserving established definition IDs. This
+  makes set-origin predicates used by cards such as Golgothian Sylex and City
+  in a Bottle observe the actual debut set. The 1994 Arena, Sewers of Estark,
+  and Nalathni Dragon promos now use their physical PHPR and PDRC sets; Old
+  School legality admits those exact identities without also admitting later
+  cards from the same promo products. Protocol 29 is unchanged because this is
+  a catalog-data correction and the set-slug vocabulary is additive.
 
 - **Expressive Iteration empties a short library in the printed order.** All
   three of its moves hung off the second question, so a library holding one

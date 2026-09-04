@@ -5,9 +5,9 @@ use super::{
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityEffectDef, AbilityTargetDef, AbilityTargetPredicate,
     ActivatedAbilityDef, AdditionalCostDef, AlternateSpellKind, AlternativeCastKindDef,
-    AlternativeCostDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
-    CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId, CardSet,
-    CardStructure, CardType, ChoiceVisibilityDef, ChooseDef, DamageEventMatcherDef,
+    AlternativeCostDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
+    CardArtPreference, CardDefinition, CardEffectStatus, CardPart, CardPrinting, CardPrintingId,
+    CardSet, CardStructure, CardType, ChoiceVisibilityDef, ChooseDef, DamageEventMatcherDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, DoubleFacedKind,
     EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaCost, ModeDef, ModeSetDef,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,

@@ -44,9 +44,15 @@ const SAFE_AFTER_DECLINE = {
   result: null,
 };
 
+const constructorArgs = [];
+
 class TestWebGame {
   state = structuredClone(SAFE_BEFORE_DRAW);
   opponentDeciding = false;
+
+  constructor(...args) {
+    constructorArgs.push(args);
+  }
 
   act() {
     this.state = structuredClone(PRIVATE_MIRACLE_WINDOW);
@@ -109,6 +115,7 @@ function assertCredentialsRedacted(record) {
 }
 
 test("polling and reconnect cannot see an external opponent's private Miracle window", async () => {
+  constructorArgs.length = 0;
   const storage = new MemoryStorage();
   const room = new GameRoom(durableState(storage));
   const started = await (
@@ -120,11 +127,13 @@ test("polling and reconnect cannot see an external opponent's private Miracle wi
           botPolicy: "external",
           humanFirst: true,
           seed: 7,
+          artPreference: "format-matching",
         },
       }),
     )
   ).json();
   const safeState = structuredClone(started.state);
+  assert.equal(constructorArgs.at(-1)[6], "format-matching");
   assert.equal(safeState.moveClock.seat, "human");
 
   const commandResponse = await (
@@ -160,6 +169,8 @@ test("polling and reconnect cannot see an external opponent's private Miracle wi
   const restartedPoll = await (
     await restarted.fetch(request("state", { token: started.humanToken }))
   ).json();
+  assert.equal(constructorArgs.length, 2, "the restarted room rebuilt its engine");
+  assert.equal(constructorArgs.at(-1)[6], "format-matching");
   assert.deepEqual(restartedPoll, safeState);
 
   const connection = await restarted.fetch(

@@ -7,4 +7,4 @@ pub(super) mod journey_into_nyx;
 pub(super) mod khans_of_tarkir;
 pub(super) mod magic_2015;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

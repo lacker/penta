@@ -1,45 +1,39 @@
 //! ECL card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryScalarChoiceDef, CardArt,
-    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaTypeDef, ObjectPredicateDef,
-    ReplacementChoiceDef, ReplacementEffectDef, TriggerEventDef, abilities,
+    AbilityDef, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryScalarChoiceDef, CardRules,
+    CardSet, EffectDef, EffectRecipientDef, ManaTypeDef, ObjectPredicateDef, ReplacementChoiceDef,
+    ReplacementEffectDef, TriggerEventDef, abilities,
 };
 use crate::mana_cost;
 
 // ECL 128 — Brambleback Brute
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5ebb8365-c6e1-46e8-a242-6aa27b21e68a"),
-    "Brambleback Brute",
-    crate::card::CardArt::new("5ebb8365-c6e1-46e8-a242-6aa27b21e68a", "Aaron Miller"),
     crate::card::CardSet::LorwynEclipsed,
+    "Brambleback Brute",
+    "5ebb8365-c6e1-46e8-a242-6aa27b21e68a",
+    "Aaron Miller",
     crate::card::CardRules::unsupported(),
 );
 
 // ECL 181 — Lys Alana Informant
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LYS_ALANA_INFORMANT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a79649c4-559e-4306-a102-5fd8750629c7"),
-    "Lys Alana Informant",
-    crate::card::CardArt::new(
-        "a79649c4-559e-4306-a102-5fd8750629c7",
-        "Sidharth Chaturvedi",
-    ),
     crate::card::CardSet::LorwynEclipsed,
+    "Lys Alana Informant",
+    "a79649c4-559e-4306-a102-5fd8750629c7",
+    "Sidharth Chaturvedi",
     crate::card::CardRules::unsupported(),
 );
 
 // ECL 194 — Shimmerwilds Growth
 pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c122719c-f0d1-4170-a0d1-d62172df1d21"),
-    "Shimmerwilds Growth",
-    CardArt::new(
-        "c122719c-f0d1-4170-a0d1-d62172df1d21",
-        "Jorge Jacinto",
-    ),
     CardSet::LorwynEclipsed,
+    "Shimmerwilds Growth",
+    "c122719c-f0d1-4170-a0d1-d62172df1d21",
+    "Jorge Jacinto",
     CardRules::new_enchantment(mana_cost!("{1}{G}"))
         .with_subtypes(&["Aura"])
         .with_abilities(&[
@@ -71,10 +65,10 @@ pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::n
 // ECL 251 — Wary Farmer
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("22d20c0d-176d-49c9-aa0b-2c5778548cc5"),
-    "Wary Farmer",
-    crate::card::CardArt::new("22d20c0d-176d-49c9-aa0b-2c5778548cc5", "Ron Spears"),
     crate::card::CardSet::LorwynEclipsed,
+    "Wary Farmer",
+    "22d20c0d-176d-49c9-aa0b-2c5778548cc5",
+    "Ron Spears",
     crate::card::CardRules::unsupported(),
 );
 

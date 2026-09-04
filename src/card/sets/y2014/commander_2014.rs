@@ -10,11 +10,11 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // C14 5 — Containment Priest
-pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new_with_legacy_id(
-    2156,
-    "Containment Priest",
-    CardArt::new("c2c794b9-09da-49be-b258-b0e21f1663e3", "John Stanko"),
+pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::new(
     CardSet::Commander2014,
+    "Containment Priest",
+    "c2c794b9-09da-49be-b258-b0e21f1663e3",
+    "John Stanko",
     // Flash is half the card: it is held up like a counterspell and answers
     // the reanimation on the stack rather than the creature on the board.
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Cleric"], 2, 2).with_abilities(&[
@@ -39,11 +39,11 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
 
 // C14 50 — Titania, Protector of Argoth
 pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
-    CardRecord::new_with_legacy_id(
-        2296,
-        "Titania, Protector of Argoth",
-        CardArt::new("224d904a-5972-4152-878a-9a922e7a55b6", "Magali Villeneuve"),
+    CardRecord::new(
         CardSet::Commander2014,
+    "Titania, Protector of Argoth",
+    "224d904a-5972-4152-878a-9a922e7a55b6",
+    "Magali Villeneuve",
         // Five mana that gives a land back on the way in and then turns every
         // fetchland the deck was already playing into five power.
         CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Elemental"], 5, 3)

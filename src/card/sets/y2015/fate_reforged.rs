@@ -1,8 +1,8 @@
 //! FRF card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef,
+    AbilityDef, AppliedEffectDef, CardRules, CardSet, CardType, ComparisonDef,
     ConditionalStaticEffectDef, EffectDef, EffectRecipientDef, KeywordAbility, ObjectPredicateDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetFilterDef, StaticApplyDef, abilities,
 };
@@ -11,10 +11,10 @@ use crate::mana_cost;
 // FRF 72 — Gurmag Angler
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GURMAG_ANGLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9"),
-    "Gurmag Angler",
-    crate::card::CardArt::new("c60a8cf1-a8c7-4f45-bbd3-188fab2652f9", "YW Tang"),
     crate::card::CardSet::FateReforged,
+    "Gurmag Angler",
+    "c60a8cf1-a8c7-4f45-bbd3-188fab2652f9",
+    "YW Tang",
     crate::card::CardRules::unsupported(),
 );
 
@@ -40,10 +40,10 @@ const fn soulflayer_ability(keyword: KeywordAbility, ability: &'static AbilityDe
 }
 
 pub(in crate::card::sets) static SOULFLAYER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5084c8ff-1296-4d8e-bd06-93b1a3401661"),
-    "Soulflayer",
-    CardArt::new("5084c8ff-1296-4d8e-bd06-93b1a3401661", "Seb McKinnon"),
     CardSet::FateReforged,
+    "Soulflayer",
+    "5084c8ff-1296-4d8e-bd06-93b1a3401661",
+    "Seb McKinnon",
     CardRules::new_creature(mana_cost!("{4}{B}{B}"), &["Demon"], 4, 4).with_abilities(&[
         abilities::delve(),
         AbilityDef::static_ability(

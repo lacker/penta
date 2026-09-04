@@ -1,4 +1,5 @@
 export type CardArtMode = "off" | "cropped" | "full";
+export type CardArtPreference = "debut" | "format-matching";
 
 const scryfallIdPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

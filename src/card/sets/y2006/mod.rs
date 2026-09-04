@@ -5,4 +5,4 @@ pub(super) mod dissension;
 pub(super) mod guildpact;
 pub(super) mod time_spiral;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

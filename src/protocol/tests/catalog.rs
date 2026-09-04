@@ -288,6 +288,10 @@ fn catalog_json_is_structured_and_legality_is_format_specific() {
     assert_eq!(find("Thespian's Stage")["legal"], true);
     assert_eq!(find("Darksteel Ingot")["debutSet"], "darksteel");
     assert_eq!(find("Darksteel Ingot")["legal"], true);
+    assert_eq!(find("Golgothian Sylex")["debutSet"], "antiquities");
+    assert_eq!(find("City in a Bottle")["debutSet"], "arabian-nights");
+    assert_eq!(find("Arena")["debutSet"], "harper-prism-book-promos");
+    assert_eq!(find("Nalathni Dragon")["debutSet"], "dragon-con");
     assert_eq!(find("Dryad Arbor")["debutSet"], "future-sight");
     assert_eq!(find("Dryad Arbor")["legal"], false);
     assert_eq!(find("Nylea's Presence")["debutSet"], "theros");
@@ -324,4 +328,41 @@ fn catalog_json_is_structured_and_legality_is_format_specific() {
         json!([false, false, false, false, false])
     );
     assert_eq!(juggernaut["debutSet"], "alpha");
+}
+
+#[test]
+fn catalog_printings_publish_exact_art_independently() {
+    let catalog = poc::catalog().expect("catalog builds");
+    let value = catalog_json(&catalog);
+    let sedge_troll = value["cards"]
+        .as_array()
+        .expect("cards array")
+        .iter()
+        .find(|card| card["name"] == "Sedge Troll")
+        .expect("Sedge Troll is cataloged");
+    let printings = sedge_troll["printings"]
+        .as_array()
+        .expect("printings array");
+    let art_for = |set: &str| {
+        printings
+            .iter()
+            .find(|printing| printing["set"] == set)
+            .unwrap_or_else(|| panic!("{set} printing exists"))["art"]
+            .clone()
+    };
+
+    assert_eq!(
+        art_for("alpha"),
+        json!({
+            "scryfallId": "b13bf496-f3c0-4c13-8282-e7abfab6a198",
+            "artist": "Dan Frazier",
+        }),
+    );
+    assert_eq!(
+        art_for("beta"),
+        json!({
+            "scryfallId": "02ec317b-52a6-4490-80e5-a56826b06771",
+            "artist": "Dan Frazier",
+        }),
+    );
 }

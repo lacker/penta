@@ -1,20 +1,20 @@
 //! Duskmourn: House of Horror Commander cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, ResolvedEffectDurationDef, TokenCountersDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardRules, CardSet,
+    CardType, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, TokenCountersDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // DSC 21 — Metamorphosis Fanatic
 pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("16448d95-ee21-4def-b880-26f6f159c213"),
-    "Metamorphosis Fanatic",
-    CardArt::new("16448d95-ee21-4def-b880-26f6f159c213", "Andreas Zafiratos"),
     CardSet::DuskmournHouseOfHorrorCommander,
+    "Metamorphosis Fanatic",
+    "16448d95-ee21-4def-b880-26f6f159c213",
+    "Andreas Zafiratos",
     // Six mana for a 4/4 that reanimates is a fair rate and nothing more.
     // Two mana for it off the top of your library is what puts the card in
     // a cube -- and the body it brings back is the half that wins games.
@@ -58,11 +58,11 @@ pub(in crate::card::sets) static METAMORPHOSIS_FANATIC: CardRecord = CardRecord:
 );
 
 // DSC 36 — Ursine Monstrosity
-pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new_with_legacy_id(
-    2195,
-    "Ursine Monstrosity",
-    CardArt::new("73cc6df4-3564-4ace-bf8a-eac3e62d725a", "Carlos Palma Cruchaga"),
+pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::new(
     CardSet::DuskmournHouseOfHorrorCommander,
+    "Ursine Monstrosity",
+    "73cc6df4-3564-4ace-bf8a-eac3e62d725a",
+    "Carlos Palma Cruchaga",
     // The bear feeds itself: every combat mills one more card, and every
     // card type that turns up is another point in both directions.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Bear", "Mutant"], 3, 3).with_abilities(&[
@@ -105,42 +105,32 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
     ]),
 );
 
-// DSC 88 — Growth Spiral
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static GROWTH_SPIRAL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("288ed3e9-4485-44ad-8561-efa09ed96f34"),
-    "Growth Spiral",
-    crate::card::CardArt::new("1e10e2b4-9639-41ae-8b8e-253224d3d513", "Nicholas Gregory"),
-    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
-    crate::card::CardRules::unsupported(),
+// DSC 88 — Growth Spiral (reprint)
+const GROWTH_SPIRAL_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2019::ravnica_allegiance::GROWTH_SPIRAL,
+    "1e10e2b4-9639-41ae-8b8e-253224d3d513",
+    "Nicholas Gregory",
 );
 
-// DSC 270 — Dimir Aqueduct
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static DIMIR_AQUEDUCT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("df3c3d56-8291-407e-87a1-94b7d12811fd"),
-    "Dimir Aqueduct",
-    crate::card::CardArt::new("84bf9d60-64b8-4209-acfe-e07eefc6bf1f", "John Avon"),
-    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
-    crate::card::CardRules::unsupported(),
+// DSC 270 — Dimir Aqueduct (reprint)
+const DIMIR_AQUEDUCT_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::DIMIR_AQUEDUCT,
+    "84bf9d60-64b8-4209-acfe-e07eefc6bf1f",
+    "John Avon",
 );
 
-// DSC 279 — Golgari Rot Farm
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static GOLGARI_ROT_FARM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("104364d5-ede8-4ac5-900f-19947f51bbc1"),
-    "Golgari Rot Farm",
-    crate::card::CardArt::new("725fab98-558b-4b0c-a0a4-ef0eec92eebb", "John Avon"),
-    crate::card::CardSet::DuskmournHouseOfHorrorCommander,
-    crate::card::CardRules::unsupported(),
+// DSC 279 — Golgari Rot Farm (reprint)
+const GOLGARI_ROT_FARM_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2005::ravnica_city_of_guilds::GOLGARI_ROT_FARM,
+    "725fab98-558b-4b0c-a0a4-ef0eec92eebb",
+    "John Avon",
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
-    &METAMORPHOSIS_FANATIC,
-    &URSINE_MONSTROSITY,
-    &GROWTH_SPIRAL,
-    &DIMIR_AQUEDUCT,
-    &GOLGARI_ROT_FARM,
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&METAMORPHOSIS_FANATIC, &URSINE_MONSTROSITY];
+
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    GROWTH_SPIRAL_REPRINT,
+    DIMIR_AQUEDUCT_REPRINT,
+    GOLGARI_ROT_FARM_REPRINT,
 ];
-
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

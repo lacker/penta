@@ -102,40 +102,40 @@ fn built_in_records_have_unique_identity() {
         records.len(),
         "every catalog definition name must remain globally unique",
     );
-    assert_eq!(
-        records
-            .iter()
-            .map(|record| record.identity_anchor())
-            .collect::<HashSet<_>>()
-            .len(),
-        records.len(),
-        "every catalog definition must have a unique anchor printing",
-    );
     let mut art_scryfall_ids = HashSet::new();
     for record in records {
         assert!(
-            super::is_uuid(record.identity_anchor()),
-            "{} has an invalid anchor printing UUID: {}",
-            record.name,
-            record.identity_anchor(),
-        );
-        assert!(
             super::is_uuid(record.art.scryfall_id),
-            "{} has an invalid presentation-art UUID: {}",
+            "{} has an invalid debut-art UUID: {}",
             record.name,
             record.art.scryfall_id,
         );
         assert!(
             art_scryfall_ids.insert(record.art.scryfall_id),
-            "{} reuses presentation-art printing {}",
+            "{} reuses debut-art printing {}",
             record.name,
             record.art.scryfall_id,
         );
         assert!(
             !record.art.artist.trim().is_empty(),
-            "{} has no presentation-art artist",
+            "{} has no debut-art artist",
             record.name,
         );
+    }
+    for module in SET_MODULES {
+        for printing in module.additional_printings {
+            assert!(
+                super::is_uuid(printing.art.scryfall_id),
+                "{} has an invalid additional-printing UUID: {}",
+                printing.card.name,
+                printing.art.scryfall_id,
+            );
+            assert!(
+                !printing.art.artist.trim().is_empty(),
+                "{} has no additional-printing artist",
+                printing.card.name,
+            );
+        }
     }
 }
 
@@ -370,7 +370,7 @@ fn standard_search_cards_preserve_may_reveal_and_cardinality_semantics() {
         }
     );
 
-    let seek = y2012::return_to_ravnica::SEEK_THE_HORIZON
+    let seek = y2005::saviors_of_kamigawa::SEEK_THE_HORIZON
         .rules
         .ability_clauses()[0];
     assert_eq!(
@@ -395,7 +395,9 @@ fn standard_search_cards_preserve_may_reveal_and_cardinality_semantics() {
         })
     );
 
-    let farseek = y2012::magic_2013::FARSEEK.rules.ability_clauses()[0];
+    let farseek = y2005::ravnica_city_of_guilds::FARSEEK
+        .rules
+        .ability_clauses()[0];
     assert_eq!(
         farseek.declarative_effect(),
         Some(EffectDef::SearchZone {

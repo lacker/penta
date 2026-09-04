@@ -10,21 +10,23 @@ use crate::{CardSet, Format};
 mod inline_helpers;
 
 const DECLARATION_PREFIX: &str = "pub(in crate::card::sets) static ";
+const PRINTING_DECLARATION_PREFIX: &str = "const ";
+const PRINTING_DECLARATION_SUFFIX: &str = ": PrintingRecord =";
 const HEADER_PREFIX: &str = "// ";
 const HEADER_SEPARATOR: &str = " — ";
 const REPRINT_SUFFIX: &str = " (reprint)";
 const ALTERNATE_PRINTING_SUFFIX: &str = " (alternate printing)";
 const AUDIT_PREFIX: &str = "// Audit: ";
-const ADDITIONAL_REGISTRY_PREFIX: &str =
-    "pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[";
+const ADDITIONAL_REGISTRY_DECLARATION: &str =
+    "pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] =";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct SourceEntry {
     symbol: Option<String>,
+    printing_symbol: Option<String>,
     collector_number: String,
     header_name: String,
     audit: Option<SourceAudit>,
-    printing_kind: Option<PrintingKind>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -134,7 +136,7 @@ fn validate_printed_set_source(path: &Path) -> (CardSet, usize, usize) {
         .iter()
         .filter(|entry| entry.symbol.is_some())
         .count();
-    let additional_printings = validate_additional_printings(&source, &entries, set_source, path);
+    let additional_printings = validate_additional_printings(&source, &entries, path);
     (set_source.set, definitions, additional_printings)
 }
 
@@ -184,47 +186,17 @@ fn validate_double_faced_headers(entries: &[SourceEntry], set_source: SetSource,
     }
 }
 
-fn validate_additional_printings(
-    source: &str,
-    entries: &[SourceEntry],
-    set_source: SetSource,
-    path: &Path,
-) -> usize {
+fn validate_additional_printings(source: &str, entries: &[SourceEntry], path: &Path) -> usize {
     let additional_printings = additional_printings(source, path);
-    for printing in &additional_printings {
-        assert_eq!(
-            printing.set_code,
-            set_source.code,
-            "{}: wrong set code on an ADDITIONAL_PRINTINGS entry",
-            path.display()
-        );
-    }
-    for printings in additional_printings.windows(2) {
-        assert_ne!(
-            natural_collector_cmp(printings[0].collector_number, printings[1].collector_number,),
-            Ordering::Greater,
-            "{}: additional printing {} is after {}",
-            path.display(),
-            printings[0].collector_number,
-            printings[1].collector_number
-        );
-    }
-
     let upper_printings = entries
         .iter()
-        .filter_map(|entry| {
-            entry.printing_kind.map(|kind| AdditionalPrinting {
-                kind,
-                set_code: set_source.code,
-                collector_number: &entry.collector_number,
-            })
-        })
+        .filter_map(|entry| entry.printing_symbol.as_deref())
         .collect::<Vec<_>>();
     if !upper_printings.is_empty() {
         assert_eq!(
             upper_printings,
             additional_printings,
-            "{}: upper reprint comments must exactly mirror ADDITIONAL_PRINTINGS",
+            "{}: printing constants must exactly mirror ADDITIONAL_PRINTINGS",
             path.display()
         );
     }
@@ -280,13 +252,15 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("revised.rs") => source(CardSet::Revised, "3ED"),
         Some("fallen_empires.rs") => source(CardSet::FallenEmpires, "FEM"),
         Some("legends.rs") => source(CardSet::Legends, "LEG"),
-        Some("promo_1994.rs") => source(CardSet::Promo1994, "P94"),
+        Some("dragon_con.rs") => source(CardSet::DragonCon, "PDRC"),
+        Some("harper_prism_book_promos.rs") => source(CardSet::HarperPrismBookPromos, "PHPR"),
         Some("the_dark.rs") => source(CardSet::TheDark, "DRK"),
         Some("chronicles.rs") => source(CardSet::Chronicles, "CHR"),
         Some("fourth_edition.rs") => source(CardSet::FourthEdition, "4ED"),
         Some("ice_age.rs") => source(CardSet::IceAge, "ICE"),
         Some("alliances.rs") => source(CardSet::Alliances, "ALL"),
         Some("mirage.rs") => source(CardSet::Mirage, "MIR"),
+        Some("portal.rs") => source(CardSet::Portal, "POR"),
         Some("visions.rs") => source(CardSet::Visions, "VIS"),
         Some("tempest.rs") => source(CardSet::Tempest, "TMP"),
         Some("weatherlight.rs") => source(CardSet::Weatherlight, "WTH"),
@@ -296,6 +270,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("urzas_legacy.rs") => source(CardSet::UrzasLegacy, "ULG"),
         Some("urzas_destiny.rs") => source(CardSet::UrzasDestiny, "UDS"),
         Some("mercadian_masques.rs") => source(CardSet::MercadianMasques, "MMQ"),
+        Some("starter_1999.rs") => source(CardSet::Starter1999, "S99"),
         Some("nemesis.rs") => source(CardSet::Nemesis, "NEM"),
         Some("invasion.rs") => source(CardSet::Invasion, "INV"),
         Some("planeshift.rs") => source(CardSet::Planeshift, "PLS"),
@@ -316,6 +291,7 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("new_phyrexia.rs") => source(CardSet::NewPhyrexia, "NPH"),
         Some("future_sight.rs") => source(CardSet::FutureSight, "FUT"),
         Some("lorwyn.rs") => source(CardSet::Lorwyn, "LRW"),
+        Some("morningtide.rs") => source(CardSet::Morningtide, "MOR"),
         Some("planar_chaos.rs") => source(CardSet::PlanarChaos, "PLC"),
         Some("conflux.rs") => source(CardSet::Conflux, "CON"),
         Some("zendikar.rs") => source(CardSet::Zendikar, "ZEN"),
@@ -327,11 +303,14 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("battlebond.rs") => source(CardSet::Battlebond, "BBD"),
         Some("scars_of_mirrodin.rs") => source(CardSet::ScarsOfMirrodin, "SOM"),
         Some("magic_2011.rs") => source(CardSet::Magic2011, "M11"),
+        Some("magic_2010.rs") => source(CardSet::Magic2010, "M10"),
+        Some("archenemy.rs") => source(CardSet::Archenemy, "ARC"),
         Some("rise_of_the_eldrazi.rs") => source(CardSet::RiseOfTheEldrazi, "ROE"),
         Some("innistrad.rs") => source(CardSet::Innistrad, "ISD"),
         Some("avacyn_restored.rs") => source(CardSet::AvacynRestored, "AVR"),
         Some("dark_ascension.rs") => source(CardSet::DarkAscension, "DKA"),
         Some("magic_2012.rs") => source(CardSet::Magic2012, "M12"),
+        Some("commander_2011.rs") => source(CardSet::Commander2011, "CMD"),
         Some("magic_2013.rs") => source(CardSet::Magic2013, "M13"),
         Some("return_to_ravnica.rs") => source(CardSet::ReturnToRavnica, "RTR"),
         Some("dragons_maze.rs") => source(CardSet::DragonsMaze, "DGM"),
@@ -431,10 +410,13 @@ fn set_source_for_file(path: &Path) -> SetSource {
         Some("battle_for_zendikar.rs") => source(CardSet::BattleForZendikar, "BFZ"),
         Some("magic_origins.rs") => source(CardSet::MagicOrigins, "ORI"),
         Some("shadows_over_innistrad.rs") => source(CardSet::ShadowsOverInnistrad, "SOI"),
+        Some("oath_of_the_gatewatch.rs") => source(CardSet::OathOfTheGatewatch, "OGW"),
         Some("hour_of_devastation.rs") => source(CardSet::HourOfDevastation, "HOU"),
         Some("core_set_2019.rs") => source(CardSet::CoreSet2019, "M19"),
+        Some("rivals_of_ixalan.rs") => source(CardSet::RivalsOfIxalan, "RIX"),
         Some("ravnica_allegiance.rs") => source(CardSet::RavnicaAllegiance, "RNA"),
         Some("commander_2020.rs") => source(CardSet::Commander2020, "C20"),
+        Some("core_set_2021.rs") => source(CardSet::CoreSet2021, "M21"),
         Some("magic_foundations.rs") => source(CardSet::MagicFoundations, "FDN"),
         Some("marvels_spider_man.rs") => source(CardSet::MarvelsSpiderMan, "SPM"),
         Some("avatar_the_last_airbender.rs") => source(CardSet::AvatarTheLastAirbender, "TLA"),
@@ -542,6 +524,18 @@ fn validate_source_annotations(lines: &[&str], path: &Path) {
                 index + 1
             );
         }
+        if let Some(symbol) = printing_declaration_symbol(line) {
+            let header = lines[..index]
+                .iter()
+                .rposition(|candidate| parse_header(candidate).is_some())
+                .and_then(|header_index| parse_header(lines[header_index]));
+            assert!(
+                header.is_some_and(|header| header.printing_kind.is_some()),
+                "{}:{}: expected {symbol} inside a reprint or alternate-printing header block",
+                path.display(),
+                index + 1
+            );
+        }
     }
 }
 
@@ -561,12 +555,53 @@ fn source_entry_for_header(
     );
 
     if let Some(printing_kind) = header.printing_kind {
+        let block_end = lines[index + 1..]
+            .iter()
+            .position(|line| parse_header(line).is_some())
+            .map_or(lines.len(), |offset| index + 1 + offset);
+        let printing_declarations = lines[index + 1..block_end]
+            .iter()
+            .filter_map(|line| printing_declaration_symbol(line))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            printing_declarations.len(),
+            1,
+            "{}:{}: a printing header must contain exactly one PrintingRecord constant",
+            path.display(),
+            index + 1
+        );
+        assert_eq!(
+            lines
+                .get(index + 1)
+                .and_then(|line| printing_declaration_symbol(line)),
+            printing_declarations.first().copied(),
+            "{}:{}: the PrintingRecord constant must immediately follow its header",
+            path.display(),
+            index + 1
+        );
+        let block = lines[index + 1..block_end].join("\n");
+        let expected_constructor = match printing_kind {
+            PrintingKind::Reprint => "PrintingRecord::reprint(",
+            PrintingKind::Alternate => "PrintingRecord::alternate(",
+        };
+        let other_constructor = match printing_kind {
+            PrintingKind::Reprint => "PrintingRecord::alternate(",
+            PrintingKind::Alternate => "PrintingRecord::reprint(",
+        };
+        assert!(
+            block.contains(expected_constructor) && !block.contains(other_constructor),
+            "{}:{}: printing constant uses the wrong constructor",
+            path.display(),
+            index + 1
+        );
         return SourceEntry {
             symbol: None,
+            printing_symbol: printing_declarations
+                .first()
+                .map(|symbol| (*symbol).to_string()),
             collector_number: header.collector_number.to_string(),
             header_name: header.name.to_string(),
             audit: None,
-            printing_kind: Some(printing_kind),
         };
     }
 
@@ -606,10 +641,10 @@ fn source_entry_for_header(
     });
     SourceEntry {
         symbol,
+        printing_symbol: None,
         collector_number: header.collector_number.to_string(),
         header_name: header.name.to_string(),
         audit,
-        printing_kind: None,
     }
 }
 
@@ -617,6 +652,12 @@ fn declaration_symbol(line: &str) -> Option<&str> {
     let declaration = line.strip_prefix(DECLARATION_PREFIX)?;
     declaration
         .split_once(": CardRecord")
+        .map(|(symbol, _)| symbol)
+}
+
+fn printing_declaration_symbol(line: &str) -> Option<&str> {
+    line.strip_prefix(PRINTING_DECLARATION_PREFIX)?
+        .split_once(PRINTING_DECLARATION_SUFFIX)
         .map(|(symbol, _)| symbol)
 }
 
@@ -636,32 +677,50 @@ fn validate_declaration<'a>(
                 index + 1
             )
         });
-    let identity = lines
-        .get(initializer_index + 1)
-        .map_or("", |line| line.trim());
-    assert!(
-        identity
-            .strip_suffix(',')
-            .unwrap_or(identity)
-            .replace('_', "")
-            .parse::<u64>()
-            .is_ok()
-            || identity.starts_with("PrintingAnchor::scryfall("),
-        "{}:{}: expected a legacy ID or immutable printing anchor",
-        path.display(),
-        initializer_index + 2
-    );
+    let initializer = lines[initializer_index].trim();
+    let (name_offset, scryfall_id_offset) = if initializer.contains("CardRecord::") {
+        let debut_set = lines
+            .get(initializer_index + 1)
+            .map_or("", |line| line.trim());
+        assert!(
+            debut_set.contains("CardSet::") && debut_set.ends_with(','),
+            "{}:{}: CardRecord constructors must put the debut set first",
+            path.display(),
+            initializer_index + 2,
+        );
+        (2, 3)
+    } else {
+        // Inline declaration helpers are checked at their CardRecord call site.
+        (1, 2)
+    };
     let name = lines
-        .get(initializer_index + 2)
+        .get(initializer_index + name_offset)
         .and_then(|line| line.trim().strip_prefix('"'))
         .and_then(|line| line.strip_suffix("\","))
         .unwrap_or_else(|| {
             panic!(
                 "{}:{}: expected a one-line canonical card name",
                 path.display(),
-                initializer_index + 3
+                initializer_index + name_offset + 1
             )
         });
+    let scryfall_id = lines
+        .get(initializer_index + scryfall_id_offset)
+        .and_then(|line| line.trim().strip_prefix('"'))
+        .and_then(|line| line.strip_suffix("\","))
+        .unwrap_or_else(|| {
+            panic!(
+                "{}:{}: expected a one-line debut-art Scryfall UUID",
+                path.display(),
+                initializer_index + scryfall_id_offset + 1
+            )
+        });
+    assert!(
+        super::is_uuid(scryfall_id),
+        "{}:{}: invalid debut-art Scryfall UUID: {scryfall_id}",
+        path.display(),
+        initializer_index + scryfall_id_offset + 1,
+    );
     assert!(
         header_name == name
             || header_name
@@ -753,21 +812,24 @@ fn registry_symbols<'a>(source: &'a str, path: &Path) -> Vec<&'a str> {
         .collect()
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-struct AdditionalPrinting<'a> {
-    kind: PrintingKind,
-    set_code: &'a str,
-    collector_number: &'a str,
-}
-
-fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<AdditionalPrinting<'a>> {
-    let start = source.find(ADDITIONAL_REGISTRY_PREFIX).unwrap_or_else(|| {
-        panic!(
-            "{}: ADDITIONAL_PRINTINGS registry is missing",
-            path.display()
-        )
-    });
-    let body = &source[start + ADDITIONAL_REGISTRY_PREFIX.len()..];
+fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<&'a str> {
+    let start = source
+        .find(ADDITIONAL_REGISTRY_DECLARATION)
+        .unwrap_or_else(|| {
+            panic!(
+                "{}: ADDITIONAL_PRINTINGS registry is missing",
+                path.display()
+            )
+        });
+    let body = source[start + ADDITIONAL_REGISTRY_DECLARATION.len()..]
+        .trim_start()
+        .strip_prefix("&[")
+        .unwrap_or_else(|| {
+            panic!(
+                "{}: ADDITIONAL_PRINTINGS registry is malformed",
+                path.display()
+            )
+        });
     let body = body.split_once("];").map_or_else(
         || {
             panic!(
@@ -778,64 +840,24 @@ fn additional_printings<'a>(source: &'a str, path: &Path) -> Vec<AdditionalPrint
         |(body, _)| body,
     );
 
-    body.lines()
-        .filter(|line| !line.trim().is_empty())
-        .map(|line| {
-            let entry = line.trim();
-            let (expression, comment) = entry.split_once("// ").unwrap_or_else(|| {
-                panic!(
-                    "{}: ADDITIONAL_PRINTINGS entry needs an EOL `// SET NUMBER` comment: {entry:?}",
-                    path.display()
-                )
-            });
+    body.split(',')
+        .filter(|entry| !entry.trim().is_empty())
+        .map(|entry| {
+            let symbol = entry.trim();
             assert!(
-                !comment.contains("// "),
-                "{}: malformed ADDITIONAL_PRINTINGS comment {comment:?}",
+                !symbol.contains("//"),
+                "{}: ADDITIONAL_PRINTINGS entries are printing constant names, not expressions",
                 path.display()
             );
-            let expression = expression.trim_end().strip_suffix(',').unwrap_or_else(|| {
-                panic!(
-                    "{}: ADDITIONAL_PRINTINGS expression must end in a comma: {entry:?}",
-                    path.display()
-                )
-            });
-            let kind = if expression.starts_with("PrintingRecord::reprint(") {
-                PrintingKind::Reprint
-            } else if expression.starts_with("PrintingRecord::alternate(") {
-                PrintingKind::Alternate
-            } else {
-                panic!(
-                    "{}: malformed ADDITIONAL_PRINTINGS expression {expression:?}",
-                    path.display()
-                );
-            };
             assert!(
-                expression.ends_with(')'),
-                "{}: malformed ADDITIONAL_PRINTINGS expression {expression:?}",
+                !symbol.is_empty()
+                    && symbol.bytes().all(|byte| byte.is_ascii_uppercase()
+                        || byte.is_ascii_digit()
+                        || byte == b'_'),
+                "{}: malformed ADDITIONAL_PRINTINGS constant {symbol:?}",
                 path.display()
             );
-
-            let (set_code, collector_number) = comment.split_once(' ').unwrap_or_else(|| {
-                panic!(
-                    "{}: expected exact `// SET NUMBER` comment, got {comment:?}",
-                    path.display()
-                )
-            });
-            assert!(
-                !set_code.is_empty()
-                    && set_code
-                        .bytes()
-                        .all(|byte| byte.is_ascii_uppercase() || byte.is_ascii_digit())
-                    && !collector_number.is_empty()
-                    && !collector_number.chars().any(char::is_whitespace),
-                "{}: expected exact `// SET NUMBER` comment, got {comment:?}",
-                path.display()
-            );
-            AdditionalPrinting {
-                kind,
-                set_code,
-                collector_number,
-            }
+            symbol
         })
         .collect()
 }

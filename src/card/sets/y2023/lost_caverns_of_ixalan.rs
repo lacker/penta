@@ -1,6 +1,6 @@
 //! Lost Caverns of Ixalan cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
@@ -16,11 +16,11 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // LCI 14 — Get Lost
-pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_legacy_id(
-    2294,
-    "Get Lost",
-    CardArt::new("522aa72b-2b8c-484c-872b-f082101cee35", "Eli Minaya"),
+pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new(
     CardSet::LostCavernsOfIxalan,
+    "Get Lost",
+    "522aa72b-2b8c-484c-872b-f082101cee35",
+    "Eli Minaya",
     // Two mana that answers three card types at instant speed, and the two
     // Maps are what it pays for that: real but slow ones.
     CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
@@ -58,29 +58,29 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_leg
 // LCI 24 — Miner's Guidewing
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9048cd9d-df3f-4705-a5f4-e5b09760c631"),
-    "Miner's Guidewing",
-    crate::card::CardArt::new("9048cd9d-df3f-4705-a5f4-e5b09760c631", "Allen Douglas"),
     crate::card::CardSet::LostCavernsOfIxalan,
+    "Miner's Guidewing",
+    "9048cd9d-df3f-4705-a5f4-e5b09760c631",
+    "Allen Douglas",
     crate::card::CardRules::unsupported(),
 );
 
 // LCI 30 — Petrify
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PETRIFY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bbc5f28f-6361-455f-ac82-260a70e59316"),
-    "Petrify",
-    crate::card::CardArt::new("bbc5f28f-6361-455f-ac82-260a70e59316", "Samuel Araya"),
     crate::card::CardSet::LostCavernsOfIxalan,
+    "Petrify",
+    "bbc5f28f-6361-455f-ac82-260a70e59316",
+    "Samuel Araya",
     crate::card::CardRules::unsupported(),
 );
 
 // LCI 63 — Malcolm, Alluring Scoundrel
 pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("19d6834d-afa3-4747-a62d-0654f4d9729f"),
-    "Malcolm, Alluring Scoundrel",
-    CardArt::new("19d6834d-afa3-4747-a62d-0654f4d9729f", "Fesbra"),
     CardSet::LostCavernsOfIxalan,
+    "Malcolm, Alluring Scoundrel",
+    "19d6834d-afa3-4747-a62d-0654f4d9729f",
+    "Fesbra",
     // Two mana for an evasive body that loots every time it connects, and
     // that turns the loot into a free spell once it has connected four
     // times.
@@ -143,10 +143,10 @@ pub(in crate::card::sets) static MALCOLM_ALLURING_SCOUNDREL: CardRecord = CardRe
 
 // LCI 91 — Bitter Triumph
 pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("05bdd22c-3e11-4c29-bdfa-d3dfc0e90a9f"),
-    "Bitter Triumph",
-    CardArt::new("05bdd22c-3e11-4c29-bdfa-d3dfc0e90a9f", "Donato Giancola"),
     CardSet::LostCavernsOfIxalan,
+    "Bitter Triumph",
+    "05bdd22c-3e11-4c29-bdfa-d3dfc0e90a9f",
+    "Donato Giancola",
     // Two mana for unconditional removal at instant speed, and the card or
     // the three life is the whole restriction: it answers anything, and it
     // never answers it for free.
@@ -177,11 +177,11 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
 );
 
 // LCI 102 — Deep-Cavern Bat
-pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_with_legacy_id(
-    2161,
-    "Deep-Cavern Bat",
-    CardArt::new("69c68c95-b788-43b1-9f22-1b22c5a00b25", "Campbell White"),
+pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new(
     CardSet::LostCavernsOfIxalan,
+    "Deep-Cavern Bat",
+    "69c68c95-b788-43b1-9f22-1b22c5a00b25",
+    "Campbell White",
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Bat"], 1, 1)
         .with_abilities(&[
             abilities::flying(),
@@ -246,22 +246,19 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
 // LCI 128 — Tithing Blade // Consuming Sepulcher
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dbaa9a2d-e9fd-4746-a26c-f99ae731f024"),
-    "Tithing Blade",
-    crate::card::CardArt::new("dbaa9a2d-e9fd-4746-a26c-f99ae731f024", "Michael Walsh"),
     crate::card::CardSet::LostCavernsOfIxalan,
+    "Tithing Blade",
+    "dbaa9a2d-e9fd-4746-a26c-f99ae731f024",
+    "Michael Walsh",
     crate::card::CardRules::unsupported(),
 );
 
 // LCI 156 — Inti, Seneschal of the Sun
 pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fa7a55aa-ae61-4933-b7a4-dcc55dac6fcd"),
-    "Inti, Seneschal of the Sun",
-    CardArt::new(
-        "fa7a55aa-ae61-4933-b7a4-dcc55dac6fcd",
-        "Victor Adame Minguez",
-    ),
     CardSet::LostCavernsOfIxalan,
+    "Inti, Seneschal of the Sun",
+    "fa7a55aa-ae61-4933-b7a4-dcc55dac6fcd",
+    "Victor Adame Minguez",
     // Two mana that turns every spare card into a bigger attack and a new
     // card, and the two halves feed each other: the discard he asks for is
     // the discard the second clause is watching for.
@@ -331,10 +328,10 @@ pub(in crate::card::sets) static INTI_SENESCHAL_OF_THE_SUN: CardRecord = CardRec
 
 // LCI 211 — Sentinel of the Nameless City
 pub(in crate::card::sets) static SENTINEL_OF_THE_NAMELESS_CITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("eeeffc0b-dc92-458e-ad58-86ff6077a508"),
-    "Sentinel of the Nameless City",
-    CardArt::new("eeeffc0b-dc92-458e-ad58-86ff6077a508", "Josu Hernaiz"),
     CardSet::LostCavernsOfIxalan,
+    "Sentinel of the Nameless City",
+    "eeeffc0b-dc92-458e-ad58-86ff6077a508",
+    "Josu Hernaiz",
     // A 3/4 that blocks and attacks in the same turn, and hands you a Map
     // for doing either.
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Merfolk", "Warrior", "Scout"], 3, 4)
@@ -360,10 +357,10 @@ pub(in crate::card::sets) static SENTINEL_OF_THE_NAMELESS_CITY: CardRecord = Car
 
 // LCI 335 — Tishana's Tidebinder
 pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("604e2bfc-655d-4d3e-98aa-374780ca4016"),
-    "Tishana's Tidebinder",
-    CardArt::new("604e2bfc-655d-4d3e-98aa-374780ca4016", "LeDania"),
     CardSet::LostCavernsOfIxalan,
+    "Tishana's Tidebinder",
+    "604e2bfc-655d-4d3e-98aa-374780ca4016",
+    "LeDania",
     // Three mana at instant speed for a body, an answer, and a permanent
     // that never does anything again.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Wizard"], 3, 2)
@@ -423,10 +420,10 @@ pub(in crate::card::sets) static TISHANA_S_TIDEBINDER: CardRecord = CardRecord::
 
 // LCI 367 — Preacher of the Schism
 pub(in crate::card::sets) static PREACHER_OF_THE_SCHISM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("3a0db433-7ca2-48d6-b60c-0a9a9149378a"),
-    "Preacher of the Schism",
-    CardArt::new("3a0db433-7ca2-48d6-b60c-0a9a9149378a", "Donato Giancola"),
     CardSet::LostCavernsOfIxalan,
+    "Preacher of the Schism",
+    "3a0db433-7ca2-48d6-b60c-0a9a9149378a",
+    "Donato Giancola",
     // A 2/4 deathtouch body that punishes whoever is ahead on life, and
     // draws while she is the one ahead.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Vampire", "Cleric"], 2, 4).with_abilities(&[

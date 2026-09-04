@@ -1,6 +1,6 @@
 //! Born of the Gods card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AppliedEffectDef, AppliedRuleDef, CardRules, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef,
@@ -10,10 +10,10 @@ use crate::mana_cost;
 
 // BNG 119 — Courser of Kruphix
 pub(in crate::card::sets) static COURSER_OF_KRUPHIX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("da5a807f-58e8-4d92-a61c-47bb9b28977f"),
-    "Courser of Kruphix",
-    crate::card::CardArt::new("da5a807f-58e8-4d92-a61c-47bb9b28977f", "Eric Deschamps"),
     crate::card::CardSet::BornOfTheGods,
+    "Courser of Kruphix",
+    "da5a807f-58e8-4d92-a61c-47bb9b28977f",
+    "Eric Deschamps",
     // Two toughness past what red reaches, which is most of why the body is
     // worth three mana at all.
     CardRules::new_enchantment_creature(mana_cost!("{1}{G}{G}"), &["Centaur"], 2, 4)

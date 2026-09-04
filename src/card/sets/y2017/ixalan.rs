@@ -1,10 +1,10 @@
 //! Ixalan cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, TriggerEventDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardRules, CardSet, CardType, EffectDef,
+    EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef, PlayerRefDef,
+    PlayerRelation, TriggerEventDef, ZoneKind, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -12,19 +12,19 @@ use crate::{TargetIndex, mana_cost};
 // XLN 41 — Territorial Hammerskull
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
-    "Territorial Hammerskull",
-    crate::card::CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
     crate::card::CardSet::Ixalan,
+    "Territorial Hammerskull",
+    "af5a237a-31e7-43ee-8d47-3eb12dd1a60c",
+    "Lars Grant-West",
     crate::card::CardRules::unsupported(),
 );
 
 // XLN 110 — Kitesail Freebooter
-pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new_with_legacy_id(
-    2149,
-    "Kitesail Freebooter",
-    CardArt::new("f62fd592-4910-417d-a500-e7029f3d119f", "Dan Murayama Scott"),
+pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::new(
     CardSet::Ixalan,
+    "Kitesail Freebooter",
+    "f62fd592-4910-417d-a500-e7029f3d119f",
+    "Dan Murayama Scott",
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Pirate"], 1, 2)
         .with_abilities(&[
             abilities::flying(),
@@ -76,19 +76,19 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
 // XLN 194 — Jade Guardian
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("aca83e48-6e32-477f-8714-6103e77c06df"),
-    "Jade Guardian",
-    crate::card::CardArt::new("aca83e48-6e32-477f-8714-6103e77c06df", "Chris Seaman"),
     crate::card::CardSet::Ixalan,
+    "Jade Guardian",
+    "aca83e48-6e32-477f-8714-6103e77c06df",
+    "Chris Seaman",
     crate::card::CardRules::unsupported(),
 );
 
 // XLN 248 — Sorcerous Spyglass
 pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("85506a24-8d60-475c-9f43-65994caca7d4"),
-    "Sorcerous Spyglass",
-    crate::card::CardArt::new("85506a24-8d60-475c-9f43-65994caca7d4", "Kieran Yanner"),
     crate::card::CardSet::Ixalan,
+    "Sorcerous Spyglass",
+    "85506a24-8d60-475c-9f43-65994caca7d4",
+    "Kieran Yanner",
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
         abilities::look_at_opponent_hand_then_choose_card_name_as_enters(
             "As this artifact enters, look at an opponent's hand, then choose any card name.",

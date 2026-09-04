@@ -26,6 +26,7 @@ fn reach_next_human_draw(definition: CardDefinitionId, autopass: bool) -> WebGam
         true,
         2_013,
         Some("isd-m14-standard".into()),
+        None,
     )
     .expect("the standard game starts");
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));
@@ -79,6 +80,7 @@ fn reach_external_opponent_miracle() -> WebGame {
         true,
         2_013,
         Some("isd-m14-standard".into()),
+        None,
     )
     .expect("the hosted standard game starts");
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));
@@ -136,7 +138,7 @@ fn reach_external_opponent_miracle() -> WebGame {
 
 #[allow(clippy::too_many_lines)]
 fn resolve_external_wheel(first_opponent_draw: CardDefinitionId) -> WebGame {
-    let mut game = WebGame::new("Sligh", "Goblins", "External", false, 7_777, None)
+    let mut game = WebGame::new("Sligh", "Goblins", "External", false, 7_777, None, None)
         .expect("the hosted old-school game starts");
     let keep = external_action_index(&game, |action| matches!(action, Action::KeepHand));
     game.opponent_act(keep)
@@ -371,7 +373,7 @@ fn an_opponent_wheel_is_identical_after_an_ordinary_draw_or_declined_miracle() {
 
 #[test]
 fn an_ordinary_draw_adds_no_synthetic_command_and_replays() {
-    let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4_242, None)
+    let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4_242, None, None)
         .expect("the old-school game starts");
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));
     let library_before = game.snapshot()["human"]["library"]

@@ -164,6 +164,32 @@ fn any_allowed_reprint_makes_the_canonical_card_identity_legal() {
 }
 
 #[test]
+fn old_school_promo_legality_is_identity_specific() {
+    let arena = CardDefinition::new(
+        CardDefinitionId::new(1),
+        "Arena",
+        CardSet::HarperPrismBookPromos,
+        CardRules::unsupported(),
+    );
+    let mana_crypt = CardDefinition::new(
+        CardDefinitionId::new(2),
+        "Mana Crypt",
+        CardSet::HarperPrismBookPromos,
+        CardRules::unsupported(),
+    );
+    let nalathni_dragon = CardDefinition::new(
+        CardDefinitionId::new(3),
+        "Nalathni Dragon",
+        CardSet::DragonCon,
+        CardRules::unsupported(),
+    );
+
+    assert!(Format::OldSchool9394.allows_card(&arena));
+    assert!(!Format::OldSchool9394.allows_card(&mana_crypt));
+    assert!(Format::OldSchool9394.allows_card(&nalathni_dragon));
+}
+
+#[test]
 fn premodern_takes_the_window_from_fourth_edition_through_scourge() {
     let sets = Format::Premodern
         .set_definition()

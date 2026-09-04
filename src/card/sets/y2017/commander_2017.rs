@@ -1,9 +1,9 @@
 //! Commander 2017 card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardType, CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardRules, CardSet, CardType,
+    CopyExceptionsDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectRefDef,
     PlayerRefDef, PlayerRelation, PlayerRuleDef, ResolvedEffectDurationDef,
     SpellResolutionDestinationDef, ZoneKind, ZonePlacement,
 };
@@ -11,10 +11,10 @@ use crate::{TargetIndex, mana_cost};
 
 // C17 8 — Teferi's Protection
 pub(in crate::card::sets) static TEFERIS_PROTECTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("77f130c7-0138-4a1a-9f67-62d2c302dc48"),
-    "Teferi's Protection",
-    CardArt::new("77f130c7-0138-4a1a-9f67-62d2c302dc48", "Chase Stone"),
     CardSet::Commander2017,
+    "Teferi's Protection",
+    "77f130c7-0138-4a1a-9f67-62d2c302dc48",
+    "Chase Stone",
     CardRules::new_instant(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::spell(
             "Until your next turn, your life total can't change and you gain protection from everything. All permanents you control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before you untap during your untap step.)\nExile Teferi's Protection.",
@@ -46,10 +46,10 @@ pub(in crate::card::sets) static TEFERIS_PROTECTION: CardRecord = CardRecord::ne
 
 // C17 37 — Fractured Identity
 pub(in crate::card::sets) static FRACTURED_IDENTITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b2f73f5d-1aad-48c2-9e74-5f7bdd87900f"),
-    "Fractured Identity",
-    CardArt::new("b2f73f5d-1aad-48c2-9e74-5f7bdd87900f", "Yongjae Choi"),
     CardSet::Commander2017,
+    "Fractured Identity",
+    "b2f73f5d-1aad-48c2-9e74-5f7bdd87900f",
+    "Yongjae Choi",
     // Five mana that answers anything and keeps it: what leaves their board
     // arrives on yours, which is why the card is played over the cheaper
     // exile effects beside it.

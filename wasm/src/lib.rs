@@ -10,9 +10,10 @@ mod snapshot;
 use penta::card;
 use penta::game::{DecisionKind, DecisionOrderSemantics};
 use penta::{
-    AbilityOrigin, Action, BattlefieldExit, CardCatalog, CardDefinitionId, CardInstanceId, Format,
-    Game, GameEvent, GameResult, HandcraftedPolicy, ModeId, ObjectCharacteristics, PlayOptionId,
-    PlayerId, PlayerObservation, Policy, RandomPolicy, Step, Target,
+    AbilityOrigin, Action, BattlefieldExit, CardArtPreference, CardCatalog, CardDefinitionId,
+    CardInstanceId, Format, Game, GameEvent, GameResult, HandcraftedPolicy, ModeId,
+    ObjectCharacteristics, PlayOptionId, PlayerId, PlayerObservation, Policy, RandomPolicy, Step,
+    Target,
 };
 use presentation::deck_by_name;
 use serde_json::{Value, json};
@@ -47,6 +48,21 @@ const REPLAY_VERSION: u32 = 2;
 /// any other reason, and recognised here so that the ordinary ending keeps
 /// the win-reason table's seat-aware wording rather than this bare phrase.
 const DEFAULT_TIMEOUT_REASON: &str = "ran out of time";
+
+fn parse_art_preference(value: Option<&str>) -> Result<CardArtPreference, JsValue> {
+    match value.unwrap_or("debut") {
+        "debut" => Ok(CardArtPreference::Debut),
+        "format-matching" => Ok(CardArtPreference::FormatMatching),
+        other => Err(js_error(format!("unknown card art preference {other:?}"))),
+    }
+}
+
+const fn art_preference_slug(preference: CardArtPreference) -> &'static str {
+    match preference {
+        CardArtPreference::Debut => "debut",
+        CardArtPreference::FormatMatching => "format-matching",
+    }
+}
 
 fn required_json_field<'a>(
     object: &'a serde_json::Map<String, Value>,
@@ -181,6 +197,7 @@ pub struct WebGame {
     /// attaches.
     journal: Vec<Value>,
     catalog: CardCatalog,
+    art_preference: CardArtPreference,
     human: PlayerId,
     bot: BotPolicy,
     opponent_actions: Vec<Value>,
@@ -217,15 +234,18 @@ impl WebGame {
         human_first: bool,
         seed: u32,
         format: Option<String>,
+        art_preference: Option<String>,
     ) -> Result<WebGame, JsValue> {
         let format = penta::protocol::parse_format_slug(
             format.as_deref().unwrap_or(Format::OldSchool9394.slug()),
         )
         .map_err(js_error)?;
+        let art_preference = parse_art_preference(art_preference.as_deref())?;
         // The names as asked for, before resolution: a replay hands these
         // same strings back to this same constructor.
         let replay_config = json!({
             "format": format.slug(),
+            "artPreference": art_preference_slug(art_preference),
             "humanDeck": human_deck,
             "botDeck": bot_deck,
             "botPolicy": bot_policy.to_ascii_lowercase(),
@@ -257,6 +277,7 @@ impl WebGame {
             replay_config,
             journal: Vec::new(),
             catalog,
+            art_preference,
             human,
             bot,
             opponent_actions: Vec::new(),
@@ -762,6 +783,14 @@ impl WebGame {
         let _protocol_version = required_json_u32(envelope, "replay", "protocolVersion")?;
         let config = required_json_object(envelope, "replay", "config")?;
         let format = required_json_string(config, "replay.config", "format")?;
+        let art_preference = config
+            .get("artPreference")
+            .map(|value| {
+                value
+                    .as_str()
+                    .ok_or_else(|| js_error("replay.config.artPreference must be a string"))
+            })
+            .transpose()?;
         let human_deck = required_json_string(config, "replay.config", "humanDeck")?;
         let bot_deck = required_json_string(config, "replay.config", "botDeck")?;
         let bot_policy = required_json_string(config, "replay.config", "botPolicy")?;
@@ -775,6 +804,7 @@ impl WebGame {
             human_first,
             seed,
             Some(format.to_owned()),
+            art_preference.map(str::to_owned),
         )?;
         let total = commands.len();
         for (position, command) in commands.iter().enumerate() {

@@ -6,4 +6,4 @@ pub(super) mod magic_2013;
 pub(super) mod planechase_2012;
 pub(super) mod return_to_ravnica;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

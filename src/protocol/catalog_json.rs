@@ -1,7 +1,8 @@
 use serde_json::{Value, json};
 
 use super::json_common::{
-    alternate_spell_kind_name, double_faced_kind_name, spell_form_json, target_predicate_name,
+    alternate_spell_kind_name, card_art_json, double_faced_kind_name, spell_form_json,
+    target_predicate_name,
 };
 use super::{ENGINE_VERSION, PROTOCOL_CAPABILITIES, PROTOCOL_VERSION, SIMULATION_FINGERPRINT};
 use crate::card::{
@@ -57,13 +58,15 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Legends => "legends",
         CardSet::TheDark => "the-dark",
         CardSet::FallenEmpires => "fallen-empires",
-        CardSet::Promo1994 => "promo-1994",
+        CardSet::DragonCon => "dragon-con",
+        CardSet::HarperPrismBookPromos => "harper-prism-book-promos",
         CardSet::FourthEdition => "fourth-edition",
         CardSet::IceAge => "ice-age",
         CardSet::Chronicles => "chronicles",
         CardSet::Homelands => "homelands",
         CardSet::Alliances => "alliances",
         CardSet::Mirage => "mirage",
+        CardSet::Portal => "portal",
         CardSet::Visions => "visions",
         CardSet::FifthEdition => "fifth-edition",
         CardSet::Weatherlight => "weatherlight",
@@ -76,6 +79,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::ClassicSixthEdition => "classic-sixth-edition",
         CardSet::UrzasDestiny => "urzas-destiny",
         CardSet::MercadianMasques => "mercadian-masques",
+        CardSet::Starter1999 => "starter-1999",
         CardSet::Nemesis => "nemesis",
         CardSet::Prophecy => "prophecy",
         CardSet::Invasion => "invasion",
@@ -98,6 +102,7 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::PlanarChaos => "planar-chaos",
         CardSet::FutureSight => "future-sight",
         CardSet::Lorwyn => "lorwyn",
+        CardSet::Morningtide => "morningtide",
         CardSet::Conflux => "conflux",
         CardSet::Zendikar => "zendikar",
         CardSet::Worldwake => "worldwake",
@@ -111,12 +116,15 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::Ixalan => "ixalan",
         CardSet::Battlebond => "battlebond",
         CardSet::ScarsOfMirrodin => "scars-of-mirrodin",
+        CardSet::Magic2010 => "magic-2010",
         CardSet::Magic2011 => "magic-2011",
+        CardSet::Archenemy => "archenemy",
         CardSet::RiseOfTheEldrazi => "rise-of-the-eldrazi",
         CardSet::Innistrad => "innistrad",
         CardSet::DarkAscension => "dark-ascension",
         CardSet::AvacynRestored => "avacyn-restored",
         CardSet::Magic2012 => "magic-2012",
+        CardSet::Commander2011 => "commander-2011",
         CardSet::Magic2013 => "magic-2013",
         CardSet::ReturnToRavnica => "return-to-ravnica",
         CardSet::Gatecrash => "gatecrash",
@@ -192,10 +200,13 @@ const fn card_set_slug(set: CardSet) -> &'static str {
         CardSet::BattleForZendikar => "battle-for-zendikar",
         CardSet::MagicOrigins => "magic-origins",
         CardSet::ShadowsOverInnistrad => "shadows-over-innistrad",
+        CardSet::OathOfTheGatewatch => "oath-of-the-gatewatch",
         CardSet::HourOfDevastation => "hour-of-devastation",
         CardSet::CoreSet2019 => "core-set-2019",
+        CardSet::RivalsOfIxalan => "rivals-of-ixalan",
         CardSet::RavnicaAllegiance => "ravnica-allegiance",
         CardSet::Commander2020 => "commander-2020",
+        CardSet::CoreSet2021 => "core-set-2021",
         CardSet::MagicFoundations => "magic-foundations",
         CardSet::MarvelsSpiderMan => "marvels-spider-man",
         CardSet::AvatarTheLastAirbender => "avatar-the-last-airbender",
@@ -393,6 +404,7 @@ fn definition_json(catalog: &CardCatalog, format: Format, card: &CardDefinition)
         "printings": card.printings.iter().map(|printing| json!({
             "set": card_set_slug(printing.id.set),
             "variant": printing.id.variant,
+            "art": printing.art.map(card_art_json),
         })).collect::<Vec<_>>(),
     })
 }

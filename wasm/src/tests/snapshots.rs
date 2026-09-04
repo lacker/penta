@@ -11,8 +11,8 @@ fn the_pass_label_stops_where_the_opponents_attack_decision_begins() {
     // produced here -- the human's own auto-pass stopped at the same step
     // either way. It pins the label against a preview that walks past the
     // decision in either direction.
-    let mut game =
-        WebGame::new("Sligh", "Goblins", "Handcrafted", false, 4_242, None).expect("game starts");
+    let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", false, 4_242, None, None)
+        .expect("game starts");
     while game.session.engine_mut().in_pregame() {
         apply_engine_action(game.session.engine_mut(), |action| {
             matches!(action, Action::KeepHand)
@@ -46,8 +46,8 @@ fn the_pass_label_stops_where_the_opponents_attack_decision_begins() {
 #[test]
 #[allow(clippy::too_many_lines)]
 fn interwave_snapshot_and_pass_preview_expose_pending_regular_damage() {
-    let mut game =
-        WebGame::new("Goblins", "Sligh", "Handcrafted", true, 9_394, None).expect("game starts");
+    let mut game = WebGame::new("Goblins", "Sligh", "Handcrafted", true, 9_394, None, None)
+        .expect("game starts");
     while game.session.engine_mut().in_pregame() {
         apply_engine_action(game.session.engine_mut(), |action| {
             matches!(action, Action::KeepHand)
@@ -198,8 +198,8 @@ fn hand_mana_cost_distinguishes_no_cost_from_printed_zero() {
 
 #[test]
 fn created_token_snapshot_uses_creator_selected_art_and_inline_rules() {
-    let mut game =
-        WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None).expect("game starts");
+    let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None, None)
+        .expect("game starts");
     while game.session.engine_mut().in_pregame() {
         apply_engine_action(game.session.engine_mut(), |action| {
             matches!(action, Action::KeepHand)
@@ -241,8 +241,8 @@ fn created_token_snapshot_uses_creator_selected_art_and_inline_rules() {
 
 #[test]
 fn double_faced_snapshot_reports_physical_topology_separately() {
-    let mut game =
-        WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None).expect("game starts");
+    let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 9_394, None, None)
+        .expect("game starts");
     while game.session.engine_mut().in_pregame() {
         apply_engine_action(game.session.engine_mut(), |action| {
             matches!(action, Action::KeepHand)
@@ -268,7 +268,7 @@ fn double_faced_snapshot_reports_physical_topology_separately() {
 
 #[test]
 fn visible_cards_include_nested_scryfall_metadata() {
-    let game = WebGame::new("Goblins", "Sligh", "Handcrafted", true, 9_394, None).unwrap();
+    let game = WebGame::new("Goblins", "Sligh", "Handcrafted", true, 9_394, None, None).unwrap();
     let snapshot = game.snapshot_value(false);
     let hand = snapshot["human"]["hand"].as_array().unwrap();
 
@@ -278,8 +278,16 @@ fn visible_cards_include_nested_scryfall_metadata() {
 
 #[test]
 fn battlefield_and_stack_include_nested_scryfall_metadata() {
-    let mut game =
-        WebGame::new("Goblins", "Sligh", "Handcrafted", true, 3_756_436_840, None).unwrap();
+    let mut game = WebGame::new(
+        "Goblins",
+        "Sligh",
+        "Handcrafted",
+        true,
+        3_756_436_840,
+        None,
+        None,
+    )
+    .unwrap();
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));
     game.set_autopass(false).unwrap();
     act_matching(&mut game, |action| {
@@ -316,6 +324,7 @@ fn standard_visible_cards_include_nested_scryfall_metadata() {
         true,
         2_013,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     let snapshot = game.snapshot_value(false);
@@ -337,6 +346,50 @@ fn standard_visible_cards_include_nested_scryfall_metadata() {
 }
 
 #[test]
+fn visible_card_art_can_follow_the_selected_format() {
+    let mut debut = WebGame::new(
+        "Sligh",
+        "GAT",
+        "Handcrafted",
+        true,
+        1,
+        Some("premodern".into()),
+        Some("debut".into()),
+    )
+    .expect("premodern game starts");
+    debut
+        .session
+        .engine_mut()
+        .set_hand(debut.human, &[penta::card::cards::MOUNTAIN])
+        .expect("Mountain is cataloged");
+
+    let mut matching = WebGame::new(
+        "Sligh",
+        "GAT",
+        "Handcrafted",
+        true,
+        1,
+        Some("premodern".into()),
+        Some("format-matching".into()),
+    )
+    .expect("premodern game starts");
+    matching
+        .session
+        .engine_mut()
+        .set_hand(matching.human, &[penta::card::cards::MOUNTAIN])
+        .expect("Mountain is cataloged");
+
+    assert_eq!(
+        debut.snapshot_value(false)["human"]["hand"][0]["art"]["scryfallId"],
+        "eace2c85-976c-425e-9800-5a6ccbd91b56",
+    );
+    assert_eq!(
+        matching.snapshot_value(false)["human"]["hand"][0]["art"]["scryfallId"],
+        "0c5c9379-b686-4823-b85a-eaf2c4b63205",
+    );
+}
+
+#[test]
 fn shock_land_entry_stays_prospective_until_the_browser_choice_commits_it() {
     let mut game = WebGame::new(
         "Briksza Naya Midrange",
@@ -345,6 +398,7 @@ fn shock_land_entry_stays_prospective_until_the_browser_choice_commits_it() {
         true,
         2,
         Some("isd-m14-standard".into()),
+        None,
     )
     .unwrap();
     act_matching(&mut game, |action| matches!(action, Action::KeepHand));

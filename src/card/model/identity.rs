@@ -15,13 +15,15 @@ pub enum CardSet {
     Legends,
     TheDark,
     FallenEmpires,
-    Promo1994,
+    DragonCon,
+    HarperPrismBookPromos,
     FourthEdition,
     IceAge,
     Chronicles,
     Homelands,
     Alliances,
     Mirage,
+    Portal,
     Visions,
     FifthEdition,
     Weatherlight,
@@ -34,6 +36,7 @@ pub enum CardSet {
     ClassicSixthEdition,
     UrzasDestiny,
     MercadianMasques,
+    Starter1999,
     Nemesis,
     Prophecy,
     Invasion,
@@ -56,6 +59,7 @@ pub enum CardSet {
     PlanarChaos,
     FutureSight,
     Lorwyn,
+    Morningtide,
     Conflux,
     Zendikar,
     Worldwake,
@@ -69,12 +73,15 @@ pub enum CardSet {
     Ixalan,
     Battlebond,
     ScarsOfMirrodin,
+    Magic2010,
     Magic2011,
+    Archenemy,
     RiseOfTheEldrazi,
     Innistrad,
     DarkAscension,
     AvacynRestored,
     Magic2012,
+    Commander2011,
     Magic2013,
     ReturnToRavnica,
     Gatecrash,
@@ -149,10 +156,13 @@ pub enum CardSet {
     BattleForZendikar,
     MagicOrigins,
     ShadowsOverInnistrad,
+    OathOfTheGatewatch,
     HourOfDevastation,
     CoreSet2019,
+    RivalsOfIxalan,
     RavnicaAllegiance,
     Commander2020,
+    CoreSet2021,
     MagicFoundations,
     MarvelsSpiderMan,
     AvatarTheLastAirbender,
@@ -214,6 +224,8 @@ impl CardPrintingId {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct CardPrinting {
     pub id: CardPrintingId,
+    /// Artwork tied to this exact printing when the catalog records it.
+    pub art: Option<super::CardArt>,
 }
 
 impl CardPrinting {
@@ -221,6 +233,15 @@ impl CardPrinting {
     pub const fn new(definition: CardDefinitionId, set: CardSet) -> Self {
         Self {
             id: CardPrintingId::new(definition, set),
+            art: None,
+        }
+    }
+
+    #[must_use]
+    pub const fn with_art(definition: CardDefinitionId, set: CardSet, art: super::CardArt) -> Self {
+        Self {
+            id: CardPrintingId::new(definition, set),
+            art: Some(art),
         }
     }
 
@@ -228,8 +249,32 @@ impl CardPrinting {
     pub const fn with_variant(definition: CardDefinitionId, set: CardSet, variant: u16) -> Self {
         Self {
             id: CardPrintingId::with_variant(definition, set, variant),
+            art: None,
         }
     }
+
+    #[must_use]
+    pub const fn with_variant_and_art(
+        definition: CardDefinitionId,
+        set: CardSet,
+        variant: u16,
+        art: super::CardArt,
+    ) -> Self {
+        Self {
+            id: CardPrintingId::with_variant(definition, set, variant),
+            art: Some(art),
+        }
+    }
+}
+
+/// Which physical printing supplies artwork for canonical card objects.
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+pub enum CardArtPreference {
+    /// Use the artwork stored on the canonical debut-set definition.
+    #[default]
+    Debut,
+    /// Prefer recorded artwork from a printing admitted by the selected format.
+    FormatMatching,
 }
 
 /// One independently addressable bundle of printed characteristics.

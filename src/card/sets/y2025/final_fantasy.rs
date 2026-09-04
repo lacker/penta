@@ -1,11 +1,11 @@
 //! Final Fantasy cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::TargetIndex;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, ActivationTimingDef, AddManaEffectDef,
     AdditionalTriggerDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef, ConditionDef,
+    CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef, ConditionDef,
     CounterKind, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DrawEventMatcherDef, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayActionMatcherDef,
@@ -16,11 +16,11 @@ use crate::card::{
 use crate::mana_cost;
 
 // FIN 91 — Cecil, Dark Knight // Cecil, Redeemed Paladin
-pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_dfc_with_legacy_id(
-    2129,
-    "Cecil, Dark Knight // Cecil, Redeemed Paladin",
-    CardArt::new("026e7167-d665-43d0-a51e-8df2d68cdb5e", "Josu Hernaiz"),
+pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new_dfc(
     CardSet::FinalFantasy,
+    "Cecil, Dark Knight // Cecil, Redeemed Paladin",
+    "026e7167-d665-43d0-a51e-8df2d68cdb5e",
+    "Josu Hernaiz",
     &[
         (
             "Cecil, Dark Knight",
@@ -104,19 +104,19 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
 // FIN 114 — Resentful Revelation
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
-    "Resentful Revelation",
-    crate::card::CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
     crate::card::CardSet::FinalFantasy,
+    "Resentful Revelation",
+    "945006ea-c6a1-4ee5-abb2-387c2b6d3123",
+    "Justyna Dura",
     crate::card::CardRules::unsupported(),
 );
 
 // FIN 164 — Suplex
 pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f61693a2-7042-44e0-85ba-9bf12ab94e7e"),
-    "Suplex",
-    CardArt::new("f61693a2-7042-44e0-85ba-9bf12ab94e7e", "Fang Xinyu"),
     CardSet::FinalFantasy,
+    "Suplex",
+    "f61693a2-7042-44e0-85ba-9bf12ab94e7e",
+    "Fang Xinyu",
     // Three damage that answers a recursive creature for good, or the
     // artifact half when there is nothing to throw.
     CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
@@ -161,11 +161,11 @@ pub(in crate::card::sets) static SUPLEX: CardRecord = CardRecord::new(
 );
 
 // FIN 206 — Tifa Lockhart
-pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_with_legacy_id(
-    2146,
-    "Tifa Lockhart",
-    CardArt::new("fb781323-2746-405d-a9b2-e778c037a6e9", "Laurel Austin"),
+pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new(
     CardSet::FinalFantasy,
+    "Tifa Lockhart",
+    "fb781323-2746-405d-a9b2-e778c037a6e9",
+    "Laurel Austin",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Human", "Monk"], 1, 2)
         .with_supertype(CardSupertype::Legendary)
         // Doubling is +X/+0 where X is her power as this resolves, so two landfalls
@@ -193,11 +193,11 @@ pub(in crate::card::sets) static TIFA_LOCKHART: CardRecord = CardRecord::new_wit
 );
 
 // FIN 248 — Vivi Ornitier
-pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_with_legacy_id(
-    2162,
-    "Vivi Ornitier",
-    CardArt::new("ecc1027a-8c07-44a0-bdde-fa2844cff694", "Toni Infante"),
+pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new(
     CardSet::FinalFantasy,
+    "Vivi Ornitier",
+    "ecc1027a-8c07-44a0-bdde-fa2844cff694",
+    "Toni Infante",
     CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Wizard"], 0, 3)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
@@ -238,10 +238,10 @@ pub(in crate::card::sets) static VIVI_ORNITIER: CardRecord = CardRecord::new_wit
 
 // FIN 289 — Starting Town
 pub(in crate::card::sets) static STARTING_TOWN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fc7d1912-7e27-49ef-bd98-375d975a42b0"),
-    "Starting Town",
-    CardArt::new("fc7d1912-7e27-49ef-bd98-375d975a42b0", "Hristo D. Chukov"),
     CardSet::FinalFantasy,
+    "Starting Town",
+    "fc7d1912-7e27-49ef-bd98-375d975a42b0",
+    "Hristo D. Chukov",
     // A City of Brass for the turns that matter and a tapped land after
     // them, which is the trade a deck makes for fixing it only needs early.
     CardRules::new_land(&["Town"]).with_abilities(&[
@@ -269,10 +269,10 @@ pub(in crate::card::sets) static STARTING_TOWN: CardRecord = CardRecord::new(
 
 // FIN 551c — Traveling Chocobo
 pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("156cfd45-1556-4804-becf-039cfff7de3d"),
-    "Traveling Chocobo",
-    crate::card::CardArt::new("156cfd45-1556-4804-becf-039cfff7de3d", "Toni Infante"),
     crate::card::CardSet::FinalFantasy,
+    "Traveling Chocobo",
+    "156cfd45-1556-4804-becf-039cfff7de3d",
+    "Toni Infante",
     // Three mana for a body, a land engine, and a Panharmonicon that only
     // reads lands and its own kind -- which in a deck built for it is most
     // of what enters.
@@ -338,10 +338,10 @@ pub(in crate::card::sets) static TRAVELING_CHOCOBO: CardRecord = CardRecord::new
 
 // FIN 581 — Astrologian's Planisphere
 pub(in crate::card::sets) static ASTROLOGIAN_S_PLANISPHERE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a0f6e2d7-58b5-4a7d-8c42-e25185cd173f"),
-    "Astrologian's Planisphere",
-    crate::card::CardArt::new("a0f6e2d7-58b5-4a7d-8c42-e25185cd173f", "Josephine Chang"),
     crate::card::CardSet::FinalFantasy,
+    "Astrologian's Planisphere",
+    "a0f6e2d7-58b5-4a7d-8c42-e25185cd173f",
+    "Josephine Chang",
     // Two mana for a 1/1 that grows on the turns a blue deck was having
     // anyway, and an Equipment left over when it dies.
     CardRules::new_artifact(mana_cost!("{1}{U}"))

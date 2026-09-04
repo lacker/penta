@@ -76,6 +76,7 @@ pub const RESTRICTED_CARDS: &[&str] = &[];
 pub(super) const DEFINITION: SetFormatDefinition = SetFormatDefinition {
     rules: CONSTRUCTED_RULES,
     allowed_sets: ALLOWED_SETS,
+    additional_allowed_cards: &[],
     banned_cards: BANNED_CARDS,
     restricted_cards: RESTRICTED_CARDS,
 };

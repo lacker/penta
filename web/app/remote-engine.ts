@@ -14,9 +14,12 @@
  * the push arrives.
  */
 
+import type { CardArtPreference } from "./card-art-mode";
+
 export type RemoteConfig = {
   gameId: string;
   format: string;
+  artPreference: CardArtPreference;
   humanDeck: string;
   botDeck: string;
   botPolicy: string;
@@ -73,6 +76,7 @@ export class RemoteEngineGame {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         format: config.format,
+        artPreference: config.artPreference,
         humanDeck: config.humanDeck,
         botDeck: config.botDeck,
         botPolicy: config.botPolicy,

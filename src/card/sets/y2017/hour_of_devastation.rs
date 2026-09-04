@@ -1,28 +1,28 @@
 //! HOU card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ValueDef,
+    AbilityDef, AbilityTargetDef, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, ValueDef,
 };
 use crate::{TargetIndex, mana_cost};
 
 // HOU 48 — Striped Riverwinder
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a"),
-    "Striped Riverwinder",
-    crate::card::CardArt::new("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a", "Craig J Spearing"),
     crate::card::CardSet::HourOfDevastation,
+    "Striped Riverwinder",
+    "bbeef9ef-487c-400b-bcee-1c0e8ec94b6a",
+    "Craig J Spearing",
     crate::card::CardRules::unsupported(),
 );
 
 // HOU 83 — Abrade
 pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("84319dfb-eaf7-4b98-8c4f-30f5e779591b"),
-    "Abrade",
-    CardArt::new("84319dfb-eaf7-4b98-8c4f-30f5e779591b", "Jonas De Ro"),
     CardSet::HourOfDevastation,
+    "Abrade",
+    "84319dfb-eaf7-4b98-8c4f-30f5e779591b",
+    "Jonas De Ro",
     // Two mana that is never dead: the half a red deck wants is whichever
     // one the board is holding.
     CardRules::new_instant(mana_cost!("{1}{R}")).with_ability(AbilityDef::modal_spell(
@@ -59,20 +59,20 @@ pub(in crate::card::sets) static ABRADE: CardRecord = CardRecord::new(
 // HOU 92 — Firebrand Archer
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6ddc6b73-298b-4afa-990a-63706e77dd9f"),
-    "Firebrand Archer",
-    crate::card::CardArt::new("6ddc6b73-298b-4afa-990a-63706e77dd9f", "John Stanko"),
     crate::card::CardSet::HourOfDevastation,
+    "Firebrand Archer",
+    "6ddc6b73-298b-4afa-990a-63706e77dd9f",
+    "John Stanko",
     crate::card::CardRules::unsupported(),
 );
 
 // HOU 138 — Bloodwater Entity
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("474d0a04-b640-4d1d-b538-2d946c1ff913"),
-    "Bloodwater Entity",
-    crate::card::CardArt::new("474d0a04-b640-4d1d-b538-2d946c1ff913", "Viktor Titov"),
     crate::card::CardSet::HourOfDevastation,
+    "Bloodwater Entity",
+    "474d0a04-b640-4d1d-b538-2d946c1ff913",
+    "Viktor Titov",
     crate::card::CardRules::unsupported(),
 );
 

@@ -1,19 +1,19 @@
 //! Final Fantasy Commander card records.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, CardSupertype, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, CardRules, CardSet, CardSupertype, CounterKind, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
 // FIC 52 — Transpose
 pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("66392b0e-8691-42a4-bc84-03b017174a73"),
-    "Transpose",
-    CardArt::new("66392b0e-8691-42a4-bc84-03b017174a73", "Toni Infante"),
     CardSet::FinalFantasyCommander,
+    "Transpose",
+    "66392b0e-8691-42a4-bc84-03b017174a73",
+    "Toni Infante",
     CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
         AbilityDef::spell(
             "Draw a card, then discard a card. You lose 1 life. If this spell was cast from your hand, create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"",
@@ -59,11 +59,11 @@ pub(in crate::card::sets) static TRANSPOSE: CardRecord = CardRecord::new(
 );
 
 // FIC 55 — Gau, Feral Youth
-pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_with_legacy_id(
-    2304,
-    "Gau, Feral Youth",
-    CardArt::new("89175ce1-0746-4ba1-970e-617d134b0527", "Eglė Mosakaitė"),
+pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new(
     CardSet::FinalFantasyCommander,
+    "Gau, Feral Youth",
+    "89175ce1-0746-4ba1-970e-617d134b0527",
+    "Eglė Mosakaitė",
     // Two mana that grows every attack and, in a deck that is already using
     // its graveyard, throws that growth at the opponent every end step.
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Berserker"], 2, 2)
@@ -102,9 +102,13 @@ pub(in crate::card::sets) static GAU_FERAL_YOUTH: CardRecord = CardRecord::new_w
 );
 
 // FIC 119 — Transpose (alternate printing)
+const TRANSPOSE_ALTERNATE_1: PrintingRecord = PrintingRecord::alternate(
+    &TRANSPOSE,
+    1,
+    "51cb61ab-0508-4668-8680-051d38df7ccb",
+    "Toni Infante",
+);
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&TRANSPOSE, &GAU_FERAL_YOUTH];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
-    PrintingRecord::alternate(&TRANSPOSE, 1), // FIC 119
-];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[TRANSPOSE_ALTERNATE_1];

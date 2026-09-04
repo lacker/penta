@@ -1,11 +1,11 @@
 //! Innistrad: Crimson Vow cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    AppliedEffectDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
     ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
@@ -14,29 +14,29 @@ use crate::mana_cost;
 // VOW 55 — Cruel Witness
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5bf2c686-efb0-46c7-b34e-c77987914b96"),
-    "Cruel Witness",
-    crate::card::CardArt::new("5bf2c686-efb0-46c7-b34e-c77987914b96", "Vincent Proce"),
     crate::card::CardSet::InnistradCrimsonVow,
+    "Cruel Witness",
+    "5bf2c686-efb0-46c7-b34e-c77987914b96",
+    "Vincent Proce",
     crate::card::CardRules::unsupported(),
 );
 
 // VOW 95 — Blood Fountain
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("dd03651e-ada0-41dc-8722-0eba476943e3"),
-    "Blood Fountain",
-    crate::card::CardArt::new("dd03651e-ada0-41dc-8722-0eba476943e3", "Evyn Fong"),
     crate::card::CardSet::InnistradCrimsonVow,
+    "Blood Fountain",
+    "dd03651e-ada0-41dc-8722-0eba476943e3",
+    "Evyn Fong",
     crate::card::CardRules::unsupported(),
 );
 
 // VOW 101 — Concealing Curtains // Revealing Eye
 pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1"),
-    "Concealing Curtains // Revealing Eye",
-    CardArt::new("612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1", "Brian Valeza"),
     CardSet::InnistradCrimsonVow,
+    "Concealing Curtains // Revealing Eye",
+    "612b2e6e-fe8d-49ad-b845-6fa7fa59ffd1",
+    "Brian Valeza",
     &[
         (
             "Concealing Curtains",
@@ -121,22 +121,32 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
     ],
 );
 
+// VOW 134 — Undying Malice
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
+    crate::card::CardSet::InnistradCrimsonVow,
+    "Undying Malice",
+    "8eb38041-043a-4b18-9d9a-f1283684e8f1",
+    "Igor Kieryluk",
+    crate::card::CardRules::unsupported(),
+);
+
 // VOW 174 — Reckless Impulse
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546"),
-    "Reckless Impulse",
-    crate::card::CardArt::new("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546", "Mathias Kollros"),
     crate::card::CardSet::InnistradCrimsonVow,
+    "Reckless Impulse",
+    "6943c07f-ab0d-4f5a-bbe9-c0a83dc98546",
+    "Mathias Kollros",
     crate::card::CardRules::unsupported(),
 );
 
 // VOW 182 — Voldaren Epicure
 pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("ae154e64-f626-45fb-bd52-840c1c27b2d3"),
-    "Voldaren Epicure",
-    CardArt::new("ae154e64-f626-45fb-bd52-840c1c27b2d3", "Martina Fačková"),
     CardSet::InnistradCrimsonVow,
+    "Voldaren Epicure",
+    "ae154e64-f626-45fb-bd52-840c1c27b2d3",
+    "Martina Fačková",
     // One mana for a body, a point of damage, and a card the Blood turns a
     // dead draw into later.
     CardRules::new_creature(mana_cost!("{R}"), &["Vampire"], 1, 1).with_ability(
@@ -161,19 +171,19 @@ pub(in crate::card::sets) static VOLDAREN_EPICURE: CardRecord = CardRecord::new(
 // VOW 189 — Bramble Wurm
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRAMBLE_WURM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("8f16f137-4ceb-469c-a381-e575d58f456b"),
-    "Bramble Wurm",
-    crate::card::CardArt::new("8f16f137-4ceb-469c-a381-e575d58f456b", "Lars Grant-West"),
     crate::card::CardSet::InnistradCrimsonVow,
+    "Bramble Wurm",
+    "8f16f137-4ceb-469c-a381-e575d58f456b",
+    "Lars Grant-West",
     crate::card::CardRules::unsupported(),
 );
 
 // VOW 225 — Ulvenwald Oddity // Ulvenwald Behemoth
 pub(in crate::card::sets) static ULVENWALD_ODDITY: CardRecord = CardRecord::new_dfc(
-    PrintingAnchor::scryfall("5fdf5fc4-69c8-4a59-9095-c2feefb64371"),
-    "Ulvenwald Oddity // Ulvenwald Behemoth",
-    CardArt::new("5fdf5fc4-69c8-4a59-9095-c2feefb64371", "Brent Hollowell"),
     CardSet::InnistradCrimsonVow,
+    "Ulvenwald Oddity // Ulvenwald Behemoth",
+    "5fdf5fc4-69c8-4a59-9095-c2feefb64371",
+    "Brent Hollowell",
     &[
         (
             "Ulvenwald Oddity",
@@ -251,10 +261,10 @@ static HARVESTER_PENALTY: ValueDef = ValueDef::Scaled(&ScaledValueDef::new(
 ));
 
 pub(in crate::card::sets) static BLOODTITHE_HARVESTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("01182501-2b50-4b87-835a-fea3c5e6e330"),
-    "Bloodtithe Harvester",
-    crate::card::CardArt::new("01182501-2b50-4b87-835a-fea3c5e6e330", "Sami Makkonen"),
     crate::card::CardSet::InnistradCrimsonVow,
+    "Bloodtithe Harvester",
+    "01182501-2b50-4b87-835a-fea3c5e6e330",
+    "Sami Makkonen",
     // Two mana for a 3/2 that replaces itself with a card later, and can
     // instead be spent as removal the turn it stops attacking.
     CardRules::new_creature(mana_cost!("{B}{R}"), &["Vampire"], 3, 2)
@@ -286,6 +296,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &CRUEL_WITNESS,
     &BLOOD_FOUNTAIN,
     &CONCEALING_CURTAINS,
+    &UNDYING_MALICE,
     &RECKLESS_IMPULSE,
     &VOLDAREN_EPICURE,
     &BRAMBLE_WURM,

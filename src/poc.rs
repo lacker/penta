@@ -110,7 +110,7 @@ mod tests {
             ),
             (
                 cards::SEDGE_TROLL,
-                "02ec317b-52a6-4490-80e5-a56826b06771",
+                "b13bf496-f3c0-4c13-8282-e7abfab6a198",
                 CardSet::Alpha,
             ),
         ] {

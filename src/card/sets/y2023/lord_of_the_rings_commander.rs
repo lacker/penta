@@ -1,21 +1,21 @@
 //! The Lord of the Rings: Tales of Middle-earth Commander cards cataloged for
 //! the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardRules,
+    CardSet, CardType, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaColor, ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // LTC 56 — Forth Eorlingas!
 pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("06c053d3-028e-4961-93a5-5b7bb5a8601c"),
-    "Forth Eorlingas!",
-    CardArt::new("06c053d3-028e-4961-93a5-5b7bb5a8601c", "Filipe Pagliuso"),
     CardSet::LordOfTheRingsCommander,
+    "Forth Eorlingas!",
+    "06c053d3-028e-4961-93a5-5b7bb5a8601c",
+    "Filipe Pagliuso",
     // A haste-and-trample army for X, cast on an empty board or added to an
     // attack already underway, with the crown as the reward for connecting.
     CardRules::new_sorcery(mana_cost!("{X}{R}{W}")).with_ability(AbilityDef::spell(
@@ -51,10 +51,10 @@ pub(in crate::card::sets) static FORTH_EORLINGAS: CardRecord = CardRecord::new(
 
 // LTC 159 — Relic of Sauron
 pub(in crate::card::sets) static RELIC_OF_SAURON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("15c5d6cd-8af6-4852-8043-e6b1ef771ce6"),
-    "Relic of Sauron",
-    CardArt::new("15c5d6cd-8af6-4852-8043-e6b1ef771ce6", "Anton Solovianchyk"),
     CardSet::LordOfTheRingsCommander,
+    "Relic of Sauron",
+    "15c5d6cd-8af6-4852-8043-e6b1ef771ce6",
+    "Anton Solovianchyk",
     // Four mana for a rock that ramps into three colours and turns into a
     // card advantage engine once the mana is no longer the problem.
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
@@ -95,10 +95,10 @@ pub(in crate::card::sets) static RELIC_OF_SAURON: CardRecord = CardRecord::new(
 
 // LTC 493 — Legolas's Quick Reflexes
 pub(in crate::card::sets) static LEGOLASS_QUICK_REFLEXES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("851c0167-04ba-4d15-b0fa-c211bd8826f1"),
-    "Legolas's Quick Reflexes",
-    CardArt::new("851c0167-04ba-4d15-b0fa-c211bd8826f1", "Jason Rainville"),
     CardSet::LordOfTheRingsCommander,
+    "Legolas's Quick Reflexes",
+    "851c0167-04ba-4d15-b0fa-c211bd8826f1",
+    "Jason Rainville",
     // One green mana nobody can answer: it untaps a blocker, makes it
     // untargetable, and turns every tap it takes afterwards into an arrow.
     CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[

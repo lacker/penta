@@ -1,6 +1,6 @@
 //! Modern Horizons cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
@@ -23,10 +23,10 @@ static NOT_YOUR_TURN: TriggerConditionDef =
 
 // MH1 7 — Ephemerate
 pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa"),
-    "Ephemerate",
-    CardArt::new("2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa", "Bastien L. Deharme"),
     CardSet::ModernHorizons1,
+    "Ephemerate",
+    "2da5f3f8-5eef-498f-ba2c-2f3fbc3745aa",
+    "Bastien L. Deharme",
     // One white mana for two enter triggers, a turn apart. What it costs is
     // that the creature has to survive until the second one.
     CardRules::new_instant(mana_cost!("{W}")).with_abilities(&[
@@ -66,10 +66,10 @@ pub(in crate::card::sets) static EPHEMERATE: CardRecord = CardRecord::new(
 
 // MH1 13 — Giver of Runes
 pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e117771-5a8b-4812-b487-32ba34b7f724"),
-    "Giver of Runes",
-    CardArt::new("4e117771-5a8b-4812-b487-32ba34b7f724", "Seb McKinnon"),
     CardSet::ModernHorizons1,
+    "Giver of Runes",
+    "4e117771-5a8b-4812-b487-32ba34b7f724",
+    "Seb McKinnon",
     // Mother of Runes who cannot save herself, and in exchange answers the
     // colourless removal her mother could not.
     CardRules::new_creature(mana_cost!("{W}"), &["Kor", "Cleric"], 1, 2).with_ability(
@@ -102,29 +102,29 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
 // MH1 24 — Rhox Veteran
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RHOX_VETERAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("6384e266-d0dc-4af1-b3ab-ecaf9be2553c"),
-    "Rhox Veteran",
-    crate::card::CardArt::new("6384e266-d0dc-4af1-b3ab-ecaf9be2553c", "Milivoj Ćeran"),
     crate::card::CardSet::ModernHorizons1,
+    "Rhox Veteran",
+    "6384e266-d0dc-4af1-b3ab-ecaf9be2553c",
+    "Milivoj Ćeran",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 27 — Settle Beyond Reality
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SETTLE_BEYOND_REALITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("72ed8e57-61bb-4e89-9484-ff2be800a449"),
-    "Settle Beyond Reality",
-    crate::card::CardArt::new("72ed8e57-61bb-4e89-9484-ff2be800a449", "Anthony Palumbo"),
     crate::card::CardSet::ModernHorizons1,
+    "Settle Beyond Reality",
+    "72ed8e57-61bb-4e89-9484-ff2be800a449",
+    "Anthony Palumbo",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 37 — Winds of Abandon
-pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_with_legacy_id(
-    2181,
-    "Winds of Abandon",
-    CardArt::new("3bb17913-fe4d-4acd-9b75-71f5a90f898b", "Noah Bradley"),
+pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Winds of Abandon",
+    "3bb17913-fe4d-4acd-9b75-71f5a90f898b",
+    "Noah Bradley",
     // Two mana answers one creature and six answers the board, and neither
     // half leaves anything behind to rebuild from -- exile rather than
     // destruction is the whole reason the card ends games.
@@ -218,11 +218,11 @@ pub(in crate::card::sets) static WINDS_OF_ABANDON: CardRecord = CardRecord::new_
 );
 
 // MH1 46 — Echo of Eons
-pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new_with_legacy_id(
-    2278,
-    "Echo of Eons",
-    CardArt::new("ff590af2-2d6c-4f16-a9b8-1a6dab6e9ad5", "Terese Nielsen"),
+pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Echo of Eons",
+    "ff590af2-2d6c-4f16-a9b8-1a6dab6e9ad5",
+    "Terese Nielsen",
     // Six mana nobody pays: the card is here for the flashback, which turns a
     // graveyard full of rituals into a fresh seven for three.
     CardRules::new_sorcery(mana_cost!("{4}{U}{U}")).with_abilities(&[
@@ -238,19 +238,19 @@ pub(in crate::card::sets) static ECHO_OF_EONS: CardRecord = CardRecord::new_with
 // MH1 51 — Faerie Seer
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAERIE_SEER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6"),
-    "Faerie Seer",
-    crate::card::CardArt::new("d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6", "Colin Boyer"),
     crate::card::CardSet::ModernHorizons1,
+    "Faerie Seer",
+    "d1fcfeb4-1818-4e08-be4c-27b8a9dc12e6",
+    "Colin Boyer",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 52 — Force of Negation
-pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new_with_legacy_id(
-    2268,
-    "Force of Negation",
-    CardArt::new("e9be371c-c688-44ad-ab71-bd4c9f242d58", "Paul Scott Canavan"),
+pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Force of Negation",
+    "e9be371c-c688-44ad-ab71-bd4c9f242d58",
+    "Paul Scott Canavan",
     // Free interaction that only answers the half of the format worth
     // answering for free, and only on the turn somebody else is using it.
     CardRules::new_instant(mana_cost!("{1}{U}{U}")).with_abilities(&[
@@ -298,14 +298,11 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
     ]),
 );
 
-// MH1 55 — Man-o'-War
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static MAN_O_WAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4dbf9bf9-75cd-4b25-a3a1-43b7e029700b"),
-    "Man-o'-War",
-    crate::card::CardArt::new("5eaa4199-df9b-494a-af7a-2491e8b0ef70", "Jon J Muth"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+// MH1 55 — Man-o'-War (reprint)
+const MAN_O_WAR_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y1997::visions::MAN_O_WAR,
+    "5eaa4199-df9b-494a-af7a-2491e8b0ef70",
+    "Jon J Muth",
 );
 
 // MH1 75 — Urza, Lord High Artificer
@@ -319,10 +316,10 @@ static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
 );
 
 pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("9e7fb3c0-5159-4d1f-8490-ce4c9a60f567"),
-    "Urza, Lord High Artificer",
-    CardArt::new("9e7fb3c0-5159-4d1f-8490-ce4c9a60f567", "Grzegorz Rutkowski"),
     CardSet::ModernHorizons1,
+    "Urza, Lord High Artificer",
+    "9e7fb3c0-5159-4d1f-8490-ce4c9a60f567",
+    "Grzegorz Rutkowski",
     // Four mana for a body, a blue mana out of every artifact you have, and
     // a mana sink that turns the rest of them into a free card.
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Artificer"], 1, 4)
@@ -383,54 +380,48 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
         ]),
 );
 
-// MH1 81 — Carrion Feeder
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static CARRION_FEEDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("88042031-64af-4f84-85d5-95992b43aa6c"),
-    "Carrion Feeder",
-    crate::card::CardArt::new("0a19da90-880e-4eca-8cf7-6d7baf090d53", "Svetlin Velinov"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+// MH1 81 — Carrion Feeder (reprint)
+const CARRION_FEEDER_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2003::scourge::CARRION_FEEDER,
+    "0a19da90-880e-4eca-8cf7-6d7baf090d53",
+    "Svetlin Velinov",
 );
 
 // MH1 91 — First-Sphere Gargantua
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIRST_SPHERE_GARGANTUA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("a59f4e5c-fdc7-485f-aadb-2a71b3701dcc"),
-    "First-Sphere Gargantua",
-    crate::card::CardArt::new("a59f4e5c-fdc7-485f-aadb-2a71b3701dcc", "Randy Vargas"),
     crate::card::CardSet::ModernHorizons1,
+    "First-Sphere Gargantua",
+    "a59f4e5c-fdc7-485f-aadb-2a71b3701dcc",
+    "Randy Vargas",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 101 — Putrid Goblin
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PUTRID_GOBLIN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("333406d5-abcc-4629-a33b-395d0662ba1b"),
-    "Putrid Goblin",
-    crate::card::CardArt::new("333406d5-abcc-4629-a33b-395d0662ba1b", "Winona Nelson"),
     crate::card::CardSet::ModernHorizons1,
+    "Putrid Goblin",
+    "333406d5-abcc-4629-a33b-395d0662ba1b",
+    "Winona Nelson",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 120 — Bogardan Dragonheart
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("feb81f44-8f22-4d28-a452-a50bef69a3e3"),
-    "Bogardan Dragonheart",
-    crate::card::CardArt::new("feb81f44-8f22-4d28-a452-a50bef69a3e3", "Randy Vargas"),
     crate::card::CardSet::ModernHorizons1,
+    "Bogardan Dragonheart",
+    "feb81f44-8f22-4d28-a452-a50bef69a3e3",
+    "Randy Vargas",
     crate::card::CardRules::unsupported(),
 );
 
-// MH1 144 — Reckless Charge
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static RECKLESS_CHARGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0938e686-345e-4411-b564-cf9324ec6b9d"),
-    "Reckless Charge",
-    crate::card::CardArt::new("1754a8db-060e-470f-94c0-37f12d82978a", "Steve Argyle"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+// MH1 144 — Reckless Charge (reprint)
+const RECKLESS_CHARGE_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2001::odyssey::RECKLESS_CHARGE,
+    "1754a8db-060e-470f-94c0-37f12d82978a",
+    "Steve Argyle",
 );
 
 // MH1 145 — Seasoned Pyromancer
@@ -441,10 +432,10 @@ static PYROMANCER_ELEMENTAL: TokenCharacteristics =
     tokens::creature(&["Elemental"], &[ManaColor::Red], 1, 1);
 
 pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("2e139ad1-1079-49e9-babd-6399c44ad333"),
-    "Seasoned Pyromancer",
-    CardArt::new("2e139ad1-1079-49e9-babd-6399c44ad333", "Cynthia Sheppard"),
     CardSet::ModernHorizons1,
+    "Seasoned Pyromancer",
+    "2e139ad1-1079-49e9-babd-6399c44ad333",
+    "Cynthia Sheppard",
     // Three mana that turns the two worst cards in your hand into two fresh
     // ones and a body for each of them that was not a land -- and then does
     // it again from the graveyard.
@@ -507,11 +498,11 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
 );
 
 // MH1 158 — Collector Ouphe
-pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new_with_legacy_id(
-    2284,
-    "Collector Ouphe",
-    CardArt::new("085107a2-c1ec-473c-81d8-23e5a7197776", "Filip Burburan"),
+pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Collector Ouphe",
+    "085107a2-c1ec-473c-81d8-23e5a7197776",
+    "Filip Burburan",
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Ouphe"], 2, 2).with_ability(
         AbilityDef::static_ability(
             "Activated abilities of artifacts can't be activated.",
@@ -528,11 +519,11 @@ pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new_w
 );
 
 // MH1 164 — Force of Vigor
-pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_with_legacy_id(
-    2127,
-    "Force of Vigor",
-    CardArt::new("017c415b-d635-43c6-92b8-8c95d1c4ff8d", "Randy Vargas"),
+pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Force of Vigor",
+    "017c415b-d635-43c6-92b8-8c95d1c4ff8d",
+    "Randy Vargas",
     CardRules::new_instant(mana_cost!("{2}{G}{G}")).with_abilities(&[
         AbilityDef::alternative_cast(
             mana_cost!("{0}"),
@@ -575,10 +566,10 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
 
 // MH1 168 — Hexdrinker
 pub(in crate::card::sets) static HEXDRINKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("89f5cc05-5d9d-4709-b3c5-a6249c294acc"),
-    "Hexdrinker",
-    crate::card::CardArt::new("89f5cc05-5d9d-4709-b3c5-a6249c294acc", "Forrest Imel"),
     crate::card::CardSet::ModernHorizons1,
+    "Hexdrinker",
+    "89f5cc05-5d9d-4709-b3c5-a6249c294acc",
+    "Forrest Imel",
     // One mana for a 2/1, and every spare mana afterwards buys a step toward
     // a creature nothing in the deck can answer.
     CardRules::new_creature(mana_cost!("{G}"), &["Snake"], 2, 1).with_abilities(&[
@@ -663,52 +654,49 @@ pub(in crate::card::sets) static HEXDRINKER: CardRecord = CardRecord::new(
     ]),
 );
 
-// MH1 169 — Krosan Tusker
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0b872f85-60c5-44c4-956d-a8aa8132908b"),
-    "Krosan Tusker",
-    crate::card::CardArt::new("6391ba8b-7d9a-4077-8eeb-1b2ced14d973", "Kev Walker"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+// MH1 169 — Krosan Tusker (reprint)
+const KROSAN_TUSKER_REPRINT: PrintingRecord = PrintingRecord::reprint(
+    &crate::card::sets::y2002::onslaught::KROSAN_TUSKER,
+    "6391ba8b-7d9a-4077-8eeb-1b2ced14d973",
+    "Kev Walker",
 );
 
 // MH1 171 — Mother Bear
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("efae4d84-8134-461a-a352-a5bdff7259a7"),
-    "Mother Bear",
-    crate::card::CardArt::new("efae4d84-8134-461a-a352-a5bdff7259a7", "Winona Nelson"),
     crate::card::CardSet::ModernHorizons1,
+    "Mother Bear",
+    "efae4d84-8134-461a-a352-a5bdff7259a7",
+    "Winona Nelson",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 187 — Trumpeting Herd
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRUMPETING_HERD: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("b0f3b68e-f616-4687-bc2d-075165162cd1"),
-    "Trumpeting Herd",
-    crate::card::CardArt::new("b0f3b68e-f616-4687-bc2d-075165162cd1", "Lars Grant-West"),
     crate::card::CardSet::ModernHorizons1,
+    "Trumpeting Herd",
+    "b0f3b68e-f616-4687-bc2d-075165162cd1",
+    "Lars Grant-West",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 193 — Winding Way
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WINDING_WAY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4e5d9776-b6ce-4ad6-8acc-69115ba5de76"),
-    "Winding Way",
-    crate::card::CardArt::new("4e5d9776-b6ce-4ad6-8acc-69115ba5de76", "Adam Paquette"),
     crate::card::CardSet::ModernHorizons1,
+    "Winding Way",
+    "4e5d9776-b6ce-4ad6-8acc-69115ba5de76",
+    "Adam Paquette",
     crate::card::CardRules::unsupported(),
 );
 
 // MH1 199 — Fallen Shinobi
-pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_with_legacy_id(
-    2178,
-    "Fallen Shinobi",
-    CardArt::new("900c9dfd-ece1-4b09-a801-0fa05e1994b9", "Tomasz Jedruszek"),
+pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Fallen Shinobi",
+    "900c9dfd-ece1-4b09-a801-0fa05e1994b9",
+    "Tomasz Jedruszek",
     // Ninjutsu is what makes a five-mana 5/4 connect on turn three, and
     // connecting is the whole card: two cards off the top of their deck,
     // free, every time.
@@ -743,10 +731,10 @@ pub(in crate::card::sets) static FALLEN_SHINOBI: CardRecord = CardRecord::new_wi
 
 // MH1 217 — Wrenn and Six
 pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4a706ecf-3277-40e3-871c-4ba4ead16e20"),
-    "Wrenn and Six",
-    CardArt::new("4a706ecf-3277-40e3-871c-4ba4ead16e20", "Chase Stone"),
     CardSet::ModernHorizons1,
+    "Wrenn and Six",
+    "4a706ecf-3277-40e3-871c-4ba4ead16e20",
+    "Chase Stone",
     // Two mana that buys back a fetchland every turn, pings something on the
     // way, and eventually turns the graveyard into a second hand.
     CardRules::new_planeswalker(mana_cost!("{R}{G}"), &["Wrenn"], 3)
@@ -823,10 +811,10 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
 
 // MH1 222 — Farmstead Gleaner
 pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("edafd52f-2dda-4981-baee-404f47ee8969"),
-    "Farmstead Gleaner",
-    CardArt::new("edafd52f-2dda-4981-baee-404f47ee8969", "Josh Hass"),
     CardSet::ModernHorizons1,
+    "Farmstead Gleaner",
+    "edafd52f-2dda-4981-baee-404f47ee8969",
+    "Josh Hass",
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Scarecrow"], 2, 2).with_abilities(&[
         AbilityDef::static_ability(
             "This creature doesn't untap during your untap step.",
@@ -854,10 +842,10 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
 static TALISMAN_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
 
 pub(in crate::card::sets) static TALISMAN_OF_CONVICTION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("71148fd3-0c2c-459e-b8f5-735a0a8dd87f"),
-    "Talisman of Conviction",
-    CardArt::new("71148fd3-0c2c-459e-b8f5-735a0a8dd87f", "Lindsey Look"),
     CardSet::ModernHorizons1,
+    "Talisman of Conviction",
+    "71148fd3-0c2c-459e-b8f5-735a0a8dd87f",
+    "Lindsey Look",
     // Two mana that fixes for a life a turn, or for nothing at all when
     // colorless is what the next spell wants.
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
@@ -882,10 +870,10 @@ pub(in crate::card::sets) static TALISMAN_OF_CONVICTION: CardRecord = CardRecord
 
 // MH1 231 — Talisman of Creativity
 pub(in crate::card::sets) static TALISMAN_OF_CREATIVITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4d9dbadd-c1b6-44fe-92ac-6f69d7178342"),
-    "Talisman of Creativity",
-    CardArt::new("4d9dbadd-c1b6-44fe-92ac-6f69d7178342", "Lindsey Look"),
     CardSet::ModernHorizons1,
+    "Talisman of Creativity",
+    "4d9dbadd-c1b6-44fe-92ac-6f69d7178342",
+    "Lindsey Look",
     // Two mana that fixes for a life a turn, or for nothing at all when
     // colorless is what the next spell wants.
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
@@ -907,10 +895,10 @@ pub(in crate::card::sets) static TALISMAN_OF_CREATIVITY: CardRecord = CardRecord
 
 // MH1 232 — Talisman of Curiosity
 pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fd52688a-39fd-430f-b950-cb56e0004396"),
-    "Talisman of Curiosity",
-    CardArt::new("fd52688a-39fd-430f-b950-cb56e0004396", "Lindsey Look"),
     CardSet::ModernHorizons1,
+    "Talisman of Curiosity",
+    "fd52688a-39fd-430f-b950-cb56e0004396",
+    "Lindsey Look",
     // The Simic half of the cycle: the damage is what pays for a colour, and
     // the colorless mode is what makes it free when colour is not the point.
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
@@ -932,10 +920,10 @@ pub(in crate::card::sets) static TALISMAN_OF_CURIOSITY: CardRecord = CardRecord:
 
 // MH1 244 — Prismatic Vista
 pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e37da81e-be12-45a2-9128-376f1ad7b3e8"),
-    "Prismatic Vista",
-    CardArt::new("e37da81e-be12-45a2-9128-376f1ad7b3e8", "Sam Burley"),
     CardSet::ModernHorizons1,
+    "Prismatic Vista",
+    "e37da81e-be12-45a2-9128-376f1ad7b3e8",
+    "Sam Burley",
     // A fetchland for every basic at once, which costs it the fetchland's
     // other half: nothing it finds is a dual, so it fixes colour without
     // paying anybody's land types.
@@ -953,11 +941,11 @@ pub(in crate::card::sets) static PRISMATIC_VISTA: CardRecord = CardRecord::new(
 );
 
 // MH1 247 — Sunbaked Canyon
-pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_with_legacy_id(
-    2230,
-    "Sunbaked Canyon",
-    CardArt::new("c36820fa-ee86-4206-9a0d-737a67cf5208", "Yeong-Hao Han"),
+pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new(
     CardSet::ModernHorizons1,
+    "Sunbaked Canyon",
+    "c36820fa-ee86-4206-9a0d-737a67cf5208",
+    "Yeong-Hao Han",
     CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
         "{T}, Pay 1 life: Add {R} or {W}.",
         &[ManaColor::Red, ManaColor::White],
@@ -966,10 +954,10 @@ pub(in crate::card::sets) static SUNBAKED_CANYON: CardRecord = CardRecord::new_w
 
 // MH1 249 — Waterlogged Grove
 pub(in crate::card::sets) static WATERLOGGED_GROVE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0ab6bfbd-d2e1-4c4c-9f91-6f69c5b8e3bb"),
-    "Waterlogged Grove",
-    crate::card::CardArt::new("0ab6bfbd-d2e1-4c4c-9f91-6f69c5b8e3bb", "John Avon"),
     crate::card::CardSet::ModernHorizons1,
+    "Waterlogged Grove",
+    "0ab6bfbd-d2e1-4c4c-9f91-6f69c5b8e3bb",
+    "John Avon",
     CardRules::new_land(&[]).with_abilities(&abilities::horizon_land(
         "{T}, Pay 1 life: Add {G} or {U}.",
         &[ManaColor::Green, ManaColor::Blue],
@@ -985,18 +973,14 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &ECHO_OF_EONS,
     &FAERIE_SEER,
     &FORCE_OF_NEGATION,
-    &MAN_O_WAR,
     &URZA_LORD_HIGH_ARTIFICER,
-    &CARRION_FEEDER,
     &FIRST_SPHERE_GARGANTUA,
     &PUTRID_GOBLIN,
     &BOGARDAN_DRAGONHEART,
-    &RECKLESS_CHARGE,
     &SEASONED_PYROMANCER,
     &COLLECTOR_OUPHE,
     &FORCE_OF_VIGOR,
     &HEXDRINKER,
-    &KROSAN_TUSKER,
     &MOTHER_BEAR,
     &TRUMPETING_HERD,
     &WINDING_WAY,
@@ -1011,4 +995,9 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &WATERLOGGED_GROVE,
 ];
 
-pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];
+pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[
+    MAN_O_WAR_REPRINT,
+    CARRION_FEEDER_REPRINT,
+    RECKLESS_CHARGE_REPRINT,
+    KROSAN_TUSKER_REPRINT,
+];

@@ -23,8 +23,10 @@ pub const ALLOWED_SETS: &[CardSet] = &[
     CardSet::Legends,
     CardSet::TheDark,
     CardSet::FallenEmpires,
-    CardSet::Promo1994,
 ];
+
+/// Promos released in 1994 whose physical promo sets also contain later cards.
+pub const ADDITIONAL_ALLOWED_CARDS: &[&str] = &["Arena", "Sewers of Estark", "Nalathni Dragon"];
 
 pub const RESTRICTED_CARDS: &[&str] = &[
     "Ancestral Recall",
@@ -62,6 +64,7 @@ pub(super) const DEFINITION: SetFormatDefinition = SetFormatDefinition {
         mana_burn: true,
     },
     allowed_sets: ALLOWED_SETS,
+    additional_allowed_cards: ADDITIONAL_ALLOWED_CARDS,
     banned_cards: BANNED_CARDS,
     restricted_cards: RESTRICTED_CARDS,
 };

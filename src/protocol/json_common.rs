@@ -140,7 +140,7 @@ pub(super) fn instances_json(cards: &[GameObjectId]) -> Value {
     Value::from(cards.iter().map(|card| card.0).collect::<Vec<_>>())
 }
 
-fn card_art_json(art: CardArt) -> Value {
+pub(super) fn card_art_json(art: CardArt) -> Value {
     json!({
         "scryfallId": art.scryfall_id,
         "artist": art.artist,

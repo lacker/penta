@@ -7,7 +7,10 @@ use std::sync::{Arc, Weak};
 
 use self::name::normalize_name;
 use self::validation::validate_composition;
-use super::{CardDefinition, CardPrinting, CardPrintingId, CardSet, CardStructure};
+use super::{
+    CardArt, CardArtPreference, CardDefinition, CardPrinting, CardPrintingId, CardSet,
+    CardStructure,
+};
 use crate::{CardDefinitionId, Format};
 
 pub use self::error::{
@@ -262,6 +265,37 @@ impl CardCatalog {
         self.printings_for(id)
             .iter()
             .any(|printing| printing.id.set == set)
+    }
+
+    /// Selects presentation art without changing the card's rules identity.
+    ///
+    /// Format matching follows the format's set order and the printing's
+    /// variant order, then falls back to the canonical debut artwork when no
+    /// admitted printing has its own recorded art. Cube and exact-card pools
+    /// likewise retain the debut artwork because they do not prescribe a set.
+    #[must_use]
+    pub fn art_for(
+        &self,
+        id: CardDefinitionId,
+        format: Format,
+        preference: CardArtPreference,
+    ) -> Option<CardArt> {
+        let card = self.get(id)?;
+        if preference == CardArtPreference::FormatMatching
+            && let Some(definition) = format.set_definition()
+        {
+            for set in definition.allowed_sets {
+                if let Some(art) = card
+                    .printings
+                    .iter()
+                    .filter(|printing| printing.id.set == *set)
+                    .find_map(|printing| printing.art)
+                {
+                    return Some(art);
+                }
+            }
+        }
+        card.art
     }
 
     #[must_use]

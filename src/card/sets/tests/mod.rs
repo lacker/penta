@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use super::{CardRecord, SET_MODULES, y1993, y1996, y2002, y2012};
+use super::{CardRecord, SET_MODULES, y1993, y1996, y2002, y2005, y2012};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,
     AbilityProgramDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,

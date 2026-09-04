@@ -191,7 +191,17 @@ impl WebGame {
             .battlefield
             .iter()
             .map(|permanent| {
-                let presentation = object_presentation(&self.catalog, permanent.characteristics);
+                let mut presentation =
+                    object_presentation(&self.catalog, permanent.characteristics);
+                if let penta::ObjectCharacteristics::Card { definition, .. } =
+                    permanent.characteristics
+                {
+                    presentation.art = self.catalog.art_for(
+                        definition,
+                        self.session.format(),
+                        self.art_preference,
+                    );
+                }
                 // The engine reports what the permanent is right now, so an
                 // animated land renders as the creature it became rather than
                 // as the land it is printed as.
@@ -278,12 +288,14 @@ impl WebGame {
         // both zones need the same shape rather than a list of names.
         let card_in_zone = |id: penta::GameObjectId, definition: CardDefinitionId| {
             let card = self.catalog.get(definition);
-            let art = card.and_then(|card| card.art.as_ref());
+            let art = self
+                .catalog
+                .art_for(definition, self.session.format(), self.art_preference);
             let creature_stats = card.and_then(|card| card.rules.creature_stats());
             json!({
                 "id": id.0,
                 "name": self.card_name(definition),
-                "art": card_art_value(art),
+                "art": card_art_value(art.as_ref()),
                 "kind": card.map_or("unknown".into(), |card| {
                     card.rules.kind_name().to_ascii_lowercase()
                 }),
@@ -325,11 +337,20 @@ impl WebGame {
                 // Enough card detail for the browser to draw a real card on
                 // the stack rather than a name tag.
                 let signature = object.signature.as_ref();
-                let presentation = stack_card_presentation(
+                let mut presentation = stack_card_presentation(
                     &self.catalog,
                     object.characteristics,
                     signature,
                 );
+                if let penta::ObjectCharacteristics::Card { definition, .. } =
+                    object.characteristics
+                {
+                    presentation.art = self.catalog.art_for(
+                        definition,
+                        self.session.format(),
+                        self.art_preference,
+                    );
+                }
                 let targets = signature.map_or_else(
                     || object.targets.clone(),
                     |signature| signature.iter_targets().copied().collect(),

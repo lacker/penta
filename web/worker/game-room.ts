@@ -42,6 +42,7 @@ interface GameConfig {
   humanFirst: boolean;
   seed: number;
   format?: string;
+  artPreference?: "debut" | "format-matching";
   /**
    * The human seat's own opt-in to open decklists: it is willing to have
    * `humanDeck` named to a bot opponent who has also opted in. Off by
@@ -508,6 +509,7 @@ export class GameRoom {
       config.humanFirst,
       config.seed,
       config.format,
+      config.artPreference,
     );
     const stored: StoredGame = {
       config,
@@ -576,6 +578,7 @@ export class GameRoom {
         stored.config.humanFirst,
         stored.config.seed,
         stored.config.format,
+        stored.config.artPreference,
       );
       // Replaying also recovers the last safe boundary for rooms created
       // before the cache existed, or after a storage write was interrupted.

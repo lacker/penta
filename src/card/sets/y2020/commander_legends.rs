@@ -1,21 +1,18 @@
 //! Commander Legends card records required by supported formats.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, EffectDef, PlayerRelation, ReplacementAbilityDef,
+    AbilityDef, CardRules, CardSet, EffectDef, PlayerRelation, ReplacementAbilityDef,
     ReplacementEffectDef, ReplacementEventDef, abilities, tokens,
 };
 use crate::mana_cost;
 
 // CMR 74 — Hullbreacher
 pub(in crate::card::sets) static HULLBREACHER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("4df8aabc-7fcb-4b7b-980b-18f499e6c170"),
-    "Hullbreacher",
-    CardArt::new(
-        "4df8aabc-7fcb-4b7b-980b-18f499e6c170",
-        "Sidharth Chaturvedi",
-    ),
     CardSet::CommanderLegends,
+    "Hullbreacher",
+    "4df8aabc-7fcb-4b7b-980b-18f499e6c170",
+    "Sidharth Chaturvedi",
     // Three mana at instant speed that turns their draw spell into your
     // mana, and a 3/2 body attached to it.
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Merfolk", "Pirate"], 3, 2)
@@ -44,6 +41,16 @@ pub(in crate::card::sets) static HULLBREACHER: CardRecord = CardRecord::new(
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&HULLBREACHER];
+// CMR 216 — Annoyed Altisaur
+// Audit: unsupported — Card rules have not been implemented.
+pub(in crate::card::sets) static ANNOYED_ALTISAUR: CardRecord = CardRecord::new(
+    crate::card::CardSet::CommanderLegends,
+    "Annoyed Altisaur",
+    "7536d618-0c98-45bb-913b-b8117b4acf87",
+    "Lars Grant-West",
+    crate::card::CardRules::unsupported(),
+);
+
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&HULLBREACHER, &ANNOYED_ALTISAUR];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

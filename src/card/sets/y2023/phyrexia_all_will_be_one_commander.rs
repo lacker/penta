@@ -1,24 +1,20 @@
 //! Phyrexia: All Will Be One Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, BattlefieldEntryModificationDef, CardRules, CardSet, CardSupertype,
+    CardType, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
 // ONC 6 — Glimmer Lens
 pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9262000-e6f3-4da1-ad1c-038f65d3bef6"),
-    "Glimmer Lens",
-    CardArt::new(
-        "c9262000-e6f3-4da1-ad1c-038f65d3bef6",
-        "Sidharth Chaturvedi",
-    ),
     CardSet::PhyrexiaAllWillBeOneCommander,
+    "Glimmer Lens",
+    "c9262000-e6f3-4da1-ad1c-038f65d3bef6",
+    "Sidharth Chaturvedi",
     CardRules::new_artifact(mana_cost!("{1}{W}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
@@ -45,12 +41,12 @@ pub(in crate::card::sets) static GLIMMER_LENS: CardRecord = CardRecord::new(
         ]),
 );
 
-// ONC 39 — Otharri, Suns\' Glory
+// ONC 39 — Otharri, Suns' Glory
 pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("348e0927-1d8f-4723-879d-f7e95ac60c27"),
-    "Otharri, Suns\' Glory",
-    CardArt::new("348e0927-1d8f-4723-879d-f7e95ac60c27", "Marta Nael"),
     CardSet::PhyrexiaAllWillBeOneCommander,
+    "Otharri, Suns' Glory",
+    "348e0927-1d8f-4723-879d-f7e95ac60c27",
+    "Marta Nael",
     // Five mana for a hasty lifelinking flier that pays out more every time
     // it connects, and buys itself back out of the graveyard with what it
     // left behind.
@@ -62,7 +58,7 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
             abilities::haste(),
             AbilityDef::triggered(
                 "Whenever this creature attacks, you get an experience counter. Then create a 2/2 red \
-                 Rebel creature token that\'s tapped and attacking for each experience counter you have.",
+                 Rebel creature token that's tapped and attacking for each experience counter you have.",
                 TriggerEventDef::attacks(ObjectPredicateDef::Source),
                 // "Then" is the order that matters: the counter is his first, so the
                 // attack he arrives on already makes one Rebel.
@@ -112,10 +108,10 @@ pub(in crate::card::sets) static OTHARRI_SUNS_GLORY: CardRecord = CardRecord::ne
 
 // ONC 48 — Staff of the Storyteller
 pub(in crate::card::sets) static STAFF_OF_THE_STORYTELLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a"),
-    "Staff of the Storyteller",
-    CardArt::new("17be11f2-f2db-40c4-8fc1-2ed7173f9a1a", "Dan Murayama Scott"),
     CardSet::PhyrexiaAllWillBeOneCommander,
+    "Staff of the Storyteller",
+    "17be11f2-f2db-40c4-8fc1-2ed7173f9a1a",
+    "Dan Murayama Scott",
     // Two mana for a flier, and a card for every turn the deck keeps making
     // tokens afterwards.
     CardRules::new_artifact(mana_cost!("{1}{W}")).with_abilities(&[

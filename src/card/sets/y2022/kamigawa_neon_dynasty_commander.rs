@@ -1,7 +1,7 @@
 //! Kamigawa: Neon Dynasty Commander cards cataloged for the Vintage Cube
 //! pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
@@ -12,10 +12,10 @@ use crate::mana_cost;
 
 // NEC 14 — Kappa Cannoneer
 pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("85a89077-b384-4fca-9d26-7297962c1541"),
-    "Kappa Cannoneer",
-    CardArt::new("85a89077-b384-4fca-9d26-7297962c1541", "Jesper Ejsing"),
     CardSet::KamigawaNeonDynastyCommander,
+    "Kappa Cannoneer",
+    "85a89077-b384-4fca-9d26-7297962c1541",
+    "Jesper Ejsing",
     // Six mana on paper and rarely six in practice: the artifacts that make
     // it cheap are the same ones that make it bigger and unblockable.
     CardRules::new_artifact_creature(mana_cost!("{5}{U}"), &["Turtle", "Warrior"], 4, 4)
@@ -62,10 +62,10 @@ pub(in crate::card::sets) static KAPPA_CANNONEER: CardRecord = CardRecord::new(
 
 // NEC 76 — Shorikai, Genesis Engine
 pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("0347cf84-42f5-4674-99de-619b0ae51d62"),
-    "Shorikai, Genesis Engine",
-    CardArt::new("0347cf84-42f5-4674-99de-619b0ae51d62", "Wisnu Tan"),
     CardSet::KamigawaNeonDynastyCommander,
+    "Shorikai, Genesis Engine",
+    "0347cf84-42f5-4674-99de-619b0ae51d62",
+    "Wisnu Tan",
     // Four mana that loots every turn and pays for its own crew while it
     // does it -- the 8/8 is what the Pilots are for rather than the plan.
     CardRules::new_vehicle(mana_cost!("{2}{W}{U}"), 8, 8)

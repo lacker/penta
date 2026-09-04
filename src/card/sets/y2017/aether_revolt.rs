@@ -1,6 +1,6 @@
 //! Aether Revolt cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
@@ -15,10 +15,10 @@ use crate::mana_cost;
 // AER 51 — Aether Poisoner
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_POISONER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("c9b217f1-1621-40d1-8a98-24c1f7cba800"),
-    "Aether Poisoner",
-    crate::card::CardArt::new("c9b217f1-1621-40d1-8a98-24c1f7cba800", "Yongjae Choi"),
     crate::card::CardSet::AetherRevolt,
+    "Aether Poisoner",
+    "c9b217f1-1621-40d1-8a98-24c1f7cba800",
+    "Yongjae Choi",
     crate::card::CardRules::unsupported(),
 );
 
@@ -29,11 +29,11 @@ static PUSH_IT: EffectDef = EffectDef::Destroy {
     then: None,
 };
 
-pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_legacy_id(
-    2233,
-    "Fatal Push",
-    CardArt::new("b5e81649-9954-424c-89d1-f87d73b66047", "Eric Deschamps"),
+pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new(
     CardSet::AetherRevolt,
+    "Fatal Push",
+    "b5e81649-9954-424c-89d1-f87d73b66047",
+    "Eric Deschamps",
     // One black mana answers most of what a fast deck plays, and a fetchland
     // cracked on the way in stretches it over almost everything else.
     CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
@@ -69,19 +69,19 @@ pub(in crate::card::sets) static FATAL_PUSH: CardRecord = CardRecord::new_with_l
 // AER 76 — Aether Chaser
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AETHER_CHASER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("290cde84-d97a-4737-aff2-c443a4e43f7d"),
-    "Aether Chaser",
-    crate::card::CardArt::new("290cde84-d97a-4737-aff2-c443a4e43f7d", "Jason Rainville"),
     crate::card::CardSet::AetherRevolt,
+    "Aether Chaser",
+    "290cde84-d97a-4737-aff2-c443a4e43f7d",
+    "Jason Rainville",
     crate::card::CardRules::unsupported(),
 );
 
 // AER 87 — Kari Zev, Skyship Raider
 pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("72495879-39ce-449d-ad2f-ef32ea46f3aa"),
-    "Kari Zev, Skyship Raider",
-    CardArt::new("72495879-39ce-449d-ad2f-ef32ea46f3aa", "Brad Rigney"),
     CardSet::AetherRevolt,
+    "Kari Zev, Skyship Raider",
+    "72495879-39ce-449d-ad2f-ef32ea46f3aa",
+    "Brad Rigney",
     // Two mana that attacks as three power across two bodies, one of which
     // is hard to block and the other of which is gone by the second main
     // phase.
@@ -133,29 +133,29 @@ pub(in crate::card::sets) static KARI_ZEV_SKYSHIP_RAIDER: CardRecord = CardRecor
 // AER 101 — Wrangle
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRANGLE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("5ea93a49-5a7c-4d15-8548-a57c9460e0f0"),
-    "Wrangle",
-    crate::card::CardArt::new("5ea93a49-5a7c-4d15-8548-a57c9460e0f0", "Jason Rainville"),
     crate::card::CardSet::AetherRevolt,
+    "Wrangle",
+    "5ea93a49-5a7c-4d15-8548-a57c9460e0f0",
+    "Jason Rainville",
     crate::card::CardRules::unsupported(),
 );
 
 // AER 151 — Foundry Assembler
 pub(in crate::card::sets) static FOUNDRY_ASSEMBLER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("e83a2862-a2d7-4d87-a4b8-def9f441f5fa"),
-    "Foundry Assembler",
-    CardArt::new("e83a2862-a2d7-4d87-a4b8-def9f441f5fa", "Karl Kopinski"),
     CardSet::AetherRevolt,
+    "Foundry Assembler",
+    "e83a2862-a2d7-4d87-a4b8-def9f441f5fa",
+    "Karl Kopinski",
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Assembly-Worker"], 3, 3)
         .with_ability(crate::card::abilities::improvise()),
 );
 
 // AER 181 — Walking Ballista
-pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new_with_legacy_id(
-    2237,
-    "Walking Ballista",
-    CardArt::new("329a8738-3e17-403a-857a-0ba529ce8cd1", "Daniel Ljunggren"),
+pub(in crate::card::sets) static WALKING_BALLISTA: CardRecord = CardRecord::new(
     CardSet::AetherRevolt,
+    "Walking Ballista",
+    "329a8738-3e17-403a-857a-0ba529ce8cd1",
+    "Daniel Ljunggren",
     // Two mana per point, which is a bad rate and never a dead card: it is
     // removal, a mana sink, and a creature, and it needs no colours at all.
     CardRules::new_artifact_creature(mana_cost!("{X}{X}"), &["Construct"], 0, 0).with_abilities(&[

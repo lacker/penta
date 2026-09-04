@@ -36,6 +36,55 @@ fn primary_and_additional_printings_are_indexed_by_canonical_definition() {
 }
 
 #[test]
+fn built_in_printings_record_exact_art() {
+    let catalog = crate::card::catalog().expect("built-in catalog builds");
+    let missing = catalog
+        .definitions()
+        .into_iter()
+        .flat_map(|definition| {
+            definition
+                .printings
+                .iter()
+                .filter(|printing| printing.art.is_none())
+                .map(move |printing| (definition.name.as_str(), printing.id))
+        })
+        .collect::<Vec<_>>();
+
+    assert!(
+        missing.is_empty(),
+        "printings without exact art: {missing:?}"
+    );
+}
+
+#[test]
+fn historical_ids_use_debut_art_without_losing_reprint_art() {
+    let catalog = crate::card::catalog().expect("built-in catalog builds");
+    let sedge_troll = catalog
+        .get(crate::card::cards::SEDGE_TROLL)
+        .expect("Sedge Troll is cataloged");
+
+    assert_eq!(
+        crate::card::cards::SEDGE_TROLL,
+        CardDefinitionId::new(123),
+        "the compatibility shim must preserve the historical definition ID",
+    );
+    assert_eq!(sedge_troll.debut_set, CardSet::Alpha);
+    assert_eq!(
+        sedge_troll.art.map(|art| art.scryfall_id),
+        Some("b13bf496-f3c0-4c13-8282-e7abfab6a198"),
+    );
+    assert_eq!(
+        sedge_troll
+            .printings
+            .iter()
+            .find(|printing| printing.id.set == CardSet::Beta)
+            .and_then(|printing| printing.art)
+            .map(|art| art.scryfall_id),
+        Some("02ec317b-52a6-4490-80e5-a56826b06771"),
+    );
+}
+
+#[test]
 fn sparse_javascript_safe_definition_ids_do_not_expand_the_dense_index() {
     let sparse = CardDefinitionId::new(1_u64 << 40);
     let dense = CardDefinitionId::new(2);
@@ -121,6 +170,39 @@ fn an_allowed_reprint_makes_the_canonical_identity_format_legal() {
     assert_eq!(catalog.get(id).unwrap().debut_set, CardSet::Alpha);
     assert!(catalog.is_allowed_in(id, Format::OldSchool9394));
     assert!(catalog.is_allowed_in(id, Format::IsdM14Standard));
+}
+
+#[test]
+fn art_selection_can_follow_the_format_without_changing_the_debut() {
+    let id = CardDefinitionId::new(1);
+    let debut_art = CardArt::new("00000000-0000-0000-0000-000000000001", "Debut Artist");
+    let standard_art = CardArt::new("00000000-0000-0000-0000-000000000002", "Reprint Artist");
+    let mut card = definition(1, "Test Card", CardSet::Alpha);
+    card.art = Some(debut_art);
+    card.printings[0].art = Some(debut_art);
+    let catalog = CardCatalog::with_additional_printings(
+        [card],
+        [CardPrinting::with_art(id, CardSet::Magic2014, standard_art)],
+    )
+    .unwrap();
+
+    assert_eq!(catalog.get(id).unwrap().debut_set, CardSet::Alpha);
+    assert_eq!(
+        catalog.art_for(id, Format::IsdM14Standard, CardArtPreference::Debut),
+        Some(debut_art)
+    );
+    assert_eq!(
+        catalog.art_for(
+            id,
+            Format::IsdM14Standard,
+            CardArtPreference::FormatMatching
+        ),
+        Some(standard_art)
+    );
+    assert_eq!(
+        catalog.art_for(id, Format::OldSchool9394, CardArtPreference::FormatMatching),
+        Some(debut_art)
+    );
 }
 
 #[test]

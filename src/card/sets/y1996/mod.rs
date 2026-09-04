@@ -3,4 +3,4 @@
 pub(super) mod alliances;
 pub(super) mod mirage;
 
-pub(super) use super::{CardRecord, PrintingAnchor, PrintingRecord};
+pub(super) use super::{CardRecord, PrintingRecord};

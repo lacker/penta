@@ -1,6 +1,6 @@
 //! Strixhaven: School of Mages cards cataloged for the Vintage Cube.
 
-use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use super::{CardRecord, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, CardArt,
     CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, EffectDef, EffectRecipientDef,
@@ -12,11 +12,11 @@ use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
 
 // STX 17 — Elite Spellbinder
-pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new_with_legacy_id(
-    2274,
-    "Elite Spellbinder",
-    CardArt::new("9d3a7998-ccac-45ad-a4e9-3a2cb057f63b", "Ryan Pancoast"),
+pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new(
     CardSet::StrixhavenSchoolOfMages,
+    "Elite Spellbinder",
+    "9d3a7998-ccac-45ad-a4e9-3a2cb057f63b",
+    "Ryan Pancoast",
     // A three-mana 3/1 flier that also buys a turn: the card comes back, but
     // a turn later and two mana worse, which is often the whole game.
     CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 3, 1)
@@ -66,19 +66,19 @@ pub(in crate::card::sets) static ELITE_SPELLBINDER: CardRecord = CardRecord::new
 // STX 43 — Frost Trickster
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FROST_TRICKSTER: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("fd79c9cc-0a8c-4d88-96e2-cb177134a18d"),
-    "Frost Trickster",
-    crate::card::CardArt::new("fd79c9cc-0a8c-4d88-96e2-cb177134a18d", "Uriah Voth"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Frost Trickster",
+    "fd79c9cc-0a8c-4d88-96e2-cb177134a18d",
+    "Uriah Voth",
     crate::card::CardRules::unsupported(),
 );
 
 // STX 64 — Baleful Mastery
-pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_with_legacy_id(
-    2201,
-    "Baleful Mastery",
-    CardArt::new("35f1a6ba-e46f-44fb-93f4-fb883d677b36", "Chris Cold"),
+pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new(
     CardSet::StrixhavenSchoolOfMages,
+    "Baleful Mastery",
+    "35f1a6ba-e46f-44fb-93f4-fb883d677b36",
+    "Chris Cold",
     // Exile at instant speed answers anything, and the choice of price is
     // the card: four mana clean, or two and a card for them.
     CardRules::new_instant(mana_cost!("{3}{B}")).with_abilities(&[
@@ -127,10 +127,10 @@ pub(in crate::card::sets) static BALEFUL_MASTERY: CardRecord = CardRecord::new_w
 // STX 90 — Unwilling Ingredient
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("30448144-639a-43c7-a408-bd6ed543c231"),
-    "Unwilling Ingredient",
-    crate::card::CardArt::new("30448144-639a-43c7-a408-bd6ed543c231", "David Auden Nash"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Unwilling Ingredient",
+    "30448144-639a-43c7-a408-bd6ed543c231",
+    "David Auden Nash",
     crate::card::CardRules::unsupported(),
 );
 
@@ -145,13 +145,10 @@ const ITERATION_AFTER_HAND: Binding = Binding!("iteration_after_hand");
 const ITERATION_BOTTOM: Binding = Binding!("iteration_bottom");
 const ITERATION_EXILE: Binding = Binding!("iteration_exile");
 pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("31b770cc-09e7-4c0b-b2a4-462ab4f7200d"),
-    "Expressive Iteration",
-    crate::card::CardArt::new(
-        "31b770cc-09e7-4c0b-b2a4-462ab4f7200d",
-        "Anastasia Ovchinnikova",
-    ),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Expressive Iteration",
+    "31b770cc-09e7-4c0b-b2a4-462ab4f7200d",
+    "Anastasia Ovchinnikova",
     // Two mana and a card for two cards, one of which has to be spent this
     // turn: the deck playing it is the one with mana left over.
     CardRules::new_sorcery(mana_cost!("{U}{R}")).with_ability(AbilityDef::spell(
@@ -224,10 +221,10 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
 // STX 219 — Quandrix Pledgemage
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
-    "Quandrix Pledgemage",
-    crate::card::CardArt::new("07633b7f-4150-458b-89c3-d05dc0e3c4bd", "Caroline Gariba"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Quandrix Pledgemage",
+    "07633b7f-4150-458b-89c3-d05dc0e3c4bd",
+    "Caroline Gariba",
     crate::card::CardRules::unsupported(),
 );
 
@@ -251,10 +248,10 @@ static MAGECRAFT: TriggerEventDef = TriggerEventDef::AnyOf(&[
 
 // STX 247 — Witherbloom Apprentice
 pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7f80a11b-188b-464c-b00d-c9d1cfb8ddee"),
-    "Witherbloom Apprentice",
-    CardArt::new("7f80a11b-188b-464c-b00d-c9d1cfb8ddee", "Josh Hass"),
     CardSet::StrixhavenSchoolOfMages,
+    "Witherbloom Apprentice",
+    "7f80a11b-188b-464c-b00d-c9d1cfb8ddee",
+    "Josh Hass",
     // Two mana for a 2/2 that turns a deck full of cheap spells into a
     // clock, two life at a time.
     CardRules::new_creature(mana_cost!("{B}{G}"), &["Human", "Druid"], 2, 2).with_ability(
@@ -279,29 +276,29 @@ pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord
 // STX 271 — Quandrix Campus
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static QUANDRIX_CAMPUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("f788da28-481b-41fa-a70c-b53db6b0f068"),
-    "Quandrix Campus",
-    crate::card::CardArt::new("f788da28-481b-41fa-a70c-b53db6b0f068", "Piotr Dura"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Quandrix Campus",
+    "f788da28-481b-41fa-a70c-b53db6b0f068",
+    "Piotr Dura",
     crate::card::CardRules::unsupported(),
 );
 
 // STX 275 — Witherbloom Campus
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("7346fb2e-754e-47de-b33d-eb089b357ee4"),
-    "Witherbloom Campus",
-    crate::card::CardArt::new("7346fb2e-754e-47de-b33d-eb089b357ee4", "Alayna Danner"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Witherbloom Campus",
+    "7346fb2e-754e-47de-b33d-eb089b357ee4",
+    "Alayna Danner",
     crate::card::CardRules::unsupported(),
 );
 
 // STX 306 — Sedgemoor Witch
 pub(in crate::card::sets) static SEDGEMOOR_WITCH: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("075bfaa8-3d54-4934-aaf6-72be43a87324"),
-    "Sedgemoor Witch",
-    crate::card::CardArt::new("075bfaa8-3d54-4934-aaf6-72be43a87324", "Igor Kieryluk"),
     crate::card::CardSet::StrixhavenSchoolOfMages,
+    "Sedgemoor Witch",
+    "075bfaa8-3d54-4934-aaf6-72be43a87324",
+    "Igor Kieryluk",
     // Three mana for a body that is hard to block and harder to answer, and
     // that turns every cantrip into another creature.
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Human", "Warlock"], 3, 2).with_abilities(&[

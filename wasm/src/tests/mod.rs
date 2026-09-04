@@ -110,7 +110,7 @@ mod external_opponent {
     use super::*;
 
     fn hosted_external() -> WebGame {
-        WebGame::new("Sligh", "Goblins", "External", true, 77, None).expect("game starts")
+        WebGame::new("Sligh", "Goblins", "External", true, 77, None, None).expect("game starts")
     }
 
     fn parsed(json: &str) -> serde_json::Value {
@@ -165,8 +165,8 @@ mod external_opponent {
         // window: mulligan, land, spells. The human should watch it happen
         // the way they watch a built-in opponent -- as beats and log lines --
         // even though every choice arrived from outside by index.
-        let mut game =
-            WebGame::new("Sligh", "Goblins", "External", false, 77, None).expect("game starts");
+        let mut game = WebGame::new("Sligh", "Goblins", "External", false, 77, None, None)
+            .expect("game starts");
         let mut saw_beats = false;
         for _ in 0..4_000 {
             if game.opponent_is_deciding() {
@@ -217,8 +217,8 @@ mod external_opponent {
 
     #[test]
     fn a_built_in_opponent_refuses_the_driver_entry_points() {
-        let mut game =
-            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 77, None).expect("game starts");
+        let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 77, None, None)
+            .expect("game starts");
         assert!(!game.opponent_is_deciding());
         assert!(game.opponent_observe_json().is_err());
         assert!(game.opponent_act(0).is_err());
@@ -239,13 +239,13 @@ fn an_external_game_never_prints_the_seed() {
     // opponent is real. The built-in-policy snapshot keeps its courtesy line;
     // the external one must not have it anywhere.
     let external =
-        WebGame::new("Sligh", "Goblins", "External", true, 4242, None).expect("game starts");
+        WebGame::new("Sligh", "Goblins", "External", true, 4242, None, None).expect("game starts");
     assert!(
         !external.state_json().contains("seed"),
         "an external game's snapshot mentions no seed"
     );
-    let local =
-        WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4242, None).expect("game starts");
+    let local = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4242, None, None)
+        .expect("game starts");
     assert!(
         local.state_json().contains("Game started · seed 4242"),
         "a built-in game still shows its courtesy line"
@@ -267,7 +267,7 @@ mod replay_journal {
     /// property a bug report's attachment depends on.
     #[test]
     fn a_journal_replays_to_an_identical_snapshot() {
-        let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4_242, None)
+        let mut game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 4_242, None, None)
             .expect("game starts");
         let mut acted = 0;
         for _ in 0..400 {
@@ -324,11 +324,12 @@ mod replay_journal {
 
     #[test]
     fn replay_format_and_simulation_identity_are_independent_guards() {
-        let game =
-            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 7, None).expect("game starts");
+        let game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 7, None, None)
+            .expect("game starts");
         let replay: serde_json::Value =
             serde_json::from_str(&game.replay_json()).expect("replay is JSON");
         assert_eq!(replay["replayVersion"], REPLAY_VERSION);
+        assert_eq!(replay["config"]["artPreference"], "debut");
         assert_eq!(
             replay["simulationFingerprint"],
             penta::protocol::SIMULATION_FINGERPRINT
@@ -348,6 +349,17 @@ mod replay_journal {
             "different rules are refused before commands apply"
         );
 
+        let mut older_config = replay.clone();
+        older_config["config"]
+            .as_object_mut()
+            .expect("fixture config is an object")
+            .remove("artPreference");
+        let rebuilt = WebGame::from_replay_json(&older_config.to_string())
+            .expect("a replay from before the presentation option defaults to debut art");
+        let rebuilt_replay: Value =
+            serde_json::from_str(&rebuilt.replay_json()).expect("rebuilt replay is JSON");
+        assert_eq!(rebuilt_replay["config"]["artPreference"], "debut");
+
         let mut diagnostic_changes = replay;
         diagnostic_changes["engineVersion"] = serde_json::json!("99.0.0");
         diagnostic_changes["protocolVersion"] = serde_json::json!(1);
@@ -359,8 +371,8 @@ mod replay_journal {
 
     #[test]
     fn replay_v2_requires_its_envelope_and_config_fields_with_their_declared_types() {
-        let game =
-            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 11, None).expect("game starts");
+        let game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 11, None, None)
+            .expect("game starts");
         let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
 
         assert_replay_is_rejected(&serde_json::json!([]), "the envelope must be an object");
@@ -417,6 +429,7 @@ mod replay_journal {
             ("botPolicy", serde_json::json!(false)),
             ("humanFirst", serde_json::json!("true")),
             ("seed", serde_json::json!("11")),
+            ("artPreference", serde_json::json!(false)),
         ] {
             let mut malformed = replay.clone();
             malformed["config"][field] = wrong_type;
@@ -431,8 +444,8 @@ mod replay_journal {
     #[test]
     #[allow(clippy::too_many_lines)] // One table documents every replay-v2 command field.
     fn replay_v2_commands_require_the_fields_and_types_declared_by_their_tag() {
-        let game =
-            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 12, None).expect("game starts");
+        let game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 12, None, None)
+            .expect("game starts");
         let replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
 
         for (reason, command) in [
@@ -564,8 +577,8 @@ mod replay_journal {
 
     #[test]
     fn replay_v2_ignores_unknown_command_members_and_preserves_timeout_reason() {
-        let game =
-            WebGame::new("Sligh", "Goblins", "Handcrafted", true, 13, None).expect("game starts");
+        let game = WebGame::new("Sligh", "Goblins", "Handcrafted", true, 13, None, None)
+            .expect("game starts");
         let mut replay: Value = serde_json::from_str(&game.replay_json()).expect("replay is JSON");
         replay["commands"] = serde_json::json!([
             { "t": "autopass", "enabled": false, "future": [1, 2, 3] },
@@ -602,7 +615,7 @@ mod lose_on_time {
     #[test]
     fn a_bot_that_runs_out_of_time_hands_the_game_to_the_human() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         assert!(
             parsed(&game.state_json())["result"].is_null(),
             "game is live"
@@ -625,7 +638,7 @@ mod lose_on_time {
         // that is *not* being waited on -- which is the whole point: a player
         // who stopped answering is not going to take their turn either.
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         assert!(
             !game.opponent_is_deciding(),
             "the human is the one on the clock here"
@@ -638,7 +651,7 @@ mod lose_on_time {
     #[test]
     fn a_human_who_runs_out_of_time_loses_the_game() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.lose_on_time("human", None)
             .expect("the human loses on time");
         assert_eq!(parsed(&game.state_json())["result"]["outcome"], "loss");
@@ -649,7 +662,7 @@ mod lose_on_time {
     #[test]
     fn the_result_says_time_rather_than_concession() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.lose_on_time("human", None)
             .expect("the human loses on time");
         let message = parsed(&game.state_json())["result"]["message"]
@@ -667,7 +680,7 @@ mod lose_on_time {
     #[test]
     fn a_hosts_own_account_of_the_ending_reaches_the_player() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.lose_on_time("bot", Some("Fizzbot stopped answering".to_owned()))
             .expect("the bot loses on time");
 
@@ -687,8 +700,8 @@ mod lose_on_time {
     #[test]
     fn the_default_reason_keeps_the_seat_aware_wording() {
         for reason in [None, Some(String::from("ran out of time"))] {
-            let mut game =
-                WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            let mut game = WebGame::new("Sligh", "Goblins", "External", true, 9, None, None)
+                .expect("game starts");
             game.lose_on_time("bot", reason.clone())
                 .expect("the bot loses on time");
             assert_eq!(
@@ -705,7 +718,7 @@ mod lose_on_time {
     #[test]
     fn a_replay_ends_with_the_same_account_of_the_ending() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.lose_on_time("bot", Some("Fizzbot stopped answering".to_owned()))
             .expect("the bot loses on time");
         let replay = game.replay_json();
@@ -724,7 +737,7 @@ mod lose_on_time {
     #[test]
     fn an_unknown_seat_is_refused() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         assert!(game.lose_on_time("nobody", None).is_err());
         assert!(
             parsed(&game.state_json())["result"].is_null(),
@@ -735,7 +748,7 @@ mod lose_on_time {
     #[test]
     fn the_timeout_journal_uses_the_canonical_v1_seat_and_reason() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.lose_on_time("opponent", None)
             .expect("the public alias remains accepted");
 
@@ -747,7 +760,7 @@ mod lose_on_time {
     #[test]
     fn a_timeout_replays_like_any_other_command() {
         let mut game =
-            WebGame::new("Sligh", "Goblins", "External", true, 9, None).expect("game starts");
+            WebGame::new("Sligh", "Goblins", "External", true, 9, None, None).expect("game starts");
         game.act(
             parsed(&game.state_json())["actions"]
                 .as_array()

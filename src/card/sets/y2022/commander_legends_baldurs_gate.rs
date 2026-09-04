@@ -6,13 +6,12 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
     CardEffectStatus, CardNameDef, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DeckConstructionDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
-    PlayOptionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
-    SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardType, ComparisonDef, CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectSetFilterDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellCastQueryDef, SpellForm, SpellResolutionDestinationDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};

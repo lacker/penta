@@ -3,10 +3,9 @@ use std::ops::ControlFlow;
 use super::{
     AppliedRuleDef, BattlefieldExitCompletion, CardInstance, CardPartId, CommittedTriggerEvent,
     CounterKind, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, DiscardFollowUp, EffectDef, EffectResolutionContext, Game,
-    GameObjectId, ObjectCharacteristics, ObjectPredicateDef, Permanent, PlayerId,
-    SacrificeDeclined, SacrificeFollowup, SacrificedAmountDef, ScopedEffect, StackObject, Step,
-    ZoneKind, ZoneMoveCause, ZonePlacement,
+    DecisionZone, DeclarativeAbilityDef, DiscardFollowUp, EffectDef, Game, GameObjectId,
+    ObjectCharacteristics, ObjectPredicateDef, Permanent, PlayerId, SacrificeDeclined,
+    SacrificeFollowup, SacrificedAmountDef, Step, ZoneKind, ZoneMoveCause, ZonePlacement,
 };
 
 impl Game {
@@ -76,14 +75,11 @@ impl Game {
     /// Freezes every affected player's choice before any selected cards move.
     /// Applies a name chosen mid-resolution: bind that name as a value, then
     /// continue with the rest of the effect.
-    #[allow(clippy::too_many_arguments)]
     pub(super) fn resolve_card_name_choice(
         &mut self,
         choices: &[String],
         binding: &super::RuntimeBinding,
-        object: &StackObject,
-        mut context: EffectResolutionContext,
-        effect: ScopedEffect,
+        mut resume: Box<super::PendingProcedure>,
         options: &[u32],
     ) {
         let Some(name) = options
@@ -94,8 +90,11 @@ impl Game {
         else {
             return;
         };
+        let super::PendingProcedure::ResolveEffects { context, .. } = resume.as_mut() else {
+            unreachable!("a card-name choice always resumes an effect sequence")
+        };
         context.bind_runtime_card_name(binding, name);
-        self.resolve_nested_effect_before_later(effect, object, context);
+        self.pending_procedures.push_front(*resume);
     }
 
     pub(super) fn queue_effect_discards(

@@ -787,6 +787,20 @@ impl Game {
                 self.resolve_effect_def(effect, object, context.fork_resolution());
                 context
             };
+            if let Some(super::PendingDecision {
+                continuation: super::DecisionContinuation::CardNameChoice { resume, .. },
+                ..
+            }) = self.pending_decisions.first_mut()
+            {
+                let super::PendingProcedure::ResolveEffects {
+                    effects: resume_effects,
+                    ..
+                } = resume.as_mut()
+                else {
+                    unreachable!("a card-name choice always resumes an effect sequence")
+                };
+                resume_effects.append(&mut effects);
+            }
             if !self.pending_decisions.is_empty()
                 || !self.pending_events.is_empty()
                 || !self.pending_procedures.is_empty()

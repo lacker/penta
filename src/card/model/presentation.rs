@@ -10,9 +10,8 @@ use super::presentation_predicates::{
 use super::{
     AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     CardEffectStatus, CardNameDef, CardSupertype, CardType, ConditionalModeMaximumDef,
-    DeclarativeAbilityDef,
-    DividedTotal, ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, PlayerRelation,
-    TargetPredicate, ZoneKind,
+    DeclarativeAbilityDef, DividedTotal, ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef,
+    PlayerRelation, TargetPredicate, ZoneKind,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]

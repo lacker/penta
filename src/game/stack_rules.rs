@@ -75,7 +75,6 @@ impl Game {
             }
             EffectDef::Choose(ChooseDef { then, .. })
             | EffectDef::ChooseExact(crate::card::ChooseExactDef { then, .. })
-            | EffectDef::ChooseCardName { then, .. }
             | EffectDef::ForEachInBinding { effect: then, .. }
             | EffectDef::SearchZone {
                 then: Some(then), ..
@@ -224,6 +223,7 @@ impl Game {
             | EffectDef::CreateEmblem { .. }
             | EffectDef::CreateOngoingEffect(_)
             | EffectDef::PutOntoBattlefieldThen { .. }
+            | EffectDef::ChooseCardName { .. }
             | EffectDef::Transform { .. }
             | EffectDef::ScheduleTurnPhases(_)
             | EffectDef::TakeExtraTurn { .. }

@@ -2983,37 +2983,35 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::BindOutput {
-            binding: Binding!("cursed_scroll_name"),
-            effect: &EffectDef::ChooseCardName {
-                chooser: PlayerRefDef::EffectController,
-                names: CardNameSetDef::AllCardNames,
-                then: &EffectDef::Sequence(&[
-                    EffectDef::BindOutput {
-                        binding: Binding!("revealed_card"),
-                        effect: &EffectDef::RevealAtRandomFromHand {
-                            player: EffectRecipientDef::Controller,
-                        },
-                    },
-                    EffectDef::IfCondition {
-                        condition: &TriggerConditionDef::ObjectSetCount(
-                            &ObjectSetCountConditionDef {
-                                objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
-                                predicate: ObjectSetPredicateDef::contains(
-                                    &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
-                                        "cursed_scroll_name"
-                                    ))),
-                                ),
-                            },
-                        ),
-                        then: &EffectDef::DealDamage {
-                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            amount: ValueDef::Constant(2),
-                        },
-                    },
-                ]),
+        EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                binding: Binding!("cursed_scroll_name"),
+                effect: &EffectDef::ChooseCardName {
+                    chooser: PlayerRefDef::EffectController,
+                    names: CardNameSetDef::AllCardNames,
+                },
             },
-        },
+            EffectDef::BindOutput {
+                binding: Binding!("revealed_card"),
+                effect: &EffectDef::RevealAtRandomFromHand {
+                    player: EffectRecipientDef::Controller,
+                },
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
+                    predicate: ObjectSetPredicateDef::contains(
+                        &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                            "cursed_scroll_name"
+                        ))),
+                    ),
+                }),
+                then: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ]),
     )),
 );
 

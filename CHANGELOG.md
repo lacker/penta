@@ -120,11 +120,12 @@ distinguishes snapshots of the covered source and build inputs.
   face down and nameless, while absent names still never compare equal. The
   same typed binding now carries a card name chosen during resolution, so
   Cursed Scroll names from the public catalog independently of its controller's
-  hand and compares the random reveal with that explicit value. Cabal Therapy
-  and Tamiyo likewise query their later objects with the bound name rather than
-  asking the chooser to materialize one zone's matching cards. Checkpoint
-  format 12 preserves resolving name bindings and the simplified name-choice
-  continuation; replay version 2 and protocol 30 are unchanged.
+  hand, then reveals and conditionally deals damage as three explicit sequence
+  steps. Cabal Therapy and Tamiyo likewise query later objects with the bound
+  name rather than asking the chooser to materialize one zone's matching cards.
+  Checkpoint format 13 preserves resolving name bindings and the remaining
+  ordered sequence after a pending name choice; replay version 2 and protocol
+  30 are unchanged.
 
 - **Effect bindings are unified and checkpoint format 11 preserves their
   lexical shape.** Declarative effects now use `Binding!("label")` for every

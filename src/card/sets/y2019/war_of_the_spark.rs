@@ -401,21 +401,23 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                 AbilityDef::activated(
                     "+1: Choose a nonland card name, then reveal the top four cards of your library. Put all cards with the chosen name from among them into your hand and the rest into your graveyard.",
                     &[AbilityCostDef::Loyalty(1)],
-                    EffectDef::BindOutput {
-                        binding: Binding!("tamiyo_name"),
-                        effect: &EffectDef::ChooseCardName {
-                            chooser: PlayerRefDef::EffectController,
-                            names: crate::card::CardNameSetDef::NonlandCardNames,
-                            // The name is chosen before the four cards are seen, so the reveal cannot
-                            // be used to pick a name that is already there.
-                            then: &abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(
-                                ValueDef::Constant(4),
-                                ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
-                                    Binding!("tamiyo_name"),
-                                )),
-                            ),
+                    EffectDef::Sequence(&[
+                        EffectDef::BindOutput {
+                            binding: Binding!("tamiyo_name"),
+                            effect: &EffectDef::ChooseCardName {
+                                chooser: PlayerRefDef::EffectController,
+                                names: crate::card::CardNameSetDef::NonlandCardNames,
+                            },
                         },
-                    },
+                        // The name is chosen before the four cards are seen, so the reveal cannot
+                        // be used to pick a name that is already there.
+                        abilities::reveal_top_cards_put_matching_in_hand_rest_graveyard(
+                            ValueDef::Constant(4),
+                            ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Binding(
+                                Binding!("tamiyo_name"),
+                            )),
+                        ),
+                    ]),
                 ),
                 AbilityDef::activated_with_targets(
                     "\u{2212}3: Return target card from your graveyard to your hand.",

@@ -217,7 +217,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v12` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v13` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -236,9 +236,10 @@ it. Partition and group-choice stages retain their pile semantics. The format
 11 binding model uses one typed map for every durable labeled object value and
 separate `parentObject` and `parentObjects` members for lexical values passed
 only to a producer's direct continuation. Format 12 adds labeled card-name
-values and makes a pending card-name decision carry only the name binding and
-its continuation, rather than one zone whose matching cards were implicitly
-bound by the choice.
+values and makes a pending card-name decision carry only the name binding,
+rather than one zone whose matching cards were implicitly bound by the choice.
+Format 13 makes that decision a bindable sequence step and stores the remaining
+ordered effect procedure to resume after the answer.
 It also stores Quicken-style cast-timing permissions in the same resolved
 permission collection as every other duration-bound timing grant, including
 the composed end-of-turn-or-next-matching-cast expiration.
@@ -418,7 +419,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v12`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v13`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -1100,6 +1101,16 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Migrating checkpoint format 12 to 13
+
+Protocol 30 and replay format 2 remain in place. Checkpoint format 13 makes a
+resolving card-name choice an ordinary bindable sequence step. A pending
+`cardNameChoice` now stores a `resume` procedure containing the remaining
+ordered effects instead of a singular `continuation`, so reconstruction
+preserves the same sequence structure used by the declarative card definition.
+Reconstruction consumers should require `reconstruction.checkpoint.v13` and
+regenerate format-12 checkpoints with the current engine.
+
 ### Migrating checkpoint format 11 to 12
 
 Protocol 30 and replay format 2 remain in place. Checkpoint format 12 adds the
@@ -1225,7 +1236,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v12`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v13`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

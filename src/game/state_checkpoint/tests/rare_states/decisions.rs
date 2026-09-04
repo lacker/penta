@@ -471,10 +471,16 @@ fn a_resolving_card_name_binding_reconstructs() {
             game.pending_decisions
                 .first()
                 .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::CardNameChoice { binding, .. })
+            Some(DecisionContinuation::CardNameChoice {
+                binding, resume, ..
+            })
                 if *binding == RuntimeBinding::Label("cursed_scroll_name".into())
+                    && matches!(
+                        resume.as_ref(),
+                        PendingProcedure::ResolveEffects { effects, .. } if effects.len() == 2
+                    )
         ),
-        "the pending decision carries the explicit chosen-name binding",
+        "the pending decision carries the chosen-name binding and two remaining sequence steps",
     );
     assert_reconstructs(&game, "Cursed Scroll choosing a card name");
 }

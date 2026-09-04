@@ -87,16 +87,24 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
     let producer = Box::leak(Box::new(EffectDef::ChooseCardName {
         chooser: PlayerRefDef::EffectController,
         names: CardNameSetDef::AllCardNames,
-        then: consume_name,
     }));
-    super::validate_ability_targets(
-        &[],
-        EffectDef::BindOutput {
-            binding,
-            effect: producer,
-        },
-    )
+    let bound_name = EffectDef::BindOutput {
+        binding,
+        effect: producer,
+    };
+    let valid = Box::leak(Box::new([bound_name, *consume_name]));
+    super::validate_ability_targets(&[], EffectDef::Sequence(valid))
     .expect("the continuation may consume the explicitly chosen name");
+
+    let reversed = Box::leak(Box::new([*consume_name, bound_name]));
+    assert_eq!(
+        super::validate_ability_targets(&[], EffectDef::Sequence(reversed)),
+        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
+            context: "card-name binding",
+            operation: "a binding declared for another value kind",
+        }),
+        "the chosen name is unavailable before its binding step",
+    );
 
     assert_eq!(
         super::validate_ability_targets(
@@ -109,25 +117,6 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
         Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
             context: "binding",
             operation: "BindOutput requires a durable labeled binding",
-        }),
-    );
-
-    let unused = Box::leak(Box::new(EffectDef::ChooseCardName {
-        chooser: PlayerRefDef::EffectController,
-        names: CardNameSetDef::AllCardNames,
-        then: &EffectDef::None,
-    }));
-    assert_eq!(
-        super::validate_ability_targets(
-            &[],
-            EffectDef::BindOutput {
-                binding,
-                effect: unused,
-            },
-        ),
-        Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
-            context: "then continuation",
-            operation: "a continuation that does not read its chosen-name binding; use Sequence",
         }),
     );
 }

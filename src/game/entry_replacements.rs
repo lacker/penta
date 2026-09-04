@@ -127,60 +127,6 @@ impl Game {
         }
     }
 
-    fn queue_optional_entry_replacement(
-        &mut self,
-        player: PlayerId,
-        name: &str,
-        context: ReplacementEffectContext,
-        effect: ReplacementEffectDef,
-    ) {
-        self.queue_decision(
-            player,
-            format!("Apply the optional replacement for {name}?"),
-            DecisionVisibility::Public,
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            Self::optional_entry_replacement_options(),
-            DecisionContinuation::BattlefieldEntryOptional { context, effect },
-        );
-    }
-
-    pub(super) fn optional_entry_replacement_options() -> Vec<DecisionOption> {
-        [(0, "Decline"), (1, "Accept")]
-            .into_iter()
-            .map(|(id, label)| DecisionOption {
-                id,
-                label: label.into(),
-                card: None,
-                members: Vec::new(),
-                ability_text: None,
-                zone: DecisionZone::None,
-            })
-            .collect()
-    }
-
-    /// Resumes the exact typed replacement operation that was offered. The
-    /// ability is already in the prospective event's applied set, so either
-    /// answer continues without asking twice.
-    pub(super) fn resume_optional_entry_replacement(
-        &mut self,
-        context: ReplacementEffectContext,
-        effect: ReplacementEffectDef,
-        options: &[u32],
-    ) {
-        let accepted = options.first().is_some_and(|option| *option == 1);
-        if let Some(mut pending) = self.pending_events.pop_front() {
-            if accepted {
-                pending
-                    .effects
-                    .push(PendingReplacementEffect { context, effect });
-            }
-            self.pending_events.push_front(pending);
-        }
-        self.continue_pending_events();
-    }
-
     pub(super) fn apply_pending_replacement_effect(
         &mut self,
         mut pending: PendingEvent,

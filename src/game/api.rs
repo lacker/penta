@@ -284,7 +284,7 @@ impl Game {
             if player == self.active_player.opponent() {
                 let blocks = self.blocker_actions(player);
                 if !self.block_requirement_outstanding(&blocks)
-                    && !self.menace_is_unsatisfied(player)
+                    && !self.block_declaration_restriction_is_unsatisfied(player)
                     && self.block_declaration_is_payable(player)
                 {
                     actions.push(Action::FinishDeclaringBlockers);

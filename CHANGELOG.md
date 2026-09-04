@@ -25,6 +25,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Blocking restrictions share one declaration model.** Pairwise blocker
+  eligibility and costs remain `BlockRestrictionDef::Pair`, while "can't be
+  blocked except by N or more creatures" is now the declaration-wide
+  `BlockRestrictionDef::MinimumBlockers`. Gorilla Berserkers and Troll of
+  Khazad-dûm use that shared restriction instead of a card-shaped top-level
+  applied rule; menace continues to compose by contributing a minimum of two.
+
 - **"Sacrifice a creature. When you do, ..." is a reflexive trigger of its
   own.** A clause that sacrifices during its own resolution now publishes
   `TriggerEventDef::SacrificePerformed` against the card that demanded it, so

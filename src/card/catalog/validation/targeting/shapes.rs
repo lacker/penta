@@ -969,11 +969,14 @@ fn validate_block_restriction_shape(
     targets: &[AbilityTargetDef],
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_recipient_shape(recipient, targets, RecipientExpectation::Object)?;
-    match restriction.counterpart {
-        BlockRestrictionMatchDef::Any => Ok(()),
-        BlockRestrictionMatchDef::Matching(predicate)
-        | BlockRestrictionMatchDef::Except(predicate) => {
-            validate_object_predicate_shape(predicate, targets)
-        }
+    match restriction {
+        BlockRestrictionDef::Pair { counterpart, .. } => match counterpart {
+            BlockRestrictionMatchDef::Any => Ok(()),
+            BlockRestrictionMatchDef::Matching(predicate)
+            | BlockRestrictionMatchDef::Except(predicate) => {
+                validate_object_predicate_shape(predicate, targets)
+            }
+        },
+        BlockRestrictionDef::MinimumBlockers(_) => Ok(()),
     }
 }

@@ -4,13 +4,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef,
-    CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
-    ManaRestrictionDef, ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, tokens,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, BlockRestrictionDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
+    ComparisonDef, ConditionDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
+    EffectRecipientDef, ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::{ParentBinding, TargetIndex};
@@ -306,7 +306,9 @@ pub(in crate::card::sets) static TROLL_OF_KHAZAD_DUM: CardRecord = CardRecord::n
                 "This creature can't be blocked except by three or more creatures.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedExceptByAtLeast(3)),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                        BlockRestrictionDef::MinimumBlockers(3),
+                    )),
                 },
             ),
             abilities::typecycling(

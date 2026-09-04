@@ -40,10 +40,14 @@ impl Game {
         let characteristics = self.targeting_event_object(counterpart);
         let mut prohibited = false;
         let _ = self.visit_applied_rules(subject, |applied| {
-            if let AppliedRuleDef::BlockRestriction(restriction) = applied.rule
-                && restriction.subject == expected_subject
-                && self.block_restriction_matches(restriction, &characteristics, applied.source)
-                && restriction.cost.is_none()
+            if let AppliedRuleDef::BlockRestriction(BlockRestrictionDef::Pair {
+                subject,
+                counterpart,
+                cost,
+            }) = applied.rule
+                && subject == expected_subject
+                && self.block_restriction_matches(counterpart, &characteristics, applied.source)
+                && cost.is_none()
             {
                 prohibited = true;
                 return ControlFlow::Break(());
@@ -55,11 +59,11 @@ impl Game {
 
     fn block_restriction_matches(
         &self,
-        restriction: BlockRestrictionDef,
+        counterpart_match: BlockRestrictionMatchDef,
         counterpart: &super::super::TriggerEventObject,
         source: GameObjectId,
     ) -> bool {
-        match restriction.counterpart {
+        match counterpart_match {
             BlockRestrictionMatchDef::Any => true,
             BlockRestrictionMatchDef::Matching(predicate) => {
                 self.trigger_object_matches(predicate, counterpart, source, false)
@@ -137,13 +141,18 @@ impl Game {
 
             let mut allowed = true;
             let _ = self.visit_applied_rules(blocker, |applied| {
-                let AppliedRuleDef::BlockRestriction(restriction) = applied.rule else {
+                let AppliedRuleDef::BlockRestriction(BlockRestrictionDef::Pair {
+                    subject,
+                    counterpart,
+                    cost,
+                }) = applied.rule
+                else {
                     return ControlFlow::Continue(());
                 };
-                if restriction.subject != BlockRestrictionSubjectDef::Blocker
+                if subject != BlockRestrictionSubjectDef::Blocker
                     || !attackers.iter().any(|attacker| {
                         self.block_restriction_matches(
-                            restriction,
+                            counterpart,
                             &self.targeting_event_object(attacker),
                             applied.source,
                         )
@@ -151,7 +160,7 @@ impl Game {
                 {
                     return ControlFlow::Continue(());
                 }
-                let Some(cost) = restriction.cost else {
+                let Some(cost) = cost else {
                     allowed = false;
                     return ControlFlow::Break(());
                 };
@@ -165,19 +174,24 @@ impl Game {
             let blocker_characteristics = self.targeting_event_object(blocker);
             for attacker in attackers {
                 let _ = self.visit_applied_rules(attacker, |applied| {
-                    let AppliedRuleDef::BlockRestriction(restriction) = applied.rule else {
+                    let AppliedRuleDef::BlockRestriction(BlockRestrictionDef::Pair {
+                        subject,
+                        counterpart,
+                        cost,
+                    }) = applied.rule
+                    else {
                         return ControlFlow::Continue(());
                     };
-                    if restriction.subject != BlockRestrictionSubjectDef::Attacker
+                    if subject != BlockRestrictionSubjectDef::Attacker
                         || !self.block_restriction_matches(
-                            restriction,
+                            counterpart,
                             &blocker_characteristics,
                             applied.source,
                         )
                     {
                         return ControlFlow::Continue(());
                     }
-                    let Some(cost) = restriction.cost else {
+                    let Some(cost) = cost else {
                         allowed = false;
                         return ControlFlow::Break(());
                     };

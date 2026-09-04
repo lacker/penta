@@ -559,9 +559,6 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         }
         // Zero extra blocks would be a rule that grants nothing.
         AppliedRuleDef::MayBlockAdditionalCreatures(extra) => extra > 0,
-        // "Except by one or more creatures" is what every creature already
-        // is, so a printed clause saying it would say nothing.
-        AppliedRuleDef::CannotBeBlockedExceptByAtLeast(required) => required > 1,
         AppliedRuleDef::CannotBeCountered
         // Ascend belongs to a player, so nothing about an object reads it.
         | AppliedRuleDef::Ascend
@@ -611,17 +608,24 @@ fn static_attack_restriction_supported(restriction: AttackRestrictionDef) -> boo
 }
 
 fn static_block_restriction_supported(restriction: BlockRestrictionDef) -> bool {
-    let counterpart_supported = match restriction.counterpart {
-        BlockRestrictionMatchDef::Any => true,
-        BlockRestrictionMatchDef::Matching(predicate)
-        | BlockRestrictionMatchDef::Except(predicate) => {
-            static_object_predicate_supported(predicate)
+    match restriction {
+        BlockRestrictionDef::Pair {
+            counterpart, cost, ..
+        } => {
+            let counterpart_supported = match counterpart {
+                BlockRestrictionMatchDef::Any => true,
+                BlockRestrictionMatchDef::Matching(predicate)
+                | BlockRestrictionMatchDef::Except(predicate) => {
+                    static_object_predicate_supported(predicate)
+                }
+            };
+            counterpart_supported
+                && cost.is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
         }
-    };
-    counterpart_supported
-        && restriction
-            .cost
-            .is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
+        // "Except by one or more creatures" is what every creature already
+        // is, so a printed clause saying it would say nothing.
+        BlockRestrictionDef::MinimumBlockers(required) => required > 1,
+    }
 }
 
 fn validate_resolving_effect(

@@ -9,6 +9,7 @@ const MULTI_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_172);
 const TAXED_ATTACKER: CardDefinitionId = CardDefinitionId::new(10_173);
 const REQUIRED_TAXED_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_174);
 const TAXED_MULTI_BLOCKER: CardDefinitionId = CardDefinitionId::new(10_175);
+const MENACING_MINIMUM_THREE_ATTACKER: CardDefinitionId = CardDefinitionId::new(10_176);
 
 const BLOCKER_TAX: AppliedRuleDef =
     AppliedRuleDef::BlockRestriction(BlockRestrictionDef::unless_paid(
@@ -73,6 +74,18 @@ static REQUIRED_TAXED_BLOCKER_ABILITIES: [AbilityDef; 1] = [AbilityDef::static_a
         effect: AppliedEffectDef::Composite(&REQUIRED_TAXED_BLOCKER_EFFECTS),
     },
 )];
+static MENACING_MINIMUM_THREE_ABILITIES: [AbilityDef; 2] = [
+    abilities::menace(),
+    AbilityDef::static_ability(
+        "This creature can't be blocked except by three or more creatures.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                BlockRestrictionDef::MinimumBlockers(3),
+            )),
+        },
+    ),
+];
 
 fn creature_definition(
     id: CardDefinitionId,
@@ -111,6 +124,11 @@ fn restriction_catalog(game: &Game) -> CardCatalog {
             REQUIRED_TAXED_BLOCKER,
             "Required taxed blocker",
             &REQUIRED_TAXED_BLOCKER_ABILITIES,
+        ),
+        creature_definition(
+            MENACING_MINIMUM_THREE_ATTACKER,
+            "Menacing minimum-three attacker",
+            &MENACING_MINIMUM_THREE_ABILITIES,
         ),
     ]);
     definitions.push(creature_definition(
@@ -153,6 +171,38 @@ fn blocking_game(
 
 fn block_action(blocker: GameObjectId, attacker: GameObjectId) -> Action {
     Action::DeclareBlocker { blocker, attacker }
+}
+
+#[test]
+fn minimum_blocker_restrictions_compose_with_menace_by_taking_the_largest() {
+    let (mut game, attackers, first_blocker) =
+        blocking_game(&[MENACING_MINIMUM_THREE_ATTACKER], cards::GRIZZLY_BEARS);
+    let attacker = attackers[0];
+    let second_blocker = creature(20_101, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let second_blocker_id = second_blocker.card.id;
+    game.battlefield.push(second_blocker);
+    let third_blocker = creature(20_102, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let third_blocker_id = third_blocker.card.id;
+    game.battlefield.push(third_blocker);
+
+    game.apply(PlayerId::Two, block_action(first_blocker, attacker))
+        .unwrap();
+    game.apply(PlayerId::Two, block_action(second_blocker_id, attacker))
+        .unwrap();
+    assert!(
+        !game
+            .legal_actions(PlayerId::Two)
+            .contains(&Action::FinishDeclaringBlockers),
+        "the minimum of three remains stricter than menace's two"
+    );
+
+    game.apply(PlayerId::Two, block_action(third_blocker_id, attacker))
+        .unwrap();
+    assert!(
+        game.legal_actions(PlayerId::Two)
+            .contains(&Action::FinishDeclaringBlockers),
+        "three blockers satisfy both restrictions"
+    );
 }
 
 #[test]

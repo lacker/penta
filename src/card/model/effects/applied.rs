@@ -155,144 +155,6 @@ pub enum AppliedEffectDef {
     Rule(AppliedRuleDef),
 }
 
-/// Which defenders a rule applied to one player protects.
-///
-/// An unrestricted attacker-facing rule is instead applied to the creature
-/// itself. Keeping the protected player's planeswalkers explicit preserves
-/// the difference between "can't attack you" and "can't attack."
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum AttackDefenderScopeDef {
-    /// The rule is attached to an attacker and applies whichever defender it
-    /// attacks. Player recipients cannot use this scope.
-    Any,
-    /// Only the affected player, not planeswalkers they control.
-    AffectedPlayer,
-    /// The affected player and planeswalkers they control.
-    AffectedPlayerOrPlaneswalker,
-}
-
-/// One predicate-driven restriction on declaring an attacker.
-///
-/// `cost` is paid once for each matching attacker. `None` is a prohibition;
-/// `Some` is the declaration cost that makes the attack legal. Several
-/// restrictions compose by prohibiting if any one prohibits and otherwise
-/// adding all of their costs.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct AttackRestrictionDef {
-    pub attacker: ObjectPredicateDef,
-    pub defender: AttackDefenderScopeDef,
-    pub cost: Option<ManaCost>,
-}
-
-impl AttackRestrictionDef {
-    #[must_use]
-    pub const fn prohibit(
-        attacker: ObjectPredicateDef,
-        defender: AttackDefenderScopeDef,
-    ) -> Self {
-        Self {
-            attacker,
-            defender,
-            cost: None,
-        }
-    }
-
-    #[must_use]
-    pub const fn unless_paid(
-        attacker: ObjectPredicateDef,
-        defender: AttackDefenderScopeDef,
-        cost: ManaCost,
-    ) -> Self {
-        Self {
-            attacker,
-            defender,
-            cost: Some(cost),
-        }
-    }
-
-    /// The ordinary creature-facing "can't attack" prohibition.
-    pub const CANNOT_ATTACK: Self = Self::prohibit(
-        ObjectPredicateDef::Any,
-        AttackDefenderScopeDef::Any,
-    );
-}
-
-/// Which participant carries a restriction on one prospective block.
-///
-/// The rule is found on that participant through the ordinary applied-effect
-/// walk. `counterpart` then describes the creature on the other side of the
-/// block, which keeps blocker-facing and attacker-facing wording in one
-/// declaration model without losing which object the effect affected.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum BlockRestrictionSubjectDef {
-    Blocker,
-    Attacker,
-}
-
-/// Which counterpart makes a blocking restriction apply.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum BlockRestrictionMatchDef {
-    /// Every prospective counterpart, for an unqualified prohibition or cost.
-    Any,
-    /// Counterparts matching the predicate, as in "can't be blocked by Walls."
-    Matching(ObjectPredicateDef),
-    /// Counterparts outside the predicate, as in "can block only creatures
-    /// with flying."
-    Except(ObjectPredicateDef),
-}
-
-/// One predicate-driven restriction or cost on declaring a blocker.
-///
-/// `None` prohibits the matching block. `Some` is paid by the blocking
-/// creature's controller. Restrictions on a blocker are charged once for
-/// that blocker even if it can block several attackers; restrictions on an
-/// attacker are charged once for each matching blocker assigned to it.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct BlockRestrictionDef {
-    pub subject: BlockRestrictionSubjectDef,
-    pub counterpart: BlockRestrictionMatchDef,
-    pub cost: Option<ManaCost>,
-}
-
-impl BlockRestrictionDef {
-    #[must_use]
-    pub const fn prohibit(
-        subject: BlockRestrictionSubjectDef,
-        counterpart: BlockRestrictionMatchDef,
-    ) -> Self {
-        Self {
-            subject,
-            counterpart,
-            cost: None,
-        }
-    }
-
-    #[must_use]
-    pub const fn unless_paid(
-        subject: BlockRestrictionSubjectDef,
-        counterpart: BlockRestrictionMatchDef,
-        cost: ManaCost,
-    ) -> Self {
-        Self {
-            subject,
-            counterpart,
-            cost: Some(cost),
-        }
-    }
-
-    /// The ordinary creature-facing "can't block" prohibition.
-    pub const CANNOT_BLOCK: Self = Self::prohibit(
-        BlockRestrictionSubjectDef::Blocker,
-        BlockRestrictionMatchDef::Any,
-    );
-
-    /// The ordinary attacker-facing "can't be blocked" prohibition.
-    pub const CANNOT_BE_BLOCKED: Self = Self::prohibit(
-        BlockRestrictionSubjectDef::Attacker,
-        BlockRestrictionMatchDef::Any,
-    );
-}
-
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum PlayerRuleDef {
     /// The legend rule ignores matching permanents the affected player
@@ -354,12 +216,6 @@ pub enum AppliedRuleDef {
     /// Several at once multiply, which is what each of them says on its own
     /// terms (CR 616.1).
     DoublesTokensCreated,
-    /// "This creature can't be blocked except by N or more creatures."
-    /// Menace is this rule with a two on it, printed as a keyword; the
-    /// creatures that name a larger number write the clause out. It is a
-    /// constraint on the finished declaration rather than on any one block,
-    /// so a partial block is legal right up until it is the last one.
-    CannotBeBlockedExceptByAtLeast(u8),
     /// "You may play lands from your graveyard." The mirror of
     /// [`Self::CannotPlay`]: a permission rather than a prohibition, matched
     /// against the same action and object the prohibition names, plus
@@ -478,9 +334,9 @@ pub enum AppliedRuleDef {
     /// make its host an illegal one. This is the printed exception that lets
     /// an Aura grant protection from its own color without falling off.
     RemainsAttachedThroughProtection,
-    /// A predicate-driven blocker prohibition or declaration cost. The rule's
-    /// subject records whether the affected object is the prospective blocker
-    /// or attacker; its matcher describes the creature on the other side.
+    /// A blocker prohibition or declaration constraint. Pair restrictions
+    /// describe the participants and any cost; minimum-blocker restrictions
+    /// constrain the finished declaration around the affected attacker.
     BlockRestriction(BlockRestrictionDef),
     /// A predicate-driven attacker prohibition or declaration cost. The
     /// recipient determines whether the rule is attached to one attacker or

@@ -5,14 +5,14 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryScalarChoiceDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef, CreatedTokensDef,
-    DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef, DividedTotal, EffectDef,
-    EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ManaTypeDef,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef, SumValueDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneChangeEventMatcherDef,
-    ZoneKind, ZonePlacement, abilities,
+    BlockRestrictionDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef,
+    CreatedTokensDef, DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef,
+    DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ManaTypeDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
+    SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
 
@@ -1836,8 +1836,8 @@ pub(in crate::card::sets) static GORILLA_BERSERKERS: CardRecord = CardRecord::ne
                 "This creature can't be blocked except by three or more creatures.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedExceptByAtLeast(
-                        3,
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                        BlockRestrictionDef::MinimumBlockers(3),
                     )),
                 },
             ),

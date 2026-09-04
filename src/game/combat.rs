@@ -1,3 +1,5 @@
+use crate::card::BlockRestrictionDef;
+
 use super::{
     Action, AppliedRuleDef, AttackDefender, CardType, CombatDamageAssignment, CombatDamageStage,
     CommittedTriggerEvent, ControlFlow, CounterKind, DamageAssignment, Game, GameEvent,
@@ -313,9 +315,9 @@ impl Game {
     }
 
     /// How many creatures it takes to block this one. One ordinarily; two
-    /// for menace; whatever a printed "except by N or more" says. Several at
-    /// once take the largest, which is the only reading under which each of
-    /// them is still true.
+    /// for menace; whatever minimum-blocker restrictions say. Several at once
+    /// take the largest, which is the only reading under which each remains
+    /// true.
     pub(super) fn minimum_blockers(&self, attacker: &Permanent) -> usize {
         let mut minimum = if self.permanent_has_executable_keyword(attacker, KeywordAbility::Menace)
         {
@@ -324,7 +326,10 @@ impl Game {
             1
         };
         let _ = self.visit_applied_rules(attacker, |applied| {
-            if let AppliedRuleDef::CannotBeBlockedExceptByAtLeast(required) = applied.rule {
+            if let AppliedRuleDef::BlockRestriction(BlockRestrictionDef::MinimumBlockers(
+                required,
+            )) = applied.rule
+            {
                 minimum = minimum.max(usize::from(required));
             }
             ControlFlow::Continue(())
@@ -340,7 +345,7 @@ impl Game {
     /// illegal by being the last. So it is checked where the declaration
     /// ends rather than where each block is offered. Blocked by nobody is
     /// not blocked by too few.
-    pub(super) fn menace_is_unsatisfied(&self, player: PlayerId) -> bool {
+    pub(super) fn block_declaration_restriction_is_unsatisfied(&self, player: PlayerId) -> bool {
         self.battlefield
             .iter()
             .filter(|permanent| permanent.attacking)

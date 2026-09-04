@@ -5,7 +5,10 @@
 //! continuously, to whom, and for how long.
 
 use super::*;
-use crate::{ControlDurationDef, card::PlayerRuleDef};
+use crate::{
+    ControlDurationDef,
+    card::{BlockRestrictionDef, PlayerRuleDef},
+};
 
 fn cast_source_zones_supported(zones: &[ZoneKind]) -> bool {
     !zones.is_empty()
@@ -660,16 +663,22 @@ fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDe
                 recipient.object_reference(),
                 Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
             ) || recipient.object_query().is_some())
-                && match restriction.counterpart {
-                    BlockRestrictionMatchDef::Any => true,
-                    BlockRestrictionMatchDef::Matching(predicate)
-                    | BlockRestrictionMatchDef::Except(predicate) => {
-                        shared_object_predicate(predicate)
+                && match restriction {
+                    BlockRestrictionDef::Pair {
+                        counterpart, cost, ..
+                    } => {
+                        let counterpart_supported = match counterpart {
+                            BlockRestrictionMatchDef::Any => true,
+                            BlockRestrictionMatchDef::Matching(predicate)
+                            | BlockRestrictionMatchDef::Except(predicate) => {
+                                shared_object_predicate(predicate)
+                            }
+                        };
+                        counterpart_supported
+                            && cost.is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
                     }
+                    BlockRestrictionDef::MinimumBlockers(required) => required > 1,
                 }
-                && restriction
-                    .cost
-                    .is_none_or(|cost| !cost.variable_x && cost.x_multiplier == 0)
         }
         // A requirement is read off the attacker on the same walk as the
         // prohibition above, but no card applies one to a group, so the

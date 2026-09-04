@@ -21,6 +21,7 @@ pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
     ]),
 );
 
+// SOK 53 — Sakashima the Impostor
 static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
     "{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.",
     &[AbilityCostDef::Mana(mana_cost!("{2}{U}{U}"))],
@@ -38,7 +39,6 @@ static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
     ))),
 );
 
-// SOK 53 — Sakashima the Impostor
 pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("61dc2f54-3637-4caa-9741-36ff14dc5527"),
     "Sakashima the Impostor",
@@ -46,7 +46,8 @@ pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord
     CardSet::SaviorsOfKamigawa,
     CardRules::new_creature(mana_cost!("{2}{U}{U}"), &["Human", "Rogue"], 3, 1)
         .with_supertype(CardSupertype::Legendary)
-        .with_ability(AbilityDef::replacement(
+        .with_abilities(&[
+            AbilityDef::replacement(
             "You may have Sakashima the Impostor enter as a copy of any creature on the battlefield, except its name is Sakashima the Impostor, it's legendary in addition to its other types, and it has \"{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.\"",
             ReplacementEffectDef::CopyEntering {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -55,7 +56,9 @@ pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord
                     .with_added_supertypes(&[CardSupertype::Legendary])
                     .with_abilities(&[CopyAbilityDef::Ability(&SAKASHIMA_RETURN)]),
             },
-        )),
+            ),
+            SAKASHIMA_RETURN,
+        ]),
 );
 
 // SOK 63 — Death Denied

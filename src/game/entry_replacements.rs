@@ -1,20 +1,23 @@
 use super::{
     AbilitySourceRef, ApplicableReplacement, BasicLandType, BattlefieldEntryModificationDef,
-    CastContext, ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef,
-    ControlFlow, DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility,
-    DecisionZone, DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext,
-    EntryCompletion, Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef,
-    PendingBattlefieldEntry, PendingEvent, PendingReplacementEffect, Permanent, PlayerId,
-    PlayerRelation, ReplaceableEvent, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectContext, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    ResolvedEffectPayment, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Target,
-    TriggerContext, ValueDef, ZoneKind, public_cards,
+    ColorChoiceOperationDef, ColorSet, CommittedTriggerEvent, ConditionDef, ControlFlow,
+    DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
+    DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectResolutionContext, EntryCompletion,
+    Game, GameEvent, Mana, ManaColor, ObjectCountConditionDef, PendingBattlefieldEntry,
+    PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
+    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
 };
 use crate::CharacteristicContext;
 
 mod discovery;
 mod entry_copy;
 mod entry_exile;
+mod entry_values;
+
+use entry_values::entry_value;
+
 impl Game {
     pub(super) fn enqueue_battlefield_entry(&mut self, entry: PendingBattlefieldEntry) {
         self.pending_events.push_back(PendingEvent {
@@ -910,102 +913,6 @@ impl Game {
             self.events
                 .push(GameEvent::SpellResolved { card, definition });
         }
-    }
-}
-
-fn entry_value(game: &Game, permanent: &Permanent, value: ValueDef) -> Option<i32> {
-    match value {
-        ValueDef::Constant(value) => Some(value),
-        ValueDef::SourceCastX => Some(i32::from(permanent.cast.as_ref().map_or(0, |cast| cast.x))),
-        ValueDef::ColorsOfManaSpent => Some(i32::from(
-            permanent
-                .cast
-                .as_ref()
-                .map_or(0, CastContext::colors_spent_count),
-        )),
-        ValueDef::AdditionalCostPayments(index) => Some(i32::from(
-            permanent
-                .cast
-                .as_ref()
-                .and_then(|cast| cast.additional_costs.get(index.index()))
-                .copied()
-                .unwrap_or_default(),
-        )),
-        ValueDef::CountObjects(objects) => {
-            Some(i32::try_from(entry_objects(game, permanent, *objects)?.len()).unwrap_or(i32::MAX))
-        }
-        ValueDef::CardTypesAmongObjects(objects) => {
-            Some(game.card_types_among_targets(&entry_objects(game, permanent, *objects)?))
-        }
-        ValueDef::CountMatchingObjects(query) => Some(
-            i32::try_from(
-                game.objects_matching_query(
-                    *query,
-                    permanent.controller,
-                    permanent.card.id,
-                    TriggerContext::empty(),
-                )
-                .len(),
-            )
-            .unwrap_or(i32::MAX),
-        ),
-        ValueDef::IfAdditionalCostPaid(conditional) => {
-            let paid = permanent
-                .cast
-                .as_ref()
-                .and_then(|cast| cast.additional_costs.get(conditional.cost.index()))
-                .copied()
-                .unwrap_or_default();
-            entry_value(
-                game,
-                permanent,
-                if paid > 0 {
-                    conditional.if_paid
-                } else {
-                    conditional.otherwise
-                },
-            )
-        }
-        ValueDef::Negate(value) => entry_value(game, permanent, *value)?.checked_neg(),
-        ValueDef::Scaled(scaled) => {
-            entry_value(game, permanent, scaled.value)?.checked_mul(scaled.factor)
-        }
-        ValueDef::Sum(sum) => entry_value(game, permanent, sum.left)?
-            .checked_add(entry_value(game, permanent, sum.right)?),
-        ValueDef::Halved(halved) => Some(halved.apply(entry_value(game, permanent, halved.value)?)),
-        ValueDef::Quotient(quotient) => Some(quotient.apply(
-            entry_value(game, permanent, quotient.numerator)?,
-            entry_value(game, permanent, quotient.denominator)?,
-        )),
-        _ => None,
-    }
-}
-
-fn entry_objects(
-    game: &Game,
-    permanent: &Permanent,
-    objects: crate::card::ObjectSetDef,
-) -> Option<Vec<Target>> {
-    match objects {
-        crate::card::ObjectSetDef::LinkedExiles => Some(
-            game.linked_exile_ids_with_cast(permanent.card.id, permanent.cast.as_ref())
-                .into_iter()
-                .filter(|id| game.card_in_nonbattlefield_zone(*id).is_some())
-                .map(Target::Card)
-                .collect(),
-        ),
-        crate::card::ObjectSetDef::Matching {
-            objects,
-            object: predicate,
-        } => Some(
-            entry_objects(game, permanent, *objects)?
-                .into_iter()
-                .filter(|target| {
-                    game.bound_object_matches(*target, predicate.predicate(), permanent.card.id)
-                })
-                .collect(),
-        ),
-        _ => None,
     }
 }
 

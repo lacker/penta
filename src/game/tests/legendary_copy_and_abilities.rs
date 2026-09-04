@@ -274,6 +274,31 @@ fn sakashima_entry_copy_keeps_its_name_legendary_status_and_return_ability() {
 }
 
 #[test]
+fn sakashima_entering_without_copy_still_has_its_return_ability() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    let sakashima = game
+        .put_onto_battlefield(PlayerId::One, definition(&game, "Sakashima the Impostor"))
+        .expect("Sakashima is cataloged");
+    drain_pending(&mut game);
+
+    let permanent = game
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == sakashima)
+        .expect("Sakashima entered without copying");
+    assert!(
+        game.find_effective_ability(permanent, |effective| {
+            effective
+                .ability
+                .rules_text()
+                .starts_with("{2}{U}{U}: Return Sakashima the Impostor")
+        })
+        .is_some()
+    );
+}
+
+#[test]
 fn champion_helm_grants_hexproof_from_effective_legendary_status() {
     let mut game = ready_game();
     game.battlefield.clear();

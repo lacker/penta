@@ -4,7 +4,7 @@
 //! mechanics, but they all spend the same battlefield resource: one untapped
 //! permanent that must survive any mana ability used during the payment.
 
-use super::{AbilityCostDef, Game, GameObjectId, ManaAbilityActivation, Permanent};
+use super::{CostDef, Game, GameObjectId, ManaAbilityActivation, Permanent};
 
 impl Game {
     /// Whether a permanent is still available to be committed to one tap
@@ -34,11 +34,11 @@ impl Game {
         if activation.costs.iter().any(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::TapSource
-                    | AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
-                    | AbilityCostDef::SacrificePermanents { .. }
+                CostDef::TapSource
+                    | CostDef::SacrificeSource
+                    | CostDef::ExileSource
+                    | CostDef::ReturnSourceToHand
+                    | CostDef::SacrificePermanents { .. }
             )
         }) {
             return false;
@@ -48,7 +48,7 @@ impl Game {
             .sacrifice_source_when_out_of
             .is_none_or(|kind| {
                 let removed = activation.costs.iter().fold(0_u16, |removed, cost| {
-                    if let AbilityCostDef::RemoveCountersFromSource {
+                    if let CostDef::RemoveCountersFromSource {
                         kind: removed_kind,
                         amount,
                     } = cost

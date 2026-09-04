@@ -1,8 +1,8 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedStackEffect, BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardDefinition,
-    CardInstance, CardType, CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone,
-    CharacteristicContext, CommittedStackObjectEvent, CommittedTriggerEvent, CostConfiguration,
+    AbilityOrigin, AbilitySourceRef, AlternativeCastKindDef, AppliedEffectDef, AppliedStackEffect,
+    BTreeMap, BattlefieldExitCompletion, CREATURE_TYPES, CardDefinition, CardInstance, CardType,
+    CastChoices, CastContext, CastOfferCost, CastSignature, CastSourceZone, CharacteristicContext,
+    CommittedStackObjectEvent, CommittedTriggerEvent, CostConfiguration, CostDef,
     DecisionContinuation, DecisionOption, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EntryCompletion, Game, GameEvent, GameObjectId, Mana,
     ManaAbilityActivation, ManaActivationChoices, ManaColor, ManaCost, ManaPaymentPurpose,
@@ -18,7 +18,7 @@ include!("casting/scalar_choices.rs");
 
 use crate::card::{
     BattlefieldEntryScalarChoiceDef, FaceDownCharacteristics, ReplacementEffectDef,
-    ScalarChoiceListDef, SpellAdditionalCostDef,
+    ScalarChoiceListDef,
 };
 
 struct SpellCastProposal {
@@ -558,7 +558,7 @@ impl Game {
         &mut self,
         mut stack_object: StackObject,
         targets: Vec<Target>,
-        object_payments: Vec<(GameObjectId, SpellAdditionalCostDef)>,
+        object_payments: Vec<(GameObjectId, CostDef)>,
         cost: ManaCost,
         x: u16,
         purpose: ManaPaymentPurpose,
@@ -667,7 +667,9 @@ impl Game {
                 form: form.clone(),
                 reserved_life_payment: 0,
             },
-            ManaPaymentPurpose::Ability { .. } | ManaPaymentPurpose::Other => purpose.clone(),
+            ManaPaymentPurpose::Ability { .. }
+            | ManaPaymentPurpose::CumulativeUpkeep { .. }
+            | ManaPaymentPurpose::Other => purpose.clone(),
         };
         let spent_mana =
             self.pay_player_cost_for(stack_object.controller, mana_cost, mana_x, &payment_purpose);

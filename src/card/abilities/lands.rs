@@ -15,7 +15,7 @@ pub const fn pain_land(
         tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana(
             colored_text,
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(colors).with_damage_to_controller(1)),
         ),
     ]
@@ -52,10 +52,10 @@ pub const fn fetch_land_ability(text: &'static str, object: ObjectPredicateDef) 
     )
 }
 
-static FETCH_LAND_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::TapSource,
-    AbilityCostDef::PayLife(1),
-    AbilityCostDef::SacrificeSource,
+static FETCH_LAND_COST: [CostDef; 3] = [
+    CostDef::TapSource,
+    CostDef::PayLife(1),
+    CostDef::SacrificeSource,
 ];
 
 /// The two abilities shared by the horizon-land cycle: two colours for a
@@ -85,13 +85,13 @@ pub const fn horizon_land(
     ]
 }
 
-static HORIZON_MANA_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)];
+static HORIZON_MANA_COST: [CostDef; 2] =
+    [CostDef::TapSource, CostDef::PayLife(1)];
 
-static HORIZON_CASH_IN_COST: [AbilityCostDef; 3] = [
-    AbilityCostDef::Mana(crate::mana_cost!("{1}")),
-    AbilityCostDef::TapSource,
-    AbilityCostDef::SacrificeSource,
+static HORIZON_CASH_IN_COST: [CostDef; 3] = [
+    CostDef::Mana(crate::mana_cost!("{1}")),
+    CostDef::TapSource,
+    CostDef::SacrificeSource,
 ];
 
 /// The shared replacement clause printed on shock lands.
@@ -218,8 +218,8 @@ pub const fn campus_scry() -> AbilityDef {
         "{4}, {T}: Scry 1.",
         &const {
             [
-                AbilityCostDef::Mana(crate::mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(crate::mana_cost!("{4}")),
+                CostDef::TapSource,
             ]
         },
         scry(ValueDef::Constant(1)),
@@ -280,5 +280,5 @@ pub const fn landscape_fetch(text: &'static str, object: ObjectPredicateDef) -> 
     )
 }
 
-static LANDSCAPE_FETCH_COST: [AbilityCostDef; 2] =
-    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];
+static LANDSCAPE_FETCH_COST: [CostDef; 2] =
+    [CostDef::TapSource, CostDef::SacrificeSource];

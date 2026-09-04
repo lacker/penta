@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ControlDurationDef, DiscardSelectionDef, EffectDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ControlDurationDef, CostDef, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, TriggerEventDef, ValueDef,
 };
@@ -55,7 +55,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Target player draws two then discards two cards.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -78,7 +78,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
             // with no stated duration lasts indefinitely (CR 611.2b).
             AbilityDef::activated_with_targets(
                 "−2: Gain control of target artifact.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
                 )],
@@ -91,7 +91,7 @@ pub(in crate::card::sets) static DACK_FAYDEN: CardRecord = CardRecord::new_with_
             AbilityDef::activated(
                 "−6: You get an emblem with \"Whenever you cast a spell that targets one or more \
                  permanents, gain control of those permanents.\"",
-                &[AbilityCostDef::Loyalty(-6)],
+                &[CostDef::Loyalty(-6)],
                 EffectDef::create_emblem("Dack Fayden emblem", &[AbilityDef::triggered(
                     "Whenever you cast a spell that targets one or more permanents, gain control of those \
                          permanents.",

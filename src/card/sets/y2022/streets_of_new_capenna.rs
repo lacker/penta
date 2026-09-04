@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
-    ComparisonDef, CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, abilities, tokens,
+    AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef,
+    CounterKind, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
+    QuantifierDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, abilities, tokens,
 };
 use crate::mana_cost;
 
@@ -169,8 +169,8 @@ pub(in crate::card::sets) static BODY_DROPPER: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{B}{R}, Sacrifice another creature: This creature gains menace until end of turn.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{B}{R}")),
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{B}{R}")),
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
                         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),

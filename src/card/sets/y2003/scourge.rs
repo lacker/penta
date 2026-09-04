@@ -6,14 +6,14 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef,
-    AttackRestrictionDef, BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef,
-    BlockRestrictionSubjectDef, CardArt, CardRules, CardSet, CardType, ComparisonDef,
-    CostModificationDef, CounterKind, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PayOrDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AppliedEffectDef,
+    AppliedRuleDef, ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
+    BasicLandType, BlockRestrictionDef, BlockRestrictionMatchDef, BlockRestrictionSubjectDef,
+    CardArt, CardRules, CardSet, CardType, ComparisonDef, CostDef, CostModificationDef,
+    CounterKind, EffectDef, EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    ObjectPredicateDef, ObjectRefDef, PayOrDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -147,7 +147,7 @@ pub(in crate::card::sets) static DECREE_OF_JUSTICE: CardRecord = CardRecord::new
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::Related(PlayerRelation::You),
-                    cost: EffectPaymentCostDef::ChosenGenericMana,
+                    cost: CostDef::ChosenGenericMana,
                 },
                 // The cycling half: X is settled by the payment rather than by a cast, so
                 // the branch that makes the tokens reads back what was actually paid.
@@ -205,7 +205,7 @@ pub(in crate::card::sets) static ETERNAL_DRAGON: CardRecord = CardRecord::new_wi
         abilities::flying(),
         AbilityDef::activated(
             "{3}{W}{W}: Return this card from your graveyard to your hand. Activate only during your upkeep.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{W}{W}"))],
+            &[CostDef::Mana(mana_cost!("{3}{W}{W}"))],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -1087,7 +1087,7 @@ pub(in crate::card::sets) static DRAGON_BREATH: CardRecord = CardRecord::new_wit
             ),
             AbilityDef::activated(
                 "{R}: Enchanted creature gets +1/+0 until end of turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                &[CostDef::Mana(mana_cost!("{R}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -1375,8 +1375,8 @@ pub(in crate::card::sets) static SIEGE_GANG_COMMANDER: CardRecord = CardRecord::
         AbilityDef::activated_with_targets(
             "{1}{R}, Sacrifice a Goblin: This creature deals 2 damage to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}{R}")),
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::Subtype("Goblin"),
                     controller: PlayerRelation::You,
                 },

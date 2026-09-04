@@ -8,7 +8,7 @@
 use crate::ids::{AbilityId, AlternativeCostId};
 
 use super::super::{AlternativeCostDef, CostQuantityDef, ManaCost, ObjectPredicateDef, ZoneKind};
-use super::{AbilityTargetDef, SpellAdditionalCostDef, TriggerConditionDef};
+use super::{AbilityTargetDef, CostDef, TriggerConditionDef};
 
 /// The rules procedure and mana cost supplied by a printed
 /// alternative-casting keyword.
@@ -28,7 +28,7 @@ pub struct AlternativeCastAbilityDef {
     /// A nonmana cost paid in place of the mana one. The objects it names are
     /// spent the way the zone says: a permanent is sacrificed, a card in a
     /// graveyard is exiled, a card in hand is discarded.
-    pub additional_cost: Option<SpellAdditionalCostDef>,
+    pub additional_cost: Option<CostDef>,
     /// A board condition the alternative requires. Mogg Salvage's free cast
     /// is only available while the two lands it names are out, so a false
     /// condition means the alternative is not offered at all.
@@ -286,7 +286,7 @@ impl AlternativeCastAbilityDef {
         let AlternativeCastManaCostDef::Fixed(mana_cost) = self.mana_cost else {
             return None;
         };
-        let Some(SpellAdditionalCostDef::Exile {
+        let Some(CostDef::Exile {
             object: ObjectPredicateDef::Any,
             from: ZoneKind::Graveyard,
             quantity: CostQuantityDef::Fixed(cards),

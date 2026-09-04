@@ -14,6 +14,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
             on_failure,
             ..
         } => vec![*on_success, *on_failure],
+        EffectDef::FlipCoin { on_win, on_loss } => vec![*on_win, *on_loss],
         EffectDef::MillWhileMatching(mill) => vec![*mill.body, *mill.on_match],
         EffectDef::Choose(choice) => vec![*choice.then],
         EffectDef::ChooseExact(choice) => vec![*choice.then],
@@ -94,6 +95,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         // A distributed look runs nothing after a card lands, so like every
         // other leaf below it has no child effect to walk.
         EffectDef::AddCounters { .. }
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddMana(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::SelectAtRandomFromZone { .. }

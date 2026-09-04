@@ -99,12 +99,12 @@ impl Game {
     /// them would be a different card there.
     pub(in crate::game) fn resolved_effect_payment(
         &self,
-        cost: crate::card::EffectPaymentCostDef,
+        cost: crate::card::CostDef,
         object: &StackObject,
         context: &EffectResolutionContext,
         scoped: ScopedEffect,
     ) -> crate::game::ResolvedEffectPayment {
-        use crate::card::EffectPaymentCostDef as Cost;
+        use crate::card::CostDef as Cost;
         use crate::game::ResolvedEffectPayment as Resolved;
         let amount_of = |value| {
             u16::try_from(self.effect_value(value, object, context, scoped).max(0))
@@ -120,12 +120,12 @@ impl Game {
                 object: recipient,
                 generic,
             } => Resolved::Mana(
-                self.object_mana_cost_reduced_by(recipient, generic, object, context, scoped),
+                self.object_mana_cost_reduced_by(*recipient, generic, object, context, scoped),
             ),
-            Cost::Life(amount) => Resolved::Life(amount),
+            Cost::PayLife(amount) => Resolved::Life(amount),
             Cost::Energy(amount) => Resolved::Energy(amount),
-            Cost::Mill(amount) => Resolved::Mill(amount),
-            Cost::Discard(amount) => Resolved::Discard(amount),
+            Cost::MillCards(amount) => Resolved::Mill(amount),
+            Cost::DiscardCards(amount) => Resolved::Discard(amount),
             Cost::SacrificePermanentMatching(predicate) => {
                 Resolved::SacrificePermanentMatching(predicate)
             }
@@ -141,7 +141,7 @@ impl Game {
                 object: recipient,
                 kind,
             } => self
-                .effect_recipients(recipient, object, context, scoped)
+                .effect_recipients(*recipient, object, context, scoped)
                 .into_iter()
                 .find_map(|target| match target {
                     Target::Permanent(object) => {
@@ -154,6 +154,7 @@ impl Game {
                     kind,
                 }),
             Cost::DiscardMatching(predicate) => Resolved::DiscardMatching(predicate),
+            _ => unreachable!("unsupported resolving payment cost reached execution"),
         }
     }
 

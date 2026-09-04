@@ -1,7 +1,7 @@
 use crate::card::AppliedRuleDef;
 
 use super::{
-    AbilityCostDef, AbilityOrigin, AppliedEffectDef, CardDefinitionId, CharacteristicOperationDef,
+    AbilityOrigin, AppliedEffectDef, CardDefinitionId, CharacteristicOperationDef, CostDef,
     DeclarativeAbilityDef, DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId,
     HandcraftedPolicy, ObjectCharacteristics, ObjectPredicateDef, PlayerObservation,
     PlayerRelation, PowerToughnessOperationDef, SetOperationDef, Step, Target, ValueDef,
@@ -189,7 +189,7 @@ impl HandcraftedPolicy {
             .as_slice()
             .iter()
             .find_map(|cost| match cost {
-                AbilityCostDef::SacrificePermanent {
+                CostDef::SacrificePermanent {
                     object,
                     controller: PlayerRelation::You,
                 } => Some(*object),
@@ -310,6 +310,9 @@ impl HandcraftedPolicy {
                 on_failure,
                 ..
             } => Self::effect_is_a_wash(*on_success) || Self::effect_is_a_wash(*on_failure),
+            EffectDef::FlipCoin { on_win, on_loss } => {
+                Self::effect_is_a_wash(*on_win) || Self::effect_is_a_wash(*on_loss)
+            }
             EffectDef::Choose(choice) => Self::effect_is_a_wash(*choice.then),
             EffectDef::PayOr(payment) => payment
                 .if_paid
@@ -423,6 +426,9 @@ impl HandcraftedPolicy {
                 ..
             } => Self::target_condition_in(*on_success)
                 .or_else(|| Self::target_condition_in(*on_failure)),
+            EffectDef::FlipCoin { on_win, on_loss } => {
+                Self::target_condition_in(*on_win).or_else(|| Self::target_condition_in(*on_loss))
+            }
             EffectDef::Choose(choice) => Self::target_condition_in_object_set(choice.candidates)
                 .or_else(|| Self::target_condition_in(*choice.then)),
             EffectDef::ChooseExact(choice) => {
@@ -432,23 +438,10 @@ impl HandcraftedPolicy {
             }
             EffectDef::PayOr(payment) => {
                 let payment_condition = match payment.payment.cost {
-                    crate::card::EffectPaymentCostDef::GenericMana(amount) => {
+                    crate::card::CostDef::GenericMana(amount) => {
                         Self::target_condition_in_value(amount)
                     }
-                    crate::card::EffectPaymentCostDef::Mana(_)
-                    | crate::card::EffectPaymentCostDef::Life(_)
-                    | crate::card::EffectPaymentCostDef::Energy(_)
-                    | crate::card::EffectPaymentCostDef::Mill(_)
-                    | crate::card::EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(_)
-                    | crate::card::EffectPaymentCostDef::Discard(_)
-                    | crate::card::EffectPaymentCostDef::DiscardMatching(_)
-                    | crate::card::EffectPaymentCostDef::ChosenGenericMana
-                    | crate::card::EffectPaymentCostDef::ChosenEnergy
-                    | crate::card::EffectPaymentCostDef::RemoveAnyNumberOfCounters { .. }
-                    | crate::card::EffectPaymentCostDef::MovePermanentMatching { .. }
-                    | crate::card::EffectPaymentCostDef::SacrificePermanentMatching(_)
-                    | crate::card::EffectPaymentCostDef::ObjectManaCostReducedBy { .. }
-                    | crate::card::EffectPaymentCostDef::ColoredMana { .. } => None,
+                    _ => None,
                 };
                 payment_condition.or_else(|| {
                     payment
@@ -635,7 +628,7 @@ impl HandcraftedPolicy {
         }
         let mut profile = DeclarativeSpellProfile::default();
         let targets = if let DeclarativeAbilityDef::Activated(definition) = ability.definition {
-            profile.taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+            profile.taps_source = definition.costs.contains(&CostDef::TapSource);
             definition.targets
         } else {
             &[]

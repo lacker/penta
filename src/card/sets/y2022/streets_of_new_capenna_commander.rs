@@ -3,11 +3,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    tokens,
+    AbilityDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::mana_cost;
@@ -48,8 +47,8 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{2}, {T}: Draw a card, then discard a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
             ],
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
@@ -68,7 +67,7 @@ pub(in crate::card::sets) static CURRENCY_CONVERTER: CardRecord = CardRecord::ne
             "{T}: Put a card exiled with this artifact into its owner's graveyard. If it's a land \
              card, create a Treasure token. If it's a nonland card, create a 2/2 black Rogue creature \
              token.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::Choose(ChooseDef {
                 binding: ObjectChoiceBindingDef::Object(ParentBinding),
                 unchosen: None,

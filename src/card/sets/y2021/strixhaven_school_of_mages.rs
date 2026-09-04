@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    CounterKind, EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostDef, CounterKind,
+    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
@@ -162,10 +162,7 @@ pub(in crate::card::sets) static UNWILLING_INGREDIENT: CardRecord = CardRecord::
         abilities::menace(),
         AbilityDef::activated(
             "{2}{B}, Exile this card from your graveyard: You draw a card and you lose 1 life.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
-                AbilityCostDef::ExileSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}{B}")), CostDef::ExileSource],
             EffectDef::Sequence(&[
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -348,7 +345,7 @@ pub(in crate::card::sets) static QUANDRIX_CAMPUS: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Green,
                 ManaColor::Blue,
@@ -369,7 +366,7 @@ pub(in crate::card::sets) static WITHERBLOOM_CAMPUS: CardRecord = CardRecord::ne
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Black,
                 ManaColor::Green,

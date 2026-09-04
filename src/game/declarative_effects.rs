@@ -9,6 +9,7 @@ use crate::card::{AppliedRuleDef, ArrivalAttachmentDef};
 mod attachment;
 mod bound_outputs;
 mod copy;
+mod cumulative_upkeep;
 mod damage;
 mod exile_to_play;
 mod hand_and_library;
@@ -68,6 +69,11 @@ impl Game {
                 } else {
                     on_failure
                 };
+                self.resolve_effect_def(scoped.with_effect(*branch), object, context);
+            }
+            EffectDef::FlipCoin { on_win, on_loss } => {
+                let won = self.flip_coin(object.controller);
+                let branch = if won { on_win } else { on_loss };
                 self.resolve_effect_def(scoped.with_effect(*branch), object, context);
             }
             EffectDef::Choose(definition) => {
@@ -167,6 +173,7 @@ impl Game {
                 self.queue_pay_or(
                     *player,
                     payment,
+                    None,
                     definition.visibility,
                     scoped,
                     object,
@@ -176,6 +183,9 @@ impl Game {
                         .otherwise
                         .map(|effect| scoped.with_effect(*effect)),
                 );
+            }
+            EffectDef::CumulativeUpkeep(cost) => {
+                self.resolve_cumulative_upkeep(cost, scoped, object, context);
             }
             EffectDef::AddMana(_) | EffectDef::AddManaEqualTo { .. } => {
                 self.resolve_mana_effect(scoped, object, &context);

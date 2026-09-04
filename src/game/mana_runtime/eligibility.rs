@@ -2,7 +2,7 @@
 //! knows how to pay without a window in which to ask, and the bounds that
 //! keep an offered ability from being an unbounded loop.
 
-use super::super::{AbilityCostDef, ActivatedAbilityDef, CounterKind, Game, Permanent, ZoneKind};
+use super::super::{ActivatedAbilityDef, CostDef, CounterKind, Game, Permanent, ZoneKind};
 
 impl Game {
     pub(in crate::game) fn mana_ability_is_usable(
@@ -10,7 +10,7 @@ impl Game {
         permanent: &Permanent,
         definition: &ActivatedAbilityDef,
     ) -> bool {
-        let taps_source = definition.costs.contains(&AbilityCostDef::TapSource);
+        let taps_source = definition.costs.contains(&CostDef::TapSource);
         definition.source_zones.contains(&ZoneKind::Battlefield)
             && !definition.costs.as_slice().is_empty()
             && definition
@@ -19,9 +19,9 @@ impl Game {
                 .filter(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificeSource
-                            | AbilityCostDef::ExileSource
-                            | AbilityCostDef::ReturnSourceToHand
+                        CostDef::SacrificeSource
+                            | CostDef::ExileSource
+                            | CostDef::ReturnSourceToHand
                     )
                 })
                 .count()
@@ -32,44 +32,44 @@ impl Game {
                 .iter()
                 .all(|cost| Self::mana_ability_cost_is_supported(definition, cost))
             && definition.costs.iter().all(|cost| match cost {
-                AbilityCostDef::Mana(cost) => self.pool_covers_cost(permanent.controller, *cost),
-                AbilityCostDef::MillCards(_) => false,
-                AbilityCostDef::PayLife(amount) => {
+                CostDef::Mana(cost) => self.pool_covers_cost(permanent.controller, *cost),
+                CostDef::PayLife(amount) => {
                     self.can_pay_life(permanent.controller, *amount)
                 }
-                AbilityCostDef::RemoveCountersFromSource { .. }
-                | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
+                CostDef::RemoveCountersFromSource { .. }
+                | CostDef::RemoveAnyNumberOfCountersFromSource(_)
                 // A hand of nothing discards nothing, which pays it.
-                | AbilityCostDef::DiscardHand
-                | AbilityCostDef::ManaCostOf(_)
-                | AbilityCostDef::ManaValueOfTarget { .. }
-                | AbilityCostDef::TapSource
-                | AbilityCostDef::ExertSource
-                | AbilityCostDef::UntapSource
-                | AbilityCostDef::SacrificeSource
-                | AbilityCostDef::SacrificeObject(_)
-                | AbilityCostDef::ReturnSourceToHand
-                | AbilityCostDef::DiscardSource
-                | AbilityCostDef::DiscardCards(_)
-                | AbilityCostDef::DiscardCardMatching(_)
-                | AbilityCostDef::RevealCardFromHand(_)
-                | AbilityCostDef::ExileCardFromHand(_)
-                | AbilityCostDef::DiscardCardsAtRandom(_)
-                | AbilityCostDef::SacrificePermanent { .. }
-                | AbilityCostDef::SacrificePermanents { .. }
-                | AbilityCostDef::ReturnUnblockedAttackerToHand
-                | AbilityCostDef::TapPermanents { .. }
-                | AbilityCostDef::TapCreaturesWithTotalPower { .. }
-                | AbilityCostDef::ExileSource
-                | AbilityCostDef::MoveToZone(_)
-                | AbilityCostDef::Special(_) => true,
+                | CostDef::DiscardHand
+                | CostDef::ManaCostOf(_)
+                | CostDef::ManaValueOfTarget { .. }
+                | CostDef::TapSource
+                | CostDef::ExertSource
+                | CostDef::UntapSource
+                | CostDef::SacrificeSource
+                | CostDef::SacrificeObject(_)
+                | CostDef::ReturnSourceToHand
+                | CostDef::DiscardSource
+                | CostDef::DiscardCards(_)
+                | CostDef::DiscardCardMatching(_)
+                | CostDef::RevealCardFromHand(_)
+                | CostDef::ExileCardFromHand(_)
+                | CostDef::DiscardCardsAtRandom(_)
+                | CostDef::SacrificePermanent { .. }
+                | CostDef::SacrificePermanents { .. }
+                | CostDef::ReturnUnblockedAttackerToHand
+                | CostDef::TapPermanents { .. }
+                | CostDef::TapCreaturesWithTotalPower { .. }
+                | CostDef::ExileSource
+                | CostDef::MoveToZone(_)
+                | CostDef::Special(_) => true,
                 // Sorcery speed, once a turn, and never past zero: a mana
                 // ability that costs loyalty is still a loyalty ability
                 // (CR 606.3), so it answers the same question every other
                 // one does.
-                AbilityCostDef::Loyalty(change) => {
+                CostDef::Loyalty(change) => {
                     self.can_activate_loyalty(permanent, permanent.controller, *change)
                 }
+                _ => false,
             })
             && Self::source_counter_costs_are_payable(permanent, definition.costs.as_slice())
     }
@@ -81,7 +81,7 @@ impl Game {
         definition: &ActivatedAbilityDef,
     ) -> Option<CounterKind> {
         definition.costs.iter().find_map(|cost| match cost {
-            AbilityCostDef::RemoveAnyNumberOfCountersFromSource(kind) => Some(*kind),
+            CostDef::RemoveAnyNumberOfCountersFromSource(kind) => Some(*kind),
             _ => None,
         })
     }
@@ -95,35 +95,35 @@ impl Game {
     /// a choice the activation has no room to carry.
     pub(in crate::game) fn mana_ability_cost_is_supported(
         definition: &ActivatedAbilityDef,
-        cost: &AbilityCostDef,
+        cost: &CostDef,
     ) -> bool {
         match cost {
-            AbilityCostDef::TapSource
+            CostDef::TapSource
             // Exerting spends the source's next untap step, which is a
             // finite thing to spend: the land is not producing this mana
             // again next turn.
-            | AbilityCostDef::ExertSource
+            | CostDef::ExertSource
             // Discarding a hand spends something finite and needs nobody to
             // choose anything, so it is payable where a mana ability pays.
-            | AbilityCostDef::DiscardHand
-            | AbilityCostDef::SacrificeSource
-            | AbilityCostDef::ReturnSourceToHand
-            | AbilityCostDef::ExileSource
-            | AbilityCostDef::RemoveCountersFromSource { .. }
-            | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
+            | CostDef::DiscardHand
+            | CostDef::SacrificeSource
+            | CostDef::ReturnSourceToHand
+            | CostDef::ExileSource
+            | CostDef::RemoveCountersFromSource { .. }
+            | CostDef::RemoveAnyNumberOfCountersFromSource(_)
             // Sacrificing another permanent or exiling a card from hand
             // consumes a finite object, so it bounds the ability. Which
             // object is spent is answered by enumerating one activation per
             // candidate.
-            | AbilityCostDef::SacrificePermanent { .. }
-            | AbilityCostDef::ExileCardFromHand(_)
-            | AbilityCostDef::SacrificePermanents { .. }
+            | CostDef::SacrificePermanent { .. }
+            | CostDef::ExileCardFromHand(_)
+            | CostDef::SacrificePermanents { .. }
             // A loyalty cost is bounded by the rule rather than by the
             // board: one loyalty ability per planeswalker per turn, and
             // that is what stops it looping.
-            | AbilityCostDef::Loyalty(_)
-            | AbilityCostDef::PayLife(_) => true,
-            AbilityCostDef::Mana(mana) => {
+            | CostDef::Loyalty(_)
+            | CostDef::PayLife(_) => true,
+            CostDef::Mana(mana) => {
                 // A mana cost alone does not bound how often the ability can
                 // be activated, and an unbounded mana ability is a loop. What
                 // bounds it is either a cost that spends the board or a
@@ -132,44 +132,30 @@ impl Game {
                     || definition.costs.iter().any(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::TapSource
-                                | AbilityCostDef::ExertSource
-                                | AbilityCostDef::DiscardHand
-                                | AbilityCostDef::SacrificeSource
-                                | AbilityCostDef::ReturnSourceToHand
-                                | AbilityCostDef::ExileSource
-                                | AbilityCostDef::SacrificePermanent { .. }
-                                | AbilityCostDef::ExileCardFromHand(_)
-                                | AbilityCostDef::SacrificePermanents { .. }
+                            CostDef::TapSource
+                                | CostDef::ExertSource
+                                | CostDef::DiscardHand
+                                | CostDef::SacrificeSource
+                                | CostDef::ReturnSourceToHand
+                                | CostDef::ExileSource
+                                | CostDef::SacrificePermanent { .. }
+                                | CostDef::ExileCardFromHand(_)
+                                | CostDef::SacrificePermanents { .. }
                         )
                     });
                 !mana.variable_x && mana.hybrid_total() == 0 && bounded
             }
-            AbilityCostDef::UntapSource
-            | AbilityCostDef::ManaCostOf(_)
-            | AbilityCostDef::ManaValueOfTarget { .. }
-            | AbilityCostDef::SacrificeObject(_)
-            | AbilityCostDef::DiscardSource
-            | AbilityCostDef::DiscardCards(_)
-            | AbilityCostDef::DiscardCardMatching(_)
-            | AbilityCostDef::RevealCardFromHand(_)
-            | AbilityCostDef::DiscardCardsAtRandom(_)
-            | AbilityCostDef::MillCards(_)
-            | AbilityCostDef::ReturnUnblockedAttackerToHand
-            | AbilityCostDef::TapPermanents { .. }
-            | AbilityCostDef::TapCreaturesWithTotalPower { .. }
-            | AbilityCostDef::MoveToZone(_)
-            | AbilityCostDef::Special(_) => false,
+            _ => false,
         }
     }
 
     pub(in crate::game) fn source_counter_costs_are_payable(
         permanent: &Permanent,
-        costs: &[AbilityCostDef],
+        costs: &[CostDef],
     ) -> bool {
         let mut required = std::collections::BTreeMap::<CounterKind, u32>::new();
         for cost in costs {
-            if let AbilityCostDef::RemoveCountersFromSource { kind, amount } = cost {
+            if let CostDef::RemoveCountersFromSource { kind, amount } = cost {
                 let held = required.entry(*kind).or_default();
                 *held = held.saturating_add(u32::from(*amount));
             }

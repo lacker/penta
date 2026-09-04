@@ -2,12 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, ComparisonDef,
-    ConditionalStaticEffectDef, CostQuantityDef, EffectDef, EffectRecipientDef, LikelihoodDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef,
-    ObjectSetPredicateDef, PlayerRelation, SpellAdditionalCostDef, StaticApplyDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, ComparisonDef, ConditionalStaticEffectDef,
+    CostDef, CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRelation, StaticApplyDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -46,9 +45,7 @@ pub(in crate::card::sets) static DEEP_ANALYSIS: CardRecord = CardRecord::new(
             Some("Flashback—{1}{U}, Pay 3 life."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::pay_life(
-            CostQuantityDef::Fixed(3),
-        )),
+        .with_alternative_additional_cost(&CostDef::pay_life(CostQuantityDef::Fixed(3))),
     ]),
 );
 
@@ -114,7 +111,7 @@ pub(in crate::card::sets) static WEREBEAR: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{T}: Add {G}.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
             ),
             AbilityDef::static_ability(
@@ -159,13 +156,12 @@ pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new_with_l
                 step: TurnStepDef::Upkeep,
                 player: PlayerRelation::You,
             },
-            EffectDef::Randomized {
-                likelihood: LikelihoodDef::new(0.5),
-                on_success: &EffectDef::None,
+            EffectDef::FlipCoin {
+                on_win: &EffectDef::None,
                 // Losing the flip is the whole cost of the card, and it is paid to the
                 // artifact itself: three damage from a source its controller chose to keep
                 // around.
-                on_failure: &EffectDef::DealDamage {
+                on_loss: &EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Controller,
                     amount: ValueDef::Constant(3),
                 },
@@ -173,7 +169,7 @@ pub(in crate::card::sets) static MANA_CRYPT: CardRecord = CardRecord::new_with_l
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
         ),
     ]),

@@ -3,15 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorChoiceOperationDef,
-    ComparisonDef, CounterKind, CreatureTypeSetDef, DiscardFollowUpDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, EmblemCharacteristics, ExilePlayDurationDef, ManaColor,
-    MoveObjectsDef, ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    RevealAndClassifyCardsDef, SpellAdditionalCostDef, TokenCharacteristics, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ColorChoiceOperationDef, ComparisonDef, CostDef, CounterKind,
+    CreatureTypeSetDef, DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    EmblemCharacteristics, ExilePlayDurationDef, ManaColor, MoveObjectsDef,
+    ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    RevealAndClassifyCardsDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -77,7 +77,7 @@ pub(in crate::card::sets) static GIVER_OF_RUNES: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}: Another target creature you control gains protection from colorless or from \
              the color of your choice until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // "Another target creature you control": she may not protect herself, which
             // is the whole difference between her and her mother.
             &[AbilityTargetDef::exactly_one(
@@ -347,7 +347,7 @@ pub(in crate::card::sets) static FORCE_OF_NEGATION: CardRecord = CardRecord::new
         // Exiled rather than discarded, the same way the green half of the cycle
         // spends its card: what pays is gone without ever becoming a graveyard
         // card.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -447,7 +447,7 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
                 "Tap an untapped artifact you control: Add {U}.",
                 // "Tap an untapped artifact you control", which the Construct itself
                 // answers -- and so does every Mox, every Lotus, and everything they made.
-                &[AbilityCostDef::TapPermanents {
+                &[CostDef::TapPermanents {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     controller: PlayerRelation::You,
                     count: 1,
@@ -457,7 +457,7 @@ pub(in crate::card::sets) static URZA_LORD_HIGH_ARTIFICER: CardRecord = CardReco
             AbilityDef::activated(
                 "{5}: Shuffle your library, then exile the top card. Until end of turn, you may \
                  play that card without paying its mana cost.",
-                &[AbilityCostDef::Mana(mana_cost!("{5}"))],
+                &[CostDef::Mana(mana_cost!("{5}"))],
                 EffectDef::Sequence(&[
                     EffectDef::ShuffleLibrary {
                         player: EffectRecipientDef::Controller,
@@ -497,7 +497,7 @@ pub(in crate::card::sets) static CARRION_FEEDER: CardRecord = CardRecord::new(
             "Sacrifice a creature: Put a +1/+1 counter on this creature.",
             // Any creature you control, the Feeder included -- which is the
             // out when it is the last thing on the board.
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
@@ -543,7 +543,7 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Shaman"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
@@ -659,8 +659,8 @@ pub(in crate::card::sets) static SEASONED_PYROMANCER: CardRecord = CardRecord::n
                 "{3}{R}{R}, Exile this card from your graveyard: Create two 1/1 red Elemental creature \
                  tokens.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{3}{R}{R}")),
-                    AbilityCostDef::ExileSource,
+                    CostDef::Mana(mana_cost!("{3}{R}{R}")),
+                    CostDef::ExileSource,
                 ],
                 EffectDef::CreateToken {
                     token: PYROMANCER_ELEMENTAL,
@@ -715,7 +715,7 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
         )
         // Exiled rather than discarded: the card is spent without ever becoming a
         // graveyard card, which is what "exile a green card" means.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Green),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -754,7 +754,7 @@ pub(in crate::card::sets) static HEXDRINKER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{G}"), &["Snake"], 2, 1).with_abilities(&[
         AbilityDef::activated(
             "Level up {1} ({1}: Put a level counter on this. Level up only as a sorcery.)",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("level"),
@@ -889,8 +889,8 @@ pub(in crate::card::sets) static MOTHER_BEAR: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{3}{G}{G}, Exile this card from your graveyard: Create two 2/2 green Bear creature tokens. Activate only as a sorcery.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}{G}{G}")),
-                AbilityCostDef::ExileSource,
+                CostDef::Mana(mana_cost!("{3}{G}{G}")),
+                CostDef::ExileSource,
             ],
             EffectDef::create_creature_token(&["Bear"], &[ManaColor::Green], 2, 2).with_amount(2),
         )
@@ -1026,7 +1026,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Return up to one target land card from your graveyard to your hand.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 // "Up to one target land card from your graveyard": a Wrenn with an empty
                 // graveyard still ticks up.
                 &[AbilityTargetDef::up_to(
@@ -1046,7 +1046,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "−1: This planeswalker deals 1 damage to any target.",
-                &[AbilityCostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(-1)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::AnyTarget,
                 )],
@@ -1059,7 +1059,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                 "−7: You get an emblem with \"Instant and sorcery cards in your graveyard have retrace.\" \
                  (You may cast instant and sorcery cards from your graveyard by discarding a land card in \
                  addition to paying their other costs.)",
-                &[AbilityCostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(-7)],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new("Wrenn and Six emblem", &[AbilityDef::static_ability(
                             "Instant and sorcery cards in your graveyard have retrace.",
@@ -1081,7 +1081,7 @@ pub(in crate::card::sets) static WRENN_AND_SIX: CardRecord = CardRecord::new(
                                     // Retrace's own cost: the card's mana cost, plus a land out of your hand.
                                     // Discarding is what an ordinary hand cost does, so nothing else has to be
                                     // said about how the land is spent.
-                                    .with_alternative_additional_cost(&SpellAdditionalCostDef::discard(
+                                    .with_alternative_additional_cost(&CostDef::discard(
                                         ObjectPredicateDef::HasType(CardType::Land),
                                         CostQuantityDef::Fixed(1),
                                     )),
@@ -1109,10 +1109,7 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
         ),
         AbilityDef::activated(
             "{2}, {Q}: Put a +1/+1 counter on this creature. ({Q} is the untap symbol.)",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::UntapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::UntapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -1123,7 +1120,7 @@ pub(in crate::card::sets) static FARMSTEAD_GLEANER: CardRecord = CardRecord::new
 );
 
 // MH1 230 — Talisman of Conviction
-static TALISMAN_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+static TALISMAN_TAP: [CostDef; 1] = [CostDef::TapSource];
 
 pub(in crate::card::sets) static TALISMAN_OF_CONVICTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("71148fd3-0c2c-459e-b8f5-735a0a8dd87f"),

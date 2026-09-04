@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
-    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    BasicLandType, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType,
+    ComparisonDef, CostDef, EffectDef, EffectRecipientDef, ManaColor, ManaTypeDef,
     ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -91,9 +91,9 @@ pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
              library, then put any number of them into your graveyard and the rest on top of \
              your library in any order.)",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{2}{B}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             abilities::surveil(ValueDef::Constant(2)),
         ),
@@ -164,12 +164,12 @@ pub(in crate::card::sets) static BLEACHBONE_VERGE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {W}. Activate only if you control a Plains or a Swamp.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The verge condition in this cycle's Orzhov colours. Either type answers
                 // it, so a Godless Shrine is both halves at once.
@@ -207,7 +207,7 @@ pub(in crate::card::sets) static NIGHT_MARKET: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of the chosen color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
         ),
         abilities::cycling(
@@ -228,12 +228,12 @@ pub(in crate::card::sets) static RIVERPYRE_VERGE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {U}. Activate only if you control an Island or a Mountain.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The same verge condition in this cycle's other pair of colours: either
                 // type answers it, so a Volcanic Island is both halves at once.
@@ -264,12 +264,12 @@ pub(in crate::card::sets) static SUNBILLOW_VERGE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {R}. Activate only if you control a Mountain or a Plains.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The verge condition in this cycle's Boros colours. Either type answers
                 // it, so a Plateau is both halves at once.
@@ -300,12 +300,12 @@ pub(in crate::card::sets) static WASTEWOOD_VERGE: CardRecord = CardRecord::new_w
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {B}. Activate only if you control a Swamp or a Forest.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The verge condition: any land you control with either type answers it,
                 // so a Bayou is both halves at once and a land whose types were changed

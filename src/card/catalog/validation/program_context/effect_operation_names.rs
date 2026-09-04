@@ -14,6 +14,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::WithRule { .. } => "WithRule",
         EffectDef::BindOutput { .. } => "BindOutput",
         EffectDef::Randomized { .. } => "Randomized",
+        EffectDef::FlipCoin { .. } => "FlipCoin",
         EffectDef::Choose(_)
         | EffectDef::ChooseExact(_)
         | EffectDef::ChooseCardsFromCollection(_)
@@ -35,6 +36,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::ForEachInBinding { .. } => "ForEachInBinding",
         EffectDef::SelectAtRandomFromZone { .. } => "SelectAtRandomFromZone",
         EffectDef::PayOr(_) => "PayOr",
+        EffectDef::CumulativeUpkeep(_) => "CumulativeUpkeep",
         EffectDef::PreventDamage { .. } => "PreventDamage",
         EffectDef::AddMana(_) => "AddMana",
         EffectDef::AddPlayerCounters { .. } => "AddPlayerCounters",

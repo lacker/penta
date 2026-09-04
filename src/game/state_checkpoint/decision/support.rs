@@ -694,7 +694,63 @@ pub(super) fn resolved_effect_payment_snapshot(
         ResolvedEffectPayment::Mana(cost) => {
             ResolvedEffectPaymentSnapshot::Mana(mana_cost_snapshot(cost))
         }
+        ResolvedEffectPayment::CumulativeMana { source, cost } => {
+            ResolvedEffectPaymentSnapshot::CumulativeMana {
+                source: source.0,
+                cost: mana_cost_snapshot(cost),
+            }
+        }
+        ResolvedEffectPayment::SnowMana { source, amount } => {
+            ResolvedEffectPaymentSnapshot::SnowMana {
+                source: source.0,
+                amount,
+            }
+        }
         ResolvedEffectPayment::Life(amount) => ResolvedEffectPaymentSnapshot::Life(amount),
+        ResolvedEffectPayment::DrawCards(amount) => {
+            ResolvedEffectPaymentSnapshot::DrawCards(amount)
+        }
+        ResolvedEffectPayment::DiscardCards(amount) => {
+            ResolvedEffectPaymentSnapshot::DiscardCards(amount)
+        }
+        ResolvedEffectPayment::PutCounters {
+            object,
+            kind,
+            amount,
+            times,
+        } => ResolvedEffectPaymentSnapshot::PutCounters {
+            object: object.0,
+            kind: super::super::model::CounterKindSnapshot(kind),
+            amount,
+            times,
+        },
+        ResolvedEffectPayment::SacrificePermanents { amount, .. } => {
+            ResolvedEffectPaymentSnapshot::SacrificePermanents(amount)
+        }
+        ResolvedEffectPayment::ExileTopCards(amount) => {
+            ResolvedEffectPaymentSnapshot::ExileTopCards(amount)
+        }
+        ResolvedEffectPayment::AddMana { color, amount } => {
+            ResolvedEffectPaymentSnapshot::AddMana {
+                color: super::super::mana_color_snapshot(color),
+                amount,
+            }
+        }
+        ResolvedEffectPayment::OpponentGainsLife(amount) => {
+            ResolvedEffectPaymentSnapshot::OpponentGainsLife(amount)
+        }
+        ResolvedEffectPayment::OpponentCreatesTokens { amount, .. } => {
+            ResolvedEffectPaymentSnapshot::OpponentCreatesTokens(amount)
+        }
+        ResolvedEffectPayment::GainControlPermanents { source, amount, .. } => {
+            ResolvedEffectPaymentSnapshot::GainControlPermanents {
+                source: source.0,
+                amount,
+            }
+        }
+        ResolvedEffectPayment::FlipCoins(amount) => {
+            ResolvedEffectPaymentSnapshot::FlipCoins(amount)
+        }
         ResolvedEffectPayment::Energy(amount) => ResolvedEffectPaymentSnapshot::Energy(amount),
         ResolvedEffectPayment::Mill(amount) => ResolvedEffectPaymentSnapshot::Mill(amount),
         ResolvedEffectPayment::Discard(amount) => ResolvedEffectPaymentSnapshot::Discard(amount),

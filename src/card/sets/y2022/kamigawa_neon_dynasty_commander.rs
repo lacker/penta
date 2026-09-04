@@ -3,8 +3,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CostDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
     ZoneKind, abilities,
 };
@@ -75,8 +75,8 @@ pub(in crate::card::sets) static SHORIKAI_GENESIS_ENGINE: CardRecord = CardRecor
                 "{1}, {T}: Draw two cards, then discard a card. Create a 1/1 colorless Pilot creature \
                  token with \"This token crews Vehicles as though its power were 2 greater.\"",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{1}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{1}")),
+                    CostDef::TapSource,
                 ],
                 EffectDef::Sequence(&[
                     EffectDef::DrawCards {

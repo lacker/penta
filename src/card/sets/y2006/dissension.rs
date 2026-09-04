@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, BasicLandType,
-    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ClassifyObjectsDef,
-    EffectDef, KeywordAbility, ManaColor, ManaTypeDef, MoveObjectsDef, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, ReplacementChoiceDef, ReplacementEffectDef, RevealObjectsDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, BasicLandType, BattlefieldEntryScalarChoiceDef,
+    CardArt, CardRules, CardSet, CardType, ClassifyObjectsDef, CostDef, EffectDef, KeywordAbility,
+    ManaColor, ManaTypeDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    ReplacementChoiceDef, ReplacementEffectDef, RevealObjectsDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::mana_cost;
@@ -154,7 +154,7 @@ pub(in crate::card::sets) static RAKDOS_CARNARIUM: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {B}{R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Black,
                 ManaColor::Red,
@@ -175,7 +175,7 @@ pub(in crate::card::sets) static SIMIC_GROWTH_CHAMBER: CardRecord = CardRecord::
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {G}{U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Green,
                 ManaColor::Blue,

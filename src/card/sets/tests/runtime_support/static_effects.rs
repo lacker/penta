@@ -346,12 +346,14 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::BecomeMonarch { .. }
         | EffectDef::VoteForPermanentToExile { .. }
         | EffectDef::Randomized { .. }
+        | EffectDef::FlipCoin { .. }
         | EffectDef::Choose(_)
         | EffectDef::ChooseForEachPlayer(_)
         | EffectDef::ChooseCardName { .. }
         | EffectDef::SelectAtRandomFromZone { .. }
         | EffectDef::ForEachInBinding { .. }
         | EffectDef::PayOr(_)
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::PreventDamage { .. }
         | EffectDef::Apply { .. }
         | EffectDef::May { .. }
@@ -710,7 +712,8 @@ fn shared_static_applied_rule(recipient: EffectRecipientDef, rule: AppliedRuleDe
             let recipient_is_supported = matches!(
                 recipient.object_reference(),
                 Some(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
-            ) || recipient.object_query().is_some();
+            ) || recipient.object_query().is_some()
+                || matches!(recipient.0, EffectRecipientSetDef::Players(_));
             let matcher_is_supported = match (matcher.source, matcher.recipient) {
                 (
                     DamageSourceMatcherDef::Matching(source),

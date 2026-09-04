@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AdditionalCostValueDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
-    BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -251,7 +251,7 @@ pub(in crate::card::sets) static VAMPIRE_HEXMAGE: CardRecord = CardRecord::new(
         abilities::first_strike(),
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Remove all counters from target permanent.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             // Any permanent, which is the point: what it takes off a planeswalker is
             // the loyalty, and a planeswalker with no loyalty is put into a graveyard
             // by the ordinary state-based action.
@@ -494,8 +494,8 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
                     effect: AppliedEffectDef::add_ability(&AbilityDef::activated_with_targets(
                         "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target.",
                         &[
-                            AbilityCostDef::TapSource,
-                            AbilityCostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
+                            CostDef::TapSource,
+                            CostDef::SacrificeObject(ObjectRefDef::AbilityGrantSource),
                         ],
                         &[AbilityTargetDef::exactly_one(
                             AbilityTargetPredicate::AnyTarget,
@@ -509,7 +509,7 @@ pub(in crate::card::sets) static BLAZING_TORCH: CardRecord = CardRecord::new_wit
                 },
             ),
             abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 "Equip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
             ),
         ]),
@@ -527,9 +527,9 @@ pub(in crate::card::sets) static EXPEDITION_MAP: CardRecord = CardRecord::new_wi
         "{2}, {T}, Sacrifice this artifact: Search your library for a land card, reveal it, put \
          it into your hand, then shuffle.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{2}")),
-            AbilityCostDef::TapSource,
-            AbilityCostDef::SacrificeSource,
+            CostDef::Mana(mana_cost!("{2}")),
+            CostDef::TapSource,
+            CostDef::SacrificeSource,
         ],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
@@ -626,7 +626,7 @@ pub(in crate::card::sets) static TEETERING_PEAKS: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
     ]),

@@ -2,11 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType,
-    CharacteristicOperationDef, EffectDef, EffectRecipientDef, ExilePlayDurationDef, LAND_SUBTYPES,
-    ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef, SetOperationDef, ValueDef,
-    ZoneKind, abilities,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CharacteristicOperationDef, CostDef,
+    EffectDef, EffectRecipientDef, ExilePlayDurationDef, LAND_SUBTYPES, ObjectPredicateDef,
+    PlayerRelation, ResolvedEffectDurationDef, SetOperationDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -106,7 +105,7 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
                     AppliedEffectDef::remove_abilities(AbilityPredicateDef::Any),
                     AppliedEffectDef::add_ability(&AbilityDef::activated_mana(
                         "{T}: Add one mana of any color.",
-                        &[AbilityCostDef::TapSource],
+                        &[CostDef::TapSource],
                         EffectDef::AddMana(AddManaEffectDef::any_color()),
                     )),
                 ]),
@@ -130,8 +129,8 @@ pub(in crate::card::sets) static DARK_DWELLER_ORACLE: CardRecord = CardRecord::n
         AbilityDef::activated(
             "{1}, Sacrifice a creature: Exile the top card of your library. You may play that card this turn.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     controller: PlayerRelation::You,
                 },
@@ -163,7 +162,7 @@ pub(in crate::card::sets) static GOBLIN_MOTIVATOR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target creature gains haste until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],

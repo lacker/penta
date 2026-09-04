@@ -64,15 +64,12 @@ fn mana_preview_uses_the_selected_declarative_activated_ability_cost() {
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated(
             "{1}, {T}: Draw a card.",
-            &[
-                AbilityCostDef::Mana(ManaCost::new(1, 0)),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(ManaCost::new(1, 0)), CostDef::TapSource],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),

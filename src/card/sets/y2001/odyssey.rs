@@ -12,15 +12,14 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CostQuantityDef, DamageEventMatcherDef, DamageKindDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    BasicLandType, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
+    CardType, ComparisonDef, CostDef, CostQuantityDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -114,7 +113,7 @@ pub(in crate::card::sets) static AVEN_FLOCK: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "{W}: This creature gets +0/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            &[CostDef::Mana(mana_cost!("{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -231,8 +230,8 @@ pub(in crate::card::sets) static DEVOTED_CARETAKER: CardRecord = CardRecord::new
         AbilityDef::activated_with_targets(
             "{W}, {T}: Target permanent you control gains protection from instant spells and from sorcery spells until end of turn.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::TapSource,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -1843,7 +1842,7 @@ pub(in crate::card::sets) static SKELETAL_SCRYING: CardRecord = CardRecord::new_
             &[],
             // X cards from your own graveyard, exiled as the spell is cast. The count is
             // the X it is cast for, so a big Scrying costs the graveyard that fed it.
-            SpellAdditionalCostDef::exile(
+            CostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::ChosenX,
@@ -2820,10 +2819,7 @@ pub(in crate::card::sets) static NANTUKO_DISCIPLE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Insect", "Druid"], 2, 2).with_ability(
         AbilityDef::activated_with_targets(
             "{G}, {T}: Target creature gets +2/+2 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{G}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -3335,19 +3331,17 @@ pub(in crate::card::sets) static PSYCHATOG: CardRecord = CardRecord::new_with_le
     CardRules::new_creature(mana_cost!("{1}{U}{B}"), &["Atog"], 1, 2).with_abilities(&[
         AbilityDef::activated(
             "Discard a card: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::Any)],
             ATOG_PUMP,
         ),
         AbilityDef::activated(
             "Exile two cards from your graveyard: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::MoveToZone(
-                crate::card::MoveToZoneCostDef::new(
-                    ObjectPredicateDef::Any,
-                    ZoneKind::Graveyard,
-                    ZoneKind::Exile,
-                    2,
-                ),
-            )],
+            &[CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                ObjectPredicateDef::Any,
+                ZoneKind::Graveyard,
+                ZoneKind::Exile,
+                2,
+            ))],
             ATOG_PUMP,
         ),
     ]),
@@ -3565,15 +3559,15 @@ pub(in crate::card::sets) static BARBARIAN_RING: CardRecord = CardRecord::new_wi
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {R}. This land deals 1 damage to you.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_damage_to_controller(1)),
         ),
         AbilityDef::activated_with_targets(
             "Threshold — {R}, {T}, Sacrifice this land: It deals 2 damage to any target. Activate only if there are seven or more cards in your graveyard.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -3628,15 +3622,15 @@ pub(in crate::card::sets) static CEPHALID_COLISEUM: CardRecord = CardRecord::new
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {U}. This land deals 1 damage to you.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue).with_damage_to_controller(1)),
         ),
         AbilityDef::activated_with_targets(
             "Threshold — {U}, {T}, Sacrifice this land: Target player draws three then discards three cards. Activate only if there are seven or more cards in your graveyard.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{U}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{U}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
@@ -3764,10 +3758,7 @@ pub(in crate::card::sets) static SKYCLOUD_EXPANSE: CardRecord = CardRecord::new_
     // on fixing rather than on the count.
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
         "{1}, {T}: Add {W}{U}.",
-        &[
-            AbilityCostDef::Mana(mana_cost!("{1}")),
-            AbilityCostDef::TapSource,
-        ],
+        &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::one_of_each(
             ManaColor::White,
             ManaColor::Blue,

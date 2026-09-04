@@ -2,10 +2,10 @@ use super::*;
 
 #[test]
 fn exile_source_and_life_costs_are_paid_before_the_ability_goes_on_the_stack() {
-    static COSTS: [AbilityCostDef; 3] = [
-        AbilityCostDef::PayLife(2),
-        AbilityCostDef::TapSource,
-        AbilityCostDef::ExileSource,
+    static COSTS: [CostDef; 3] = [
+        CostDef::PayLife(2),
+        CostDef::TapSource,
+        CostDef::ExileSource,
     ];
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated(
         "Pay 2 life, tap and exile this artifact: You gain 1 life.",
@@ -74,7 +74,7 @@ fn exile_source_and_life_costs_are_paid_before_the_ability_goes_on_the_stack() {
 
 #[test]
 fn a_mana_ability_can_exile_its_source_and_pay_life() {
-    static COSTS: [AbilityCostDef; 2] = [AbilityCostDef::PayLife(1), AbilityCostDef::ExileSource];
+    static COSTS: [CostDef; 2] = [CostDef::PayLife(1), CostDef::ExileSource];
     static ABILITIES: [AbilityDef; 1] = [AbilityDef::activated_mana(
         "Pay 1 life, exile this artifact: Add {C}.",
         &COSTS,
@@ -136,11 +136,8 @@ fn a_mana_ability_can_exile_its_source_and_pay_life() {
 
 #[test]
 fn source_leaving_mana_cannot_also_pay_an_exile_source_ability() {
-    static MAIN_COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::Mana(ManaCost::new(1, 0)),
-        AbilityCostDef::ExileSource,
-    ];
-    static MANA_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::SacrificeSource];
+    static MAIN_COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(1, 0)), CostDef::ExileSource];
+    static MANA_COSTS: [CostDef; 1] = [CostDef::SacrificeSource];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "{1}, Exile this artifact: You gain 1 life.",
@@ -189,11 +186,8 @@ fn source_leaving_mana_cannot_also_pay_an_exile_source_ability() {
 
 #[test]
 fn source_preserving_mana_can_pay_an_exile_source_ability() {
-    static MAIN_COSTS: [AbilityCostDef; 2] = [
-        AbilityCostDef::Mana(ManaCost::new(1, 0)),
-        AbilityCostDef::ExileSource,
-    ];
-    static MANA_COSTS: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+    static MAIN_COSTS: [CostDef; 2] = [CostDef::Mana(ManaCost::new(1, 0)), CostDef::ExileSource];
+    static MANA_COSTS: [CostDef; 1] = [CostDef::TapSource];
     static ABILITIES: [AbilityDef; 2] = [
         AbilityDef::activated(
             "{1}, Exile this artifact: You gain 1 life.",

@@ -4,9 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CostDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
     ManaColor, MillUntilDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetPredicateDef, PayOrDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -241,7 +241,7 @@ pub(in crate::card::sets) static SHIELD_MATE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Soldier"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: Target creature gets +0/+4 until end of turn.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -432,7 +432,7 @@ pub(in crate::card::sets) static KILLER_WHALE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Whale"], 3, 5).with_ability(
         AbilityDef::activated(
             "{U}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
@@ -614,7 +614,7 @@ pub(in crate::card::sets) static WHIPTONGUE_FROG: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Frog"], 1, 3).with_ability(
         AbilityDef::activated(
             "{U}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
@@ -890,11 +890,11 @@ pub(in crate::card::sets) static RECURRING_NIGHTMARE: CardRecord = CardRecord::n
             // return rather than a sacrifice: it comes back to hand to be cast again,
             // which is the whole of why the card is banned wherever it is.
             &[
-                AbilityCostDef::SacrificePermanent {
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     controller: PlayerRelation::You,
                 },
-                AbilityCostDef::ReturnSourceToHand,
+                CostDef::ReturnSourceToHand,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
@@ -1050,7 +1050,7 @@ pub(in crate::card::sets) static FURNACE_BROOD: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Elemental"], 3, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{R}: Target creature can't be regenerated this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1084,10 +1084,7 @@ pub(in crate::card::sets) static MAGE_IL_VEC: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Wizard"], 2, 2).with_ability(
         AbilityDef::activated_with_targets(
             "{T}, Discard a card at random: This creature deals 1 damage to any target.",
-            &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::DiscardCardsAtRandom(1),
-            ],
+            &[CostDef::TapSource, CostDef::DiscardCardsAtRandom(1)],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -1151,8 +1148,8 @@ pub(in crate::card::sets) static OGRE_SHAMAN: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{2}, Discard a card at random: This creature deals 2 damage to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::DiscardCardsAtRandom(1),
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::DiscardCardsAtRandom(1),
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -1302,9 +1299,9 @@ pub(in crate::card::sets) static SEISMIC_ASSAULT: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{R}{R}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "Discard a land card: This enchantment deals 2 damage to any target.",
-            &[AbilityCostDef::DiscardCardMatching(
-                ObjectPredicateDef::HasType(CardType::Land),
-            )],
+            &[CostDef::DiscardCardMatching(ObjectPredicateDef::HasType(
+                CardType::Land,
+            ))],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -1589,7 +1586,7 @@ pub(in crate::card::sets) static ROOTWATER_ALLIGATOR: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Crocodile"], 3, 2).with_ability(
         abilities::regenerate_self(
             "Sacrifice a Forest: Regenerate this creature.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
                 controller: PlayerRelation::You,
             }],
@@ -1708,9 +1705,9 @@ pub(in crate::card::sets) static MEDICINE_BAG: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_with_targets(
         "{1}, {T}, Discard a card: Regenerate target creature.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{1}")),
-            AbilityCostDef::TapSource,
-            AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+            CostDef::Mana(mana_cost!("{1}")),
+            CostDef::TapSource,
+            CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
         ],
         &[AbilityTargetDef::exactly_one_permanent(
             ObjectPredicateDef::HasType(CardType::Creature),
@@ -1839,7 +1836,7 @@ pub(in crate::card::sets) static CITY_OF_TRAITORS: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(2)),
         ),
     ]),

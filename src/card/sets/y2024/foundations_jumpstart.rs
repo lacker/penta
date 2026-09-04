@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2005::ravnica_city_of_guilds as catalog_rav;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ComparisonDef, CostDef, CounterKind, CreatureTypeSetDef,
     EffectChoiceDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
@@ -141,7 +141,7 @@ pub(in crate::card::sets) static PLAGON_LORD_OF_THE_BEACH: CardRecord = CardReco
             AbilityDef::activated_with_targets(
                 "{W/U}: Target creature you control assigns combat damage equal to its toughness \
                  rather than its power this turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{W/U}"))],
+                &[CostDef::Mana(mana_cost!("{W/U}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -392,7 +392,7 @@ pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::ne
         ),
         AbilityDef::activated_mana(
             "{T}: Add {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
         ),
     ]),
@@ -413,12 +413,12 @@ pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated(
             "{2}: This artifact becomes a 2/2 Golem artifact creature until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 // It is already an artifact, so adding the type again is

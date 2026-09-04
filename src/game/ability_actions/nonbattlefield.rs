@@ -37,7 +37,7 @@ impl Game {
                 let mut sacrifice = None;
                 for cost in &definition.costs {
                     match cost {
-                        AbilityCostDef::SacrificePermanent { object, controller }
+                        CostDef::SacrificePermanent { object, controller }
                             if sacrifice.is_none() =>
                         {
                             sacrifice = Some((*object, *controller));
@@ -96,39 +96,14 @@ impl Game {
         let mut mana_cost = ManaCost::default();
         for cost in definition.costs.as_slice() {
             match cost {
-                AbilityCostDef::Mana(cost) => {
+                CostDef::Mana(cost) => {
                     mana_cost = add_mana_cost(mana_cost, *cost);
                 }
-                AbilityCostDef::DiscardSource | AbilityCostDef::ReturnUnblockedAttackerToHand => {}
-                // Nothing in a hand pays for an ability activated from that
-                // same hand: the card doing the paying would be discarding
-                // itself along with everything else.
-                AbilityCostDef::DiscardHand
-                | AbilityCostDef::ManaCostOf(_)
-                | AbilityCostDef::ManaValueOfTarget { .. }
-                | AbilityCostDef::TapSource
-                | AbilityCostDef::ExertSource
-                | AbilityCostDef::UntapSource
-                | AbilityCostDef::SacrificeSource
-                | AbilityCostDef::SacrificeObject(_)
-                | AbilityCostDef::ReturnSourceToHand
-                | AbilityCostDef::RemoveCountersFromSource { .. }
-                | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
-                | AbilityCostDef::PayLife(_)
-                | AbilityCostDef::MillCards(_)
-                | AbilityCostDef::DiscardCards(_)
-                | AbilityCostDef::DiscardCardMatching(_)
-                | AbilityCostDef::RevealCardFromHand(_)
-                | AbilityCostDef::ExileCardFromHand(_)
-                | AbilityCostDef::DiscardCardsAtRandom(_)
-                | AbilityCostDef::SacrificePermanent { .. }
-                | AbilityCostDef::SacrificePermanents { .. }
-                | AbilityCostDef::TapPermanents { .. }
-                | AbilityCostDef::TapCreaturesWithTotalPower { .. }
-                | AbilityCostDef::ExileSource
-                | AbilityCostDef::Loyalty(_)
-                | AbilityCostDef::MoveToZone(_)
-                | AbilityCostDef::Special(_) => return None,
+                CostDef::DiscardSource | CostDef::ReturnUnblockedAttackerToHand => {}
+                // Nothing else is supported for an ability activated from a
+                // hand; in particular, the source cannot pay by also being
+                // one card in a larger hand payment.
+                _ => return None,
             }
         }
         Some(mana_cost)
@@ -176,7 +151,7 @@ impl Game {
                 // eligible creature. Every other hand ability names none.
                 let returned = if definition
                     .costs
-                    .contains(&AbilityCostDef::ReturnUnblockedAttackerToHand)
+                    .contains(&CostDef::ReturnUnblockedAttackerToHand)
                 {
                     let candidates = self.unblocked_attackers_controlled_by(player);
                     if candidates.is_empty() {
@@ -262,7 +237,7 @@ impl Game {
                         .costs
                         .iter()
                         .filter_map(|cost| match cost {
-                            AbilityCostDef::MillCards(amount) => Some(usize::from(*amount)),
+                            CostDef::MillCards(amount) => Some(usize::from(*amount)),
                             _ => None,
                         })
                         .sum::<usize>();
@@ -319,12 +294,12 @@ impl Game {
         let mut taps = None;
         for cost in definition.costs.as_slice() {
             match cost {
-                AbilityCostDef::Mana(cost) => mana_cost = add_mana_cost(mana_cost, *cost),
+                CostDef::Mana(cost) => mana_cost = add_mana_cost(mana_cost, *cost),
                 // The card itself, and one permanent on the battlefield: a
                 // card in a graveyard can still name something out there to
                 // tap.
-                AbilityCostDef::ExileSource | AbilityCostDef::MillCards(_) => {}
-                AbilityCostDef::TapPermanents {
+                CostDef::ExileSource | CostDef::MillCards(_) => {}
+                CostDef::TapPermanents {
                     object,
                     controller,
                     count: 1,

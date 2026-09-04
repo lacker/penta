@@ -450,7 +450,7 @@ pub enum ValueDef {
     /// the board no longer holds by the time the follow-up runs. Zero
     /// without such a step behind it.
     BoundObjectCount(Binding),
-    /// What was actually paid for a [`super::EffectPaymentCostDef::ChosenGenericMana`]
+    /// What was actually paid for a [`super::CostDef::ChosenGenericMana`]
     /// payment in this resolution. Zero anywhere else, so a branch that reads
     /// it without a payment behind it does nothing rather than guessing.
     /// "Your devotion to blue" (CR 702.10c): each coloured mana symbol of

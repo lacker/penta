@@ -36,10 +36,24 @@ fn shared_effect_payment(payment: EffectPaymentDef) -> bool {
         PlayerSetDef::All | PlayerSetDef::Related(PlayerRelation::Any)
     ) && shared_effect_recipient(EffectRecipientDef::players(payment.payer))
         && match payment.cost {
-            crate::card::EffectPaymentCostDef::RemoveAnyNumberOfCounters { object, .. } => {
-                shared_effect_recipient(object)
+            crate::card::CostDef::RemoveAnyNumberOfCounters { object, .. } => {
+                shared_effect_recipient(*object)
             }
-            _ => true,
+            crate::card::CostDef::Mana(_)
+            | crate::card::CostDef::GenericMana(_)
+            | crate::card::CostDef::ColoredMana { .. }
+            | crate::card::CostDef::ObjectManaCostReducedBy { .. }
+            | crate::card::CostDef::PayLife(_)
+            | crate::card::CostDef::Energy(_)
+            | crate::card::CostDef::MillCards(_)
+            | crate::card::CostDef::DiscardCards(_)
+            | crate::card::CostDef::SacrificeCreaturesWithTotalPower(_)
+            | crate::card::CostDef::ChosenGenericMana
+            | crate::card::CostDef::ChosenEnergy
+            | crate::card::CostDef::MovePermanentMatching { .. }
+            | crate::card::CostDef::DiscardMatching(_)
+            | crate::card::CostDef::SacrificePermanentMatching(_) => true,
+            _ => false,
         }
 }
 
@@ -155,6 +169,13 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                     || shared_stack_effect_at_position(branch, deferred_decision_allowed)
             };
             branch_is_shared(*on_success) && branch_is_shared(*on_failure)
+        }
+        EffectDef::FlipCoin { on_win, on_loss } => {
+            let branch_is_shared = |branch: EffectDef| {
+                branch == EffectDef::None
+                    || shared_stack_effect_at_position(branch, deferred_decision_allowed)
+            };
+            branch_is_shared(*on_win) && branch_is_shared(*on_loss)
         }
         EffectDef::PreventDamage { prevention, .. } => shared_damage_prevention(prevention),
         EffectDef::Choose(choice) => {
@@ -322,6 +343,51 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                         matches!(**effect, EffectDef::None)
                             || shared_stack_effect_at_position(**effect, true)
                     })
+        }
+        EffectDef::CumulativeUpkeep(cost) => {
+            deferred_decision_allowed
+                && match cost {
+                    crate::card::CostDef::Mana(cost) => !cost.variable_x,
+                    crate::card::CostDef::SacrificePermanents {
+                        object,
+                        controller: crate::card::PlayerRelation::You,
+                        ..
+                    }
+                    | crate::card::CostDef::GainControlPermanents { object, .. } => {
+                        shared_object_predicate(object)
+                    }
+                    crate::card::CostDef::AddMana(effect) => {
+                        matches!(
+                            effect.mana,
+                            crate::card::ManaSelectionDef::One(
+                                crate::card::ManaTypeDef::Fixed(_)
+                            )
+                        )
+                            && effect.also.is_none()
+                            && effect.variable_amount.is_none()
+                            && effect.amount_override.is_none()
+                            && effect.damage_to_controller == 0
+                            && effect.sacrifice_source_when_out_of.is_none()
+                            && effect.restrictions.is_empty()
+                            && effect.spend_effects.is_empty()
+                    }
+                    crate::card::CostDef::SnowMana(_)
+                    | crate::card::CostDef::PayLife(_)
+                    | crate::card::CostDef::DrawCards(_)
+                    | crate::card::CostDef::DiscardCards(_)
+                    | crate::card::CostDef::ExileTopCards(_)
+                    | crate::card::CostDef::GainLife {
+                        player: crate::card::PlayerRelation::Opponent,
+                        ..
+                    }
+                    | crate::card::CostDef::CreateTokens {
+                        player: crate::card::PlayerRelation::Opponent,
+                        ..
+                    }
+                    | crate::card::CostDef::FlipCoins(_)
+                    | crate::card::CostDef::PutCountersOnSource { .. } => true,
+                    _ => false,
+                }
         }
         // A spell copying itself asks its chooser for targets, which is a
         // decision window like any other. Proliferate asks over permanents
@@ -780,9 +846,9 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && definition.condition.is_none()
                 && definition.costs.as_slice().iter().all(|cost| {
                     if mana {
-                        matches!(cost, AbilityCostDef::PayLife(_))
+                        matches!(cost, CostDef::PayLife(_))
                     } else {
-                        matches!(cost, AbilityCostDef::Mana(cost) if !cost.variable_x)
+                        matches!(cost, CostDef::Mana(cost) if !cost.variable_x)
                     }
                 })
                 && ongoing.duration != ResolvedEffectDurationDef::WhileSourceTapped

@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardType, CostDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
     ObjectPredicateDef, PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
+    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -82,7 +82,7 @@ pub(in crate::card::sets) static TOXIC_DELUGE: CardRecord = CardRecord::new_with
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         )
-        .with_spell_additional_cost(&SpellAdditionalCostDef::pay_life(
+        .with_spell_additional_cost(&CostDef::pay_life(
             CostQuantityDef::ChosenX,
         )),
     ),
@@ -101,7 +101,7 @@ pub(in crate::card::sets) static BOROS_GARRISON: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {R}{W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Red,
                 ManaColor::White,

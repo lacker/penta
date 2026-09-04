@@ -3,15 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryScalarChoiceDef,
-    BlockRestrictionDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryScalarChoiceDef, BlockRestrictionDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, ControlDurationDef, CostDef,
     CreatedTokensDef, DamageAssignmentDef, DamageEventMatcherDef, DamagePreventionDef,
     DividedTotal, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
     ManaTypeDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SpellAdditionalCostDef,
-    SumValueDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ResolvedEffectDurationDef, SacrificedAmountDef, ScaledValueDef, SumValueDef, TargetChooserDef,
+    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneChangeEventMatcherDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostIndex, TargetIndex, mana_cost};
@@ -195,7 +195,7 @@ pub(in crate::card::sets) static KJELDORAN_PRIDE: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "{2}{U}: Attach this Aura to target creature other than enchanted creature.",
-                &[AbilityCostDef::Mana(mana_cost!("{2}{U}"))],
+                &[CostDef::Mana(mana_cost!("{2}{U}"))],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::All(&[
                         ObjectPredicateDef::HasType(CardType::Creature),
@@ -230,7 +230,7 @@ pub(in crate::card::sets) static NOBLE_STEEDS: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "{1}{W}: Target creature gains first strike until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{W}"))],
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -376,7 +376,7 @@ pub(in crate::card::sets) static UNLIKELY_ALLIANCE: CardRecord = CardRecord::new
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
         AbilityDef::activated_with_targets(
             "{1}{W}: Target nonattacking, nonblocking creature gets +0/+2 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{W}"))],
+            &[CostDef::Mana(mana_cost!("{1}{W}"))],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -407,7 +407,7 @@ pub(in crate::card::sets) static WILD_AESTHIR: CardRecord = CardRecord::new(
         abilities::first_strike(),
         AbilityDef::activated(
             "{W}{W}: This creature gets +2/+0 until end of turn. Activate only once each turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}{W}"))],
+            &[CostDef::Mana(mana_cost!("{W}{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -594,7 +594,7 @@ pub(in crate::card::sets) static FORCE_OF_WILL: CardRecord = CardRecord::new_wit
             ),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -700,8 +700,8 @@ pub(in crate::card::sets) static SOLDEVI_HERETIC: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{W}, {T}: Prevent the next 2 damage that would be dealt to target creature this turn. Target opponent may draw a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{W}")),
+                CostDef::TapSource,
             ],
             &[
                 AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
@@ -788,13 +788,41 @@ pub(in crate::card::sets) static SUFFOCATION: CardRecord = CardRecord::new(
 );
 
 // ALL 39 — Thought Lash
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THOUGHT_LASH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d59bbac1-ca51-4c72-9f1f-5fc6c82a4a27"),
     "Thought Lash",
     crate::card::CardArt::new("d59bbac1-ca51-4c72-9f1f-5fc6c82a4a27", "Mark Tedin"),
     crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::exile_top_cards(1))
+            .override_text("Cumulative upkeep—Exile the top card of your library."),
+        AbilityDef::triggered(
+            "When this enchantment's cumulative upkeep isn't paid, exile all cards from your library.",
+            TriggerEventDef::CumulativeUpkeepNotPaid,
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                    crate::card::ObjectQueryDef::owned_by(
+                        ObjectPredicateDef::Any,
+                        &[ZoneKind::Library],
+                        PlayerSetDef::Related(PlayerRelation::You),
+                    ),
+                )),
+                zone: ZoneKind::Exile,
+                placement: ZonePlacement::Top,
+            },
+        ),
+        AbilityDef::activated(
+            "Exile the top card of your library: Prevent the next 1 damage that would be dealt to you this turn.",
+            &[CostDef::ExileTopCards(1)],
+            EffectDef::PreventDamage {
+                prevention: DamagePreventionDef::amount(
+                    DamageEventMatcherDef::to(EffectRecipientDef::Controller),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ALL 40 — Tidal Control
@@ -831,7 +859,7 @@ pub(in crate::card::sets) static VISCERID_ARMOR: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "{1}{U}: Return this Aura to its owner's hand.",
-                &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
+                &[CostDef::Mana(mana_cost!("{1}{U}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Hand,
@@ -861,8 +889,8 @@ pub(in crate::card::sets) static BALDUVIAN_DEAD: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{2}{R}, Exile a creature card from your graveyard: Create a 3/1 black and red Graveborn creature token with haste. Sacrifice it at the beginning of the next end step.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}{R}")),
-                AbilityCostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
+                CostDef::Mana(mana_cost!("{2}{R}")),
+                CostDef::MoveToZone(crate::card::MoveToZoneCostDef::new(
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ZoneKind::Graveyard,
                     ZoneKind::Exile,
@@ -930,13 +958,33 @@ pub(in crate::card::sets) static DISEASED_VERMIN: CardRecord = CardRecord::new(
 );
 
 // ALL 47 — Dystopia
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DYSTOPIA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5f8bb451-706d-44ff-bbad-9ddc6f9f786a"),
     "Dystopia",
     crate::card::CardArt::new("5f8bb451-706d-44ff-bbad-9ddc6f9f786a", "Ruth Thompson"),
     crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::life(1)),
+        AbilityDef::triggered(
+            "At the beginning of each player's upkeep, that player sacrifices a green or white permanent of their choice.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::Any,
+            },
+            EffectDef::SacrificeOfChoice {
+                player: EffectRecipientDef::EventPlayer,
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                    ObjectPredicateDef::Color(ManaColor::White),
+                ]),
+                count: ValueDef::Constant(1),
+                then: None,
+                amount: SacrificedAmountDef::Power,
+                otherwise: None,
+                optional: false,
+            },
+        ),
+    ]),
 );
 
 // ALL 48 — Fatal Lore
@@ -1078,7 +1126,7 @@ pub(in crate::card::sets) static LIM_DUL_S_HIGH_GUARD: CardRecord = CardRecord::
         abilities::first_strike(),
         abilities::regenerate_self(
             "{1}{B}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{B}"))],
+            &[CostDef::Mana(mana_cost!("{1}{B}"))],
         ),
     ]),
 );
@@ -1127,7 +1175,7 @@ pub(in crate::card::sets) static PHANTASMAL_FIEND: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Illusion"], 1, 5).with_abilities(&[
         AbilityDef::activated(
             "{B}: This creature gets +1/-1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1139,7 +1187,7 @@ pub(in crate::card::sets) static PHANTASMAL_FIEND: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{1}{U}: Switch this creature's power and toughness until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{U}"))],
+            &[CostDef::Mana(mana_cost!("{1}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::switch_power_toughness(),
@@ -1200,7 +1248,7 @@ pub(in crate::card::sets) static RITUAL_OF_THE_MACHINE: CardRecord = CardRecord:
                 ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
                 ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
             ]))],
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
@@ -1600,7 +1648,7 @@ pub(in crate::card::sets) static PYROKINESIS: CardRecord = CardRecord::new_with_
         )
         // Exiled from hand rather than discarded: the card is spent without ever
         // becoming a graveyard card, which is what "exile a red card" means.
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Red),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -1656,10 +1704,7 @@ pub(in crate::card::sets) static SOLDIER_OF_FORTUNE: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{R}"), &["Human", "Mercenary"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{R}, {T}: Target player shuffles their library.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{R}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
@@ -1681,7 +1726,7 @@ pub(in crate::card::sets) static STORM_SHAMAN: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Cleric", "Shaman"], 0, 4)
         .with_ability(AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1729,13 +1774,23 @@ pub(in crate::card::sets) static VARCHILD_S_CRUSADER: CardRecord = CardRecord::n
 // ALL 82b — Varchild's Crusader (alternate printing)
 
 // ALL 83 — Varchild's War-Riders
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VARCHILD_S_WAR_RIDERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee1d41da-aa72-434b-811f-95d4bae4ba5c"),
     "Varchild's War-Riders",
     crate::card::CardArt::new("ee1d41da-aa72-434b-811f-95d4bae4ba5c", "Susan Van Camp"),
     crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Warrior"], 3, 4).with_abilities(&[
+        abilities::cumulative_upkeep(CostDef::create_tokens(
+            PlayerRelation::Opponent,
+            &TokenCharacteristics::creature(&["Survivor"], &[ManaColor::Red], 1, 1),
+            1,
+        ))
+        .override_text(
+            "Cumulative upkeep—Have an opponent create a 1/1 red Survivor creature token.",
+        ),
+        abilities::trample(),
+        abilities::rampage(1),
+    ]),
 );
 
 // ALL 84a — Veteran's Voice (alternate printing)
@@ -1810,7 +1865,7 @@ pub(in crate::card::sets) static ELVISH_SPIRIT_GUIDE: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Spirit"], 2, 2).with_ability(
         AbilityDef::activated_mana(
             "Exile this card from your hand: Add {G}.",
-            &[AbilityCostDef::ExileSource],
+            &[CostDef::ExileSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
         )
         .with_source_zones(&[ZoneKind::Hand]),
@@ -1909,7 +1964,7 @@ pub(in crate::card::sets) static GORILLA_CHIEFTAIN: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Ape"], 3, 3).with_ability(
         abilities::regenerate_self(
             "{1}{G}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+            &[CostDef::Mana(mana_cost!("{1}{G}"))],
         ),
     ),
 );
@@ -2000,13 +2055,57 @@ pub(in crate::card::sets) static NATURE_S_WRATH: CardRecord = CardRecord::new(
 );
 
 // ALL 99 — Splintering Wind
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPLINTERING_WIND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0afa94e5-fef6-4f3a-9196-d7aa6dd841c2"),
     "Splintering Wind",
     crate::card::CardArt::new("0afa94e5-fef6-4f3a-9196-d7aa6dd841c2", "Ron Spencer"),
     crate::card::CardSet::Alliances,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_ability(
+        AbilityDef::activated_with_targets(
+            "{2}{G}: This enchantment deals 1 damage to target creature. Create a 1/1 green Splinter creature token with flying and 'Cumulative upkeep {G}.' When it leaves the battlefield, it deals 1 damage to you and each creature you control.",
+            &[CostDef::Mana(mana_cost!("{2}{G}"))],
+            &[AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
+                CardType::Creature,
+            ))],
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::create_token(
+                    TokenCharacteristics::creature(&["Splinter"], &[ManaColor::Green], 1, 1)
+                        .with_abilities(&[
+                            abilities::flying(),
+                            abilities::cumulative_upkeep(CostDef::mana(
+                                mana_cost!("{G}"),
+                            )),
+                            AbilityDef::triggered(
+                                "When this creature leaves the battlefield, it deals 1 damage to you and each creature you control.",
+                                TriggerEventDef::zone_changed(
+                                    ObjectPredicateDef::Source,
+                                    Some(ZoneKind::Battlefield),
+                                    None,
+                                ),
+                                EffectDef::DealDamageSimultaneously(&[
+                                    DamageAssignmentDef::from_effect(
+                                        EffectRecipientDef::Controller,
+                                        ValueDef::Constant(1),
+                                    ),
+                                    DamageAssignmentDef::from_effect(
+                                        EffectRecipientDef::matching_objects(
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::You,
+                                        ),
+                                        ValueDef::Constant(1),
+                                    ),
+                                ]),
+                            ),
+                        ]),
+                ),
+            ]),
+        ),
+    ),
 );
 
 // ALL 100a — Taste of Paradise (alternate printing)
@@ -2084,7 +2183,7 @@ pub(in crate::card::sets) static YAVIMAYA_ANCIENTS: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Treefolk"], 2, 7).with_ability(
         AbilityDef::activated(
             "{G}: This creature gets +1/-2 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[CostDef::Mana(mana_cost!("{G}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -2149,7 +2248,7 @@ pub(in crate::card::sets) static SURGE_OF_STRENGTH: CardRecord = CardRecord::new
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            SpellAdditionalCostDef::discard(
+            CostDef::discard(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::Color(ManaColor::Red),
                     ObjectPredicateDef::Color(ManaColor::Green),
@@ -2232,7 +2331,7 @@ pub(in crate::card::sets) static PHELDDAGRIF: CardRecord = CardRecord::new(
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "{G}: Phelddagrif gains trample until end of turn. Target opponent creates a 1/1 green Hippo creature token.",
-                &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+                &[CostDef::Mana(mana_cost!("{G}"))],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                     PlayerRelation::Opponent,
                 ))],
@@ -2248,7 +2347,7 @@ pub(in crate::card::sets) static PHELDDAGRIF: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "{W}: Phelddagrif gains flying until end of turn. Target opponent gains 2 life.",
-                &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+                &[CostDef::Mana(mana_cost!("{W}"))],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                     PlayerRelation::Opponent,
                 ))],
@@ -2266,7 +2365,7 @@ pub(in crate::card::sets) static PHELDDAGRIF: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "{U}: Return Phelddagrif to its owner's hand. Target opponent may draw a card.",
-                &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+                &[CostDef::Mana(mana_cost!("{U}"))],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                     PlayerRelation::Opponent,
                 ))],
@@ -2480,7 +2579,7 @@ pub(in crate::card::sets) static SOL_GRAIL: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of the chosen color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)),
         ),
     ]),
@@ -2494,7 +2593,7 @@ pub(in crate::card::sets) static SOLDEVI_DIGGER: CardRecord = CardRecord::new(
     crate::card::CardSet::Alliances,
     CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated(
         "{2}: Put the top card of your graveyard on the bottom of your library.",
-        &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+        &[CostDef::Mana(mana_cost!("{2}"))],
         EffectDef::MoveToZone {
             object: EffectRecipientDef::objects(ObjectSetDef::TopOfGraveyardMatching {
                 player: PlayerRefDef::EffectController,
@@ -2540,7 +2639,7 @@ pub(in crate::card::sets) static SOLDEVI_STEAM_BEAST: CardRecord = CardRecord::n
         ),
         abilities::regenerate_self(
             "{2}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
         ),
     ]),
 );
@@ -2658,8 +2757,8 @@ pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new_
         AbilityDef::activated(
             "{1}, {T}: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle. Return this land to its owner's hand at the beginning of the next cleanup step.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
             ],
             EffectDef::Sequence(&const {
                 [

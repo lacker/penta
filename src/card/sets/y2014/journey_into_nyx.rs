@@ -1,9 +1,7 @@
 //! Journey into Nyx cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingRecord};
-use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, EffectDef,
-};
+use crate::card::{AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CostDef, EffectDef};
 
 // JOU 163 — Mana Confluence
 pub(in crate::card::sets) static MANA_CONFLUENCE: CardRecord = CardRecord::new_with_legacy_id(
@@ -17,7 +15,7 @@ pub(in crate::card::sets) static MANA_CONFLUENCE: CardRecord = CardRecord::new_w
     // spare is simply not offered.
     CardRules::new_land(&[]).with_ability(AbilityDef::activated_mana(
         "{T}, Pay 1 life: Add one mana of any color.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::PayLife(1)],
+        &[CostDef::TapSource, CostDef::PayLife(1)],
         EffectDef::AddMana(AddManaEffectDef::any_color()),
     )),
 );

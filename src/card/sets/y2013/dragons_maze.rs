@@ -3,15 +3,15 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord, gatecrash};
 use crate::card::sets::y2012::return_to_ravnica;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AggregateOperationDef, AppliedEffectDef, AppliedRuleDef,
     BattlefieldArrivalDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ChooseForEachPlayerDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef,
-    CopyExceptionsDef, CopyStackObjectDef, CounterKind, CreatureTypeSetDef, DamageEventMatcherDef,
-    DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility,
-    LikelihoodDef, ManaColor, ManaTypeSetDef, MoveObjectsDef, ObjectChoiceBindingDef,
+    CopyExceptionsDef, CopyStackObjectDef, CostDef, CounterKind, CreatureTypeSetDef,
+    DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    KeywordAbility, ManaColor, ManaTypeSetDef, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, ObjectValueAggregateDef,
     ObjectValueDef, PayOrDef, PerPlayerSelectionDef, PlayActionMatcherDef, PlayRestrictionDef,
@@ -283,12 +283,12 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
     .with_abilities(&[
         AbilityDef::activated(
             "{U}: Exile this creature. Return it to the battlefield under its owner's control at the beginning of the next end step.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             abilities::exile_until_next_end_step(EffectRecipientDef::Source),
         ),
         AbilityDef::activated(
             "{U}: This creature can't be blocked this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::cannot_be_blocked_by(
@@ -299,7 +299,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
         ),
         AbilityDef::activated(
             "{1}: This creature gets +1/-1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(-1)),
@@ -308,7 +308,7 @@ pub(in crate::card::sets) static AETHERLING: CardRecord = CardRecord::new_with_l
         ),
         AbilityDef::activated(
             "{1}: This creature gets -1/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(ValueDef::Constant(-1), ValueDef::Constant(1)),
@@ -591,8 +591,8 @@ pub(in crate::card::sets) static HIRED_TORTURER: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{3}{B}, {T}: Target opponent loses 2 life, then reveals a card at random from their hand.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}{B}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{3}{B}")),
+                CostDef::TapSource,
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Opponent,
@@ -1024,7 +1024,7 @@ pub(in crate::card::sets) static KRAUL_WARRIOR: CardRecord = CardRecord::new_wit
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect", "Warrior"], 2, 2).with_ability(
         AbilityDef::activated(
             "{5}{G}: This creature gets +3/+3 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{5}{G}"))],
+            &[CostDef::Mana(mana_cost!("{5}{G}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1247,7 +1247,7 @@ pub(in crate::card::sets) static BEETLEFORM_MAGE: CardRecord = CardRecord::new_w
         AbilityDef::activated(
             "{G}{U}: This creature gets +2/+2 and gains flying until end of turn. \
                  Activate only once each turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}{U}"))],
+            &[CostDef::Mana(mana_cost!("{G}{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Composite(&[
@@ -1702,7 +1702,7 @@ pub(in crate::card::sets) static FERAL_ANIMIST: CardRecord = CardRecord::new_wit
     CardRules::new_creature(mana_cost!("{1}{R}{G}"), &["Goblin", "Shaman"], 2, 1).with_ability(
         AbilityDef::activated(
             "{3}: This creature gets +X/+0 until end of turn, where X is its power.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+            &[CostDef::Mana(mana_cost!("{3}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1944,7 +1944,7 @@ pub(in crate::card::sets) static MAW_OF_THE_OBZEDAT: CardRecord = CardRecord::ne
     CardRules::new_creature(mana_cost!("{3}{W}{B}"), &["Thrull"], 3, 3).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: Creatures you control get +1/+1 until end of turn.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
@@ -2252,28 +2252,24 @@ static RAL_ZAREK_EXTRA_TURN: EffectDef = EffectDef::TakeExtraTurn {
     player: EffectRecipientDef::Controller,
 };
 
-static RAL_ZAREK_FLIP_ONE: EffectDef = EffectDef::Randomized {
-    likelihood: LikelihoodDef::new(0.5),
-    on_success: &RAL_ZAREK_EXTRA_TURN,
-    on_failure: &EffectDef::None,
+static RAL_ZAREK_FLIP_ONE: EffectDef = EffectDef::FlipCoin {
+    on_win: &RAL_ZAREK_EXTRA_TURN,
+    on_loss: &EffectDef::None,
 };
 
-static RAL_ZAREK_FLIP_TWO: EffectDef = EffectDef::Randomized {
-    likelihood: LikelihoodDef::new(0.5),
-    on_success: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_ONE]),
-    on_failure: &RAL_ZAREK_FLIP_ONE,
+static RAL_ZAREK_FLIP_TWO: EffectDef = EffectDef::FlipCoin {
+    on_win: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_ONE]),
+    on_loss: &RAL_ZAREK_FLIP_ONE,
 };
 
-static RAL_ZAREK_FLIP_THREE: EffectDef = EffectDef::Randomized {
-    likelihood: LikelihoodDef::new(0.5),
-    on_success: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_TWO]),
-    on_failure: &RAL_ZAREK_FLIP_TWO,
+static RAL_ZAREK_FLIP_THREE: EffectDef = EffectDef::FlipCoin {
+    on_win: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_TWO]),
+    on_loss: &RAL_ZAREK_FLIP_TWO,
 };
 
-static RAL_ZAREK_FLIP_FOUR: EffectDef = EffectDef::Randomized {
-    likelihood: LikelihoodDef::new(0.5),
-    on_success: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_THREE]),
-    on_failure: &RAL_ZAREK_FLIP_THREE,
+static RAL_ZAREK_FLIP_FOUR: EffectDef = EffectDef::FlipCoin {
+    on_win: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_THREE]),
+    on_loss: &RAL_ZAREK_FLIP_THREE,
 };
 
 pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_legacy_id(
@@ -2286,7 +2282,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
         .with_abilities(&[
             AbilityDef::activated_with_targets(
                 "+1: Tap target permanent, then untap another target permanent.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any),
                     AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Any).another(),
@@ -2302,7 +2298,7 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
             ),
             AbilityDef::activated_with_targets(
                 "−2: Ral Zarek deals 3 damage to any target.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
                 EffectDef::DealDamage {
                     recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -2311,11 +2307,10 @@ pub(in crate::card::sets) static RAL_ZAREK: CardRecord = CardRecord::new_with_le
             ),
             AbilityDef::activated(
                 "−7: Flip five coins. Take an extra turn after this one for each coin that comes up heads.",
-                &[AbilityCostDef::Loyalty(-7)],
-                EffectDef::Randomized {
-                    likelihood: LikelihoodDef::new(0.5),
-                    on_success: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_FOUR]),
-                    on_failure: &RAL_ZAREK_FLIP_FOUR,
+                &[CostDef::Loyalty(-7)],
+                EffectDef::FlipCoin {
+                    on_win: &EffectDef::Sequence(&[RAL_ZAREK_EXTRA_TURN, RAL_ZAREK_FLIP_FOUR]),
+                    on_loss: &RAL_ZAREK_FLIP_FOUR,
                 },
             ),
         ]),
@@ -2404,8 +2399,8 @@ pub(in crate::card::sets) static ROT_FARM_SKELETON: CardRecord = CardRecord::new
             AbilityDef::activated(
                 "{2}{B}{G}, Mill four cards: Return this card from your graveyard to the battlefield. Activate only as a sorcery.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}{B}{G}")),
-                    AbilityCostDef::MillCards(4),
+                    CostDef::Mana(mana_cost!("{2}{B}{G}")),
+                    CostDef::MillCards(4),
                 ],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
@@ -2466,7 +2461,7 @@ pub(in crate::card::sets) static SAVAGEBORN_HYDRA: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{1}{R/G}: Put a +1/+1 counter on this creature. Activate only as a sorcery.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{R/G}"))],
+            &[CostDef::Mana(mana_cost!("{1}{R/G}"))],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::PlusOnePlusOne,
@@ -3591,15 +3586,15 @@ macro_rules! cluestone_abilities {
         static $name: [AbilityDef; 2] = [
             AbilityDef::activated_mana(
                 $mana_text,
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(crate::card::AddManaEffectDef::choice($colors)),
             ),
             AbilityDef::activated(
                 $draw_text,
                 &[
-                    AbilityCostDef::Mana(mana_cost!($draw_cost)),
-                    AbilityCostDef::TapSource,
-                    AbilityCostDef::SacrificeSource,
+                    CostDef::Mana(mana_cost!($draw_cost)),
+                    CostDef::TapSource,
+                    CostDef::SacrificeSource,
                 ],
                 EffectDef::DrawCards {
                     recipient: EffectRecipientDef::Controller,
@@ -3795,9 +3790,9 @@ pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{3}, {T}, Return this land to its owner's hand: Search your library for a Gate card, put it onto the battlefield, then shuffle. If you control ten or more Gates with different names, you win the game.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::ReturnSourceToHand,
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::ReturnSourceToHand,
             ],
             EffectDef::Sequence(&[
                 EffectDef::SearchZone {

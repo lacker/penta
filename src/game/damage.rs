@@ -298,6 +298,19 @@ impl Game {
     /// its last-known characteristics when a live recipient's predicate asks
     /// what dealt the damage.
     fn static_damage_is_prevented(&self, event: ProspectiveDamage<'_>) -> bool {
+        if let Some(Target::Player(player)) = event.target {
+            let mut prevented = false;
+            self.visit_player_static_rules_with_source(player, |source, rule| {
+                if let AppliedRuleDef::PreventDamage(matcher) = rule
+                    && self.static_player_damage_matcher_matches(matcher, source, player, event)
+                {
+                    prevented = true;
+                }
+            });
+            if prevented {
+                return true;
+            }
+        }
         let target_permanent = event.target.and_then(|target| match target {
             Target::Permanent(id) => self
                 .battlefield
@@ -322,6 +335,48 @@ impl Game {
                 target_permanent.is_none_or(|target| target.card.id != affected.card.id)
             })
             .is_some_and(|affected| self.static_damage_is_prevented_on(affected, event))
+    }
+
+    fn static_player_damage_matcher_matches(
+        &self,
+        matcher: DamageEventMatcherDef,
+        effect_source: GameObjectId,
+        affected_player: PlayerId,
+        event: ProspectiveDamage<'_>,
+    ) -> bool {
+        (matcher.kind == DamageKindDef::Any || event.combat)
+            && match matcher.source {
+                DamageSourceMatcherDef::Any => true,
+                DamageSourceMatcherDef::AffectedObject => false,
+                DamageSourceMatcherDef::Object(reference) => self
+                    .static_object_reference(reference, effect_source)
+                    .is_some_and(|expected| event.source == Some(expected)),
+                DamageSourceMatcherDef::Except(reference) => self
+                    .static_object_reference(reference, effect_source)
+                    .is_some_and(|excluded| event.source != Some(excluded)),
+                DamageSourceMatcherDef::Matching(predicate) => {
+                    event.source_object.is_some_and(|source| {
+                        self.trigger_object_matches(
+                            predicate,
+                            source,
+                            effect_source,
+                            event.source_is_spell,
+                        )
+                    })
+                }
+                DamageSourceMatcherDef::Group(group) => event.source.is_some_and(|source| {
+                    self.damage_source_is_in_group(source, Self::relational_source_filter(group))
+                }),
+            }
+            && match matcher.recipient {
+                DamageRecipientMatcherDef::Any | DamageRecipientMatcherDef::AffectedObject => {
+                    event.target == Some(Target::Player(affected_player))
+                }
+                DamageRecipientMatcherDef::Recipients(_)
+                | DamageRecipientMatcherDef::MatchingObject(_)
+                | DamageRecipientMatcherDef::PlayerAndCreaturesControlledBy(_)
+                | DamageRecipientMatcherDef::PlayerOrPlaneswalker => false,
+            }
     }
 
     fn static_damage_is_prevented_on(

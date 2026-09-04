@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor, ManaCost,
-    ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef, ValueDef, ZoneKind, abilities,
+    AbilityCostList, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
+    PlayerRelation, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -50,7 +50,7 @@ pub(in crate::card::sets) static VICIOUS_RIVALRY: CardRecord = CardRecord::new(
             "As an additional cost to cast this spell, pay X life.\nDestroy all artifacts and \
              creatures with mana value X or less.",
             &[],
-            SpellAdditionalCostDef::pay_life(CostQuantityDef::ChosenX),
+            CostDef::pay_life(CostQuantityDef::ChosenX),
             EffectDef::Destroy {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::All(&[
@@ -95,8 +95,8 @@ pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{2}, Discard this card: Look at the top two cards of your library. Put one of them into your hand and the other into your graveyard.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::DiscardSource,
             ],
             abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
                 ValueDef::Constant(2),
@@ -123,7 +123,7 @@ pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Red,
                 ManaColor::White,
@@ -131,10 +131,7 @@ pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{2}{R}{W}, {T}: Surveil 1.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}{R}{W}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),
@@ -157,17 +154,14 @@ const fn guildhall_surveil_land(
         .with_ability(abilities::enters_tapped(CardType::Land))
         .with_ability(AbilityDef::activated_mana(
             mana_text,
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(colors)),
         ))
         // A cost list rather than a slice: the mana cost is a parameter, and
         // a slice holding it could not be given a 'static lifetime.
         .with_ability(AbilityDef::activated_with_cost_list_and_targets(
             surveil_text,
-            AbilityCostList::two(
-                AbilityCostDef::Mana(surveil_cost),
-                AbilityCostDef::TapSource,
-            ),
+            AbilityCostList::two(CostDef::Mana(surveil_cost), CostDef::TapSource),
             &[],
             abilities::surveil(ValueDef::Constant(1)),
         ))
@@ -274,7 +268,7 @@ pub(in crate::card::sets) static TITAN_S_GRAVE: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Black,
                 ManaColor::Green,
@@ -282,10 +276,7 @@ pub(in crate::card::sets) static TITAN_S_GRAVE: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{2}{B}{G}, {T}: Surveil 1.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}{B}{G}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}{B}{G}")), CostDef::TapSource],
             abilities::surveil(ValueDef::Constant(1)),
         ),
     ]),

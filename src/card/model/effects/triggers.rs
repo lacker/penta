@@ -3,10 +3,10 @@
 //! Split out of the parent module for the source-size budget.
 
 use super::{
-    AttackDeclarationRangeDef, AttackEventMatcherDef, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DrawEventMatcherDef, EffectRecipientDef,
-    ObjectPredicateDef, ObjectRefDef, PlayerRelation, PlayerSetDef, TapEventMatcherDef,
-    TriggerConditionDef, TurnStepDef, ZoneChangeEventMatcherDef, ZoneKind,
+    AttackDeclarationRangeDef, AttackEventMatcherDef, ColorSet, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DrawEventMatcherDef,
+    EffectRecipientDef, ObjectPredicateDef, ObjectRefDef, PlayerRelation, PlayerSetDef,
+    TapEventMatcherDef, TriggerConditionDef, TurnStepDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
 
 /// What a stack object must have newly targeted for the event to match.
@@ -57,6 +57,16 @@ pub struct StackObjectEventMatcherDef {
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
+    /// This source's cumulative-upkeep cost was paid. The trigger amount is
+    /// how many mana spent on that payment had one of the named colors.
+    CumulativeUpkeepPaid {
+        mana_colors: ColorSet,
+    },
+    /// The controller declined or could not make this source's cumulative
+    /// upkeep payment. The captured amount is its age-counter count.
+    CumulativeUpkeepNotPaid,
+    CoinFlipWon(PlayerRelation),
+    CoinFlipLost(PlayerRelation),
     /// Any one of several events, for a printed ability that names more than
     /// one -- "whenever this creature enters or attacks". Splitting such a
     /// card into two abilities would misreport what it prints and would count

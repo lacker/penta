@@ -220,6 +220,10 @@ fn produced_mana(effect: AddManaEffectDef) -> Vec<Mana> {
         // Whatever was imprinted, which no printed clause names. Every
         // colour is a possibility, so the sweep covers all five.
         ManaSelectionDef::ColorsOfLinkedExiles => crate::card::ManaColor::COLORS.to_vec(),
+        ManaSelectionDef::ChoiceOfBundles(bundles) => bundles
+            .iter()
+            .flat_map(|bundle| bundle.iter().map(|(color, _)| color))
+            .collect(),
     };
     colors
         .into_iter()

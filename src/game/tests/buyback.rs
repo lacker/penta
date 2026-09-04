@@ -2,7 +2,7 @@
 //! object payments, counters, and a separately granted flashback cost.
 
 use super::*;
-use crate::card::{BasicLandType, CostQuantityDef, SpellAdditionalCostDef};
+use crate::card::{BasicLandType, CostDef, CostQuantityDef};
 
 fn constant_mists_casts(game: &Game, spell: GameObjectId) -> Vec<Action> {
     game.legal_actions(PlayerId::One)
@@ -682,11 +682,11 @@ fn effectful_overload_freezes_bought_back_hand_destination() {
 
 #[test]
 fn mandatory_return_cost_and_buyback_sacrifice_keep_distinct_actions() {
-    static RETURN_AN_ISLAND: SpellAdditionalCostDef = SpellAdditionalCostDef::return_to_hand(
+    static RETURN_AN_ISLAND: CostDef = CostDef::return_to_hand(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
         CostQuantityDef::Fixed(1),
     );
-    static SACRIFICE_A_FOREST: SpellAdditionalCostDef = SpellAdditionalCostDef::sacrifice(
+    static SACRIFICE_A_FOREST: CostDef = CostDef::sacrifice(
         ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
         CostQuantityDef::Fixed(1),
     );

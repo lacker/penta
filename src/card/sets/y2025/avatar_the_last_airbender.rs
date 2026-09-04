@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef, ValueDef,
+    AbilityDef, AddManaEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CostDef, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef, ValueDef,
 };
 use crate::mana_cost;
 
@@ -32,15 +32,15 @@ const fn cashable_dual_land(mana_text: &'static str, colors: &'static [ManaColor
         // parameterized mana ability could not be given a 'static lifetime.
         .with_ability(AbilityDef::activated_mana(
             mana_text,
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(colors)),
         ))
         .with_ability(AbilityDef::activated(
             "{4}, {T}, Sacrifice this land: Draw a card.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{4}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,

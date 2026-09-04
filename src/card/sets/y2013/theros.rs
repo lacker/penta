@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
-    ColorChoiceOperationDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    BasicLandType, CardArt, CardRules, CardSet, CardType, ColorChoiceOperationDef, CostDef,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -97,7 +97,7 @@ pub(in crate::card::sets) static SYLVAN_CARYATID: CardRecord = CardRecord::new_w
         abilities::hexproof(),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),

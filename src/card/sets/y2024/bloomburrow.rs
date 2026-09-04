@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CostDef, CounterKind,
     DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -28,7 +28,7 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
             abilities::prowess(),
             AbilityDef::activated(
                 "{T}: Draw a card, then discard a card.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::Sequence(&[
                     EffectDef::DrawCards {
                         recipient: EffectRecipientDef::Controller,
@@ -46,8 +46,8 @@ pub(in crate::card::sets) static KITSA_OTTERBALL_ELITE: CardRecord = CardRecord:
                 "{2}, {T}: Copy target instant or sorcery spell you control. You may choose new targets \
                  for the copy. Activate only if Kitsa's power is 3 or greater.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}")),
-                    AbilityCostDef::TapSource,
+                    CostDef::Mana(mana_cost!("{2}")),
+                    CostDef::TapSource,
                 ],
                 // Yours rather than anybody's: Kitsa copies what you are casting, not what
                 // is being cast at you.
@@ -109,7 +109,7 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
             ),
             AbilityDef::activated(
                 "{3}{U}: Level 2",
-                &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+                &[CostDef::Mana(mana_cost!("{3}{U}"))],
                 EffectDef::GainClassLevel { level: 2 },
             )
             .with_activation_timing(ActivationTimingDef::SorcerySpeed)
@@ -146,7 +146,7 @@ pub(in crate::card::sets) static STORMCHASERS_TALENT: CardRecord = CardRecord::n
             ),
             AbilityDef::activated(
                 "{5}{U}: Level 3",
-                &[AbilityCostDef::Mana(mana_cost!("{5}{U}"))],
+                &[CostDef::Mana(mana_cost!("{5}{U}"))],
                 EffectDef::GainClassLevel { level: 3 },
             )
             .with_activation_timing(ActivationTimingDef::SorcerySpeed)
@@ -255,10 +255,7 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
                     ObjectPredicateDef::HasType(CardType::Planeswalker),
                 ]),
             )],
-            SpellAdditionalCostDef::choice(&[
-                SpellAdditionalCostDef::forage(),
-                SpellAdditionalCostDef::pay_mana(mana_cost!("{B}")),
-            ]),
+            CostDef::choice(&[CostDef::forage(), CostDef::pay_mana(mana_cost!("{B}"))]),
             EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
@@ -315,10 +312,7 @@ pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana(
             "{1}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -369,7 +363,7 @@ pub(in crate::card::sets) static KEEN_EYED_CURATOR: CardRecord = CardRecord::new
             // card types he needs come from wherever they are.
             AbilityDef::activated_with_targets(
                 "{1}: Exile target card from a graveyard.",
-                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Any,

@@ -439,8 +439,8 @@ mod channel_is_not_cycling {
         AbilityDef::activated_with_cost_list_and_targets(
             "Channel — {1}, Discard this card: Draw a card.",
             AbilityCostList::two(
-                AbilityCostDef::Mana(crate::mana_cost!("{1}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(crate::mana_cost!("{1}")),
+                CostDef::DiscardSource,
             ),
             &[],
             CHANNEL_DRAWS,

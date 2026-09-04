@@ -25,14 +25,14 @@ fn resolved_effect_payment(
         return None;
     };
     let payment = match payment.cost {
-        EffectPaymentCostDef::Mana(cost) => super::super::ResolvedEffectPayment::Mana(cost),
-        EffectPaymentCostDef::ObjectManaCostReducedBy {
+        CostDef::Mana(cost) => super::super::ResolvedEffectPayment::Mana(cost),
+        CostDef::ObjectManaCostReducedBy {
             object: reference,
             generic,
         } => super::super::ResolvedEffectPayment::Mana(
-            game.object_mana_cost_reduced_by(reference, generic, object, context, scoped),
+            game.object_mana_cost_reduced_by(*reference, generic, object, context, scoped),
         ),
-        EffectPaymentCostDef::GenericMana(amount) => {
+        CostDef::GenericMana(amount) => {
             let amount = game
                 .effect_value(amount, object, context, scoped)
                 .max(0)
@@ -40,7 +40,7 @@ fn resolved_effect_payment(
                 .unwrap_or(u16::MAX);
             super::super::ResolvedEffectPayment::Mana(ManaCost::new(amount, 0))
         }
-        EffectPaymentCostDef::ColoredMana { color, amount } => {
+        CostDef::ColoredMana { color, amount } => {
             let amount = game
                 .effect_value(amount, object, context, scoped)
                 .max(0)
@@ -48,21 +48,21 @@ fn resolved_effect_payment(
                 .unwrap_or(u16::MAX);
             super::super::ResolvedEffectPayment::Mana(ManaCost::of_color(color, amount))
         }
-        EffectPaymentCostDef::Life(amount) => super::super::ResolvedEffectPayment::Life(amount),
-        EffectPaymentCostDef::Energy(amount) => super::super::ResolvedEffectPayment::Energy(amount),
-        EffectPaymentCostDef::Mill(amount) => super::super::ResolvedEffectPayment::Mill(amount),
-        EffectPaymentCostDef::Discard(amount) => {
+        CostDef::PayLife(amount) => super::super::ResolvedEffectPayment::Life(amount),
+        CostDef::Energy(amount) => super::super::ResolvedEffectPayment::Energy(amount),
+        CostDef::MillCards(amount) => super::super::ResolvedEffectPayment::Mill(amount),
+        CostDef::DiscardCards(amount) => {
             super::super::ResolvedEffectPayment::Discard(amount)
         }
-        EffectPaymentCostDef::ChosenGenericMana => {
+        CostDef::ChosenGenericMana => {
             super::super::ResolvedEffectPayment::ChosenGenericMana
         }
-        EffectPaymentCostDef::ChosenEnergy => super::super::ResolvedEffectPayment::ChosenEnergy,
-        EffectPaymentCostDef::RemoveAnyNumberOfCounters {
+        CostDef::ChosenEnergy => super::super::ResolvedEffectPayment::ChosenEnergy,
+        CostDef::RemoveAnyNumberOfCounters {
             object: recipient,
             kind,
         } => game
-            .effect_recipients(recipient, object, context, scoped)
+            .effect_recipients(*recipient, object, context, scoped)
             .into_iter()
             .find_map(|target| match target {
                 crate::Target::Permanent(object) => Some(
@@ -79,18 +79,19 @@ fn resolved_effect_payment(
                 object: crate::GameObjectId(0),
                 kind,
             }),
-        EffectPaymentCostDef::SacrificePermanentMatching(predicate) => {
+        CostDef::SacrificePermanentMatching(predicate) => {
             super::super::ResolvedEffectPayment::SacrificePermanentMatching(predicate)
         }
-        EffectPaymentCostDef::SacrificeCreaturesWithTotalPower(total) => {
+        CostDef::SacrificeCreaturesWithTotalPower(total) => {
             super::super::ResolvedEffectPayment::SacrificeCreaturesWithTotalPower(total)
         }
-        EffectPaymentCostDef::MovePermanentMatching { object, zone } => {
+        CostDef::MovePermanentMatching { object, zone } => {
             super::super::ResolvedEffectPayment::MovePermanentMatching { object, zone }
         }
-        EffectPaymentCostDef::DiscardMatching(predicate) => {
+        CostDef::DiscardMatching(predicate) => {
             super::super::ResolvedEffectPayment::DiscardMatching(predicate)
         }
+        _ => return None,
     };
     Some((*player, payment))
 }

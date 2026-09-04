@@ -4,20 +4,20 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CardComposition;
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CopyStackObjectDef, CostModificationDef, CounterKind, CreatureStats,
-    CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
-    DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    EmblemCharacteristics, ExilePlayDurationDef, GraveyardPlayPermissionDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TokenCharacteristics, TokenCountersDef,
-    TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    ChooseDef, ComparisonDef, CopyStackObjectDef, CostDef, CostModificationDef, CounterKind,
+    CreatureStats, CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef,
+    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, EmblemCharacteristics, ExilePlayDurationDef, GraveyardPlayPermissionDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, SetOperationDef, SumValueDef, TokenCharacteristics,
+    TokenCountersDef, TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -177,7 +177,7 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_
             &[],
             // Six cards out of your own graveyard, exiled to pay. Nothing is chosen
             // after the fact: the additional cost travels with the cast.
-            SpellAdditionalCostDef::exile(
+            CostDef::exile(
                 ObjectPredicateDef::Any,
                 ZoneKind::Graveyard,
                 CostQuantityDef::Fixed(6),
@@ -605,7 +605,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated(
                 "+1: You get an emblem with \"Ninjas you control get +1/+1.\"",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new("Kaito, Bane of Nightmares emblem", &[AbilityDef::static_ability(
                             "Ninjas you control get +1/+1.",
@@ -625,7 +625,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated(
                 "0: Surveil 2. Then draw a card for each opponent who lost life this turn.",
-                &[AbilityCostDef::Loyalty(0)],
+                &[CostDef::Loyalty(0)],
                 EffectDef::Sequence(&[
                     abilities::surveil(ValueDef::Constant(2)),
                     // "A card for each opponent who lost life this turn" is a count of players
@@ -638,7 +638,7 @@ pub(in crate::card::sets) static KAITO_BANE_OF_NIGHTMARES: CardRecord = CardReco
             ),
             AbilityDef::activated_with_targets(
                 "\u{2212}2: Tap target creature. Put two stun counters on it.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],
@@ -668,7 +668,7 @@ pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{T}: Exile target card from a graveyard.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // Either graveyard: the Vacuum is as happy eating your own escape targets
             // as theirs, and the second ability does not care whose card it was.
             &[AbilityTargetDef::exactly_one(
@@ -694,9 +694,9 @@ pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with
              the battlefield under your control with a flying counter on it. Each of them is a 1/1 \
              Spirit in addition to its other types. Activate only as a sorcery.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{6}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{6}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::WithZoneMoveResult {
                 effect: &EffectDef::ReturnLinkedExiles {
@@ -774,7 +774,7 @@ pub(in crate::card::sets) static GLIMMERLIGHT: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -789,12 +789,12 @@ pub(in crate::card::sets) static BLAZEMIRE_VERGE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Black)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {R}. Activate only if you control a Swamp or a Mountain.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The same condition in this cycle's Rakdos colours. Either type answers
                 // it, so a Badlands is both halves at once.
@@ -828,12 +828,12 @@ pub(in crate::card::sets) static THORNSPIRE_VERGE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red)),
         ),
         AbilityDef::activated_mana_if(
             "{T}: Add {G}. Activate only if you control a Mountain or a Forest.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &TriggerConditionDef::ObjectCount {
                 // The verge condition in this cycle's Gruul colours. Either type answers
                 // it, so a Taiga is both halves at once.
@@ -933,7 +933,7 @@ pub(in crate::card::sets) static CHAINSAW: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{3}"))], "Equip {3}"),
         ]),
 );
 

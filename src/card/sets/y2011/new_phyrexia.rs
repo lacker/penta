@@ -5,18 +5,17 @@ use crate::card::CostQuantityDef;
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::sets::y2010::scars_of_mirrodin::METALCRAFT;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef,
-    AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ControlDurationDef, CopyExceptionsDef,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef, SumValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
+    AttackDefenderScopeDef, AttackRestrictionDef, BasicLandType, BattlefieldEntryModificationDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef,
+    ChooseDef, ControlDurationDef, CopyExceptionsDef, CostDef, CounterKind, DiscardSelectionDef,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ManaRestrictionDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::AdditionalCostObjectIndex;
 use crate::{TargetIndex, mana_cost};
@@ -236,7 +235,7 @@ pub(in crate::card::sets) static FORCED_WORSHIP: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "{2}{W}: Return this Aura to its owner's hand.",
-                &[AbilityCostDef::Mana(mana_cost!("{2}{W}"))],
+                &[CostDef::Mana(mana_cost!("{2}{W}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Hand,
@@ -1185,7 +1184,7 @@ pub(in crate::card::sets) static VIRAL_DRAKE: CardRecord = CardRecord::new(
         abilities::infect(),
         AbilityDef::activated(
             "{3}{U}: Proliferate.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+            &[CostDef::Mana(mana_cost!("{3}{U}"))],
             EffectDef::Proliferate,
         ),
     ]),
@@ -1331,8 +1330,8 @@ pub(in crate::card::sets) static DEMENTIA_BAT: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{4}{B}, Sacrifice this creature: Target player discards two cards.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{4}{B}")),
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{4}{B}")),
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
@@ -1581,7 +1580,7 @@ pub(in crate::card::sets) static ICHOR_EXPLOSION: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice a creature.\nAll creatures get -X/-X until end of turn, where X is the sacrificed creature's power.",
             &[],
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 CostQuantityDef::Fixed(1),
             ),
@@ -1895,7 +1894,7 @@ pub(in crate::card::sets) static TOXIC_NIM: CardRecord = CardRecord::new(
             abilities::infect(),
             abilities::regenerate_self(
                 "{B}: Regenerate this creature.",
-                &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+                &[CostDef::Mana(mana_cost!("{B}"))],
             ),
         ]),
 );
@@ -1988,7 +1987,7 @@ pub(in crate::card::sets) static ARTILLERIZE: CardRecord = CardRecord::new(
         AbilityDef::spell_with_additional_cost(
             "As an additional cost to cast this spell, sacrifice an artifact or creature.\nThis spell deals 5 damage to any target.",
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -2069,10 +2068,7 @@ pub(in crate::card::sets) static FALLEN_FERROMANCER: CardRecord = CardRecord::ne
         abilities::infect(),
         AbilityDef::activated_with_targets(
             "{1}{R}, {T}: This creature deals 1 damage to any target.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -2178,7 +2174,7 @@ pub(in crate::card::sets) static MOLTENSTEEL_DRAGON: CardRecord = CardRecord::ne
             abilities::flying(),
             AbilityDef::activated(
                 "{R/P}: This creature gets +1/+0 until end of turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{R/P}"))],
+                &[CostDef::Mana(mana_cost!("{R/P}"))],
                 EffectDef::Apply {
                     recipient: EffectRecipientDef::Source,
                     effect: AppliedEffectDef::modify_power_toughness(
@@ -2201,7 +2197,7 @@ pub(in crate::card::sets) static OGRE_MENIAL: CardRecord = CardRecord::new(
         abilities::infect(),
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -2534,9 +2530,9 @@ pub(in crate::card::sets) static BIRTHING_POD: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{1}{G/P}, {T}, Sacrifice a creature: Search your library for a creature card with mana value equal to 1 plus the sacrificed creature's mana value, put that card onto the battlefield, then shuffle. Activate only as a sorcery.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{G/P}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}{G/P}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
                     controller: PlayerRelation::You,
                 },
@@ -2734,7 +2730,7 @@ pub(in crate::card::sets) static GREENHILT_TRAINEE: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{3}{G}"), &["Elf", "Warrior"], 2, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target creature gets +4/+4 until end of turn. Activate only if this creature's power is 4 or greater.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -3019,7 +3015,7 @@ pub(in crate::card::sets) static VITAL_SPLICER: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_with_targets(
                 "{1}: Regenerate target Golem you control.",
-                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::Subtype("Golem"),
                     zones: &[ZoneKind::Battlefield],
@@ -3079,7 +3075,7 @@ pub(in crate::card::sets) static ALLOY_MYR: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Myr"], 2, 2).with_ability(
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ),
@@ -3111,14 +3107,14 @@ pub(in crate::card::sets) static BATTERSKULL: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated(
                 "{3}: Return this Equipment to its owner's hand.",
-                &[AbilityCostDef::Mana(mana_cost!("{3}"))],
+                &[CostDef::Mana(mana_cost!("{3}"))],
                 EffectDef::MoveToZone {
                     object: EffectRecipientDef::Source,
                     zone: ZoneKind::Hand,
                     placement: ZonePlacement::Top,
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{5}"))], "Equip {5}"),
         ]),
 );
 
@@ -3131,10 +3127,7 @@ pub(in crate::card::sets) static BLINDING_SOULEATER: CardRecord = CardRecord::ne
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Cleric"], 1, 3)
         .with_ability(AbilityDef::activated_with_targets(
             "{W/P}, {T}: Tap target creature.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W/P}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W/P}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -3164,8 +3157,8 @@ pub(in crate::card::sets) static CONVERSION_CHAMBER: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{2}, {T}: Exile target artifact card from a graveyard. Put a charge counter on this artifact.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
@@ -3189,9 +3182,9 @@ pub(in crate::card::sets) static CONVERSION_CHAMBER: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{2}, {T}, Remove a charge counter from this artifact: Create a 3/3 colorless Phyrexian Golem artifact creature token.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("charge"),
                     amount: 1,
                 },
@@ -3230,8 +3223,8 @@ pub(in crate::card::sets) static ETCHED_MONSTROSITY: CardRecord = CardRecord::ne
             AbilityDef::activated_with_targets(
                 "{W}{U}{B}{R}{G}, Remove five -1/-1 counters from this creature: Target player draws three cards.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}")),
-                    AbilityCostDef::RemoveCountersFromSource {
+                    CostDef::Mana(mana_cost!("{W}{U}{B}{R}{G}")),
+                    CostDef::RemoveCountersFromSource {
                         kind: CounterKind::MinusOneMinusOne,
                         amount: 5,
                     },
@@ -3257,9 +3250,9 @@ pub(in crate::card::sets) static GREMLIN_MINE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}, {T}, Sacrifice this artifact: It deals 4 damage to target artifact creature.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -3276,9 +3269,9 @@ pub(in crate::card::sets) static GREMLIN_MINE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}, {T}, Sacrifice this artifact: Remove up to four charge counters from target noncreature artifact.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
@@ -3324,7 +3317,7 @@ pub(in crate::card::sets) static IMMOLATING_SOULEATER: CardRecord = CardRecord::
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Phyrexian", "Dog"], 1, 1).with_ability(
         AbilityDef::activated(
             "{R/P}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R/P}"))],
+            &[CostDef::Mana(mana_cost!("{R/P}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -3421,7 +3414,7 @@ pub(in crate::card::sets) static LASHWRITHE: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{B/P}{B/P}"))],
+                &[CostDef::Mana(mana_cost!("{B/P}{B/P}"))],
                 "Equip {B/P}{B/P}",
             ),
         ]),
@@ -3494,7 +3487,7 @@ pub(in crate::card::sets) static NECROPOUNCER: CardRecord = CardRecord::new(
                     ]),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 
@@ -3562,8 +3555,8 @@ pub(in crate::card::sets) static SHRINE_OF_BOUNDLESS_GROWTH: CardRecord = CardRe
         AbilityDef::activated_mana(
             "{T}, Sacrifice this artifact: Add {C} for each charge counter on this artifact.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::AddManaEqualTo {
                 color: ManaColor::Colorless,
@@ -3601,9 +3594,9 @@ pub(in crate::card::sets) static SHRINE_OF_BURNING_RAGE: CardRecord = CardRecord
         AbilityDef::activated_with_targets(
             "{3}, {T}, Sacrifice this artifact: It deals damage equal to the number of charge counters on it to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyTarget)],
             EffectDef::DealDamageFrom {
@@ -3643,9 +3636,9 @@ pub(in crate::card::sets) static SHRINE_OF_LIMITLESS_POWER: CardRecord = CardRec
         AbilityDef::activated_with_targets(
             "{4}, {T}, Sacrifice this artifact: Target player discards a card for each charge counter on this artifact.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{4}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Player(
                 PlayerRelation::Any,
@@ -3688,9 +3681,9 @@ pub(in crate::card::sets) static SHRINE_OF_LOYAL_LEGIONS: CardRecord = CardRecor
         AbilityDef::activated(
             "{3}, {T}, Sacrifice this artifact: Create a 1/1 colorless Phyrexian Myr artifact creature token for each charge counter on this artifact.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::create_artifact_creature_token(
                 &["Phyrexian", "Myr"],
@@ -3734,8 +3727,8 @@ pub(in crate::card::sets) static SHRINE_OF_PIERCING_VISION: CardRecord = CardRec
         AbilityDef::activated(
             "{T}, Sacrifice this artifact: Look at the top X cards of your library, where X is the number of charge counters on this artifact. Put one of those cards into your hand and the rest on the bottom of your library in any order.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             abilities::look_at_top_cards_choose_to_hand_rest_bottom(
                 ValueDef::CountersOnSource(CounterKind::named("charge")),
@@ -3767,7 +3760,7 @@ pub(in crate::card::sets) static SICKLESLICER: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{4}"))], "Equip {4}"),
         ]),
 );
 
@@ -3795,7 +3788,7 @@ pub(in crate::card::sets) static SPELLSKITE: CardRecord = CardRecord::new(
     )
     .with_ability(AbilityDef::activated_with_targets(
         "{U/P}: Change a target of target spell or ability to this creature. ({U/P} can be paid with either {U} or 2 life.)",
-        &[AbilityCostDef::Mana(mana_cost!("{U/P}"))],
+        &[CostDef::Mana(mana_cost!("{U/P}"))],
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::Object {
                 object: ObjectPredicateDef::Any,
@@ -3833,9 +3826,9 @@ pub(in crate::card::sets) static SURGE_NODE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}, {T}, Remove a charge counter from this artifact: Put a charge counter on target artifact.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("charge"),
                     amount: 1,
                 },
@@ -3899,7 +3892,7 @@ pub(in crate::card::sets) static SWORD_OF_WAR_AND_PEACE: CardRecord = CardRecord
                     },
                 ]),
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 
@@ -3922,7 +3915,7 @@ pub(in crate::card::sets) static TRESPASSING_SOULEATER: CardRecord = CardRecord:
     CardRules::new_artifact_creature(mana_cost!("{3}"), &["Phyrexian", "Construct"], 2, 2)
         .with_ability(AbilityDef::activated(
             "{U/P}: This creature can't be blocked this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U/P}"))],
+            &[CostDef::Mana(mana_cost!("{U/P}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
@@ -3950,15 +3943,15 @@ pub(in crate::card::sets) static PHYREXIA_S_CORE: CardRecord = CardRecord::new(
     CardRules::new_land(&[]).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated(
             "{1}, {T}, Sacrifice an artifact: You gain 1 life.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Artifact),
                     controller: PlayerRelation::You,
                 },

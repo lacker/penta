@@ -16,14 +16,14 @@ use crate::card::sets::y2010::rise_of_the_eldrazi as catalog_roe;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet,
-    CardSupertype, CardType, ComparisonDef, CounterKind, EffectDef, EffectRecipientDef,
+    CardSupertype, CardType, ComparisonDef, CostDef, CounterKind, EffectDef, EffectRecipientDef,
     KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{AdditionalCostObjectIndex, TargetIndex, mana_cost};
 
@@ -474,10 +474,7 @@ pub(in crate::card::sets) static RAMOSIAN_COMMANDER: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{6}, {T}: Search your library for a Rebel permanent card with mana value 5 \
              or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{6}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{6}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -516,10 +513,7 @@ pub(in crate::card::sets) static RAMOSIAN_LIEUTENANT: CardRecord = CardRecord::n
         AbilityDef::activated(
             "{4}, {T}: Search your library for a Rebel permanent card with mana value 3 \
              or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{4}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{4}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -572,10 +566,7 @@ pub(in crate::card::sets) static RAMOSIAN_SERGEANT: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{3}, {T}: Search your library for a Rebel permanent card with mana value 2 \
              or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -820,7 +811,7 @@ pub(in crate::card::sets) static BLOCKADE_RUNNER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Merfolk"], 2, 2).with_ability(
         AbilityDef::activated(
             "{U}: This creature can't be blocked this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),
@@ -1005,7 +996,7 @@ pub(in crate::card::sets) static DRAKE_HATCHLING: CardRecord = CardRecord::new(
         abilities::flying(),
         AbilityDef::activated(
             "{U}: This creature gets +1/+0 until end of turn. Activate only once each turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
+            &[CostDef::Mana(mana_cost!("{U}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1076,7 +1067,7 @@ pub(in crate::card::sets) static GUSH: CardRecord = CardRecord::new_with_legacy_
             Some("You may return two Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
+        .with_alternative_additional_cost(&CostDef::return_to_hand(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
             CostQuantityDef::Fixed(2),
         )),
@@ -1166,7 +1157,7 @@ pub(in crate::card::sets) static MISDIRECTION: CardRecord = CardRecord::new(
             ),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::exile(
+        .with_alternative_additional_cost(&CostDef::exile(
             ObjectPredicateDef::Color(ManaColor::Blue),
             ZoneKind::Hand,
             CostQuantityDef::Fixed(1),
@@ -1457,7 +1448,7 @@ pub(in crate::card::sets) static THWART: CardRecord = CardRecord::new_with_legac
             Some("You may return three Islands you control to their owner's hand rather than pay this spell's mana cost."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::return_to_hand(
+        .with_alternative_additional_cost(&CostDef::return_to_hand(
             ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Island]),
             CostQuantityDef::Fixed(3),
         )),
@@ -1591,10 +1582,7 @@ pub(in crate::card::sets) static CATERAN_BRUTE: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "{2}, {T}: Search your library for a Mercenary permanent card with mana value \
              2 or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1639,10 +1627,7 @@ pub(in crate::card::sets) static CATERAN_KIDNAPPERS: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "{3}, {T}: Search your library for a Mercenary permanent card with mana value \
              3 or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1687,10 +1672,7 @@ pub(in crate::card::sets) static CATERAN_PERSUADER: CardRecord = CardRecord::new
         AbilityDef::activated(
             "{1}, {T}: Search your library for a Mercenary permanent card with mana value \
              1 or less, put it onto the battlefield, then shuffle.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -1790,7 +1772,7 @@ pub(in crate::card::sets) static DEEPWOOD_GHOUL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie"], 2, 1).with_ability(
         abilities::regenerate_self(
             "Pay 2 life: Regenerate this creature.",
-            &[AbilityCostDef::PayLife(2)],
+            &[CostDef::PayLife(2)],
         ),
     ),
 );
@@ -2042,7 +2024,7 @@ pub(in crate::card::sets) static PRIMEVAL_SHAMBLER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{4}{B}"), &["Horror", "Mercenary"], 3, 3).with_ability(
         AbilityDef::activated(
             "{B}: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -2530,9 +2512,9 @@ pub(in crate::card::sets) static KRIS_MAGE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{R}, {T}, Discard a card: This creature deals 1 damage to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{R}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Mana(mana_cost!("{R}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -2715,7 +2697,7 @@ pub(in crate::card::sets) static SHOCK_TROOPS: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Human", "Soldier"], 2, 2).with_ability(
         AbilityDef::activated_with_targets(
             "Sacrifice this creature: It deals 2 damage to any target.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -2898,7 +2880,7 @@ pub(in crate::card::sets) static BOA_CONSTRICTOR: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Snake"], 3, 3).with_ability(
         AbilityDef::activated(
             "{T}: This creature gets +3/+3 until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -3115,7 +3097,7 @@ pub(in crate::card::sets) static HORNED_TROLL: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Troll"], 2, 2).with_ability(
         abilities::regenerate_self(
             "{G}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[CostDef::Mana(mana_cost!("{G}"))],
         ),
     ),
 );
@@ -3284,9 +3266,9 @@ pub(in crate::card::sets) static RUSHWOOD_HERBALIST: CardRecord = CardRecord::ne
         AbilityDef::activated_with_targets(
             "{G}, {T}, Discard a card: Regenerate target creature.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{G}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::DiscardCardMatching(ObjectPredicateDef::Any),
+                CostDef::Mana(mana_cost!("{G}")),
+                CostDef::TapSource,
+                CostDef::DiscardCardMatching(ObjectPredicateDef::Any),
             ],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
@@ -3528,9 +3510,9 @@ pub(in crate::card::sets) static ASSEMBLY_HALL: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{5}")).with_ability(AbilityDef::activated(
         "{4}, {T}, Reveal a creature card from your hand: Search your library for a card with the same name as the revealed card, reveal it, put it into your hand, then shuffle.",
         &[
-            AbilityCostDef::Mana(mana_cost!("{4}")),
-            AbilityCostDef::TapSource,
-            AbilityCostDef::RevealCardFromHand(ObjectPredicateDef::HasType(CardType::Creature)),
+            CostDef::Mana(mana_cost!("{4}")),
+            CostDef::TapSource,
+            CostDef::RevealCardFromHand(ObjectPredicateDef::HasType(CardType::Creature)),
         ],
         EffectDef::SearchZone {
             player: EffectRecipientDef::Controller,
@@ -3666,7 +3648,7 @@ pub(in crate::card::sets) static HENGE_GUARDIAN: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{5}"), &["Dragon", "Wurm"], 3, 4).with_ability(
         AbilityDef::activated(
             "{2}: This creature gains trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
@@ -3867,9 +3849,9 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
         AbilityDef::activated_with_targets(
             "{3}, {T}, Sacrifice a land: Destroy target nonbasic land.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{3}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Land),
                     controller: PlayerRelation::You,
                 },
@@ -3938,8 +3920,8 @@ pub(in crate::card::sets) static HICKORY_WOODLOT: CardRecord = CardRecord::new(
             "{T}, Remove a depletion counter from this land: Add {G}{G}. If there are no \
              depletion counters on this land, sacrifice it.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("depletion"),
                     amount: 1,
                 },
@@ -4003,8 +3985,8 @@ pub(in crate::card::sets) static PEAT_BOG: CardRecord = CardRecord::new(
             "{T}, Remove a depletion counter from this land: Add {B}{B}. If there are no depletion counters \
              on this land, sacrifice it.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("depletion"),
                     amount: 1,
                 },
@@ -4044,8 +4026,8 @@ pub(in crate::card::sets) static REMOTE_FARM: CardRecord = CardRecord::new(
             "{T}, Remove a depletion counter from this land: Add {W}{W}. If there are no depletion counters \
              on this land, sacrifice it.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("depletion"),
                     amount: 1,
                 },
@@ -4069,10 +4051,7 @@ pub(in crate::card::sets) static RISHADAN_PORT: CardRecord = CardRecord::new_wit
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_with_targets(
             "{1}, {T}: Tap target land.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Land),
             )],
@@ -4119,8 +4098,8 @@ pub(in crate::card::sets) static SANDSTONE_NEEDLE: CardRecord = CardRecord::new(
             "{T}, Remove a depletion counter from this land: Add {R}{R}. If there are no depletion counters \
              on this land, sacrifice it.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("depletion"),
                     amount: 1,
                 },
@@ -4170,8 +4149,8 @@ pub(in crate::card::sets) static SAPRAZZAN_SKERRY: CardRecord = CardRecord::new(
             "{T}, Remove a depletion counter from this land: Add {U}{U}. If there are no depletion counters \
              on this land, sacrifice it.",
             &[
-                AbilityCostDef::TapSource,
-                AbilityCostDef::RemoveCountersFromSource {
+                CostDef::TapSource,
+                CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("depletion"),
                     amount: 1,
                 },

@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, EffectDef, EffectRecipientDef, ManaColor, NONBASIC_LAND_SUBTYPES,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    CostDef, EffectDef, EffectRecipientDef, ManaColor, NONBASIC_LAND_SUBTYPES,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     ObjectSetFilterDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SumValueDef,
     TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -174,15 +174,12 @@ pub(in crate::card::sets) static PLANAR_NEXUS: CardRecord = CardRecord::new(
     CardRules::new_land(NONBASIC_LAND_SUBTYPES).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated_mana(
             "{1}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
     ]),
@@ -216,15 +213,12 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
         ),
         AbilityDef::activated_mana(
             "{1}, {T}: Add one mana of any color.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
         // Activated from hand, which is the only zone the clause names: what it
@@ -232,7 +226,7 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
         // its enter trigger fires like any other.
         AbilityDef::activated(
             "{4}: Put this card from your hand onto the battlefield.",
-            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Battlefield,
@@ -256,10 +250,7 @@ pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{2}, {T}: Target creature gets +X/+X until end of turn, where X is the number of \
              Gates you control. Activate only as a sorcery.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{2}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],

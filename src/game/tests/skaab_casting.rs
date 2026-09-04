@@ -4,9 +4,7 @@
 
 use super::*;
 use crate::card::CostQuantityDef;
-use crate::card::{
-    CardType, DeclarativeAbilityDef, ObjectPredicateDef, SpellAdditionalCostDef, ZoneKind,
-};
+use crate::card::{CardType, CostDef, DeclarativeAbilityDef, ObjectPredicateDef, ZoneKind};
 
 fn staged_skaab(
     definition: CardDefinitionId,
@@ -177,7 +175,7 @@ fn both_skaabs_explicitly_exile_their_graveyard_costs() {
             .expect("the Skaab spell declares its creature-card cost");
         assert_eq!(
             cost,
-            SpellAdditionalCostDef::exile(
+            CostDef::exile(
                 ObjectPredicateDef::HasType(CardType::Creature),
                 ZoneKind::Graveyard,
                 CostQuantityDef::Fixed(count),

@@ -504,10 +504,7 @@ fn ghor_clan_rampager_uses_one_shared_bloodrush_effect() {
     assert_eq!(definition.source_zones, [ZoneKind::Hand]);
     assert_eq!(
         definition.costs.as_slice(),
-        [
-            AbilityCostDef::Mana(mana_cost!("{R}{G}")),
-            AbilityCostDef::DiscardSource,
-        ],
+        [CostDef::Mana(mana_cost!("{R}{G}")), CostDef::DiscardSource,],
     );
     let AbilityProgramDef::Effects(EffectDef::Apply {
         recipient,

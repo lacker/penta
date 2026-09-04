@@ -124,6 +124,10 @@ fn validate_effect_references(
             validate_effect_references(*on_success, target_count, scope)?;
             validate_effect_references(*on_failure, target_count, scope)
         }
+        EffectDef::FlipCoin { on_win, on_loss } => {
+            validate_effect_references(*on_win, target_count, scope)?;
+            validate_effect_references(*on_loss, target_count, scope)
+        }
         EffectDef::ExileOneFromEachZone(pile) => {
             validate_recipient_target_references(pile.player, target_count, scope)
         }
@@ -915,17 +919,32 @@ fn validate_effect_references(
                 crate::card::ManaTypeSourceDef::Fixed(_) => Ok(()),
             },
             crate::card::ManaSelectionDef::One(_)
-            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => Ok(()),
+            | crate::card::ManaSelectionDef::ColorsOfLinkedExiles
+            | crate::card::ManaSelectionDef::ChoiceOfBundles(_) => Ok(()),
         },
         // The chosen player is recorded on the permanent, not read from a
         // target slot.
         // A prohibition names a card shape, never a target.
+        EffectDef::CumulativeUpkeep(
+            crate::card::CostDef::SacrificePermanents { object, .. }
+            | crate::card::CostDef::GainControlPermanents { object, .. },
+        ) => validate_object_predicate_references(object, target_count, scope),
+        EffectDef::CumulativeUpkeep(
+            crate::card::CostDef::CreateTokens { token, .. },
+        ) => match token.variable_stats {
+            Some(stats) => {
+                validate_value_target_references(stats.power, target_count, scope)?;
+                validate_value_target_references(stats.toughness, target_count, scope)
+            }
+            None => Ok(()),
+        },
         EffectDef::ModifyCost(_)
         | EffectDef::LandwalkCanBeBlocked(_)
         | EffectDef::CannotAttackUnless(_)
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn

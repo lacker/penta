@@ -3,7 +3,7 @@
 //! the same X that the resolving damage reads.
 
 use super::*;
-use crate::card::{CostQuantityDef, SpellAdditionalCostDef};
+use crate::card::{CostDef, CostQuantityDef};
 
 fn pyre_game(fodder: usize) -> (Game, GameObjectId, GameObjectId) {
     let mut game = ready_game();
@@ -59,7 +59,7 @@ fn cost_is_semantically_exile_x_from_the_graveyard() {
 
     assert_eq!(
         cost,
-        SpellAdditionalCostDef::exile(
+        CostDef::exile(
             ObjectPredicateDef::Any,
             ZoneKind::Graveyard,
             CostQuantityDef::ChosenX,

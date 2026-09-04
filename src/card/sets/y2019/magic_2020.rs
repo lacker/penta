@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
+    AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt,
+    CardRules, CardSet, CardType, ComparisonDef, CostDef, CounterKind, EffectDef,
     EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetAggregationDef,
     StackTargetFilterDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
@@ -48,7 +48,7 @@ pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
                 },
             ),
             abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                &[CostDef::Mana(mana_cost!("{1}"))],
                 "Equip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
             ),
         ]),
@@ -163,9 +163,9 @@ pub(in crate::card::sets) static ELVISH_RECLAIMER: CardRecord = CardRecord::new(
             "{2}, {T}, Sacrifice a land: Search your library for a land card, put it onto the \
              battlefield tapped, then shuffle.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificePermanent {
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::SacrificePermanent {
                     object: ObjectPredicateDef::HasType(CardType::Land),
                     controller: PlayerRelation::You,
                 },
@@ -207,7 +207,7 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
         ),
         AbilityDef::activated(
             "{6}{G}{G}: Put a +1/+1 counter on each creature you control.",
-            &[AbilityCostDef::Mana(mana_cost!("{6}{G}{G}"))],
+            &[CostDef::Mana(mana_cost!("{6}{G}{G}"))],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::matching_objects(
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -232,10 +232,7 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{1}, {T}: Untap another target artifact.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
             // "Another" excludes the Key itself, which is what stops it untapping
             // itself for free every turn.
             &[AbilityTargetDef::exactly_one_permanent(
@@ -250,10 +247,7 @@ pub(in crate::card::sets) static MANIFOLD_KEY: CardRecord = CardRecord::new_with
         ),
         AbilityDef::activated_with_targets(
             "{3}, {T}: Target creature can't be blocked this turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{3}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{3}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],

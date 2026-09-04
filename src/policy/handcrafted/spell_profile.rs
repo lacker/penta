@@ -1,6 +1,6 @@
 use super::{
-    AbilityCostDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    BasicLandType, CardDefinitionId, CardType, CardTypeSet, CastChoices, DeclarativeAbilityDef,
+    AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, BasicLandType,
+    CardDefinitionId, CardType, CardTypeSet, CastChoices, CostDef, DeclarativeAbilityDef,
     EffectDef, EffectRecipientDef, HandcraftedPolicy, ObjectPredicateDef, PlayerRelation,
     SpellForm, ValueDef, ZoneKind,
 };
@@ -94,8 +94,7 @@ impl HandcraftedPolicy {
                 return None;
             };
             Some(
-                if effect.amount >= 3 && definition.costs.contains(&AbilityCostDef::SacrificeSource)
-                {
+                if effect.amount >= 3 && definition.costs.contains(&CostDef::SacrificeSource) {
                     100
                 } else {
                     90
@@ -356,6 +355,10 @@ impl HandcraftedPolicy {
                 Self::collect_spell_effect_profile(*on_success, x, targets, profile);
                 Self::collect_spell_effect_profile(*on_failure, x, targets, profile);
             }
+            EffectDef::FlipCoin { on_win, on_loss } => {
+                Self::collect_spell_effect_profile(*on_win, x, targets, profile);
+                Self::collect_spell_effect_profile(*on_loss, x, targets, profile);
+            }
             EffectDef::Choose(choice) => {
                 Self::collect_spell_effect_profile(*choice.then, x, targets, profile);
             }
@@ -579,6 +582,7 @@ impl HandcraftedPolicy {
             | EffectDef::ModifyCounters { .. }
             | EffectDef::BecomeCopyOf { .. }
             | EffectDef::CannotBeForcedToSacrifice
+            | EffectDef::CumulativeUpkeep(_)
             | EffectDef::CannotBeForcedToDiscard
             | EffectDef::GainClassLevel { .. }
             | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }

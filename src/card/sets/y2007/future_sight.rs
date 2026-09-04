@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, CounterKind, CreatureStats, EffectDef, EffectRecipientDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    ArrivalAttachmentDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CostDef, CounterKind, CreatureStats, EffectDef, EffectRecipientDef,
     ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRelation, ReplacementConditionDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellResolutionDestinationDef,
     TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
@@ -254,9 +254,9 @@ pub(in crate::card::sets) static JHOIRA_OF_THE_GHITU: CardRecord = CardRecord::n
         .with_ability(AbilityDef::activated(
             "{2}, Exile a nonland card from your hand: Put four time counters on the exiled card. If it doesn't have suspend, it gains suspend.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::MoveToZone(
+                CostDef::Mana(mana_cost!("{2}")),
+                CostDef::TapSource,
+                CostDef::MoveToZone(
                     crate::card::MoveToZoneCostDef::new(
                         ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
                         ZoneKind::Hand,
@@ -292,12 +292,12 @@ pub(in crate::card::sets) static COALITION_RELIC: CardRecord = CardRecord::new_w
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
         AbilityDef::activated(
             "{T}: Put a charge counter on this artifact.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddCounters {
                 object: EffectRecipientDef::Source,
                 kind: CounterKind::named("charge"),
@@ -398,7 +398,7 @@ pub(in crate::card::sets) static SWORD_OF_THE_MEEK: CardRecord = CardRecord::new
                 },
             ),
             abilities::equip(
-                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                &[CostDef::Mana(mana_cost!("{2}"))],
                 "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)",
             ),
             AbilityDef::triggered(

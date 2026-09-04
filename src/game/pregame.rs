@@ -3,7 +3,7 @@
 use std::collections::BTreeSet;
 
 use super::{
-    AbilityCostDef, AbilityOrigin, CharacteristicContext, DecisionContinuation, DecisionOption,
+    AbilityOrigin, CharacteristicContext, CostDef, DecisionContinuation, DecisionOption,
     DecisionPreference, DecisionVisibility, DeclarativeAbilityDef, EffectDef,
     EffectResolutionContext, Game, GameEvent, GameObjectId, ObjectCharacteristics, PlayerId,
     Pregame, PregameAbilityAction, PregameConditionDef, PregameTimingDef, ScopedEffect,
@@ -41,7 +41,7 @@ impl Game {
                 let mut object_cost = None;
                 for cost in definition.costs {
                     match cost {
-                        AbilityCostDef::ExileCardFromHand(predicate) if object_cost.is_none() => {
+                        CostDef::ExileCardFromHand(predicate) if object_cost.is_none() => {
                             object_cost = Some(*predicate);
                         }
                         _ => return,

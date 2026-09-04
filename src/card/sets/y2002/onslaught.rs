@@ -12,13 +12,12 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
+    DamageEventMatcherDef, DamagePreventionDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PayOrDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, TurnStepDef, mana_cost};
 
@@ -186,7 +185,7 @@ pub(in crate::card::sets) static CHAIN_OF_SILENCE: CardRecord = CardRecord::new(
                     payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     ))),
-                    cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
                         CardType::Land,
                     )),
                 },
@@ -859,7 +858,7 @@ pub(in crate::card::sets) static CHAIN_OF_VAPOR: CardRecord = CardRecord::new_wi
                     payer: PlayerSetDef::One(PlayerRefDef::ControllerOf(ObjectRefDef::Target(
                         TargetIndex::PRIMARY,
                     ))),
-                    cost: EffectPaymentCostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
+                    cost: CostDef::SacrificePermanentMatching(ObjectPredicateDef::HasType(
                         CardType::Land,
                     )),
                 },
@@ -911,7 +910,7 @@ pub(in crate::card::sets) static CRAFTY_PATHMAGE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Wizard"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target creature with power 2 or less can't be blocked this turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -1819,7 +1818,7 @@ pub(in crate::card::sets) static NANTUKO_HUSK: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Zombie", "Insect"], 2, 2).with_ability(
         AbilityDef::activated(
             "Sacrifice a creature: This creature gets +2/+2 until end of turn.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Creature),
                 controller: PlayerRelation::You,
             }],
@@ -2419,7 +2418,7 @@ pub(in crate::card::sets) static GOBLIN_SHARPSHOOTER: CardRecord = CardRecord::n
         ),
         AbilityDef::activated_with_targets(
             "{T}: This creature deals 1 damage to any target.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -2454,7 +2453,7 @@ pub(in crate::card::sets) static GOBLIN_SLEDDER: CardRecord = CardRecord::new(
             "Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.",
             // "A Goblin", so it can eat itself, which is what makes it a
             // free sacrifice outlet as well as a combat trick.
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::Subtype("Goblin"),
                 controller: PlayerRelation::You,
             }],
@@ -2683,7 +2682,7 @@ pub(in crate::card::sets) static SKIRK_PROSPECTOR: CardRecord = CardRecord::new_
     CardRules::new_creature(mana_cost!("{R}"), &["Goblin"], 1, 1).with_ability(
         AbilityDef::activated_mana(
             "Sacrifice a Goblin: Add {R}.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::Subtype("Goblin"),
                 controller: PlayerRelation::You,
             }],
@@ -2752,7 +2751,7 @@ pub(in crate::card::sets) static SPARKSMITH: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{T}: This creature deals X damage to target creature and X damage to you, where X \
              is the number of Goblins on the battlefield.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -3711,7 +3710,7 @@ pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new_w
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::White)),
         ),
         abilities::cycling(

@@ -1,14 +1,14 @@
 use crate::card::ZoneRelativePositionDef;
 use crate::card::catalog::{EffectSubjectKind, GrantedAbilityValidationError};
 use crate::card::{
-    AbilityCostDef, AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
+    AbilityOperationDef, AbilityProcedureDef, AbilityProgramDef, AbilityTargetDef,
     AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
     BattlefieldEntryChoiceDestinationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
     CardNameDef, CardNameSetDef, CharacteristicOperationDef, ConditionDef, CostAdjustmentDef,
-    CostAmountDef, CostModificationDef, DamageEventMatcherDef, DamagePreventionCapacityDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
-    EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
+    CostAmountDef, CostDef, CostModificationDef, DamageEventMatcherDef,
+    DamagePreventionCapacityDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DeclarativeAbilityDef, EffectDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PerPlayerSelectionDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, ScalarChoiceListDef,

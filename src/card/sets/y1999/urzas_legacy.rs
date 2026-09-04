@@ -7,15 +7,14 @@ use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryChoiceDestinationDef,
     BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, ColorChoiceOperationDef, CostModificationDef, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef, ScaledValueDef,
-    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    ChooseDef, ColorChoiceOperationDef, CostDef, CostModificationDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, KeywordAbility, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, ReplacementChoiceDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    ScaledValueDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -151,7 +150,7 @@ pub(in crate::card::sets) static MOTHER_OF_RUNES: CardRecord = CardRecord::new_w
     CardRules::new_creature(mana_cost!("{W}"), &["Human", "Cleric"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Target creature you control gains protection from the color of your choice until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Object {
                     object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -565,7 +564,7 @@ pub(in crate::card::sets) static TINKER: CardRecord = CardRecord::new(
             // Any artifact at all, and the one you give up is usually the cheapest
             // thing you own: what the cost measures is a card on the battlefield rather
             // than what it was worth.
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Artifact),
                 CostQuantityDef::Fixed(1),
             ),
@@ -775,7 +774,7 @@ pub(in crate::card::sets) static PHYREXIAN_DEFILER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{B}{B}"), &["Phyrexian", "Carrier"], 3, 3).with_ability(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: Target creature gets -3/-3 until end of turn.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -802,7 +801,7 @@ pub(in crate::card::sets) static PHYREXIAN_DENOUNCER: CardRecord = CardRecord::n
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Carrier"], 1, 1).with_ability(
         AbilityDef::activated_with_targets(
             "{T}, Sacrifice this creature: Target creature gets -1/-1 until end of turn.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            &[CostDef::TapSource, CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -1254,7 +1253,7 @@ pub(in crate::card::sets) static CROP_ROTATION: CardRecord = CardRecord::new_wit
             // Sacrificing a land is what makes this an instant-speed tutor rather than a
             // ramp spell: the land you give up pays for the one you go and get, so the
             // board count never moves.
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::HasType(CardType::Land),
                 CostQuantityDef::Fixed(1),
             ),
@@ -1688,12 +1687,12 @@ pub(in crate::card::sets) static GRIM_MONOLITH: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}{C}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless).with_amount(3)),
         ),
         AbilityDef::activated(
             "{4}: Untap this artifact.",
-            &[AbilityCostDef::Mana(mana_cost!("{4}"))],
+            &[CostDef::Mana(mana_cost!("{4}"))],
             EffectDef::Untap {
                 object: EffectRecipientDef::Source,
             },
@@ -1734,7 +1733,7 @@ pub(in crate::card::sets) static MEMORY_JAR: CardRecord = CardRecord::new(
         "{T}, Sacrifice this artifact: Each player exiles all cards from their hand face down \
          and draws seven cards. At the beginning of the next end step, each player discards \
          their hand and returns to their hand each card they exiled this way.",
-        &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+        &[CostDef::TapSource, CostDef::SacrificeSource],
         EffectDef::Sequence(&const {
             [
                 // Face down: the point of the clause is that nobody learns what the

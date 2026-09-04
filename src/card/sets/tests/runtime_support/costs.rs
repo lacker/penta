@@ -5,20 +5,20 @@
 //! be paid with.
 
 use super::*;
-use crate::card::SpellAdditionalCostDef;
+use crate::card::CostDef;
 
-fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef]) -> bool {
+fn linked_card_mana_costs_supported(battlefield: bool, costs: &[CostDef]) -> bool {
     let priced_bindings = costs
         .iter()
         .filter_map(|cost| match cost {
-            AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => Some(*binding),
+            CostDef::ManaCostOf(ObjectRefDef::Binding(binding)) => Some(*binding),
             _ => None,
         })
         .collect::<Vec<_>>();
     let moved_bindings = costs
         .iter()
         .filter_map(|cost| match cost {
-            AbilityCostDef::MoveToZone(movement)
+            CostDef::MoveToZone(movement)
                 if movement.from == ZoneKind::Graveyard
                     && movement.to == ZoneKind::Exile
                     && movement.fixed_count() == Some(1) =>
@@ -33,14 +33,14 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
         .filter(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificePermanent { .. }
-                    | AbilityCostDef::SacrificePermanents { .. }
-                    | AbilityCostDef::ReturnUnblockedAttackerToHand
-                    | AbilityCostDef::TapPermanents { .. }
-                    | AbilityCostDef::MoveToZone(_)
-                    | AbilityCostDef::DiscardCardMatching(_)
-                    | AbilityCostDef::RevealCardFromHand(_)
-                    | AbilityCostDef::ExileCardFromHand(_)
+                CostDef::SacrificePermanent { .. }
+                    | CostDef::SacrificePermanents { .. }
+                    | CostDef::ReturnUnblockedAttackerToHand
+                    | CostDef::TapPermanents { .. }
+                    | CostDef::MoveToZone(_)
+                    | CostDef::DiscardCardMatching(_)
+                    | CostDef::RevealCardFromHand(_)
+                    | CostDef::ExileCardFromHand(_)
             )
         })
         .count();
@@ -49,15 +49,15 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
             || (battlefield && moved_bindings == priced_bindings && chosen_object_costs == 1))
 }
 
-fn at_most_one_deferred_activation_cost(costs: &[AbilityCostDef]) -> bool {
+fn at_most_one_deferred_activation_cost(costs: &[CostDef]) -> bool {
     costs
         .iter()
         .filter(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificePermanents { .. }
-                    | AbilityCostDef::TapPermanents { .. }
-                    | AbilityCostDef::TapCreaturesWithTotalPower { .. }
+                CostDef::SacrificePermanents { .. }
+                    | CostDef::TapPermanents { .. }
+                    | CostDef::TapCreaturesWithTotalPower { .. }
             )
         })
         .count()
@@ -67,51 +67,44 @@ fn at_most_one_deferred_activation_cost(costs: &[AbilityCostDef]) -> bool {
 /// Multiple tap payers are currently chosen after the mana plan. Keep that
 /// mixed shape outside advertised shared coverage until both use one joint
 /// plan. A single payer is enumerated early enough to be reserved by it.
-fn multi_tap_cost_has_no_mana_component(costs: &[AbilityCostDef]) -> bool {
+fn multi_tap_cost_has_no_mana_component(costs: &[CostDef]) -> bool {
     !costs
         .iter()
-        .any(|cost| matches!(cost, AbilityCostDef::TapPermanents { count, .. } if *count > 1))
+        .any(|cost| matches!(cost, CostDef::TapPermanents { count, .. } if *count > 1))
         || !costs.iter().any(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::Mana(_)
-                    | AbilityCostDef::ManaCostOf(_)
-                    | AbilityCostDef::ManaValueOfTarget { .. }
+                CostDef::Mana(_) | CostDef::ManaCostOf(_) | CostDef::ManaValueOfTarget { .. }
             )
         })
 }
 
-fn at_most_one_source_exit_cost(costs: &[AbilityCostDef]) -> bool {
+fn at_most_one_source_exit_cost(costs: &[CostDef]) -> bool {
     costs
         .iter()
         .filter(|cost| {
             matches!(
                 cost,
-                AbilityCostDef::SacrificeSource
-                    | AbilityCostDef::ExileSource
-                    | AbilityCostDef::ReturnSourceToHand
+                CostDef::SacrificeSource | CostDef::ExileSource | CostDef::ReturnSourceToHand
             )
         })
         .count()
         <= 1
 }
 
-fn at_most_one_sacrifice_of_each_kind(costs: &[AbilityCostDef]) -> bool {
+fn at_most_one_sacrifice_of_each_kind(costs: &[CostDef]) -> bool {
     let choices = costs
         .iter()
-        .filter(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
+        .filter(|cost| matches!(cost, CostDef::SacrificePermanent { .. }))
         .count();
     let fixed = costs
         .iter()
-        .filter(|cost| matches!(cost, AbilityCostDef::SacrificeObject(_)))
+        .filter(|cost| matches!(cost, CostDef::SacrificeObject(_)))
         .count();
     choices <= 1 && fixed <= 1
 }
 
-pub(in super::super) fn shared_activated_costs(
-    zones: &[ZoneKind],
-    costs: &[AbilityCostDef],
-) -> bool {
+pub(in super::super) fn shared_activated_costs(zones: &[ZoneKind], costs: &[CostDef]) -> bool {
     let battlefield = zones == [ZoneKind::Battlefield];
     let hand = zones == [ZoneKind::Hand];
     let graveyard = zones == [ZoneKind::Graveyard];
@@ -124,8 +117,8 @@ pub(in super::super) fn shared_activated_costs(
         && costs.iter().all(|cost| match cost {
             // A variable X is offered one activation per affordable value.
             // More than one is not: nothing enumerates a cost charging X twice.
-            AbilityCostDef::Mana(cost) => cost.x_multiplier <= 1,
-            AbilityCostDef::ManaValueOfTarget { multiplier, .. } => {
+            CostDef::Mana(cost) => cost.x_multiplier <= 1,
+            CostDef::ManaValueOfTarget { multiplier, .. } => {
                 battlefield && *multiplier > 0
             }
             // The chosen object comes from the battlefield or from the
@@ -136,16 +129,16 @@ pub(in super::super) fn shared_activated_costs(
             // from and a predicate the shared walk can read.
             // The many-at-once form is paid by a decision rather than by
             // enumeration, which asks the same question of the same walk.
-            AbilityCostDef::SacrificePermanent { object, .. } => {
+            CostDef::SacrificePermanent { object, .. } => {
                 (battlefield || exile) && shared_object_predicate(*object)
             }
-            AbilityCostDef::SacrificePermanents { object, .. }
-            | AbilityCostDef::DiscardCardMatching(object)
-            | AbilityCostDef::RevealCardFromHand(object)
-            | AbilityCostDef::ExileCardFromHand(object) => {
+            CostDef::SacrificePermanents { object, .. }
+            | CostDef::DiscardCardMatching(object)
+            | CostDef::RevealCardFromHand(object)
+            | CostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }
-            AbilityCostDef::MoveToZone(movement) => {
+            CostDef::MoveToZone(movement) => {
                 battlefield
                     && matches!(
                         (movement.from, movement.to),
@@ -161,7 +154,7 @@ pub(in super::super) fn shared_activated_costs(
             // What pays the tap is out on the battlefield wherever the
             // ability is activated from, so a card in a graveyard can name
             // one too.
-            AbilityCostDef::TapPermanents { object, count, .. } => {
+            CostDef::TapPermanents { object, count, .. } => {
                 *count > 0
                     && (battlefield || (graveyard && *count == 1))
                     && shared_object_predicate(*object)
@@ -169,93 +162,67 @@ pub(in super::super) fn shared_activated_costs(
             // Exiling the source and milling the activating player's library
             // are the source-independent costs supported from a graveyard;
             // the rest of these need a permanent to act on.
-            AbilityCostDef::ExileSource | AbilityCostDef::MillCards(_) => {
+            CostDef::ExileSource | CostDef::MillCards(_) => {
                 battlefield || graveyard
             }
             // A fixed object sacrifice is supported only when it names the
             // source whose activation is being checked.
-            AbilityCostDef::ManaCostOf(ObjectRefDef::Binding(_))
-            | AbilityCostDef::SacrificeObject(
+            CostDef::ManaCostOf(ObjectRefDef::Binding(_))
+            | CostDef::SacrificeObject(
                 ObjectRefDef::Source | ObjectRefDef::AbilityGrantSource,
             )
-            | AbilityCostDef::TapSource
-            | AbilityCostDef::ExertSource
-            | AbilityCostDef::UntapSource
-            | AbilityCostDef::SacrificeSource
+            | CostDef::TapSource
+            | CostDef::ExertSource
+            | CostDef::UntapSource
+            | CostDef::SacrificeSource
             // The source leaves the battlefield to pay either way; only
             // where it lands differs.
-            | AbilityCostDef::ReturnSourceToHand
-            | AbilityCostDef::RemoveCountersFromSource { .. }
+            | CostDef::ReturnSourceToHand
+            | CostDef::RemoveCountersFromSource { .. }
             // Open-ended only in the declaration: one activation per size is
             // built by the mana path, which is why the caller also requires
             // the effect to be an AddMana.
-            | AbilityCostDef::RemoveAnyNumberOfCountersFromSource(_)
-            | AbilityCostDef::PayLife(_)
-            | AbilityCostDef::Loyalty(_)
+            | CostDef::RemoveAnyNumberOfCountersFromSource(_)
+            | CostDef::PayLife(_)
+            | CostDef::Loyalty(_)
             // Nobody chooses which cards go, so a random discard needs no
             // decision procedure -- only a permanent to activate from. A
             // mill cost similarly names the top cards without a choice.
-            | AbilityCostDef::DiscardCardsAtRandom(_)
+            | CostDef::DiscardCardsAtRandom(_)
             // "Discard your hand" takes every card and asks nothing, so like
             // the random discard it needs only a permanent to activate from.
-            | AbilityCostDef::DiscardHand
+            | CostDef::DiscardHand
             // Crew and saddle name no predicate: what may pay is every other
             // untapped creature the payer controls, and the decision that
             // asks reads the battlefield directly.
-            | AbilityCostDef::TapCreaturesWithTotalPower { .. } => battlefield,
+            | CostDef::TapCreaturesWithTotalPower { .. } => battlefield,
+            CostDef::ExileTopCards(amount) => battlefield && *amount > 0,
             // Ninjutsu's cost joins the discard here: what it may return is
             // combat state rather than a predicate, and both are paid by a
             // card in hand.
-            AbilityCostDef::DiscardSource
-            | AbilityCostDef::ReturnUnblockedAttackerToHand => hand,
-            AbilityCostDef::SacrificeObject(
-                ObjectRefDef::ResolvingObject
-                | ObjectRefDef::CreatingSource
-                | ObjectRefDef::ZoneChangeSuccessor(_)
-                | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-                | ObjectRefDef::Binding(_)
-                | ObjectRefDef::AdditionalCostObject(_)
-                | ObjectRefDef::AttachedToSource
-                | ObjectRefDef::Target(_)
-                | ObjectRefDef::TriggeringObject
-                | ObjectRefDef::DamagedObject
-                | ObjectRefDef::SourceOfTargetedStackObject(_),
-            )
-            | AbilityCostDef::DiscardCards(_)
-            | AbilityCostDef::ManaCostOf(
-                ObjectRefDef::Source
-                | ObjectRefDef::CreatingSource
-                | ObjectRefDef::ZoneChangeSuccessor(_)
-                | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-                | ObjectRefDef::AbilityGrantSource
-                | ObjectRefDef::ResolvingObject
-                | ObjectRefDef::AttachedToSource
-                | ObjectRefDef::Target(_)
-                | ObjectRefDef::TriggeringObject
-                | ObjectRefDef::DamagedObject
-                | ObjectRefDef::AdditionalCostObject(_)
-                | ObjectRefDef::SourceOfTargetedStackObject(_),
-            )
-            | AbilityCostDef::Special(_) => false,
+            CostDef::DiscardSource
+            | CostDef::ReturnUnblockedAttackerToHand => hand,
+            _ => false,
         })
 }
 
-pub(in super::super) fn shared_spell_additional_cost(cost: Option<SpellAdditionalCostDef>) -> bool {
+pub(in super::super) fn shared_spell_additional_cost(cost: Option<CostDef>) -> bool {
     cost.is_none_or(shared_spell_additional_cost_def)
 }
 
-fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
+fn shared_spell_additional_cost_def(cost: CostDef) -> bool {
     match cost {
-        SpellAdditionalCostDef::Forage => true,
-        SpellAdditionalCostDef::PayMana { quantity, .. }
-        | SpellAdditionalCostDef::PayLife(quantity) => shared_scalar_cost_quantity(quantity),
-        SpellAdditionalCostDef::Sacrifice { object, quantity }
-        | SpellAdditionalCostDef::Discard { object, quantity }
-        | SpellAdditionalCostDef::ReturnToHand { object, quantity }
-        | SpellAdditionalCostDef::Tap { object, quantity } => {
+        CostDef::Forage | CostDef::Mana(_) | CostDef::PayLife(_) => true,
+        CostDef::ManaTimes { quantity, .. } | CostDef::PayLifeTimes(quantity) => {
+            shared_scalar_cost_quantity(quantity)
+        }
+        CostDef::Sacrifice { object, quantity }
+        | CostDef::Discard { object, quantity }
+        | CostDef::ReturnToHand { object, quantity }
+        | CostDef::Tap { object, quantity } => {
             shared_object_cost_quantity(quantity) && shared_object_predicate(object)
         }
-        SpellAdditionalCostDef::Exile {
+        CostDef::Exile {
             object,
             from,
             quantity,
@@ -266,10 +233,10 @@ fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
             ) && shared_object_cost_quantity(quantity)
                 && shared_object_predicate(object)
         }
-        SpellAdditionalCostDef::All(costs) => {
+        CostDef::All(costs) => {
             !costs.is_empty() && costs.iter().copied().all(shared_spell_additional_cost_def)
         }
-        SpellAdditionalCostDef::Choice(costs) => {
+        CostDef::Choice(costs) => {
             !costs.is_empty()
                 && costs.iter().copied().all(shared_spell_additional_cost_def)
                 // Cast actions currently carry the selected objects, not a
@@ -283,30 +250,30 @@ fn shared_spell_additional_cost_def(cost: SpellAdditionalCostDef) -> bool {
                     .count()
                     <= 1
         }
+        _ => false,
     }
 }
 
-fn spell_cost_can_be_objectless(cost: SpellAdditionalCostDef) -> bool {
+fn spell_cost_can_be_objectless(cost: CostDef) -> bool {
     match cost {
-        SpellAdditionalCostDef::PayMana { .. } | SpellAdditionalCostDef::PayLife(_) => true,
-        SpellAdditionalCostDef::Sacrifice { quantity, .. }
-        | SpellAdditionalCostDef::Discard { quantity, .. }
-        | SpellAdditionalCostDef::Exile { quantity, .. }
-        | SpellAdditionalCostDef::ReturnToHand { quantity, .. }
-        | SpellAdditionalCostDef::Tap { quantity, .. } => matches!(
+        CostDef::Mana(_)
+        | CostDef::PayLife(_)
+        | CostDef::ManaTimes { .. }
+        | CostDef::PayLifeTimes(_) => true,
+        CostDef::Sacrifice { quantity, .. }
+        | CostDef::Discard { quantity, .. }
+        | CostDef::Exile { quantity, .. }
+        | CostDef::ReturnToHand { quantity, .. }
+        | CostDef::Tap { quantity, .. } => matches!(
             quantity,
             crate::card::CostQuantityDef::ChosenX
                 | crate::card::CostQuantityDef::ModeCount
                 | crate::card::CostQuantityDef::TargetCount
                 | crate::card::CostQuantityDef::Subtract(_, _)
         ),
-        SpellAdditionalCostDef::Forage => false,
-        SpellAdditionalCostDef::All(costs) => {
-            costs.iter().copied().all(spell_cost_can_be_objectless)
-        }
-        SpellAdditionalCostDef::Choice(costs) => {
-            costs.iter().copied().any(spell_cost_can_be_objectless)
-        }
+        CostDef::All(costs) => costs.iter().copied().all(spell_cost_can_be_objectless),
+        CostDef::Choice(costs) => costs.iter().copied().any(spell_cost_can_be_objectless),
+        _ => false,
     }
 }
 

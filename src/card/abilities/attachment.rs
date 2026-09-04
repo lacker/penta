@@ -228,7 +228,7 @@ static RECONFIGURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::up_to(
 /// abilities use a one-item slice, while alternative Equip costs can mix mana
 /// and any supported nonmana costs without changing helpers.
 #[must_use]
-pub const fn equip(costs: &'static [AbilityCostDef], text: &'static str) -> AbilityDef {
+pub const fn equip(costs: &'static [CostDef], text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
         AbilityCostList::borrowed(costs),
@@ -322,7 +322,7 @@ static SOURCE_IS_UNPAIRED: TriggerConditionDef = TriggerConditionDef::SourceMatc
 pub const fn fortify(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        AbilityCostList::one(CostDef::Mana(mana_cost)),
         &FORTIFY_TARGET,
         EffectDef::Attach {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
@@ -407,7 +407,7 @@ pub const fn job_select() -> AbilityDef {
 pub const fn reconfigure(mana_cost: ManaCost, text: &'static str) -> AbilityDef {
     AbilityDef::activated_with_cost_list_and_targets(
         text,
-        AbilityCostList::one(AbilityCostDef::Mana(mana_cost)),
+        AbilityCostList::one(CostDef::Mana(mana_cost)),
         &RECONFIGURE_TARGET,
         EffectDef::Reconfigure {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),

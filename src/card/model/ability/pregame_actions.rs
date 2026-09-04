@@ -13,7 +13,7 @@ impl AbilityDef {
         text: &'static str,
         timing: PregameTimingDef,
         condition: PregameConditionDef,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::defined(
@@ -52,7 +52,7 @@ impl AbilityDef {
     pub const fn opening_hand_with(
         text: &'static str,
         condition: PregameConditionDef,
-        costs: &'static [AbilityCostDef],
+        costs: &'static [CostDef],
         effect: EffectDef,
     ) -> Self {
         Self::pregame(

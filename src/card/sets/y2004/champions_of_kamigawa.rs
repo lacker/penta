@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardChoiceSourceDef,
-    CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules,
+    CardSet, CardSupertype, CardType, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ObjectPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
@@ -45,7 +45,7 @@ pub(in crate::card::sets) static CURSED_RONIN: CardRecord = CardRecord::new(
         abilities::bushido(ValueDef::Constant(1)),
         AbilityDef::activated(
             "{B}: This creature gets +1/+1 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -158,7 +158,7 @@ pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::ne
         AbilityDef::activated(
             "Sacrifice this creature: Search your library for a basic land card, put that card \
              onto the battlefield tapped, then shuffle.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
                 source: ZoneKind::Library,
@@ -196,7 +196,7 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated(
             "{1}: Look at the top three cards of your library, then put them back in any order.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             abilities::look_at_top_cards_and_reorder(
                 PlayerRefDef::EffectController,
                 ValueDef::Constant(3),
@@ -204,7 +204,7 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
         ),
         AbilityDef::activated(
             "{T}: Draw a card, then put this artifact on top of its owner's library.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             // The draw and the trip back to the library are one clause: the Top is on
             // the battlefield as the card is drawn and gone by the time anything could
             // answer it, which is why it is never really spent.
@@ -239,10 +239,7 @@ pub(in crate::card::sets) static MINAMO_SCHOOL_AT_WATERS_EDGE: CardRecord = Card
             abilities::tap_for(ManaColor::Blue),
             AbilityDef::activated_with_targets(
                 "{U}, {T}: Untap target legendary permanent.",
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{U}")),
-                    AbilityCostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{U}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::Supertype(CardSupertype::Legendary),
                 )],

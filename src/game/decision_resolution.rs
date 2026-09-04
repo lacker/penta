@@ -239,6 +239,7 @@ impl Game {
             DecisionContinuation::PayOr {
                 player,
                 payment,
+                cumulative_upkeep_age,
                 definition: _,
                 object,
                 context,
@@ -264,16 +265,24 @@ impl Game {
                     return;
                 }
                 let paid = self.settle_payment_decision(player, payment, options, &pending_options);
+                if paid.is_none()
+                    && let Some(age) = cumulative_upkeep_age
+                {
+                    self.capture_cumulative_upkeep_not_paid(&object, player, age);
+                }
                 let branch = if paid.is_some() { if_paid } else { otherwise };
                 if let Some(effect) = branch {
                     // "If you do, create X ...": the branch reads back what
                     // the payment actually cost.
                     let mut context = context;
-                    context.paid_amount = paid;
+                    context.paid_amount = paid.as_ref().map(|payment| payment.paid_amount);
                     self.resolve_nested_effect_before_later(effect, &object, context);
                 }
-                if paid.is_some() {
+                if let Some(paid) = paid {
                     self.capture_optional_effect_taken(&object);
+                    if let Some(age) = cumulative_upkeep_age {
+                        self.capture_cumulative_upkeep_paid(&object, player, age, &paid.mana_spent);
+                    }
                 }
             }
             DecisionContinuation::ActivationCostSacrifice {

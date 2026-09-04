@@ -378,6 +378,7 @@ fn validate_zone_change_references(
     Ok(())
 }
 
+#[allow(clippy::too_many_lines)]
 fn validate_trigger_event_references(
     event: TriggerEventDef,
     target_count: usize,
@@ -484,6 +485,10 @@ fn validate_trigger_event_references(
         TriggerEventDef::LifeGained(PlayerRelation::ChosenPlayer)
         | TriggerEventDef::CardsExiled { zones: &[], .. } => Err(unsupported_trigger_event(event)),
         TriggerEventDef::CommittedCrime(_)
+        | TriggerEventDef::CumulativeUpkeepPaid { .. }
+        | TriggerEventDef::CumulativeUpkeepNotPaid
+        | TriggerEventDef::CoinFlipWon(_)
+        | TriggerEventDef::CoinFlipLost(_)
         | TriggerEventDef::BecomesLevel(_)
         | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked

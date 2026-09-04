@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, CostDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     ExilePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
@@ -168,7 +168,7 @@ pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_wit
         ),
         AbilityDef::activated(
             "{3}{G}{U}: Adapt 3. (If this creature has no +1/+1 counters on it, put three +1/+1 counters on it.)",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{G}{U}"))],
+            &[CostDef::Mana(mana_cost!("{3}{G}{U}"))],
             // Adapt is a conditional, not a cost: the ability always activates and
             // always resolves, and finding a counter already there is what makes it do
             // nothing. So a creature that lost its counters can adapt again.
@@ -232,7 +232,7 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
         &[
             AbilityDef::activated_with_targets(
                 "{3}{U}: Target player draws a card. Activate only as a sorcery.",
-                &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+                &[CostDef::Mana(mana_cost!("{3}{U}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -244,7 +244,7 @@ pub(in crate::card::sets) static DIMIR_GUILDMAGE: CardRecord = CardRecord::new(
             .with_activation_timing(ActivationTimingDef::SorcerySpeed),
             AbilityDef::activated_with_targets(
                 "{3}{B}: Target player discards a card. Activate only as a sorcery.",
-                &[AbilityCostDef::Mana(mana_cost!("{3}{B}"))],
+                &[CostDef::Mana(mana_cost!("{3}{B}"))],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Player(PlayerRelation::Any),
                 )],
@@ -273,7 +273,7 @@ pub(in crate::card::sets) static AZORIUS_CHANCERY: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {W}{U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::White,
                 ManaColor::Blue,
@@ -294,7 +294,7 @@ pub(in crate::card::sets) static ORZHOV_BASILICA: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {W}{B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::White,
                 ManaColor::Black,
@@ -315,7 +315,7 @@ pub(in crate::card::sets) static SELESNYA_SANCTUARY: CardRecord = CardRecord::ne
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {G}{W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Green,
                 ManaColor::White,

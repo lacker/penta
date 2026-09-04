@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, DamageEventMatcherDef, DamageKindDef,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CostDef, DamageEventMatcherDef, DamageKindDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, PlayerRelation, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
@@ -779,7 +779,7 @@ pub(in crate::card::sets) static GOBLIN_TURNCOAT: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{B}"), &["Goblin", "Mercenary"], 2, 1).with_ability(
         abilities::regenerate_self(
             "Sacrifice a Goblin: Regenerate this creature.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::Subtype("Goblin"),
                 controller: PlayerRelation::You,
             }],
@@ -956,7 +956,7 @@ pub(in crate::card::sets) static SPECTRAL_SLIVER: CardRecord = CardRecord::new(
                     &const {
                         AbilityDef::activated(
                             "{2}: This creature gets +1/+1 until end of turn.",
-                            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                            &[CostDef::Mana(mana_cost!("{2}"))],
                             EffectDef::Apply {
                                 recipient: EffectRecipientDef::Source,
                                 effect: AppliedEffectDef::modify_power_toughness(

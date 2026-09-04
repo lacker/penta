@@ -2,10 +2,10 @@ use std::collections::HashSet;
 
 use super::{CardRecord, SET_MODULES, y1993, y1996, y2002, y2012};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef,
-    AbilityProgramDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,
-    CardChoiceSourceDef, CardPrintingId, CardSupertype, CardType, CharacteristicOperationDef,
-    ComparisonDef, ConditionDef, DamagePreventionCapacityDef, DamagePreventionFollowUpDef,
+    AbilityDef, AbilityOperationDef, AbilityPredicateDef, AbilityProcedureDef, AbilityProgramDef,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType, CardChoiceSourceDef,
+    CardPrintingId, CardSupertype, CardType, CharacteristicOperationDef, ComparisonDef,
+    ConditionDef, CostDef, DamagePreventionCapacityDef, DamagePreventionFollowUpDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef, ImplementationStatus,
     KeywordAbility, ManaColor, ManaRestrictionDef, ManaSelectionDef, ManaSpendEffectDef,

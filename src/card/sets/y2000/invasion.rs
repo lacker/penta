@@ -15,10 +15,10 @@ use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
-    CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, ColorSet, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AdditionalCostValueDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardType,
+    ChoiceVisibilityDef, ChooseGroupDef, ColorSet, CostDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -101,10 +101,7 @@ pub(in crate::card::sets) static BENALISH_TRAPPER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 1, 2).with_ability(
         AbilityDef::activated_with_targets(
             "{W}, {T}: Tap target creature.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{W}")),
-                AbilityCostDef::TapSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{W}")), CostDef::TapSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -718,7 +715,7 @@ pub(in crate::card::sets) static METATHRAN_ZOMBIE: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Metathran", "Zombie"], 1, 1).with_ability(
         abilities::regenerate_self(
             "{B}: Regenerate this creature.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
         ),
     ),
 );
@@ -1249,7 +1246,7 @@ pub(in crate::card::sets) static FIRESCREAMER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{B}"), &["Kavu"], 2, 2).with_ability(
         AbilityDef::activated(
             "{R}: This creature gets +1/+0 until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1344,7 +1341,7 @@ pub(in crate::card::sets) static PHYREXIAN_BATTLEFLIES: CardRecord = CardRecord:
         abilities::flying(),
         AbilityDef::activated(
             "{B}: This creature gets +1/+0 until end of turn. Activate no more than twice each turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            &[CostDef::Mana(mana_cost!("{B}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -1563,7 +1560,7 @@ pub(in crate::card::sets) static ANCIENT_KAVU: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{3}{R}"), &["Kavu"], 3, 3).with_ability(
         AbilityDef::activated(
             "{2}: This creature becomes colorless until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::set_colors(ColorSet::empty()),
@@ -2044,7 +2041,7 @@ pub(in crate::card::sets) static VIASHINO_GRAPPLER: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard"], 3, 1).with_ability(
         AbilityDef::activated(
             "{G}: This creature gains trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+            &[CostDef::Mana(mana_cost!("{G}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::trample() }),
@@ -2219,7 +2216,7 @@ pub(in crate::card::sets) static LLANOWAR_CAVALRY: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Human", "Soldier"], 1, 4).with_ability(
         AbilityDef::activated(
             "{W}: This creature gains vigilance until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+            &[CostDef::Mana(mana_cost!("{W}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::vigilance() }),
@@ -2253,7 +2250,7 @@ pub(in crate::card::sets) static LLANOWAR_VANGUARD: CardRecord = CardRecord::new
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Dryad"], 1, 1).with_ability(
         AbilityDef::activated(
             "{T}: This creature gets +0/+4 until end of turn.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::modify_power_toughness(
@@ -2398,7 +2395,7 @@ pub(in crate::card::sets) static SERPENTINE_KAVU: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{4}{G}"), &["Kavu"], 4, 4).with_ability(
         AbilityDef::activated(
             "{R}: This creature gains haste until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::haste() }),
@@ -2948,8 +2945,8 @@ pub(in crate::card::sets) static METEOR_STORM: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{2}{R}{G}, Discard two cards at random: This enchantment deals 4 damage to any target.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}{R}{G}")),
-                AbilityCostDef::DiscardCardsAtRandom(2),
+                CostDef::Mana(mana_cost!("{2}{R}{G}")),
+                CostDef::DiscardCardsAtRandom(2),
             ],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
@@ -2973,7 +2970,7 @@ pub(in crate::card::sets) static NOBLE_PANTHER: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{1}{G}{W}"), &["Cat"], 3, 3).with_ability(
         AbilityDef::activated(
             "{1}: This creature gains first strike until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::add_ability(&const { abilities::first_strike() }),
@@ -3044,10 +3041,7 @@ pub(in crate::card::sets) static RECKLESS_ASSAULT: CardRecord = CardRecord::new(
     CardRules::new_enchantment(mana_cost!("{2}{B}{R}")).with_ability(
         AbilityDef::activated_with_targets(
             "{1}, Pay 2 life: This enchantment deals 1 damage to any target.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::PayLife(2),
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::PayLife(2)],
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::AnyTarget,
             )],
@@ -3423,7 +3417,7 @@ pub(in crate::card::sets) static BLOODSTONE_CAMEO: CardRecord = CardRecord::new(
     // Invasion charged for the gold deck's mana.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{T}: Add {B} or {R}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
             ManaColor::Black,
             ManaColor::Red,
@@ -3470,7 +3464,7 @@ pub(in crate::card::sets) static DRAKE_SKULL_CAMEO: CardRecord = CardRecord::new
     // The blue-black member of the same cycle.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{T}: Add {U} or {B}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
             ManaColor::Blue,
             ManaColor::Black,
@@ -3567,7 +3561,7 @@ pub(in crate::card::sets) static SEASHELL_CAMEO: CardRecord = CardRecord::new(
     // The white-blue member of the same cycle.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{T}: Add {W} or {U}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
             ManaColor::White,
             ManaColor::Blue,
@@ -3701,7 +3695,7 @@ pub(in crate::card::sets) static TIGEREYE_CAMEO: CardRecord = CardRecord::new(
     // The green-white member of the same cycle.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{T}: Add {G} or {W}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
             ManaColor::Green,
             ManaColor::White,
@@ -3731,7 +3725,7 @@ pub(in crate::card::sets) static TROLL_HORN_CAMEO: CardRecord = CardRecord::new(
     // The red-green member of the same cycle.
     CardRules::new_artifact(mana_cost!("{3}")).with_ability(AbilityDef::activated_mana(
         "{T}: Add {R} or {G}.",
-        &[AbilityCostDef::TapSource],
+        &[CostDef::TapSource],
         EffectDef::AddMana(AddManaEffectDef::choice(&[
             ManaColor::Red,
             ManaColor::Green,
@@ -3803,7 +3797,7 @@ pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new_wit
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Blue,
@@ -3824,7 +3818,7 @@ pub(in crate::card::sets) static ELFHAME_PALACE: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Green,
                 ManaColor::White,
@@ -3874,7 +3868,7 @@ pub(in crate::card::sets) static SALT_MARSH: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Blue,
                 ManaColor::Black,
@@ -3894,7 +3888,7 @@ pub(in crate::card::sets) static SHIVAN_OASIS: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Red,
                 ManaColor::Green,
@@ -3937,7 +3931,7 @@ pub(in crate::card::sets) static URBORG_VOLCANO: CardRecord = CardRecord::new(
         abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Black,
                 ManaColor::Red,

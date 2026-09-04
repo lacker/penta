@@ -22,6 +22,21 @@ pub(super) enum CommittedStackObjectEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
+    CumulativeUpkeepPaid {
+        object: TriggerEventObject,
+        player: PlayerId,
+        age_counters: u16,
+        mana_spent: Vec<crate::ManaColor>,
+    },
+    CumulativeUpkeepNotPaid {
+        object: TriggerEventObject,
+        player: PlayerId,
+        age_counters: u16,
+    },
+    CoinFlipped {
+        player: PlayerId,
+        won: bool,
+    },
     ZoneChanged {
         /// Last-known information for the object before the move. Some entry
         /// paths do not need or retain a readable pre-move representation.
@@ -254,6 +269,27 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
+            Self::CumulativeUpkeepPaid {
+                object,
+                player,
+                age_counters,
+                ..
+            }
+            | Self::CumulativeUpkeepNotPaid {
+                object,
+                player,
+                age_counters,
+                ..
+            } => TriggerContext {
+                object: Some(object.id),
+                zone_change_result: None,
+                object_controller: Some(object.controller),
+                event_player: Some(*player),
+                amount: Some(i32::from(*age_counters)),
+                damaged_object: None,
+                sacrificed_object: None,
+                cast_from_zone: None,
+            },
             Self::ZoneChanged { before, after, .. } => {
                 let object = before.as_ref().or(after.as_ref());
                 TriggerContext {
@@ -524,7 +560,8 @@ impl CommittedTriggerEvent {
             // A drawn card snapshot belongs to trigger matching only. The
             // draw does not reveal it, so these player-only events carry no
             // hidden-zone identity into resolution or a public checkpoint.
-            Self::StepBegins { player, .. }
+            Self::CoinFlipped { player, .. }
+            | Self::StepBegins { player, .. }
             | Self::CommittedCrime { player }
             | Self::CardsDiscarded { player }
             | Self::BecameMonarch { player }

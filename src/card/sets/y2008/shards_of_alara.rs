@@ -2,11 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
-    tokens,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CostDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -25,7 +24,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
         .with_abilities(&[
             AbilityDef::activated(
                 "+1: Create a 1/1 white Soldier creature token.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 EffectDef::CreateToken {
                     token: tokens::creature(&["Soldier"], &[ManaColor::White], 1, 1),
                     copy: None,
@@ -41,7 +40,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
             // creature, so the token she made last turn is a 4/4 flier this one.
             AbilityDef::activated_with_targets(
                 "+1: Target creature gets +3/+3 and gains flying until end of turn.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::HasType(CardType::Creature),
@@ -62,7 +61,7 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
             AbilityDef::activated(
                 "\u{2212}8: You get an emblem with \"Artifacts, creatures, enchantments, and lands you \
                  control have indestructible.\"",
-                &[AbilityCostDef::Loyalty(-8)],
+                &[CostDef::Loyalty(-8)],
                 EffectDef::create_emblem("Elspeth, Knight-Errant emblem", &[AbilityDef::static_ability(
                     "Artifacts, creatures, enchantments, and lands you control have indestructible.",
                     EffectDef::StaticApply {

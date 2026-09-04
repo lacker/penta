@@ -1,7 +1,7 @@
 use super::{
-    AbilityCostDef, AbilityOrigin, CardDefinitionId, CardTypeSet, DecisionOption,
-    DeclarativeAbilityDef, DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId,
-    HandcraftedPolicy, ObjectCharacteristics, PlayerObservation, Step, Target,
+    AbilityOrigin, CardDefinitionId, CardTypeSet, CostDef, DecisionOption, DeclarativeAbilityDef,
+    DeclarativeSpellProfile, EffectDef, EffectRecipientDef, GameObjectId, HandcraftedPolicy,
+    ObjectCharacteristics, PlayerObservation, Step, Target,
 };
 use crate::{EffectRecipientSetDef, ObjectSetDef, PlayerRefDef};
 
@@ -69,7 +69,7 @@ impl HandcraftedPolicy {
             .and_then(|part| part.rules.ability(ability))
             .and_then(|ability| match ability.definition {
                 DeclarativeAbilityDef::Activated(definition)
-                    if definition.costs.contains(&AbilityCostDef::DiscardSource) =>
+                    if definition.costs.contains(&CostDef::DiscardSource) =>
                 {
                     Some(self.card_value(source_definition))
                 }
@@ -107,7 +107,7 @@ impl HandcraftedPolicy {
             match actual.definition {
                 DeclarativeAbilityDef::Activated(definition) => {
                     definition.costs.iter().find_map(|cost| match *cost {
-                        AbilityCostDef::Loyalty(change) => Some(change),
+                        CostDef::Loyalty(change) => Some(change),
                         _ => None,
                     })
                 }

@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CostDef, CounterKind, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -75,10 +75,7 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
         abilities::flash(),
         AbilityDef::activated_with_targets(
             "{1}, Sacrifice this creature: Destroy target artifact or enchantment.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
@@ -184,10 +181,10 @@ pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new
                     "{2}{B}, Sacrifice another creature: Draw a card, then transform this \
                      creature. Activate only once each turn.",
                     &[
-                        AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                        CostDef::Mana(mana_cost!("{2}{B}")),
                         // "Another creature": this one is transforming rather
                         // than dying, so it cannot pay for its own ability.
-                        AbilityCostDef::SacrificePermanent {
+                        CostDef::SacrificePermanent {
                             object: ObjectPredicateDef::All(&[
                                 ObjectPredicateDef::HasType(CardType::Creature),
                                 ObjectPredicateDef::Not(&ObjectPredicateDef::Source),

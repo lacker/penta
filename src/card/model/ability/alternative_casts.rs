@@ -48,7 +48,7 @@ impl AbilityDef {
         mana_cost: AlternativeCastManaCostDef,
         kind: AlternativeCastKindDef,
         stack_text: Option<&'static str>,
-        additional_cost: SpellAdditionalCostDef,
+        additional_cost: CostDef,
         effect: EffectDef,
     ) -> Self {
         Self::defined(
@@ -135,7 +135,7 @@ impl AbilityDef {
     #[must_use]
     pub const fn with_alternative_additional_cost(
         mut self,
-        cost: &'static SpellAdditionalCostDef,
+        cost: &'static CostDef,
     ) -> Self {
         let DeclarativeAbilityDef::AlternativeCast(mut definition) = self.definition else {
             panic!("only an alternative cast pays instead of a mana cost");

@@ -710,6 +710,9 @@ fn mana_effect_matches(effect: AddManaEffectDef, mana: Mana) -> bool {
             }
             crate::card::ManaSelectionDef::One(crate::card::ManaTypeDef::ChosenColor)
             | crate::card::ManaSelectionDef::ColorsOfLinkedExiles => true,
+            crate::card::ManaSelectionDef::ChoiceOfBundles(bundles) => {
+                bundles.iter().any(|bundle| bundle.get(mana.color) > 0)
+            }
             crate::card::ManaSelectionDef::Choice(types)
             | crate::card::ManaSelectionDef::Combination(types) => match types.source {
                 crate::card::ManaTypeSourceDef::Fixed(colors) => colors.contains(&mana.color),

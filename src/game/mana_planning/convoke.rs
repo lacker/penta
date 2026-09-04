@@ -151,8 +151,8 @@ impl Game {
                     .filter(|cost| {
                         matches!(
                             cost,
-                            AbilityCostDef::SacrificePermanent { .. }
-                                | AbilityCostDef::ExileCardFromHand(_)
+                            CostDef::SacrificePermanent { .. }
+                                | CostDef::ExileCardFromHand(_)
                         )
                     })
                     .count()
@@ -160,9 +160,9 @@ impl Game {
                 && activation.costs.iter().all(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificePermanent { .. }
-                            | AbilityCostDef::ExileCardFromHand(_)
-                            | AbilityCostDef::PayLife(_)
+                        CostDef::SacrificePermanent { .. }
+                            | CostDef::ExileCardFromHand(_)
+                            | CostDef::PayLife(_)
                     )
                 })
         });
@@ -194,9 +194,9 @@ impl Game {
                 || activation.costs.iter().any(|cost| {
                     matches!(
                         cost,
-                        AbilityCostDef::SacrificeSource
-                            | AbilityCostDef::ExileSource
-                            | AbilityCostDef::ReturnSourceToHand
+                        CostDef::SacrificeSource
+                            | CostDef::ExileSource
+                            | CostDef::ReturnSourceToHand
                     )
                 })
         }) {

@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostDef, CounterKind, CreatureTypeSetDef,
     DamageEventMatcherDef, DamageRecipientMatcherDef, DeclarativeAbilityDef, EffectDef,
     EffectRecipientDef, EmblemCharacteristics, GraveyardPlayPermissionDef, HalvedValueDef,
     ManaColor, ModalSpellDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
@@ -44,7 +44,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
             AbilityDef::activated_with_targets(
                 "0: Untap target artifact or creature. If it\'s an artifact creature, put a +1/+1 counter \
                  on it.",
-                &[AbilityCostDef::Loyalty(0)],
+                &[CostDef::Loyalty(0)],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::AnyOf(&[
                         ObjectPredicateDef::HasType(CardType::Artifact),
@@ -76,7 +76,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
             AbilityDef::activated(
                 "−3: Search your library for an artifact card with mana value 1 or less, reveal it, put \
                  it into your hand, then shuffle.",
-                &[AbilityCostDef::Loyalty(-3)],
+                &[CostDef::Loyalty(-3)],
                 EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
@@ -101,7 +101,7 @@ pub(in crate::card::sets) static TEZZERET_CRUEL_CAPTAIN: CardRecord = CardRecord
                 "−7: You get an emblem with \"At the beginning of combat on your turn, put three +1/+1 \
                  counters on target artifact you control. If it\'s not a creature, it becomes a 0/0 Robot \
                  artifact creature.\"",
-                &[AbilityCostDef::Loyalty(-7)],
+                &[CostDef::Loyalty(-7)],
                 EffectDef::CreateEmblem {
                     emblem: EmblemCharacteristics::new("Tezzeret, Cruel Captain emblem", &[AbilityDef::triggered_with_targets(
                             "At the beginning of combat on your turn, put three +1/+1 counters on target artifact you \
@@ -364,8 +364,8 @@ pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "{1}{U}, Sacrifice this artifact: Put a stun counter on up to one target tapped creature.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}{U}")),
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}{U}")),
+                CostDef::SacrificeSource,
             ],
             // "Up to one", so it can be sacrificed purely for the leave
             // trigger's card when nothing is tapped.

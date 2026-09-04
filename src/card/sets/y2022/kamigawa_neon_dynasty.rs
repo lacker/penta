@@ -2,10 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, CopyAbilityDef,
-    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef,
+    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, CopyAbilityDef,
+    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CostDef, CounterKind, CreatedTokensDef,
     CreatureTypeSetDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
     ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
@@ -47,7 +47,7 @@ pub(in crate::card::sets) static LION_SASH: CardRecord = CardRecord::new_with_le
             AbilityDef::activated_with_targets(
                 "{W}: Exile target card from a graveyard. If it was a permanent card, put a \
                  +1/+1 counter on this permanent.",
-                &[AbilityCostDef::Mana(mana_cost!("{W}"))],
+                &[CostDef::Mana(mana_cost!("{W}"))],
                 // A card in anybody's graveyard, which is what "from a graveyard" means:
                 // yours as readily as theirs.
                 &[AbilityTargetDef::exactly_one(
@@ -166,8 +166,8 @@ pub(in crate::card::sets) static TOUCH_THE_SPIRIT_REALM: CardRecord = CardRecord
             "Channel — {1}{W}, Discard this card: Exile target artifact or creature. Return it to \
              the battlefield under its owner's control at the beginning of the next end step.",
             AbilityCostList::two(
-                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(mana_cost!("{1}{W}")),
+                CostDef::DiscardSource,
             ),
             &[AbilityTargetDef::exactly_one_permanent(
                 AN_ARTIFACT_OR_CREATURE,
@@ -210,7 +210,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
             AbilityDef::activated_with_targets(
                 "+1: Put a +1/+1 counter on up to one target creature. It gains first strike until end of \
                  turn.",
-                &[AbilityCostDef::Loyalty(1)],
+                &[CostDef::Loyalty(1)],
                 // "Up to one target creature", which is what keeps the plus activatable on
                 // an empty board.
                 &[AbilityTargetDef::up_to(
@@ -237,7 +237,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
             ),
             AbilityDef::activated(
                 "−1: Create a 2/2 white Samurai creature token with vigilance.",
-                &[AbilityCostDef::Loyalty(-1)],
+                &[CostDef::Loyalty(-1)],
                 EffectDef::create_creature_token(&["Samurai"], &[ManaColor::White], 2, 2)
                     .with_abilities(&[abilities::vigilance()])
                     .with_art(CardArt::new(
@@ -247,7 +247,7 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
             ),
             AbilityDef::activated_with_targets(
                 "−2: Exile target tapped creature. You gain 2 life.",
-                &[AbilityCostDef::Loyalty(-2)],
+                &[CostDef::Loyalty(-2)],
                 // A tapped creature: the minus answers an attacker that has already
                 // committed, which is the half of removal flash was made for.
                 &[AbilityTargetDef::exactly_one_permanent(
@@ -289,10 +289,7 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
         AbilityDef::activated_with_cost_list_and_targets(
             "Channel — {2}{U}, Discard this card: Counter target spell or ability unless its \
              controller pays {3}.",
-            AbilityCostList::two(
-                AbilityCostDef::Mana(mana_cost!("{2}{U}")),
-                AbilityCostDef::DiscardSource,
-            ),
+            AbilityCostList::two(CostDef::Mana(mana_cost!("{2}{U}")), CostDef::DiscardSource),
             // "Spell or ability" is everything on the stack, so the predicate
             // names the zone and nothing else: a triggered ability is as legal
             // a target as a spell, and the Crab's own controller is too.
@@ -509,10 +506,7 @@ pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
         AbilityDef::activated_with_targets(
             "Channel — {1}{R}, Discard this card: Target creature gets +3/+1 and gains trample \
              until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
-                AbilityCostDef::DiscardSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}{R}")), CostDef::DiscardSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -576,8 +570,8 @@ pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
         AbilityDef::activated(
             "Channel — {2}{G}, Discard this card: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{2}{G}")),
-                AbilityCostDef::DiscardSource,
+                CostDef::Mana(mana_cost!("{2}{G}")),
+                CostDef::DiscardSource,
             ],
             EffectDef::SearchZone {
                 player: EffectRecipientDef::Controller,
@@ -769,17 +763,14 @@ pub(in crate::card::sets) static OTAWARA_SOARING_CITY: CardRecord = CardRecord::
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{T}: Add {U}.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Blue)),
             ),
             AbilityDef::activated_with_cost_list_and_targets(
                 "Channel — {3}{U}, Discard this card: Return target artifact, creature, \
                  enchantment, or planeswalker to its owner\'s hand. This ability costs {1} less \
                  to activate for each legendary creature you control.",
-                AbilityCostList::two(
-                    AbilityCostDef::Mana(mana_cost!("{3}{U}")),
-                    AbilityCostDef::DiscardSource,
-                ),
+                AbilityCostList::two(CostDef::Mana(mana_cost!("{3}{U}")), CostDef::DiscardSource),
                 &[AbilityTargetDef::exactly_one_permanent(
                     // Everything a bounce spell would want and nothing else: a land answers a
                     // creature, but not another land.
@@ -879,8 +870,8 @@ pub(in crate::card::sets) static FABLE_OF_THE_MIRROR_BREAKER: CardRecord = CardR
                     "{1}, {T}: Create a token that's a copy of another target nonlegendary creature you control, \
                      except it has haste. Sacrifice it at the beginning of the next end step.",
                     &const { [
-                        AbilityCostDef::Mana(mana_cost!("{1}")),
-                        AbilityCostDef::TapSource,
+                        CostDef::Mana(mana_cost!("{1}")),
+                        CostDef::TapSource,
                     ] },
                     // "Another target nonlegendary creature you control": the Reflection may
                     // not copy itself, and a legendary copy would be put into a graveyard by
@@ -940,7 +931,7 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
         .with_abilities(&[
             AbilityDef::activated_mana(
                 "{T}: Add {G}.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
             ),
             AbilityDef::activated_with_cost_list_and_targets(
@@ -948,10 +939,7 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
                  nonbasic land an opponent controls. That player may search their library for a \
                  land card with a basic land type, put it onto the battlefield, then shuffle. \
                  This ability costs {1} less to activate for each legendary creature you control.",
-                AbilityCostList::two(
-                    AbilityCostDef::Mana(mana_cost!("{1}{G}")),
-                    AbilityCostDef::DiscardSource,
-                ),
+                AbilityCostList::two(CostDef::Mana(mana_cost!("{1}{G}")), CostDef::DiscardSource),
                 &[AbilityTargetDef::exactly_one(
                     AbilityTargetPredicate::Object {
                         // "Nonbasic" is the whole reason the land half is in the target list: every

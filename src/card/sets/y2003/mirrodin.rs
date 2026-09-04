@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardNameSetDef, CardRules, CardSet, CardType, ChoiceVisibilityDef,
-    ChooseDef, CostAdjustmentDef, CostAmountDef, EffectDef, EffectRecipientDef, ManaColor,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    CardArt, CardNameSetDef, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
+    CostAdjustmentDef, CostAmountDef, CostDef, EffectDef, EffectRecipientDef, ManaColor,
     ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, SpellCostConditionDef, TriggerEventDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
@@ -56,10 +56,7 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
     CardRules::new_artifact(mana_cost!("{1}")).with_abilities(&[
         AbilityDef::activated_with_targets(
             "{U}, Sacrifice this artifact: Return target creature to its owner's hand.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{U}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{U}")), CostDef::SacrificeSource],
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -71,10 +68,7 @@ pub(in crate::card::sets) static AETHER_SPELLBOMB: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated(
             "{1}, Sacrifice this artifact: Draw a card.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::SacrificeSource,
-            ],
+            &[CostDef::Mana(mana_cost!("{1}")), CostDef::SacrificeSource],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
@@ -104,7 +98,7 @@ pub(in crate::card::sets) static BONESPLITTER: CardRecord = CardRecord::new(
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -153,7 +147,7 @@ pub(in crate::card::sets) static CHROME_MOX: CardRecord = CardRecord::new(
         ),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any of the exiled card's colors.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::colors_of_linked_exiles()),
         ),
     ]),
@@ -226,7 +220,7 @@ pub(in crate::card::sets) static LIGHTNING_GREAVES: CardRecord = CardRecord::new
                     ]),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{0}"))], "Equip {0}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{0}"))], "Equip {0}"),
         ]),
 );
 
@@ -257,7 +251,7 @@ pub(in crate::card::sets) static TALISMAN_OF_DOMINANCE: CardRecord = CardRecord:
 );
 
 // MRD 256 — Talisman of Progress
-static TALISMAN_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];
+static TALISMAN_TAP: [CostDef; 1] = [CostDef::TapSource];
 
 pub(in crate::card::sets) static TALISMAN_OF_PROGRESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("41ff849e-2439-4690-8aa4-769039b6da4c"),

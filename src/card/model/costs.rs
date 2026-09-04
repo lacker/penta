@@ -1,130 +1,41 @@
 use super::{
-    AggregateOperationDef, AppliedEffectDef, ConditionDef, CounterKind, ManaColor, ManaCost,
-    ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectValueDef, PlayerRefDef, PlayerRelation,
-    ValueDef, ZoneKind,
+    AggregateOperationDef, AppliedEffectDef, ConditionDef, CounterKind, EffectRecipientDef,
+    ManaColor, ManaCost, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, ObjectValueDef,
+    PlayerRefDef, PlayerRelation, TokenCharacteristics, ValueDef, ZoneKind,
 };
 use crate::ids::{Binding, TargetIndex};
 
-/// The quantity a semantic cost asks its payer to provide.
-///
-/// Fixed, chosen-X, mode-count, and arithmetic quantities apply to scalar
-/// costs such as paying life as well as object costs. The threshold variants
-/// describe sets of objects and are only meaningful for costs that choose
-/// cards or permanents.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum CostQuantityDef {
-    Fixed(u8),
-    /// The X announced for the spell or ability.
-    ChosenX,
-    /// How many modes were selected for the spell being cast.
-    ModeCount,
-    /// How many targets the spell names as it is cast. Repeated targets in
-    /// separate slots each count because this is the number of targets, not
-    /// the number of distinct objects or players targeted.
-    TargetCount,
-    /// The left quantity minus the right, floored at zero because a cost
-    /// cannot ask for a negative quantity.
-    Subtract(&'static Self, &'static Self),
-    /// Choose a minimal set whose composed value reaches a threshold.
-    ObjectSetValueAtLeast(&'static ObjectSetValueAtLeastDef),
-}
+include!("costs/quantities.rs");
 
-/// A scalar derived from the objects chosen to pay one cost.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum ObjectSetValueDef {
-    Aggregate {
-        select: ObjectValueDef,
-        operation: AggregateOperationDef,
-    },
-    CardTypeCount,
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct ObjectSetValueAtLeastDef {
-    pub value: ObjectSetValueDef,
-    pub minimum: u16,
-}
-
-/// A chosen-object cost whose payment is a zone change.
-///
-/// The destination is explicit rather than inferred from the source zone, so
-/// the same shape covers exiling from a graveyard, discarding from a hand,
-/// returning a permanent, and future forced moves without another enum case.
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub struct MoveToZoneCostDef {
-    pub object: ObjectPredicateDef,
-    pub from: ZoneKind,
-    pub to: ZoneKind,
-    pub quantity: CostQuantityDef,
-    /// Saves the paid objects' successor identities for another cost or the
-    /// resolving effect. A single-object binding requires a fixed count of 1.
-    pub binding: Option<Binding>,
-}
-
-impl MoveToZoneCostDef {
-    #[must_use]
-    pub const fn new(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind, count: u8) -> Self {
-        Self::with_quantity(object, from, to, CostQuantityDef::Fixed(count))
-    }
-
-    #[must_use]
-    pub const fn with_quantity(
-        object: ObjectPredicateDef,
-        from: ZoneKind,
-        to: ZoneKind,
-        quantity: CostQuantityDef,
-    ) -> Self {
-        Self {
-            object,
-            from,
-            to,
-            quantity,
-            binding: None,
-        }
-    }
-
-    #[must_use]
-    pub const fn chosen_x(object: ObjectPredicateDef, from: ZoneKind, to: ZoneKind) -> Self {
-        Self::with_quantity(object, from, to, CostQuantityDef::ChosenX)
-    }
-
-    #[must_use]
-    pub const fn fixed_count(self) -> Option<u8> {
-        self.quantity.fixed_value()
-    }
-
-    #[must_use]
-    pub const fn binding(mut self, binding: Binding) -> Self {
-        self.binding = Some(binding);
-        self
-    }
-}
-
-impl CostQuantityDef {
-    /// Resolves an expression made entirely from fixed quantities.
-    #[must_use]
-    pub const fn fixed_value(self) -> Option<u8> {
-        match self {
-            Self::Fixed(value) => Some(value),
-            Self::Subtract(left, right) => {
-                let (Some(left), Some(right)) = (left.fixed_value(), right.fixed_value()) else {
-                    return None;
-                };
-                Some(left.saturating_sub(right))
-            }
-            Self::ChosenX
-            | Self::ModeCount
-            | Self::TargetCount
-            | Self::ObjectSetValueAtLeast(_) => None,
-        }
-    }
-}
-
-/// One atomic cost. The surrounding rules procedure determines who pays it
-/// and what object, if any, is the source.
+/// A cost expression shared by casting, activation, and resolving payment
+/// procedures. The surrounding procedure determines who pays it, what object
+/// is its source, and whether it supports the expression's required choices.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CostDef {
     Mana(ManaCost),
+    /// Pay the same mana cost a computed number of times. Fixed single
+    /// payments should use [`Self::Mana`]; this form preserves quantities
+    /// such as chosen X and the number of selected modes.
+    ManaTimes {
+        cost: ManaCost,
+        quantity: CostQuantityDef,
+    },
+    /// Pay generic mana whose amount is evaluated by the surrounding
+    /// resolving procedure.
+    GenericMana(ValueDef),
+    /// Pay a computed amount of one fixed color.
+    ColoredMana {
+        color: ManaColor,
+        amount: ValueDef,
+    },
+    /// Pay a referenced object's mana cost with a generic reduction.
+    ObjectManaCostReducedBy {
+        object: &'static EffectRecipientDef,
+        generic: u16,
+    },
+    /// Pay snow mana. Snow is a quality of the producing source rather than
+    /// another mana type, so ordinary [`ManaCost`] cannot represent it.
+    SnowMana(u16),
     /// Pay the printed mana cost of the referenced object. A binding may be
     /// supplied by another cost in this same activation, which is Back from
     /// the Brink's "exile ... and pay its mana cost" shape.
@@ -168,16 +79,31 @@ pub enum CostDef {
     /// player with nothing in hand pays it by discarding nothing.
     DiscardHand,
     PayLife(u16),
+    /// Pay life a computed number of times.
+    PayLifeTimes(CostQuantityDef),
+    /// Spend a fixed amount of energy.
+    Energy(u16),
     /// Put exactly this many cards from the top of the payer's library into
     /// their graveyard. Unlike milling as an effect, a cost cannot be paid
     /// partially: the library must contain the full amount before the
     /// ability can be activated.
-    MillCards(u8),
-    DiscardCards(u8),
+    MillCards(u16),
+    /// Exile exactly this many cards from the top of the payer's library.
+    /// As a cost it is payable only when the full number is present.
+    ExileTopCards(u16),
+    DiscardCards(u16),
     /// Discard that many cards chosen at random from the payer's hand. Unlike
     /// [`Self::DiscardCards`] nobody chooses, so paying it needs no decision:
     /// the cards leave as the cost is paid.
     DiscardCardsAtRandom(u8),
+    /// Draw cards as a cost. Some resolving costs, notably cumulative
+    /// upkeep, require an action that is normally an effect.
+    DrawCards(u16),
+    /// Put counters on the object that carries the cost.
+    PutCountersOnSource {
+        kind: CounterKind,
+        amount: u16,
+    },
     SacrificePermanent {
         object: ObjectPredicateDef,
         controller: PlayerRelation,
@@ -195,6 +121,27 @@ pub enum CostDef {
         controller: PlayerRelation,
         count: u8,
     },
+    /// Sacrifice a computed number of matching permanents.
+    Sacrifice {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
+    /// Discard a computed number of matching cards.
+    Discard {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
+    /// Exile a computed number of matching objects from one zone.
+    Exile {
+        object: ObjectPredicateDef,
+        from: ZoneKind,
+        quantity: CostQuantityDef,
+    },
+    /// Return a computed number of matching permanents to hand.
+    ReturnToHand {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
+    },
     /// Ninjutsu's cost: return an unblocked attacker you control to its
     /// owner's hand. Which one is chosen as the ability is activated, and
     /// what makes a creature eligible is combat state rather than any
@@ -211,6 +158,11 @@ pub enum CostDef {
         object: ObjectPredicateDef,
         controller: PlayerRelation,
         count: u8,
+    },
+    /// Tap a computed number of matching untapped permanents.
+    Tap {
+        object: ObjectPredicateDef,
+        quantity: CostQuantityDef,
     },
     ExileSource,
     /// Exert the permanent carrying this ability (CR 701.39): it will not
@@ -246,15 +198,212 @@ pub enum CostDef {
     TapCreaturesWithTotalPower {
         minimum: u8,
     },
+    /// Sacrifice creatures until their combined power reaches this minimum.
+    SacrificeCreaturesWithTotalPower(u16),
     /// Add or remove that many loyalty counters. A planeswalker's abilities
     /// are the only costs paid this way, and paying one is what makes them
     /// once per turn at sorcery speed.
     Loyalty(i8),
+    /// Add mana to the payer's pool as a cost action.
+    AddMana(&'static AddManaEffectDef),
+    /// Have a player related to the payer gain life.
+    GainLife {
+        player: PlayerRelation,
+        amount: u16,
+    },
+    /// Have a player related to the payer create tokens.
+    CreateTokens {
+        player: PlayerRelation,
+        token: &'static TokenCharacteristics,
+        amount: u16,
+    },
+    /// Gain control of matching permanents not already controlled by the
+    /// payer.
+    GainControlPermanents {
+        object: ObjectPredicateDef,
+        amount: u16,
+    },
+    /// Have the payer flip this many coins.
+    FlipCoins(u16),
+    /// Choose a positive generic-mana amount during payment.
+    ChosenGenericMana,
+    /// Choose an energy amount during payment.
+    ChosenEnergy,
+    /// Remove a positive chosen number of counters from a referenced object.
+    RemoveAnyNumberOfCounters {
+        object: &'static EffectRecipientDef,
+        kind: CounterKind,
+    },
+    /// Move one matching permanent the payer controls to a named zone.
+    MovePermanentMatching {
+        object: ObjectPredicateDef,
+        zone: ZoneKind,
+    },
+    /// Discard one matching card as part of a resolving payment.
+    DiscardMatching(ObjectPredicateDef),
+    /// Sacrifice one matching permanent as part of a resolving payment.
+    SacrificePermanentMatching(ObjectPredicateDef),
+    /// Forage (CR 701.59): exile three cards from the graveyard or sacrifice
+    /// a Food.
+    Forage,
+    /// Pay every child cost as one cost expression.
+    All(&'static [CostDef]),
+    /// Choose exactly one child cost to pay.
+    Choice(&'static [CostDef]),
     Special(&'static str),
 }
 
-/// Compatibility name for call sites where the costs belong to an ability.
-pub type AbilityCostDef = CostDef;
+impl CostDef {
+    #[must_use]
+    pub const fn mana(cost: ManaCost) -> Self {
+        Self::Mana(cost)
+    }
+
+    #[must_use]
+    pub const fn life(amount: u16) -> Self {
+        Self::PayLife(amount)
+    }
+
+    #[must_use]
+    pub const fn snow_mana(amount: u16) -> Self {
+        Self::SnowMana(amount)
+    }
+
+    #[must_use]
+    pub const fn draw_cards(amount: u16) -> Self {
+        Self::DrawCards(amount)
+    }
+
+    #[must_use]
+    pub const fn discard_cards(amount: u16) -> Self {
+        Self::DiscardCards(amount)
+    }
+
+    #[must_use]
+    pub const fn put_counters_on_source(kind: CounterKind, amount: u16) -> Self {
+        Self::PutCountersOnSource { kind, amount }
+    }
+
+    #[must_use]
+    pub const fn sacrifice_permanents(
+        object: ObjectPredicateDef,
+        controller: PlayerRelation,
+        count: u8,
+    ) -> Self {
+        Self::SacrificePermanents {
+            object,
+            controller,
+            count,
+        }
+    }
+
+    #[must_use]
+    pub const fn exile_top_cards(amount: u16) -> Self {
+        Self::ExileTopCards(amount)
+    }
+
+    #[must_use]
+    pub const fn add_mana(effect: &'static AddManaEffectDef) -> Self {
+        Self::AddMana(effect)
+    }
+
+    #[must_use]
+    pub const fn gain_life(player: PlayerRelation, amount: u16) -> Self {
+        Self::GainLife { player, amount }
+    }
+
+    #[must_use]
+    pub const fn create_tokens(
+        player: PlayerRelation,
+        token: &'static TokenCharacteristics,
+        amount: u16,
+    ) -> Self {
+        Self::CreateTokens {
+            player,
+            token,
+            amount,
+        }
+    }
+
+    #[must_use]
+    pub const fn gain_control_permanents(object: ObjectPredicateDef, amount: u16) -> Self {
+        Self::GainControlPermanents { object, amount }
+    }
+
+    #[must_use]
+    pub const fn flip_coins(amount: u16) -> Self {
+        Self::FlipCoins(amount)
+    }
+
+    #[must_use]
+    pub const fn pay_mana(cost: ManaCost) -> Self {
+        Self::Mana(cost)
+    }
+
+    #[must_use]
+    pub const fn pay_mana_times(cost: ManaCost, quantity: CostQuantityDef) -> Self {
+        match quantity {
+            CostQuantityDef::Fixed(1) => Self::Mana(cost),
+            _ => Self::ManaTimes { cost, quantity },
+        }
+    }
+
+    #[must_use]
+    pub const fn pay_life(quantity: CostQuantityDef) -> Self {
+        match quantity {
+            CostQuantityDef::Fixed(amount) => Self::PayLife(amount as u16),
+            _ => Self::PayLifeTimes(quantity),
+        }
+    }
+
+    #[must_use]
+    pub const fn sacrifice(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::Sacrifice { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn discard(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::Discard { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn exile(
+        object: ObjectPredicateDef,
+        from: ZoneKind,
+        quantity: CostQuantityDef,
+    ) -> Self {
+        Self::Exile {
+            object,
+            from,
+            quantity,
+        }
+    }
+
+    #[must_use]
+    pub const fn return_to_hand(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::ReturnToHand { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn tap(object: ObjectPredicateDef, quantity: CostQuantityDef) -> Self {
+        Self::Tap { object, quantity }
+    }
+
+    #[must_use]
+    pub const fn forage() -> Self {
+        Self::Forage
+    }
+
+    #[must_use]
+    pub const fn all(costs: &'static [Self]) -> Self {
+        Self::All(costs)
+    }
+
+    #[must_use]
+    pub const fn choice(costs: &'static [Self]) -> Self {
+        Self::Choice(costs)
+    }
+}
 
 /// Const-friendly storage for activated-ability costs.
 ///
@@ -266,9 +415,9 @@ pub struct AbilityCostList(AbilityCostStorage);
 
 #[derive(Clone, Copy, Debug)]
 enum AbilityCostStorage {
-    Borrowed(&'static [AbilityCostDef]),
-    One([AbilityCostDef; 1]),
-    Two([AbilityCostDef; 2]),
+    Borrowed(&'static [CostDef]),
+    One([CostDef; 1]),
+    Two([CostDef; 2]),
 }
 
 impl PartialEq for AbilityCostList {
@@ -287,22 +436,22 @@ impl std::hash::Hash for AbilityCostList {
 
 impl AbilityCostList {
     #[must_use]
-    pub(crate) const fn borrowed(costs: &'static [AbilityCostDef]) -> Self {
+    pub(crate) const fn borrowed(costs: &'static [CostDef]) -> Self {
         Self(AbilityCostStorage::Borrowed(costs))
     }
 
     #[must_use]
-    pub(crate) const fn one(cost: AbilityCostDef) -> Self {
+    pub(crate) const fn one(cost: CostDef) -> Self {
         Self(AbilityCostStorage::One([cost]))
     }
 
     #[must_use]
-    pub(crate) const fn two(first: AbilityCostDef, second: AbilityCostDef) -> Self {
+    pub(crate) const fn two(first: CostDef, second: CostDef) -> Self {
         Self(AbilityCostStorage::Two([first, second]))
     }
 
     #[must_use]
-    pub const fn as_slice(&self) -> &[AbilityCostDef] {
+    pub const fn as_slice(&self) -> &[CostDef] {
         match &self.0 {
             AbilityCostStorage::Borrowed(costs) => costs,
             AbilityCostStorage::One(costs) => costs,
@@ -311,18 +460,18 @@ impl AbilityCostList {
     }
 
     #[must_use]
-    pub fn contains(&self, cost: &AbilityCostDef) -> bool {
+    pub fn contains(&self, cost: &CostDef) -> bool {
         self.as_slice().contains(cost)
     }
 
-    pub fn iter(&self) -> std::slice::Iter<'_, AbilityCostDef> {
+    pub fn iter(&self) -> std::slice::Iter<'_, CostDef> {
         self.as_slice().iter()
     }
 }
 
 impl<'a> IntoIterator for &'a AbilityCostList {
-    type Item = &'a AbilityCostDef;
-    type IntoIter = std::slice::Iter<'a, AbilityCostDef>;
+    type Item = &'a CostDef;
+    type IntoIter = std::slice::Iter<'a, CostDef>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.as_slice().iter()
@@ -542,6 +691,9 @@ pub enum ManaSelectionDef {
     /// activation, the way a counter size or a sacrificed permanent already
     /// is: a mana ability has no window in which to ask afterwards.
     Combination(ManaTypeSetDef),
+    /// Choose one complete mana bundle. Unlike [`Self::Choice`], alternatives
+    /// may contain different amounts and more than one mana type.
+    ChoiceOfBundles(&'static [super::ManaSplit]),
     /// One colour picked from among the colours of the cards this permanent
     /// exiled. Imprint is the only clause that says this, and it cannot be a
     /// list: which colours the ability makes is decided by what was imprinted
@@ -562,6 +714,8 @@ pub enum ManaRestrictionDef {
     CannotCastSpell(ObjectPredicateDef),
     CastCreatureSpellOfChosenType,
     ActivateAbility(ObjectPredicateDef),
+    /// This mana can be spent only on a cumulative-upkeep payment.
+    CumulativeUpkeep,
     Special(&'static str),
 }
 
@@ -701,6 +855,22 @@ impl AddManaEffectDef {
     #[must_use]
     pub const fn choice(mana: &'static [ManaColor]) -> Self {
         Self::choice_from(ManaTypeSetDef::fixed(mana))
+    }
+
+    #[must_use]
+    pub const fn choice_of_bundles(bundles: &'static [super::ManaSplit]) -> Self {
+        Self {
+            mana: ManaSelectionDef::ChoiceOfBundles(bundles),
+            amount: 0,
+            also: None,
+            restrictions: &[],
+            spend_effects: &[],
+            damage_to_controller: 0,
+            recipient: PlayerRefDef::EffectController,
+            variable_amount: None,
+            amount_override: None,
+            sacrifice_source_when_out_of: None,
+        }
     }
 
     #[must_use]

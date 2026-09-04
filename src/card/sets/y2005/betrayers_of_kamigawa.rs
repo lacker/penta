@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CounterKind, DiscardSelectionDef, EffectDef,
+    AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CostDef, CounterKind, DiscardSelectionDef, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef,
     TriggerEventDef, ValueDef, abilities,
 };
@@ -113,7 +113,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
             ),
             AbilityDef::modal_activated(
                 "Remove a charge counter from Umezawa's Jitte: Choose one —\n• Equipped creature gets +2/+2 until end of turn.\n• Target creature gets -1/-1 until end of turn.\n• You gain 2 life.",
-                &[AbilityCostDef::RemoveCountersFromSource {
+                &[CostDef::RemoveCountersFromSource {
                     kind: CounterKind::named("charge"),
                     amount: 1,
                 }],
@@ -157,7 +157,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
                 1,
                 false,
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{2}"))], "Equip {2}"),
         ]),
 );
 

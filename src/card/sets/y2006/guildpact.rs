@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ManaCost,
+    AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CostDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ManaCost,
     ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -94,8 +94,8 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
 /// a slice holding it could not be given a `'static` lifetime.
 const fn rusalka_sacrifice(mana: ManaCost) -> AbilityCostList {
     AbilityCostList::two(
-        AbilityCostDef::Mana(mana),
-        AbilityCostDef::SacrificePermanent {
+        CostDef::Mana(mana),
+        CostDef::SacrificePermanent {
             object: ObjectPredicateDef::HasType(CardType::Creature),
             controller: PlayerRelation::You,
         },
@@ -207,7 +207,7 @@ pub(in crate::card::sets) static SKARRGAN_FIREBIRD: CardRecord = CardRecord::new
         abilities::flying(),
         AbilityDef::activated(
             "{R}{R}{R}: Return this card from your graveyard to your hand. Activate only if an opponent was dealt damage this turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{R}{R}{R}"))],
+            &[CostDef::Mana(mana_cost!("{R}{R}{R}"))],
             EffectDef::MoveToZone {
                 object: EffectRecipientDef::Source,
                 zone: ZoneKind::Hand,
@@ -229,7 +229,7 @@ pub(in crate::card::sets) static GRISTLEBACK: CardRecord = CardRecord::new(
         abilities::bloodthirst(1),
         AbilityDef::activated(
             "Sacrifice this creature: You gain life equal to its power.",
-            &[AbilityCostDef::SacrificeSource],
+            &[CostDef::SacrificeSource],
             EffectDef::GainLife {
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::SourcePower,
@@ -313,7 +313,7 @@ pub(in crate::card::sets) static GRUUL_TURF: CardRecord = CardRecord::new(
         abilities::karoo_bounce(),
         AbilityDef::activated_mana(
             "{T}: Add {R}{G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::one_of_each(
                 ManaColor::Red,
                 ManaColor::Green,

@@ -34,11 +34,11 @@ impl Game {
             return Vec::new();
         }
         let supported = match zone {
-            ZoneKind::Hand => definition.costs.as_slice() == [AbilityCostDef::ExileSource],
+            ZoneKind::Hand => definition.costs.as_slice() == [CostDef::ExileSource],
             ZoneKind::Command => {
                 !definition.costs.as_slice().is_empty()
                     && definition.costs.iter().all(|cost| match cost {
-                        AbilityCostDef::PayLife(amount) => {
+                        CostDef::PayLife(amount) => {
                             self.can_pay_life(controller, *amount)
                         }
                         _ => false,
@@ -74,7 +74,8 @@ impl Game {
         match effect.mana {
             ManaSelectionDef::One(ManaTypeDef::Fixed(color)) => add(color, None),
             ManaSelectionDef::One(ManaTypeDef::ChosenColor)
-            | ManaSelectionDef::ColorsOfLinkedExiles => {}
+            | ManaSelectionDef::ColorsOfLinkedExiles
+            | ManaSelectionDef::ChoiceOfBundles(_) => {}
             ManaSelectionDef::Choice(types) => {
                 let ManaTypeSourceDef::Fixed(colors) = types.source else {
                     return activations;
@@ -154,7 +155,7 @@ impl Game {
         self.ongoing_mana_ability_activations(player)
             .into_iter()
             .find(|activation| {
-                activation.costs.as_slice() == [AbilityCostDef::PayLife(1)]
+                activation.costs.as_slice() == [CostDef::PayLife(1)]
                     && Self::mana_production(activation).amount(ManaColor::Colorless) == 1
                     && Self::mana_production(activation).total() == 1
             })

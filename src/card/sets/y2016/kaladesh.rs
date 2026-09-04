@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerEventDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, TargetChooserDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -103,7 +103,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                 AbilityDef::activated(
                     "+1: Exile the top card of your library. You may cast that card. If you don't, Chandra, \
                      Torch of Defiance deals 2 damage to each opponent.",
-                    &[AbilityCostDef::Loyalty(1)],
+                    &[CostDef::Loyalty(1)],
                     EffectDef::ExileTopAndMayCast {
                         player: EffectRecipientDef::Controller,
                         // "If you don't" is the whole of the first ability's tension: the exile
@@ -119,12 +119,12 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                 // the stack like the rest of her.
                 AbilityDef::activated(
                     "+1: Add {R}{R}.",
-                    &[AbilityCostDef::Loyalty(1)],
+                    &[CostDef::Loyalty(1)],
                     EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Red).with_amount(2)),
                 ),
                 AbilityDef::activated_with_targets(
                     "−3: Chandra, Torch of Defiance deals 4 damage to target creature.",
-                    &[AbilityCostDef::Loyalty(-3)],
+                    &[CostDef::Loyalty(-3)],
                     &[AbilityTargetDef::exactly_one_permanent(
                         ObjectPredicateDef::HasType(CardType::Creature),
                     )],
@@ -136,7 +136,7 @@ pub(in crate::card::sets) static CHANDRA_TORCH_OF_DEFIANCE: CardRecord =
                 AbilityDef::activated(
                     "−7: You get an emblem with \"Whenever you cast a spell, this emblem deals 5 damage to \
                      any target.\"",
-                    &[AbilityCostDef::Loyalty(-7)],
+                    &[CostDef::Loyalty(-7)],
                     EffectDef::create_emblem(
                         "Chandra, Torch of Defiance emblem",
                         &[AbilityDef::triggered_with_targets(
@@ -178,7 +178,7 @@ pub(in crate::card::sets) static THRIVING_GRUBS: CardRecord = CardRecord::new(
             EffectDef::PayOr(PayOrDef::optional(
                 EffectPaymentDef {
                     payer: PlayerSetDef::One(PlayerRefDef::EffectController),
-                    cost: EffectPaymentCostDef::Energy(2),
+                    cost: CostDef::Energy(2),
                 },
                 &const {
                     EffectDef::AddCounters {
@@ -311,7 +311,7 @@ pub(in crate::card::sets) static BLOOMING_MARSH: CardRecord = CardRecord::new_wi
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {G}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Black,
                 ManaColor::Green,
@@ -330,7 +330,7 @@ pub(in crate::card::sets) static BOTANICAL_SANCTUM: CardRecord = CardRecord::new
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {U}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Green,
                 ManaColor::Blue,
@@ -349,7 +349,7 @@ pub(in crate::card::sets) static CONCEALED_COURTYARD: CardRecord = CardRecord::n
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {B}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::White,
                 ManaColor::Black,
@@ -368,7 +368,7 @@ pub(in crate::card::sets) static INSPIRING_VANTAGE: CardRecord = CardRecord::new
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {W}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[
                 ManaColor::Red,
                 ManaColor::White,
@@ -387,7 +387,7 @@ pub(in crate::card::sets) static SPIREBLUFF_CANAL: CardRecord = CardRecord::new_
         abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {R}.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
         ),
     ]),

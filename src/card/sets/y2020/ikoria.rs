@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CompanionConditionDef,
-    ComparisonDef, CostModificationDef, DeckConstructionDef, EffectDef, EffectRecipientDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CompanionConditionDef, ComparisonDef,
+    CostDef, CostModificationDef, DeckConstructionDef, EffectDef, EffectRecipientDef,
     GraveyardPlayPermissionDef, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef,
     PlayRestrictionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
@@ -164,10 +164,7 @@ pub(in crate::card::sets) static ZIRDA_THE_DAWNWAKER: CardRecord = CardRecord::n
             ),
             AbilityDef::activated_with_targets(
                 "{1}, {T}: Target creature can't block this turn.",
-                &[
-                    AbilityCostDef::Mana(mana_cost!("{1}")),
-                    AbilityCostDef::TapSource,
-                ],
+                &[CostDef::Mana(mana_cost!("{1}")), CostDef::TapSource],
                 &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Creature),
                 )],

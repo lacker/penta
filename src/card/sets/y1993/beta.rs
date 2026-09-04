@@ -2,9 +2,7 @@
 
 use super::{CardRecord, PrintingRecord, alpha};
 use crate::card::sets::y1993::alpha as catalog_lea;
-use crate::card::{
-    AbilityCostDef, CardArt, CardRules, CardSet, ManaColor, ObjectPredicateDef, abilities,
-};
+use crate::card::{CardArt, CardRules, CardSet, CostDef, ManaColor, ObjectPredicateDef, abilities};
 use crate::mana_cost;
 
 // LEB 1 — Animate Wall (reprint)
@@ -34,7 +32,7 @@ pub(in crate::card::sets) static CIRCLE_OF_PROTECTION_BLACK: CardRecord = CardRe
     CardRules::new_enchantment(mana_cost!("{1}{W}")).with_ability(
         abilities::circle_of_protection(
             "{1}: The next time a black source of your choice would deal damage to you this turn, prevent that damage.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            &[CostDef::Mana(mana_cost!("{1}"))],
             ObjectPredicateDef::Color(ManaColor::Black),
         ),
     ),

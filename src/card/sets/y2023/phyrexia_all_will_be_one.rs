@@ -3,13 +3,13 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseOneOfEachDef, ComparisonDef, CounterKind, EffectDef,
+    ChoiceVisibilityDef, ChooseOneOfEachDef, ComparisonDef, CostDef, CounterKind, EffectDef,
     EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
     PlayerRelation, RandomizeObjectOrderDef, ReplacementEffectDef, ResolvedEffectDurationDef,
-    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, TriggerConditionDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    RevealObjectsDef, SacrificedAmountDef, TriggerConditionDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -55,9 +55,9 @@ pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::ne
                 ObjectPredicateDef::HasType(CardType::Planeswalker),
             ]),
         )],
-        SpellAdditionalCostDef::choice(&[
-            SpellAdditionalCostDef::pay_mana(mana_cost!("{4}")),
-            SpellAdditionalCostDef::sacrifice(
+        CostDef::choice(&[
+            CostDef::pay_mana(mana_cost!("{4}")),
+            CostDef::sacrifice(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -146,7 +146,7 @@ pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new
                     ),
                 },
             ),
-            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+            abilities::equip(&[CostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
         ]),
 );
 
@@ -173,7 +173,7 @@ pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
              until end of turn.",
             // The counter is the whole cost, so this is free twice and then
             // never again.
-            &[AbilityCostDef::RemoveCountersFromSource {
+            &[CostDef::RemoveCountersFromSource {
                 kind: CounterKind::named("oil"),
                 amount: 1,
             }],
@@ -207,8 +207,8 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
             "{1}, Sacrifice this creature: Choose one —\n• Destroy target artifact.\n• Destroy \
              target enchantment.\n• Proliferate.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::SacrificeSource,
             ],
             // Two of the three answer something and the third answers nothing, which is
             // the point: a mode that only needs a counter on the board is what keeps

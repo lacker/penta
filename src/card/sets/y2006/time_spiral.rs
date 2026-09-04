@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, CardTypeSet, ColorSet, ComparisonDef, CostQuantityDef, CounterKind,
-    CounterKindDef, CounterOperationDef, DiscardSelectionDef, EffectChoiceDef, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost,
-    ResolvedEffectDurationDef, SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AlternativeCastKindDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ColorSet, ComparisonDef, CostDef, CostQuantityDef, CounterKind, CounterKindDef,
+    CounterOperationDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost,
+    ResolvedEffectDurationDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -67,7 +67,7 @@ pub(in crate::card::sets) static KNIGHT_OF_THE_HOLY_NIMBUS: CardRecord = CardRec
         ),
         AbilityDef::activated(
             "{2}: This creature can't be regenerated this turn. Only your opponents may activate this ability.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotRegenerate),
@@ -299,7 +299,7 @@ pub(in crate::card::sets) static DREAD_RETURN: CardRecord = CardRecord::new(
             Some("Flashback—Sacrifice three creatures."),
             EffectDef::None,
         )
-        .with_alternative_additional_cost(&SpellAdditionalCostDef::sacrifice(
+        .with_alternative_additional_cost(&CostDef::sacrifice(
             ObjectPredicateDef::HasType(CardType::Creature),
             CostQuantityDef::Fixed(3),
         )),
@@ -316,7 +316,7 @@ pub(in crate::card::sets) static BLAZING_BLADE_ASKARI: CardRecord = CardRecord::
         abilities::flanking(),
         AbilityDef::activated(
             "{2}: This creature becomes colorless until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            &[CostDef::Mana(mana_cost!("{2}"))],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Source,
                 effect: AppliedEffectDef::set_colors(ColorSet::empty()),
@@ -336,7 +336,7 @@ pub(in crate::card::sets) static GREATER_GARGADON: CardRecord = CardRecord::new(
         abilities::suspend("Suspend 10—{R}", 10, &mana_cost!("{R}")),
         AbilityDef::activated(
             "Sacrifice an artifact, creature, or land: Remove a time counter from this card. Activate only if this card is suspended.",
-            &[AbilityCostDef::SacrificePermanent {
+            &[CostDef::SacrificePermanent {
                 object: ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -415,9 +415,9 @@ pub(in crate::card::sets) static CHROMATIC_STAR: CardRecord = CardRecord::new(
         AbilityDef::activated_mana(
             "{1}, {T}, Sacrifice this artifact: Add one mana of any color.",
             &[
-                AbilityCostDef::Mana(mana_cost!("{1}")),
-                AbilityCostDef::TapSource,
-                AbilityCostDef::SacrificeSource,
+                CostDef::Mana(mana_cost!("{1}")),
+                CostDef::TapSource,
+                CostDef::SacrificeSource,
             ],
             EffectDef::AddMana(AddManaEffectDef::any_color()),
         ),
@@ -445,7 +445,7 @@ pub(in crate::card::sets) static JHOIRAS_TIMEBUG: CardRecord = CardRecord::new(
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Insect"], 1, 2).with_ability(
         AbilityDef::activated_with_targets(
             "{T}: Choose target permanent you control or suspended card you own. If it has a time counter on it, you may remove a time counter from it or put another time counter on it.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::AnyOf(&[
                     AbilityTargetPredicate::Object {
                         object: ObjectPredicateDef::Any,
@@ -519,7 +519,7 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
             AbilityDef::opening_hand_with(
                 "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.",
                 PregameConditionDef::NotStartingPlayer,
-                &[AbilityCostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
+                &[CostDef::ExileCardFromHand(ObjectPredicateDef::Any)],
                 EffectDef::WithBattlefieldArrival {
                     effect: &const {
                         EffectDef::MoveToZone {
@@ -539,7 +539,7 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_mana_if(
                 "{T}: Add {C}.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 &TriggerConditionDef::SourceCounters {
                     kind: CounterKind::named("luck"),
                     comparison: ComparisonDef::LessOrEqual,
@@ -549,7 +549,7 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
             ),
             AbilityDef::activated_mana_if(
                 "{T}: If this land has a luck counter on it, add one mana of any color instead.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 &TriggerConditionDef::SourceCounters {
                     kind: CounterKind::named("luck"),
                     comparison: ComparisonDef::GreaterOrEqual,

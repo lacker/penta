@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef, BasicLandType,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CostDef, CounterKind,
     DrawEventMatcherDef, EffectDef, EffectRecipientDef, ExiledCastPermissionDef, ManaColor,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PlayerSetDef,
     TokenCountersDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
@@ -121,7 +121,7 @@ pub(in crate::card::sets) static FAERIE_MASTERMIND: CardRecord = CardRecord::new
         // is the one that draws you another.
         AbilityDef::activated(
             "{3}{U}: Each player draws a card.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{U}"))],
+            &[CostDef::Mana(mana_cost!("{3}{U}"))],
             EffectDef::DrawCards {
                 recipient: EffectRecipientDef::players(PlayerSetDef::All),
                 amount: ValueDef::Constant(1),
@@ -217,7 +217,7 @@ pub(in crate::card::sets) static ETALI_PRIMAL_CONQUEROR: CardRecord = CardRecord
                     ),
                     AbilityDef::activated(
                         "{9}{G/P}: Transform this creature. Activate only as a sorcery.",
-                        &const { [AbilityCostDef::Mana(mana_cost!("{9}{G/P}"))] },
+                        &const { [CostDef::Mana(mana_cost!("{9}{G/P}"))] },
                         EffectDef::Transform {
                             object: EffectRecipientDef::Source,
                         },

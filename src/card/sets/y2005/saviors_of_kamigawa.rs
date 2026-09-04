@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef, CostDef, EffectDef,
+    EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
     ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
@@ -25,7 +25,7 @@ pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
 // SOK 53 — Sakashima the Impostor
 static SAKASHIMA_RETURN: AbilityDef = AbilityDef::activated(
     "{2}{U}{U}: Return Sakashima the Impostor to its owner's hand at the beginning of the next end step.",
-    &[AbilityCostDef::Mana(mana_cost!("{2}{U}{U}"))],
+    &[CostDef::Mana(mana_cost!("{2}{U}{U}"))],
     EffectDef::InstallTrigger(InstalledTriggerDef::once(&AbilityDef::triggered(
         "At the beginning of the next end step, return Sakashima the Impostor to its owner's hand.",
         TriggerEventDef::StepBegins {
@@ -106,8 +106,8 @@ pub(in crate::card::sets) static IIZUKA_THE_RUTHLESS: CardRecord = CardRecord::n
             AbilityDef::activated(
                 "{2}{R}, Sacrifice a Samurai: Samurai creatures you control gain double strike until end of turn.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{2}{R}")),
-                    AbilityCostDef::SacrificePermanent {
+                    CostDef::Mana(mana_cost!("{2}{R}")),
+                    CostDef::SacrificePermanent {
                         object: ObjectPredicateDef::Subtype("Samurai"),
                         controller: PlayerRelation::You,
                     },

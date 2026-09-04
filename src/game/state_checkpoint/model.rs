@@ -248,7 +248,7 @@ const fn default_nonbattlefield_grant_expiration() -> ContinuousEffectExpiration
     ContinuousEffectExpirationSnapshot::EndOfTurn
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum ManaColorSnapshot {
     White,
@@ -661,7 +661,36 @@ pub(super) struct EmblemSnapshot {
 #[serde(tag = "kind", content = "value", rename_all = "camelCase")]
 pub(super) enum ResolvedEffectPaymentSnapshot {
     Mana(ManaCostSnapshot),
+    CumulativeMana {
+        source: u32,
+        cost: ManaCostSnapshot,
+    },
+    SnowMana {
+        source: u32,
+        amount: u16,
+    },
     Life(u16),
+    DrawCards(u16),
+    DiscardCards(u16),
+    PutCounters {
+        object: u32,
+        kind: CounterKindSnapshot,
+        amount: u16,
+        times: u16,
+    },
+    SacrificePermanents(u16),
+    ExileTopCards(u16),
+    AddMana {
+        color: ManaColorSnapshot,
+        amount: u16,
+    },
+    OpponentGainsLife(u16),
+    OpponentCreatesTokens(u16),
+    GainControlPermanents {
+        source: u32,
+        amount: u16,
+    },
+    FlipCoins(u16),
     Energy(u16),
     /// Appended after the first two, so a checkpoint written before this
     /// payment existed still reads as one of them.

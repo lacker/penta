@@ -4,14 +4,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, BlockRestrictionDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    ComparisonDef, ConditionDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef,
-    EffectRecipientDef, ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
+    AppliedRuleDef, BattlefieldEntryModificationDef, BlockRestrictionDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, ConditionDef,
+    CostDef, CounterKind, CreatureTypeSetDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
+    ManaColor, ManaRestrictionDef, ManaSpendEffectDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::mana_cost;
 use crate::{ParentBinding, TargetIndex};
@@ -64,7 +64,7 @@ pub(in crate::card::sets) static THE_ONE_RING: CardRecord = CardRecord::new(
             AbilityDef::activated(
                 "{T}: Put a burden counter on this artifact, then draw a card for each burden counter \
                  on it.",
-                &[AbilityCostDef::TapSource],
+                &[CostDef::TapSource],
                 // The counter goes on first, then the draw counts every burden counter.
                 EffectDef::Sequence(&[
                     EffectDef::AddCounters {
@@ -338,7 +338,7 @@ pub(in crate::card::sets) static IMPROVISED_CLUB: CardRecord = CardRecord::new(
             )],
             // Either type pays it, so an artifact deck and a creature deck
             // both cast this without giving up a body they wanted.
-            SpellAdditionalCostDef::sacrifice(
+            CostDef::sacrifice(
                 ObjectPredicateDef::AnyOf(&[
                     ObjectPredicateDef::HasType(CardType::Artifact),
                     ObjectPredicateDef::HasType(CardType::Creature),
@@ -435,7 +435,7 @@ pub(in crate::card::sets) static DELIGHTED_HALFLING: CardRecord = CardRecord::ne
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated_mana(
             "{T}: Add one mana of any color. Spend this mana only to cast a legendary spell, and that spell can't be countered.",
-            &[AbilityCostDef::TapSource],
+            &[CostDef::TapSource],
             EffectDef::AddMana(
                 AddManaEffectDef::any_color()
                     .with_restrictions(&[ManaRestrictionDef::CastSpell(
@@ -499,8 +499,8 @@ pub(in crate::card::sets) static ARWEN_MORTAL_QUEEN: CardRecord = CardRecord::ne
                  indestructible until end of turn. Put a +1/+1 counter and a lifelink counter on that \
                  creature and a +1/+1 counter and a lifelink counter on Arwen.",
                 &[
-                    AbilityCostDef::Mana(mana_cost!("{1}")),
-                    AbilityCostDef::RemoveCountersFromSource {
+                    CostDef::Mana(mana_cost!("{1}")),
+                    CostDef::RemoveCountersFromSource {
                         kind: CounterKind::Indestructible,
                         amount: 1,
                     },

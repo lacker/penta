@@ -343,14 +343,7 @@ fn installed_trigger_retains_lexical_bindings_targets_and_target_scope() {
         cast_from_zone: None,
     });
     context.bind_single_object(Binding!("object"), Some(Target::Permanent(bound_id)));
-    game.resolve_effect_def(
-        ScopedEffect {
-            effect: INSTALL,
-            target_base: 1,
-        },
-        &object,
-        context,
-    );
+    game.resolve_effect_def(ScopedEffect::at(INSTALL, 1), &object, context);
 
     game.capture_battlefield_triggers(&CommittedTriggerEvent::StepBegins {
         step: TurnStepDef::End,

@@ -1773,15 +1773,18 @@ pub(in crate::card::sets) static SNUFF_OUT: CardRecord = CardRecord::new_with_le
             comparison: ComparisonDef::GreaterOrEqual,
             amount: 1,
         }),
-        AbilityDef::destroy_target(
+        AbilityDef::spell_with_targets(
             "Destroy target nonblack creature. It can't be regenerated.",
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::All(&[
                     ObjectPredicateDef::HasType(CardType::Creature),
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
                 ]),
-            )][0],
-            false,
+            )],
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+            },
         ),
     ]),
 );
@@ -3302,7 +3305,7 @@ pub(in crate::card::sets) static DUST_BOWL: CardRecord = CardRecord::new_with_le
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(CardSupertype::Basic)),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ]),
 );

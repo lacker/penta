@@ -301,6 +301,8 @@ pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> b
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
         // A draw's clause rather than an entry's.
@@ -329,6 +331,8 @@ pub(in super::super) fn shared_begin_turn_replacement_effect(effect: Replacement
         }
         ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::BindOutput { .. }
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
@@ -421,6 +425,8 @@ pub(in super::super) fn shared_battlefield_exit_replacement_effect(
         }
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::BindOutput { .. }
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
@@ -430,6 +436,25 @@ pub(in super::super) fn shared_battlefield_exit_replacement_effect(
         | ReplacementEffectDef::Conditional { .. }
         | ReplacementEffectDef::PayOr { .. } => false,
     }
+}
+
+pub(in super::super) fn shared_destruction_replacement_effect(
+    effect: ReplacementEffectDef,
+) -> bool {
+    let ReplacementEffectDef::Sequence(effects) = effect else {
+        return false;
+    };
+    !effects.is_empty()
+        && effects
+            .iter()
+            .any(|effect| matches!(effect, ReplacementEffectDef::ReplaceEventWithNothing))
+        && effects.iter().all(|effect| match effect {
+            ReplacementEffectDef::ReplaceEventWithNothing
+            | ReplacementEffectDef::RegenerateDestroyedObject
+            | ReplacementEffectDef::RemoveDamageFromDestroyedObject => true,
+            ReplacementEffectDef::Perform(effect) => shared_stack_effect(**effect),
+            _ => false,
+        })
 }
 
 pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
@@ -448,6 +473,7 @@ pub(super) fn shared_replacement_event(event: ReplacementEventDef) -> bool {
         ReplacementEventDef::AnyObjectWouldMove { object, to } => {
             to == ZoneKind::Graveyard && shared_zone_move_object_predicate(object)
         }
+        ReplacementEventDef::WouldBeDestroyed { object } => shared_object_predicate(object),
         ReplacementEventDef::Special(_) => false,
     }
 }
@@ -565,6 +591,8 @@ pub(in super::super) fn assert_nested_replacement_definition_abilities(
         }
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)

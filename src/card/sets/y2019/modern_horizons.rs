@@ -737,7 +737,6 @@ pub(in crate::card::sets) static FORCE_OF_VIGOR: CardRecord = CardRecord::new_wi
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

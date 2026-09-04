@@ -233,6 +233,8 @@ impl Game {
             ReplacementEffectDef::ModifyBattlefieldEntry(_)
             | ReplacementEffectDef::BindOutput { .. }
             | ReplacementEffectDef::MoveToZone(_)
+            | ReplacementEffectDef::RegenerateDestroyedObject
+            | ReplacementEffectDef::RemoveDamageFromDestroyedObject
             | ReplacementEffectDef::Conditional { .. }
             | ReplacementEffectDef::PayOr { .. }
             | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
@@ -276,6 +278,8 @@ impl Game {
             ReplacementEffectDef::ModifyBattlefieldEntry(_)
             | ReplacementEffectDef::BindOutput { .. }
             | ReplacementEffectDef::MoveToZone(_)
+            | ReplacementEffectDef::RegenerateDestroyedObject
+            | ReplacementEffectDef::RemoveDamageFromDestroyedObject
             | ReplacementEffectDef::Conditional { .. }
             | ReplacementEffectDef::PayOr { .. }
             | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }

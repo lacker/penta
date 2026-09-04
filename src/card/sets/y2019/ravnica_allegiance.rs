@@ -78,7 +78,7 @@ pub(in crate::card::sets) static FINAL_PAYMENT: CardRecord = CardRecord::new(
                     CostQuantityDef::Fixed(1),
                 ),
             ]),
-            EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(crate::TargetIndex::PRIMARY),
         ),
     ),
 );

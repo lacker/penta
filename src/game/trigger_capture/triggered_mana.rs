@@ -125,6 +125,7 @@ EffectDef::CannotAttackIf(_) | EffectDef::PutIntoLibraryBeneathTop { .. } |
 EffectDef::MoveToZone { .. } |
 EffectDef::WithBattlefieldArrival { .. } |
 EffectDef::WithZoneMoveResult { .. } |
+EffectDef::WithRule { .. } |
 EffectDef::Attach { .. } | EffectDef::AttachToSource { .. } |
 EffectDef::PairWithSource { .. } | EffectDef::Reconfigure { .. } |
 EffectDef::Unattach { .. } | EffectDef::PhaseOut { .. } |

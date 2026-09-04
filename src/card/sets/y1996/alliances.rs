@@ -266,13 +266,18 @@ pub(in crate::card::sets) static REPRISAL: CardRecord = CardRecord::new(
         "Randy Asplund-Faith",
     ),
     crate::card::CardSet::Alliances,
-    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::destroy_target(
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target creature with power 4 or greater. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::PowerAtLeast(4),
-        ])),
-        false,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::PowerAtLeast(4),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -938,14 +943,19 @@ pub(in crate::card::sets) static FEAST_OR_FAMINE: CardRecord = CardRecord::new(
                 "Create a 2/2 black Zombie creature token.",
                 EffectDef::create_creature_token(&["Zombie"], &[ManaColor::Black], 2, 2),
             ),
-            AbilityDef::destroy_target(
+            AbilityDef::spell_with_targets(
                 "Destroy target nonartifact, nonblack creature. It can't be regenerated.",
-                &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
-                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-                ])),
-                false,
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                    ]),
+                )],
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+                },
             ),
         ],
     )),
@@ -1469,13 +1479,18 @@ pub(in crate::card::sets) static PILLAGE: CardRecord = CardRecord::new(
         "Richard Kane Ferguson",
     ),
     crate::card::CardSet::Alliances,
-    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::destroy_target(
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target artifact or land. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::AnyOf(&[
-            ObjectPredicateDef::HasType(CardType::Artifact),
-            ObjectPredicateDef::HasType(CardType::Land),
-        ])),
-        false,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::AnyOf(&[
+                ObjectPredicateDef::HasType(CardType::Artifact),
+                ObjectPredicateDef::HasType(CardType::Land),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -1518,7 +1533,6 @@ pub(in crate::card::sets) static PRIMITIVE_JUSTICE: CardRecord = CardRecord::new
                     object: EffectRecipientDef::objects(ObjectSetDef::LegalTargets(
                         TargetIndex::PRIMARY,
                     )),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::GainLife {

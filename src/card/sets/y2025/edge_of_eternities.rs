@@ -427,7 +427,6 @@ pub(in crate::card::sets) static CRYOSHATTER: CardRecord = CardRecord::new(
                 ]),
                 EffectDef::Destroy {
                     object: EffectRecipientDef::AttachedPermanent,
-                    can_regenerate: true,
                     then: None,
                 },
             ),

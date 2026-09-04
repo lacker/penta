@@ -36,7 +36,6 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_leg
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             // "Its controller creates two Map tokens." The Maps are theirs, not yours,
@@ -207,7 +206,7 @@ pub(in crate::card::sets) static BITTER_TRIUMPH: CardRecord = CardRecord::new(
                 SpellAdditionalCostDef::discard(ObjectPredicateDef::Any, CostQuantityDef::Fixed(1)),
                 SpellAdditionalCostDef::pay_life(CostQuantityDef::Fixed(3)),
             ]),
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );

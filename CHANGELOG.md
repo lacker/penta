@@ -82,6 +82,20 @@ distinguishes snapshots of the covered source and build inputs.
   grants use the additive `flanking` checkpoint tag; checkpoint format, replay
   format, and the bot-wire protocol are unchanged.
 
+- **Destruction replacements distinguish destruction from other exits.** The
+  shared replacement vocabulary can now regenerate a permanent whenever it
+  would be destroyed, perform an effect instead, or expire after replacing the
+  next event. Regeneration shields participate in the same replacement-order
+  choice. A plain `Destroy` always permits regeneration; Wrath of God and
+  other clauses whose later text modifies that destruction wrap it in an
+  effect-local `CannotRegenerate` rule, while "this turn" clauses use the same
+  rule with an ordinary resolved duration. The local rule reconstructs from
+  its declarative effect path, so checkpoint format 11 remains unchanged.
+  Clergy of the Holy Nimbus, Knight of the Holy Nimbus, Mossbridge Troll,
+  Crackling Emergence, Harmonious Emergence, and Pyramids use these pieces
+  directly; activated abilities also distinguish controller-only, any-player,
+  and opponents-only permissions.
+
 - **A clause that exiles several cards at once is one exile event.** Moving a
   set of cards out of a graveyard, library, or hand into exile now publishes a
   single "one or more cards are put into exile" event rather than one per

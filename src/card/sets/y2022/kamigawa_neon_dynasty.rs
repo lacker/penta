@@ -4,11 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyAbilityDef, CopyExceptionsDef,
-    CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef,
+    CardSupertype, CardType, CardTypeSet, ChoiceVisibilityDef, ChooseDef, ColorSet, CopyAbilityDef,
+    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef,
+    CreatureTypeSetDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef,
     TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
@@ -439,6 +440,58 @@ pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::n
     crate::card::CardRules::unsupported(),
 );
 
+// NEO 136 — Crackling Emergence
+static EMERGENCE_REPLACEMENT: AbilityDef = AbilityDef::replacement_for(
+    "If enchanted land would be destroyed, instead sacrifice this Aura and that land gains indestructible until end of turn.",
+    ReplacementEventDef::WouldBeDestroyed {
+        object: ObjectPredicateDef::AttachedToSource,
+    },
+    ReplacementEffectDef::Sequence(&[
+        ReplacementEffectDef::ReplaceEventWithNothing,
+        ReplacementEffectDef::Perform(&EffectDef::Sequence(&[
+            EffectDef::SacrificeYours {
+                object: EffectRecipientDef::Source,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::TriggeringObject,
+                effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ])),
+    ]),
+);
+
+pub(in crate::card::sets) static CRACKLING_EMERGENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("6f77f987-ebb7-4105-a67c-0987f50fc676"),
+    "Crackling Emergence",
+    CardArt::new("6f77f987-ebb7-4105-a67c-0987f50fc676", "Jason Kang"),
+    CardSet::KamigawaNeonDynasty,
+    CardRules::new_enchantment(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land_you_control(),
+            AbilityDef::static_ability(
+                "Enchanted land is a 3/3 red Spirit creature with haste. It's still a land.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Spirit",
+                        ])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Red])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(3),
+                            ValueDef::Constant(3),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                },
+            ),
+            EMERGENCE_REPLACEMENT,
+        ]),
+);
+
 // NEO 148 — Ironhoof Boar
 pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73abe574-6fb8-4809-9c18-0cf989f986f5"),
@@ -549,6 +602,42 @@ pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
         // discarded from.
         .with_source_zones(&[ZoneKind::Hand]),
     ]),
+);
+
+// NEO 190 — Harmonious Emergence
+pub(in crate::card::sets) static HARMONIOUS_EMERGENCE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c92ff968-b436-4313-8375-8a3bb41f9892"),
+    "Harmonious Emergence",
+    CardArt::new(
+        "c92ff968-b436-4313-8375-8a3bb41f9892",
+        "Simon Dominic",
+    ),
+    CardSet::KamigawaNeonDynasty,
+    CardRules::new_enchantment(mana_cost!("{3}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land_you_control(),
+            AbilityDef::static_ability(
+                "Enchanted land is a 4/5 green Spirit creature with vigilance and haste. It's still a land.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Spirit",
+                        ])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(5),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::vigilance()),
+                        AppliedEffectDef::add_ability(&abilities::haste()),
+                    ]),
+                },
+            ),
+            EMERGENCE_REPLACEMENT,
+        ]),
 );
 
 // NEO 211 — Tamiyo's Safekeeping
@@ -885,7 +974,6 @@ pub(in crate::card::sets) static BOSEIJU_WHO_ENDURES: CardRecord = CardRecord::n
                 EffectDef::Sequence(&[
                     EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                     // Their search, not yours: the player whose permanent was destroyed is the
@@ -936,9 +1024,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &MOON_CIRCUIT_HACKER,
     &CLAWING_TORMENT,
     &OKIBA_RECKONER_RAID,
+    &CRACKLING_EMERGENCE,
     &IRONHOOF_BOAR,
     &RABBIT_BATTERY,
     &GREATER_TANUKI,
+    &HARMONIOUS_EMERGENCE,
     &TAMIYO_S_SAFEKEEPING,
     &HINATA_DAWN_CROWNED,
     &TAMIYO_COMPLEATED_SAGE,

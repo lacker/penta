@@ -7,7 +7,6 @@ fn continuation_effects(child: &'static EffectDef) -> [EffectDef; 4] {
     [
         after(EffectDef::Destroy {
             object: EffectRecipientDef::Source,
-            can_regenerate: true,
             then: None,
         }),
         after(EffectDef::Discard {

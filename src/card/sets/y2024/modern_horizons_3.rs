@@ -478,7 +478,6 @@ pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -1111,14 +1110,12 @@ pub(in crate::card::sets) static COLLECTIVE_RESISTANCE: CardRecord = CardRecord:
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Artifact,
                 )),
-                true,
             ),
             AbilityDef::destroy_target(
                 "Destroy target enchantment.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Enchantment,
                 )),
-                true,
             ),
             AbilityDef::spell_with_targets(
                 "Target creature gains hexproof and indestructible until end of turn.",
@@ -2491,7 +2488,7 @@ pub(in crate::card::sets) static WITCH_ENCHANTER: CardRecord = CardRecord::new_m
                             ObjectPredicateDef::ControlledBy(PlayerRelation::Opponent),
                         ] }),
                     )] },
-                    EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+                    EffectDef::destroy_target(TargetIndex::PRIMARY),
                 )] })
             },
         ),

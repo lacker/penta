@@ -42,10 +42,25 @@ pub(super) struct PendingReplacementEffect {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) struct ApplicableZoneMoveReplacement {
     pub(super) move_index: usize,
-    pub(super) context: ReplacementEffectContext,
     pub(super) presentation: ObjectCharacteristics,
     pub(super) text: &'static str,
-    pub(super) effect: ReplacementEffectDef,
+    pub(super) action: BattlefieldExitReplacementAction,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum BattlefieldExitReplacementAction {
+    Ability {
+        context: ReplacementEffectContext,
+        effect: ReplacementEffectDef,
+        once: bool,
+    },
+    RegenerationShield,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum BattlefieldExitCause {
+    Other,
+    Destroy { regeneration_prohibited: bool },
 }
 
 /// Event-local state accumulated while replacement effects change one
@@ -55,6 +70,7 @@ pub(super) struct ApplicableZoneMoveReplacement {
 pub(super) struct PendingBattlefieldExitMove {
     pub(super) object: GameObjectId,
     pub(super) controller: PlayerId,
+    pub(super) cause: BattlefieldExitCause,
     pub(super) destination: ZoneKind,
     /// The exact position used when the final destination is a library.
     /// Replacement effects that redirect the move to a different zone reset
@@ -101,6 +117,9 @@ pub(super) struct PendingBattlefieldExitBatch {
 #[derive(Clone, Debug)]
 pub(super) enum BattlefieldExitCompletion {
     Completions(Vec<BattlefieldExitCompletion>),
+    ContinueBattlefieldExitReplacements {
+        batch: PendingBattlefieldExitBatch,
+    },
     ResolveEffects {
         object: Box<StackObject>,
         context: EffectResolutionContext,

@@ -156,13 +156,40 @@ impl StackAbilityResolver {
 struct ScopedEffect {
     effect: EffectDef,
     target_base: usize,
+    local_rules: EffectLocalRules,
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+struct EffectLocalRules(u8);
+
+impl EffectLocalRules {
+    const CANNOT_REGENERATE: u8 = 1 << 0;
+
+    const fn with(self, rule: AppliedRuleDef) -> Self {
+        match rule {
+            AppliedRuleDef::CannotRegenerate => Self(self.0 | Self::CANNOT_REGENERATE),
+            _ => panic!("catalog validation rejects this effect-local rule"),
+        }
+    }
+
+    const fn contains(self, rule: AppliedRuleDef) -> bool {
+        match rule {
+            AppliedRuleDef::CannotRegenerate => self.0 & Self::CANNOT_REGENERATE != 0,
+            _ => false,
+        }
+    }
 }
 
 impl ScopedEffect {
     const fn primary(effect: EffectDef) -> Self {
+        Self::at(effect, 0)
+    }
+
+    const fn at(effect: EffectDef, target_base: usize) -> Self {
         Self {
             effect,
-            target_base: 0,
+            target_base,
+            local_rules: EffectLocalRules(0),
         }
     }
 
@@ -170,7 +197,20 @@ impl ScopedEffect {
         Self {
             effect,
             target_base: self.target_base,
+            local_rules: self.local_rules,
         }
+    }
+
+    const fn with_rule(self, rule: AppliedRuleDef) -> Self {
+        Self {
+            effect: self.effect,
+            target_base: self.target_base,
+            local_rules: self.local_rules.with(rule),
+        }
+    }
+
+    const fn has_rule(self, rule: AppliedRuleDef) -> bool {
+        self.local_rules.contains(rule)
     }
 
     fn target_slot(self, target: TargetIndex) -> TargetSlotId {

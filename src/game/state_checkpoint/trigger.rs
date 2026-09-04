@@ -127,10 +127,10 @@ pub(super) fn parse_installed_trigger(
             target_defs: Vec::new(),
             targets,
             effect,
-            resolver: StackAbilityResolver::Declarative(ScopedEffect {
+            resolver: StackAbilityResolver::Declarative(ScopedEffect::at(
                 effect,
-                target_base: snapshot.target_base,
-            }),
+                snapshot.target_base,
+            )),
             context: parse_effect_resolution_context(snapshot.context.clone())?,
             condition: triggered.condition,
             modes: triggered.modes,

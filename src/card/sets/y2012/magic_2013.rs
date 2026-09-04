@@ -324,7 +324,6 @@ pub(in crate::card::sets) static DIVINE_VERDICT: CardRecord = CardRecord::new_wi
             ObjectPredicateDef::HasType(CardType::Creature),
             ObjectPredicateDef::AttackingOrBlocking,
         ])),
-        true,
     )),
 );
 
@@ -552,7 +551,6 @@ pub(in crate::card::sets) static PLANAR_CLEANSING: CardRecord = CardRecord::new_
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -787,7 +785,6 @@ pub(in crate::card::sets) static WAR_PRIEST_OF_THUNE: CardRecord = CardRecord::n
             }],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2246,7 +2243,6 @@ pub(in crate::card::sets) static MURDER: CardRecord = CardRecord::new_with_legac
     CardRules::new_instant(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::destroy_target(
         "Destroy target creature.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Creature)),
-        true,
     )),
 );
 
@@ -2712,7 +2708,6 @@ pub(in crate::card::sets) static CRATERIZE: CardRecord = CardRecord::new_with_le
     CardRules::new_sorcery(mana_cost!("{3}{R}")).with_ability(AbilityDef::destroy_target(
         "Destroy target land.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land)),
-        true,
     )),
 );
 
@@ -3241,7 +3236,6 @@ pub(in crate::card::sets) static SMELT: CardRecord = CardRecord::new_with_legacy
     CardRules::new_instant(mana_cost!("{R}")).with_ability(AbilityDef::destroy_target(
         "Destroy target artifact.",
         &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Artifact)),
-        true,
     )),
 );
 
@@ -3445,7 +3439,6 @@ pub(in crate::card::sets) static ACIDIC_SLIME: CardRecord = CardRecord::new_with
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -3864,7 +3857,6 @@ pub(in crate::card::sets) static PLUMMET: CardRecord = CardRecord::new_with_lega
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -4275,7 +4267,6 @@ pub(in crate::card::sets) static NICOL_BOLAS_PLANESWALKER: CardRecord = CardReco
                 })],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),

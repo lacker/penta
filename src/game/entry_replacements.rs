@@ -232,6 +232,8 @@ impl Game {
             // and cannot alter a battlefield-entry event.
             ReplacementEffectDef::ReplaceEventWithNothing
             | ReplacementEffectDef::Perform(_)
+            | ReplacementEffectDef::RegenerateDestroyedObject
+            | ReplacementEffectDef::RemoveDamageFromDestroyedObject
             | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
             | ReplacementEffectDef::MultiplyEventAmount(_)
             | ReplacementEffectDef::AddToEventAmount(_) => Some(pending),

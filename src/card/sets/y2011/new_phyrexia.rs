@@ -1248,7 +1248,6 @@ pub(in crate::card::sets) static BLIND_ZEALOT: CardRecord = CardRecord::new(
                     count: ValueDef::Constant(1),
                     then: Some(&EffectDef::Destroy {
                             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                            can_regenerate: true,
                             then: None,
                         }),
                     amount: SacrificedAmountDef::Power,
@@ -1621,7 +1620,6 @@ pub(in crate::card::sets) static LIFE_S_FINALE: CardRecord = CardRecord::new(
                         &[ZoneKind::Battlefield],
                         PlayerRelation::Any,
                     ),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::SearchZone {
@@ -2434,7 +2432,6 @@ pub(in crate::card::sets) static VICTORIOUS_DESTRUCTION: CardRecord = CardRecord
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::LoseLife {
@@ -2517,7 +2514,6 @@ pub(in crate::card::sets) static BEAST_WITHIN: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::create_creature_token(&["Beast"], &[ManaColor::Green], 3, 3)
@@ -2707,7 +2703,6 @@ pub(in crate::card::sets) static GLISSA_S_SCORN: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::LoseLife {

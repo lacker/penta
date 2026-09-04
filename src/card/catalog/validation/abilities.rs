@@ -567,9 +567,7 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         validate_activated_target_choosers(activated.targets)?;
         validate_ability_cost_target_references(activated.costs.as_slice(), targets)?;
     }
-    {
-        validate_triggered_ability_shape(ability, targets.len())?;
-    }
+    validate_triggered_ability_shape(ability, targets.len())?;
     if let Err(problem) = validate_ability_effect_context(ability) {
         return Err(
             GrantedAbilityValidationError::UnsupportedEffectProgramContext {
@@ -602,10 +600,15 @@ fn validate_ability_definition(ability: &AbilityDef) -> Result<(), GrantedAbilit
         }
         _ => None,
     };
+    let replacement_event = match ability.definition {
+        DeclarativeAbilityDef::Replacement(definition) => Some(definition.event),
+        _ => None,
+    };
     validate_ability_program_targets(
         targets,
         ability.effect.definition,
         trigger_event,
+        replacement_event,
         chosen_cost_card_binding,
     )?;
     Ok(())
@@ -671,6 +674,9 @@ fn validate_replacement_program_for_event(
             to: ZoneKind::Graveyard,
             ..
         } => validate_battlefield_exit_replacement_program(effect),
+        ReplacementEventDef::WouldBeDestroyed { .. } => {
+            validate_destruction_replacement_program(effect)
+        }
         ReplacementEventDef::WouldGainLife(_)
             if matches!(
                 effect,
@@ -689,6 +695,27 @@ fn validate_replacement_program_for_event(
         | ReplacementEventDef::AnyObjectWouldMove { .. }
         | ReplacementEventDef::Special(_) => Err(replacement_operation_name(effect)),
     }
+}
+
+fn validate_destruction_replacement_program(
+    effect: ReplacementEffectDef,
+) -> Result<(), &'static str> {
+    let ReplacementEffectDef::Sequence(effects) = effect else {
+        return Err(replacement_operation_name(effect));
+    };
+    if effects.is_empty() || !effects.contains(&ReplacementEffectDef::ReplaceEventWithNothing) {
+        return Err("destruction replacement without ReplaceEventWithNothing");
+    }
+    for effect in effects {
+        match effect {
+            ReplacementEffectDef::ReplaceEventWithNothing
+            | ReplacementEffectDef::RegenerateDestroyedObject
+            | ReplacementEffectDef::RemoveDamageFromDestroyedObject
+            | ReplacementEffectDef::Perform(_) => {}
+            _ => return Err(replacement_operation_name(*effect)),
+        }
+    }
+    Ok(())
 }
 
 fn validate_draw_replacement_program(effect: ReplacementEffectDef) -> Result<(), &'static str> {
@@ -770,6 +797,8 @@ fn validate_entry_replacement_program(effect: ReplacementEffectDef) -> Result<()
         }
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_) => Err(replacement_operation_name(effect)),
     }
@@ -808,6 +837,8 @@ fn validate_begin_turn_replacement_program(
         ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
@@ -860,6 +891,8 @@ fn validate_battlefield_exit_replacement_program(
         | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::MoveToZone(_)
         | ReplacementEffectDef::Perform(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
@@ -878,6 +911,8 @@ const fn replacement_operation_name(effect: ReplacementEffectDef) -> &'static st
         ReplacementEffectDef::ReplaceEventWithNothing => "ReplaceEventWithNothing",
         ReplacementEffectDef::MoveToZone(_) => "MoveToZone",
         ReplacementEffectDef::Perform(_) => "Perform",
+        ReplacementEffectDef::RegenerateDestroyedObject => "RegenerateDestroyedObject",
+        ReplacementEffectDef::RemoveDamageFromDestroyedObject => "RemoveDamageFromDestroyedObject",
         ReplacementEffectDef::ModifyBattlefieldEntry(_) => "ModifyBattlefieldEntry",
         ReplacementEffectDef::MultiplyEventAmount(_) => "MultiplyEventAmount",
         ReplacementEffectDef::AddToEventAmount(_) => "AddToEventAmount",

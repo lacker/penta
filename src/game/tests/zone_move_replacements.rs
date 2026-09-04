@@ -275,7 +275,6 @@ fn destroy_outcome_followup_waits_for_replacements_and_counts_only_graveyard_mov
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
-        can_regenerate: true,
         then: Some(DestroyFollowUpDef {
             binding: Binding!("objects"),
             effect: &EffectDef::Sequence(&FOLLOWUP_EFFECTS),
@@ -341,7 +340,6 @@ fn declarative_chain_followup_waits_for_ugins_nexus_replacement_choice() {
             &[ZoneKind::Battlefield],
             PlayerRelation::Any,
         ),
-        can_regenerate: true,
         then: None,
     };
     const OFFER_COPY: EffectDef = EffectDef::May {

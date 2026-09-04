@@ -85,7 +85,7 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
                     ObjectPredicateDef::HasType(CardType::Enchantment),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ]),
 );
@@ -235,7 +235,6 @@ pub(in crate::card::sets) static INFERNAL_GRASP: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::LoseLife {

@@ -30,7 +30,6 @@ fn chooses_for_each_player_then_uses_standard_destroy() {
         *choice.then,
         EffectDef::Destroy {
             object: EffectRecipientDef::objects(ObjectSetDef::Binding(choice.unchosen)),
-            can_regenerate: true,
             then: None,
         }
     );

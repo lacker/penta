@@ -250,14 +250,10 @@ fn every_catalog_effect_is_addressable_from_its_ability_root() {
                 super::super::semantics::replacement_child_effects(effect)
             }
         };
-        for effect in roots.into_iter().flat_map(reachable_effects) {
-            let scoped = ScopedEffect {
-                effect,
-                target_base: 0,
-            };
+        for scoped in roots.into_iter().flat_map(reachable_effects) {
             let rebuilt = scoped_effect_snapshot(&ability, scoped)
                 .and_then(|snapshot| catalog_scoped_effect(&catalog, locator, &snapshot));
-            if rebuilt.map(|rebuilt| rebuilt.effect) != Some(effect) {
+            if rebuilt != Some(scoped) {
                 unaddressable.push(format!(
                     "{}: {}",
                     card_name(&catalog, definition),
@@ -273,13 +269,78 @@ fn every_catalog_effect_is_addressable_from_its_ability_root() {
     );
 }
 
-fn reachable_effects(effect: crate::card::EffectDef) -> Vec<crate::card::EffectDef> {
-    let mut found = vec![effect];
+#[test]
+fn nested_effect_reconstructs_its_effect_local_rules() {
+    let catalog = crate::poc::catalog().expect("catalog builds");
+    let (_, _, ability) = catalog_abilities(&catalog)
+        .into_iter()
+        .find(|(definition, _, _)| *definition == cards::WRATH_OF_GOD)
+        .expect("Wrath of God has an executable ability");
+    let locator = ability_locator(&catalog, |candidate| *candidate == ability)
+        .expect("the ability is addressable");
+    let EffectDef::WithRule { rule, effect } = ability
+        .declarative_effect()
+        .expect("Wrath has a declarative effect")
+    else {
+        panic!("Wrath scopes a rule around its destruction")
+    };
+    let scoped = ScopedEffect::primary(*effect).with_rule(rule);
+
+    let snapshot = scoped_effect_snapshot(&ability, scoped).expect("the child has a stable path");
+    let rebuilt = catalog_scoped_effect(&catalog, &locator, &snapshot)
+        .expect("the child reconstructs from its path");
+
+    assert_eq!(rebuilt, scoped);
+}
+
+#[test]
+fn effect_path_distinguishes_equal_leaves_with_different_local_rules() {
+    static DESTROY: EffectDef = EffectDef::Destroy {
+        object: crate::card::EffectRecipientDef::Source,
+        then: None,
+    };
+    static EFFECTS: [EffectDef; 2] = [
+        EffectDef::WithRule {
+            rule: crate::card::AppliedRuleDef::CannotRegenerate,
+            effect: &DESTROY,
+        },
+        DESTROY,
+    ];
+    let ability = AbilityDef::spell("Destroy this twice.", EffectDef::Sequence(&EFFECTS));
+
+    let wrapped =
+        ScopedEffect::primary(DESTROY).with_rule(crate::card::AppliedRuleDef::CannotRegenerate);
+    let plain = ScopedEffect::primary(DESTROY);
+
+    assert_eq!(
+        scoped_effect_snapshot(&ability, wrapped)
+            .expect("the wrapped leaf is addressable")
+            .path,
+        vec![0, 0],
+    );
+    assert_eq!(
+        scoped_effect_snapshot(&ability, plain)
+            .expect("the plain leaf is addressable")
+            .path,
+        vec![1],
+    );
+}
+
+fn reachable_effects(effect: crate::card::EffectDef) -> Vec<ScopedEffect> {
+    let mut found = vec![ScopedEffect::primary(effect)];
     let mut index = 0;
     while index < found.len() {
         let current = found[index];
         index += 1;
-        found.extend(super::super::semantics::child_effects(current));
+        let child_scope = match current.effect {
+            EffectDef::WithRule { rule, .. } => current.with_rule(rule),
+            _ => current,
+        };
+        found.extend(
+            super::super::semantics::child_effects(current.effect)
+                .into_iter()
+                .map(|effect| child_scope.with_effect(effect)),
+        );
     }
     found
 }

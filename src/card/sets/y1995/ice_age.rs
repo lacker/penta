@@ -888,7 +888,6 @@ pub(in crate::card::sets) static HYDROBLAST: CardRecord = CardRecord::new_with_l
             AbilityDef::destroy_target(
                 "Destroy target permanent if it's red.",
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(ManaColor::Red)),
-                true,
             ),
         ],
     )),
@@ -1494,13 +1493,18 @@ pub(in crate::card::sets) static DARK_BANISHING: CardRecord = CardRecord::new(
     "Dark Banishing",
     crate::card::CardArt::new("f7dc2716-ed62-4797-ad2b-227eca5408d0", "Drew Tucker"),
     crate::card::CardSet::IceAge,
-    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::destroy_target(
+    CardRules::new_instant(mana_cost!("{2}{B}")).with_ability(AbilityDef::spell_with_targets(
         "Destroy target nonblack creature. It can't be regenerated.",
-        &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-            ObjectPredicateDef::HasType(CardType::Creature),
-            ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-        ])),
-        false,
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+            ]),
+        )],
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -2146,7 +2150,6 @@ pub(in crate::card::sets) static ANARCHY: CardRecord = CardRecord::new(
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -2773,7 +2776,6 @@ pub(in crate::card::sets) static PYROBLAST: CardRecord = CardRecord::new_with_le
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::Color(
                     ManaColor::Blue,
                 )),
-                true,
             ),
         ],
     )),
@@ -3048,7 +3050,6 @@ pub(in crate::card::sets) static ESSENCE_FILTER: CardRecord = CardRecord::new(
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        can_regenerate: true,
                         then: None,
                     },
                 },
@@ -3065,7 +3066,6 @@ pub(in crate::card::sets) static ESSENCE_FILTER: CardRecord = CardRecord::new(
                             &[ZoneKind::Battlefield],
                             PlayerRelation::Any,
                         ),
-                        can_regenerate: true,
                         then: None,
                     },
                 },
@@ -4303,7 +4303,10 @@ pub(in crate::card::sets) static DESPOTIC_SCEPTER: CardRecord = CardRecord::new(
                 owner: Some(PlayerRelation::You),
             },
         )],
-        EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+        EffectDef::WithRule {
+            rule: AppliedRuleDef::CannotRegenerate,
+            effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+        },
     )),
 );
 
@@ -4495,7 +4498,10 @@ pub(in crate::card::sets) static PIT_TRAP: CardRecord = CardRecord::new(
                     )),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+            },
         ),
     ),
 );

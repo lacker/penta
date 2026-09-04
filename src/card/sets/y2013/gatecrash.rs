@@ -1402,7 +1402,6 @@ pub(in crate::card::sets) static GRISLY_SPECTACLE: CardRecord = CardRecord::new_
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::Mill {
@@ -1488,7 +1487,6 @@ pub(in crate::card::sets) static KILLING_GLARE: CardRecord = CardRecord::new_wit
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -3477,7 +3475,6 @@ pub(in crate::card::sets) static FRENZIED_TILLING: CardRecord = CardRecord::new_
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             // Tapped, so the land it fetches does not pay for anything this turn --
@@ -3601,7 +3598,6 @@ pub(in crate::card::sets) static HIGH_PRIEST_OF_PENANCE: CardRecord =
                     player: EffectRecipientDef::Controller,
                     effect: &EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                 },

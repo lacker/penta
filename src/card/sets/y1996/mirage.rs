@@ -2206,7 +2206,6 @@ pub(in crate::card::sets) static CHAOS_CHARM: CardRecord = CardRecord::new(
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),
@@ -2308,7 +2307,6 @@ pub(in crate::card::sets) static DWARVEN_MINER: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2459,7 +2457,6 @@ pub(in crate::card::sets) static GOBLIN_TINKERER: CardRecord = CardRecord::new_w
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::DealDamage {
@@ -3159,7 +3156,6 @@ pub(in crate::card::sets) static TRANQUIL_DOMAIN: CardRecord = CardRecord::new_w
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -3197,7 +3193,6 @@ pub(in crate::card::sets) static UKTABI_FAERIE: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

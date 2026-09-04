@@ -1,15 +1,14 @@
 fn validate_program_target_shapes(
     program: AbilityProgramDef,
     targets: &[AbilityTargetDef],
-    trigger_event: Option<TriggerEventDef>,
+    triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
-    let triggering_object_zone = trigger_event.and_then(trigger_event_object_zone);
     match program {
         AbilityProgramDef::Effects(effect) => {
             validate_effect_target_shapes(effect, targets, triggering_object_zone)
         }
         AbilityProgramDef::Replacement(effect) => {
-            validate_replacement_effect_target_shapes(effect, targets)
+            validate_replacement_effect_target_shapes(effect, targets, triggering_object_zone)
         }
     }
 }

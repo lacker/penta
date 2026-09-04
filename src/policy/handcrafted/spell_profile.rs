@@ -301,6 +301,7 @@ impl HandcraftedPolicy {
     /// does for any effect whose behavior at X=0 is not obviously nothing.
     fn is_empty_without_x(effect: EffectDef) -> bool {
         match effect {
+            EffectDef::WithRule { effect, .. } => Self::is_empty_without_x(*effect),
             EffectDef::Sequence(effects) => {
                 !effects.is_empty()
                     && effects
@@ -424,7 +425,8 @@ impl HandcraftedPolicy {
             // An optional effect is worth what it would do if taken. Iteration
             // has the same child profile; multiplicity is intentionally not a
             // separate policy weight here.
-            EffectDef::BindOutput { effect, .. }
+            EffectDef::WithRule { effect, .. }
+            | EffectDef::BindOutput { effect, .. }
             | EffectDef::May { effect, .. }
             | EffectDef::ForEachInBinding { effect, .. }
             | EffectDef::WithBattlefieldArrival { effect, .. } => {

@@ -104,7 +104,6 @@ pub(in crate::card::sets) static FIERY_CONFLUENCE: CardRecord = CardRecord::new(
                     )],
                     EffectDef::Destroy {
                         object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        can_regenerate: true,
                         then: None,
                     },
                 ),

@@ -200,7 +200,6 @@ pub(in crate::card::sets) static CONCLAVE_NATURALISTS: CardRecord = CardRecord::
                 player: EffectRecipientDef::Controller,
                 effect: &EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             },

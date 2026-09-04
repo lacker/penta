@@ -52,6 +52,9 @@ fn validate_effect_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        EffectDef::WithRule { effect, .. } => {
+            validate_effect_references(*effect, target_count, scope)
+        }
         EffectDef::BindOutput { effect, binding } => {
             if binding == crate::ParentBinding {
                 return Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {

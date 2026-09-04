@@ -305,10 +305,7 @@ fn installed_trigger_round_trip_preserves_targets_bindings_and_x() {
         // address distinct ranges in the flattened lexical selections.
         targets: selections.clone(),
         effect,
-        resolver: StackAbilityResolver::Declarative(ScopedEffect {
-            effect,
-            target_base,
-        }),
+        resolver: StackAbilityResolver::Declarative(ScopedEffect::at(effect, target_base)),
         context: context.clone(),
         condition: triggered.condition,
         modes: None,

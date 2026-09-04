@@ -5,7 +5,7 @@ use super::{
     SacrificeFollowup, ScopedEffect, StackAbilityResolver, StackObject, Target, ZoneKind,
     ZoneMoveCause, ZonePlacement,
 };
-use crate::card::ArrivalAttachmentDef;
+use crate::card::{AppliedRuleDef, ArrivalAttachmentDef};
 mod attachment;
 mod bound_outputs;
 mod copy;
@@ -33,6 +33,13 @@ impl Game {
     ) {
         let context = context.into();
         match scoped.effect {
+            EffectDef::WithRule { rule, effect } => {
+                self.resolve_effect_def(
+                    scoped.with_rule(rule).with_effect(*effect),
+                    object,
+                    context,
+                );
+            }
             EffectDef::Sequence(effects) => {
                 self.resolve_effects_in_order(
                     effects
@@ -312,7 +319,6 @@ impl Game {
             }
             EffectDef::Destroy {
                 object: recipient,
-                can_regenerate,
                 then,
             } => {
                 let permanents = self
@@ -330,7 +336,11 @@ impl Game {
                     context,
                     effect: scoped.with_effect(*follow_up.effect),
                 });
-                self.destroy_permanents_then(&permanents, can_regenerate, completion);
+                self.destroy_permanents_then(
+                    &permanents,
+                    scoped.has_rule(AppliedRuleDef::CannotRegenerate),
+                    completion,
+                );
             }
             // Audit: whoever controls a named permanent is treated as the
             // "Is sacrificed by its controller": whoever controls the

@@ -259,7 +259,7 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
                 SpellAdditionalCostDef::forage(),
                 SpellAdditionalCostDef::pay_mana(mana_cost!("{B}")),
             ]),
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );

@@ -135,7 +135,6 @@ pub(in crate::card::sets) static CLEAR: CardRecord = CardRecord::new(
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                 CardType::Enchantment,
             )),
-            true,
         ),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -287,7 +286,7 @@ pub(in crate::card::sets) static INTREPID_HERO: CardRecord = CardRecord::new(
                     ObjectPredicateDef::PowerAtLeast(4),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );
@@ -332,7 +331,7 @@ pub(in crate::card::sets) static MONK_REALIST: CardRecord = CardRecord::new_with
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );
@@ -1582,7 +1581,10 @@ pub(in crate::card::sets) static DARK_HATCHLING: CardRecord = CardRecord::new(
                     ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
                 ]),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, false),
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+            },
         ),
     ]),
 );
@@ -1660,7 +1662,7 @@ pub(in crate::card::sets) static EASTERN_PALADIN: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Color(ManaColor::Green),
             ]),
         )],
-        EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        EffectDef::destroy_target(TargetIndex::PRIMARY),
     )),
 );
 
@@ -1702,14 +1704,19 @@ pub(in crate::card::sets) static EXPUNGE: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_instant(mana_cost!("{2}{B}")).with_abilities(&[
-        AbilityDef::destroy_target(
+        AbilityDef::spell_with_targets(
             "Destroy target nonartifact, nonblack creature. It can't be regenerated.",
-            &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::All(&[
-                ObjectPredicateDef::HasType(CardType::Creature),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
-                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
-            ])),
-            false,
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Artifact)),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::Black)),
+                ]),
+            )],
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::destroy_target(TargetIndex::PRIMARY),
+            },
         ),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -2148,7 +2155,7 @@ pub(in crate::card::sets) static WESTERN_PALADIN: CardRecord = CardRecord::new(
                 ObjectPredicateDef::Color(ManaColor::White),
             ]),
         )],
-        EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+        EffectDef::destroy_target(TargetIndex::PRIMARY),
     )),
 );
 
@@ -2579,7 +2586,6 @@ pub(in crate::card::sets) static LAY_WASTE: CardRecord = CardRecord::new(
         AbilityDef::destroy_target(
             "Destroy target land.",
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(CardType::Land)),
-            true,
         ),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -2664,7 +2670,6 @@ pub(in crate::card::sets) static RAIN_OF_SALT: CardRecord = CardRecord::new(
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -2742,7 +2747,6 @@ pub(in crate::card::sets) static SCRAP: CardRecord = CardRecord::new(
             &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                 CardType::Artifact,
             )),
-            true,
         ),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -3272,7 +3276,7 @@ pub(in crate::card::sets) static ELVISH_LYRIST: CardRecord = CardRecord::new(
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Enchantment),
             )],
-            EffectDef::destroy_target(TargetIndex::PRIMARY, true),
+            EffectDef::destroy_target(TargetIndex::PRIMARY),
         ),
     ),
 );
@@ -3503,7 +3507,6 @@ pub(in crate::card::sets) static HUSH: CardRecord = CardRecord::new(
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),

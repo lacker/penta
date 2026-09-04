@@ -4,7 +4,9 @@ use super::super::model::{ManaCostSnapshot, ResolvedEffectPaymentSnapshot};
 use super::super::procedure::draw_replacement_referenced_object_ids;
 use super::*;
 use crate::card::SacrificedAmountDef;
-use crate::game::{ApplicableZoneMoveReplacement, PendingBattlefieldExitBatch};
+use crate::game::{
+    ApplicableZoneMoveReplacement, BattlefieldExitReplacementAction, PendingBattlefieldExitBatch,
+};
 use crate::game::{ResolvedEffectPayment, SacrificeDeclined};
 
 pub(super) fn discard_follow_up_snapshot(
@@ -363,11 +365,12 @@ fn extend_battlefield_exit_ids(
             .iter()
             .map(|replacement| replacement.source.object),
     );
-    ids.extend(
-        candidates
-            .iter()
-            .map(|candidate| candidate.context.source.object),
-    );
+    ids.extend(candidates.iter().map(|candidate| match candidate.action {
+        BattlefieldExitReplacementAction::Ability { context, .. } => context.source.object,
+        BattlefieldExitReplacementAction::RegenerationShield => {
+            batch.moves[candidate.move_index].object
+        }
+    }));
 }
 
 fn extend_stack_continuation_ids(

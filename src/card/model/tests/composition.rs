@@ -57,7 +57,6 @@ fn fused_split_composition_combines_targets_in_printed_order() {
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Creature,
                 )),
-                false,
             )),
         ),
         (
@@ -67,7 +66,6 @@ fn fused_split_composition_combines_targets_in_printed_order() {
                 &AbilityTargetDef::exactly_one_permanent(ObjectPredicateDef::HasType(
                     CardType::Artifact,
                 )),
-                false,
             )),
         ),
     ];

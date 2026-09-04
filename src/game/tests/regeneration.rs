@@ -115,6 +115,60 @@ fn a_spent_shield_does_not_save_the_creature_twice() {
     );
 }
 
+/// CR 608.2c makes "It can't be regenerated" part of the destruction it
+/// modifies. It is not a turn-scoped rule and must not affect a later
+/// destruction in the same resolving effect.
+#[test]
+fn a_destruction_local_prohibition_does_not_leak_to_the_next_destroy() {
+    static DESTROY_OPPONENT: EffectDef = EffectDef::WithRule {
+        rule: AppliedRuleDef::CannotRegenerate,
+        effect: &EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::Opponent,
+            ),
+            then: None,
+        },
+    };
+    static EFFECTS: [EffectDef; 2] = [
+        DESTROY_OPPONENT,
+        EffectDef::Destroy {
+            object: EffectRecipientDef::matching_objects(
+                ObjectPredicateDef::HasType(CardType::Creature),
+                &[ZoneKind::Battlefield],
+                PlayerRelation::You,
+            ),
+            then: None,
+        },
+    ];
+
+    let mut game = ready_game();
+    let yours = creature(10_010, cards::GRIZZLY_BEARS, PlayerId::One);
+    let yours_id = yours.card.id;
+    let theirs = creature(10_011, cards::GRIZZLY_BEARS, PlayerId::Two);
+    let theirs_id = theirs.card.id;
+    game.battlefield.extend([yours, theirs]);
+    game.add_regeneration_shield(yours_id);
+    game.add_regeneration_shield(theirs_id);
+
+    let source = spell(10_012, cards::WRATH_OF_GOD, PlayerId::One, 0);
+    game.resolve_effect_def(
+        ScopedEffect::primary(EffectDef::Sequence(&EFFECTS)),
+        &source,
+        TriggerContext::empty(),
+    );
+    drain_pending(&mut game);
+
+    assert!(
+        troll(&game, theirs_id).is_none(),
+        "the local rule prevents the first creature's shield",
+    );
+    let survivor = troll(&game, yours_id).expect("the later ordinary destroy can regenerate");
+    assert!(survivor.tapped);
+    assert_eq!(survivor.regeneration_shields, 0);
+}
+
 /// A shield is a promise about this turn only. Two activations stack, and
 /// whatever is left over is discarded rather than carried forward.
 #[test]

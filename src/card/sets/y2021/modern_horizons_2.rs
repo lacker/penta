@@ -4,19 +4,19 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
-    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
-    CostModificationDef, CounterKind, DamageEventMatcherDef, DamageKindDef,
-    DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef, DiscardSelectionDef,
-    DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef, GraveyardTypeConditionDef, ManaColor,
-    MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    PowerToughnessOperationDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellAdditionalCostDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, BasicLandType, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
+    ChooseDef, ComparisonDef, CostModificationDef, CounterKind, DamageEventMatcherDef,
+    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
+    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
+    GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef,
+    SpellAdditionalCostDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{AdditionalCostIndex, ParentBinding, TargetIndex, mana_cost};
 
@@ -381,7 +381,6 @@ pub(in crate::card::sets) static BONE_SHARDS: CardRecord = CardRecord::new_with_
             ]),
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -403,24 +402,28 @@ pub(in crate::card::sets) static DAMN: CardRecord = CardRecord::new_with_legacy_
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
-            EffectDef::Destroy {
-                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: false,
-                then: None,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    then: None,
+                },
             },
         ),
         AbilityDef::alternative_cast(
             mana_cost!("{2}{W}{W}"),
             AlternativeCastKindDef::Overload,
             Some("Destroy each creature. A creature destroyed this way can't be regenerated."),
-            EffectDef::Destroy {
-                object: EffectRecipientDef::matching_objects(
-                    ObjectPredicateDef::HasType(CardType::Creature),
-                    &[ZoneKind::Battlefield],
-                    PlayerRelation::Any,
-                ),
-                can_regenerate: false,
-                then: None,
+            EffectDef::WithRule {
+                rule: AppliedRuleDef::CannotRegenerate,
+                effect: &EffectDef::Destroy {
+                    object: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::Any,
+                    ),
+                    then: None,
+                },
             },
         ),
     ]),
@@ -1074,7 +1077,6 @@ pub(in crate::card::sets) static GRIST_THE_HUNGER_TIDE: CardRecord = CardRecord:
                 )],
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
             ),

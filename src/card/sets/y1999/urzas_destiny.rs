@@ -1511,7 +1511,6 @@ pub(in crate::card::sets) static POWDER_KEG: CardRecord = CardRecord::new_with_l
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                can_regenerate: true,
                 then: None,
             },
         ),

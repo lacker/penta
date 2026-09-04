@@ -266,7 +266,6 @@ pub(in crate::card::sets) static PHYREXIAN_REBIRTH: CardRecord = CardRecord::new
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: Some(DestroyFollowUpDef {
                 binding: ParentBinding,
                 effect: &EffectDef::create_artifact_creature_token(&["Phyrexian", "Horror"], &[], 0, 0)
@@ -886,7 +885,6 @@ pub(in crate::card::sets) static GO_FOR_THE_THROAT: CardRecord = CardRecord::new
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -1197,7 +1195,6 @@ pub(in crate::card::sets) static SPREAD_THE_SICKNESS: CardRecord = CardRecord::n
             EffectDef::Sequence(&[
                 EffectDef::Destroy {
                     object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    can_regenerate: true,
                     then: None,
                 },
                 EffectDef::Proliferate,
@@ -1318,7 +1315,6 @@ pub(in crate::card::sets) static CRUSH: CardRecord = CardRecord::new(
         )],
         EffectDef::Destroy {
             object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -1664,7 +1660,6 @@ pub(in crate::card::sets) static CREEPING_CORROSION: CardRecord = CardRecord::ne
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            can_regenerate: true,
             then: None,
         },
     )),
@@ -1818,7 +1813,6 @@ pub(in crate::card::sets) static PISTUS_STRIKE: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
             EffectDef::AddPlayerCounters {
@@ -1986,7 +1980,6 @@ pub(in crate::card::sets) static VIRIDIAN_CORRUPTER: CardRecord = CardRecord::ne
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),
@@ -2992,7 +2985,6 @@ pub(in crate::card::sets) static SPINE_OF_ISH_SAH: CardRecord = CardRecord::new(
             )],
             EffectDef::Destroy {
                 object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                can_regenerate: true,
                 then: None,
             },
         ),

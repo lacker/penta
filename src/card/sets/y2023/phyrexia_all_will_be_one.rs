@@ -65,7 +65,7 @@ pub(in crate::card::sets) static ANNIHILATING_GLARE: CardRecord = CardRecord::ne
                 CostQuantityDef::Fixed(1),
             ),
         ]),
-        EffectDef::destroy_target(crate::TargetIndex::PRIMARY, true),
+        EffectDef::destroy_target(crate::TargetIndex::PRIMARY),
     )),
 );
 
@@ -216,10 +216,12 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
             &[
                 AbilityDef::destroy_target("Destroy target artifact.", &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Artifact),
-                )][0], true),
+                )][0]
+),
                 AbilityDef::destroy_target("Destroy target enchantment.", &[AbilityTargetDef::exactly_one_permanent(
                     ObjectPredicateDef::HasType(CardType::Enchantment),
-                )][0], true),
+                )][0]
+),
                 AbilityDef::spell(
                     "Proliferate. (Choose any number of permanents and/or players, then give each another \
                      counter of each kind already there.)",

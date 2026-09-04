@@ -80,6 +80,23 @@ pub const fn trample() -> AbilityDef {
     keyword("Trample", KeywordAbility::Trample)
 }
 
+/// A static regeneration replacement: every time this permanent would be
+/// destroyed, regeneration replaces that destruction without spending a
+/// shield created in advance.
+#[must_use]
+pub const fn regenerates_if_destroyed(text: &'static str) -> AbilityDef {
+    AbilityDef::replacement_for(
+        text,
+        ReplacementEventDef::WouldBeDestroyed {
+            object: ObjectPredicateDef::Source,
+        },
+        ReplacementEffectDef::Sequence(&[
+            ReplacementEffectDef::ReplaceEventWithNothing,
+            ReplacementEffectDef::RegenerateDestroyedObject,
+        ]),
+    )
+}
+
 /// Myriad's reusable attack trigger. In the current two-player engine there
 /// is no opponent other than the defending player, so its explicit procedure
 /// resolves without creating a token.

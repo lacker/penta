@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1993::alpha as catalog_lea;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
+    DamageSourceMatcherDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -833,10 +834,12 @@ pub(in crate::card::sets) static PHAGE_THE_UNTOUCHABLE: CardRecord = CardRecord:
                         ObjectPredicateDef::HasType(CardType::Creature),
                     ),
                 }),
-                EffectDef::Destroy {
-                    object: EffectRecipientDef::DamagedObject,
-                    can_regenerate: false,
-                    then: None,
+                EffectDef::WithRule {
+                    rule: AppliedRuleDef::CannotRegenerate,
+                    effect: &EffectDef::Destroy {
+                        object: EffectRecipientDef::DamagedObject,
+                        then: None,
+                    },
                 },
             ),
             AbilityDef::triggered(

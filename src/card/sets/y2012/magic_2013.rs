@@ -17,8 +17,8 @@ use crate::card::sets::{
     y2011::innistrad,
 };
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, CastTimingPermissionDef, ChoiceVisibilityDef, ChooseDef, ChooseGroupDef, ColorSet,
     ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef, CostModificationDef,
@@ -1018,7 +1018,7 @@ pub(in crate::card::sets) static ENCRUST: CardRecord = CardRecord::new_with_lega
                     // and the activations together.
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::Rule(AppliedRuleDef::DoesNotUntapDuringUntapStep),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
                     ]),
                 },
             ),
@@ -2592,7 +2592,7 @@ pub(in crate::card::sets) static XATHRID_GORGON: CardRecord = CardRecord::new(
                         AppliedEffectDef::add_ability(&abilities::defender()),
                         AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Artifact)),
                         AppliedEffectDef::set_colors(ColorSet::empty()),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
                     ]),
                     duration: ResolvedEffectDurationDef::Permanent,
                 },

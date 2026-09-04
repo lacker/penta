@@ -5,11 +5,8 @@ mod untap_limits;
 use std::cell::Cell;
 
 use super::continuous_state::StaticAffectedObject;
-
-#[cfg(test)]
-use super::{AbilityId, AbilityOrigin};
 use super::{
-    AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
+    AbilityDef, AbilityOperationDef, AbilityTargetPredicate, AppliedEffectDef, AppliedRuleDef,
     AppliedRuleEffect, CardDefinitionId, CardPartId, CardRules, CardSet, CardSupertype,
     CardSupertypeSet, CardType, CardTypeSet, CharacteristicContext, CharacteristicOperationDef,
     ColorSet, ContinuousEffectExpiration, ControlFlow, DeclarativeAbilityDef, EffectDef,
@@ -20,6 +17,8 @@ use super::{
     StaticEffectTraversal, Target, TargetIndex, TriggerConditionDef, TriggerContext,
     TriggerEventObject, ZoneKind,
 };
+#[cfg(test)]
+use super::{AbilityId, AbilityOrigin};
 use crate::prepared_engine::PreparedStaticLane;
 
 thread_local! {
@@ -157,12 +156,20 @@ impl Game {
         }
     }
 
-    /// Whether anything currently forbids activating this permanent's
-    /// activated abilities. Read live off the permanent, so an Aura leaving
-    /// gives the abilities straight back.
-    pub(super) fn activated_abilities_are_prohibited(&self, permanent: &Permanent) -> bool {
+    /// Whether anything currently forbids activating this effective ability
+    /// of the permanent. Read live off both, so an Aura leaving lifts the
+    /// prohibition and layer-6 changes alter which abilities it matches.
+    pub(super) fn activated_ability_is_prohibited(
+        &self,
+        permanent: &Permanent,
+        ability: &AbilityDef,
+    ) -> bool {
         self.visit_applied_rules(permanent, |applied| {
-            if applied.rule == AppliedRuleDef::CannotActivateAbilities {
+            if matches!(
+                applied.rule,
+                AppliedRuleDef::CannotActivateAbilities(predicate)
+                    if predicate.matches(ability)
+            ) {
                 ControlFlow::Break(())
             } else {
                 ControlFlow::Continue(())

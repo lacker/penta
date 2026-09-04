@@ -37,6 +37,12 @@ pub enum AbilityPredicateDef {
 /// landwalk, while bands with other ignores the quality it names.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum AbilityKindDef {
+    /// Any activated ability, including one that produces mana.
+    Activated,
+    /// An activated ability the engine classifies as a mana ability.
+    ActivatedMana,
+    /// An activated ability the engine classifies as not being a mana ability.
+    NonManaActivated,
     Flashback,
     Suspend,
     BandsWithOther,
@@ -54,6 +60,18 @@ impl AbilityPredicateDef {
                 DeclarativeAbilityDef::Keyword(actual) if actual == expected
             ),
             Self::Is(kind) => match kind {
+                AbilityKindDef::Activated => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::ActivatedMana(_) | DeclarativeAbilityDef::Activated(_)
+                ),
+                AbilityKindDef::ActivatedMana => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::ActivatedMana(_)
+                ),
+                AbilityKindDef::NonManaActivated => matches!(
+                    ability.definition,
+                    DeclarativeAbilityDef::Activated(_)
+                ),
                 AbilityKindDef::Flashback => matches!(
                     ability.definition,
                     DeclarativeAbilityDef::AlternativeCast(alternative)

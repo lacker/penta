@@ -3,14 +3,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules,
-    CardSet, CardSupertype, CardType, ColorChoiceOperationDef, ComparisonDef, CounterKind,
-    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
-    ExilePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorChoiceOperationDef,
+    ComparisonDef, CounterKind, DiscardFollowUpDef, DiscardSelectionDef, EffectDef,
+    EffectRecipientDef, EmblemCharacteristics, ExilePlayDurationDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -541,7 +541,7 @@ pub(in crate::card::sets) static COLLECTOR_OUPHE: CardRecord = CardRecord::new_w
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
             },
         ),
     ),

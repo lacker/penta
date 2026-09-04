@@ -540,7 +540,7 @@ fn static_object_rule_supported(recipient: EffectRecipientDef, rule: AppliedRule
         | AppliedRuleDef::CrewsAsThoughPowerGreater(_)
         | AppliedRuleDef::CannotBeEnchanted
         | AppliedRuleDef::CannotBecomeEnchanted
-        | AppliedRuleDef::CannotActivateAbilities
+        | AppliedRuleDef::CannotActivateAbilities(_)
         | AppliedRuleDef::MayActivateLoyaltyAnyTime
         | AppliedRuleDef::MayAttackDespiteDefender
         | AppliedRuleDef::MayAttackAsThoughHasty

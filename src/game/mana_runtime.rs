@@ -37,14 +37,14 @@ impl Game {
         permanent: &Permanent,
     ) -> Vec<ManaAbilityActivation> {
         let mut activations = Vec::new();
-        if self.activated_abilities_are_prohibited(permanent) {
-            return activations;
-        }
         self.for_each_effective_ability(permanent, |effective| {
             let ability = effective.ability;
             let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {
                 return;
             };
+            if self.activated_ability_is_prohibited(permanent, &ability) {
+                return;
+            }
             if !self.mana_ability_is_usable(permanent, &definition) {
                 return;
             }

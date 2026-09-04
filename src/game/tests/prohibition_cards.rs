@@ -1,8 +1,8 @@
 //! Four cards that take something away, or hand out a narrowed permission.
 //!
 //! Arrest shuts off three things at once and gives all three back together,
-//! and the activation half is narrow: only activated abilities go, not the
-//! creature's triggered or static clauses. Skygames is the mirror -- the
+//! and the activation half is narrow: only activated abilities are shut off, not
+//! the creature's triggered or static clauses. Skygames is the mirror -- the
 //! ability it grants keeps the restriction printed on it.
 
 use super::*;

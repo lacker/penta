@@ -16,10 +16,10 @@ use crate::card::sets::y2010::rise_of_the_eldrazi as catalog_roe;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::sets::y2013::gatecrash as catalog_gtc;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
-    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
     SpellAdditionalCostDef, TriggerConditionDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
@@ -68,7 +68,7 @@ pub(in crate::card::sets) static ARREST: CardRecord = CardRecord::new_with_legac
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
                         AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
                     ]),
                 },
             ),

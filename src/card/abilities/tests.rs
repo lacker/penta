@@ -771,6 +771,23 @@ mod tests {
     }
 
     #[test]
+    fn activated_ability_kinds_distinguish_mana_abilities() {
+        let mana = tap_for(ManaColor::Green);
+        let nonmana = AbilityDef::activated("Test activation.", &[], EffectDef::None);
+
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::Activated).matches(&mana));
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::Activated).matches(&nonmana));
+        assert!(AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana).matches(&mana));
+        assert!(
+            !AbilityPredicateDef::Is(AbilityKindDef::ActivatedMana).matches(&nonmana)
+        );
+        assert!(
+            AbilityPredicateDef::Is(AbilityKindDef::NonManaActivated).matches(&nonmana)
+        );
+        assert!(!AbilityPredicateDef::Is(AbilityKindDef::NonManaActivated).matches(&mana));
+    }
+
+    #[test]
     fn bloodrush_owns_its_hand_zone_and_discard_procedure() {
         let effect = EffectDef::Special("Test Bloodrush effect");
         let text = "Bloodrush — {R}{G}, Discard this card: Test Bloodrush effect.";

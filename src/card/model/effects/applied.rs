@@ -451,10 +451,10 @@ pub enum AppliedRuleDef {
     /// window CR 606.3 imposes on every loyalty ability, and the one-per-turn
     /// limit beside it is untouched.
     MayActivateLoyaltyAnyTime,
-    /// The affected permanent's activated abilities can't be activated. Only
-    /// the activations: its triggered and static clauses, and any mana it
-    /// makes as a cost of something else, are untouched.
-    CannotActivateAbilities,
+    /// Matching activated abilities of the affected permanent can't be
+    /// activated. The abilities remain present: this changes what may be
+    /// activated rather than removing anything in layer 6.
+    CannotActivateAbilities(AbilityPredicateDef),
     /// No Aura may attach to the affected permanent. This restricts both the
     /// Aura spell's targeting and whether an existing attachment stays legal,
     /// so an Aura already on the permanent falls off.
@@ -799,6 +799,11 @@ impl AppliedEffectDef {
         Self::Characteristic(CharacteristicOperationDef::Abilities(
             AbilityOperationDef::Remove(predicate),
         ))
+    }
+
+    #[must_use]
+    pub const fn cannot_activate_abilities(predicate: AbilityPredicateDef) -> Self {
+        Self::Rule(AppliedRuleDef::CannotActivateAbilities(predicate))
     }
 
     #[must_use]

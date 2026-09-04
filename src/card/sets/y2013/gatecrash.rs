@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y1998::stronghold as catalog_sth;
 use crate::card::sets::y2001::odyssey as catalog_ody;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ClassifyObjectsDef, ColorChoiceOperationDef,
     ColorSet, ComparisonDef, ControlDurationDef, CopyAbilityDef, CopyExceptionsDef, CounterKind,
@@ -3841,7 +3841,7 @@ pub(in crate::card::sets) static ONE_THOUSAND_LASHES: CardRecord = CardRecord::n
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
                         AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
                     ]),
                 },
             ),

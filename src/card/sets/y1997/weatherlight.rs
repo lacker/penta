@@ -3184,7 +3184,7 @@ pub(in crate::card::sets) static NULL_ROD: CardRecord = CardRecord::new_with_leg
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+            effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
         },
     )),
 );

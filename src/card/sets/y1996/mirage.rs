@@ -10,8 +10,8 @@ use crate::card::sets::y2011::innistrad as catalog_isd;
 use crate::card::sets::y2011::magic_2012 as catalog_m12;
 use crate::card::sets::y2012::magic_2013 as catalog_m13;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
     ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef,
@@ -3808,7 +3808,7 @@ pub(in crate::card::sets) static CURSED_TOTEM: CardRecord = CardRecord::new_with
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+            effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
         },
     )),
 );

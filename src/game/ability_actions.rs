@@ -213,11 +213,6 @@ impl Game {
             if self.nonmana_ability_activation_is_prohibited(player, permanent) {
                 continue;
             }
-            // A permanent-wide prohibition stops every activation it could
-            // contribute, including open and legacy abilities.
-            if self.activated_abilities_are_prohibited(permanent) {
-                continue;
-            }
             let only_open_abilities = permanent.controller != player;
             let mut last_activated_origin = None;
             self.for_each_effective_ability(permanent, |effective| {
@@ -225,6 +220,9 @@ impl Game {
                 let DeclarativeAbilityDef::Activated(definition) = ability.definition else {
                     return;
                 };
+                if self.activated_ability_is_prohibited(permanent, &ability) {
+                    return;
+                }
                 if only_open_abilities && !definition.any_player_may_activate {
                     return;
                 }

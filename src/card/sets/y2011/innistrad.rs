@@ -1075,7 +1075,7 @@ pub(in crate::card::sets) static STONY_SILENCE: CardRecord = CardRecord::new_wit
                 &[ZoneKind::Battlefield],
                 PlayerRelation::Any,
             ),
-            effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotActivateAbilities),
+            effect: AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
         },
     )),
 );

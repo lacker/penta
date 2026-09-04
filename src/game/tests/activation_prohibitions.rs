@@ -156,6 +156,70 @@ fn a_permanent_is_locked_as_soon_as_it_becomes_an_artifact() {
 }
 
 #[test]
+fn activation_prohibitions_match_each_effective_ability() {
+    let mut game = ready_game();
+    game.turns_started = [1, 1];
+    game.battlefield.clear();
+
+    let assassin = creature(10_000, cards::ROYAL_ASSASSIN, PlayerId::One);
+    let assassin_id = assassin.card.id;
+    let mox = creature(10_001, cards::MOX_RUBY, PlayerId::One);
+    let mox_id = mox.card.id;
+    let mut target = creature(10_002, cards::SAVANNAH_LIONS, PlayerId::Two);
+    target.tapped = true;
+    game.battlefield.extend([assassin, mox, target]);
+    game.priority = PlayerId::One;
+
+    attach_resolved_rule(
+        &mut game,
+        assassin_id,
+        AppliedRuleDef::CannotActivateAbilities(AbilityPredicateDef::Is(
+            crate::card::AbilityKindDef::ActivatedMana,
+        )),
+        ContinuousEffectExpiration::Never,
+    );
+    attach_resolved_rule(
+        &mut game,
+        mox_id,
+        AppliedRuleDef::CannotActivateAbilities(AbilityPredicateDef::Is(
+            crate::card::AbilityKindDef::NonManaActivated,
+        )),
+        ContinuousEffectExpiration::Never,
+    );
+
+    let actions = game.legal_actions(PlayerId::One);
+    assert!(
+        has_ordinary_activation(&actions, assassin_id),
+        "a mana-only prohibition does not suppress an ordinary activation",
+    );
+    assert!(
+        has_mana_activation(&actions, mox_id),
+        "a nonmana prohibition does not suppress a mana activation",
+    );
+
+    attach_resolved_rule(
+        &mut game,
+        assassin_id,
+        AppliedRuleDef::CannotActivateAbilities(AbilityPredicateDef::Is(
+            crate::card::AbilityKindDef::NonManaActivated,
+        )),
+        ContinuousEffectExpiration::Never,
+    );
+    attach_resolved_rule(
+        &mut game,
+        mox_id,
+        AppliedRuleDef::CannotActivateAbilities(AbilityPredicateDef::Is(
+            crate::card::AbilityKindDef::ActivatedMana,
+        )),
+        ContinuousEffectExpiration::Never,
+    );
+
+    let actions = game.legal_actions(PlayerId::One);
+    assert!(!has_ordinary_activation(&actions, assassin_id));
+    assert!(!has_mana_activation(&actions, mox_id));
+}
+
+#[test]
 fn arrest_has_both_printings() {
     let catalog = poc::catalog().expect("catalog builds");
     let arrest = catalog.get(cards::ARREST).expect("Arrest is cataloged");

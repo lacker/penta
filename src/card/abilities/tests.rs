@@ -7,7 +7,8 @@ mod tests {
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
         enters_tapped, enters_trigger, enters_trigger_with_targets, evoke_sacrifice,
-        exile_and_return_transformed,
+        exile_and_return_transformed, gain_ability_until_end_of_turn,
+        gain_ability_until_end_of_turn_for_mana,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, look_at_top_cards,
@@ -24,10 +25,14 @@ mod tests {
         CollectionInspectionDef, DeclarativeAbilityDef, EffectDef, EffectPaymentCostDef,
         EffectRecipientDef, KeywordAbility, ManaColor, ManaCost, ObjectCollectionSourceDef,
         ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-        ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
+        ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef,
+        ZoneChangeEventMatcherDef, ZoneKind,
     };
     use crate::mana_cost;
     use crate::{ParentBinding, TargetIndex};
+
+    static TEST_FIRST_STRIKE: AbilityDef = first_strike();
+    static TEST_SACRIFICE_SOURCE: [AbilityCostDef; 1] = [AbilityCostDef::SacrificeSource];
 
     #[test]
     fn reusable_ability_text_can_be_overridden_without_changing_semantics() {
@@ -38,6 +43,45 @@ mod tests {
         assert_eq!(overridden.rules_text(), overridden.text);
         assert_eq!(overridden.definition, default.definition);
         assert_eq!(overridden.effect, default.effect);
+    }
+
+    #[test]
+    fn activated_self_grants_share_one_semantic_shape_across_cost_kinds() {
+        let mana = gain_ability_until_end_of_turn_for_mana(
+            "{R}: This creature gains first strike until end of turn.",
+            mana_cost!("{R}"),
+            &TEST_FIRST_STRIKE,
+        );
+        let nonmana = gain_ability_until_end_of_turn(
+            "Sacrifice this creature: It gains first strike until end of turn.",
+            &TEST_SACRIFICE_SOURCE,
+            &TEST_FIRST_STRIKE,
+        );
+
+        assert_eq!(
+            mana,
+            AbilityDef::activated(
+                mana.text,
+                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: crate::card::AppliedEffectDef::add_ability(&TEST_FIRST_STRIKE),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        );
+        assert_eq!(
+            nonmana,
+            AbilityDef::activated(
+                nonmana.text,
+                &TEST_SACRIFICE_SOURCE,
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: crate::card::AppliedEffectDef::add_ability(&TEST_FIRST_STRIKE),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        );
     }
 
     #[test]

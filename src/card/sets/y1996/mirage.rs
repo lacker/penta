@@ -3879,14 +3879,10 @@ pub(in crate::card::sets) static IGNEOUS_GOLEM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("f44c5e24-98f9-4a4d-9ecc-c862363eb66d", "Adam Rex"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Golem"], 3, 4).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{2}: This creature gains trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                duration: crate::card::ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{2}"),
+            &abilities::trample(),
         ),
     ),
 );
@@ -4006,14 +4002,10 @@ pub(in crate::card::sets) static PATAGIA_GOLEM: CardRecord = CardRecord::new(
     crate::card::CardArt::new("89920b7a-fd56-4fa8-96c9-fb66c2af6fbf", "Scott Kirschner"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 2, 3).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{3}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                duration: crate::card::ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{3}"),
+            &abilities::flying(),
         ),
     ),
 );

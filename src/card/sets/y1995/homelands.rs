@@ -158,14 +158,10 @@ pub(in crate::card::sets) static BEAST_WALKERS: CardRecord = CardRecord::new(
         2,
         2,
     )
-    .with_ability(AbilityDef::activated(
+    .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
         "{G}: This creature gains banding until end of turn.",
-        &[AbilityCostDef::Mana(mana_cost!("{G}"))],
-        EffectDef::Apply {
-            recipient: EffectRecipientDef::Source,
-            effect: AppliedEffectDef::add_ability(&abilities::banding()),
-            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-        },
+        mana_cost!("{G}"),
+        &abilities::banding(),
     )),
 );
 

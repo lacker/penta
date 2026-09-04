@@ -1368,17 +1368,13 @@ pub(in crate::card::sets) static GNATHOSAUR: CardRecord = CardRecord::new(
     crate::card::CardArt::new("27dcb0c8-e6d5-4f6b-a74f-e495b5e42606", "Jason Chan"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Dinosaur"], 5, 4).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn(
             "Sacrifice an artifact: This creature gains trample until end of turn.",
             &[AbilityCostDef::SacrificePermanent {
                 object: ObjectPredicateDef::HasType(CardType::Artifact),
                 controller: PlayerRelation::You,
             }],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            &abilities::trample(),
         ),
     ),
 );
@@ -2143,14 +2139,10 @@ pub(in crate::card::sets) static BLADED_SENTINEL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("69959c54-1350-4c64-8e5a-fc8447bb979c", "Tomasz Jedruszek"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 2, 4).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{W}: This creature gains vigilance until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{W}"),
+            &abilities::vigilance(),
         ),
     ),
 );
@@ -2391,14 +2383,10 @@ pub(in crate::card::sets) static GUST_SKIMMER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5970d053-e2e8-471b-b342-2e9b9177724c", "Dan Murayama Scott"),
     crate::card::CardSet::MirrodinBesieged,
     CardRules::new_artifact_creature(mana_cost!("{2}"), &["Insect"], 2, 1).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{U}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{U}"),
+            &abilities::flying(),
         ),
     ),
 );

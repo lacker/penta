@@ -4,8 +4,8 @@ use super::{
 };
 use crate::{
     AbilityDef, AbilityOperationDef, AppliedEffectDef, CardCatalog, CharacteristicContext,
-    CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, GrantId, TriggerConditionDef,
-    ValueDef, ZoneKind, applicable_part_ids,
+    CharacteristicOperationDef, DeclarativeAbilityDef, EffectDef, GrantId,
+    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, applicable_part_ids,
 };
 
 pub(crate) fn compile_catalog(catalog: &CardCatalog) -> PreparedCatalog {
@@ -45,6 +45,14 @@ pub(crate) fn compile_effect(effect: EffectDef) -> Option<PreparedEffect> {
         } => u16::try_from(count)
             .ok()
             .map(|count| PreparedEffect::DrawCards { count }),
+        EffectDef::Apply {
+            recipient: crate::EffectRecipientDef::Source,
+            effect:
+                AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+                    AbilityOperationDef::Add(ability),
+                )),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        } => Some(PreparedEffect::GrantSourceAbilityUntilEndOfTurn { ability }),
         _ => None,
     }
 }
@@ -355,6 +363,10 @@ mod tests {
     use super::*;
     use crate::card::abilities;
 
+    static TEST_FLYING: AbilityDef = abilities::flying();
+    static TEST_FLYING_GRANT: AppliedEffectDef = AppliedEffectDef::add_ability(&TEST_FLYING);
+    static TEST_FLYING_GRANT_COMPOSITE: [AppliedEffectDef; 1] = [TEST_FLYING_GRANT];
+
     #[test]
     fn dynamic_draw_collapses_the_whole_prepared_root() {
         assert_eq!(
@@ -377,5 +389,46 @@ mod tests {
                 amount: ValueDef::Constant(3),
             }
         );
+    }
+
+    #[test]
+    fn source_ability_grant_until_end_of_turn_prepares_to_an_intrinsic() {
+        let effect = abilities::gain_ability_until_end_of_turn_for_mana(
+            "{U}: This creature gains flying until end of turn.",
+            crate::mana_cost!("{U}"),
+            &TEST_FLYING,
+        )
+        .declarative_effect()
+        .expect("the helper constructs a declarative effect");
+
+        assert_eq!(
+            compile_effect(effect),
+            Some(PreparedEffect::GrantSourceAbilityUntilEndOfTurn {
+                ability: &TEST_FLYING,
+            }),
+        );
+    }
+
+    #[test]
+    fn nearby_ability_grant_shapes_retain_reference_resolution() {
+        for effect in [
+            EffectDef::Apply {
+                recipient: crate::EffectRecipientDef::Controller,
+                effect: TEST_FLYING_GRANT,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: crate::EffectRecipientDef::Source,
+                effect: TEST_FLYING_GRANT,
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+            EffectDef::Apply {
+                recipient: crate::EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&TEST_FLYING_GRANT_COMPOSITE),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ] {
+            assert_eq!(compile_effect(effect), None);
+        }
     }
 }

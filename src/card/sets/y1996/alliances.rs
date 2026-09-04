@@ -1370,14 +1370,10 @@ pub(in crate::card::sets) static ENSLAVED_SCOUT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("aac0e04a-d223-426b-b856-2829dbdffda0", "Rebecca Guay"),
     crate::card::CardSet::Alliances,
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Scout"], 2, 2).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{2}: This creature gains mountainwalk until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::mountainwalk()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{2}"),
+            &abilities::mountainwalk(),
         ),
     ),
 );

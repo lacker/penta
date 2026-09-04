@@ -12,8 +12,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, LazyLock, Mutex, Weak};
 
 use crate::{
-    AbilityId, AppliedEffectDef, CardCatalog, CardDefinitionId, CardPartId, EffectDef,
-    EffectRecipientDef, GrantId, PlayerId, TriggerConditionDef, ZoneKind,
+    AbilityDef, AbilityId, AbilityOrigin, AppliedEffectDef, CardCatalog, CardDefinitionId,
+    CardPartId, EffectDef, EffectRecipientDef, GameObjectId, GrantId, PlayerId,
+    TriggerConditionDef, ZoneKind,
 };
 
 pub(crate) use compiler::{compile_catalog, compile_effect};
@@ -21,6 +22,7 @@ pub(crate) use compiler::{compile_catalog, compile_effect};
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum PreparedEffect {
     DrawCards { count: u16 },
+    GrantSourceAbilityUntilEndOfTurn { ability: &'static AbilityDef },
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -283,14 +285,23 @@ impl PreparedEngine {
 
 pub(crate) trait PreparedHost {
     fn draw_cards(&mut self, player: PlayerId, count: u16);
+
+    fn grant_source_ability_until_end_of_turn(
+        &mut self,
+        source: Option<GameObjectId>,
+        origin: AbilityOrigin,
+        ability: &'static AbilityDef,
+    );
 }
 
 pub(crate) fn execute_effect(
     effect: PreparedEffect,
     host: &mut impl PreparedHost,
     controller: PlayerId,
+    source: Option<GameObjectId>,
+    origin: AbilityOrigin,
 ) {
-    executor::execute(effect, host, controller);
+    executor::execute(effect, host, controller, source, origin);
 }
 
 #[cfg(test)]

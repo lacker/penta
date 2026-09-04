@@ -1637,15 +1637,11 @@ pub(in crate::card::sets) static DEVIANT_GLEE: CardRecord = CardRecord::new_with
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(1)),
-                        AppliedEffectDef::add_ability(&AbilityDef::activated(
-                            "{R}: This creature gains trample until end of turn.",
-                            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::Source,
-                                effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        )),
+                        AppliedEffectDef::add_ability(&abilities::gain_ability_until_end_of_turn_for_mana(
+"{R}: This creature gains trample until end of turn.",
+mana_cost!("{R}"),
+&abilities::trample(),
+)),
                     ]),
                 },
             ),
@@ -2634,15 +2630,11 @@ pub(in crate::card::sets) static PURSUIT_OF_FLIGHT: CardRecord = CardRecord::new
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
                         AppliedEffectDef::modify_power_toughness(ValueDef::Constant(2), ValueDef::Constant(2)),
-                        AppliedEffectDef::add_ability(&AbilityDef::activated(
-                            "{U}: This creature gains flying until end of turn.",
-                            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-                            EffectDef::Apply {
-                                recipient: EffectRecipientDef::Source,
-                                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                            },
-                        )),
+                        AppliedEffectDef::add_ability(&abilities::gain_ability_until_end_of_turn_for_mana(
+"{U}: This creature gains flying until end of turn.",
+mana_cost!("{U}"),
+&abilities::flying(),
+)),
                     ]),
                 },
             ),
@@ -3443,14 +3435,10 @@ pub(in crate::card::sets) static STONEFARE_CROCODILE: CardRecord = CardRecord::n
     CardArt::new("a2517d74-0589-49dc-88f1-1fc02b27bc9d", "Tomasz Jedruszek"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{2}{G}"), &["Crocodile"], 3, 2).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{2}{B}: This creature gains lifelink until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{B}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{2}{B}"),
+            &abilities::lifelink(),
         ),
     ),
 );

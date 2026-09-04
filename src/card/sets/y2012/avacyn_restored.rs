@@ -805,14 +805,10 @@ pub(in crate::card::sets) static MOORLAND_INQUISITOR: CardRecord = CardRecord::n
     CardArt::new("581dbbea-9995-4e4b-ba5c-d6d5597e4ace", "David Palumbo"),
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Soldier"], 2, 2).with_ability(
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{2}{W}: This creature gains first strike until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{2}{W}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{2}{W}"),
+            &abilities::first_strike(),
         ),
     ),
 );
@@ -3042,14 +3038,10 @@ pub(in crate::card::sets) static SEARCHLIGHT_GEIST: CardRecord = CardRecord::new
     CardSet::AvacynRestored,
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Spirit"], 2, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{3}{B}: This creature gains deathtouch until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{3}{B}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{3}{B}"),
+            &abilities::deathtouch(),
         ),
     ]),
 );

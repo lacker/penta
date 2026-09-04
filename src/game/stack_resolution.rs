@@ -579,7 +579,15 @@ impl Game {
                 reference: _,
                 effect,
             } if self.prepared_engine.enabled() && mode_effects.is_empty() => {
-                crate::prepared_engine::execute_effect(effect, self, object.controller);
+                crate::prepared_engine::execute_effect(
+                    effect,
+                    self,
+                    object.controller,
+                    object.source,
+                    object
+                        .ability_origin()
+                        .expect("a prepared ability resolver retains its origin"),
+                );
             }
             StackAbilityResolver::Prepared { reference, .. } => {
                 let mut effects = Vec::with_capacity(mode_effects.len() + 1);

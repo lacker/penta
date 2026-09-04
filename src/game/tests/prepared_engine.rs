@@ -41,6 +41,92 @@ fn prepared_draw_and_reference_draw_have_identical_state_changes() {
     assert_eq!(prepared.result, reference.result);
 }
 
+fn resolve_goblin_balloon_brigade_flight(prepared: bool, source_stays: bool) -> Game {
+    let mut game = ready_game();
+    game.set_prepared_engine_enabled(prepared);
+    let goblin = creature(98_050, cards::GOBLIN_BALLOON_BRIGADE, PlayerId::One);
+    let goblin_id = goblin.card.id;
+    game.battlefield.push(goblin);
+    game.players[0].mana_pool.red = 1;
+
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(action, Action::ActivateAbility { source, .. } if *source == goblin_id)
+        })
+        .expect("Goblin Balloon Brigade can pay to gain flying");
+    game.apply(PlayerId::One, activation).unwrap();
+    assert!(matches!(
+        game.stack.last().and_then(|object| object.ability.as_ref()),
+        Some(StackAbilityPayload {
+            resolver: StackAbilityResolver::Prepared { .. },
+            ..
+        })
+    ));
+    if !source_stays {
+        game.battlefield
+            .retain(|permanent| permanent.card.id != goblin_id);
+    }
+    pass_priority_pair(&mut game);
+    if source_stays {
+        let goblin = game
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == goblin_id)
+            .expect("the source remains on the battlefield");
+        assert!(game.permanent_has_executable_keyword(goblin, KeywordAbility::Flying));
+    }
+    game
+}
+
+#[test]
+fn prepared_self_grant_and_reference_self_grant_have_identical_state_changes() {
+    for source_stays in [true, false] {
+        let prepared = resolve_goblin_balloon_brigade_flight(true, source_stays);
+        let reference = resolve_goblin_balloon_brigade_flight(false, source_stays);
+
+        assert_eq!(prepared.players, reference.players);
+        assert_eq!(prepared.battlefield, reference.battlefield);
+        assert!(prepared.stack.is_empty());
+        assert!(reference.stack.is_empty());
+        assert_eq!(prepared.events, reference.events);
+        assert_eq!(prepared.pending_events, reference.pending_events);
+        assert_eq!(prepared.pending_procedures, reference.pending_procedures);
+        assert_eq!(prepared.result, reference.result);
+        assert_eq!(
+            prepared.next_continuous_effect_timestamp, reference.next_continuous_effect_timestamp,
+            "the recipient filter still consumes the reference timestamp when the source left",
+        );
+    }
+}
+
+#[test]
+fn prepared_source_ability_grant_preserves_live_nonbattlefield_sources() {
+    let mut game = ready_game();
+    let source = card(98_075, cards::GOBLIN_BALLOON_BRIGADE, PlayerId::One);
+    let source_id = source.id;
+    game.players[0].hand.push(source);
+    let before_timestamp = game.next_continuous_effect_timestamp;
+    let effect = crate::prepared_engine::compile_effect(EffectDef::Apply {
+        recipient: EffectRecipientDef::Source,
+        effect: AppliedEffectDef::add_ability(&TEST_FLYING_ABILITY[0]),
+        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+    })
+    .expect("the source grant has a prepared lowering");
+
+    crate::prepared_engine::execute_effect(
+        effect,
+        &mut game,
+        PlayerId::One,
+        Some(source_id),
+        primary_ability(cards::GOBLIN_BALLOON_BRIGADE),
+    );
+
+    assert_eq!(game.nonbattlefield_ability_grants.len(), 1);
+    assert_eq!(game.next_continuous_effect_timestamp, before_timestamp + 1,);
+}
+
 #[test]
 fn prepared_static_summary_matches_reference_inspection() {
     let mut game = ready_game();

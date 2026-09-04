@@ -593,14 +593,10 @@ pub(in crate::card::sets) static PRIZED_ELEPHANT: CardRecord = CardRecord::new_w
                 ),
             },
         ),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{G}: This creature gains trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{G}"),
+            &abilities::trample(),
         ),
     ]),
 );
@@ -866,14 +862,10 @@ pub(in crate::card::sets) static ARCTIC_AVEN: CardRecord = CardRecord::new_with_
                 ),
             },
         ),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{W}: This creature gains lifelink until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{W}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{W}"),
+            &abilities::lifelink(),
         ),
     ]),
 );
@@ -3763,14 +3755,10 @@ pub(in crate::card::sets) static FLINTHOOF_BOAR: CardRecord = CardRecord::new_wi
                 ),
             },
         ),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{R}: This creature gains haste until end of turn. (It can attack and {T} this turn.)",
-            &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::haste()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{R}"),
+            &abilities::haste(),
         ),
     ]),
 );

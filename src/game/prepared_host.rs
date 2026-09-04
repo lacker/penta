@@ -1,6 +1,6 @@
 use super::{Game, ObjectCharacteristics};
 use crate::prepared_engine::{PreparedHost, PreparedStaticProgram};
-use crate::{CardDefinitionId, PlayerId};
+use crate::{AbilityDef, AbilityOrigin, CardDefinitionId, GameObjectId, PlayerId};
 
 impl Game {
     /// Enables or disables every optional prepared path for this game.
@@ -39,5 +39,14 @@ impl Game {
 impl PreparedHost for Game {
     fn draw_cards(&mut self, player: PlayerId, count: u16) {
         self.draw_instruction(player, count);
+    }
+
+    fn grant_source_ability_until_end_of_turn(
+        &mut self,
+        source: Option<GameObjectId>,
+        origin: AbilityOrigin,
+        ability: &'static AbilityDef,
+    ) {
+        Game::grant_source_ability_until_end_of_turn(self, source, origin, ability);
     }
 }

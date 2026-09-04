@@ -2633,23 +2633,15 @@ pub(in crate::card::sets) static DEATH_HOOD_COBRA: CardRecord = CardRecord::new(
     crate::card::CardArt::new("5279ac25-8175-44ad-ab7b-dfa17e359a10", "Jason Felix"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Phyrexian", "Snake"], 2, 2).with_abilities(&[
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{1}{G}: This creature gains reach until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::reach()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{1}{G}"),
+            &abilities::reach(),
         ),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{1}{G}: This creature gains deathtouch until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::deathtouch()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{1}{G}"),
+            &abilities::deathtouch(),
         ),
     ]),
 );
@@ -3320,14 +3312,10 @@ pub(in crate::card::sets) static INSATIABLE_SOULEATER: CardRecord = CardRecord::
     crate::card::CardArt::new("171d5213-5bb4-4f5b-9ddd-e2a7ac092ec6", "Dave Kendall"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Phyrexian", "Beast"], 5, 1)
-        .with_ability(AbilityDef::activated(
+        .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
             "{G/P}: This creature gains trample until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G/P}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::trample()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{G/P}"),
+            &abilities::trample(),
         )),
 );
 
@@ -3495,14 +3483,10 @@ pub(in crate::card::sets) static PESTILENT_SOULEATER: CardRecord = CardRecord::n
     crate::card::CardArt::new("a069cc07-55eb-4ddb-a548-cbf463d078d3", "Matt Stewart"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_artifact_creature(mana_cost!("{5}"), &["Phyrexian", "Insect"], 3, 3)
-        .with_ability(AbilityDef::activated(
+        .with_ability(abilities::gain_ability_until_end_of_turn_for_mana(
             "{B/P}: This creature gains infect until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{B/P}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::infect()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{B/P}"),
+            &abilities::infect(),
         )),
 );
 

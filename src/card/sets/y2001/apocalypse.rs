@@ -1061,14 +1061,10 @@ pub(in crate::card::sets) static KAVU_GLIDER: CardRecord = CardRecord::new(
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{U}: This creature gains flying until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{U}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{U}"),
+            &abilities::flying(),
         ),
     ]),
 );

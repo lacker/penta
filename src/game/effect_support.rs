@@ -113,6 +113,55 @@ impl Game {
         }
     }
 
+    /// Prepared execution for the common resolving self-grant. This commits
+    /// the same single layer-6 component as [`Self::resolve_applied_effect`]
+    /// after the compiler has proven its recipient, operation, and duration.
+    pub(super) fn grant_source_ability_until_end_of_turn(
+        &mut self,
+        source: Option<GameObjectId>,
+        origin: AbilityOrigin,
+        ability: &'static AbilityDef,
+    ) {
+        // Reference resolution allocates the application timestamp before it
+        // discovers whether the source is still a battlefield permanent.
+        let timestamp = self.allocate_continuous_effect_timestamp();
+        let Some(source) = source else {
+            return;
+        };
+        let Some(permanent_index) = self
+            .battlefield
+            .iter()
+            .position(|permanent| permanent.card.id == source)
+        else {
+            self.apply_nonbattlefield_granted_ability(
+                Target::Card(source),
+                ability,
+                ContinuousEffectExpiration::EndOfTurn,
+                Some(origin),
+            );
+            return;
+        };
+        let permanent = &mut self.battlefield[permanent_index];
+        let grant = Self::next_resolved_ability_grant(permanent);
+        let definition = AppliedEffectDef::add_ability(ability);
+        permanent
+            .resolved_continuous_effects
+            .push(ResolvedContinuousEffect {
+                definition,
+                source: AbilitySourceRef {
+                    object: source,
+                    ability: origin,
+                },
+                timestamp,
+                component_order: 0,
+                expiration: ContinuousEffectExpiration::EndOfTurn,
+                kind: ResolvedContinuousEffectKind::Abilities(ResolvedAbilityOperation::Add {
+                    ability: *ability,
+                    grant,
+                }),
+            });
+    }
+
     /// The same application, for recipients an effect has already resolved to
     /// concrete targets. Damage riders need this: which objects they apply to
     /// is decided by what the damage did, not by a recipient the runtime can
@@ -575,24 +624,7 @@ impl Game {
                     .battlefield
                     .iter()
                     .find(|permanent| permanent.card.id == target)?;
-                let mut used_grants = [false; 256];
-                for grant in permanent
-                    .resolved_continuous_effects
-                    .iter()
-                    .filter_map(|effect| match effect.kind {
-                        ResolvedContinuousEffectKind::Abilities(
-                            ResolvedAbilityOperation::Add { grant, .. },
-                        ) => Some(grant),
-                        _ => None,
-                    })
-                {
-                    used_grants[grant.index()] = true;
-                }
-                let grant = used_grants
-                    .iter()
-                    .position(|used| !used)
-                    .and_then(GrantId::from_index)
-                    .expect("one permanent has at most 256 active resolved grants");
+                let grant = Self::next_resolved_ability_grant(permanent);
                 ResolvedContinuousEffectKind::Abilities(ResolvedAbilityOperation::Add {
                     ability: *ability,
                     grant,
@@ -679,6 +711,28 @@ impl Game {
                 })
             }
         })
+    }
+
+    fn next_resolved_ability_grant(permanent: &Permanent) -> GrantId {
+        let mut used_grants = [false; 256];
+        for grant in permanent
+            .resolved_continuous_effects
+            .iter()
+            .filter_map(|effect| match effect.kind {
+                ResolvedContinuousEffectKind::Abilities(ResolvedAbilityOperation::Add {
+                    grant,
+                    ..
+                }) => Some(grant),
+                _ => None,
+            })
+        {
+            used_grants[grant.index()] = true;
+        }
+        used_grants
+            .iter()
+            .position(|used| !used)
+            .and_then(GrantId::from_index)
+            .expect("one permanent has at most 256 active resolved grants")
     }
 
     pub(super) fn live_object_target(&self, object: GameObjectId) -> Option<Target> {

@@ -3647,14 +3647,10 @@ pub(in crate::card::sets) static EMERALD_DRAGONFLY: CardRecord = CardRecord::new
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{1}{G}"), &["Insect"], 1, 1).with_abilities(&[
         abilities::flying(),
-        AbilityDef::activated(
+        abilities::gain_ability_until_end_of_turn_for_mana(
             "{G}{G}: This creature gains first strike until end of turn.",
-            &[AbilityCostDef::Mana(mana_cost!("{G}{G}"))],
-            EffectDef::Apply {
-                recipient: EffectRecipientDef::Source,
-                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
-                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-            },
+            mana_cost!("{G}{G}"),
+            &abilities::first_strike(),
         ),
     ]),
 );

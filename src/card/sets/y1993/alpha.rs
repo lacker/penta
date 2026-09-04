@@ -3354,14 +3354,10 @@ pub(in crate::card::sets) static GOBLIN_BALLOON_BRIGADE: CardRecord =
         CardArt::new("5129b422-7a35-4bc5-b14b-c814012a0d8f", "Andi Rusu"),
         CardSet::Alpha,
         CardRules::new_creature(mana_cost!("{R}"), &["Goblin", "Warrior"], 1, 1).with_abilities(&[
-            AbilityDef::activated(
+            abilities::gain_ability_until_end_of_turn_for_mana(
                 "{R}: This creature gains flying until end of turn.",
-                &[AbilityCostDef::Mana(mana_cost!("{R}"))],
-                EffectDef::Apply {
-                    recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::add_ability(&abilities::flying()),
-                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
-                },
+                mana_cost!("{R}"),
+                &abilities::flying(),
             ),
         ]),
     );

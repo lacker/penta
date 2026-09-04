@@ -679,27 +679,27 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
             EffectDef::BindOutput {
+                binding: Binding!("cabal_therapy_name"),
                 effect: &EffectDef::ChooseCardName {
                     chooser: PlayerRefDef::EffectController,
                     names: crate::card::CardNameSetDef::NonlandCardNames,
                     then: &EffectDef::Sequence(&[
-                    EffectDef::RevealHand {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                    },
-                    EffectDef::DiscardCards {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Query(
-                            ObjectQueryDef::owned_by(
-                                ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
-                                    "cabal_therapy_name"
-                                ))),
-                                &[ZoneKind::Hand],
-                                PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
-                            ),
-                        )),
-                    },
+                        EffectDef::RevealHand {
+                            player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        },
+                        EffectDef::DiscardCards {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                                        "cabal_therapy_name"
+                                    ))),
+                                    &[ZoneKind::Hand],
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                ),
+                            )),
+                        },
                     ]),
                 },
-                binding: Binding!("cabal_therapy_name"),
             },
         ),
         AbilityDef::alternative_cast(

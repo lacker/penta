@@ -214,10 +214,10 @@ pub(in crate::card::sets) static PETRIFIED_HAMLET: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "As this land enters, choose a land card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("petrified_hamlet_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::LandCardNames,
                 ),
-                binding: Binding!("petrified_hamlet_name"),
             },
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(

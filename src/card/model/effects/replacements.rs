@@ -241,10 +241,11 @@ pub enum ReplacementEffectDef {
     /// Declare a durable labeled binding and let an entry-time producer
     /// populate it. Keeping the label outside the producer makes the data
     /// flow explicit at the card declaration, just as [`EffectDef::BindOutput`]
-    /// does for resolving effects.
+    /// does for resolving effects. Keep `binding` first at construction sites
+    /// so the declaration lexically precedes the producer.
     BindOutput {
-        effect: &'static ReplacementEffectDef,
         binding: Binding,
+        effect: &'static ReplacementEffectDef,
     },
     /// Consume the prospective event without committing it.
     ReplaceEventWithNothing,

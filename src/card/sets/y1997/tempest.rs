@@ -2895,10 +2895,10 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             ReplacementEffectDef::Sequence(&[
                 ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
                 ReplacementEffectDef::BindOutput {
+                    binding: Binding!("booby_trap_name"),
                     effect: &abilities::choose_card_name_as_enters(
                         CardNameSetDef::CardNamesOtherThanBasicLands,
                     ),
-                    binding: Binding!("booby_trap_name"),
                 },
             ]),
         ),
@@ -2972,8 +2972,8 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         "D. Alexander Gregory",
     ),
     CardSet::Tempest,
-    // An empty hand makes it a certainty, which is why the card belongs in a
-    // deck that has already spent everything.
+    // A one-card hand makes the random reveal deterministic, which is why the
+    // card belongs in a deck that has spent almost everything.
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
         "{3}, {T}: Choose a card name, then reveal a card at random from your hand. If that card has the chosen name, this artifact deals 2 damage to any target.",
         &[
@@ -2984,35 +2984,35 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
             AbilityTargetPredicate::AnyTarget,
         )],
         EffectDef::BindOutput {
+            binding: Binding!("cursed_scroll_name"),
             effect: &EffectDef::ChooseCardName {
                 chooser: PlayerRefDef::EffectController,
                 names: CardNameSetDef::AllCardNames,
                 then: &EffectDef::Sequence(&[
-                EffectDef::BindOutput {
-                    effect: &EffectDef::RevealAtRandomFromHand {
-                        player: EffectRecipientDef::Controller,
-                    },
-                    binding: Binding!("revealed_card"),
-                },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::ObjectSetCount(
-                        &ObjectSetCountConditionDef {
-                            objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
-                            predicate: ObjectSetPredicateDef::contains(
-                                &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
-                                    "cursed_scroll_name"
-                                ))),
-                            ),
+                    EffectDef::BindOutput {
+                        binding: Binding!("revealed_card"),
+                        effect: &EffectDef::RevealAtRandomFromHand {
+                            player: EffectRecipientDef::Controller,
                         },
-                    ),
-                    then: &EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
                     },
-                },
+                    EffectDef::IfCondition {
+                        condition: &TriggerConditionDef::ObjectSetCount(
+                            &ObjectSetCountConditionDef {
+                                objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
+                                predicate: ObjectSetPredicateDef::contains(
+                                    &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                                        "cursed_scroll_name"
+                                    ))),
+                                ),
+                            },
+                        ),
+                        then: &EffectDef::DealDamage {
+                            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                            amount: ValueDef::Constant(2),
+                        },
+                    },
                 ]),
             },
-            binding: Binding!("cursed_scroll_name"),
         },
     )),
 );

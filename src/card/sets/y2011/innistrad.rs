@@ -819,10 +819,10 @@ pub(in crate::card::sets) static NEVERMORE: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "As this enchantment enters, choose a nonland card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("nevermore_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::NonlandCardNames,
                 ),
-                binding: Binding!("nevermore_name"),
             },
         ),
         abilities::cannot_cast_spells_with_name(

@@ -23,10 +23,10 @@ pub(in crate::card::sets) static ANOINTED_PEACEKEEPER: CardRecord = CardRecord::
             crate::card::ReplacementEffectDef::Sequence(&[
                 crate::card::ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
                 crate::card::ReplacementEffectDef::BindOutput {
+                    binding: crate::Binding!("anointed_peacekeeper_name"),
                     effect: &abilities::choose_card_name_as_enters(
                         crate::card::CardNameSetDef::AllCardNames,
                     ),
-                    binding: crate::Binding!("anointed_peacekeeper_name"),
                 },
             ]),
         ),

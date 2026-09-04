@@ -42,8 +42,8 @@ fn card_name_entry_choices_require_public_name_sets_and_durable_bindings() {
         validate_replacement_ability_targets(
             &[],
             ReplacementEffectDef::BindOutput {
-                effect: &PUBLIC_PRODUCER,
                 binding: Binding!("pithing_needle_name"),
+                effect: &PUBLIC_PRODUCER,
             },
         ),
         Ok(()),
@@ -52,8 +52,8 @@ fn card_name_entry_choices_require_public_name_sets_and_durable_bindings() {
         validate_replacement_ability_targets(
             &[],
             ReplacementEffectDef::BindOutput {
-                effect: &HIDDEN_PRODUCER,
                 binding: Binding!("pithing_needle_name"),
+                effect: &HIDDEN_PRODUCER,
             },
         ),
         Err(GrantedAbilityValidationError::InvalidScalarChoice {
@@ -65,8 +65,8 @@ fn card_name_entry_choices_require_public_name_sets_and_durable_bindings() {
         validate_replacement_ability_targets(
             &[],
             ReplacementEffectDef::BindOutput {
-                effect: &PUBLIC_PRODUCER,
                 binding: crate::ParentBinding,
+                effect: &PUBLIC_PRODUCER,
             },
         ),
         Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {

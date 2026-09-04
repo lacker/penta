@@ -402,6 +402,7 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                     "+1: Choose a nonland card name, then reveal the top four cards of your library. Put all cards with the chosen name from among them into your hand and the rest into your graveyard.",
                     &[AbilityCostDef::Loyalty(1)],
                     EffectDef::BindOutput {
+                        binding: Binding!("tamiyo_name"),
                         effect: &EffectDef::ChooseCardName {
                             chooser: PlayerRefDef::EffectController,
                             names: crate::card::CardNameSetDef::NonlandCardNames,
@@ -414,7 +415,6 @@ pub(in crate::card::sets) static TAMIYO_COLLECTOR_OF_TALES: CardRecord =
                                 )),
                             ),
                         },
-                        binding: Binding!("tamiyo_name"),
                     },
                 ),
                 AbilityDef::activated_with_targets(

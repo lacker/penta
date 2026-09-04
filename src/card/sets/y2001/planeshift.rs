@@ -1280,10 +1280,10 @@ pub(in crate::card::sets) static MEDDLING_MAGE: CardRecord = CardRecord::new_wit
         AbilityDef::as_enters(
             "As this creature enters, choose a nonland card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("meddling_mage_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::NonlandCardNames,
                 ),
-                binding: Binding!("meddling_mage_name"),
             },
         ),
         abilities::cannot_cast_spells_with_name(

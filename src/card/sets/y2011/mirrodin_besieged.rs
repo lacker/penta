@@ -2617,10 +2617,10 @@ pub(in crate::card::sets) static PHYREXIAN_REVOKER: CardRecord = CardRecord::new
             AbilityDef::as_enters(
                 "As this creature enters, choose a nonland card name.",
                 crate::card::ReplacementEffectDef::BindOutput {
+                    binding: Binding!("phyrexian_revoker_name"),
                     effect: &abilities::choose_card_name_as_enters(
                         crate::card::CardNameSetDef::NonlandCardNames,
                     ),
-                    binding: Binding!("phyrexian_revoker_name"),
                 },
             ),
             abilities::cannot_activate_abilities_with_name(

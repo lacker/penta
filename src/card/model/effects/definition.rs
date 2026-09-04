@@ -189,10 +189,12 @@ pub enum EffectDef {
     /// Declare one string-labeled object-set binding and resolve an effect
     /// whose output may populate it. The declaration itself creates the empty
     /// set, so a conditional effect that produces nothing is distinct from a
-    /// reference to a label that was never declared.
+    /// reference to a label that was never declared. Keep `binding` first at
+    /// construction sites so its declaration lexically precedes every use in
+    /// the producer's continuation.
     BindOutput {
-        effect: &'static EffectDef,
         binding: Binding,
+        effect: &'static EffectDef,
     },
     /// Choose one distinct member for each of several predicates.
     ChooseOneOfEach(super::ChooseOneOfEachDef),

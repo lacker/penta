@@ -133,10 +133,10 @@ pub(in crate::card::sets) static SORCEROUS_SPYGLASS: CardRecord = CardRecord::ne
             crate::card::ReplacementEffectDef::Sequence(&[
                 crate::card::ReplacementEffectDef::LookAtHand(PlayerRelation::Opponent),
                 crate::card::ReplacementEffectDef::BindOutput {
+                    binding: crate::Binding!("sorcerous_spyglass_name"),
                     effect: &abilities::choose_card_name_as_enters(
                         crate::card::CardNameSetDef::AllCardNames,
                     ),
-                    binding: crate::Binding!("sorcerous_spyglass_name"),
                 },
             ]),
         ),

@@ -92,8 +92,8 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
     super::validate_ability_targets(
         &[],
         EffectDef::BindOutput {
-            effect: producer,
             binding,
+            effect: producer,
         },
     )
     .expect("the continuation may consume the explicitly chosen name");
@@ -102,8 +102,8 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
         super::validate_ability_targets(
             &[],
             EffectDef::BindOutput {
-                effect: producer,
                 binding: ParentBinding,
+                effect: producer,
             },
         ),
         Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {
@@ -121,8 +121,8 @@ fn resolving_card_name_choices_require_and_expose_a_typed_binding() {
         super::validate_ability_targets(
             &[],
             EffectDef::BindOutput {
-                effect: unused,
                 binding,
+                effect: unused,
             },
         ),
         Err(GrantedAbilityValidationError::UnsupportedEffectProgramContext {

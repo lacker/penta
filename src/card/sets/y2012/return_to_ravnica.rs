@@ -6210,10 +6210,10 @@ pub(in crate::card::sets) static PITHING_NEEDLE: CardRecord = CardRecord::new_wi
         AbilityDef::as_enters(
             "As this artifact enters, choose a card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("pithing_needle_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::AllCardNames,
                 ),
-                binding: Binding!("pithing_needle_name"),
             },
         ),
         abilities::cannot_activate_nonmana_abilities_with_name(

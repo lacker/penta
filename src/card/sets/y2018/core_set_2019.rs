@@ -80,10 +80,10 @@ pub(in crate::card::sets) static ALPINE_MOON: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "As this enchantment enters, choose a nonbasic land card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("alpine_moon_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::NonbasicLandCardNames,
                 ),
-                binding: Binding!("alpine_moon_name"),
             },
         ),
         AbilityDef::static_ability(

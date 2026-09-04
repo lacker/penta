@@ -1798,10 +1798,10 @@ pub(in crate::card::sets) static DISRUPTOR_FLUTE: CardRecord = CardRecord::new(
         AbilityDef::as_enters(
             "As this artifact enters, choose a card name.",
             crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("disruptor_flute_name"),
                 effect: &abilities::choose_card_name_as_enters(
                     crate::card::CardNameSetDef::AllCardNames,
                 ),
-                binding: Binding!("disruptor_flute_name"),
             },
         ),
         abilities::spell_cost_increase_for_name(

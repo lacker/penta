@@ -877,16 +877,12 @@ fn continuation_snapshot(
         },
         DecisionContinuation::CardNameChoice {
             choices,
-            searched,
-            zone,
             binding,
             object,
             context,
             effect,
         } => DecisionContinuationSnapshot::CardNameChoice {
             choices: choices.clone(),
-            searched: searched.index(),
-            zone: zone_kind_snapshot(*zone),
             binding: binding_snapshot(binding),
             continuation: effect_continuation_snapshot(
                 game,

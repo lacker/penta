@@ -148,13 +148,13 @@ struct BindingRegistry {
     next_parent: std::cell::Cell<u8>,
     parent_reads: std::cell::Cell<u64>,
     binding_reads: std::cell::Cell<u64>,
-    chosen_name_reads: std::cell::Cell<u64>,
 }
 
 #[derive(Clone, Copy)]
 struct BindingScope<'registry> {
     objects: u64,
     object_sets: u64,
+    card_names: u64,
     escaping_object_sets: u64,
     parent_object: Option<u8>,
     parent_object_set: Option<u8>,
@@ -166,6 +166,7 @@ impl<'registry> BindingScope<'registry> {
         Self {
             objects: 0,
             object_sets: 0,
+            card_names: 0,
             escaping_object_sets: 0,
             parent_object: None,
             parent_object_set: None,
@@ -295,16 +296,6 @@ impl<'registry> BindingScope<'registry> {
             .is_some_and(|bit| self.bindings.binding_reads.get() & bit != 0)
     }
 
-    fn chosen_name_read_count(self) -> u64 {
-        self.bindings.chosen_name_reads.get()
-    }
-
-    fn mark_chosen_name_read(self) {
-        self.bindings
-            .chosen_name_reads
-            .set(self.bindings.chosen_name_reads.get() + 1);
-    }
-
     fn with_object(
         self,
         binding: Binding,
@@ -412,6 +403,8 @@ impl<'registry> BindingScope<'registry> {
     }
 
 }
+
+include!("name_binding_scope.rs");
 
 fn validate_target_index(
     target: TargetIndex,
@@ -555,6 +548,7 @@ fn validate_query(
     target_count: usize,
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
+    validate_object_predicate_references(query.object, target_count, scope)?;
     if let Some(controller) = query.controller {
         validate_player_set(controller, target_count, scope)?;
     }
@@ -988,11 +982,8 @@ fn validate_card_name_references(
 ) -> Result<(), GrantedAbilityValidationError> {
     match name {
         CardNameDef::NameOf(reference) => validate_object_reference(reference, target_count, scope),
-        CardNameDef::EffectChoice => {
-            scope.mark_chosen_name_read();
-            Ok(())
-        }
-        CardNameDef::Literal(_) | CardNameDef::Binding(_) => Ok(()),
+        CardNameDef::Binding(binding) => scope.validate_card_name_binding_reference(binding),
+        CardNameDef::Literal(_) => Ok(()),
     }
 }
 

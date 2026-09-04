@@ -560,9 +560,6 @@ pub(super) enum DecisionContinuation {
     /// effect waiting on the answer.
     CardNameChoice {
         choices: Vec<String>,
-        /// Whose cards the name is matched against, and where.
-        searched: PlayerId,
-        zone: ZoneKind,
         binding: RuntimeBinding,
         object: Box<StackObject>,
         context: EffectResolutionContext,

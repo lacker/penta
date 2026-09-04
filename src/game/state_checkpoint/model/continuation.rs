@@ -128,8 +128,6 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         /// list is written down rather than recomputed: which names were
         /// offered is part of the pending question.
         choices: Vec<String>,
-        searched: usize,
-        zone: ZoneKindSnapshot,
         binding: super::BindingSnapshot,
         continuation: EffectContinuationSnapshot,
     },

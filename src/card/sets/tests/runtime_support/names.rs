@@ -3,10 +3,7 @@ use crate::card::{CardNameDef, CardNameSetDef, ObjectSetDef};
 pub(super) fn shared_card_name(name: CardNameDef) -> bool {
     matches!(
         name,
-        CardNameDef::Literal(_)
-            | CardNameDef::EffectChoice
-            | CardNameDef::Binding(_)
-            | CardNameDef::NameOf(_)
+        CardNameDef::Literal(_) | CardNameDef::Binding(_) | CardNameDef::NameOf(_)
     )
 }
 

@@ -118,8 +118,13 @@ distinguishes snapshots of the covered source and build inputs.
   player's hand or library. Object-set union keeps the target in every
   "target and all others with the same name" effect even when that target is
   face down and nameless, while absent names still never compare equal. The
-  optional checkpoint binding label is additive; checkpoint format 11,
-  replay version 2, and protocol 30 are unchanged.
+  same typed binding now carries a card name chosen during resolution, so
+  Cursed Scroll names from the public catalog independently of its controller's
+  hand and compares the random reveal with that explicit value. Cabal Therapy
+  and Tamiyo likewise query their later objects with the bound name rather than
+  asking the chooser to materialize one zone's matching cards. Checkpoint
+  format 12 preserves resolving name bindings and the simplified name-choice
+  continuation; replay version 2 and protocol 30 are unchanged.
 
 - **Effect bindings are unified and checkpoint format 11 preserves their
   lexical shape.** Declarative effects now use `Binding!("label")` for every

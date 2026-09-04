@@ -459,7 +459,7 @@ fn validate_card_name_shape(
 ) -> Result<(), GrantedAbilityValidationError> {
     match name {
         CardNameDef::NameOf(reference) => validate_object_reference_shape(reference, targets),
-        CardNameDef::Literal(_) | CardNameDef::EffectChoice | CardNameDef::Binding(_) => Ok(()),
+        CardNameDef::Literal(_) | CardNameDef::Binding(_) => Ok(()),
     }
 }
 

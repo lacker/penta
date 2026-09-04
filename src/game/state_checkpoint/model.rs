@@ -833,7 +833,6 @@ pub(super) enum SeatSnapshot {
 }
 
 include!("model_trigger_context.rs");
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct EffectResolutionContextSnapshot {
@@ -848,6 +847,8 @@ pub(super) struct EffectResolutionContextSnapshot {
     pub(super) parent_objects: Vec<TargetSnapshot>,
     #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
     pub(super) bindings: std::collections::BTreeMap<String, EffectBindingSnapshot>,
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub(super) card_name_bindings: std::collections::BTreeMap<String, String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -377,6 +377,9 @@ const BINDING_LABELS: &[&str] = &[
     "sorcerous_spyglass_name",
     "surgical_extraction_target",
     "voidstone_gargoyle_name",
+    "cabal_therapy_name",
+    "cursed_scroll_name",
+    "tamiyo_name",
 ];
 
 #[allow(non_upper_case_globals)]

@@ -16,8 +16,6 @@ pub enum CardNameDef {
     /// The name of the referenced object, read with last-known information
     /// after that object changes zones.
     NameOf(ObjectRefDef),
-    /// The card name chosen by the resolving effect.
-    EffectChoice,
     /// A card name explicitly recorded under this authored binding.
     Binding(Binding),
 }

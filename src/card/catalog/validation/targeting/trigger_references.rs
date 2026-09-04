@@ -50,9 +50,6 @@ fn validate_trigger_object_predicate(
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             validate_trigger_object_predicate(*predicate, event, target_count, scope)
         }
-        ObjectPredicateDef::NameEquals(CardNameDef::EffectChoice) => {
-            Err(unsupported_trigger_event(event))
-        }
         ObjectPredicateDef::NameEquals(name) => {
             validate_card_name_references(name, target_count, scope)
         }

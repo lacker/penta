@@ -17,10 +17,10 @@ use crate::card::{
     CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
     ChooseDef, CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef,
     EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ReplacementChoiceDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2964,10 +2964,6 @@ pub(in crate::card::sets) static COLD_STORAGE: CardRecord = CardRecord::new(
 );
 
 // TMP 281 — Cursed Scroll
-/// Naming a card is modelled as picking one of the cards in hand. Every name
-/// worth choosing is one of those -- naming something you do not hold can
-/// only fail -- and the choice is public either way, so nothing is hidden and
-/// nothing achievable is lost.
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2987,20 +2983,11 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ParentBinding),
-            unchosen: None,
-            chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                ObjectPredicateDef::Any,
-                &[ZoneKind::Hand],
-                PlayerSetDef::Related(PlayerRelation::You),
-            )),
-            exclude: None,
-            minimum: 1,
-            maximum: 1,
-            visibility: ChoiceVisibilityDef::Public,
-            then: &EffectDef::Sequence(&[
+        EffectDef::BindOutput {
+            effect: &EffectDef::ChooseCardName {
+                chooser: PlayerRefDef::EffectController,
+                names: CardNameSetDef::AllCardNames,
+                then: &EffectDef::Sequence(&[
                 EffectDef::BindOutput {
                     effect: &EffectDef::RevealAtRandomFromHand {
                         player: EffectRecipientDef::Controller,
@@ -3008,19 +2995,25 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
                     binding: Binding!("revealed_card"),
                 },
                 EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::BoundObjectMatches {
-                        binding: ParentBinding,
-                        object: ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
-                            &ObjectSetDef::Binding(Binding!("revealed_card")),
-                        )),
-                    },
+                    condition: &TriggerConditionDef::ObjectSetCount(
+                        &ObjectSetCountConditionDef {
+                            objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
+                            predicate: ObjectSetPredicateDef::contains(
+                                &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                                    "cursed_scroll_name"
+                                ))),
+                            ),
+                        },
+                    ),
                     then: &EffectDef::DealDamage {
                         recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
                         amount: ValueDef::Constant(2),
                     },
                 },
-            ]),
-        }),
+                ]),
+            },
+            binding: Binding!("cursed_scroll_name"),
+        },
     )),
 );
 

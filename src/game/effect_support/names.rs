@@ -105,7 +105,7 @@ impl Game {
                 .and_then(|host| self.object_card_name(host))
                 .map(Cow::into_owned),
             CardNameDef::Binding(binding) => self.permanent_bound_card_name(source, binding),
-            CardNameDef::EffectChoice | CardNameDef::NameOf(_) => None,
+            CardNameDef::NameOf(_) => None,
         }
     }
 
@@ -149,10 +149,11 @@ impl Game {
                 .object_reference_id(reference, object, context, scoped)
                 .and_then(|referenced| self.object_card_name(referenced))
                 .map(Cow::into_owned),
-            CardNameDef::EffectChoice => context.chosen_name.clone(),
-            CardNameDef::Binding(binding) => object
-                .source
-                .and_then(|source| self.permanent_bound_card_name(source, binding)),
+            CardNameDef::Binding(binding) => context.card_name(binding).or_else(|| {
+                object
+                    .source
+                    .and_then(|source| self.permanent_bound_card_name(source, binding))
+            }),
         }
     }
 

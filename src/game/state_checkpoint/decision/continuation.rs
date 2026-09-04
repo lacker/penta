@@ -208,8 +208,6 @@ fn parse_continuation(
         },
         DecisionContinuationSnapshot::CardNameChoice {
             choices,
-            searched,
-            zone,
             binding,
             continuation,
         } => {
@@ -217,8 +215,6 @@ fn parse_continuation(
             let continuation = parse_effect_continuation(continuation, game)?;
             DecisionContinuation::CardNameChoice {
                 choices: choices.clone(),
-                searched: player(*searched)?,
-                zone: parse_zone_kind(*zone),
                 binding: parse_binding_snapshot(binding),
                 object: continuation.object,
                 context: continuation.context,

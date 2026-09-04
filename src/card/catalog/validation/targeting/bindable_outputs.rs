@@ -3,7 +3,8 @@ fn has_bindable_output(effect: EffectDef) -> Result<bool, GrantedAbilityValidati
         EffectDef::Mill { .. }
         | EffectDef::MillUntil(_)
         | EffectDef::SelectAtRandomFromZone { .. }
-        | EffectDef::RevealAtRandomFromHand { .. } => Ok(true),
+        | EffectDef::RevealAtRandomFromHand { .. }
+        | EffectDef::ChooseCardName { .. } => Ok(true),
         EffectDef::IfCondition { then, .. } => has_bindable_output(*then),
         EffectDef::IfFormat {
             then, otherwise, ..
@@ -28,6 +29,10 @@ fn durable_object_set_outputs(effect: EffectDef, outputs: &mut Vec<Binding>) {
         }
     };
     match effect {
+        EffectDef::BindOutput {
+            effect: &EffectDef::ChooseCardName { .. },
+            ..
+        } => {}
         EffectDef::BindOutput { binding, .. } => push(binding),
         EffectDef::WithZoneMoveResult { binding, then, .. } => {
             push(binding);

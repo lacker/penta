@@ -9,7 +9,7 @@
 use super::super::*;
 use super::{determinized, true_hidden_hypothesis};
 use crate::game::tests::{card, cast_action, creature, ready_game};
-use crate::game::{DecisionContinuation, ResolvedEffectPayment};
+use crate::game::{DecisionContinuation, ResolvedEffectPayment, RuntimeBinding};
 use crate::{Action, CardDefinitionId, CounterKind, ManaColor, TargetSelection};
 use serde_json::Value;
 

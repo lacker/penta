@@ -697,29 +697,8 @@ impl Game {
                 };
                 self.install_trigger_from(installed, scoped, object, context, source_ability);
             }
-            EffectDef::ChooseCardName {
-                chooser,
-                names,
-                matched_in,
-                zone,
-                binding,
-                then,
-            } => {
-                if let Some(player) = self.player_reference(chooser, object, &context, scoped)
-                    && let Some(searched) =
-                        self.player_reference(matched_in, object, &context, scoped)
-                {
-                    self.queue_card_name_choice(
-                        player,
-                        names,
-                        searched,
-                        zone,
-                        binding,
-                        object.clone(),
-                        context,
-                        scoped.with_effect(*then),
-                    );
-                }
+            EffectDef::ChooseCardName { .. } => {
+                unreachable!("catalog validation rejected an unbound card-name choice")
             }
             EffectDef::CopyStackObject(copy) => {
                 let copies = self

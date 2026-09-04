@@ -436,6 +436,49 @@ fn a_permanent_that_named_a_card_reconstructs_while_naming_and_after() {
     assert_reconstructs(&game, "a permanent holding a chosen card name");
 }
 
+#[test]
+fn a_resolving_card_name_binding_reconstructs() {
+    let mut game = staged_game();
+    let scroll = creature(
+        11_500,
+        crate::card::cards::CURSED_SCROLL,
+        PlayerId::One,
+    );
+    let scroll_id = scroll.card.id;
+    game.battlefield.push(scroll);
+    fill_mana(&mut game, PlayerId::One, 3);
+
+    let activation = game
+        .legal_actions(PlayerId::One)
+        .into_iter()
+        .find(|action| {
+            matches!(
+                action,
+                Action::ActivateAbility { source, targets, .. }
+                    if *source == scroll_id
+                        && targets.iter().any(|slot| {
+                            slot.targets().contains(&Target::Player(PlayerId::Two))
+                        })
+            )
+        })
+        .expect("Cursed Scroll can target the opponent");
+    game.apply(PlayerId::One, activation)
+        .expect("Cursed Scroll is activated");
+    resolve_top_of_stack(&mut game);
+
+    assert!(
+        matches!(
+            game.pending_decisions
+                .first()
+                .map(|pending| &pending.continuation),
+            Some(DecisionContinuation::CardNameChoice { binding, .. })
+                if *binding == RuntimeBinding::Label("cursed_scroll_name".into())
+        ),
+        "the pending decision carries the explicit chosen-name binding",
+    );
+    assert_reconstructs(&game, "Cursed Scroll choosing a card name");
+}
+
 /// A chosen player shares the scalar entry continuation but lands in typed
 /// permanent state rather than free-form text.
 #[test]

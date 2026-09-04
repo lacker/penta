@@ -1,7 +1,8 @@
 use super::*;
 use crate::ParentBinding;
 use crate::card::{
-    BasicLandType, CardTypeSet, EffectPaymentDef, PayOrDef, ScaledValueDef, abilities,
+    BasicLandType, CardNameDef, CardNameSetDef, CardTypeSet, EffectPaymentDef, PayOrDef,
+    ScaledValueDef, abilities,
 };
 
 #[test]

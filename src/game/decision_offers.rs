@@ -216,16 +216,14 @@ impl Game {
         amount
     }
 
-    /// Asks `player` to name a card while an effect resolves, then continues
-    /// that effect with the answer. The catalog supplies the list, which is
-    /// the same one an entering permanent's naming choice offers.
+    /// Asks `player` to name a card while an effect resolves, binds the name,
+    /// then continues that effect with the answer. The catalog supplies the
+    /// list, which is the same one an entering permanent's naming choice offers.
     #[allow(clippy::too_many_arguments)]
     pub(super) fn queue_card_name_choice(
         &mut self,
         player: PlayerId,
         names: crate::card::CardNameSetDef,
-        searched: PlayerId,
-        zone: ZoneKind,
         binding: crate::Binding,
         object: StackObject,
         context: EffectResolutionContext,
@@ -255,8 +253,6 @@ impl Game {
             options,
             DecisionContinuation::CardNameChoice {
                 choices,
-                searched,
-                zone,
                 binding: binding.into(),
                 object: Box::new(object),
                 context,

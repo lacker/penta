@@ -906,7 +906,25 @@ pub(in crate::card::sets) static BLOODLORD_OF_VAASGOTH: CardRecord = CardRecord:
     "Bloodlord of Vaasgoth",
     crate::card::CardArt::new("125c5cff-d4e9-4655-9cc5-3ce21e577569", "Greg Staples"),
     crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{3}{B}{B}"), &["Vampire", "Warrior"], 3, 3).with_abilities(
+        &[
+            abilities::bloodthirst(3),
+            abilities::flying(),
+            AbilityDef::triggered(
+                "Whenever you cast a Vampire creature spell, it gains bloodthirst 3.",
+                TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::Subtype("Vampire"),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ])),
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::TriggeringObject,
+                    effect: AppliedEffectDef::add_ability(&abilities::bloodthirst(3)),
+                    duration: ResolvedEffectDurationDef::Permanent,
+                },
+            ),
+        ],
+    ),
 );
 
 // M12 83 — Bloodrage Vampire
@@ -1667,7 +1685,8 @@ pub(in crate::card::sets) static STORMBLOOD_BERSERKER: CardRecord = CardRecord::
     "Stormblood Berserker",
     crate::card::CardArt::new("fc9a50af-ca3e-461a-9dcb-444f56284165", "Min Yum"),
     crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Berserker"], 1, 1)
+        .with_abilities(&[abilities::bloodthirst(2), abilities::menace()]),
 );
 
 // M12 157 — Tectonic Rift
@@ -1755,7 +1774,8 @@ pub(in crate::card::sets) static CARNAGE_WURM: CardRecord = CardRecord::new(
     "Carnage Wurm",
     crate::card::CardArt::new("c086eb41-3524-4815-97c9-761ba86a30b2", "Dave Kendall"),
     crate::card::CardSet::Magic2012,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{6}{G}"), &["Wurm"], 6, 6)
+        .with_abilities(&[abilities::bloodthirst(3), abilities::trample()]),
 );
 
 // M12 169 — Cudgel Troll

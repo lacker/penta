@@ -20,6 +20,72 @@ mod tokens;
 mod trajectory;
 
 #[test]
+fn keyword_mechanics_flanking_runtime_grant_round_trips() {
+    let mut game = crate::game::tests::ready_game();
+    let mut knight =
+        crate::game::tests::creature(89_700, crate::poc::cards::GRIZZLY_BEARS, PlayerId::One);
+    knight.temporary_keywords.push(KeywordAbility::Flanking);
+    let knight_id = knight.card.id;
+    game.battlefield.push(knight);
+
+    let (wire, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 89_701);
+    assert_eq!(
+        wire.pointer("/checkpoint/battlefield/0/temporaryKeywords/0")
+            .and_then(Value::as_str),
+        Some("flanking")
+    );
+    let rebuilt = rebuilt
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.id == knight_id)
+        .expect("the granted creature rebuilds");
+    assert!(
+        rebuilt
+            .temporary_keywords
+            .contains(&KeywordAbility::Flanking)
+    );
+}
+
+#[test]
+fn keyword_mechanics_bloodlord_spell_grant_round_trips_before_entry() {
+    let mut game = crate::game::tests::ready_game();
+    game.put_onto_battlefield(PlayerId::One, crate::poc::cards::BLOODLORD_OF_VAASGOTH)
+        .expect("Bloodlord is in the catalog");
+    crate::game::tests::drain_pending(&mut game);
+    game.damage_taken_this_turn[PlayerId::Two.index()] = 1;
+
+    let vampire = crate::game::tests::card(
+        89_710,
+        crate::poc::cards::SHADOW_ALLEY_DENIZEN,
+        PlayerId::One,
+    );
+    let vampire_id = vampire.id;
+    game.players[PlayerId::One.index()].hand.push(vampire);
+    game.add_unrestricted_mana(PlayerId::One, ManaColor::Black, 1);
+    game.apply(
+        PlayerId::One,
+        crate::game::tests::cast_action(vampire_id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("the Vampire can be cast");
+    crate::game::tests::pass_priority_pair(&mut game);
+    assert_eq!(game.stack.len(), 1, "the grant resolved above the spell");
+    assert_eq!(
+        game.stack[0].card.definition,
+        crate::poc::cards::SHADOW_ALLEY_DENIZEN
+    );
+    assert_eq!(game.stack[0].applied_effects.len(), 1);
+
+    let (_, mut rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 89_711);
+    crate::game::tests::drain_pending(&mut rebuilt);
+    let vampire = rebuilt
+        .battlefield
+        .iter()
+        .find(|permanent| permanent.card.definition == crate::poc::cards::SHADOW_ALLEY_DENIZEN)
+        .expect("the reconstructed spell resolves");
+    assert_eq!(vampire.counters(CounterKind::PlusOnePlusOne), 3);
+}
+
+#[test]
 fn catalog_semantics_rehydrate_top_level_and_nested_abilities() {
     let catalog = crate::poc::catalog().expect("catalog builds");
     let top_level = catalog

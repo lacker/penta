@@ -7,7 +7,8 @@
 
 use super::super::{
     AbilityDef, AbilityOperationDef, AppliedEffectDef, CharacteristicOperationDef, ControlFlow,
-    DeclarativeAbilityDef, EffectDef, Game, Permanent, ReplacementEventDef, ZoneKind,
+    DeclarativeAbilityDef, EffectDef, Game, Permanent, ReplacementEventDef,
+    ResolvedAbilityOperation, ResolvedContinuousEffectKind, ZoneKind,
 };
 
 impl Game {
@@ -104,6 +105,16 @@ impl Game {
                     .iter()
                     .any(|added| may_supply(&added.definition))
             })
+            || permanent
+                .resolved_continuous_effects
+                .iter()
+                .any(|resolved| match resolved.kind {
+                    ResolvedContinuousEffectKind::Abilities(ResolvedAbilityOperation::Add {
+                        ability,
+                        ..
+                    }) => may_supply(&ability),
+                    _ => false,
+                })
     }
 
     /// Returns whether an existing static source might grant the prospective

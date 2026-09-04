@@ -39,6 +39,16 @@ distinguishes snapshots of the covered source and build inputs.
   checkpoint written before this reads unchanged and publishes no reflexive
   half, which no card could have named yet.
 
+- **Bushido, flanking, and bloodthirst are shared declarative mechanics.**
+  Bushido expands to its blocks-or-becomes-blocked trigger, each effective
+  flanking instance independently weakens a blocker without flanking, and
+  bloodthirst replaces a permanent's entry after an opponent has been dealt
+  damage that turn. Resolved ability grants can now carry a source-entry
+  replacement from a creature spell onto the permanent it becomes, allowing
+  Bloodlord of Vaasgoth to grant real bloodthirst instances. Runtime flanking
+  grants use the additive `flanking` checkpoint tag; checkpoint format, replay
+  format, and the bot-wire protocol are unchanged.
+
 - **A clause that exiles several cards at once is one exile event.** Moving a
   set of cards out of a graveyard, library, or hand into exile now publishes a
   single "one or more cards are put into exile" event rather than one per

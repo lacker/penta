@@ -11,9 +11,9 @@ use crate::card::{
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PerPlayerSelectionDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ResolvedEffectDurationDef, ScalarChoiceListDef, SpellCostModificationDef,
-    StackObjectEventDef, StackTargetFilterDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneChangeEventMatcherDef, ZoneKind,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, ScalarChoiceListDef,
+    SpellCostModificationDef, StackObjectEventDef, StackTargetFilterDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneChangeEventMatcherDef, ZoneKind,
 };
 use crate::{Binding, TargetIndex};
 

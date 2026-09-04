@@ -520,6 +520,18 @@ impl Game {
                         .is_none_or(|from| from.zone() != zone)
             }
             ReplacementConditionDef::CreatureDiedThisTurn => self.creature_died_this_turn,
+            ReplacementConditionDef::OpponentWasDealtDamageThisTurn => {
+                let controller = if entry.permanent.card.id == source {
+                    Some(entry.permanent.controller)
+                } else {
+                    self.battlefield.iter().find_map(|permanent| {
+                        (permanent.card.id == source).then_some(permanent.controller)
+                    })
+                };
+                controller.is_some_and(|controller| {
+                    self.damage_taken_this_turn[controller.opponent().index()] > 0
+                })
+            }
             // Hand and library sizes are facts about a draw, so nothing
             // about an entry asks them.
             ReplacementConditionDef::ControllerHandAtMost(_)

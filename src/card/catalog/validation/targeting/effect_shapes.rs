@@ -622,6 +622,11 @@ fn validate_effect_target_shapes(
                     }
                     ResolvedEffectDurationDef::Permanent => {
                         nonbattlefield_ability_grants_are_suspend(effect)
+                            || (triggering_object_zone == Some(ZoneKind::Stack)
+                                && recipient == EffectRecipientDef::TriggeringObject
+                                && nonbattlefield_ability_grants_are_source_entry_replacements(
+                                    effect,
+                                ))
                     }
                     _ => false,
                 }

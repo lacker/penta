@@ -288,7 +288,14 @@ pub(in crate::card::sets) static FEMEREF_KNIGHT: CardRecord = CardRecord::new(
     "Femeref Knight",
     crate::card::CardArt::new("915a2e07-b449-4d94-93e3-e756e891c542", "Tony Roberts"),
     crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        abilities::gain_ability_until_end_of_turn_for_mana(
+            "{W}: This creature gains vigilance until end of turn.",
+            mana_cost!("{W}"),
+            &abilities::vigilance(),
+        ),
+    ]),
 );
 
 // MIR 19 — Femeref Scouts
@@ -2123,7 +2130,14 @@ pub(in crate::card::sets) static BURNING_SHIELD_ASKARI: CardRecord = CardRecord:
     "Burning Shield Askari",
     crate::card::CardArt::new("486547cd-d2e7-4c46-9f7b-81c4267d65cc", "Dan Frazier"),
     crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        abilities::gain_ability_until_end_of_turn_for_mana(
+            "{R}{R}: This creature gains first strike until end of turn.",
+            mana_cost!("{R}{R}"),
+            &abilities::first_strike(),
+        ),
+    ]),
 );
 
 // MIR 163 — Chaos Charm

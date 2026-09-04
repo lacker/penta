@@ -2,7 +2,7 @@ use super::*;
 
 /// Answers every waiting decision by taking what is offered and otherwise
 /// passing, until the stack and the trigger queue are empty.
-pub(super) fn drain_pending(game: &mut Game) {
+pub(in crate::game) fn drain_pending(game: &mut Game) {
     for _ in 0..16 {
         if game.stack.is_empty()
             && game.pending_triggers.is_empty()

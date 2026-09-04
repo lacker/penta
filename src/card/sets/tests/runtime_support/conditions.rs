@@ -120,6 +120,7 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceResolutionsThisTurn { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
+        | TriggerConditionDef::OpponentWasDealtDamageThisTurn
         | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SourceIsUntapped
         | TriggerConditionDef::ControllerLifeAtMost(_)

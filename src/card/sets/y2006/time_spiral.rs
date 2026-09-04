@@ -3,13 +3,50 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet,
-    ComparisonDef, CostQuantityDef, CounterKind, CounterKindDef, CounterOperationDef,
-    EffectChoiceDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    PregameConditionDef, PrintedManaCost, SpellAdditionalCostDef, TokenCountersDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CardTypeSet, ColorSet, ComparisonDef, CostQuantityDef, CounterKind, CounterKindDef,
+    CounterOperationDef, EffectChoiceDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
+    PlayerRelation, PregameConditionDef, PrintedManaCost, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
+
+// TSP 4 — Benalish Cavalry
+pub(in crate::card::sets) static BENALISH_CAVALRY: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1013ca9c-1d29-42f6-8665-92f98d076ff8"),
+    "Benalish Cavalry",
+    CardArt::new("1013ca9c-1d29-42f6-8665-92f98d076ff8", "Paolo Parente"),
+    CardSet::TimeSpiral,
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Knight"], 2, 2)
+        .with_ability(abilities::flanking()),
+);
+
+// TSP 6 — Cavalry Master
+pub(in crate::card::sets) static CAVALRY_MASTER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f7b19194-87bf-432c-8d34-91dd9520cbd2"),
+    "Cavalry Master",
+    CardArt::new("f7b19194-87bf-432c-8d34-91dd9520cbd2", "Thomas M. Baxa"),
+    CardSet::TimeSpiral,
+    CardRules::new_creature(mana_cost!("{2}{W}{W}"), &["Human", "Knight"], 3, 3).with_abilities(&[
+        abilities::flanking(),
+        AbilityDef::static_ability(
+            "Other creatures you control with flanking have flanking.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                        ObjectPredicateDef::HasKeyword(crate::card::KeywordAbility::Flanking),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::flanking()),
+            },
+        ),
+    ]),
+);
 
 // TSP 29 — Momentary Blink
 // Audit: unsupported — Card rules have not been implemented.
@@ -180,6 +217,26 @@ pub(in crate::card::sets) static DREAD_RETURN: CardRecord = CardRecord::new(
             ObjectPredicateDef::HasType(CardType::Creature),
             CostQuantityDef::Fixed(3),
         )),
+    ]),
+);
+
+// TSP 146 — Blazing Blade Askari
+pub(in crate::card::sets) static BLAZING_BLADE_ASKARI: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("cabf35d5-de8a-4d9d-be59-7ad7039873c6"),
+    "Blazing Blade Askari",
+    CardArt::new("cabf35d5-de8a-4d9d-be59-7ad7039873c6", "Dan Frazier"),
+    CardSet::TimeSpiral,
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Knight"], 2, 2).with_abilities(&[
+        abilities::flanking(),
+        AbilityDef::activated(
+            "{2}: This creature becomes colorless until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::set_colors(ColorSet::empty()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
     ]),
 );
 
@@ -418,6 +475,8 @@ pub(in crate::card::sets) static GEMSTONE_CAVERNS: CardRecord = CardRecord::new(
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &BENALISH_CAVALRY,
+    &CAVALRY_MASTER,
     &MOMENTARY_BLINK,
     &SERRA_AVENGER,
     &ANCESTRAL_VISION,
@@ -425,6 +484,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &DEEP_SEA_KRAKEN,
     &LOOTER_IL_KOR,
     &DREAD_RETURN,
+    &BLAZING_BLADE_ASKARI,
     &GREATER_GARGADON,
     &RIFT_BOLT,
     &SULFUROUS_BLAST,

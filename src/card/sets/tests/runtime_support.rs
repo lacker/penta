@@ -198,6 +198,7 @@ pub(super) fn shared_keyword(keyword: KeywordAbility) -> bool {
             | KeywordAbility::Intimidate
             | KeywordAbility::Shadow
             | KeywordAbility::Menace
+            | KeywordAbility::Flanking
             | KeywordAbility::Undying
             | KeywordAbility::Persist
             | KeywordAbility::Indestructible

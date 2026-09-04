@@ -240,6 +240,16 @@ impl Game {
                     if definition.procedure != AbilityProcedureDef::Shared
                         || !definition.source_zones.contains(&ZoneKind::Graveyard)
                         || !self.activation_timing_allows(player, definition.timing)
+                        || definition.condition.is_some_and(|condition| {
+                            !self.trigger_condition_holds(
+                                condition,
+                                card.id,
+                                player,
+                                TriggerContext::empty(),
+                                Some(effective.origin),
+                                None,
+                            )
+                        })
                     {
                         return;
                     }

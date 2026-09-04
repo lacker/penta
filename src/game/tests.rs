@@ -94,6 +94,7 @@ mod casting_windows;
 mod chain_spells;
 mod chaos_orb;
 mod chosen_colors;
+mod classic_keyword_mechanics;
 mod cocoon;
 mod coin_flips;
 mod combat;
@@ -817,7 +818,8 @@ use copy_effects::{
     copied_grant_origin, copied_grant_source_game, resolve_copy_artifact, sole_granted_origin,
 };
 use countering_and_mana::{acceptance_attempt_counterspell, acceptance_cast_action_targeting};
-use delayed_triggers::{drain_pending, drain_to_decision, installing_object};
+pub(in crate::game) use delayed_triggers::drain_pending;
+use delayed_triggers::{drain_to_decision, installing_object};
 use modal_effects::cast_mode;
 use old_school_spells::game_with_test_fused_split;
 use search_and_reveal::stack_library;

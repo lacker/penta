@@ -2,6 +2,7 @@ use crate::CharacteristicContext;
 use crate::card::{
     AbilityPredicateDef, AttackDeclarationRangeDef, AttackEventMatcherDef,
     BattlefieldEntryChoiceDestinationDef, DamageSourceGroupDef, ZoneChangeObservationDef,
+    abilities,
 };
 
 use super::{
@@ -337,14 +338,37 @@ impl Game {
         for permanent in self.battlefield.iter().chain(self.emblems.iter()) {
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
-                let (definition, uses_stack) = match ability.definition {
+                let (definition, effect, resolver, uses_stack) = match ability.definition {
                     DeclarativeAbilityDef::TriggeredMana(definition) => {
-                        if ability.declarative_effect().is_none() {
+                        let Some(effect) = ability.declarative_effect() else {
                             return;
-                        }
-                        (definition, false)
+                        };
+                        (
+                            definition,
+                            effect,
+                            Self::ability_resolver(effective.origin, &ability),
+                            false,
+                        )
                     }
-                    DeclarativeAbilityDef::Triggered(definition) => (definition, true),
+                    DeclarativeAbilityDef::Triggered(definition) => (
+                        definition,
+                        ability.declarative_effect().unwrap_or(EffectDef::None),
+                        Self::ability_resolver(effective.origin, &ability),
+                        true,
+                    ),
+                    DeclarativeAbilityDef::Keyword(KeywordAbility::Flanking) => {
+                        let expanded = abilities::flanking_trigger();
+                        let DeclarativeAbilityDef::Triggered(definition) = expanded.definition
+                        else {
+                            unreachable!("flanking expands to a triggered ability")
+                        };
+                        (
+                            definition,
+                            expanded.declarative_effect().unwrap_or(EffectDef::None),
+                            Self::ability_resolver(effective.origin, &expanded),
+                            true,
+                        )
+                    }
                     DeclarativeAbilityDef::Spell(_)
                     | DeclarativeAbilityDef::ActivatedMana(_)
                     | DeclarativeAbilityDef::Activated(_)
@@ -385,8 +409,8 @@ impl Game {
                         text: ability.text,
                         target_defs: definition.targets.to_vec(),
                         targets: Vec::new(),
-                        effect: ability.declarative_effect().unwrap_or(EffectDef::None),
-                        resolver: Self::ability_resolver(effective.origin, &ability),
+                        effect,
+                        resolver,
                         context: TriggerContext::empty().into(),
                         condition: definition.condition,
                         modes: definition.modes,

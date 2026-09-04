@@ -651,6 +651,7 @@ fn validate_trigger_condition(
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceResolutionsThisTurn { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
+        | TriggerConditionDef::OpponentWasDealtDamageThisTurn
         | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SourceIsUntapped
         | TriggerConditionDef::ControllerLifeAtMost(_)

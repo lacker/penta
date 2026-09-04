@@ -552,6 +552,7 @@ fn validate_trigger_condition_shape(
         | TriggerConditionDef::SourceActivationsThisTurn { .. }
         | TriggerConditionDef::SourceResolutionsThisTurn { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
+        | TriggerConditionDef::OpponentWasDealtDamageThisTurn
         | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SourceIsUntapped
         | TriggerConditionDef::ControllerLifeAtMost(_)
@@ -629,6 +630,28 @@ fn nonbattlefield_ability_grants_are_suspend(effect: AppliedEffectDef) -> bool {
                 )
         }
         AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => true,
+    }
+}
+
+/// Whole replacement abilities granted to a resolving permanent spell can
+/// move onto the permanent it becomes. The event restriction is what keeps a
+/// granted battlefield-only ability from being mistaken for stack behavior.
+fn nonbattlefield_ability_grants_are_source_entry_replacements(
+    effect: AppliedEffectDef,
+) -> bool {
+    match effect {
+        AppliedEffectDef::Composite(effects) => effects
+            .iter()
+            .copied()
+            .all(nonbattlefield_ability_grants_are_source_entry_replacements),
+        AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
+            AbilityOperationDef::Add(ability),
+        )) => matches!(
+            ability.definition,
+            DeclarativeAbilityDef::Replacement(definition)
+                if definition.event == ReplacementEventDef::SourceEntersBattlefield
+        ),
+        AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => false,
     }
 }
 

@@ -139,6 +139,11 @@ pub enum KeywordAbility {
     /// any one block: the first blocker is always legal, and it is finishing
     /// with exactly one that the rules forbid.
     Menace,
+    /// CR 702.25. Whenever this creature becomes blocked by a creature
+    /// without flanking, that blocker gets -1/-1 until end of turn. This is
+    /// retained as a keyword because cards can grant it and test for it, while
+    /// trigger capture expands each instance into its own ordinary trigger.
+    Flanking,
     Undying,
     /// CR 702.79. Undying's mirror: a creature that dies with no -1/-1
     /// counter on it comes back with one, so it returns once and comes back
@@ -243,6 +248,7 @@ impl KeywordAbility {
             Self::Compleated => 31,
             Self::Shadow => 34,
             Self::Persist => 35,
+            Self::Flanking => 37,
             Self::ProtectionFrom(_)
             // Never granted, never removed, and never asked about as part of
             // a set: split second is read off the one spell that has it.

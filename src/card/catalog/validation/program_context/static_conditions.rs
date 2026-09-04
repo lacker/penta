@@ -58,6 +58,7 @@ fn static_trigger_condition_supported(condition: TriggerConditionDef) -> bool {
         | TriggerConditionDef::ValueComparison(_)
         | TriggerConditionDef::SourceLoyalty { .. }
         | TriggerConditionDef::SourceDealtDamageToOpponentThisTurn
+        | TriggerConditionDef::OpponentWasDealtDamageThisTurn
         | TriggerConditionDef::SourceIsTapped
         | TriggerConditionDef::SourceIsUntapped
         | TriggerConditionDef::ControllerLifeAtMost(_)

@@ -51,6 +51,102 @@ pub const fn exalted() -> AbilityDef {
     )
 }
 
+/// Bushido N. Each instance is its own trigger, and the same event shape
+/// covers both blocking and becoming blocked while naming the other creature
+/// as the triggering object. Printed numeric values own their text; dynamic
+/// values use "Bushido" as a header for callers to replace with
+/// [`AbilityDef::override_text`].
+///
+/// # Panics
+///
+/// Panics for a constant other than a printed bushido value (1, 2, or 5).
+#[must_use]
+pub const fn bushido(amount: ValueDef) -> AbilityDef {
+    let text = match amount {
+        ValueDef::Constant(1) => "Bushido 1",
+        ValueDef::Constant(2) => "Bushido 2",
+        ValueDef::Constant(5) => "Bushido 5",
+        ValueDef::Constant(_) => panic!("unsupported printed bushido value"),
+        _ => "Bushido",
+    };
+    AbilityDef::triggered(
+        text,
+        TriggerEventDef::BlocksOrBecomesBlockedBy {
+            creature: ObjectPredicateDef::Source,
+            other: ObjectPredicateDef::Any,
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Source,
+            effect: AppliedEffectDef::modify_power_toughness(amount, amount),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )
+}
+
+/// Flanking. The keyword stays visible to predicates and grants; trigger
+/// capture expands every effective instance through [`flanking_trigger`].
+#[must_use]
+pub const fn flanking() -> AbilityDef {
+    keyword(
+        "Flanking (Whenever this creature becomes blocked by a creature without flanking, the \
+         blocking creature gets -1/-1 until end of turn.)",
+        KeywordAbility::Flanking,
+    )
+}
+
+static WITHOUT_FLANKING: ObjectPredicateDef = ObjectPredicateDef::Not(
+    &ObjectPredicateDef::HasKeyword(KeywordAbility::Flanking),
+);
+
+/// The executable trigger abbreviated by one effective flanking instance.
+/// Kept out of card rules so granting the keyword cannot accidentally leave
+/// its behavior behind.
+#[must_use]
+pub(crate) const fn flanking_trigger() -> AbilityDef {
+    AbilityDef::triggered(
+        "Flanking",
+        TriggerEventDef::BecomesBlockedBy {
+            blocker: WITHOUT_FLANKING,
+        },
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::TriggeringObject,
+            effect: AppliedEffectDef::modify_power_toughness(
+                ValueDef::Constant(-1),
+                ValueDef::Constant(-1),
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )
+}
+
+/// Bloodthirst N. This is an entry replacement rather than an enters trigger,
+/// so the counters are already present when the permanent reaches the
+/// battlefield and can affect any event that observes it entering.
+///
+/// # Panics
+///
+/// Panics when `amount` is not a printed bloodthirst value (1, 2, 3, or 6).
+#[must_use]
+pub const fn bloodthirst(amount: u16) -> AbilityDef {
+    let text = match amount {
+        1 => "Bloodthirst 1",
+        2 => "Bloodthirst 2",
+        3 => "Bloodthirst 3",
+        6 => "Bloodthirst 6",
+        _ => panic!("unsupported printed bloodthirst value"),
+    };
+    AbilityDef::as_enters_if(
+        text,
+        ReplacementConditionDef::OpponentWasDealtDamageThisTurn,
+        ReplacementEffectDef::ModifyBattlefieldEntry(
+            BattlefieldEntryModificationDef::AddCounters {
+                kind: CounterKind::PlusOnePlusOne,
+                amount,
+            },
+        ),
+    )
+}
+
 /// One opponent means one life, so "that much" is the same constant on both
 /// halves.
 static EXTORT_DRAIN: EffectDef = EffectDef::Sequence(&[

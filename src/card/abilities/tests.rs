@@ -3,6 +3,7 @@ mod tests {
     use super::{
         attacks_each_combat_if_able, banding, begin_game_on_battlefield, bind_top_cards_then,
         bind_top_cards_through_first_matching_then, bloodrush, check_land_enters,
+        bloodthirst, bushido,
         creature_damaged_by_source_dies_trigger,
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
@@ -113,6 +114,23 @@ mod tests {
             rampage(2).text,
             "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)",
         );
+        for (amount, text) in [(1, "Bushido 1"), (2, "Bushido 2"), (5, "Bushido 5")] {
+            assert_eq!(bushido(ValueDef::Constant(amount)).text, text);
+        }
+        assert_eq!(
+            bushido(ValueDef::SourcePower)
+                .override_text("Bushido X")
+                .text,
+            "Bushido X",
+        );
+        for (amount, text) in [
+            (1, "Bloodthirst 1"),
+            (2, "Bloodthirst 2"),
+            (3, "Bloodthirst 3"),
+            (6, "Bloodthirst 6"),
+        ] {
+            assert_eq!(bloodthirst(amount).text, text);
+        }
         assert_eq!(
             ward_aura_protection(ManaColor::Blue).text,
             "Enchanted creature has protection from blue. This effect doesn't remove this Aura.",

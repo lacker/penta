@@ -102,6 +102,10 @@ pub enum ReplacementConditionDef {
     /// Read as the replacement applies, so a creature dying in response
     /// changes the answer.
     CreatureDiedThisTurn,
+    /// An opponent of the replacement source's controller was dealt damage
+    /// this turn. Bloodthirst reads this as the permanent enters, so damage
+    /// dealt after the spell was cast still counts.
+    OpponentWasDealtDamageThisTurn,
     /// The replacement's controller has no more than this many cards in
     /// hand, read as the replacement applies. "As long as you have one or
     /// fewer cards in hand" is a condition on the event rather than on the

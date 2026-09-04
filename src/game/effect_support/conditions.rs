@@ -694,6 +694,9 @@ impl Game {
                     .iter()
                     .find(|permanent| permanent.card.id == source)
                     .is_some_and(|permanent| permanent.dealt_damage_to_opponent_this_turn),
+                TriggerConditionDef::OpponentWasDealtDamageThisTurn => {
+                    self.damage_taken_this_turn[controller.opponent().index()] > 0
+                }
                 TriggerConditionDef::SourceIsPaired => self
                     .battlefield
                     .iter()

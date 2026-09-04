@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ValueDef,
-    ZoneKind, abilities,
+    ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
+    TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
 
@@ -97,6 +97,16 @@ pub(in crate::card::sets) static PLAGUED_RUSALKA: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+// GPT 64 — Bloodscale Prowler
+pub(in crate::card::sets) static BLOODSCALE_PROWLER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("8197cc43-c787-4372-81dc-759a9fe24708"),
+    "Bloodscale Prowler",
+    CardArt::new("8197cc43-c787-4372-81dc-759a9fe24708", "Lars Grant-West"),
+    CardSet::Guildpact,
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard", "Warrior"], 3, 1)
+        .with_ability(abilities::bloodthirst(1)),
+);
+
 // GPT 68 — Leyline of Lightning
 // Audit: unsupported — Needs a paid trigger whose target is declared only after its optional payment.
 pub(in crate::card::sets) static LEYLINE_OF_LIGHTNING: CardRecord = CardRecord::new(
@@ -115,6 +125,48 @@ pub(in crate::card::sets) static SCORCHED_RUSALKA: CardRecord = CardRecord::new(
     crate::card::CardArt::new("9f955164-ddb8-484c-a063-967621abce87", "Luca Zontini"),
     crate::card::CardSet::Guildpact,
     crate::card::CardRules::unsupported(),
+);
+
+// GPT 77 — Skarrgan Firebird
+pub(in crate::card::sets) static SKARRGAN_FIREBIRD: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("61c51e46-3236-41ee-913e-f253f218067c"),
+    "Skarrgan Firebird",
+    CardArt::new("61c51e46-3236-41ee-913e-f253f218067c", "Kev Walker"),
+    CardSet::Guildpact,
+    CardRules::new_creature(mana_cost!("{4}{R}{R}"), &["Phoenix"], 3, 3).with_abilities(&[
+        abilities::bloodthirst(3),
+        abilities::flying(),
+        AbilityDef::activated(
+            "{R}{R}{R}: Return this card from your graveyard to your hand. Activate only if an opponent was dealt damage this turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{R}{R}{R}"))],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Source,
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        )
+        .with_activation_condition(&TriggerConditionDef::OpponentWasDealtDamageThisTurn)
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ]),
+);
+
+// GPT 87 — Gristleback
+pub(in crate::card::sets) static GRISTLEBACK: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b82f763a-c960-4b59-8c77-f3bea7bd8c8b"),
+    "Gristleback",
+    CardArt::new("b82f763a-c960-4b59-8c77-f3bea7bd8c8b", "Lars Grant-West"),
+    CardSet::Guildpact,
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Boar", "Beast"], 2, 2).with_abilities(&[
+        abilities::bloodthirst(1),
+        AbilityDef::activated(
+            "Sacrifice this creature: You gain life equal to its power.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::SourcePower,
+            },
+        ),
+    ]),
 );
 
 // GPT 90 — Leyline of Lifeforce
@@ -175,8 +227,11 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LEYLINE_OF_SINGULARITY,
     &LEYLINE_OF_THE_VOID,
     &PLAGUED_RUSALKA,
+    &BLOODSCALE_PROWLER,
     &LEYLINE_OF_LIGHTNING,
     &SCORCHED_RUSALKA,
+    &SKARRGAN_FIREBIRD,
+    &GRISTLEBACK,
     &LEYLINE_OF_LIFEFORCE,
     &PILLORY_OF_THE_SLEEPLESS,
     &GRUUL_TURF,

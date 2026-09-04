@@ -3106,7 +3106,21 @@ pub(in crate::card::sets) static JABARI_S_BANNER: CardRecord = CardRecord::new(
     "Jabari's Banner",
     crate::card::CardArt::new("3d51a496-1ca6-4286-bdbe-990d43196a25", "Mark Harrison"),
     crate::card::CardSet::Weatherlight,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_artifact(mana_cost!("{2}")).with_ability(AbilityDef::activated_with_targets(
+        "{1}, {T}: Target creature gains flanking until end of turn.",
+        &[
+            AbilityCostDef::Mana(mana_cost!("{1}")),
+            AbilityCostDef::TapSource,
+        ],
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            effect: AppliedEffectDef::add_ability(&abilities::flanking()),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // WTH 151 — Jangling Automaton

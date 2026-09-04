@@ -3,12 +3,72 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
-    CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::mana_cost;
+
+// CHK 7 — Devoted Retainer
+pub(in crate::card::sets) static DEVOTED_RETAINER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("fc41d6d6-d7e5-4874-b6e2-fa4c72454f15"),
+    "Devoted Retainer",
+    CardArt::new("fc41d6d6-d7e5-4874-b6e2-fa4c72454f15", "Greg Hildebrandt"),
+    CardSet::ChampionsOfKamigawa,
+    CardRules::new_creature(mana_cost!("{W}"), &["Human", "Samurai"], 1, 1)
+        .with_ability(abilities::bushido(ValueDef::Constant(1))),
+);
+
+// CHK 30 — Konda, Lord of Eiganjo
+pub(in crate::card::sets) static KONDA_LORD_OF_EIGANJO: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("5edab171-94b9-4e5e-ab61-bd8c6c8cfc38"),
+    "Konda, Lord of Eiganjo",
+    CardArt::new("5edab171-94b9-4e5e-ab61-bd8c6c8cfc38", "John Bolton"),
+    CardSet::ChampionsOfKamigawa,
+    CardRules::new_creature(mana_cost!("{5}{W}{W}"), &["Human", "Samurai"], 3, 3)
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[
+            abilities::vigilance(),
+            abilities::indestructible(),
+            abilities::bushido(ValueDef::Constant(5)),
+        ]),
+);
+
+// CHK 107 — Cursed Ronin
+pub(in crate::card::sets) static CURSED_RONIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("b8f24fe9-22c4-4e53-9d7a-3cbf5533ac9b"),
+    "Cursed Ronin",
+    CardArt::new("b8f24fe9-22c4-4e53-9d7a-3cbf5533ac9b", "Carl Critchlow"),
+    CardSet::ChampionsOfKamigawa,
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Samurai"], 1, 1).with_abilities(&[
+        abilities::bushido(ValueDef::Constant(1)),
+        AbilityDef::activated(
+            "{B}: This creature gets +1/+1 until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{B}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
+
+// CHK 156 — Battle-Mad Ronin
+pub(in crate::card::sets) static BATTLE_MAD_RONIN: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("a6e4394a-fa91-4cf9-99c1-dc0bc1011c5b"),
+    "Battle-Mad Ronin",
+    CardArt::new("a6e4394a-fa91-4cf9-99c1-dc0bc1011c5b", "Wayne England"),
+    CardSet::ChampionsOfKamigawa,
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Samurai"], 1, 1).with_abilities(&[
+        abilities::bushido(ValueDef::Constant(2)),
+        abilities::attacks_each_combat_if_able(),
+    ]),
+);
 
 // CHK 193 — Through the Breach
 pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::new_with_legacy_id(
@@ -130,6 +190,10 @@ pub(in crate::card::sets) static SENSEIS_DIVINING_TOP: CardRecord = CardRecord::
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &DEVOTED_RETAINER,
+    &KONDA_LORD_OF_EIGANJO,
+    &CURSED_RONIN,
+    &BATTLE_MAD_RONIN,
     &THROUGH_THE_BREACH,
     &SAKURA_TRIBE_ELDER,
     &SENSEIS_DIVINING_TOP,

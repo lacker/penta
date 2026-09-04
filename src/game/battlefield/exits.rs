@@ -359,6 +359,7 @@ impl Game {
                         ReplacementConditionDef::SourceCastWith(_)
                         | ReplacementConditionDef::SourcePaidAdditionalCost(_)
                         | ReplacementConditionDef::SourceNotCastFrom(_)
+                        | ReplacementConditionDef::OpponentWasDealtDamageThisTurn
                         | ReplacementConditionDef::ControllerHandAtMost(_)
                         | ReplacementConditionDef::ControllerLibraryEmpty => false,
                     }

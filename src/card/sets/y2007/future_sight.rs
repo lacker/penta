@@ -217,6 +217,16 @@ pub(in crate::card::sets) static ARC_BLADE: CardRecord = CardRecord::new(
     ]),
 );
 
+// FUT 95 — Bogardan Lancer
+pub(in crate::card::sets) static BOGARDAN_LANCER: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("44814464-e5b6-46c6-ac2e-d7234add43f4"),
+    "Bogardan Lancer",
+    CardArt::new("44814464-e5b6-46c6-ac2e-d7234add43f4", "Jim Murray"),
+    CardSet::FutureSight,
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Human", "Knight"], 1, 1)
+        .with_abilities(&[abilities::bloodthirst(1), abilities::flanking()]),
+);
+
 // FUT 138 — Sprout Swarm
 pub(in crate::card::sets) static SPROUT_SWARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b915355-4e98-44df-81bd-961a3d3c86b8"),
@@ -514,6 +524,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &SHIMIAN_SPECTER,
     &BRIDGE_FROM_BELOW,
     &ARC_BLADE,
+    &BOGARDAN_LANCER,
     &SPROUT_SWARM,
     &JHOIRA_OF_THE_GHITU,
     &COALITION_RELIC,

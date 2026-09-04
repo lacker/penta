@@ -19,6 +19,41 @@ pub(in crate::card::sets) static OKIBA_GANG_SHINOBI: CardRecord = CardRecord::ne
     crate::card::CardRules::unsupported(),
 );
 
+// BOK 104 — Fumiko the Lowblood
+pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
+    CardRecord::new(
+        PrintingAnchor::scryfall("482678b8-bce6-4847-9f43-1761d61645d8"),
+        "Fumiko the Lowblood",
+        CardArt::new("482678b8-bce6-4847-9f43-1761d61645d8", "Michael Sutfin"),
+        CardSet::BetrayersOfKamigawa,
+        CardRules::new_creature(mana_cost!("{2}{R}{R}"), &["Human", "Samurai"], 3, 2)
+            .with_supertype(CardSupertype::Legendary)
+            .with_abilities(&[
+                abilities::bushido(ValueDef::CountMatchingObjects(
+                    &const {
+                        crate::card::ObjectQueryDef::new(
+                            ObjectPredicateDef::Attacking,
+                            &[crate::card::ZoneKind::Battlefield],
+                        )
+                    },
+                ))
+                .override_text("Bushido X, where X is the number of attacking creatures."),
+                AbilityDef::static_ability(
+                    "Creatures your opponents control attack each combat if able.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::matching_objects(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            &[crate::card::ZoneKind::Battlefield],
+                            crate::card::PlayerRelation::Opponent,
+                        ),
+                        effect: AppliedEffectDef::add_ability(
+                            &abilities::attacks_each_combat_if_able(),
+                        ),
+                    },
+                ),
+            ]),
+    );
+
 // BOK 163 — Umezawa's Jitte
 pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_with_legacy_id(
     2188,
@@ -90,6 +125,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
         ]),
 );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[&OKIBA_GANG_SHINOBI, &UMEZAWAS_JITTE];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] =
+    &[&OKIBA_GANG_SHINOBI, &FUMIKO_THE_LOWBLOOD, &UMEZAWAS_JITTE];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

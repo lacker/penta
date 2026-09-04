@@ -1,16 +1,17 @@
 use super::{
     AbilityDef, AbilityId, AbilityOperationDef, AbilityOrigin, AbilitySourceRef, AppliedEffectDef,
-    AppliedRuleDef, CastSignature, CharacteristicOperationDef, ColorChoiceOperationDef, ColorSet,
-    ComparisonDef, ContinuousEffectExpiration, ContinuousEffectTimestamp, ControlFlow, CounterKind,
-    EffectRecipientDef, EffectRecipientSetDef, EffectResolutionContext, Game, GameObjectId,
-    GrantId, ManaColor, NonbattlefieldAbilityGrant, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, Permanent, PlayerId, PlayerRefDef, PlayerSetDef,
-    PowerToughnessOperationDef, QuantifierDef, ResolvedAbilityOperation, ResolvedAttackRestriction,
-    ResolvedContinuousEffect, ResolvedContinuousEffectKind, ResolvedDamageRedirect,
-    ResolvedEffectDurationDef, ResolvedPlayPermission, ResolvedPlayRestriction,
-    ResolvedPlayerProtection, ResolvedPlayerRule, ResolvedPowerToughnessOperation, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Target, TargetIndex, TargetSelection, TargetSlotId,
-    TriggerConditionDef, TriggerContext, ZoneKind, abilities,
+    AppliedRuleDef, AppliedStackEffect, CastSignature, CharacteristicOperationDef,
+    ColorChoiceOperationDef, ColorSet, ComparisonDef, ContinuousEffectExpiration,
+    ContinuousEffectTimestamp, ControlFlow, CounterKind, EffectRecipientDef, EffectRecipientSetDef,
+    EffectResolutionContext, Game, GameObjectId, GrantId, ManaColor, NonbattlefieldAbilityGrant,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, Permanent, PlayerId,
+    PlayerRefDef, PlayerSetDef, PowerToughnessOperationDef, QuantifierDef,
+    ResolvedAbilityOperation, ResolvedAttackRestriction, ResolvedContinuousEffect,
+    ResolvedContinuousEffectKind, ResolvedDamageRedirect, ResolvedEffectDurationDef,
+    ResolvedPlayPermission, ResolvedPlayRestriction, ResolvedPlayerProtection, ResolvedPlayerRule,
+    ResolvedPowerToughnessOperation, RetiredObject, ScopedEffect, StackObject, StackObjectKind,
+    Target, TargetIndex, TargetSelection, TargetSlotId, TriggerConditionDef, TriggerContext,
+    ZoneKind, abilities,
 };
 use crate::card::{PlayerAttachmentQueryDef, TargetChooserDef};
 
@@ -542,6 +543,38 @@ impl Game {
         operation: CharacteristicOperationDef,
         resolution: ResolvedAppliedEffect<'_>,
     ) {
+        if let (
+            Target::Spell(target),
+            CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(_)),
+        ) = (target, operation)
+        {
+            // A resolved grant to a creature spell is carried onto the
+            // permanent it becomes. Bloodlord of Vaasgoth uses this for a
+            // whole replacement ability rather than a keyword-only mana
+            // rider. No printed spell grant in this lane has a temporary
+            // duration; declining one prevents an expiration from silently
+            // becoming permanent on entry.
+            if resolution.duration != ResolvedEffectDurationDef::Permanent {
+                return;
+            }
+            let granting = AbilitySourceRef {
+                object: resolution.object.source.unwrap_or(resolution.object.id),
+                ability: resolution.object.ability_origin().unwrap_or_else(|| {
+                    Self::authored_ability_origin(
+                        resolution.object.presentation(),
+                        AbilityId::PRIMARY,
+                    )
+                }),
+            };
+            if let Some(spell) = self.stack.iter_mut().find(|spell| spell.id == target) {
+                spell.applied_effects.push(AppliedStackEffect {
+                    source: None,
+                    granting: Some(granting),
+                    effect: definition,
+                });
+            }
+            return;
+        }
         if let CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(ability)) = operation
             && matches!(target, Target::Card(_))
         {

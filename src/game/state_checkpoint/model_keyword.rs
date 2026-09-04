@@ -38,6 +38,9 @@ pub(super) enum KeywordSnapshot {
     /// creature with it, because none could have had one.
     Shadow,
     Menace,
+    /// Additive: older checkpoints could not contain a runtime flanking
+    /// grant, because the keyword had not yet been modeled.
+    Flanking,
     Undying,
     /// Additive: a checkpoint written before persist existed restores no
     /// creature with it, because none could have had one.

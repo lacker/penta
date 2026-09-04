@@ -7,7 +7,9 @@ use super::{
     StackObject, StackObjectKind, TargetSelection, TriggerContext, ZoneKind, add_mana_cost,
     applicable_part_ids_ref, mana_cost_value, mode_id_selections,
 };
-use crate::card::{ActivatedAbilityDef, ObjectPredicateDef, PlayerRelation};
+use crate::card::{
+    ActivatedAbilityDef, ActivationPermissionDef, ObjectPredicateDef, PlayerRelation,
+};
 use crate::ids::ModeId;
 
 mod mana_value;
@@ -182,14 +184,14 @@ impl Game {
         id
     }
 
-    /// Whether any of this permanent's abilities is printed as open to every
-    /// player, which is what puts somebody else's permanent in a player's
-    /// action list at all.
-    fn has_open_activated_ability(&self, permanent: &Permanent) -> bool {
+    /// Whether any of this permanent's abilities can be activated by a player
+    /// other than its controller, which is what puts somebody else's
+    /// permanent in that player's action list at all.
+    fn has_externally_activated_ability(&self, permanent: &Permanent) -> bool {
         let mut open = false;
         self.for_each_effective_ability(permanent, |effective| {
             if let DeclarativeAbilityDef::Activated(definition) = effective.ability.definition
-                && definition.any_player_may_activate
+                && definition.activation_permission != ActivationPermissionDef::Controller
             {
                 open = true;
             }
@@ -206,14 +208,11 @@ impl Game {
             return;
         }
         for permanent in self.battlefield.iter().filter(|permanent| {
-            // A permanent somebody else controls contributes only the
-            // abilities printed as open to everyone.
-            permanent.controller == player || self.has_open_activated_ability(permanent)
+            permanent.controller == player || self.has_externally_activated_ability(permanent)
         }) {
             if self.nonmana_ability_activation_is_prohibited(player, permanent) {
                 continue;
             }
-            let only_open_abilities = permanent.controller != player;
             let mut last_activated_origin = None;
             self.for_each_effective_ability(permanent, |effective| {
                 let ability = effective.ability;
@@ -223,7 +222,12 @@ impl Game {
                 if self.activated_ability_is_prohibited(permanent, &ability) {
                     return;
                 }
-                if only_open_abilities && !definition.any_player_may_activate {
+                let permission_allows = match definition.activation_permission {
+                    ActivationPermissionDef::Controller => permanent.controller == player,
+                    ActivationPermissionDef::AnyPlayer => true,
+                    ActivationPermissionDef::Opponents => permanent.controller != player,
+                };
+                if !permission_allows {
                     return;
                 }
                 // Copy-process exceptions can add an activated ability

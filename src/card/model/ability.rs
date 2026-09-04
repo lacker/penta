@@ -688,6 +688,23 @@ impl AbilityDef {
         self
     }
 
+    /// Restricts an activated ability to opponents of the permanent's
+    /// controller. The permanent remains the source after an opponent puts
+    /// the ability on the stack.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the clause is not an activated ability.
+    #[must_use]
+    pub const fn only_opponents_may_activate(mut self) -> Self {
+        let DeclarativeAbilityDef::Activated(definition) = self.definition else {
+            panic!("only an activated ability can be restricted to opponents");
+        };
+        self.definition =
+            DeclarativeAbilityDef::Activated(definition.only_opponents_may_activate());
+        self
+    }
+
     /// Caps an activated ability at one activation each turn, for a printed
     /// "only once each turn" clause.
     ///

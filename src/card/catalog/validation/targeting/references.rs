@@ -40,13 +40,14 @@ pub(in crate::card::catalog) fn validate_replacement_ability_targets(
         targets.len(),
         BindingScope::empty(&bindings),
     )?;
-    validate_replacement_effect_target_shapes(effect, targets)
+    validate_replacement_effect_target_shapes(effect, targets, None)
 }
 
 pub(super) fn validate_ability_program_targets(
     targets: &[AbilityTargetDef],
     program: AbilityProgramDef,
     trigger_event: Option<TriggerEventDef>,
+    replacement_event: Option<ReplacementEventDef>,
     chosen_cost_card_binding: Option<Binding>,
 ) -> Result<(), GrantedAbilityValidationError> {
     validate_target_definitions(targets)?;
@@ -56,7 +57,13 @@ pub(super) fn validate_ability_program_targets(
         |binding| BindingScope::empty(&bindings).with_object(binding),
     )?;
     validate_program_references(program, targets.len(), scope)?;
-    validate_program_target_shapes(program, targets, trigger_event)
+    let triggering_object_zone = trigger_event
+        .and_then(trigger_event_object_zone)
+        .or(match replacement_event {
+            Some(ReplacementEventDef::WouldBeDestroyed { .. }) => Some(ZoneKind::Battlefield),
+            _ => None,
+        });
+    validate_program_target_shapes(program, targets, triggering_object_zone)
 }
 
 pub(super) fn validate_ability_trigger_event(

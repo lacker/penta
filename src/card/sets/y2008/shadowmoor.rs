@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, CopyStackObjectDef, CostQuantityDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CopyStackObjectDef, CostQuantityDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -105,6 +105,31 @@ pub(in crate::card::sets) static BURN_TRAIL: CardRecord = CardRecord::new(
     )),
 );
 
+// SHM 123 — Mossbridge Troll
+pub(in crate::card::sets) static MOSSBRIDGE_TROLL: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("537c39cc-44d3-4869-9e76-dd9c2c68ee90"),
+    "Mossbridge Troll",
+    CardArt::new("537c39cc-44d3-4869-9e76-dd9c2c68ee90", "Jeremy Jarvis"),
+    CardSet::Shadowmoor,
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Troll"], 5, 5).with_abilities(&[
+        abilities::regenerates_if_destroyed(
+            "If this creature would be destroyed, regenerate it.",
+        ),
+        AbilityDef::activated(
+            "Tap any number of untapped creatures you control other than this creature with total power 10 or greater: This creature gets +20/+20 until end of turn.",
+            &[AbilityCostDef::TapCreaturesWithTotalPower { minimum: 10 }],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(20),
+                    ValueDef::Constant(20),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
+);
+
 // SHM 135 — Woodfall Primus
 pub(in crate::card::sets) static WOODFALL_PRIMUS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43aa7e35-55ee-4e02-a8aa-ea2b267055d1"),
@@ -201,6 +226,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &BESEECH_THE_QUEEN,
     &BURN_TRAIL,
+    &MOSSBRIDGE_TROLL,
     &WOODFALL_PRIMUS,
     &MANAMORPHOSE,
     &BARKSHELL_BLESSING,

@@ -2,15 +2,17 @@ use std::borrow::Cow;
 
 use super::{
     AbilitySourceRef, ApplicableZoneMoveReplacement, AppliedRuleDef, BattlefieldArrival,
-    BattlefieldExit, BattlefieldExitCompletion, BattlefieldExitSnapshot, CardInstance, CardPartId,
+    BattlefieldExit, BattlefieldExitCause, BattlefieldExitCompletion,
+    BattlefieldExitReplacementAction, BattlefieldExitSnapshot, CardInstance, CardPartId,
     CommittedTriggerEvent, CounterKind, DecisionContinuation, DecisionOption,
     DecisionOrderSemantics, DecisionPreference, DecisionVisibility, DecisionZone,
     DeclarativeAbilityDef, EffectDef, EffectResolutionContext, EntryCompletion,
     FrozenZoneMoveReplacement, Game, GameEvent, GameObjectId, KeywordAbility, ObjectInstance,
     PendingBattlefieldEntry, PendingBattlefieldExitBatch, PendingBattlefieldExitMove, Permanent,
     PlayerId, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
-    ReplacementEventDef, RetiredObject, ScopedEffect, StackObject, StackObjectKind, Step, Target,
-    TargetSlotId, TriggerContext, ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
+    ReplacementEventDef, ResolvedAbilityOperation, ResolvedContinuousEffectKind, RetiredObject,
+    ScopedEffect, StackObject, StackObjectKind, Step, Target, TargetSlotId, TriggerContext,
+    ZoneKind, ZoneMoveCauseDef, ZonePlacement, remove_card,
 };
 use crate::Binding;
 
@@ -192,16 +194,14 @@ impl Game {
             if self.has_indestructible(permanent) {
                 continue;
             }
-            if can_regenerate
-                && permanent.regeneration_shields > 0
-                && !self.has_applied_rule(permanent, AppliedRuleDef::CannotRegenerate)
-            {
-                self.regenerate_permanent(id);
-            } else {
-                doomed.push(id);
-            }
+            doomed.push((id, BattlefieldExitCause::Destroy { can_regenerate }));
         }
-        self.move_permanents_to_graveyard_then(&doomed, completion);
+        self.move_permanents_to_zone_with_causes_then(
+            &doomed,
+            ZoneKind::Graveyard,
+            ZonePlacement::Top,
+            completion,
+        );
     }
 
     /// Arms one regeneration shield (CR 701.15). The shield is a promise about
@@ -220,7 +220,7 @@ impl Game {
         }
     }
 
-    pub(super) fn regenerate_permanent(&mut self, id: GameObjectId) {
+    pub(super) fn regenerate_permanent(&mut self, id: GameObjectId, consume_shield: bool) {
         let Some(index) = self
             .battlefield
             .iter()
@@ -230,7 +230,9 @@ impl Game {
         };
         {
             let permanent = &mut self.battlefield[index];
-            permanent.regeneration_shields -= 1;
+            if consume_shield {
+                permanent.regeneration_shields -= 1;
+            }
             permanent.damage = 0;
             permanent.deathtouch_damage = false;
         }
@@ -372,10 +374,30 @@ impl Game {
         placement: ZonePlacement,
         completion: Option<BattlefieldExitCompletion>,
     ) {
+        let proposed = ids
+            .iter()
+            .copied()
+            .map(|id| (id, BattlefieldExitCause::Other))
+            .collect::<Vec<_>>();
+        self.move_permanents_to_zone_with_causes_then(
+            &proposed,
+            destination,
+            placement,
+            completion,
+        );
+    }
+
+    pub(super) fn move_permanents_to_zone_with_causes_then(
+        &mut self,
+        ids: &[(GameObjectId, BattlefieldExitCause)],
+        destination: ZoneKind,
+        placement: ZonePlacement,
+        completion: Option<BattlefieldExitCompletion>,
+    ) {
         let mut seen = Vec::new();
         let mut moves = ids
             .iter()
-            .filter_map(|id| {
+            .filter_map(|(id, cause)| {
                 if seen.contains(id) {
                     return None;
                 }
@@ -402,6 +424,18 @@ impl Game {
                             ZoneKind::Exile
                         } else {
                             destination
+                        },
+                        cause: if destination == ZoneKind::Graveyard
+                            && (permanent.exile_instead_of_dying
+                                || permanent.counters(CounterKind::Finality) > 0
+                                || self.has_applied_rule(
+                                    permanent,
+                                    AppliedRuleDef::ExileInsteadOfDying,
+                                ))
+                        {
+                            BattlefieldExitCause::Other
+                        } else {
+                            *cause
                         },
                         placement,
                         counters: None,
@@ -690,3 +724,4 @@ impl Game {
 }
 
 include!("battlefield/exits.rs");
+include!("battlefield/destruction_replacements.rs");

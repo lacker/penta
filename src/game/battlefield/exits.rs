@@ -137,7 +137,18 @@ impl Game {
                 match candidates.as_slice() {
                     [] => {}
                     [candidate] => {
+                        let pending_before = self.pending_decisions.len();
                         self.apply_battlefield_exit_replacement(&mut batch, candidate);
+                        if self.has_battlefield_exit_since(pending_before) {
+                            let deferred = self.defer_after_battlefield_exit(
+                                pending_before,
+                                BattlefieldExitCompletion::ContinueBattlefieldExitReplacements {
+                                    batch,
+                                },
+                            );
+                            debug_assert!(deferred);
+                            return;
+                        }
                         progressed = true;
                         break;
                     }
@@ -329,6 +340,52 @@ impl Game {
         )
     }
 
+    fn battlefield_exit_replacement_event_applies(
+        &self,
+        proposed: &PendingBattlefieldExitMove,
+        replacement: &FrozenZoneMoveReplacement,
+    ) -> bool {
+        match replacement.replacement.event {
+            ReplacementEventDef::WouldMove {
+                from: None | Some(ZoneKind::Battlefield),
+                to,
+                cause: ZoneMoveCauseDef::Any,
+            } => replacement.source.object == proposed.object && to == proposed.destination,
+            ReplacementEventDef::AnyObjectWouldMove { object, to } => {
+                to == proposed.destination
+                    && self.exiting_object_matches(
+                        proposed.object,
+                        replacement.controller,
+                        object,
+                    )
+            }
+            ReplacementEventDef::WouldBeDestroyed { object } => {
+                let BattlefieldExitCause::Destroy { can_regenerate } = proposed.cause else {
+                    return false;
+                };
+                let Some(permanent) = self
+                    .battlefield
+                    .iter()
+                    .find(|permanent| permanent.card.id == proposed.object)
+                else {
+                    return false;
+                };
+                let matches = self.trigger_object_matches_for_controller(
+                    object,
+                    &self.targeting_event_object(permanent),
+                    replacement.source.object,
+                    false,
+                    Some(replacement.controller),
+                );
+                let regeneration_allowed = !Self::replacement_regenerates(replacement.effect)
+                    || (can_regenerate
+                        && !self.has_applied_rule(permanent, AppliedRuleDef::CannotRegenerate));
+                matches && regeneration_allowed
+            }
+            _ => false,
+        }
+    }
+
     fn applicable_battlefield_exit_replacements(
         &self,
         batch: &PendingBattlefieldExitBatch,
@@ -338,7 +395,7 @@ impl Game {
         if proposed.replaced_with_nothing {
             return Vec::new();
         }
-        batch
+        let mut candidates = batch
             .replacements
             .iter()
             .filter(|replacement| !proposed.applied.contains(&replacement.source))
@@ -367,33 +424,41 @@ impl Game {
                     true
                 }
             })
-            .filter(|replacement| match replacement.replacement.event {
-                ReplacementEventDef::WouldMove {
-                    from: None | Some(ZoneKind::Battlefield),
-                    to,
-                    cause: ZoneMoveCauseDef::Any,
-                } => replacement.source.object == proposed.object && to == proposed.destination,
-                ReplacementEventDef::AnyObjectWouldMove { object, to } => {
-                    to == proposed.destination
-                        && self.exiting_object_matches(
-                            proposed.object,
-                            replacement.controller,
-                            object,
-                        )
-                }
-                _ => false,
+            .filter(|replacement| {
+                self.battlefield_exit_replacement_event_applies(proposed, replacement)
             })
             .map(|replacement| ApplicableZoneMoveReplacement {
                 move_index,
-                context: ReplacementEffectContext {
-                    source: replacement.source,
-                    controller: replacement.controller,
-                },
                 presentation: replacement.presentation,
                 text: replacement.text,
-                effect: replacement.effect,
+                action: BattlefieldExitReplacementAction::Ability {
+                    context: ReplacementEffectContext {
+                        source: replacement.source,
+                        controller: replacement.controller,
+                    },
+                    effect: replacement.effect,
+                    once: replacement.replacement.once,
+                },
             })
-            .collect()
+            .collect::<Vec<_>>();
+        if let BattlefieldExitCause::Destroy {
+            can_regenerate: true,
+        } = proposed.cause
+            && let Some(permanent) = self
+                .battlefield
+                .iter()
+                .find(|permanent| permanent.card.id == proposed.object)
+            && permanent.regeneration_shields > 0
+            && !self.has_applied_rule(permanent, AppliedRuleDef::CannotRegenerate)
+        {
+            candidates.push(ApplicableZoneMoveReplacement {
+                move_index,
+                presentation: Self::effective_rules_source(permanent),
+                text: "Use a regeneration shield",
+                action: BattlefieldExitReplacementAction::RegenerationShield,
+            });
+        }
+        candidates
     }
 
     fn queue_battlefield_exit_replacement_choice(
@@ -415,7 +480,17 @@ impl Game {
                 Some(DecisionOption {
                     id: u32::try_from(index).ok()?,
                     label: candidate.text.to_string(),
-                    card: Some((candidate.context.source.object, candidate.presentation)),
+                    card: Some((
+                        match candidate.action {
+                            BattlefieldExitReplacementAction::Ability { context, .. } => {
+                                context.source.object
+                            }
+                            BattlefieldExitReplacementAction::RegenerationShield => {
+                                proposed.object
+                            }
+                        },
+                        candidate.presentation,
+                    )),
                     members: Vec::new(),
                     ability_text: Some(candidate.text.to_string()),
                     zone: DecisionZone::Battlefield,
@@ -439,15 +514,34 @@ impl Game {
         batch: &mut PendingBattlefieldExitBatch,
         replacement: &ApplicableZoneMoveReplacement,
     ) {
-        batch.moves[replacement.move_index]
-            .applied
-            .push(replacement.context.source);
-        self.apply_battlefield_exit_effect(
-            batch,
-            replacement.move_index,
-            replacement.context,
-            replacement.effect,
-        );
+        match replacement.action {
+            BattlefieldExitReplacementAction::Ability {
+                context,
+                effect,
+                once,
+            } => {
+                batch.moves[replacement.move_index]
+                    .applied
+                    .push(context.source);
+                if once {
+                    self.expire_once_replacement(context);
+                    batch
+                        .replacements
+                        .retain(|candidate| candidate.source != context.source);
+                }
+                self.apply_battlefield_exit_effect(
+                    batch,
+                    replacement.move_index,
+                    context,
+                    effect,
+                );
+            }
+            BattlefieldExitReplacementAction::RegenerationShield => {
+                let object = batch.moves[replacement.move_index].object;
+                self.regenerate_permanent(object, true);
+                batch.moves[replacement.move_index].replaced_with_nothing = true;
+            }
+        }
     }
 
     fn apply_battlefield_exit_effect(
@@ -469,9 +563,24 @@ impl Game {
             ReplacementEffectDef::MoveToZone(zone) => {
                 batch.moves[move_index].destination = zone;
                 batch.moves[move_index].placement = ZonePlacement::Top;
+                batch.moves[move_index].cause = BattlefieldExitCause::Other;
             }
             ReplacementEffectDef::Perform(effect) => {
-                self.perform_battlefield_exit_replacement_effect(context, *effect);
+                let object = batch.moves[move_index].object;
+                self.perform_battlefield_exit_replacement_effect(context, object, *effect);
+            }
+            ReplacementEffectDef::RegenerateDestroyedObject => {
+                self.regenerate_permanent(batch.moves[move_index].object, false);
+            }
+            ReplacementEffectDef::RemoveDamageFromDestroyedObject => {
+                if let Some(permanent) = self
+                    .battlefield
+                    .iter_mut()
+                    .find(|permanent| permanent.card.id == batch.moves[move_index].object)
+                {
+                    permanent.damage = 0;
+                    permanent.deathtouch_damage = false;
+                }
             }
             ReplacementEffectDef::PlaceCountersOnMovedObject { kind, amount } => {
                 batch.moves[move_index].counters = Some((kind, amount));
@@ -485,45 +594,6 @@ impl Game {
             | ReplacementEffectDef::Conditional { .. }
             | ReplacementEffectDef::PayOr { .. } => {}
         }
-    }
-
-    fn perform_battlefield_exit_replacement_effect(
-        &mut self,
-        context: ReplacementEffectContext,
-        effect: EffectDef,
-    ) {
-        let Some(permanent) = self
-            .battlefield
-            .iter()
-            .find(|permanent| permanent.card.id == context.source.object)
-        else {
-            return;
-        };
-        let object = StackObject {
-            id: permanent.card.id,
-            kind: StackObjectKind::TriggeredAbility,
-            card: permanent.card.clone(),
-            source: Some(permanent.card.id),
-            ability: None,
-            controller: context.controller,
-            signature: None,
-            chosen_permanents: Vec::new(),
-            applied_effects: Vec::new(),
-            text_changes: Vec::new(),
-            colors: None,
-            cast: None,
-            face_down: None,
-            is_copy: false,
-        };
-        self.resolve_effect_def(
-            ScopedEffect::primary(effect),
-            &object,
-            TriggerContext {
-                object: Some(context.source.object),
-                object_controller: Some(context.controller),
-                ..TriggerContext::empty()
-            },
-        );
     }
 
     /// Commits a simultaneous batch after every replacement choice has
@@ -783,6 +853,9 @@ impl Game {
         match completion {
             BattlefieldExitCompletion::Completions(completions) => {
                 self.resume_battlefield_exit_completions(completions, moved_to_graveyard);
+            }
+            BattlefieldExitCompletion::ContinueBattlefieldExitReplacements { batch } => {
+                self.continue_battlefield_exit_replacements(batch);
             }
             BattlefieldExitCompletion::ResolveEffects {
                 object,

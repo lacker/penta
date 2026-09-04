@@ -28,6 +28,16 @@ pub static ENCHANT_LAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exact
     ObjectPredicateDef::HasType(CardType::Land),
 )];
 
+/// The target an "Enchant land you control" Aura spell chooses.
+pub static ENCHANT_YOUR_LAND_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
+    AbilityTargetPredicate::Object {
+        object: ObjectPredicateDef::HasType(CardType::Land),
+        zones: &[ZoneKind::Battlefield],
+        controller: Some(PlayerRelation::You),
+        owner: None,
+    },
+)];
+
 /// The target an "Enchant creature you control" Aura spell chooses.
 pub static ENCHANT_YOUR_CREATURE_TARGET: [AbilityTargetDef; 1] = [AbilityTargetDef::exactly_one(
     AbilityTargetPredicate::Object {
@@ -74,6 +84,12 @@ pub const fn enchant_enchantment() -> AbilityDef {
 #[must_use]
 pub const fn enchant_land() -> AbilityDef {
     aura_spell("Enchant land", &ENCHANT_LAND_TARGET)
+}
+
+/// The narrower Aura clause: "Enchant land you control."
+#[must_use]
+pub const fn enchant_land_you_control() -> AbilityDef {
+    aura_spell("Enchant land you control", &ENCHANT_YOUR_LAND_TARGET)
 }
 
 /// The recurring narrower Aura spell clause: "Enchant creature you control."

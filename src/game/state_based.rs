@@ -1,6 +1,6 @@
 use super::{
-    AppliedRuleDef, CardSupertype, CardType, CounterKind, Game, GameObjectId, GameResult,
-    ObjectKind, Permanent, PlayerId, TriggerEventDef, WinReason,
+    AppliedRuleDef, BattlefieldExitCause, CardSupertype, CardType, CounterKind, Game, GameObjectId,
+    GameResult, ObjectKind, Permanent, PlayerId, TriggerEventDef, WinReason,
 };
 
 /// CR 704.5c. Ten is a rules constant, not a format setting: no supported
@@ -46,8 +46,7 @@ impl Game {
         loop {
             self.unbestow_permanents_without_a_host();
             let battlefield_len = self.battlefield.len();
-            let mut regenerate = Vec::new();
-            let mut die = Vec::new();
+            let mut exits = Vec::new();
             // The sweep below only reads, and asks the same land-type
             // questions of every permanent on the battlefield. It is dropped
             // by hand before the first mutation, because an answer must not
@@ -66,7 +65,7 @@ impl Game {
                         (None, None) | (Some(_), Some(_)) => false,
                     };
                     if !legal_attachment {
-                        die.push(permanent.card.id);
+                        exits.push((permanent.card.id, BattlefieldExitCause::Other));
                         continue;
                     }
                 }
@@ -75,7 +74,7 @@ impl Game {
                     .is_some_and(|types| types.contains(CardType::Planeswalker))
                     && permanent.counters(CounterKind::Loyalty) == 0
                 {
-                    die.push(permanent.card.id);
+                    exits.push((permanent.card.id, BattlefieldExitCause::Other));
                     continue;
                 }
                 let Some(toughness) = self.toughness(permanent) else {
@@ -85,25 +84,26 @@ impl Game {
                 let lethal_damage = i32::from(permanent.damage) >= i32::from(toughness)
                     || (permanent.damage > 0 && permanent.deathtouch_damage);
                 if zero_toughness {
-                    die.push(permanent.card.id);
+                    exits.push((permanent.card.id, BattlefieldExitCause::Other));
                     continue;
                 }
                 if !lethal_damage || self.has_indestructible(permanent) {
                     continue;
                 }
-                if permanent.regeneration_shields > 0
-                    && !self.has_applied_rule(permanent, AppliedRuleDef::CannotRegenerate)
-                {
-                    regenerate.push(permanent.card.id);
-                } else {
-                    die.push(permanent.card.id);
-                }
+                exits.push((
+                    permanent.card.id,
+                    BattlefieldExitCause::Destroy {
+                        can_regenerate: true,
+                    },
+                ));
             }
             drop(land_types);
-            for id in regenerate {
-                self.regenerate_permanent(id);
-            }
-            self.move_permanents_to_graveyard(&die);
+            self.move_permanents_to_zone_with_causes_then(
+                &exits,
+                crate::card::ZoneKind::Graveyard,
+                crate::card::ZonePlacement::Top,
+                None,
+            );
             // 704.5p again: the host that just died is a host no longer, and
             // the Equipment on it comes loose in this same check rather than
             // waiting for the next one. Auras with dead hosts are handled at

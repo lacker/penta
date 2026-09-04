@@ -572,14 +572,26 @@ fn validate_effect_target_shapes(
             validate_program_target_shapes(
                 trigger.ability.effect.definition,
                 targets,
-                trigger_event,
+                trigger_event.and_then(trigger_event_object_zone),
             )
         }
         EffectDef::CreateOngoingEffect(ongoing) => {
             if let Some(affected) = ongoing.affected {
                 validate_recipient_shape(affected, targets, RecipientExpectation::Any)?;
             }
-            validate_program_target_shapes(ongoing.ability.effect.definition, &[], None)
+            let triggering_object_zone = match ongoing.ability.definition {
+                DeclarativeAbilityDef::Replacement(definition)
+                    if matches!(
+                        definition.event,
+                        ReplacementEventDef::WouldBeDestroyed { .. }
+                    ) => Some(ZoneKind::Battlefield),
+                _ => None,
+            };
+            validate_program_target_shapes(
+                ongoing.ability.effect.definition,
+                &[],
+                triggering_object_zone,
+            )
         }
         EffectDef::CannotAttackUnless(query) | EffectDef::CannotAttackIf(query) => {
             validate_query_shape(*query, targets)
@@ -679,11 +691,16 @@ fn validate_effect_target_shapes(
 fn validate_replacement_effect_target_shapes(
     effect: ReplacementEffectDef,
     targets: &[AbilityTargetDef],
+    triggering_object_zone: Option<ZoneKind>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
-                validate_replacement_effect_target_shapes(*effect, targets)?;
+                validate_replacement_effect_target_shapes(
+                    *effect,
+                    targets,
+                    triggering_object_zone,
+                )?;
             }
             Ok(())
         }
@@ -694,7 +711,11 @@ fn validate_replacement_effect_target_shapes(
         } => {
             validate_condition_shape(condition, targets)?;
             for effect in if_true.iter().chain(if_false.iter()) {
-                validate_replacement_effect_target_shapes(*effect, targets)?;
+                validate_replacement_effect_target_shapes(
+                    *effect,
+                    targets,
+                    triggering_object_zone,
+                )?;
             }
             Ok(())
         }
@@ -705,12 +726,16 @@ fn validate_replacement_effect_target_shapes(
         } => {
             validate_payment_shape(payment, targets)?;
             for effect in if_paid.iter().chain(if_declined.iter()) {
-                validate_replacement_effect_target_shapes(*effect, targets)?;
+                validate_replacement_effect_target_shapes(
+                    *effect,
+                    targets,
+                    triggering_object_zone,
+                )?;
             }
             Ok(())
         }
         ReplacementEffectDef::Perform(effect) => {
-            validate_effect_target_shapes(*effect, targets, None)
+            validate_effect_target_shapes(*effect, targets, triggering_object_zone)
         }
         ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) => {
             if matches!(
@@ -743,6 +768,8 @@ fn validate_replacement_effect_target_shapes(
         }
         ReplacementEffectDef::ReplaceEventWithNothing
         | ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::RegenerateDestroyedObject
+        | ReplacementEffectDef::RemoveDamageFromDestroyedObject
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)

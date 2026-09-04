@@ -772,7 +772,8 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                 && definition.targets.is_empty()
                 && definition.modes.is_none()
                 && definition.activation_limit.is_none()
-                && !definition.any_player_may_activate
+                && definition.activation_permission
+                    == crate::card::ActivationPermissionDef::Controller
                 && definition.condition.is_none()
                 && definition.costs.as_slice().iter().all(|cost| {
                     if mana {

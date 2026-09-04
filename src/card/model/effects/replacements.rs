@@ -69,6 +69,11 @@ pub enum ReplacementEventDef {
         object: ObjectPredicateDef,
         to: ZoneKind,
     },
+    /// A matching battlefield permanent would be destroyed. Destruction is
+    /// narrower than a move to a graveyard: sacrifice and zero toughness do
+    /// not qualify, while lethal damage and an explicit destroy instruction
+    /// do. The event remains prospective while replacement effects apply.
+    WouldBeDestroyed { object: ObjectPredicateDef },
     /// A narrow, named event that is not yet part of the shared vocabulary.
     Special(&'static str),
 }
@@ -269,6 +274,15 @@ pub enum ReplacementEffectDef {
     /// Perform an ordinary declarative effect as part of replacing the event.
     /// The replacement source and controller provide the effect context.
     Perform(&'static EffectDef),
+    /// Apply the consequences of regeneration to the permanent whose
+    /// destruction is being replaced: remove its damage, tap it, and remove
+    /// it from combat. The containing program consumes the destruction with
+    /// [`Self::ReplaceEventWithNothing`].
+    RegenerateDestroyedObject,
+    /// Remove all damage from the permanent whose destruction is being
+    /// replaced. Unlike regeneration this neither taps it nor removes it
+    /// from combat; Pyramids is the printed distinction.
+    RemoveDamageFromDestroyedObject,
     /// "Instead exile it with a void counter on it." The counter is placed
     /// as the replaced move happens rather than afterwards: what arrives in
     /// the new zone is a new object, so nothing resolving later could name

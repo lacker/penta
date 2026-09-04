@@ -550,6 +550,22 @@ pub enum ActivationTimingDef {
     BeforeCombatDamage,
 }
 
+/// Which players may activate an activated ability on a permanent.
+///
+/// This is separate from control of the ability after activation: whoever is
+/// allowed to activate it becomes the stack object's controller, while the
+/// permanent remains the source.
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq)]
+pub enum ActivationPermissionDef {
+    /// The ordinary rule: only the permanent's controller may activate it.
+    #[default]
+    Controller,
+    /// "Any player may activate this ability."
+    AnyPlayer,
+    /// "Only your opponents may activate this ability."
+    Opponents,
+}
+
 // Each flag is a separate printed sentence about the same ability, so they
 // stay separate fields rather than being folded into one shape.
 #[allow(clippy::struct_excessive_bools)]
@@ -577,10 +593,9 @@ pub struct ActivatedAbilityDef {
     /// which is why it is counted apart from the limit above -- that one
     /// clears when the turn does, and this one never clears.
     pub exhaust: bool,
-    /// Whether anyone may activate it, not just the permanent's controller.
-    /// The permanent stays the ability's source whoever pays, so the damage
-    /// it deals is still the permanent's damage.
-    pub any_player_may_activate: bool,
+    /// Who may activate it. The permanent stays the ability's source whoever
+    /// pays, so the damage it deals is still the permanent's damage.
+    pub activation_permission: ActivationPermissionDef,
     /// A printed "activate only if ..." restriction, checked where the
     /// activation is offered rather than where it resolves -- an ability
     /// whose condition is false is not a legal action at all, which is what
@@ -646,7 +661,7 @@ impl ActivatedAbilityDef {
             activation_limit: None,
             only_as_instant: false,
             exhaust: false,
-            any_player_may_activate: false,
+            activation_permission: ActivationPermissionDef::Controller,
             condition: None,
             modes: None,
             cost_reduction: None,
@@ -672,7 +687,14 @@ impl ActivatedAbilityDef {
     /// source, so what it does is still the permanent's doing.
     #[must_use]
     pub const fn open_to_any_player(mut self) -> Self {
-        self.any_player_may_activate = true;
+        self.activation_permission = ActivationPermissionDef::AnyPlayer;
+        self
+    }
+
+    /// "Only your opponents may activate this ability."
+    #[must_use]
+    pub const fn only_opponents_may_activate(mut self) -> Self {
+        self.activation_permission = ActivationPermissionDef::Opponents;
         self
     }
 
@@ -788,6 +810,10 @@ pub struct ReplacementAbilityDef {
     pub condition: Option<ReplacementConditionDef>,
     /// Whether the affected player may decline to apply this replacement.
     pub optional: bool,
+    /// Whether this ability expires after it replaces one event. This is the
+    /// declarative lifetime of "the next time" replacements granted by a
+    /// resolving effect, rather than state stored by the card that granted it.
+    pub once: bool,
 }
 
 impl ReplacementAbilityDef {
@@ -798,6 +824,7 @@ impl ReplacementAbilityDef {
             event: ReplacementEventDef::SourceEntersBattlefield,
             condition: None,
             optional: false,
+            once: false,
         }
     }
 
@@ -816,6 +843,12 @@ impl ReplacementAbilityDef {
     #[must_use]
     pub const fn optional(mut self) -> Self {
         self.optional = true;
+        self
+    }
+
+    #[must_use]
+    pub const fn once(mut self) -> Self {
+        self.once = true;
         self
     }
 

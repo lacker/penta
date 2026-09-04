@@ -14,8 +14,8 @@ use crate::card::{
     ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::card::{
-    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef, CounterKind,
-    EffectPaymentDef, PayOrDef, PlayerSetDef,
+    AppliedEffectDef, AppliedRuleDef, AttackDefenderScopeDef, AttackRestrictionDef,
+    CumulativeUpkeepCostDef,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -1236,32 +1236,7 @@ pub(in crate::card::sets) static ELEPHANT_GRASS: CardRecord = CardRecord::new(
     CardArt::new("f4c1f5a7-0d28-43ab-9b66-937e963f42cd", "Tony Roberts"),
     CardSet::Visions,
     CardRules::new_enchantment(mana_cost!("{G}")).with_abilities(&[
-        AbilityDef::triggered(
-            "Cumulative upkeep {1} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
-            TriggerEventDef::StepBegins {
-                step: TurnStepDef::Upkeep,
-                player: PlayerRelation::You,
-            },
-            EffectDef::IfCondition {
-                condition: &TriggerConditionDef::SourceOnBattlefield,
-                then: &EffectDef::Sequence(&[
-                    EffectDef::AddCounters {
-                        object: EffectRecipientDef::Source,
-                        kind: CounterKind::named("age"),
-                        amount: ValueDef::Constant(1),
-                    },
-                    EffectDef::PayOr(PayOrDef::unless(
-                        EffectPaymentDef::generic_mana(
-                            PlayerSetDef::One(PlayerRefDef::EffectController),
-                            ValueDef::CountersOnSource(CounterKind::named("age")),
-                        ),
-                        &EffectDef::Sacrifice {
-                            object: EffectRecipientDef::Source,
-                        },
-                    )),
-                ]),
-            },
-        ),
+        abilities::cumulative_upkeep(CumulativeUpkeepCostDef::mana(mana_cost!("{1}"))),
         AbilityDef::static_ability(
             "Black creatures can't attack you.",
             EffectDef::StaticApply {

@@ -658,6 +658,7 @@ fn validate_effect_target_shapes(
         | EffectDef::ModifyCost(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::DamageCannotBePreventedThisTurn
         | EffectDef::ReturnLinkedExiles { .. }
         | EffectDef::MayPlayWithoutPaying { .. }

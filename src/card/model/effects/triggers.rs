@@ -57,6 +57,9 @@ pub struct StackObjectEventMatcherDef {
 /// The committed event observed by a triggered ability.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum TriggerEventDef {
+    /// The controller declined or could not make this source's cumulative
+    /// upkeep payment. The captured amount is its age-counter count.
+    CumulativeUpkeepNotPaid,
     /// Any one of several events, for a printed ability that names more than
     /// one -- "whenever this creature enters or attacks". Splitting such a
     /// card into two abilities would misreport what it prints and would count

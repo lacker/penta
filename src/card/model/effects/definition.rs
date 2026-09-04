@@ -1,13 +1,13 @@
 /// Declarative effect primitives interpreted by the rules engine.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum EffectDef {
+    CumulativeUpkeep(CumulativeUpkeepCostDef),
     AddCounters {
         object: EffectRecipientDef,
         kind: CounterKind,
         amount: ValueDef,
     },
-    /// Choose one kind of counter currently on the recipient, bind that kind
-    /// for the nested effect, then continue resolving it.
+    /// Choose one counter kind on the recipient, bind it, then continue.
     ChooseCounterKind {
         object: EffectRecipientDef,
         then: &'static EffectDef,

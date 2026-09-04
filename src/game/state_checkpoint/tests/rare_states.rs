@@ -592,6 +592,60 @@ fn tetravus_counter_exchange_payment_reconstructs() {
 }
 
 #[test]
+fn cumulative_upkeep_payment_reconstructs_from_its_authored_cost() {
+    let mut game = ready_game();
+    game.step = crate::Step::Upkeep;
+    game.battlefield.push(creature(
+        11_275,
+        crate::card::cards::ELEPHANT_GRASS,
+        PlayerId::One,
+    ));
+    game.battlefield
+        .push(creature(11_276, crate::card::cards::PLAINS, PlayerId::One));
+    game.handle_upkeep_triggers();
+    game.finish_rules_procedure();
+    resolve_top_of_stack(&mut game);
+
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::PayOr {
+            player: PlayerId::One,
+            payment: ResolvedEffectPayment::Mana(_),
+            cumulative_upkeep_age: Some(1),
+            ..
+        })
+    ));
+    assert_reconstructs(&game, "a cumulative-upkeep payment");
+
+    for (id, definition, label) in [
+        (11_280, crate::card::cards::GALLOWBRAID, "life"),
+        (11_290, crate::card::cards::PSYCHIC_VORTEX, "draw"),
+        (11_300, crate::card::cards::ABOROTH, "counter"),
+    ] {
+        let mut game = ready_game();
+        game.step = crate::Step::Upkeep;
+        game.battlefield
+            .push(creature(id, definition, PlayerId::One));
+        game.handle_upkeep_triggers();
+        game.finish_rules_procedure();
+        resolve_top_of_stack(&mut game);
+        assert!(matches!(
+            game.pending_decisions
+                .first()
+                .map(|pending| &pending.continuation),
+            Some(DecisionContinuation::PayOr {
+                player: PlayerId::One,
+                cumulative_upkeep_age: Some(1),
+                ..
+            })
+        ));
+        assert_reconstructs(&game, &format!("a cumulative-upkeep {label} payment"));
+    }
+}
+
+#[test]
 fn ordinary_pay_or_rejects_payer_and_payment_splices() {
     let mut game = staged_game();
     let mut vault = creature(11_300, crate::card::cards::MANA_VAULT, PlayerId::One);

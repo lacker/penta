@@ -22,6 +22,11 @@ pub(super) enum CommittedStackObjectEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum CommittedTriggerEvent {
+    CumulativeUpkeepNotPaid {
+        object: TriggerEventObject,
+        player: PlayerId,
+        age_counters: u16,
+    },
     ZoneChanged {
         /// Last-known information for the object before the move. Some entry
         /// paths do not need or retain a readable pre-move representation.
@@ -254,6 +259,20 @@ impl CommittedTriggerEvent {
     #[allow(clippy::too_many_lines)]
     pub(super) fn context(&self) -> TriggerContext {
         match self {
+            Self::CumulativeUpkeepNotPaid {
+                object,
+                player,
+                age_counters,
+            } => TriggerContext {
+                object: Some(object.id),
+                zone_change_result: None,
+                object_controller: Some(object.controller),
+                event_player: Some(*player),
+                amount: Some(i32::from(*age_counters)),
+                damaged_object: None,
+                sacrificed_object: None,
+                cast_from_zone: None,
+            },
             Self::ZoneChanged { before, after, .. } => {
                 let object = before.as_ref().or(after.as_ref());
                 TriggerContext {

@@ -660,6 +660,13 @@ pub(super) struct EmblemSnapshot {
 pub(super) enum ResolvedEffectPaymentSnapshot {
     Mana(ManaCostSnapshot),
     Life(u16),
+    DrawCards(u16),
+    PutCounters {
+        object: u32,
+        kind: CounterKindSnapshot,
+        amount: u16,
+        times: u16,
+    },
     Energy(u16),
     /// Appended after the first two, so a checkpoint written before this
     /// payment existed still reads as one of them.

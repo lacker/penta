@@ -67,48 +67,6 @@ impl Game {
         });
     }
 
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn queue_pay_or(
-        &mut self,
-        player: PlayerId,
-        payment: ResolvedEffectPayment,
-        visibility: ChoiceVisibilityDef,
-        definition: ScopedEffect,
-        object: &StackObject,
-        context: EffectResolutionContext,
-        if_paid: Option<ScopedEffect>,
-        otherwise: Option<ScopedEffect>,
-    ) {
-        if if_paid.is_none() && otherwise.is_none() {
-            return;
-        }
-        let can_pay = self.can_pay_effect_payment(player, payment);
-        if !can_pay && let Some(effect) = otherwise {
-            self.resolve_effect_def(effect, object, context);
-            return;
-        }
-        let options = self.payment_options(player, payment, can_pay, "Decline");
-        self.queue_decision(
-            player,
-            object.ability_text().unwrap_or("Pay the cost?"),
-            effect_choice_visibility(visibility),
-            DecisionPreference::Neutral,
-            1..=1,
-            false,
-            options,
-            DecisionContinuation::PayOr {
-                player,
-                payment,
-                definition,
-                object: Box::new(object.clone()),
-                context,
-                if_paid,
-                otherwise,
-            },
-        );
-        self.associate_latest_decision_with(object);
-    }
-
     /// A resolving ability has already left the stack by the time its choice
     /// is observed. Preserve the battlefield source explicitly so clients do
     /// not have to guess which same-name permanent the choice belongs to.
@@ -277,6 +235,13 @@ impl Game {
         match payment {
             ResolvedEffectPayment::Mana(cost) => self.can_pay_cost(player, cost, 0),
             ResolvedEffectPayment::Life(amount) => self.can_pay_life(player, amount),
+            // A short library does not make either action unpayable: draws
+            // are attempted normally, while mill moves as many as remain.
+            ResolvedEffectPayment::DrawCards(_) | ResolvedEffectPayment::Mill(_) => true,
+            ResolvedEffectPayment::PutCounters { object, .. } => self
+                .battlefield
+                .iter()
+                .any(|permanent| permanent.card.id == object),
             // Unlike life, energy cannot be spent past nothing: a player
             // short of the amount cannot pay at all.
             ResolvedEffectPayment::Energy(amount) => {
@@ -285,10 +250,6 @@ impl Game {
                     .count(CounterKind::named("energy"))
                     >= amount
             }
-            // A short library is not a failure to pay, so this is always
-            // affordable. Running out of cards is answered by the draw that
-            // finds none, not by refusing the payment.
-            ResolvedEffectPayment::Mill(_) => true,
             // A discard needs cards to choose from, so an empty hand cannot
             // pay at all. That is the difference from a mill, where a short
             // library still pays with what it has.
@@ -425,6 +386,17 @@ impl Game {
                 let _spent = self.pay_player_cost(player, cost, 0);
             }
             ResolvedEffectPayment::Life(amount) => self.lose_life(player, amount),
+            ResolvedEffectPayment::DrawCards(amount) => self.draw_cards(player, amount),
+            ResolvedEffectPayment::PutCounters {
+                object,
+                kind,
+                amount,
+                times,
+            } => {
+                for _ in 0..times {
+                    self.add_counters_to_permanent(object, kind, amount);
+                }
+            }
             ResolvedEffectPayment::Energy(amount) => {
                 let _paid = self.spend_energy(player, amount);
             }
@@ -484,6 +456,13 @@ impl Game {
         match payment {
             ResolvedEffectPayment::Mana(_) => "Pay the cost".to_string(),
             ResolvedEffectPayment::Life(amount) => format!("Pay {amount} life"),
+            ResolvedEffectPayment::DrawCards(amount) => {
+                format!("Draw {amount} card(s)")
+            }
+            ResolvedEffectPayment::PutCounters { amount, times, .. } => {
+                let total = amount.saturating_mul(times);
+                format!("Put {total} counter(s) on this permanent")
+            }
             ResolvedEffectPayment::Energy(amount) => format!("Pay {amount} energy"),
             ResolvedEffectPayment::Mill(amount) => format!("Mill {amount} cards"),
             ResolvedEffectPayment::Discard(amount) => format!("Discard {amount} cards"),
@@ -996,3 +975,4 @@ impl Game {
 
 include!("decision_offers/copies.rs");
 include!("decision_offers/payment_options.rs");
+include!("decision_offers/pay_or.rs");

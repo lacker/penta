@@ -323,6 +323,15 @@ fn shared_stack_effect_at_position(effect: EffectDef, deferred_decision_allowed:
                             || shared_stack_effect_at_position(**effect, true)
                     })
         }
+        EffectDef::CumulativeUpkeep(cost) => {
+            deferred_decision_allowed
+                && match cost {
+                    crate::card::CumulativeUpkeepCostDef::Mana(cost) => !cost.variable_x,
+                    crate::card::CumulativeUpkeepCostDef::Life(_)
+                    | crate::card::CumulativeUpkeepCostDef::DrawCards(_)
+                    | crate::card::CumulativeUpkeepCostDef::PutCounters { .. } => true,
+                }
+        }
         // A spell copying itself asks its chooser for targets, which is a
         // decision window like any other. Proliferate asks over permanents
         // and players at once, which is the same kind of window and reads

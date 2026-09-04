@@ -25,6 +25,19 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **Cumulative upkeep is one shared declarative procedure.**
+  `abilities::cumulative_upkeep(cost)` now puts the age counter on a live
+  source, repeats the complete mana, life, draw, or counter cost once per age
+  counter, and sacrifices the permanent when its controller declines or
+  cannot pay. An unpaid payment publishes
+  `TriggerEventDef::CumulativeUpkeepNotPaid` before the sacrifice, allowing
+  Heart of Bogardan to retain the paying player and age count. Existing
+  Weatherlight and Visions implementations use the helper, and Inner Sanctum,
+  Psychic Vortex, Gallowbraid, Morinfen, and Heart of Bogardan are now fully
+  declarative. The optional `cumulativeUpkeepAge` continuation field and new
+  resolved-payment tags are additive in checkpoint format 11; replay format
+  and the bot-wire protocol are unchanged.
+
 - **Blocking restrictions share one declaration model.** Pairwise blocker
   eligibility and costs remain `BlockRestrictionDef::Pair`, while "can't be
   blocked except by N or more creatures" is now the declaration-wide

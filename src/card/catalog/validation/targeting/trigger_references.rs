@@ -482,6 +482,7 @@ fn validate_trigger_event_references(
         TriggerEventDef::LifeGained(PlayerRelation::ChosenPlayer)
         | TriggerEventDef::CardsExiled { zones: &[], .. } => Err(unsupported_trigger_event(event)),
         TriggerEventDef::CommittedCrime(_)
+        | TriggerEventDef::CumulativeUpkeepNotPaid
         | TriggerEventDef::BecomesLevel(_)
         | TriggerEventDef::Cycled
         | TriggerEventDef::DoorUnlocked

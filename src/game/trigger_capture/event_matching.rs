@@ -144,6 +144,10 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match (definition, event) {
+            (
+                TriggerEventDef::CumulativeUpkeepNotPaid,
+                CommittedTriggerEvent::CumulativeUpkeepNotPaid { object, .. },
+            ) => object.id == source,
             // One printed ability, several ways into the same matching path.
             (TriggerEventDef::AnyOf(events), _) => events.iter().any(|alternative| {
                 self.trigger_event_matches_for_controller(*alternative, event, source, controller)

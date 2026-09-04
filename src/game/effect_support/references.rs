@@ -7,6 +7,27 @@
 // parent module's.
 
 impl Game {
+    pub(in crate::game) fn resolved_cumulative_upkeep_payment(
+        cost: crate::card::CumulativeUpkeepCostDef,
+        source: GameObjectId,
+        age: u16,
+    ) -> crate::game::ResolvedEffectPayment {
+        use crate::card::CumulativeUpkeepCostDef as Cost;
+        use crate::game::ResolvedEffectPayment as Resolved;
+        let repeated = |amount: u16| amount.saturating_mul(age);
+        match cost {
+            Cost::Mana(cost) => Resolved::Mana(repeat_mana_cost(cost, age)),
+            Cost::Life(amount) => Resolved::Life(repeated(amount)),
+            Cost::DrawCards(amount) => Resolved::DrawCards(repeated(amount)),
+            Cost::PutCounters { kind, amount } => Resolved::PutCounters {
+                object: source,
+                kind,
+                amount,
+                times: age,
+            },
+        }
+    }
+
     fn raw_target_reference(
         slot: TargetIndex,
         object: &StackObject,
@@ -907,4 +928,22 @@ impl Game {
             .map(Target::Card)
             .collect()
     }
+}
+
+fn repeat_mana_cost(mut cost: crate::ManaCost, count: u16) -> crate::ManaCost {
+    cost.generic = cost.generic.saturating_mul(count);
+    cost.white = cost.white.saturating_mul(count);
+    cost.blue = cost.blue.saturating_mul(count);
+    cost.black = cost.black.saturating_mul(count);
+    cost.red = cost.red.saturating_mul(count);
+    cost.green = cost.green.saturating_mul(count);
+    cost.colorless = cost.colorless.saturating_mul(count);
+    for amount in &mut cost.hybrid {
+        *amount = amount.saturating_mul(count);
+    }
+    for amount in &mut cost.additional_flexible {
+        *amount = amount.saturating_mul(count);
+    }
+    cost.x_multiplier = cost.x_multiplier.saturating_mul(count);
+    cost
 }

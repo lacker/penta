@@ -2,6 +2,8 @@ include!("pregame_continuation.rs");
 include!("counter_choice_continuation.rs");
 include!("trigger_continuation.rs");
 include!("object_collection_continuation.rs");
+include!("pay_or_continuation.rs");
+include!("cumulative_upkeep_continuation.rs");
 
 #[allow(clippy::too_many_lines)]
 fn parse_continuation(
@@ -762,6 +764,7 @@ fn parse_continuation(
         DecisionContinuationSnapshot::PayOr {
             player: payer,
             payment: payment_snapshot,
+            cumulative_upkeep_age,
             object,
             ability,
             context,
@@ -778,30 +781,31 @@ fn parse_continuation(
             }
             let scoped = catalog_scoped_effect(&game.catalog, ability, definition)
                 .ok_or("pay-or locator is absent from this catalog")?;
-            let EffectDef::PayOr(authored) = scoped.effect else {
-                return Err("pay-or locator does not identify an optional payment".into());
-            };
-            // The payer was settled when the decision was queued, and the
-            // state it was read from can have moved since: Chain of Vapor
-            // asks the controller of a permanent it has already returned to
-            // hand. So a payer that can no longer be derived is the recorded
-            // one, while a payer that derives to somebody else is a
-            // disagreement worth refusing.
-            let authored_payment =
-                resolved_effect_payment(game, authored.payment, &object, &context, scoped);
-            let payment = match authored_payment {
-                Some((expected_payer, payment)) if expected_payer == payer => payment,
-                Some(_) => {
-                    return Err("pay-or payer or payment disagrees with its authored effect".into());
+            let (payment, visibility, if_paid, otherwise) = match scoped.effect {
+                EffectDef::PayOr(authored) => {
+                    parse_authored_pay_or_continuation(
+                        game,
+                        &object,
+                        &context,
+                        payer,
+                        *cumulative_upkeep_age,
+                        scoped,
+                        authored,
+                    )?
                 }
-                None => resolved_effect_payment_for_payer(
-                    game,
-                    authored.payment,
-                    &object,
-                    &context,
-                    scoped,
-                )
-                .ok_or("pay-or authored payment cannot be rebuilt")?,
+                EffectDef::CumulativeUpkeep(cost) => {
+                    parse_cumulative_upkeep_continuation(
+                        game,
+                        &object,
+                        payer,
+                        *cumulative_upkeep_age,
+                        scoped,
+                        cost,
+                    )?
+                }
+                _ => {
+                    return Err("pay-or locator does not identify an optional payment".into());
+                }
             };
             // Compared as snapshots, and kept as the authored value: a
             // payment that names a predicate cannot be rebuilt from the
@@ -810,8 +814,7 @@ fn parse_continuation(
                 return Err("pay-or payer or payment disagrees with its authored effect".into());
             }
             let can_pay = game.can_pay_effect_payment(payer, payment);
-            if authored.if_paid.is_none() && authored.otherwise.is_none()
-                || (!can_pay && authored.otherwise.is_some())
+            if if_paid.is_none() && otherwise.is_none() || (!can_pay && otherwise.is_some())
             {
                 return Err(
                     "pay-or checkpoint encodes a choice that would resolve automatically".into(),
@@ -822,7 +825,7 @@ fn parse_continuation(
                 observation,
                 payer,
                 object.ability_text().unwrap_or("Pay the cost?"),
-                effect_choice_visibility(authored.visibility),
+                effect_choice_visibility(visibility),
                 DecisionPreference::Neutral,
                 1,
                 1,
@@ -832,11 +835,12 @@ fn parse_continuation(
             DecisionContinuation::PayOr {
                 player: payer,
                 payment,
+                cumulative_upkeep_age: *cumulative_upkeep_age,
                 definition: scoped,
                 object,
                 context,
-                if_paid: authored.if_paid.map(|effect| scoped.with_effect(*effect)),
-                otherwise: authored.otherwise.map(|effect| scoped.with_effect(*effect)),
+                if_paid,
+                otherwise,
             }
         }
         triggers @ (DecisionContinuationSnapshot::TriggerOrder { .. }

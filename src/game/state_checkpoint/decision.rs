@@ -537,6 +537,7 @@ fn continuation_snapshot(
         DecisionContinuation::PayOr {
             player,
             payment,
+            cumulative_upkeep_age,
             definition: scoped,
             object,
             context,
@@ -558,6 +559,7 @@ fn continuation_snapshot(
             DecisionContinuationSnapshot::PayOr {
                 player: player.index(),
                 payment: resolved_effect_payment_snapshot(*payment),
+                cumulative_upkeep_age: *cumulative_upkeep_age,
                 object: detached_stack_snapshot_allowing(game, viewer, object, visible_rebindings)?,
                 ability,
                 context: effect_resolution_context_snapshot(context),

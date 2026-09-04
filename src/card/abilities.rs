@@ -11,10 +11,10 @@ use super::model::{
     ChoiceVisibilityDef, ChooseCardsFromCollectionDef, ChooseDef, ChooseObjectOrderDef,
     CollectionInspectionDef, ColorSet, ComparisonDef, ConditionDef, CopyExceptionsDef,
     CopyStackObjectDef, CostAdjustmentDef, CostAmountDef, CostModificationDef, CounterKind,
-    DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef, FreePlayDef,
-    FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef, KeywordAbility,
-    LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
+    CumulativeUpkeepCostDef, DamageEventMatcherDef, DamagePreventionDef, DamageRecipientMatcherDef,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    FreePlayDef, FreePlayDurationDef, InstalledTriggerDef, InstalledTriggerLifetimeDef,
+    KeywordAbility, LookAtObjectsDef, ManaColor, ManaCost, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectCollectionSourceDef, ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PayOrDef, PlayerRefDef,
@@ -940,4 +940,5 @@ include!("abilities/convoke_buyback.rs");
 include!("abilities/attachment.rs");
 include!("abilities/named_cards.rs");
 include!("abilities/suspend.rs");
+include!("abilities/cumulative_upkeep.rs");
 include!("abilities/tests.rs");

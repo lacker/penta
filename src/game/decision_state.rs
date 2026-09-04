@@ -45,6 +45,18 @@ pub(super) struct SacrificeDeclined {
 pub(super) enum ResolvedEffectPayment {
     Mana(ManaCost),
     Life(u16),
+    /// Draws made as a cost. A short library does not make this unpayable,
+    /// and replacement effects still replace the individual draws normally.
+    DrawCards(u16),
+    /// Counters put on the exact source permanent as a cost.
+    PutCounters {
+        object: GameObjectId,
+        kind: CounterKind,
+        /// Counters placed by one copy of the printed cost.
+        amount: u16,
+        /// How many age counters repeat that cost.
+        times: u16,
+    },
     /// Energy, spent in full or not at all.
     Energy(u16),
     Mill(u16),
@@ -550,6 +562,10 @@ pub(super) enum DecisionContinuation {
     PayOr {
         player: PlayerId,
         payment: ResolvedEffectPayment,
+        /// The age-counter count whose cumulative-upkeep payment this is.
+        /// Present only for the shared keyword procedure, so declining can
+        /// publish its own rules event before the source is sacrificed.
+        cumulative_upkeep_age: Option<u16>,
         definition: ScopedEffect,
         object: Box<StackObject>,
         context: EffectResolutionContext,

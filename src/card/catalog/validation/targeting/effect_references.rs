@@ -947,6 +947,7 @@ fn validate_effect_references(
         | EffectDef::CannotAttackIf(_)
         | EffectDef::None
         | EffectDef::ContinueReplacedDraw
+        | EffectDef::CumulativeUpkeep(_)
         | EffectDef::AddManaEqualTo { .. }
         | EffectDef::CreateEmblem { .. }
         | EffectDef::DamageCannotBePreventedThisTurn

@@ -692,6 +692,20 @@ pub(super) fn resolved_effect_payment_snapshot(
             ResolvedEffectPaymentSnapshot::Mana(mana_cost_snapshot(cost))
         }
         ResolvedEffectPayment::Life(amount) => ResolvedEffectPaymentSnapshot::Life(amount),
+        ResolvedEffectPayment::DrawCards(amount) => {
+            ResolvedEffectPaymentSnapshot::DrawCards(amount)
+        }
+        ResolvedEffectPayment::PutCounters {
+            object,
+            kind,
+            amount,
+            times,
+        } => ResolvedEffectPaymentSnapshot::PutCounters {
+            object: object.0,
+            kind: super::super::model::CounterKindSnapshot(kind),
+            amount,
+            times,
+        },
         ResolvedEffectPayment::Energy(amount) => ResolvedEffectPaymentSnapshot::Energy(amount),
         ResolvedEffectPayment::Mill(amount) => ResolvedEffectPaymentSnapshot::Mill(amount),
         ResolvedEffectPayment::Discard(amount) => ResolvedEffectPaymentSnapshot::Discard(amount),

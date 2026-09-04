@@ -5,9 +5,45 @@
 //! each answer.
 
 use super::{
-    ChoiceVisibilityDef, EffectDef, EffectRecipientDef, ManaColor, ManaCost, ObjectPredicateDef,
-    PlayerRefDef, PlayerSetDef, TriggerConditionDef, ValueDef, ZoneKind,
+    ChoiceVisibilityDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ManaCost,
+    ObjectPredicateDef, PlayerRefDef, PlayerSetDef, TriggerConditionDef, ValueDef, ZoneKind,
 };
+
+/// One age counter's worth of a cumulative-upkeep cost.
+///
+/// The cumulative-upkeep procedure repeats this whole cost once for each age
+/// counter on its source. Keeping the unit cost typed is important for the
+/// nonmana printings: drawing two cards is two payments of "draw a card", and
+/// putting two counters on the source is two payments of that counter cost.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CumulativeUpkeepCostDef {
+    Mana(ManaCost),
+    Life(u16),
+    DrawCards(u16),
+    PutCounters { kind: CounterKind, amount: u16 },
+}
+
+impl CumulativeUpkeepCostDef {
+    #[must_use]
+    pub const fn mana(cost: ManaCost) -> Self {
+        Self::Mana(cost)
+    }
+
+    #[must_use]
+    pub const fn life(amount: u16) -> Self {
+        Self::Life(amount)
+    }
+
+    #[must_use]
+    pub const fn draw_cards(amount: u16) -> Self {
+        Self::DrawCards(amount)
+    }
+
+    #[must_use]
+    pub const fn put_counters(kind: CounterKind, amount: u16) -> Self {
+        Self::PutCounters { kind, amount }
+    }
+}
 
 /// The supported cost of an optional effect payment.
 ///

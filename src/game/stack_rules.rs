@@ -142,6 +142,7 @@ impl Game {
                 .chain(payment.otherwise.iter())
                 .any(|effect| Self::effect_applies_to_source(**effect, expected)),
             EffectDef::None
+            | EffectDef::CumulativeUpkeep(_)
             | EffectDef::ContinueReplacedDraw
             | EffectDef::Randomized { .. }
             | EffectDef::PreventDamage { .. }

@@ -20,7 +20,7 @@ pub use triggers::*;
 pub use turn_structure::*;
 pub use values::*;
 
-use super::payments::{EffectPaymentDef, PayOrDef};
+use super::payments::{CumulativeUpkeepCostDef, EffectPaymentDef, PayOrDef};
 use crate::Format;
 use crate::ids::{AdditionalCostObjectIndex, Binding, TargetIndex};
 

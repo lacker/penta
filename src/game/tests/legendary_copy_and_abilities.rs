@@ -335,6 +335,76 @@ fn aeve_spell_copies_enter_as_nonlegendary_tokens() {
 }
 
 #[test]
+fn aeve_uses_shared_targetless_storm_without_a_retarget_decision() {
+    let mut game = ready_game();
+    game.battlefield.clear();
+    game.record_spell_cast(PlayerId::One, GameObjectId(90_200));
+
+    let aeve_definition = definition(&game, "Aeve, Progenitor Ooze");
+    let aeve_record = game
+        .catalog
+        .get(aeve_definition)
+        .expect("Aeve is cataloged");
+    let aeve_storm = aeve_record
+        .rules
+        .ability_clauses()
+        .first()
+        .expect("Aeve prints storm first");
+    let shared_storm = abilities::storm();
+    assert_eq!(aeve_storm.definition, shared_storm.definition);
+    assert_eq!(aeve_storm.effect, shared_storm.effect);
+    assert_eq!(
+        aeve_storm.text,
+        "Storm (When you cast this spell, copy it for each spell cast before it this turn. Copies become tokens.)",
+    );
+
+    let aeve = card(90_201, aeve_definition, PlayerId::One);
+    let aeve_id = aeve.id;
+    game.players[PlayerId::One.index()].hand.push(aeve);
+    game.players[PlayerId::One.index()].mana_pool.green = 3;
+    game.players[PlayerId::One.index()].mana_pool.colorless = 2;
+    game.priority = PlayerId::One;
+    game.apply(
+        PlayerId::One,
+        cast_action(aeve_id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("Aeve is castable");
+
+    pass_priority_pair(&mut game);
+    assert!(
+        game.pending_decisions.is_empty(),
+        "targetless storm copies do not ask for new targets",
+    );
+    assert_eq!(
+        game.stack
+            .iter()
+            .filter(|object| object.is_copy && object.card.definition == aeve_definition)
+            .count(),
+        1,
+        "one earlier spell makes one Aeve copy",
+    );
+
+    drain_pending(&mut game);
+    let aeves = game
+        .battlefield
+        .iter()
+        .filter(|permanent| {
+            Game::effective_rules_source(permanent)
+                == ObjectCharacteristics::card(aeve_definition, CardPartId::PRIMARY)
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(aeves.len(), 2, "the original and its copy both resolve");
+    assert_eq!(
+        aeves
+            .iter()
+            .filter(|permanent| permanent.card.definition.is_token())
+            .count(),
+        1,
+        "the storm copy becomes a token",
+    );
+}
+
+#[test]
 fn helm_of_the_host_removes_legendary_copiably_but_grants_haste_afterward() {
     let game = ready_game();
     let helm = game

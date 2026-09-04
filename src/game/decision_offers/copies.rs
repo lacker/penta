@@ -140,7 +140,11 @@ impl Game {
             },
             |signature| signature.targets().to_vec(),
         );
-        if !retarget {
+        // Retargeting is a permission, not a mandatory choice. If the copied
+        // object did not actually declare a target, copy it immediately even
+        // when its effect carries the general permission. This also covers an
+        // optional target slot whose controller chose nobody.
+        if !retarget || spell.declared_targets().is_empty() {
             for _ in 0..copies {
                 self.push_copy_with_colors(
                     spell.clone(),
@@ -152,12 +156,6 @@ impl Game {
             return;
         }
         let target_lists = self.copy_target_choices(&spell, player);
-        if original_selections.is_empty() {
-            for _ in 0..copies {
-                self.push_copy_with_colors(spell.clone(), player, Vec::new(), colors);
-            }
-            return;
-        }
         let original_targets = spell.targets();
         let options = target_lists
             .iter()

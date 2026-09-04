@@ -750,16 +750,8 @@ pub(in crate::card::sets) static AEVE_PROGENITOR_OOZE: CardRecord = CardRecord::
     CardRules::new_creature(mana_cost!("{2}{G}{G}{G}"), &["Ooze"], 2, 2)
         .with_supertype(CardSupertype::Legendary)
         .with_abilities(&[
-            AbilityDef::triggered(
+            abilities::storm().override_text(
                 "Storm (When you cast this spell, copy it for each spell cast before it this turn. Copies become tokens.)",
-                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
-                EffectDef::CopyStackObject(&crate::card::CopyStackObjectDef {
-                    object: EffectRecipientDef::Source,
-                    controller: PlayerRefDef::EffectController,
-                    count: ValueDef::SpellsCastBeforeThisTurn,
-                    retarget: false,
-                    colors: None,
-                }),
             ),
             AbilityDef::static_ability(
                 "Aeve isn't legendary if it's a token.",

@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, CardArt, CardRules, CardSet, ComparisonDef, ObjectPredicateDef, PlayerRelation,
-    QuantifierDef, TriggerConditionDef, TriggerEventDef, abilities,
+    AbilityDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, ObjectPredicateDef,
+    PlayerRelation, QuantifierDef, TriggerConditionDef, TriggerEventDef, abilities,
 };
 use crate::mana_cost;
 
@@ -11,7 +11,7 @@ use crate::mana_cost;
 /// nothing else. Its printed mana ability is reminder text for what the
 /// subtypes already grant, so it is not restated as a clause.
 const TRIOME_ABILITIES: &[AbilityDef] = &[
-    abilities::enters_tapped("This land enters tapped."),
+    abilities::enters_tapped(CardType::Land),
     abilities::cycling(
         "Cycling {3} ({3}, Discard this card: Draw a card.)",
         mana_cost!("{3}"),

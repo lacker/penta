@@ -1962,9 +1962,7 @@ pub(in crate::card::sets) static HELLRAISER_GOBLIN: CardRecord = CardRecord::new
                 ),
                 effect: AppliedEffectDef::Composite(&[
                     AppliedEffectDef::add_ability(&abilities::haste()),
-                    AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                        "This creature attacks each combat if able.",
-                    )),
+                    AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
                 ]),
             },
         ),
@@ -3318,10 +3316,8 @@ pub(in crate::card::sets) static ELUSIVE_KRASIS: CardRecord = CardRecord::new_wi
     "Elusive Krasis",
     CardArt::new("dd62e422-e5e2-4736-9ed3-d2dc693f6f8f", "Wesley Burt"),
     CardSet::Gatecrash,
-    CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Fish", "Mutant"], 0, 4).with_abilities(&[
-        abilities::cannot_be_blocked("This creature can't be blocked."),
-        abilities::evolve(),
-    ]),
+    CardRules::new_creature(mana_cost!("{1}{G}{U}"), &["Fish", "Mutant"], 0, 4)
+        .with_abilities(&[abilities::cannot_be_blocked(), abilities::evolve()]),
 );
 
 // GTC 161 — Executioner's Swing
@@ -4945,7 +4941,7 @@ pub(in crate::card::sets) static BOROS_GUILDGATE: CardRecord = CardRecord::new_w
     CardArt::new("a0b447a8-524b-4bda-b975-7e194fd741fb", "Noah Bradley"),
     CardSet::Gatecrash,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {W}.",
             &[AbilityCostDef::TapSource],
@@ -4973,7 +4969,7 @@ pub(in crate::card::sets) static DIMIR_GUILDGATE: CardRecord = CardRecord::new_w
     CardArt::new("4951bf75-1a88-4c85-b4e9-063d84f1dabf", "Cliff Childs"),
     CardSet::Gatecrash,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
             &[AbilityCostDef::TapSource],
@@ -5001,7 +4997,7 @@ pub(in crate::card::sets) static GRUUL_GUILDGATE: CardRecord = CardRecord::new_w
     CardArt::new("99c54269-8798-4023-836f-640103e08ce0", "Randy Gallegos"),
     CardSet::Gatecrash,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {G}.",
             &[AbilityCostDef::TapSource],
@@ -5020,7 +5016,7 @@ pub(in crate::card::sets) static ORZHOV_GUILDGATE: CardRecord = CardRecord::new_
     CardArt::new("000d609c-deb7-4bd7-9c1d-e20fb3ed4f5f", "John Avon"),
     CardSet::Gatecrash,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {B}.",
             &[AbilityCostDef::TapSource],
@@ -5048,7 +5044,7 @@ pub(in crate::card::sets) static SIMIC_GUILDGATE: CardRecord = CardRecord::new_w
     CardArt::new("1ce3f6f2-c52c-4fb8-afa0-b1ea723bb4c6", "Svetlin Velinov"),
     CardSet::Gatecrash,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {U}.",
             &[AbilityCostDef::TapSource],

@@ -1316,7 +1316,7 @@ pub(in crate::card::sets) static SOULSWORN_SPIRIT: CardRecord = CardRecord::new_
     CardArt::new("32602ed9-c0a7-4498-a333-235eaae628df", "James Ryman"),
     CardSet::ReturnToRavnica,
     CardRules::new_creature(mana_cost!("{3}{U}"), &["Spirit"], 2, 1).with_abilities(&[
-        abilities::cannot_be_blocked("This creature can't be blocked."),
+        abilities::cannot_be_blocked(),
         abilities::enters_trigger_with_targets(
             "When this creature enters, detain target creature an opponent controls.",
             &[AbilityTargetDef::exactly_one(
@@ -3751,8 +3751,8 @@ pub(in crate::card::sets) static CENTAUR_HEALER: CardRecord = CardRecord::new_wi
 );
 
 // RTR 149 — Chemister's Trick
-static CHEMISTERS_TRICK_ATTACK: AbilityDef =
-    abilities::attacks_each_combat_if_able("This creature attacks this turn if able.");
+static CHEMISTERS_TRICK_ATTACK: AbilityDef = abilities::attacks_each_combat_if_able()
+    .override_text("This creature attacks this turn if able.");
 
 pub(in crate::card::sets) static CHEMISTERS_TRICK: CardRecord = CardRecord::new_with_legacy_id(
     1311,
@@ -6303,7 +6303,7 @@ pub(in crate::card::sets) static VOLATILE_RIG: CardRecord = CardRecord::new(
     crate::card::CardSet::ReturnToRavnica,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Construct"], 4, 4).with_abilities(&[
         abilities::trample(),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
         AbilityDef::triggered(
             "Whenever this creature is dealt damage, flip a coin. If you lose the flip, sacrifice this creature.",
             TriggerEventDef::damage_to_source(),
@@ -6346,7 +6346,7 @@ pub(in crate::card::sets) static AZORIUS_GUILDGATE: CardRecord = CardRecord::new
     CardArt::new("984e37df-0734-493a-a958-f519a0c98580", "Drew Baker"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
             &[AbilityCostDef::TapSource],
@@ -6374,7 +6374,7 @@ pub(in crate::card::sets) static GOLGARI_GUILDGATE: CardRecord = CardRecord::new
     CardArt::new("8fe2fd1a-f7d3-48b4-bad8-be5ee45d6121", "Eytan Zana"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {G}.",
             &[AbilityCostDef::TapSource],
@@ -6413,7 +6413,7 @@ pub(in crate::card::sets) static IZZET_GUILDGATE: CardRecord = CardRecord::new_w
     CardArt::new("6951d84f-2d3c-4203-8d31-e08f4bc707f0", "Noah Bradley"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {R}.",
             &[AbilityCostDef::TapSource],
@@ -6438,7 +6438,7 @@ pub(in crate::card::sets) static RAKDOS_GUILDGATE: CardRecord = CardRecord::new_
     CardArt::new("207048f5-268b-4cdb-b4e7-c8282cac1b28", "Eytan Zana"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {R}.",
             &[AbilityCostDef::TapSource],
@@ -6485,7 +6485,7 @@ pub(in crate::card::sets) static SELESNYA_GUILDGATE: CardRecord = CardRecord::ne
     CardArt::new("ff61d4e4-3c8c-48f7-a994-ec2317bbd9a0", "Howard Lyon"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&["Gate"]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {W}.",
             &[AbilityCostDef::TapSource],
@@ -6522,7 +6522,7 @@ pub(in crate::card::sets) static TRANSGUILD_PROMENADE: CardRecord = CardRecord::
     CardArt::new("90ce8115-41fe-44c2-8719-741ba87bcb17", "Noah Bradley"),
     CardSet::ReturnToRavnica,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::enters_trigger(
             "When this land enters, sacrifice it unless you pay {1}.",
             EffectDef::PayOr(PayOrDef::unless_mana(

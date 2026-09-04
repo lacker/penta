@@ -118,7 +118,7 @@ pub(in crate::card::sets) static DEEP_SEA_KRAKEN: CardRecord = CardRecord::new(
     CardArt::new("8e050532-e245-4eea-90a5-03e3e410dcbe", "Christopher Moeller"),
     CardSet::TimeSpiral,
     CardRules::new_creature(mana_cost!("{7}{U}{U}{U}"), &["Kraken"], 6, 6).with_abilities(&[
-        abilities::cannot_be_blocked("This creature can't be blocked."),
+        abilities::cannot_be_blocked(),
         abilities::suspend("Suspend 9—{2}{U}", 9, &mana_cost!("{2}{U}")),
         AbilityDef::triggered_if(
             "Whenever an opponent casts a spell, if this card is suspended, remove a time counter from it.",

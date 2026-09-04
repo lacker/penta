@@ -950,9 +950,10 @@ pub(in crate::card::sets) static COURTLY_PROVOCATEUR: CardRecord = CardRecord::n
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                    "This creature attacks this turn if able.",
-                )),
+                effect: AppliedEffectDef::add_ability(
+                    &abilities::attacks_each_combat_if_able()
+                        .override_text("This creature attacks this turn if able."),
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),
@@ -3136,10 +3137,8 @@ pub(in crate::card::sets) static RECKLESS_BRUTE: CardRecord = CardRecord::new_wi
     "Reckless Brute",
     CardArt::new("5fd32a9e-1d39-4792-9657-69d17e5e0134", "Johann Bodin"),
     CardSet::Magic2013,
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ogre", "Warrior"], 3, 1).with_abilities(&[
-        abilities::haste(),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
-    ]),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Ogre", "Warrior"], 3, 1)
+        .with_abilities(&[abilities::haste(), abilities::attacks_each_combat_if_able()]),
 );
 
 // M13 145 — Reverberate
@@ -4402,7 +4401,7 @@ pub(in crate::card::sets) static DOOR_TO_NOTHINGNESS: CardRecord = CardRecord::n
     CardArt::new("57877b1c-e91d-4941-81bd-008dff1272ed", "Svetlin Velinov"),
     CardSet::Magic2013,
     CardRules::new_artifact(mana_cost!("{5}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         AbilityDef::activated_with_targets(
             "{W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, {T}, Sacrifice this artifact: Target player loses the game.",
             &[
@@ -4898,7 +4897,7 @@ pub(in crate::card::sets) static CATHEDRAL_OF_WAR: CardRecord = CardRecord::new_
     CardArt::new("dd222c07-0b28-41cb-9237-ad7991ab078f", "Kekai Kotaki"),
     CardSet::Magic2013,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::exalted(),
         AbilityDef::activated_mana(
             "{T}: Add {C}.",

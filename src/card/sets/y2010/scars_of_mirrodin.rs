@@ -20,13 +20,6 @@ use crate::card::{
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
-/// The fastland cycle: untapped while the board is still small, an expensive
-/// tapped land after that. Every one of the ten prints this same clause, and
-/// only the colour pair below it differs.
-static FAST_LAND_ENTERS: AbilityDef = abilities::fast_land_enters(
-    "This land enters tapped unless you control two or fewer other lands.",
-);
-
 pub(in crate::card::sets) static ARTIFACTS_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::HasType(CardType::Artifact),
     &[ZoneKind::Battlefield],
@@ -847,7 +840,7 @@ pub(in crate::card::sets) static NEUROK_INVISIMANCER: CardRecord = CardRecord::n
     crate::card::CardArt::new("e88f78f4-77d8-4c3e-a5bf-a9dd902aaae1", "Izzy"),
     crate::card::CardSet::ScarsOfMirrodin,
     CardRules::new_creature(mana_cost!("{1}{U}{U}"), &["Human", "Wizard"], 2, 1).with_abilities(&[
-        abilities::cannot_be_blocked("This creature can't be blocked."),
+        abilities::cannot_be_blocked(),
         abilities::enters_trigger_with_targets(
             "When this creature enters, target creature can't be blocked this turn.",
             &[AbilityTargetDef::exactly_one_permanent(
@@ -2033,10 +2026,8 @@ pub(in crate::card::sets) static FLAMEBORN_HELLION: CardRecord = CardRecord::new
     "Flameborn Hellion",
     crate::card::CardArt::new("84e0e5f5-b51a-4386-827b-c0eb8c877efb", "Aleksi Briclot"),
     crate::card::CardSet::ScarsOfMirrodin,
-    CardRules::new_creature(mana_cost!("{5}{R}"), &["Hellion"], 5, 4).with_abilities(&[
-        abilities::haste(),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
-    ]),
+    CardRules::new_creature(mana_cost!("{5}{R}"), &["Hellion"], 5, 4)
+        .with_abilities(&[abilities::haste(), abilities::attacks_each_combat_if_able()]),
 );
 
 // SOM 90 — Furnace Celebration
@@ -3445,7 +3436,7 @@ pub(in crate::card::sets) static DARKSTEEL_JUGGERNAUT: CardRecord = CardRecord::
                 ),
             },
         ),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
     ]),
 );
 
@@ -5450,7 +5441,7 @@ pub(in crate::card::sets) static BLACKCLEAVE_CLIFFS: CardRecord = CardRecord::ne
     CardArt::new("3d71be5f-0fd7-4a88-8041-f4d6bc4cc9ac", "Dave Kendall"),
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&[
-        FAST_LAND_ENTERS,
+        abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {B} or {R}.",
             &[AbilityCostDef::TapSource],
@@ -5472,7 +5463,7 @@ pub(in crate::card::sets) static COPPERLINE_GORGE: CardRecord = CardRecord::new_
     ),
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&[
-        FAST_LAND_ENTERS,
+        abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {R} or {G}.",
             &[AbilityCostDef::TapSource],
@@ -5491,7 +5482,7 @@ pub(in crate::card::sets) static DARKSLICK_SHORES: CardRecord = CardRecord::new_
     CardArt::new("e530388b-eb19-4211-abd8-8a4c3c38c3af", "Charles Urbach"),
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&[
-        FAST_LAND_ENTERS,
+        abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
             &[AbilityCostDef::TapSource],
@@ -5536,7 +5527,7 @@ pub(in crate::card::sets) static RAZORVERGE_THICKET: CardRecord = CardRecord::ne
     CardArt::new("345e053a-3178-485c-8602-1624bbf2f064", "James Paick"),
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&[
-        FAST_LAND_ENTERS,
+        abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {G} or {W}.",
             &[AbilityCostDef::TapSource],
@@ -5555,7 +5546,7 @@ pub(in crate::card::sets) static SEACHROME_COAST: CardRecord = CardRecord::new_w
     CardArt::new("99939b90-e88c-4c2f-ba78-56d455611703", "Lars Grant-West"),
     CardSet::ScarsOfMirrodin,
     CardRules::new_land(&[]).with_abilities(&[
-        FAST_LAND_ENTERS,
+        abilities::fast_land_enters(),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
             &[AbilityCostDef::TapSource],

@@ -267,7 +267,7 @@ pub(in crate::card::sets) static CELESTIAL_COLONNADE: CardRecord = CardRecord::n
     // A land that costs you a turn and then wins the game on its own, which
     // is the trade every control deck in the format is happy to make.
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
             &[AbilityCostDef::TapSource],
@@ -311,7 +311,7 @@ pub(in crate::card::sets) static CREEPING_TAR_PIT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("0f427f0b-034c-4821-8758-e395c0042d8a", "Jason Felix"),
     crate::card::CardSet::Worldwake,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U} or {B}.",
             &[AbilityCostDef::TapSource],

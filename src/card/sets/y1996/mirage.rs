@@ -3750,7 +3750,7 @@ pub(in crate::card::sets) static CHARCOAL_DIAMOND: CardRecord = CardRecord::new(
     crate::card::CardArt::new("2a81b3f1-babc-4bd7-8b87-754c8389ae85", "Drew Tucker"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         abilities::tap_for(ManaColor::Black),
     ]),
 );
@@ -3806,7 +3806,7 @@ pub(in crate::card::sets) static ELIXIR_OF_VITALITY: CardRecord = CardRecord::ne
     crate::card::CardArt::new("60450239-6055-4561-9f8c-565b4e4d9cb1", "Douglas Shuler"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         AbilityDef::activated(
             "{T}, Sacrifice this artifact: You gain 4 life.",
             &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
@@ -3847,7 +3847,7 @@ pub(in crate::card::sets) static FIRE_DIAMOND: CardRecord = CardRecord::new(
     crate::card::CardArt::new("bcca5bbe-df01-45ea-a6ac-4e3d1cf237c8", "Richard Thomas"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         abilities::tap_for(ManaColor::Red),
     ]),
 );
@@ -3868,12 +3868,8 @@ pub(in crate::card::sets) static HORRIBLE_HORDES: CardRecord = CardRecord::new(
     "Horrible Hordes",
     crate::card::CardArt::new("cf04f2cd-d9f8-4e0c-adaf-6d38bc14dd7a", "Ian Miller"),
     crate::card::CardSet::Mirage,
-    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Spirit"], 2, 2).with_ability(
-        abilities::rampage(
-            1,
-            "Rampage 1 (Whenever this creature becomes blocked, it gets +1/+1 until end of turn for each creature blocking it beyond the first.)",
-        ),
-    ),
+    CardRules::new_artifact_creature(mana_cost!("{3}"), &["Spirit"], 2, 2)
+        .with_ability(abilities::rampage(1)),
 );
 
 // MIR 305 — Igneous Golem
@@ -3976,7 +3972,7 @@ pub(in crate::card::sets) static MARBLE_DIAMOND: CardRecord = CardRecord::new(
     crate::card::CardArt::new("4731eb16-3088-4d4d-80a4-7e39d00c1a87", "Jeff Miracola"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         abilities::tap_for(ManaColor::White),
     ]),
 );
@@ -3998,7 +3994,7 @@ pub(in crate::card::sets) static MOSS_DIAMOND: CardRecord = CardRecord::new(
     crate::card::CardArt::new("87cea56a-b64f-452a-8e4b-40363aabb452", "Donato Giancola"),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         abilities::tap_for(ManaColor::Green),
     ]),
 );
@@ -4111,7 +4107,7 @@ pub(in crate::card::sets) static SKY_DIAMOND: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::Mirage,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         abilities::tap_for(ManaColor::Blue),
     ]),
 );
@@ -4175,7 +4171,7 @@ pub(in crate::card::sets) static BAD_RIVER: CardRecord = CardRecord::new(
     crate::card::CardArt::new("7a78abdb-d1ac-49cb-a74b-9de21c06364a", "Terese Nielsen"),
     crate::card::CardSet::Mirage,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         slow_fetch_land_ability(
             "{T}, Sacrifice this land: Search your library for an Island or Swamp card, put it onto the battlefield, then shuffle.",
             &[
@@ -4209,7 +4205,7 @@ pub(in crate::card::sets) static FLOOD_PLAIN: CardRecord = CardRecord::new(
     crate::card::CardArt::new("7b7610f3-f182-404e-80b9-ccd94e174db0", "Pat Lewis"),
     crate::card::CardSet::Mirage,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         slow_fetch_land_ability(
             "{T}, Sacrifice this land: Search your library for a Plains or Island card, put it onto the battlefield, then shuffle.",
             &[
@@ -4227,7 +4223,7 @@ pub(in crate::card::sets) static GRASSLANDS: CardRecord = CardRecord::new(
     crate::card::CardArt::new("65f5efac-ef98-4be2-abcc-1aa38bf66b06", "John Avon"),
     crate::card::CardSet::Mirage,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         slow_fetch_land_ability(
             "{T}, Sacrifice this land: Search your library for a Forest or Plains card, put it onto the battlefield, then shuffle.",
             &[
@@ -4245,7 +4241,7 @@ pub(in crate::card::sets) static MOUNTAIN_VALLEY: CardRecord = CardRecord::new(
     crate::card::CardArt::new("ded4e5c2-4f03-47c1-9843-b98c239ccfea", "Kari Johnson"),
     crate::card::CardSet::Mirage,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         slow_fetch_land_ability(
             "{T}, Sacrifice this land: Search your library for a Mountain or Forest card, put it onto the battlefield, then shuffle.",
             &[
@@ -4263,7 +4259,7 @@ pub(in crate::card::sets) static ROCKY_TAR_PIT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("1e21c347-7aaf-42ae-abf3-f1283c5b54e6", "Jeff Miracola"),
     crate::card::CardSet::Mirage,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         slow_fetch_land_ability(
             "{T}, Sacrifice this land: Search your library for a Swamp or Mountain card, put it onto the battlefield, then shuffle.",
             &[

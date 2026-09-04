@@ -657,10 +657,7 @@ pub(in crate::card::sets) static BLIGHTED_AGENT: CardRecord = CardRecord::new(
     crate::card::CardArt::new("cddaebde-a060-4510-8c97-68432d931987", "Anthony Francisco"),
     crate::card::CardSet::NewPhyrexia,
     CardRules::new_creature(mana_cost!("{1}{U}"), &["Phyrexian", "Human", "Rogue"], 1, 1)
-        .with_abilities(&[
-            abilities::infect(),
-            abilities::cannot_be_blocked("This creature can't be blocked."),
-        ]),
+        .with_abilities(&[abilities::infect(), abilities::cannot_be_blocked()]),
 );
 
 // NPH 30 — Chained Throatseeker

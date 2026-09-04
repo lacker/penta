@@ -102,9 +102,7 @@ pub(in crate::card::sets) static SOLITUDE: CardRecord = CardRecord::new(
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(
-                "When this creature enters, if it was evoked, sacrifice it.",
-            ),
+            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -265,9 +263,7 @@ pub(in crate::card::sets) static SUBTLETY: CardRecord = CardRecord::new_with_leg
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(
-                "When this creature enters, if it was evoked, sacrifice it.",
-            ),
+            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -457,7 +453,7 @@ pub(in crate::card::sets) static GRIEF: CardRecord = CardRecord::new(
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
+            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -542,7 +538,7 @@ pub(in crate::card::sets) static DRAGON_S_RAGE_CHANNELER: CardRecord = CardRecor
                         },
                         EffectDef::StaticApply {
                             recipient: EffectRecipientDef::Source,
-                            effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able("This creature attacks each combat if able.")),
+                            effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
                         },
                     ]),
                 },
@@ -601,7 +597,7 @@ pub(in crate::card::sets) static FURY: CardRecord = CardRecord::new_with_legacy_
             // Evoke's own sacrifice. It is a separate trigger because it happens
             // after the Elemental has arrived, alongside the damage trigger rather
             // than instead of it -- which is why an evoked Fury still burns.
-            abilities::evoke_sacrifice("When this creature enters, if it was evoked, sacrifice it."),
+            abilities::evoke_sacrifice(),
         ]),
 );
 
@@ -796,9 +792,7 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
                 ZoneKind::Hand,
                 CostQuantityDef::Fixed(1),
             )),
-            abilities::evoke_sacrifice(
-                "When this creature enters, if it was evoked, sacrifice it.",
-            ),
+            abilities::evoke_sacrifice(),
         ]),
 );
 

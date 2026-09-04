@@ -1544,6 +1544,17 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Changed
 
+- **Reusable ability constructors own their canonical text.**
+  `AbilityDef::override_text` now changes a shared clause's presentation
+  without rebuilding its semantic definition. Constructors for opening-hand
+  placement, attack requirements, Rampage, Ward Auras, evoke sacrifice,
+  tapped entry, unblockability, and fast-land entry no longer require callers
+  to repeat their default text; the few printed wording variants override only
+  that text. Tapped-entry callers select the printed permanent noun with a
+  `CardType` instead of inheriting a frequency-based default. Native callers of
+  those constructors must remove the former text argument. Bot protocol and
+  checkpoint formats are unchanged.
+
 - **A bot can wait for its turn instead of asking for it.** `GET
   /_game/<room>/opponent` takes an optional `wait`, in milliseconds, and holds
   the request open until the bot seat holds the decision, the game ends, or

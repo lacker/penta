@@ -1,19 +1,21 @@
 #[cfg(test)]
 mod tests {
     use super::{
-        banding, bind_top_cards_then, bind_top_cards_through_first_matching_then, bloodrush,
-        check_land_enters, creature_damaged_by_source_dies_trigger,
+        attacks_each_combat_if_able, banding, begin_game_on_battlefield, bind_top_cards_then,
+        bind_top_cards_through_first_matching_then, bloodrush, check_land_enters,
+        creature_damaged_by_source_dies_trigger,
         creature_damaged_by_source_dies_trigger_with_targets, dies_trigger,
         dies_trigger_matching, dies_trigger_with_targets, double_strike, enchant_creature,
-        enters_trigger, enters_trigger_with_targets, exile_and_return_transformed,
+        enters_tapped, enters_trigger, enters_trigger_with_targets, evoke_sacrifice,
+        exile_and_return_transformed,
         exile_until_next_end_step, exile_until_next_end_step_under_your_control,
         exile_until_source_leaves, first_strike, flashback,
         flashback_for_card_mana_cost, flying, intimidate, living_weapon, look_at_top_cards,
         look_at_top_cards_choose_to_hand_rest_bottom, overload, pain_land,
         rebound, reveal_hand_and_choose_card, reveal_hand_and_discard_chosen_card,
         reveal_hand_and_exile_chosen_card,
-        reveal_top_cards_put_matching_in_hand_rest_graveyard, shock_land_enters, storm, tap_for,
-        EQUIP_TARGET, equip,
+        rampage, reveal_top_cards_put_matching_in_hand_rest_graveyard, shock_land_enters, storm,
+        tap_for, trample, ward_aura_protection, EQUIP_TARGET, equip,
     };
     use crate::card::{
         AbilityCostDef, AbilityCostList, AbilityDef, AbilityPredicateDef,
@@ -26,6 +28,56 @@ mod tests {
     };
     use crate::mana_cost;
     use crate::{ParentBinding, TargetIndex};
+
+    #[test]
+    fn reusable_ability_text_can_be_overridden_without_changing_semantics() {
+        let default = trample();
+        let overridden = default.override_text("Trample (A different printed reminder.)");
+
+        assert_eq!(overridden.text, "Trample (A different printed reminder.)");
+        assert_eq!(overridden.rules_text(), overridden.text);
+        assert_eq!(overridden.definition, default.definition);
+        assert_eq!(overridden.effect, default.effect);
+    }
+
+    #[test]
+    fn enters_tapped_ability_text_uses_an_explicit_subject() {
+        let land_entry = enters_tapped(CardType::Land);
+        let artifact_entry = enters_tapped(CardType::Artifact);
+        let creature_entry = enters_tapped(CardType::Creature);
+
+        assert_eq!(land_entry.text, "This land enters tapped.");
+        assert_eq!(artifact_entry.text, "This artifact enters tapped.");
+        assert_eq!(creature_entry.text, "This creature enters tapped.");
+        assert_eq!(artifact_entry.definition, land_entry.definition);
+        assert_eq!(artifact_entry.effect, land_entry.effect);
+        assert_eq!(creature_entry.definition, land_entry.definition);
+        assert_eq!(creature_entry.effect, land_entry.effect);
+    }
+
+    #[test]
+    fn repeated_ability_text_lives_with_its_shared_constructor() {
+        assert_eq!(
+            begin_game_on_battlefield().text,
+            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
+        );
+        assert_eq!(
+            attacks_each_combat_if_able().text,
+            "This creature attacks each combat if able.",
+        );
+        assert_eq!(
+            rampage(2).text,
+            "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)",
+        );
+        assert_eq!(
+            ward_aura_protection(ManaColor::Blue).text,
+            "Enchanted creature has protection from blue. This effect doesn't remove this Aura.",
+        );
+        assert_eq!(
+            evoke_sacrifice().text,
+            "When this creature enters, if it was evoked, sacrifice it.",
+        );
+    }
 
     #[test]
     fn rebound_is_one_complete_keyword_clause() {

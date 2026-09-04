@@ -242,7 +242,7 @@ pub(in crate::card::sets) static SHELLDOCK_ISLE: CardRecord = CardRecord::new(
              exile one face down, then put the rest on the bottom in a random order.)",
             abilities::hideaway(ValueDef::Constant(4)),
         ),
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {U}.",
             &[AbilityCostDef::TapSource],

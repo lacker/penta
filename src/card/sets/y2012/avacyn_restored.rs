@@ -3204,9 +3204,7 @@ pub(in crate::card::sets) static AGGRAVATE: CardRecord = CardRecord::new(
                 ),
                 amount: ValueDef::Constant(1),
                 applied: AppliedEffectDef::add_ability(
-                    &abilities::attacks_each_combat_if_able(
-                        "This creature attacks this turn if able.",
-                    ),
+                    &abilities::attacks_each_combat_if_able().override_text("This creature attacks this turn if able."),
                 ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
@@ -3500,9 +3498,7 @@ pub(in crate::card::sets) static GUISE_OF_FIRE: CardRecord = CardRecord::new_wit
                             ValueDef::Constant(1),
                             ValueDef::Constant(-1),
                         ),
-                        AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                            "This creature attacks each combat if able.",
-                        )),
+                        AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
                     ]),
                 },
             ),
@@ -5540,9 +5536,10 @@ pub(in crate::card::sets) static TORMENTORS_TRIDENT: CardRecord = CardRecord::ne
                             ValueDef::Constant(3),
                             ValueDef::Constant(0),
                         ),
-                        AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                            "Attacks each combat if able",
-                        )),
+                        AppliedEffectDef::add_ability(
+                            &abilities::attacks_each_combat_if_able()
+                                .override_text("Attacks each combat if able"),
+                        ),
                     ]),
                 },
             ),

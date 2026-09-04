@@ -94,7 +94,7 @@ pub(in crate::card::sets) static LEYLINE_OF_HOPE: CardRecord = CardRecord::new(
     CardArt::new("40960e47-3065-485e-aede-29a62411034e", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::replacement_for(
             "If you would gain life, you gain that much life plus 1 instead.",
             ReplacementEventDef::WouldGainLife(PlayerRelation::You),
@@ -339,9 +339,7 @@ pub(in crate::card::sets) static LEYLINE_OF_RESONANCE: CardRecord = CardRecord::
     CardArt::new("92c5f0e3-345a-40a8-9cda-565a62156692", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
     CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
-        abilities::begin_game_on_battlefield(
-            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
-        ),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::triggered(
             "Whenever you cast an instant or sorcery spell that targets only a single creature you control, copy that spell. You may choose new targets for the copy.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
@@ -389,7 +387,7 @@ pub(in crate::card::sets) static LEYLINE_OF_MUTATION: CardRecord = CardRecord::n
     CardArt::new("2359b670-41f0-4ec7-8db9-3f87f7577bc3", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
     CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "You may pay {W}{U}{B}{R}{G} rather than pay the mana cost for spells you cast.",
             EffectDef::ModifyCost(CostModificationDef::SpellAlternative {
@@ -901,7 +899,7 @@ pub(in crate::card::sets) static LEYLINE_OF_TRANSFORMATION: CardRecord = CardRec
     CardArt::new("fd545d86-9a3e-4e4f-b0fe-9363a85b9290", "Sergey Glushakov"),
     CardSet::DuskmournHouseOfHorror,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::replacement(
             "As this enchantment enters, choose a creature type.",
             ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(

@@ -2742,7 +2742,7 @@ pub(in crate::card::sets) static DIREGRAF_GHOUL: CardRecord = CardRecord::new_wi
     CardArt::new("4ed5790a-3354-49c2-89b6-3fc0de8dcc7c", "Dave Kendall"),
     CardSet::Innistrad,
     CardRules::new_creature(mana_cost!("{B}"), &["Zombie"], 2, 2)
-        .with_ability(abilities::enters_tapped("This creature enters tapped.")),
+        .with_ability(abilities::enters_tapped(CardType::Creature)),
 );
 
 // ISD 98 — Disciple of Griselbrand
@@ -3598,7 +3598,7 @@ pub(in crate::card::sets) static BLOODCRAZED_NEONATE: CardRecord = CardRecord::n
     CardArt::new("68d2452e-309d-44ae-9360-9d6e22a15e2b", "Cynthia Sheppard"),
     CardSet::Innistrad,
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Vampire"], 2, 1).with_abilities(&[
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
         AbilityDef::triggered(
             "Whenever this creature deals combat damage to a player, put a +1/+1 counter on it.",
             TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
@@ -3759,34 +3759,37 @@ pub(in crate::card::sets) static CURSE_OF_STALKED_PREY: CardRecord = CardRecord:
 );
 
 // ISD 137 — Curse of the Nightly Hunt
-pub(in crate::card::sets) static CURSE_OF_THE_NIGHTLY_HUNT: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("49cbfcf2-462e-4bbf-a529-a70816eb1436"),
-    "Curse of the Nightly Hunt",
-    crate::card::CardArt::new("49cbfcf2-462e-4bbf-a529-a70816eb1436", "Daarken"),
-    crate::card::CardSet::Innistrad,
-    CardRules::new_enchantment(mana_cost!("{2}{R}"))
-        .with_subtypes(&["Aura", "Curse"])
-        .with_abilities(&[
-            abilities::enchant_player(),
-            AbilityDef::static_ability(
-                "Creatures enchanted player controls attack each combat if able.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
-                        ObjectQueryDef::new(
-                            ObjectPredicateDef::All(&[
-                                ObjectPredicateDef::HasType(CardType::Creature),
-                                ObjectPredicateDef::ControlledBy(PlayerRelation::EnchantedPlayer),
-                            ]),
-                            &[ZoneKind::Battlefield],
+pub(in crate::card::sets) static CURSE_OF_THE_NIGHTLY_HUNT: CardRecord =
+    CardRecord::new(
+        PrintingAnchor::scryfall("49cbfcf2-462e-4bbf-a529-a70816eb1436"),
+        "Curse of the Nightly Hunt",
+        crate::card::CardArt::new("49cbfcf2-462e-4bbf-a529-a70816eb1436", "Daarken"),
+        crate::card::CardSet::Innistrad,
+        CardRules::new_enchantment(mana_cost!("{2}{R}"))
+            .with_subtypes(&["Aura", "Curse"])
+            .with_abilities(&[
+                abilities::enchant_player(),
+                AbilityDef::static_ability(
+                    "Creatures enchanted player controls attack each combat if able.",
+                    EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::objects(ObjectSetDef::Query(
+                            ObjectQueryDef::new(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasType(CardType::Creature),
+                                    ObjectPredicateDef::ControlledBy(
+                                        PlayerRelation::EnchantedPlayer,
+                                    ),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                            ),
+                        )),
+                        effect: AppliedEffectDef::add_ability(
+                            &abilities::attacks_each_combat_if_able(),
                         ),
-                    )),
-                    effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                        "This creature attacks each combat if able.",
-                    )),
-                },
-            ),
-        ]),
-);
+                    },
+                ),
+            ]),
+    );
 
 // ISD 138 — Curse of the Pierced Heart
 pub(in crate::card::sets) static CURSE_OF_THE_PIERCED_HEART: CardRecord = CardRecord::new(
@@ -3940,9 +3943,7 @@ pub(in crate::card::sets) static FUROR_OF_THE_BITTEN: CardRecord = CardRecord::n
                     EffectDef::StaticApply {
                         recipient: EffectRecipientDef::AttachedPermanent,
                         effect: AppliedEffectDef::add_ability(
-                            &abilities::attacks_each_combat_if_able(
-                                "This creature attacks each combat if able.",
-                            ),
+                            &abilities::attacks_each_combat_if_able(),
                         ),
                     },
                 ]),
@@ -3998,9 +3999,7 @@ pub(in crate::card::sets) static HANWEIR_WATCHKEEP: CardRecord = CardRecord::new
                     .with_abilities(
                         &const {
                             [
-                                abilities::attacks_each_combat_if_able(
-                                    "This creature attacks each combat if able.",
-                                ),
+                                abilities::attacks_each_combat_if_able(),
                                 WEREWOLF_BACK_TRANSFORM,
                             ]
                         },
@@ -6123,7 +6122,7 @@ pub(in crate::card::sets) static GALVANIC_JUGGERNAUT: CardRecord = CardRecord::n
     CardArt::new("d14bc109-d5d5-4777-90e4-bef26d106571", "Lucas Graciano"),
     CardSet::Innistrad,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Juggernaut"], 5, 5).with_abilities(&[
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
         AbilityDef::static_ability(
             "This creature doesn't untap during your untap step.",
             EffectDef::StaticApply {

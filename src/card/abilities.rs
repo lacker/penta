@@ -31,9 +31,9 @@ use crate::ids::{Binding, ParentBinding, TargetIndex};
 /// the battlefield." The pregame runtime supplies the source card; the move
 /// remains an ordinary declarative zone-change effect.
 #[must_use]
-pub const fn begin_game_on_battlefield(text: &'static str) -> AbilityDef {
+pub const fn begin_game_on_battlefield() -> AbilityDef {
     AbilityDef::opening_hand(
-        text,
+        "If this card is in your opening hand, you may begin the game with it on the battlefield.",
         EffectDef::MoveToZone {
             object: EffectRecipientDef::Source,
             zone: ZoneKind::Battlefield,
@@ -42,19 +42,25 @@ pub const fn begin_game_on_battlefield(text: &'static str) -> AbilityDef {
     )
 }
 
-/// "Attacks each combat if able." Cards state this in their own words rather
-/// than as a printed keyword, so the text is supplied by the caller.
+/// The ordinary printed "This creature attacks each combat if able." clause.
+/// Effects that grant it only for the current turn override the default text.
 #[must_use]
-pub const fn attacks_each_combat_if_able(text: &'static str) -> AbilityDef {
-    keyword(text, KeywordAbility::AttacksEachCombatIfAble)
+pub const fn attacks_each_combat_if_able() -> AbilityDef {
+    keyword(
+        "This creature attacks each combat if able.",
+        KeywordAbility::AttacksEachCombatIfAble,
+    )
 }
 
 /// "Attacks that player this combat if able." A planeswalker that player
 /// controls does not satisfy it, so the attack has to be aimed at the player
 /// while that is possible.
 #[must_use]
-pub const fn attacks_player_each_combat_if_able(text: &'static str) -> AbilityDef {
-    keyword(text, KeywordAbility::AttacksPlayerEachCombatIfAble)
+pub const fn attacks_player_each_combat_if_able() -> AbilityDef {
+    keyword(
+        "This creature attacks that player this combat if able.",
+        KeywordAbility::AttacksPlayerEachCombatIfAble,
+    )
 }
 
 const ENTER_TAPPED: [ReplacementEffectDef; 1] = [ReplacementEffectDef::ModifyBattlefieldEntry(
@@ -253,18 +259,25 @@ static RAMPAGE_SCALES: [ScaledValueDef; 4] = [
     ScaledValueDef::new(ValueDef::TriggerEventAmount, 3),
 ];
 
+const RAMPAGE_TEXT: [&str; 4] = [
+    "",
+    "Rampage 1 (Whenever this creature becomes blocked, it gets +1/+1 until end of turn for each creature blocking it beyond the first.)",
+    "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)",
+    "Rampage 3 (Whenever this creature becomes blocked, it gets +3/+3 until end of turn for each creature blocking it beyond the first.)",
+];
+
 /// # Panics
 ///
 /// Panics when `amount` is not a printed rampage value (1 through 3).
 #[must_use]
-pub const fn rampage(amount: usize, text: &'static str) -> AbilityDef {
+pub const fn rampage(amount: usize) -> AbilityDef {
     assert!(
         amount >= 1 && amount < RAMPAGE_SCALES.len(),
         "rampage is only printed with amounts 1 through 3"
     );
     let scale = &RAMPAGE_SCALES[amount];
     AbilityDef::triggered(
-        text,
+        RAMPAGE_TEXT[amount],
         TriggerEventDef::BecomesBlocked(ObjectPredicateDef::Source),
         EffectDef::Apply {
             recipient: EffectRecipientDef::Source,
@@ -388,21 +401,34 @@ const fn ward_clauses(color: usize) -> [EffectDef; 2] {
 }
 
 /// One Ward Aura's whole granted clause -- the Alpha cycle of Auras named
-/// "<colour> Ward", which have nothing to do with the ward keyword. The card
-/// supplies its own rules text, which names the colour and prints the
-/// exception in one sentence.
+/// "<colour> Ward", which have nothing to do with the ward keyword.
 ///
 /// # Panics
 ///
 /// Panics when `color` is colorless, which no Ward Aura is printed with.
 #[must_use]
-pub const fn ward_aura_protection(color: ManaColor, text: &'static str) -> AbilityDef {
-    let clauses = match color {
-        ManaColor::White => &WARD_CLAUSES[0],
-        ManaColor::Blue => &WARD_CLAUSES[1],
-        ManaColor::Black => &WARD_CLAUSES[2],
-        ManaColor::Red => &WARD_CLAUSES[3],
-        ManaColor::Green => &WARD_CLAUSES[4],
+pub const fn ward_aura_protection(color: ManaColor) -> AbilityDef {
+    let (text, clauses) = match color {
+        ManaColor::White => (
+            "Enchanted creature has protection from white. This effect doesn't remove this Aura.",
+            &WARD_CLAUSES[0],
+        ),
+        ManaColor::Blue => (
+            "Enchanted creature has protection from blue. This effect doesn't remove this Aura.",
+            &WARD_CLAUSES[1],
+        ),
+        ManaColor::Black => (
+            "Enchanted creature has protection from black. This effect doesn't remove this Aura.",
+            &WARD_CLAUSES[2],
+        ),
+        ManaColor::Red => (
+            "Enchanted creature has protection from red. This effect doesn't remove this Aura.",
+            &WARD_CLAUSES[3],
+        ),
+        ManaColor::Green => (
+            "Enchanted creature has protection from green. This effect doesn't remove this Aura.",
+            &WARD_CLAUSES[4],
+        ),
         ManaColor::Colorless => panic!("no Ward is printed with colorless protection"),
     };
     AbilityDef::static_ability(text, EffectDef::Sequence(clauses))
@@ -478,9 +504,9 @@ pub const fn overload(
 /// resolved and the creature's own enters triggers have gone on the stack
 /// alongside it.
 #[must_use]
-pub const fn evoke_sacrifice(text: &'static str) -> AbilityDef {
+pub const fn evoke_sacrifice() -> AbilityDef {
     AbilityDef::triggered_if(
-        text,
+        "When this creature enters, if it was evoked, sacrifice it.",
         TriggerEventDef::zone_changed(
             ObjectPredicateDef::Source,
             None,
@@ -640,10 +666,25 @@ pub const fn tap_for(mana: ManaColor) -> AbilityDef {
     )
 }
 
-/// An unconditional battlefield-entry replacement shared by permanents that
-/// enter tapped.
+/// An unconditional battlefield-entry replacement. `printed_subject` selects
+/// the permanent type noun used by the printed clause; for cards with multiple
+/// types, callers choose the noun that appears in that card's text.
+///
+/// # Panics
+///
+/// Panics when `printed_subject` is not a permanent card type.
 #[must_use]
-pub const fn enters_tapped(text: &'static str) -> AbilityDef {
+pub const fn enters_tapped(printed_subject: CardType) -> AbilityDef {
+    let text = match printed_subject {
+        CardType::Artifact => "This artifact enters tapped.",
+        CardType::Creature => "This creature enters tapped.",
+        CardType::Enchantment => "This enchantment enters tapped.",
+        CardType::Land => "This land enters tapped.",
+        CardType::Planeswalker => "This planeswalker enters tapped.",
+        CardType::Instant | CardType::Kindred | CardType::Sorcery => {
+            panic!("only permanents can enter the battlefield tapped")
+        }
+    };
     AbilityDef::as_enters(text, ENTER_TAPPED[0])
 }
 
@@ -841,9 +882,9 @@ pub const fn counter_triggering_spell_unless_paid(amount: ValueDef) -> EffectDef
 
 /// The printed static "this creature can't be blocked".
 #[must_use]
-pub const fn cannot_be_blocked(text: &'static str) -> AbilityDef {
+pub const fn cannot_be_blocked() -> AbilityDef {
     AbilityDef::static_ability(
-        text,
+        "This creature can't be blocked.",
         EffectDef::StaticApply {
             recipient: EffectRecipientDef::Source,
             effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BE_BLOCKED),

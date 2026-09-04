@@ -2640,9 +2640,8 @@ pub(in crate::card::sets) static AERATHI_BERSERKER: CardRecord = CardRecord::new
     "Aerathi Berserker",
     CardArt::new("06673800-22a7-4ee3-92fa-7c7cd4865d30", "Melissa A. Benson"),
     CardSet::Legends,
-    CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Human", "Berserker"], 2, 4).with_abilities(&[
-        abilities::rampage(3, "Rampage 3 (Whenever this creature becomes blocked, it gets +3/+3 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+    CardRules::new_creature(mana_cost!("{2}{R}{R}{R}"), &["Human", "Berserker"], 2, 4)
+        .with_abilities(&[abilities::rampage(3)]),
 );
 
 // LEG 132 — Backdraft
@@ -2934,9 +2933,8 @@ pub(in crate::card::sets) static FROST_GIANT: CardRecord = CardRecord::new_with_
     "Frost Giant",
     CardArt::new("6955d54f-7b37-4e43-8183-51677fb1ee11", "Daniel Gelon"),
     CardSet::Legends,
-    CardRules::new_creature(mana_cost!("{3}{R}{R}{R}"), &["Giant"], 4, 4).with_abilities(&[
-        abilities::rampage(2, "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+    CardRules::new_creature(mana_cost!("{3}{R}{R}{R}"), &["Giant"], 4, 4)
+        .with_abilities(&[abilities::rampage(2)]),
 );
 
 // LEG 149 — Giant Strength
@@ -3202,7 +3200,7 @@ pub(in crate::card::sets) static PRIMORDIAL_OOZE: CardRecord = CardRecord::new_w
     CardArt::new("a46e47e1-8639-48f7-94c4-5f9e9666839a", "Sandra Everingham"),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{R}"), &["Ooze"], 1, 1).with_abilities(&[
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
         AbilityDef::triggered(
             "At the beginning of your upkeep, put a +1/+1 counter on this creature. Then you \
              may pay {X}, where X is the number of +1/+1 counters on it. If you don't, tap \
@@ -3594,10 +3592,8 @@ pub(in crate::card::sets) static CRAW_GIANT: CardRecord = CardRecord::new_with_l
     "Craw Giant",
     CardArt::new("707dadf0-735f-445d-9240-e49660913314", "Christopher Rush"),
     CardSet::Legends,
-    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}{G}"), &["Giant"], 6, 4).with_abilities(&[
-        abilities::trample(),
-        abilities::rampage(2, "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+    CardRules::new_creature(mana_cost!("{3}{G}{G}{G}{G}"), &["Giant"], 6, 4)
+        .with_abilities(&[abilities::trample(), abilities::rampage(2)]),
 );
 
 // LEG 181 — Deadfall
@@ -4293,9 +4289,8 @@ pub(in crate::card::sets) static WOLVERINE_PACK: CardRecord = CardRecord::new_wi
     "Wolverine Pack",
     CardArt::new("ba5aee52-095e-4c69-93eb-5adac11ed1fc", "Jeff A. Menges"),
     CardSet::Legends,
-    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Wolverine"], 2, 4).with_abilities(&[
-        abilities::rampage(2, "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Wolverine"], 2, 4)
+        .with_abilities(&[abilities::rampage(2)]),
 );
 
 // LEG 215 — Wood Elemental
@@ -4530,7 +4525,7 @@ pub(in crate::card::sets) static CHROMIUM: CardRecord = CardRecord::new_with_leg
     .with_supertype(CardSupertype::Legendary)
     .with_abilities(&[
         abilities::flying(),
-        abilities::rampage(2, "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)"),
+        abilities::rampage(2),
         AbilityDef::triggered(
             "At the beginning of your upkeep, sacrifice Chromium unless you pay {W}{U}{B}.",
             TriggerEventDef::StepBegins {
@@ -4660,9 +4655,8 @@ pub(in crate::card::sets) static HUNDING_GJORNERSEN: CardRecord = CardRecord::ne
     CardArt::new("07d8e501-6857-4a52-a3b9-2bf0bee5b08c", "Richard Thomas"),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{3}{W}{U}{U}"), &["Human", "Warrior"], 5, 4)
-        .with_supertype(CardSupertype::Legendary).with_abilities(&[
-        abilities::rampage(1, "Rampage 1 (Whenever this creature becomes blocked, it gets +1/+1 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[abilities::rampage(1)]),
 );
 
 // LEG 232 — Jacques le Vert
@@ -4875,9 +4869,8 @@ pub(in crate::card::sets) static MARHAULT_ELSDRAGON: CardRecord = CardRecord::ne
     CardArt::new("67330004-6720-46d9-9de0-c79230110583", "Mark Poole"),
     CardSet::Legends,
     CardRules::new_creature(mana_cost!("{3}{R}{R}{G}"), &["Elf", "Warrior"], 4, 6)
-        .with_supertype(CardSupertype::Legendary).with_abilities(&[
-        abilities::rampage(1, "Rampage 1 (Whenever this creature becomes blocked, it gets +1/+1 until end of turn for each creature blocking it beyond the first.)"),
-    ]),
+        .with_supertype(CardSupertype::Legendary)
+        .with_abilities(&[abilities::rampage(1)]),
 );
 
 // LEG 245 — Nebuchadnezzar

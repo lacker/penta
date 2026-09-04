@@ -53,7 +53,7 @@ pub(in crate::card::sets) static GOBLIN_RABBLEMASTER: CardRecord = CardRecord::n
                         &[ZoneKind::Battlefield],
                         PlayerRelation::You,
                     ))),
-                    effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able("This creature attacks each combat if able.")),
+                    effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
                 },
             ),
             AbilityDef::triggered(

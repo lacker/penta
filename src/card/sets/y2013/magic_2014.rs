@@ -2094,9 +2094,10 @@ pub(in crate::card::sets) static GOBLIN_DIPLOMATS: CardRecord = CardRecord::new_
                     &[ZoneKind::Battlefield],
                     PlayerRelation::Any,
                 ),
-                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                    "This creature attacks this turn if able.",
-                )),
+                effect: AppliedEffectDef::add_ability(
+                    &abilities::attacks_each_combat_if_able()
+                        .override_text("This creature attacks this turn if able."),
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

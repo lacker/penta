@@ -1437,7 +1437,7 @@ pub(in crate::card::sets) static GERALFS_MESSENGER: CardRecord = CardRecord::new
     CardArt::new("bffaad78-97ff-431f-bfb0-e96c7558f974", "Kev Walker"),
     CardSet::DarkAscension,
     CardRules::new_creature(mana_cost!("{B}{B}{B}"), &["Zombie"], 3, 2).with_abilities(&[
-        abilities::enters_tapped("This creature enters tapped."),
+        abilities::enters_tapped(CardType::Creature),
         abilities::enters_trigger_with_targets(
             "When this creature enters, target opponent loses 2 life.",
             &[AbilityTargetDef::exactly_one(
@@ -2144,9 +2144,7 @@ pub(in crate::card::sets) static HECKLING_FIENDS: CardRecord = CardRecord::new_w
             )],
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                    "This creature attacks each combat if able.",
-                )),
+                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able()),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
         ),

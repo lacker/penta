@@ -88,9 +88,7 @@ pub(in crate::card::sets) static URSINE_MONSTROSITY: CardRecord = CardRecord::ne
                         // satisfy it, which is what separates this from the plain "attacks each
                         // combat if able". It is granted for the turn rather than printed, and the
                         // trigger renews it at the beginning of every combat.
-                        AppliedEffectDef::add_ability(&abilities::attacks_player_each_combat_if_able(
-                            "This creature attacks that player this combat if able.",
-                        )),
+                        AppliedEffectDef::add_ability(&abilities::attacks_player_each_combat_if_able()),
                         // Read as the trigger resolves, which is after the mill: the card it
                         // just put there counts toward its own bonus.
                         AppliedEffectDef::modify_power_toughness(

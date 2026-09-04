@@ -34,18 +34,24 @@ pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::
 pub(in crate::card::sets) static LEYLINE_AXE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b9c03336-a321-4c06-94d1-809f328fabd8"),
     "Leyline Axe",
-    CardArt::new("b9c03336-a321-4c06-94d1-809f328fabd8", "Edgar Sánchez Hidalgo"),
+    CardArt::new(
+        "b9c03336-a321-4c06-94d1-809f328fabd8",
+        "Edgar Sánchez Hidalgo",
+    ),
     CardSet::MagicFoundations,
     CardRules::new_artifact(mana_cost!("{4}"))
         .with_subtypes(&["Equipment"])
         .with_abilities(&[
-            abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+            abilities::begin_game_on_battlefield(),
             AbilityDef::static_ability(
                 "Equipped creature gets +1/+1 and has double strike and trample.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::AttachedPermanent,
                     effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::modify_power_toughness(ValueDef::Constant(1), ValueDef::Constant(1)),
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
                         AppliedEffectDef::add_ability(&abilities::double_strike()),
                         AppliedEffectDef::add_ability(&abilities::trample()),
                     ]),

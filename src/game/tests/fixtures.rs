@@ -60,7 +60,7 @@ pub(in crate::game) static TEST_EXTERNAL_CONTEXT_ABILITY: [AbilityDef; 1] =
         },
     )];
 pub(in crate::game) static TEST_GRANTED_ENTRY_REPLACEMENT: AbilityDef =
-    abilities::enters_tapped("This permanent enters tapped.");
+    abilities::enters_tapped(CardType::Land).override_text("This permanent enters tapped.");
 pub(in crate::game) static TEST_SELF_GRANTED_ENTRY_ABILITY: [AbilityDef; 1] =
     [AbilityDef::static_ability(
         "This permanent has \"This permanent enters tapped.\"",

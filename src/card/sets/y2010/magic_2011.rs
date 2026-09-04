@@ -17,7 +17,7 @@ pub(in crate::card::sets) static LEYLINE_OF_SANCTITY: CardRecord = CardRecord::n
     // Four mana for nothing at all, or nothing at all for a wall the
     // discard and the burn cannot see past.
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "You have hexproof. (You can't be the target of spells or abilities your opponents control.)",
             EffectDef::StaticApply {
@@ -50,7 +50,7 @@ pub(in crate::card::sets) static LEYLINE_OF_ANTICIPATION: CardRecord = CardRecor
     CardArt::new("d7dbb092-3bb0-445e-ab26-d939cac92a73", "Charles Urbach"),
     CardSet::Magic2011,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "You may cast spells as though they had flash.",
             EffectDef::StaticApply {
@@ -141,7 +141,7 @@ pub(in crate::card::sets) static LEYLINE_OF_PUNISHMENT: CardRecord = CardRecord:
     CardArt::new("51a2eec5-f892-4466-b6c6-960626ba5640", "Charles Urbach"),
     CardSet::Magic2011,
     CardRules::new_enchantment(mana_cost!("{2}{R}{R}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "Players can't gain life. Damage can't be prevented.",
             EffectDef::StaticApply {
@@ -174,7 +174,7 @@ pub(in crate::card::sets) static LEYLINE_OF_VITALITY: CardRecord = CardRecord::n
     CardArt::new("f5318113-9dfb-492c-9151-de90951d881e", "Jim Nelson"),
     CardSet::Magic2011,
     CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "Creatures you control get +0/+1.",
             EffectDef::StaticApply {

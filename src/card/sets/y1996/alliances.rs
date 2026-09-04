@@ -1255,13 +1255,7 @@ pub(in crate::card::sets) static BALDUVIAN_WAR_MAKERS: CardRecord = CardRecord::
     crate::card::CardArt::new("12fd561e-6a26-4140-a033-1204f5dda5f3", "Mike Kimble"),
     crate::card::CardSet::Alliances,
     CardRules::new_creature(mana_cost!("{4}{R}"), &["Human", "Barbarian"], 3, 3)
-        .with_abilities(&[
-            abilities::haste(),
-            abilities::rampage(
-                1,
-                "Rampage 1 (Whenever this creature becomes blocked, it gets +1/+1 until end of turn for each creature blocking it beyond the first.)",
-            ),
-        ]),
+        .with_abilities(&[abilities::haste(), abilities::rampage(1)]),
 );
 
 // ALL 66b — Balduvian War-Makers (alternate printing)
@@ -1838,23 +1832,21 @@ pub(in crate::card::sets) static GORILLA_BERSERKERS: CardRecord = CardRecord::ne
     "Gorilla Berserkers",
     crate::card::CardArt::new("344b4613-17f8-4c8b-b5bc-f773a8f8007a", "John Matson"),
     crate::card::CardSet::Alliances,
-    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Ape", "Berserker"], 2, 3)
-        .with_abilities(&[
+    CardRules::new_creature(mana_cost!("{3}{G}{G}"), &["Ape", "Berserker"], 2, 3).with_abilities(
+        &[
             abilities::trample(),
-            abilities::rampage(
-                2,
-                "Rampage 2 (Whenever this creature becomes blocked, it gets +2/+2 until end of turn for each creature blocking it beyond the first.)",
-            ),
+            abilities::rampage(2),
             AbilityDef::static_ability(
                 "This creature can't be blocked except by three or more creatures.",
                 EffectDef::StaticApply {
                     recipient: EffectRecipientDef::Source,
-                    effect: AppliedEffectDef::Rule(
-                        AppliedRuleDef::CannotBeBlockedExceptByAtLeast(3),
-                    ),
+                    effect: AppliedEffectDef::Rule(AppliedRuleDef::CannotBeBlockedExceptByAtLeast(
+                        3,
+                    )),
                 },
             ),
-        ]),
+        ],
+    ),
 );
 
 // ALL 93b — Gorilla Berserkers (alternate printing)
@@ -2613,7 +2605,7 @@ pub(in crate::card::sets) static THAWING_GLACIERS: CardRecord = CardRecord::new_
     // One basic a turn, forever: slow enough that only a deck with nothing
     // better to do at end of turn wants it, which is exactly Landstill.
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated(
             "{1}, {T}: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle. Return this land to its owner's hand at the beginning of the next cleanup step.",
             &[

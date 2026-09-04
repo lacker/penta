@@ -3526,7 +3526,7 @@ pub(in crate::card::sets) static SECLUDED_STEPPE: CardRecord = CardRecord::new_w
     // The tapped land you play on a turn you had nothing to do, or the card
     // you cycle away on a turn you did.
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W}.",
             &[AbilityCostDef::TapSource],

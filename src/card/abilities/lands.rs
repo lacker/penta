@@ -157,9 +157,9 @@ static TWO_OR_FEWER_OTHER_LANDS: ObjectCountConditionDef = ObjectCountConditionD
 /// from its own count -- which is what makes the clause read the board as it
 /// was rather than as it is about to be.
 #[must_use]
-pub const fn fast_land_enters(text: &'static str) -> AbilityDef {
+pub const fn fast_land_enters() -> AbilityDef {
     AbilityDef::as_enters(
-        text,
+        "This land enters tapped unless you control two or fewer other lands.",
         ReplacementEffectDef::Conditional {
             condition: ConditionDef::ObjectCount(&TWO_OR_FEWER_OTHER_LANDS),
             if_true: &[],

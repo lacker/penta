@@ -15,7 +15,7 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_MEEK: CardRecord = CardRecord::n
     CardArt::new("efc58757-abcc-41c9-b4d2-e70e9f387cbb", "Mark Zug"),
     CardSet::Guildpact,
     CardRules::new_enchantment(mana_cost!("{2}{W}{W}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "Creature tokens get +1/+1.",
             EffectDef::StaticApply {
@@ -46,7 +46,7 @@ pub(in crate::card::sets) static LEYLINE_OF_SINGULARITY: CardRecord = CardRecord
     ),
     CardSet::Guildpact,
     CardRules::new_enchantment(mana_cost!("{2}{U}{U}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "All nonland permanents are legendary.",
             EffectDef::StaticApply {
@@ -68,9 +68,7 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
     CardArt::new("37dfe8b8-b39e-4e70-9e5b-be42c93b4f70", "Adam Rex"),
     CardSet::Guildpact,
     CardRules::new_enchantment(mana_cost!("{2}{B}{B}")).with_abilities(&[
-        abilities::begin_game_on_battlefield(
-            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
-        ),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::replacement_for(
             "If a card would be put into an opponent's graveyard from anywhere, exile it instead.",
             ReplacementEventDef::AnyObjectWouldMove {
@@ -125,9 +123,7 @@ pub(in crate::card::sets) static LEYLINE_OF_LIFEFORCE: CardRecord = CardRecord::
     CardArt::new("f7caffa7-29bd-455c-9770-94a0ad7ef5e3", "Kev Walker"),
     CardSet::Guildpact,
     CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield(
-            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
-        ),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "Creature spells can't be countered.",
             EffectDef::StaticApply {

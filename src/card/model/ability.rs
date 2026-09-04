@@ -29,6 +29,17 @@ pub struct AbilityDef {
 }
 
 impl AbilityDef {
+    /// Replaces a reusable constructor's default printed text without changing
+    /// the clause's category, targets, costs, or effect.
+    ///
+    /// Structured clauses may treat this value as a header and append their
+    /// derived mode text in [`Self::rules_text`].
+    #[must_use]
+    pub const fn override_text(mut self, text: &'static str) -> Self {
+        self.text = text;
+        self
+    }
+
     #[must_use]
     pub const fn spell(text: &'static str, effect: EffectDef) -> Self {
         Self::spell_with_targets(text, &[], effect)

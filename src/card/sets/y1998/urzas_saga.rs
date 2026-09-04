@@ -4109,7 +4109,7 @@ pub(in crate::card::sets) static WORN_POWERSTONE: CardRecord = CardRecord::new(
     ),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_artifact(mana_cost!("{3}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         AbilityDef::activated_mana(
             "{T}: Add {C}{C}.",
             &[AbilityCostDef::TapSource],
@@ -4140,7 +4140,7 @@ pub(in crate::card::sets) static DRIFTING_MEADOW: CardRecord = CardRecord::new(
     crate::card::CardArt::new("a8f669f7-0b36-4c82-8e32-15314ec0c0c4", "Bob Eggleton"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::White),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -4202,7 +4202,7 @@ pub(in crate::card::sets) static POLLUTED_MIRE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("cfe2c562-ac25-4395-a9f0-8b246c7954b6", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Black),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -4218,7 +4218,7 @@ pub(in crate::card::sets) static REMOTE_ISLE: CardRecord = CardRecord::new(
     crate::card::CardArt::new("e48d55ff-10d0-4d9b-9202-02ebb2137953", "Ciruelo"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Blue),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -4282,7 +4282,7 @@ pub(in crate::card::sets) static SLIPPERY_KARST: CardRecord = CardRecord::new(
     crate::card::CardArt::new("6d01a6a7-c006-4fce-a546-8138baef421b", "Stephen Daniele"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Green),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",
@@ -4298,7 +4298,7 @@ pub(in crate::card::sets) static SMOLDERING_CRATER: CardRecord = CardRecord::new
     crate::card::CardArt::new("e9940ce4-09d7-4e89-b456-e3126a83cfe1", "Mark Tedin"),
     crate::card::CardSet::UrzasSaga,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Red),
         abilities::cycling(
             "Cycling {2} ({2}, Discard this card: Draw a card.)",

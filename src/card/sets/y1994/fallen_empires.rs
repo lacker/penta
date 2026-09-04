@@ -2400,7 +2400,7 @@ pub(in crate::card::sets) static BOTTOMLESS_VAULT: CardRecord = CardRecord::new_
     CardArt::new("639ae988-d1d1-4ead-b0f8-47fc39eb64a0", "Pat Lewis"),
     CardSet::FallenEmpires,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
             EffectDef::StaticApply {
@@ -2439,7 +2439,7 @@ pub(in crate::card::sets) static DWARVEN_HOLD: CardRecord = CardRecord::new_with
     CardArt::new("a3142ded-ff62-4817-aa54-75a7ea4498a6", "Pat Lewis"),
     CardSet::FallenEmpires,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
             EffectDef::StaticApply {
@@ -2553,7 +2553,7 @@ pub(in crate::card::sets) static HOLLOW_TREES: CardRecord = CardRecord::new_with
     CardArt::new("90845410-e09a-4753-ad4c-bf2b2f3c95ac", "Pat Lewis"),
     CardSet::FallenEmpires,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
             EffectDef::StaticApply {
@@ -2592,7 +2592,7 @@ pub(in crate::card::sets) static ICATIAN_STORE: CardRecord = CardRecord::new_wit
     CardArt::new("d7cd8d8c-52c7-402f-92e1-5e5866f2555a", "Pat Lewis"),
     CardSet::FallenEmpires,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
             EffectDef::StaticApply {
@@ -2665,7 +2665,7 @@ pub(in crate::card::sets) static SAND_SILOS: CardRecord = CardRecord::new_with_l
     CardArt::new("3f6f1fcb-d903-4a31-abab-40488569eef6", "Pat Lewis"),
     CardSet::FallenEmpires,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::static_ability(
             "You may choose not to untap this land during your untap step.",
             EffectDef::StaticApply {

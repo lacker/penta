@@ -200,11 +200,7 @@ pub(in crate::card::sets) static BLACK_WARD: CardRecord = CardRecord::new_with_l
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             enchant_creature(),
-            abilities::ward_aura_protection(
-                ManaColor::Black,
-                "Enchanted creature has protection from black. This effect doesn't remove \
-                 this Aura.",
-            ),
+            abilities::ward_aura_protection(ManaColor::Black),
         ]),
 );
 
@@ -275,11 +271,7 @@ pub(in crate::card::sets) static BLUE_WARD: CardRecord = CardRecord::new_with_le
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             enchant_creature(),
-            abilities::ward_aura_protection(
-                ManaColor::Blue,
-                "Enchanted creature has protection from blue. This effect doesn't remove \
-                 this Aura.",
-            ),
+            abilities::ward_aura_protection(ManaColor::Blue),
         ]),
 );
 
@@ -527,11 +519,7 @@ pub(in crate::card::sets) static GREEN_WARD: CardRecord = CardRecord::new_with_l
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             enchant_creature(),
-            abilities::ward_aura_protection(
-                ManaColor::Green,
-                "Enchanted creature has protection from green. This effect doesn't remove \
-                 this Aura.",
-            ),
+            abilities::ward_aura_protection(ManaColor::Green),
         ]),
 );
 
@@ -834,11 +822,7 @@ pub(in crate::card::sets) static RED_WARD: CardRecord = CardRecord::new_with_leg
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             enchant_creature(),
-            abilities::ward_aura_protection(
-                ManaColor::Red,
-                "Enchanted creature has protection from red. This effect doesn't remove \
-                 this Aura.",
-            ),
+            abilities::ward_aura_protection(ManaColor::Red),
         ]),
 );
 
@@ -1054,11 +1038,7 @@ pub(in crate::card::sets) static WHITE_WARD: CardRecord = CardRecord::new_with_l
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             enchant_creature(),
-            abilities::ward_aura_protection(
-                ManaColor::White,
-                "Enchanted creature has protection from white. This effect doesn't remove \
-                 this Aura.",
-            ),
+            abilities::ward_aura_protection(ManaColor::White),
         ]),
 );
 
@@ -5506,7 +5486,7 @@ pub(in crate::card::sets) static JUGGERNAUT: CardRecord = CardRecord::new_with_l
     CardArt::new("dcd6a291-5282-4f49-8203-d9b416083c48", "Dan Frazier"),
     CardSet::Alpha,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Juggernaut"], 5, 3).with_abilities(&[
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
         AbilityDef::static_ability(
             "This creature can't be blocked by Walls.",
             EffectDef::StaticApply {
@@ -5704,7 +5684,7 @@ pub(in crate::card::sets) static NEVINYRRALS_DISK: CardRecord = CardRecord::new_
     CardArt::new("12926dc8-8e6f-4a47-a12b-4d674189615a", "Mark Tedin"),
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{4}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         AbilityDef::activated(
             "{1}, {T}: Destroy all artifacts, creatures, and enchantments.",
             &[
@@ -5860,7 +5840,7 @@ pub(in crate::card::sets) static TIME_VAULT: CardRecord = CardRecord::new_with_l
     CardArt::new("902441dc-c976-4c92-b897-6376eaa0fe38", "Mark Tedin"),
     CardSet::Alpha,
     CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
-        abilities::enters_tapped("This artifact enters tapped."),
+        abilities::enters_tapped(CardType::Artifact),
         AbilityDef::static_ability(
             "This artifact doesn't untap during your untap step.",
             EffectDef::StaticApply {

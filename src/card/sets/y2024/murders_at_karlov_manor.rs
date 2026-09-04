@@ -11,7 +11,7 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 static SURVEIL_LAND_ABILITIES: [AbilityDef; 2] = [
-    abilities::enters_tapped("This land enters tapped."),
+    abilities::enters_tapped(CardType::Land),
     abilities::enters_trigger(
         "When this land enters, surveil 1. (Look at the top card of your library. You may put it \
          into your graveyard.)",
@@ -110,7 +110,7 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_GUILDPACT: CardRecord = CardReco
     CardArt::new("bf6e59be-f959-4f4a-8c2d-b7c441e88135", "Daarken"),
     CardSet::MurdersAtKarlovManor,
     CardRules::new_enchantment(mana_cost!("{G/W}{G/U}{B/G}{R/G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield("If this card is in your opening hand, you may begin the game with it on the battlefield."),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::static_ability(
             "Each nonland permanent you control is all colors.",
             EffectDef::StaticApply {

@@ -1527,10 +1527,8 @@ pub(in crate::card::sets) static KULDOTHA_RINGLEADER: CardRecord = CardRecord::n
     "Kuldotha Ringleader",
     crate::card::CardArt::new("3cda5434-c0a5-4551-8e30-b1923f0001b8", "Greg Staples"),
     crate::card::CardSet::MirrodinBesieged,
-    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4).with_abilities(&[
-        battle_cry(),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
-    ]),
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Giant", "Berserker"], 4, 4)
+        .with_abilities(&[battle_cry(), abilities::attacks_each_combat_if_able()]),
 );
 
 // MBS 71 — Metallic Mastery
@@ -2641,7 +2639,7 @@ pub(in crate::card::sets) static PHYREXIAN_JUGGERNAUT: CardRecord = CardRecord::
     CardRules::new_artifact_creature(mana_cost!("{6}"), &["Phyrexian", "Juggernaut"], 5, 5)
         .with_abilities(&[
             abilities::infect(),
-            abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+            abilities::attacks_each_combat_if_able(),
         ]),
 );
 

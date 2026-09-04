@@ -224,7 +224,7 @@ fn a_land_play_option_locks_the_presented_part_on_the_permanent() {
     let land_option = PlayOptionId(1);
     let front_rules = CardRules::new_sorcery(ManaCost::new(1, 0));
     let land_rules =
-        CardRules::new_land(&[]).with_ability(abilities::enters_tapped("This land enters tapped."));
+        CardRules::new_land(&[]).with_ability(abilities::enters_tapped(CardType::Land));
     let mut definition = CardDefinition::new(
         definition_id,
         "Test modal card",

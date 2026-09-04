@@ -66,7 +66,7 @@ pub(in crate::card::sets) static ULAMOG_S_CRUSHER: CardRecord = CardRecord::new(
     crate::card::CardSet::RiseOfTheEldrazi,
     CardRules::new_creature(mana_cost!("{8}"), &["Eldrazi"], 8, 8).with_abilities(&[
         abilities::annihilator(2),
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+        abilities::attacks_each_combat_if_able(),
     ]),
 );
 

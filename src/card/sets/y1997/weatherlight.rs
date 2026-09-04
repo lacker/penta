@@ -1779,9 +1779,8 @@ pub(in crate::card::sets) static BLOODROCK_CYCLOPS: CardRecord = CardRecord::new
     "Bloodrock Cyclops",
     crate::card::CardArt::new("5c642fd9-38f7-4029-ab93-e1dc5636c1ad", "Tom Wänerstrand"),
     crate::card::CardSet::Weatherlight,
-    CardRules::new_creature(mana_cost!("{2}{R}"), &["Cyclops"], 3, 3).with_ability(
-        abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
-    ),
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Cyclops"], 3, 3)
+        .with_ability(abilities::attacks_each_combat_if_able()),
 );
 
 // WTH 91 — Bogardan Firefiend
@@ -1818,9 +1817,10 @@ pub(in crate::card::sets) static BOILING_BLOOD: CardRecord = CardRecord::new(
         EffectDef::Sequence(&[
             EffectDef::Apply {
                 recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                effect: AppliedEffectDef::add_ability(&abilities::attacks_each_combat_if_able(
-                    "This creature attacks this turn if able.",
-                )),
+                effect: AppliedEffectDef::add_ability(
+                    &abilities::attacks_each_combat_if_able()
+                        .override_text("This creature attacks this turn if able."),
+                ),
                 duration: ResolvedEffectDurationDef::UntilEndOfTurn,
             },
             EffectDef::DrawCards {

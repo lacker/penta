@@ -3366,7 +3366,7 @@ pub(in crate::card::sets) static COASTAL_TOWER: CardRecord = CardRecord::new_wit
     CardArt::new("d115dbff-e35b-495f-a1e3-19651895927e", "Don Hazeltine"),
     CardSet::Invasion,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         AbilityDef::activated_mana(
             "{T}: Add {W} or {U}.",
             &[AbilityCostDef::TapSource],

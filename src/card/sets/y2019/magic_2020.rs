@@ -128,9 +128,7 @@ pub(in crate::card::sets) static LEYLINE_OF_ABUNDANCE: CardRecord = CardRecord::
     CardArt::new("c68e8342-78d2-4826-a287-64c371b97d19", "Noah Bradley"),
     CardSet::Magic2020,
     CardRules::new_enchantment(mana_cost!("{2}{G}{G}")).with_abilities(&[
-        abilities::begin_game_on_battlefield(
-            "If this card is in your opening hand, you may begin the game with it on the battlefield.",
-        ),
+        abilities::begin_game_on_battlefield(),
         AbilityDef::triggered_mana(
             "Whenever you tap a creature for mana, add an additional {G}.",
             TriggerEventDef::tapped_for_mana(ObjectPredicateDef::All(&[
@@ -209,7 +207,7 @@ pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new
     // A land that makes colourless and comes in tapped, which is what a deck
     // pays for turning every land drop after the seventh into a 2/2.
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::triggered_if(
             "Whenever this land or another land you control enters, if you control seven or more \

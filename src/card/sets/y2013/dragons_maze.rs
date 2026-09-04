@@ -896,7 +896,7 @@ pub(in crate::card::sets) static RIOT_PIKER: CardRecord = CardRecord::new_with_l
     CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin", "Berserker"], 2, 1).with_abilities(
         &[
             abilities::first_strike(),
-            abilities::attacks_each_combat_if_able("This creature attacks each combat if able."),
+            abilities::attacks_each_combat_if_able(),
         ],
     ),
 );
@@ -2435,7 +2435,7 @@ pub(in crate::card::sets) static RURIC_THAR_THE_UNBOWED: CardRecord = CardRecord
     .with_abilities(&[
         abilities::vigilance(),
         abilities::reach(),
-        abilities::attacks_each_combat_if_able("Ruric Thar attacks each combat if able."),
+        abilities::attacks_each_combat_if_able().override_text("Ruric Thar attacks each combat if able."),
         AbilityDef::triggered(
             "Whenever a player casts a noncreature spell, Ruric Thar deals 6 damage to that player.",
             TriggerEventDef::spell_cast(ObjectPredicateDef::NoncreatureSpell),
@@ -3794,7 +3794,7 @@ pub(in crate::card::sets) static MAZE_S_END: CardRecord = CardRecord::new(
     crate::card::CardArt::new("401f7042-24fd-42a0-ae7c-e6b7de1aa446", "Cliff Childs"),
     crate::card::CardSet::DragonsMaze,
     CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped("This land enters tapped."),
+        abilities::enters_tapped(CardType::Land),
         abilities::tap_for(ManaColor::Colorless),
         AbilityDef::activated(
             "{3}, {T}, Return this land to its owner's hand: Search your library for a Gate card, put it onto the battlefield, then shuffle. If you control ten or more Gates with different names, you win the game.",

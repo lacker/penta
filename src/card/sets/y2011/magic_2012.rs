@@ -2147,7 +2147,7 @@ pub(in crate::card::sets) static RUSTED_SENTINEL: CardRecord = CardRecord::new(
     crate::card::CardArt::new("cba5fc44-4b9a-418b-a4e0-26d2c3a1eca4", "Jason Felix"),
     crate::card::CardSet::Magic2012,
     CardRules::new_artifact_creature(mana_cost!("{4}"), &["Golem"], 3, 4)
-        .with_ability(abilities::enters_tapped("This creature enters tapped.")),
+        .with_ability(abilities::enters_tapped(CardType::Creature)),
 );
 
 // M12 216 — Scepter of Empires

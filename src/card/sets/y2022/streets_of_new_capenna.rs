@@ -25,13 +25,20 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 // SNC 26 — Raffine's Informant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAFFINE_S_INFORMANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e64ff87-2099-4360-94f6-164277b7b514"),
     "Raffine's Informant",
-    crate::card::CardArt::new("4e64ff87-2099-4360-94f6-164277b7b514", "John Stanko"),
-    crate::card::CardSet::StreetsOfNewCapenna,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4e64ff87-2099-4360-94f6-164277b7b514", "John Stanko"),
+    CardSet::StreetsOfNewCapenna,
+    // Two mana that fixes the draw and is a 3/2 when the card it threw away
+    // was worth throwing, which is the whole appeal of connive on a body.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Wizard"], 2, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, it connives. (Draw a card, then discard a card. If you \
+             discarded a nonland card, put a +1/+1 counter on this creature.)",
+            abilities::connive(),
+        ),
+    ),
 );
 
 // SNC 46 — Ledger Shredder

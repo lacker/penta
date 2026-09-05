@@ -589,7 +589,7 @@ pub(in crate::card::sets) static COERCION: CardRecord = CardRecord::new(
 );
 
 // VIS 55 — Crypt Rats
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs "spend only <colour> mana on X" for an activated ability. The restriction is card-level and the payment layer reads it only for ManaPaymentPurpose::Spell, so an ability's X is unrestricted; implementing this without it would let any mana pay X and make the card strictly better than printed.
 pub(in crate::card::sets) static CRYPT_RATS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("736455f6-c1b3-4a5a-a91f-a0cd3986ed53"),
     "Crypt Rats",

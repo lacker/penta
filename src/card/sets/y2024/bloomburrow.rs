@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
-    PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef,
-    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, ComparisonDef, CopyExceptionsDef, CopyStackObjectDef, CounterKind,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -285,13 +285,29 @@ pub(in crate::card::sets) static TEMPEST_ANGLER: CardRecord = CardRecord::new(
 );
 
 // BLB 254 — Hidden Grotto
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HIDDEN_GROTTO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ba8f2e7-8357-4862-97dc-1942d066023a"),
     "Hidden Grotto",
-    crate::card::CardArt::new("4ba8f2e7-8357-4862-97dc-1942d066023a", "Fiona Hsieh"),
-    crate::card::CardSet::Bloomburrow,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4ba8f2e7-8357-4862-97dc-1942d066023a", "Fiona Hsieh"),
+    CardSet::Bloomburrow,
+    // Untapped and colourless by default, so the fixing costs a mana rather
+    // than a turn -- and the surveil pays for playing it over a basic.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, surveil 1. (Look at the top card of your library. You may \
+             put it into your graveyard.)",
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // BLB 307 — Thundertrap Trainer (alternate printing)

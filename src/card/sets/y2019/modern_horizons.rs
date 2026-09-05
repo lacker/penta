@@ -8,9 +8,10 @@ use crate::card::{
     AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorChoiceOperationDef,
     ComparisonDef, CounterKind, CreatureTypeSetDef, DiscardFollowUpDef, DiscardSelectionDef,
     EffectDef, EffectRecipientDef, EmblemCharacteristics, ExilePlayDurationDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    MoveObjectsDef, ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    RevealAndClassifyCardsDef, SpellAdditionalCostDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -812,13 +813,66 @@ pub(in crate::card::sets) static TRUMPETING_HERD: CardRecord = CardRecord::new(
 );
 
 // MH1 193 — Winding Way
-// Audit: unsupported — Card rules have not been implemented.
+/// One mode of Winding Way: reveal four and sort them by the named type,
+/// keeping the matches and burying the rest. A classification rather than a
+/// choice -- the printed clause takes all of them, so nothing is asked.
+const fn winding_way_mode(text: &'static str, object: ObjectPredicateDef) -> AbilityDef {
+    AbilityDef::spell(
+        text,
+        EffectDef::RevealAndClassifyCards(RevealAndClassifyCardsDef {
+            source: ObjectCollectionSourceDef::TopCards {
+                player: PlayerRefDef::EffectController,
+                count: ValueDef::Constant(4),
+            },
+            object,
+            matching: Binding!("winding_way_chosen"),
+            remainder: Binding!("winding_way_rest"),
+            then: &const {
+                EffectDef::Sequence(&[
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("winding_way_chosen")),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                    EffectDef::MoveObjects(MoveObjectsDef {
+                        input: ObjectSetDef::Binding(Binding!("winding_way_rest")),
+                        from: Some(ZoneKind::Library),
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                        moved: None,
+                        then: &EffectDef::None,
+                    }),
+                ])
+            },
+        }),
+    )
+}
+
 pub(in crate::card::sets) static WINDING_WAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4e5d9776-b6ce-4ad6-8acc-69115ba5de76"),
     "Winding Way",
-    crate::card::CardArt::new("4e5d9776-b6ce-4ad6-8acc-69115ba5de76", "Adam Paquette"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4e5d9776-b6ce-4ad6-8acc-69115ba5de76", "Adam Paquette"),
+    CardSet::ModernHorizons1,
+    // The choice is made before anything is revealed, so this is a read on
+    // the deck rather than a free pick of the better half.
+    CardRules::new_sorcery(mana_cost!("{1}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose creature or land.",
+        &[
+            winding_way_mode(
+                "Creature — Reveal the top four cards of your library. Put all creature cards \
+                 revealed this way into your hand and the rest into your graveyard.",
+                ObjectPredicateDef::HasType(CardType::Creature),
+            ),
+            winding_way_mode(
+                "Land — Reveal the top four cards of your library. Put all land cards revealed \
+                 this way into your hand and the rest into your graveyard.",
+                ObjectPredicateDef::HasType(CardType::Land),
+            ),
+        ],
+    )),
 );
 
 // MH1 199 — Fallen Shinobi

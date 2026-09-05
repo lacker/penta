@@ -356,6 +356,8 @@ const BINDING_LABELS: &[&str] = &[
     "uncovered_clues_remainder",
     "wilderness_remainder",
     "wilds_land",
+    "winding_way_chosen",
+    "winding_way_rest",
 ];
 
 #[allow(non_upper_case_globals)]

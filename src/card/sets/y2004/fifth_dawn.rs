@@ -11,13 +11,34 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // 5DN 27 — Condescend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8303b80-e29a-46b8-90b0-c0cfe551b435"),
     "Condescend",
-    crate::card::CardArt::new("e8303b80-e29a-46b8-90b0-c0cfe551b435", "Ron Spears"),
-    crate::card::CardSet::FifthDawn,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e8303b80-e29a-46b8-90b0-c0cfe551b435", "Ron Spears"),
+    CardSet::FifthDawn,
+    // The scry is what keeps this live once X is too small to counter
+    // anything, which is why a tempo deck can cast it for one.
+    CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Counter target spell unless its controller pays {X}. Scry 2. (Look at the top two cards \
+         of your library, then put any number of them on the bottom and the rest on top in any \
+         order.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            // The demand is the same X this was cast for, so paying more for
+            // it raises what the other player has to find.
+            abilities::counter_target_unless_paid(ValueDef::ChosenX),
+            // Scrying happens either way: the spell resolving through does
+            // not stop the second half.
+            abilities::scry(ValueDef::Constant(2)),
+        ]),
+    )),
 );
 
 // 5DN 36 — Serum Visions

@@ -397,13 +397,32 @@ pub(in crate::card::sets) static OLIPHAUNT: CardRecord = CardRecord::new(
 );
 
 // LTR 142 — Rally at the Hornburg
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RALLY_AT_THE_HORNBURG: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ee7292f7-1c7e-449c-9c52-7584d6a14c2c"),
     "Rally at the Hornburg",
-    crate::card::CardArt::new("ee7292f7-1c7e-449c-9c52-7584d6a14c2c", "Ekaterina Burmak"),
-    crate::card::CardSet::LordOfTheRings,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ee7292f7-1c7e-449c-9c52-7584d6a14c2c", "Ekaterina Burmak"),
+    CardSet::LordOfTheRings,
+    // The tokens it makes are Humans, so the haste half applies to them:
+    // two mana at sorcery speed for two immediate attackers.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Create two 1/1 white Human Soldier creature tokens. Humans you control gain haste until \
+         end of turn.",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Human", "Soldier"], &[ManaColor::White], 1, 1)
+                .with_amount(2),
+            // Read after the tokens arrive, which is what lets them attack
+            // the turn this resolves.
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Subtype("Human"),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // LTR 158 — Delighted Halfling

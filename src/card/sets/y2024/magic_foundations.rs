@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
-    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef,
-    SetOperationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CharacteristicOperationDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
+    ExilePlayDurationDef, ManaColor, ObjectPredicateDef, PlayerRelation,
+    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -22,13 +22,36 @@ pub(in crate::card::sets) static INSPIRING_PALADIN: CardRecord = CardRecord::new
 );
 
 // FDN 114 — Treetop Snarespinner
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TREETOP_SNARESPINNER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("88e68fa3-159d-49a6-8ac6-afc9bd6f1718"),
     "Treetop Snarespinner",
-    crate::card::CardArt::new("88e68fa3-159d-49a6-8ac6-afc9bd6f1718", "Steve Ellis"),
-    crate::card::CardSet::MagicFoundations,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("88e68fa3-159d-49a6-8ac6-afc9bd6f1718", "Steve Ellis"),
+    CardSet::MagicFoundations,
+    // Reach and deathtouch already answer anything that attacks into it, so
+    // the counters are what a stalled board turns spare mana into.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Spider"], 1, 4).with_abilities(&[
+        abilities::reach(),
+        abilities::deathtouch(),
+        AbilityDef::activated_with_targets(
+            "{2}{G}: Put a +1/+1 counter on target creature you control. Activate only as a \
+             sorcery.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}{G}"))],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // FDN 129 — Leyline Axe

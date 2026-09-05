@@ -97,16 +97,15 @@ pub(in crate::card::sets) static SAVAGE_MANSION: CardRecord = CardRecord::new(
 );
 
 // OM1 184 — Sinister Hideout
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SINISTER_HIDEOUT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c417f8ce-e156-4c9a-af30-792606d861bd"),
     "Sinister Hideout",
-    crate::card::CardArt::new(
+    CardArt::new(
         "c417f8ce-e156-4c9a-af30-792606d861bd",
         "Julian Kok Joon Wen",
     ),
-    crate::card::CardSet::ThroughTheOmenpaths,
-    crate::card::CardRules::unsupported(),
+    CardSet::ThroughTheOmenpaths,
+    surveilling_dual_land("{T}: Add {U} or {B}.", &[ManaColor::Blue, ManaColor::Black]),
 );
 
 // OM1 185 — Suburban Sanctuary

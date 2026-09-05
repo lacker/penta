@@ -133,13 +133,41 @@ pub(in crate::card::sets) static CAST_DOWN: CardRecord = CardRecord::new(
 );
 
 // CLB 130 — Guildsworn Prowler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUILDSWORN_PROWLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d7efb10f-c760-431c-8ac6-904965d850dc"),
     "Guildsworn Prowler",
-    crate::card::CardArt::new("d7efb10f-c760-431c-8ac6-904965d850dc", "Fariba Khamseh"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d7efb10f-c760-431c-8ac6-904965d850dc", "Fariba Khamseh"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // Deathtouch makes attacking into it a bad trade and blocking with it a
+    // good one, and the card is the reward for choosing the first.
+    CardRules::new_creature(
+        mana_cost!("{1}{B}"),
+        &["Tiefling", "Rogue", "Assassin"],
+        2,
+        1,
+    )
+    .with_abilities(&[
+        abilities::deathtouch(),
+        AbilityDef::triggered_if(
+            "When this creature dies, if it wasn't blocking, draw a card.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                Some(ZoneKind::Battlefield),
+                Some(ZoneKind::Graveyard),
+            ),
+            // Read off the creature as it left, so trading it away on
+            // your own attack draws and chump-blocking with it does not.
+            &const {
+                TriggerConditionDef::SourceMatches {
+                    object: ObjectPredicateDef::Not(&ObjectPredicateDef::Blocking),
+                }
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // CLB 180 — Gut, True Soul Zealot

@@ -2,9 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardType,
-    ClassifyObjectsDef, EffectDef, KeywordAbility, ManaColor, MoveObjectsDef, ObjectPredicateDef,
-    ObjectSetDef, PlayerRefDef, RevealObjectsDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, BasicLandType,
+    BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet, CardType, ClassifyObjectsDef,
+    EffectDef, KeywordAbility, ManaColor, ManaTypeDef, MoveObjectsDef, ObjectPredicateDef,
+    ObjectSetDef, PlayerRefDef, ReplacementChoiceDef, ReplacementEffectDef, RevealObjectsDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::mana_cost;
@@ -20,13 +22,44 @@ pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRec
 );
 
 // DIS 99 — Utopia Sprawl
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UTOPIA_SPRAWL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5047e271-fbf1-402c-9eb9-0806e5988f76"),
     "Utopia Sprawl",
-    crate::card::CardArt::new("5047e271-fbf1-402c-9eb9-0806e5988f76", "Ron Spears"),
-    crate::card::CardSet::Dissension,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5047e271-fbf1-402c-9eb9-0806e5988f76", "Ron Spears"),
+    CardSet::Dissension,
+    // One mana of ramp that also fixes, at the cost of only ever going on a
+    // Forest -- which is why it is a green deck's card and nobody else's.
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            // "Enchant Forest" is narrower than enchant land: the basic land
+            // type, not the card type, so a dual with Forest on it qualifies
+            // and a nonbasic without it does not.
+            abilities::aura_spell(
+                "Enchant Forest",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    )]
+                },
+            ),
+            AbilityDef::as_enters(
+                "As this Aura enters, choose a color.",
+                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
+                    BattlefieldEntryScalarChoiceDef::COLOR,
+                )),
+            ),
+            AbilityDef::triggered_mana(
+                "Whenever enchanted Forest is tapped for mana, its controller adds an additional \
+                 one mana of the chosen color.",
+                TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
+                // The land's controller, not the Aura's.
+                EffectDef::AddMana(
+                    AddManaEffectDef::one_of_type(ManaTypeDef::ChosenColor)
+                        .to_triggering_objects_controller(),
+                ),
+            ),
+        ]),
 );
 
 // DIS 105 — Azorius First-Wing

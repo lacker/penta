@@ -1172,13 +1172,62 @@ pub(in crate::card::sets) static FANATIC_OF_RHONAS: CardRecord = CardRecord::new
 );
 
 // MH3 157 — Horrific Assault
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORRIFIC_ASSAULT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cfa6ed13-7bba-40c0-8e0e-4ffd3cea6241"),
     "Horrific Assault",
-    crate::card::CardArt::new("cfa6ed13-7bba-40c0-8e0e-4ffd3cea6241", "Justine Jones"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cfa6ed13-7bba-40c0-8e0e-4ffd3cea6241", "Justine Jones"),
+    CardSet::ModernHorizons3,
+    // One mana of removal priced off a board you already have, with the life
+    // as a small bribe to the Eldrazi deck this set is built around.
+    CardRules::new_sorcery(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target creature you control deals damage equal to its power to target creature or \
+         planeswalker you don't control. If you control an Eldrazi, you gain 3 life.",
+        &[
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            }),
+            AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::HasType(CardType::Planeswalker),
+                ]),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::NotYou),
+                owner: None,
+            }),
+        ],
+        EffectDef::Sequence(&[
+            // One-sided, so the damage is dealt by the chosen creature
+            // rather than by this spell.
+            EffectDef::DealDamageFrom {
+                source: ObjectRefDef::Target(TargetIndex::PRIMARY),
+                recipient: EffectRecipientDef::Target(TargetIndex(1)),
+                amount: ValueDef::TargetPower(TargetIndex::PRIMARY),
+            },
+            EffectDef::IfCondition {
+                // Read as this resolves, and the creature that dealt the
+                // damage may itself be the Eldrazi being counted.
+                condition: &const {
+                    TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::Subtype("Eldrazi"),
+                            &[ZoneKind::Battlefield],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 1,
+                    }
+                },
+                then: &EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(3),
+                },
+            },
+        ]),
+    )),
 );
 
 // MH3 161 — Malevolent Rumble

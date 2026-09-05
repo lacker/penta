@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules,
     CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
-    SumValueDef, TriggerConditionDef, ValueDef, abilities,
+    SumValueDef, ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -18,7 +18,7 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
     CardRules::new_creature(mana_cost!("{2}{R}"), &["Goblin", "Pirate"], 2, 2).with_abilities(&[
         abilities::menace(),
         abilities::haste(),
-        AbilityDef::activated_with_targets(
+        abilities::boast(AbilityDef::activated_with_targets(
             "Boast — Sacrifice another creature or artifact: This creature deals damage equal to 2 \
                  plus the sacrificed permanent\'s mana value to any target. (Activate only if this \
                  creature attacked this turn and only once each turn.)",
@@ -47,13 +47,7 @@ pub(in crate::card::sets) static BROADSIDE_BOMBARDIERS: CardRecord = CardRecord:
                     right: ValueDef::SacrificedManaValue,
                 }),
             },
-        )
-        // Boast (CR 702.141) is those two restrictions and nothing else: it can
-        // only be activated by a creature that attacked, and only once a turn.
-        .with_activation_condition(&TriggerConditionDef::SourceMatches {
-            object: ObjectPredicateDef::AttackedThisTurn,
-        })
-        .activations_each_turn(1),
+        )),
     ]),
 );
 

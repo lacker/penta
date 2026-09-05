@@ -556,6 +556,22 @@ pub const fn eternalize(text: &'static str, cost: ManaCost) -> AbilityDef {
     .with_activation_timing(ActivationTimingDef::SorcerySpeed)
 }
 
+/// Boast (CR 702.141): the two restrictions the keyword abbreviates, applied
+/// to an activated ability the caller has already built.
+///
+/// Boast says nothing about what the ability costs or does -- only that the
+/// creature must have attacked this turn and that it may be activated once.
+/// Everything else is the card's own, which is why this takes a finished
+/// ability rather than the pieces of one.
+#[must_use]
+pub const fn boast(ability: AbilityDef) -> AbilityDef {
+    ability
+        .with_activation_condition(&TriggerConditionDef::SourceMatches {
+            object: ObjectPredicateDef::AttackedThisTurn,
+        })
+        .activations_each_turn(1)
+}
+
 /// Ninjutsu (CR 702.49): "`cost`, Return an unblocked attacker you control
 /// to hand: Put this card onto the battlefield from your hand tapped and
 /// attacking."

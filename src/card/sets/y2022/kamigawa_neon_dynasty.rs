@@ -4,13 +4,12 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CopyAbilityDef,
-    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef,
-    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyAbilityDef, CopyExceptionsDef,
+    CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef, DiscardSelectionDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -338,22 +337,9 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
                             amount: ValueDef::Constant(1),
                         },
                         EffectDef::IfCondition {
-                            // "Unless this creature entered this turn" asks about
-                            // the source itself, which is a count of one: the
-                            // condition vocabulary tests queries rather than
-                            // matching a single object against a predicate.
                             condition: &TriggerConditionDef::Not(
-                                &TriggerConditionDef::ObjectCount {
-                                    query: ObjectQueryDef::matching(
-                                        ObjectPredicateDef::All(&[
-                                            ObjectPredicateDef::Source,
-                                            ObjectPredicateDef::EnteredThisTurn,
-                                        ]),
-                                        &[ZoneKind::Battlefield],
-                                        PlayerRelation::You,
-                                    ),
-                                    comparison: ComparisonDef::GreaterOrEqual,
-                                    amount: 1,
+                                &TriggerConditionDef::SourceMatches {
+                                    object: ObjectPredicateDef::EnteredThisTurn,
                                 },
                             ),
                             then: &EffectDef::Discard {

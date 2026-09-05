@@ -4,8 +4,8 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef,
-    CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, PlayerRelation, ResolvedEffectDurationDef,
+    CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, ResolvedEffectDurationDef,
     SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
@@ -181,16 +181,37 @@ pub(in crate::card::sets) static MAGDA_BRAZEN_OUTLAW: CardRecord = CardRecord::n
 );
 
 // KHM 157 — Tuskeri Firewalker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TUSKERI_FIREWALKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a54d0170-a375-4e65-b98d-3e94a3aeef90"),
     "Tuskeri Firewalker",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a54d0170-a375-4e65-b98d-3e94a3aeef90",
         "Victor Adame Minguez",
     ),
-    crate::card::CardSet::Kaldheim,
-    crate::card::CardRules::unsupported(),
+    CardSet::Kaldheim,
+    // A 3/2 that turns each connected attack into a card. Boast is what
+    // rations it: the mana is trivial, so the real cost is having to attack
+    // with a 3/2 first.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Human", "Berserker"], 3, 2).with_ability(
+        abilities::boast(AbilityDef::activated(
+            "Boast — {1}: Exile the top card of your library. You may play that card this turn. \
+             (Activate only if this creature attacked this turn and only once each turn.)",
+            &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                // "You may play that card this turn", not "without paying its
+                // mana cost": the card is still bought at full price, and the
+                // permission dies with the turn.
+                free: false,
+                face_down: false,
+                duration: ExilePlayDurationDef::ThisTurn,
+                spend_any_color: false,
+                play_condition: None,
+                cast_only: false,
+            },
+        )),
+    ),
 );
 
 // KHM 192 — Sarulf's Packmate

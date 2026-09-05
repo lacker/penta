@@ -30,7 +30,7 @@ pub(in crate::card::sets) static COUNCILS_JUDGMENT: CardRecord = CardRecord::new
 );
 
 // CNS 18 — Custodi Squire
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a will-of-the-council vote over graveyard cards that returns the winners. The only vote effect is VoteForPermanentToExile, which votes over battlefield permanents and exiles them; this votes over cards in your graveyard and returns every card tied for most votes to your hand.
 pub(in crate::card::sets) static CUSTODI_SQUIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9151422-8df1-409c-a686-0cd89247eb43"),
     "Custodi Squire",

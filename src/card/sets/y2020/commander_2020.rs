@@ -53,7 +53,7 @@ pub(in crate::card::sets) static ETHEREAL_FORAGER: CardRecord = CardRecord::new(
 );
 
 // C20 67 — Bonder's Ornament
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a player set filtered by what its members control. PlayerSetDef offers All, One, Related and LegalTargets, none of which can say "each player who controls a permanent named Bonder's Ornament"; drawing for every player instead would hand cards to opponents who control none.
 pub(in crate::card::sets) static BONDER_S_ORNAMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5afe425c-50a7-4d29-ac14-0edb094fc770"),
     "Bonder's Ornament",

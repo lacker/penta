@@ -291,13 +291,74 @@ pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::n
 );
 
 // NEO 91 — Clawing Torment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("621fce96-5933-4e2b-98ec-2589940e24cb"),
     "Clawing Torment",
-    crate::card::CardArt::new("621fce96-5933-4e2b-98ec-2589940e24cb", "Rovina Cai"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("621fce96-5933-4e2b-98ec-2589940e24cb", "Rovina Cai"),
+    CardSet::KamigawaNeonDynasty,
+    // One mana that shrinks a creature or just drains, and either way it
+    // closes the game a life at a time.
+    CardRules::new_enchantment(mana_cost!("{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant artifact or creature",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        ]),
+                    )]
+                },
+            ),
+            AbilityDef::static_ability(
+                "As long as enchanted permanent is a creature, it gets -1/-1 and can't block.",
+                // Written as the printed conditional rather than applied
+                // unconditionally: this can land on an artifact, and the
+                // clause only starts once that artifact is also a creature.
+                EffectDef::IfCondition {
+                    condition: &const {
+                        TriggerConditionDef::AttachedPermanentMatches {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                        }
+                    },
+                    then: &EffectDef::StaticApply {
+                        recipient: EffectRecipientDef::AttachedPermanent,
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(-1),
+                                ValueDef::Constant(-1),
+                            ),
+                            AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        ]),
+                    },
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent has \"At the beginning of your upkeep, you lose 1 life.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    // Granted to the permanent, so "your" upkeep is its
+                    // controller's -- this drains whoever it landed on.
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::triggered(
+                                "At the beginning of your upkeep, you lose 1 life.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::Upkeep,
+                                    player: PlayerRelation::You,
+                                },
+                                EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // NEO 117 — Okiba Reckoner Raid // Nezumi Road Captain

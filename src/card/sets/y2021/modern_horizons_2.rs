@@ -117,13 +117,21 @@ pub(in crate::card::sets) static UNBOUNDED_POTENTIAL: CardRecord = CardRecord::n
 );
 
 // MH2 46 — Hard Evidence
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HARD_EVIDENCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("501599d6-1072-4124-b05d-01f96de153f3"),
     "Hard Evidence",
-    crate::card::CardArt::new("501599d6-1072-4124-b05d-01f96de153f3", "Yeong-Hao Han"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("501599d6-1072-4124-b05d-01f96de153f3", "Yeong-Hao Han"),
+    CardSet::ModernHorizons2,
+    // One mana buys a blocker and a card, which is why the Crab's zero power
+    // costs the deck nothing.
+    CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "Create a 0/3 blue Crab creature token. Investigate. (Create a Clue token. It's an \
+         artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Crab"], &[ManaColor::Blue], 0, 3),
+            EffectDef::create_token(tokens::clue()),
+        ]),
+    )),
 );
 
 // MH2 49 — Lose Focus

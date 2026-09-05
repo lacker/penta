@@ -57,13 +57,17 @@ pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new
 );
 
 // KTK 111 — Hordeling Outburst
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HORDELING_OUTBURST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5c1bf52-2737-423a-b340-07448afcaea6"),
     "Hordeling Outburst",
-    crate::card::CardArt::new("a5c1bf52-2737-423a-b340-07448afcaea6", "Zoltan Boros"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5c1bf52-2737-423a-b340-07448afcaea6", "Zoltan Boros"),
+    CardSet::KhansOfTarkir,
+    // Three bodies from one card is what a go-wide deck is buying; the
+    // sorcery speed is the price for not paying one mana each.
+    CardRules::new_sorcery(mana_cost!("{1}{R}{R}")).with_ability(AbilityDef::spell(
+        "Create three 1/1 red Goblin creature tokens.",
+        EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1).with_amount(3),
+    )),
 );
 
 // KTK 118 — Monastery Swiftspear

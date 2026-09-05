@@ -2,13 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // KTK 3 — Ainok Bond-Kin
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
@@ -100,13 +100,28 @@ pub(in crate::card::sets) static TREASURE_CRUISE: CardRecord = CardRecord::new(
 );
 
 // KTK 78 — Mardu Skullhunter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MARDU_SKULLHUNTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd3ca5e7-96f3-4326-9315-34bb396a054c"),
     "Mardu Skullhunter",
-    crate::card::CardArt::new("dd3ca5e7-96f3-4326-9315-34bb396a054c", "Jason Rainville"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dd3ca5e7-96f3-4326-9315-34bb396a054c", "Jason Rainville"),
+    CardSet::KhansOfTarkir,
+    // The discard is the whole card; entering tapped is what it costs, since a
+    // 2/1 that cannot block the turn it lands trades a tempo point for the
+    // hand it stripped.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Human", "Warrior"], 2, 1)
+        .with_ability(abilities::enters_tapped(CardType::Creature))
+        .with_ability(abilities::enters_trigger_with_targets(
+            "When this creature enters, target opponent discards a card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Opponent),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        )),
 );
 
 // KTK 111 — Hordeling Outburst

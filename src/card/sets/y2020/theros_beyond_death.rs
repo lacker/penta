@@ -36,13 +36,39 @@ pub(in crate::card::sets) const fn escape(
 }
 
 // THB 20 — Heliod's Pilgrim
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HELIOD_S_PILGRIM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ea54b97-9182-4d46-9d70-3cc7f9b18ada"),
     "Heliod's Pilgrim",
-    crate::card::CardArt::new("cafce2f5-f4f4-465b-96dc-bcdd29d4e4bb", "Micah Epstein"),
-    crate::card::CardSet::TherosBeyondDeath,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cafce2f5-f4f4-465b-96dc-bcdd29d4e4bb", "Micah Epstein"),
+    CardSet::TherosBeyondDeath,
+    // The body is beside the point: this is a three-mana tutor that an Aura
+    // deck plays for whichever Aura the board asks for.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Cleric"], 1, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, you may search your library for an Aura card, reveal it, \
+             put it into your hand, then shuffle.",
+            // Two ways to decline: the outer may, and a minimum of zero for a
+            // search that finds nothing worth taking.
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::Subtype("Aura"),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ),
 );
 
 // THB 73 — Thassa's Oracle

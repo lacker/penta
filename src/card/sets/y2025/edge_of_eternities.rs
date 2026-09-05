@@ -11,8 +11,8 @@ use crate::card::{
     ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
     PlayerRelation, QuantifierDef, RandomizeObjectOrderDef, ReplacementAbilityDef,
     ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    RoundingDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    RoundingDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -196,13 +196,40 @@ pub(in crate::card::sets) static COSMOGRAND_ZENITH: CardRecord = CardRecord::new
 );
 
 // EOE 18 — Focus Fire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FOCUS_FIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de"),
     "Focus Fire",
-    crate::card::CardArt::new("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de", "Borja Pindado"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a9ddfcbc-0f84-4315-aaa3-ca54ff64d7de", "Borja Pindado"),
+    CardSet::EdgeOfEternities,
+    // The floor is already two damage in combat, and a board counts twice:
+    // each body both survives the trade and raises what this kills.
+    CardRules::new_instant(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Focus Fire deals X damage to target attacking or blocking creature, where X is 2 plus \
+         the number of creatures and/or Spacecraft you control.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AttackingOrBlocking,
+            ]),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Sum(&SumValueDef::new(
+                ValueDef::Constant(2),
+                ValueDef::CountMatchingObjects(&ObjectQueryDef::matching(
+                    // A Spacecraft that has stationed up is already a
+                    // creature, so the two halves overlap and the query has
+                    // to match each permanent once rather than twice.
+                    ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Subtype("Spacecraft"),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                )),
+            )),
+        },
+    )),
 );
 
 // EOE 51 — Consult the Star Charts

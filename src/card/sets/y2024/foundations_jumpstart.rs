@@ -4,10 +4,11 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2005::ravnica_city_of_guilds as catalog_rav;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, CounterKind, EffectChoiceDef, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, CardTypeSet, ComparisonDef, CounterKind, CreatureTypeSetDef,
+    EffectChoiceDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    PlayerRelation, ReplacementEffectDef, ResolvedEffectDurationDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -329,13 +330,44 @@ pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::ne
 );
 
 // J25 753 — Guardian Idol
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIAN_IDOL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a6a62a73-b7db-47ec-9b68-65dd7c1a06a5"),
     "Guardian Idol",
-    crate::card::CardArt::new("1537f377-64c3-4c3b-a276-28d8234c029b", "Igor Kieryluk"),
-    crate::card::CardSet::FoundationsJumpstart,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1537f377-64c3-4c3b-a276-28d8234c029b", "Igor Kieryluk"),
+    CardSet::FoundationsJumpstart,
+    // A mana rock that stops being a dead draw late, which is what the two
+    // mana of animation buys -- and entering tapped is what it costs.
+    CardRules::new_artifact(mana_cost!("{2}")).with_abilities(&[
+        AbilityDef::as_enters(
+            "This artifact enters tapped.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated(
+            "{2}: This artifact becomes a 2/2 Golem artifact creature until end of turn.",
+            &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                // It is already an artifact, so adding the type again is
+                // harmless and keeps the clause reading as printed.
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::add_card_types(
+                        CardTypeSet::single(CardType::Creature).with(CardType::Artifact),
+                    ),
+                    AppliedEffectDef::add_creature_types(CreatureTypeSetDef::named(&["Golem"])),
+                    AppliedEffectDef::set_base_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

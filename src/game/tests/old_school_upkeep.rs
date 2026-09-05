@@ -581,6 +581,89 @@ fn hellrider_burns_once_per_attacker_including_itself() {
     );
 }
 
+/// The trigger names what each attacker is attacking, not the defending
+/// player: two attackers split across a player and their planeswalker take
+/// one ping each, to different places.
+#[test]
+fn hellrider_pings_each_attackers_own_defender() {
+    let mut game = ready_game();
+    game.step = Step::DeclareAttackers;
+    game.attackers_declared = false;
+    game.battlefield
+        .push(creature(10_000, cards::HELLRIDER, PlayerId::One));
+    let lions = creature(10_001, cards::SAVANNAH_LIONS, PlayerId::One);
+    let lions_id = lions.card.id;
+    game.battlefield.push(lions);
+    let bears = creature(10_002, cards::GRIZZLY_BEARS, PlayerId::One);
+    let bears_id = bears.card.id;
+    game.battlefield.push(bears);
+    let mut walker = creature(10_003, cards::VRASKA_THE_UNSEEN, PlayerId::Two);
+    walker.set_counters(CounterKind::Loyalty, 5);
+    let walker_id = walker.card.id;
+    game.battlefield.push(walker);
+    let life_before = game.players[1].life;
+
+    // Hellrider itself stays home, so the only two triggers are the two
+    // attackers and each one is aimed somewhere different.
+    for (attacker, defender) in [
+        (lions_id, AttackDefender::Player(PlayerId::Two)),
+        (bears_id, AttackDefender::Planeswalker(walker_id)),
+    ] {
+        game.apply(
+            PlayerId::One,
+            Action::DeclareAttacker { attacker, defender },
+        )
+        .unwrap();
+    }
+    game.apply(PlayerId::One, Action::FinishDeclaringAttackers)
+        .unwrap();
+    for _ in 0..12 {
+        if game.stack.is_empty() && game.pending_decisions.is_empty() {
+            break;
+        }
+        if let Some(decision) = game
+            .pending_decisions
+            .first()
+            .map(|pending| pending.observation.clone())
+        {
+            let options = decision
+                .options
+                .iter()
+                .take(decision.minimum.max(1))
+                .map(|option| option.id)
+                .collect::<Vec<_>>();
+            game.apply(
+                decision.player,
+                Action::ChooseDecision {
+                    decision: decision.id,
+                    options,
+                },
+            )
+            .unwrap();
+            continue;
+        }
+        let player = game.priority;
+        if game.apply(player, Action::PassPriority).is_err() {
+            break;
+        }
+    }
+
+    assert_eq!(
+        game.players[1].life,
+        life_before - 1,
+        "only the attacker aimed at the player hits the player"
+    );
+    assert_eq!(
+        game.battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == walker_id)
+            .expect("the planeswalker is still there")
+            .counters(CounterKind::Loyalty),
+        4,
+        "and the other ping came off the planeswalker instead"
+    );
+}
+
 #[test]
 fn ivory_tower_and_jayemdae_tome_provide_control_card_advantage() {
     let mut game = ready_game();

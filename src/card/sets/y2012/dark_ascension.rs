@@ -2172,9 +2172,10 @@ pub(in crate::card::sets) static HELLRIDER: CardRecord = CardRecord::new_with_le
                 ObjectPredicateDef::ControlledBy(PlayerRelation::You),
             ])),
             EffectDef::DealDamage {
-                // With no planeswalkers in the game, the player an attacker is
-                // attacking is always the defending player.
-                recipient: EffectRecipientDef::Opponent,
+                // Read off each attacker rather than off Hellrider, which
+                // defends nothing itself: attackers split across a player and
+                // their planeswalkers each ping what they were declared at.
+                recipient: EffectRecipientDef::DefenderOfTriggeringObject,
                 amount: ValueDef::Constant(1),
             },
         ),

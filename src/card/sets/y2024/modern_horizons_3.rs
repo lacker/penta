@@ -137,13 +137,40 @@ const fn landscape_abilities(
 }
 
 // MH3 18 — Aerie Auxiliary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AERIE_AUXILIARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5e4c134b-a416-467e-a158-def84c92c6af"),
     "Aerie Auxiliary",
-    crate::card::CardArt::new("5e4c134b-a416-467e-a158-def84c92c6af", "Donato Giancola"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5e4c134b-a416-467e-a158-def84c92c6af", "Donato Giancola"),
+    CardSet::ModernHorizons3,
+    // Four mana for five power across the board, in the air, which is the
+    // rate a limited deck is happy with.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Bird", "Soldier"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, support 2. (Put a +1/+1 counter on each of up to two \
+             other target creatures.)",
+            // One slot holding up to two targets rather than two slots: the
+            // "each of" is what makes them one group, and "other" is what
+            // keeps this creature out of its own support.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                2,
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // MH3 22 — Dog Umbra

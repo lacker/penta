@@ -2,9 +2,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef, TriggerEventDef,
-    ValueDef, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
+    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -90,13 +90,38 @@ pub(in crate::card::sets) static FIREBRAND_ARCHER: CardRecord = CardRecord::new(
 );
 
 // HOU 138 — Bloodwater Entity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOODWATER_ENTITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("474d0a04-b640-4d1d-b538-2d946c1ff913"),
     "Bloodwater Entity",
-    crate::card::CardArt::new("474d0a04-b640-4d1d-b538-2d946c1ff913", "Viktor Titov"),
-    crate::card::CardSet::HourOfDevastation,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("474d0a04-b640-4d1d-b538-2d946c1ff913", "Viktor Titov"),
+    CardSet::HourOfDevastation,
+    // The rebuy costs a draw step rather than a card, which is the price a
+    // prowess deck pays to cast its best spell twice.
+    CardRules::new_creature(mana_cost!("{1}{U}{R}"), &["Elemental"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::prowess(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, you may put target instant or sorcery card from your \
+             graveyard on top of your library.",
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                1,
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Library,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

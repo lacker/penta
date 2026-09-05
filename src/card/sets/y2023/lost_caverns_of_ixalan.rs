@@ -260,7 +260,7 @@ pub(in crate::card::sets) static DEEP_CAVERN_BAT: CardRecord = CardRecord::new_w
 );
 
 // LCI 128 — Tithing Blade // Consuming Sepulcher
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs craft (CR 726). Nothing in the model expresses an activation that exiles the artifact along with a creature from the battlefield or graveyard and returns the card transformed; the transforming two-face record exists, but the ability that flips it does not.
 pub(in crate::card::sets) static TITHING_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dbaa9a2d-e9fd-4746-a26c-f99ae731f024"),
     "Tithing Blade",

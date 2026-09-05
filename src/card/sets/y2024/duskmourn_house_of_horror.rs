@@ -11,11 +11,11 @@ use crate::card::{
     ChooseDef, ComparisonDef, CopyStackObjectDef, CostModificationDef, CounterKind, CreatureStats,
     CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
-    EmblemCharacteristics, GraveyardPlayPermissionDef, ManaColor, ObjectChoiceBindingDef,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementConditionDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
-    SpellAdditionalCostDef, SumValueDef, TokenCharacteristics, TokenCountersDef,
+    EmblemCharacteristics, ExilePlayDurationDef, GraveyardPlayPermissionDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TokenCharacteristics, TokenCountersDef,
     TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
     ZoneKind, ZonePlacement, abilities,
 };
@@ -854,13 +854,31 @@ pub(in crate::card::sets) static THORNSPIRE_VERGE: CardRecord = CardRecord::new(
 );
 
 // DSK 295 — Clockwork Percussionist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CLOCKWORK_PERCUSSIONIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("10986e5a-9fc6-41e2-8352-289328245171"),
     "Clockwork Percussionist",
-    crate::card::CardArt::new("e44340c7-d3bb-4cf9-a105-ebbf6ce3ace1", "Eric Wilkerson"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e44340c7-d3bb-4cf9-a105-ebbf6ce3ace1", "Eric Wilkerson"),
+    CardSet::DuskmournHouseOfHorror,
+    // A one-mana haste body that replaces itself when it trades. The extra
+    // turn on the permission is what makes the card real: a 1/1 usually dies
+    // on the turn it attacks, with the mana already spent.
+    CardRules::new_artifact_creature(mana_cost!("{R}"), &["Monkey", "Toy"], 1, 1).with_abilities(&[
+        abilities::haste(),
+        abilities::dies_trigger(
+            "When this creature dies, exile the top card of your library. You may play it until \
+             the end of your next turn.",
+            EffectDef::ExileTopOfLibraryToPlay {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+                free: false,
+                face_down: false,
+                duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+                spend_any_color: false,
+                play_condition: None,
+                cast_only: false,
+            },
+        ),
+    ]),
 );
 
 // DSK 314 — Chainsaw

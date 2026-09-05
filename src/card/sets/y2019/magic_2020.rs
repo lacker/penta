@@ -4,21 +4,54 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardType, ComparisonDef, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
-    PlayerSetDef, ResolvedEffectDurationDef, StackTargetAggregationDef, StackTargetFilterDef,
-    TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, StackTargetAggregationDef,
+    StackTargetFilterDef, TriggerConditionDef, TriggerEventDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // M20 3 — Ancestral Blade
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ba18114-af6c-48cd-82c9-eb6541d566bf"),
     "Ancestral Blade",
-    crate::card::CardArt::new("2ba18114-af6c-48cd-82c9-eb6541d566bf", "Scott Murphy"),
-    crate::card::CardSet::Magic2020,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2ba18114-af6c-48cd-82c9-eb6541d566bf", "Scott Murphy"),
+    CardSet::Magic2020,
+    // Two mana buys a 2/2 that leaves an Equipment behind, which is what
+    // makes it playable in a deck with no other artifacts to care about.
+    CardRules::new_artifact(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this Equipment enters, create a 1/1 white Soldier creature token, then \
+                 attach this Equipment to it.",
+                EffectDef::Sequence(&[
+                    EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1),
+                    // The attach names the token this resolution just made
+                    // rather than any Soldier, so an existing one is never
+                    // picked up instead.
+                    EffectDef::AttachToSource {
+                        object: EffectRecipientDef::objects(ObjectSetDef::TokensCreatedBy(
+                            ObjectRefDef::Source,
+                        )),
+                    },
+                ]),
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{1}"))],
+                "Equip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)",
+            ),
+        ]),
 );
 
 // M20 34 — Raise the Alarm

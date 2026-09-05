@@ -1652,13 +1652,61 @@ pub(in crate::card::sets) static TEMPERAMENTAL_OOZEWAGG: CardRecord = CardRecord
 );
 
 // MH3 179 — Conduit Goblin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDUIT_GOBLIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c9ad04d-c4d4-4d06-93bb-a881be733717"),
     "Conduit Goblin",
-    crate::card::CardArt::new("5c9ad04d-c4d4-4d06-93bb-a881be733717", "Bruno Biazotto"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5c9ad04d-c4d4-4d06-93bb-a881be733717", "Bruno Biazotto"),
+    CardSet::ModernHorizons3,
+    // Two energy in, one energy a turn out. The haste is the half that
+    // matters: it turns whatever was cast this turn into an attacker, so the
+    // Goblin keeps paying a deck that never stops adding bodies.
+    CardRules::new_creature(mana_cost!("{R}{W}"), &["Goblin", "Warrior"], 2, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, you get {E}{E} (two energy counters).",
+            EffectDef::AddPlayerCounters {
+                recipient: EffectRecipientDef::Controller,
+                kind: CounterKind::named("energy"),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+        AbilityDef::triggered_with_targets(
+            "At the beginning of combat on your turn, you may pay {E}. If you do, another target \
+             creature you control gets +1/+0 and gains haste until end of turn.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::BeginningOfCombat,
+                player: PlayerRelation::You,
+            },
+            // "Another" excludes the Goblin itself, so a board holding nothing
+            // else leaves the trigger with no legal target and it is removed
+            // before anyone is asked to spend energy.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                ]),
+            )],
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::One(PlayerRefDef::EffectController),
+                    cost: EffectPaymentCostDef::Energy(1),
+                },
+                &const {
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::Composite(&[
+                            AppliedEffectDef::modify_power_toughness(
+                                ValueDef::Constant(1),
+                                ValueDef::Constant(0),
+                            ),
+                            AppliedEffectDef::add_ability(&const { abilities::haste() }),
+                        ]),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    }
+                },
+            )),
+        ),
+    ]),
 );
 
 // MH3 184 — Expanding Ooze

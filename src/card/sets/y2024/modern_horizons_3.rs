@@ -1043,13 +1043,67 @@ pub(in crate::card::sets) static ELDRAZI_REPURPOSER: CardRecord = CardRecord::ne
 );
 
 // MH3 151 — Evolution Witness
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static EVOLUTION_WITNESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b4ecfa6-5e38-4c0a-91e2-f93cb492f374"),
     "Evolution Witness",
-    crate::card::CardArt::new("4d89283e-9783-4006-9294-4ae0473d2ce6", "Nereida"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4d89283e-9783-4006-9294-4ae0473d2ce6", "Nereida"),
+    CardSet::ModernHorizons3,
+    // Adapt only ever fires once, so anything else that puts counters on it
+    // is what turns this into a repeatable regrowth.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Shaman", "Mutant"], 2, 1)
+        .with_abilities(&[
+            AbilityDef::activated(
+                "{1}{G}: Adapt 2. (If this creature has no +1/+1 counters on it, put two +1/+1 \
+                 counters on it.)",
+                &[AbilityCostDef::Mana(mana_cost!("{1}{G}"))],
+                // Adapt is a conditional rather than a cost: the ability
+                // always resolves, and finding a counter already there is
+                // what makes it do nothing.
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCounters {
+                        kind: CounterKind::PlusOnePlusOne,
+                        comparison: ComparisonDef::LessOrEqual,
+                        amount: 0,
+                    },
+                    then: &EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(2),
+                    },
+                },
+            ),
+            AbilityDef::triggered_with_targets(
+                "Whenever one or more +1/+1 counters are put on this creature, return target \
+                 permanent card from your graveyard to your hand.",
+                // "One or more" is one trigger for the whole placement, not
+                // one per counter, so adapt 2 buys back a single card.
+                TriggerEventDef::CountersPlaced {
+                    object: ObjectPredicateDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                },
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        // "Permanent card" is spelled out: there is no
+                        // permanent card type, only the five that make one.
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Enchantment),
+                            ObjectPredicateDef::HasType(CardType::Land),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 static FANATIC_TAP: [AbilityCostDef; 1] = [AbilityCostDef::TapSource];

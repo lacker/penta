@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AddManaEffectDef, AppliedEffectDef, BattlefieldEntryScalarChoiceDef, CardArt,
     CardRules, CardSet, EffectDef, EffectRecipientDef, ManaTypeDef, ObjectPredicateDef,
-    ReplacementChoiceDef, ReplacementEffectDef, TriggerEventDef, abilities,
+    ReplacementChoiceDef, ReplacementEffectDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::mana_cost;
 
@@ -19,16 +19,37 @@ pub(in crate::card::sets) static BRAMBLEBACK_BRUTE: CardRecord = CardRecord::new
 );
 
 // ECL 181 — Lys Alana Informant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LYS_ALANA_INFORMANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a79649c4-559e-4306-a102-5fd8750629c7"),
     "Lys Alana Informant",
-    crate::card::CardArt::new(
+    CardArt::new(
         "a79649c4-559e-4306-a102-5fd8750629c7",
         "Sidharth Chaturvedi",
     ),
-    crate::card::CardSet::LorwynEclipsed,
-    crate::card::CardRules::unsupported(),
+    CardSet::LorwynEclipsed,
+    // A 3/1 that surveils coming and going, so trading it away is still a
+    // profitable turn for a deck that wants its graveyard filled.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Elf", "Scout"], 3, 1).with_ability(
+        AbilityDef::triggered(
+            "When this creature enters or dies, surveil 1. (Look at the top card of your \
+             library. You may put it into your graveyard.)",
+            // Entering and dying are two ways for one printed ability to
+            // fire, so what it does is written once.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+            ]),
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ),
 );
 
 // ECL 194 — Shimmerwilds Growth

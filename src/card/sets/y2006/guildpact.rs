@@ -5,8 +5,9 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PayOrDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -86,16 +87,41 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
 );
 
 // GPT 56 — Plagued Rusalka
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLAGUED_RUSALKA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd84bbb3-8b99-4e6d-b514-b094ec93eaa0"),
     "Plagued Rusalka",
-    crate::card::CardArt::new(
+    CardArt::new(
         "cd84bbb3-8b99-4e6d-b514-b094ec93eaa0",
         "Alex Horley-Orlandelli",
     ),
-    crate::card::CardSet::Guildpact,
-    crate::card::CardRules::unsupported(),
+    CardSet::Guildpact,
+    // A sacrifice outlet that also finishes off a one-toughness creature,
+    // which is what makes feeding it a real line rather than a last resort.
+    CardRules::new_creature(mana_cost!("{B}"), &["Spirit"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{B}, Sacrifice a creature: Target creature gets -1/-1 until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{B}")),
+                // This creature is a legal sacrifice for its own ability, so
+                // the last body on the board can still shrink something.
+                AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    controller: PlayerRelation::You,
+                },
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-1),
+                    ValueDef::Constant(-1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ),
 );
 
 // GPT 64 — Bloodscale Prowler

@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CharacteristicOperationDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectRecipientDef,
-    ExilePlayDurationDef, ManaColor, ObjectPredicateDef, PlayerRelation,
-    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, BattlefieldArrivalDef, BattlefieldEntryModificationDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, CharacteristicOperationDef, CounterKind, CreatureTypeSetDef,
+    EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef,
+    TokenCountersDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -262,13 +263,61 @@ pub(in crate::card::sets) static KELLAN_PLANAR_TRAILBLAZER: CardRecord = CardRec
 );
 
 // FDN 528 — Undying Malice
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8eb38041-043a-4b18-9d9a-f1283684e8f1"),
     "Undying Malice",
-    crate::card::CardArt::new("97b3cf11-e352-4ee1-8c03-13898f576ef9", "Igor Kieryluk"),
-    crate::card::CardSet::MagicFoundations,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("97b3cf11-e352-4ee1-8c03-13898f576ef9", "Igor Kieryluk"),
+    CardSet::MagicFoundations,
+    // One mana that answers removal, wins a combat, and re-triggers an
+    // arrival, all by making the creature's death a profit.
+    CardRules::new_instant(mana_cost!("{B}")).with_ability(AbilityDef::spell_with_targets(
+        "Until end of turn, target creature gains \"When this creature dies, return it to the \
+         battlefield tapped under its owner's control with a +1/+1 counter on it.\"",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Apply {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            // Granted to the creature rather than kept on this spell, which
+            // is what the printed quotation marks mean: the ability leaves
+            // with the creature and comes back with the new object.
+            effect: AppliedEffectDef::add_ability(
+                &const {
+                    AbilityDef::triggered(
+                        "When this creature dies, return it to the battlefield tapped under its \
+                     owner's control with a +1/+1 counter on it.",
+                        TriggerEventDef::zone_changed(
+                            ObjectPredicateDef::Source,
+                            Some(ZoneKind::Battlefield),
+                            Some(ZoneKind::Graveyard),
+                        ),
+                        // Tapped and countered on arrival rather than afterwards:
+                        // the permanent is never briefly untapped.
+                        EffectDef::WithBattlefieldArrival {
+                            effect: &const {
+                                EffectDef::MoveToZone {
+                                    object: EffectRecipientDef::Source,
+                                    zone: ZoneKind::Battlefield,
+                                    placement: ZonePlacement::Top,
+                                }
+                            },
+                            arrival: BattlefieldArrivalDef {
+                                modifications: &[BattlefieldEntryModificationDef::Tapped],
+                                counters: Some(TokenCountersDef {
+                                    kind: CounterKind::PlusOnePlusOne,
+                                    amount: ValueDef::Constant(1),
+                                }),
+                                // "Under its owner's control", which the default
+                                // already is.
+                                ..BattlefieldArrivalDef::DEFAULT
+                            },
+                        },
+                    )
+                },
+            ),
+            duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+        },
+    )),
 );
 
 // FDN 596 — Shipwreck Dowser

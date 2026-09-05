@@ -395,16 +395,52 @@ pub(in crate::card::sets) static LOTUS_COBRA: CardRecord = CardRecord::new(
 );
 
 // ZEN 193 — Vines of Vastwood
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static VINES_OF_VASTWOOD: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e8bd8b10-de86-4bb6-b49f-6ccb5297c81c"),
     "Vines of Vastwood",
-    crate::card::CardArt::new(
+    CardArt::new(
         "e8bd8b10-de86-4bb6-b49f-6ccb5297c81c",
         "Christopher Moeller",
     ),
-    crate::card::CardSet::Zendikar,
-    crate::card::CardRules::unsupported(),
+    CardSet::Zendikar,
+    // One mana answers a removal spell and two mana ends a race, which is
+    // why the same card is live at both ends of the game.
+    CardRules::new_instant(mana_cost!("{G}")).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{G}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {G} (You may pay an additional {G} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::spell_with_targets(
+            "Target creature can't be the target of spells or abilities your opponents control \
+             this turn. If this spell was kicked, that creature gets +4/+4 until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                // "Can't be the target of spells or abilities your opponents
+                // control" is hexproof, so the shielded half is granted
+                // whether or not the kicker was paid.
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::IfCondition {
+                    condition: &TriggerConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+                    then: &EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                },
+            ]),
+        ),
+    ]),
 );
 
 // ZEN 197 — Blazing Torch

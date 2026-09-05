@@ -178,14 +178,113 @@ pub(in crate::card::sets) static FORTRESS_KIN_GUARD: CardRecord = CardRecord::ne
 );
 
 // TDM 21 — Riling Dawnbreaker
-// Audit: unsupported — Card rules have not been implemented.
+const fn riling_dawnbreaker_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{4}{W}"), &const { ["Dragon"] }, 3, 4).with_abilities(
+        &const {
+            [
+                abilities::flying(),
+                abilities::vigilance(),
+                AbilityDef::triggered_with_targets(
+                    "At the beginning of combat on your turn, another target creature you \
+                     control gets +1/+0 until end of turn.",
+                    TriggerEventDef::StepBegins {
+                        step: TurnStepDef::BeginningOfCombat,
+                        player: PlayerRelation::You,
+                    },
+                    // "Another": the Dragon is already the biggest attacker,
+                    // so the bonus always goes to something beside it.
+                    &const {
+                        [AbilityTargetDef::exactly_one(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::All(
+                                    &const {
+                                        [
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                        ]
+                                    },
+                                ),
+                                zones: &const { [ZoneKind::Battlefield] },
+                                controller: Some(PlayerRelation::You),
+                                owner: None,
+                            },
+                        )]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(0),
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ]
+        },
+    )
+}
+
+fn riling_dawnbreaker_composition() -> CardComposition {
+    let dragon = riling_dawnbreaker_rules();
+    let roar = const {
+        CardRules::new_sorcery(mana_cost!("{1}{W}"))
+            .with_subtypes(&const { ["Omen"] })
+            .with_ability(
+                AbilityDef::spell(
+                    "Create a 2/2 white Soldier creature token.",
+                    EffectDef::create_creature_token(
+                        &const { ["Soldier"] },
+                        &const { [ManaColor::White] },
+                        2,
+                        2,
+                    ),
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Riling Dawnbreaker", dragon),
+            CardPart::new(CardPartId(1), "Signaling Roar", roar),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Omen,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Riling Dawnbreaker",
+                SpellForm::Part(CardPartId::PRIMARY),
+                dragon
+                    .mana_cost()
+                    .expect("the Dragon has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Signaling Roar",
+                SpellForm::Part(CardPartId(1)),
+                roar.mana_cost()
+                    .expect("Signaling Roar has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static RILING_DAWNBREAKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("312f7072-3bf8-449f-bfb7-93727ef26c66"),
     "Riling Dawnbreaker",
-    crate::card::CardArt::new("312f7072-3bf8-449f-bfb7-93727ef26c66", "Tuan Duong Chu"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("312f7072-3bf8-449f-bfb7-93727ef26c66", "Tuan Duong Chu"),
+    CardSet::TarkirDragonstorm,
+    // A body early and a bigger one later out of one card, and the Dragon
+    // pushes whatever the Omen left behind.
+    riling_dawnbreaker_rules(),
+)
+.with_composition(riling_dawnbreaker_composition);
 
 // TDM 23 — Salt Road Packbeast
 pub(in crate::card::sets) static SALT_ROAD_PACKBEAST: CardRecord = CardRecord::new(

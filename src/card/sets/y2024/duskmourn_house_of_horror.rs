@@ -8,15 +8,16 @@ use crate::card::{
     AddManaEffectDef, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
     BattlefieldEntryModificationDef, BattlefieldEntryScalarChoiceDef, CardArt, CardRules, CardSet,
     CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef, ChoiceVisibilityDef,
-    ChooseDef, ComparisonDef, CopyStackObjectDef, CostModificationDef, CounterKind,
+    ChooseDef, ComparisonDef, CopyStackObjectDef, CostModificationDef, CounterKind, CreatureStats,
     CreatureTypeSetDef, DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef,
     DamageSourceMatcherDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     EmblemCharacteristics, GraveyardPlayPermissionDef, ManaColor, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementConditionDef,
     ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, SetOperationDef,
-    SpellAdditionalCostDef, SumValueDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef,
-    TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    SpellAdditionalCostDef, SumValueDef, TokenCharacteristics, TokenCountersDef,
+    TriggerConditionDef, TriggerEventDef, TurnPhaseDef, TurnStepDef, ValueComparisonDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -726,13 +727,42 @@ pub(in crate::card::sets) static GHOST_VACUUM: CardRecord = CardRecord::new_with
 );
 
 // DSK 249 — Glimmerlight
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GLIMMERLIGHT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1071691c-5c65-42d4-ac96-d302185ca678"),
     "Glimmerlight",
-    crate::card::CardArt::new("1071691c-5c65-42d4-ac96-d302185ca678", "Wero Gallo"),
-    crate::card::CardSet::DuskmournHouseOfHorror,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1071691c-5c65-42d4-ac96-d302185ca678", "Wero Gallo"),
+    CardSet::DuskmournHouseOfHorror,
+    // The Equipment brings its own creature to hold it, so two mana buys a
+    // 2/2 across two bodies rather than a dead artifact.
+    CardRules::new_artifact(mana_cost!("{2}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this Equipment enters, create a 1/1 white Glimmer enchantment creature token.",
+                // An enchantment creature, so it needs the general token
+                // constructor rather than the creature-only shorthand.
+                EffectDef::create_token(TokenCharacteristics::new(
+                    CardTypeSet::single(CardType::Enchantment).with(CardType::Creature),
+                    &["Glimmer"],
+                    &[ManaColor::White],
+                    Some(CreatureStats {
+                        power: 1,
+                        toughness: 1,
+                    }),
+                )),
+            ),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // DSK 256 — Blazemire Verge

@@ -1774,13 +1774,31 @@ pub(in crate::card::sets) static SHIFTING_WOODLAND: CardRecord = CardRecord::new
 );
 
 // MH3 231 — Tranquil Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TRANQUIL_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("113f48b9-a972-4e2c-af95-05ab078e01f2"),
     "Tranquil Landscape",
-    crate::card::CardArt::new("113f48b9-a972-4e2c-af95-05ab078e01f2", "Randy Gallegos"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("113f48b9-a972-4e2c-af95-05ab078e01f2", "Randy Gallegos"),
+    CardSet::ModernHorizons3,
+    // The green-white-blue Landscape; only the three types and the cycling
+    // cost below are its own.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Forest, Plains, or Island card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Forest,
+                    BasicLandType::Plains,
+                    BasicLandType::Island,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {G}{W}{U} ({G}{W}{U}, Discard this card: Draw a card.)",
+            mana_cost!("{G}{W}{U}"),
+        ),
+    ]),
 );
 
 // MH3 232 — Twisted Landscape

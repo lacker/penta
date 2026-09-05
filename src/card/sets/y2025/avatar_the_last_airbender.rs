@@ -17,28 +17,25 @@ pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new
     CardRules::unsupported(),
 );
 
-// TLA 267 — Boiling Rock Prison
-pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("1c2e2220-54d1-4180-93a0-964e3b0ba8b8"),
-    "Boiling Rock Prison",
-    CardArt::new("1c2e2220-54d1-4180-93a0-964e3b0ba8b8", "Matteo Bassini"),
-    CardSet::AvatarTheLastAirbender,
-    // Entering tapped is the price of the two colours; cashing it in later
-    // is what keeps it from being a dead draw once the mana is there.
-    CardRules::new_land(&[]).with_abilities(&[
-        AbilityDef::as_enters(
+/// The TLA cycle of tapped duals that cash themselves in: three lands that
+/// differ only in which two colours they make, so the clauses are written
+/// once here. `colors` is a promoted literal at each call site, since a
+/// slice assembled inside this function could not be given a `'static`
+/// lifetime.
+const fn cashable_dual_land(mana_text: &'static str, colors: &'static [ManaColor]) -> CardRules {
+    CardRules::new_land(&[])
+        .with_ability(AbilityDef::as_enters(
             "This land enters tapped.",
             ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
-        ),
-        AbilityDef::activated_mana(
-            "{T}: Add {B} or {R}.",
+        ))
+        // Added one at a time and in printed order: an array holding the
+        // parameterized mana ability could not be given a 'static lifetime.
+        .with_ability(AbilityDef::activated_mana(
+            mana_text,
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::Black,
-                ManaColor::Red,
-            ])),
-        ),
-        AbilityDef::activated(
+            EffectDef::AddMana(AddManaEffectDef::choice(colors)),
+        ))
+        .with_ability(AbilityDef::activated(
             "{4}, {T}, Sacrifice this land: Draw a card.",
             &[
                 AbilityCostDef::Mana(mana_cost!("{4}")),
@@ -49,18 +46,30 @@ pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::n
                 recipient: EffectRecipientDef::Controller,
                 amount: ValueDef::Constant(1),
             },
-        ),
-    ]),
+        ))
+}
+
+// TLA 267 — Boiling Rock Prison
+pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("1c2e2220-54d1-4180-93a0-964e3b0ba8b8"),
+    "Boiling Rock Prison",
+    CardArt::new("1c2e2220-54d1-4180-93a0-964e3b0ba8b8", "Matteo Bassini"),
+    CardSet::AvatarTheLastAirbender,
+    // Entering tapped is the price of the two colours; cashing it in later
+    // is what keeps it from being a dead draw once the mana is there.
+    cashable_dual_land("{T}: Add {B} or {R}.", &[ManaColor::Black, ManaColor::Red]),
 );
 
 // TLA 271 — Kyoshi Village
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KYOSHI_VILLAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8d5f3008-2af8-4e81-8847-1c91f524e747"),
     "Kyoshi Village",
-    crate::card::CardArt::new("8d5f3008-2af8-4e81-8847-1c91f524e747", "Luc Courtois"),
-    crate::card::CardSet::AvatarTheLastAirbender,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8d5f3008-2af8-4e81-8847-1c91f524e747", "Luc Courtois"),
+    CardSet::AvatarTheLastAirbender,
+    cashable_dual_land(
+        "{T}: Add {G} or {W}.",
+        &[ManaColor::Green, ManaColor::White],
+    ),
 );
 
 // TLA 279 — Serpent's Pass

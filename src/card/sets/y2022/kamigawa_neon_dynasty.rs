@@ -271,13 +271,42 @@ pub(in crate::card::sets) static THE_WANDERING_EMPEROR: CardRecord = CardRecord:
 );
 
 // NEO 63 — Mirrorshell Crab
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0394c8df-2e8a-4477-93b7-569934d7b936"),
     "Mirrorshell Crab",
-    crate::card::CardArt::new("0394c8df-2e8a-4477-93b7-569934d7b936", "Cristi Balanescu"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0394c8df-2e8a-4477-93b7-569934d7b936", "Cristi Balanescu"),
+    CardSet::KamigawaNeonDynasty,
+    // Seven mana is the price of the body nobody pays. The card is really a
+    // three-mana soft counter that stops being dead in the games that go long
+    // enough to cast it.
+    CardRules::new_artifact_creature(mana_cost!("{5}{U}{U}"), &["Crab"], 5, 7).with_abilities(&[
+        abilities::ward(
+            3,
+            "Ward {3} (Whenever this creature becomes the target of a spell or ability an \
+             opponent controls, counter it unless that player pays {3}.)",
+        ),
+        AbilityDef::activated_with_cost_list_and_targets(
+            "Channel — {2}{U}, Discard this card: Counter target spell or ability unless its \
+             controller pays {3}.",
+            AbilityCostList::two(
+                AbilityCostDef::Mana(mana_cost!("{2}{U}")),
+                AbilityCostDef::DiscardSource,
+            ),
+            // "Spell or ability" is everything on the stack, so the predicate
+            // names the zone and nothing else: a triggered ability is as legal
+            // a target as a spell, and the Crab's own controller is too.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Any,
+                    zones: &[ZoneKind::Stack],
+                    controller: None,
+                    owner: None,
+                },
+            )],
+            abilities::counter_target_unless_paid(ValueDef::Constant(3)),
+        )
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // NEO 67 — Moon-Circuit Hacker

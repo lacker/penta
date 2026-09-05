@@ -5,10 +5,10 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ColorSet, ComparisonDef, CostQuantityDef, CounterKind, CounterKindDef,
-    CounterOperationDef, EffectChoiceDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    PlayerRelation, PregameConditionDef, PrintedManaCost, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef, TriggerEventDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    CounterOperationDef, DiscardSelectionDef, EffectChoiceDef, EffectDef, EffectRecipientDef,
+    ObjectPredicateDef, PlayerRelation, PregameConditionDef, PrintedManaCost,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TokenCountersDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -207,13 +207,35 @@ pub(in crate::card::sets) static DEEP_SEA_KRAKEN: CardRecord = CardRecord::new(
 );
 
 // TSP 66 — Looter il-Kor
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LOOTER_IL_KOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("368ee06f-9021-4b65-9f53-9c326bf3a27f"),
     "Looter il-Kor",
-    crate::card::CardArt::new("368ee06f-9021-4b65-9f53-9c326bf3a27f", "Mike Dringenberg"),
-    crate::card::CardSet::TimeSpiral,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("368ee06f-9021-4b65-9f53-9c326bf3a27f", "Mike Dringenberg"),
+    CardSet::TimeSpiral,
+    // Shadow makes the trigger unconditional in practice, which is why a
+    // 1/1 that loots every turn is worth two mana.
+    CardRules::new_creature(mana_cost!("{1}{U}"), &["Kor", "Rogue"], 1, 1).with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::triggered(
+            "Whenever this creature deals damage to an opponent, draw a card, then discard a \
+             card.",
+            // Any damage rather than combat damage, so a pump that pings
+            // still loots.
+            TriggerEventDef::damage_to_player(ObjectPredicateDef::Source, PlayerRelation::Opponent),
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Discard {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                    selection: DiscardSelectionDef::RecipientChooses,
+                    then: None,
+                },
+            ]),
+        ),
+    ]),
 );
 
 // TSP 104 — Dread Return

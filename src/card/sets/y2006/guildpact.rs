@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PayOrDef,
-    PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
+    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ManaCost,
+    ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -86,6 +86,22 @@ pub(in crate::card::sets) static LEYLINE_OF_THE_VOID: CardRecord = CardRecord::n
     ]),
 );
 
+/// The Rusalka cycle's cost: one mana of the creature's own colour plus a
+/// creature. Each Rusalka is itself a legal sacrifice for its own ability, so
+/// the last body on the board can still pay.
+///
+/// A cost list rather than a slice, because the mana half is a parameter and
+/// a slice holding it could not be given a `'static` lifetime.
+const fn rusalka_sacrifice(mana: ManaCost) -> AbilityCostList {
+    AbilityCostList::two(
+        AbilityCostDef::Mana(mana),
+        AbilityCostDef::SacrificePermanent {
+            object: ObjectPredicateDef::HasType(CardType::Creature),
+            controller: PlayerRelation::You,
+        },
+    )
+}
+
 // GPT 56 — Plagued Rusalka
 pub(in crate::card::sets) static PLAGUED_RUSALKA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cd84bbb3-8b99-4e6d-b514-b094ec93eaa0"),
@@ -98,17 +114,9 @@ pub(in crate::card::sets) static PLAGUED_RUSALKA: CardRecord = CardRecord::new(
     // A sacrifice outlet that also finishes off a one-toughness creature,
     // which is what makes feeding it a real line rather than a last resort.
     CardRules::new_creature(mana_cost!("{B}"), &["Spirit"], 1, 1).with_ability(
-        AbilityDef::activated_with_targets(
+        AbilityDef::activated_with_cost_list_and_targets(
             "{B}, Sacrifice a creature: Target creature gets -1/-1 until end of turn.",
-            &[
-                AbilityCostDef::Mana(mana_cost!("{B}")),
-                // This creature is a legal sacrifice for its own ability, so
-                // the last body on the board can still shrink something.
-                AbilityCostDef::SacrificePermanent {
-                    object: ObjectPredicateDef::HasType(CardType::Creature),
-                    controller: PlayerRelation::You,
-                },
-            ],
+            rusalka_sacrifice(mana_cost!("{B}")),
             &[AbilityTargetDef::exactly_one_permanent(
                 ObjectPredicateDef::HasType(CardType::Creature),
             )],
@@ -165,13 +173,27 @@ pub(in crate::card::sets) static LEYLINE_OF_LIGHTNING: CardRecord = CardRecord::
 );
 
 // GPT 74 — Scorched Rusalka
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCORCHED_RUSALKA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9f955164-ddb8-484c-a063-967621abce87"),
     "Scorched Rusalka",
-    crate::card::CardArt::new("9f955164-ddb8-484c-a063-967621abce87", "Luca Zontini"),
-    crate::card::CardSet::Guildpact,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9f955164-ddb8-484c-a063-967621abce87", "Luca Zontini"),
+    CardSet::Guildpact,
+    // A sacrifice outlet that turns every dying creature into reach, which
+    // is what an aggressive deck wants from a one-drop.
+    CardRules::new_creature(mana_cost!("{R}"), &["Spirit"], 1, 1).with_ability(
+        AbilityDef::activated_with_cost_list_and_targets(
+            "{R}, Sacrifice a creature: This creature deals 1 damage to target player or \
+             planeswalker.",
+            rusalka_sacrifice(mana_cost!("{R}")),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // GPT 77 — Skarrgan Firebird

@@ -1033,13 +1033,32 @@ pub(in crate::card::sets) static COLOSSAL_DREADMASK: CardRecord = CardRecord::ne
 );
 
 // MH3 150 — Eldrazi Repurposer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ELDRAZI_REPURPOSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("37f79ba7-7b65-4387-b498-f770816ce8dd"),
     "Eldrazi Repurposer",
-    crate::card::CardArt::new("37f79ba7-7b65-4387-b498-f770816ce8dd", "Daren Bader"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("37f79ba7-7b65-4387-b498-f770816ce8dd", "Daren Bader"),
+    CardSet::ModernHorizons3,
+    // A Spawn on the way in and another on the way out, so trading it away
+    // still leaves the mana behind.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Eldrazi", "Drone"], 3, 3).with_abilities(&[
+        abilities::devoid(),
+        AbilityDef::triggered(
+            "When you cast this spell and when this creature dies, create a 0/1 colorless \
+             Eldrazi Spawn creature token with \"Sacrifice this token: Add {C}.\"",
+            // One printed ability with two ways in, so what it does is
+            // written once. The cast half fires while this is still on the
+            // stack; the death half is a separate later trigger.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+            ]),
+            ELDRAZI_SPAWN_TOKEN,
+        ),
+    ]),
 );
 
 // MH3 151 — Evolution Witness

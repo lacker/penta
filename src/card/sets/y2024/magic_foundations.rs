@@ -3,10 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CharacteristicOperationDef, CreatureTypeSetDef,
-    EffectDef, EffectRecipientDef, ExilePlayDurationDef, ObjectPredicateDef,
-    PowerToughnessOperationDef, ResolvedEffectDurationDef, SetOperationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
+    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef,
+    SetOperationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -86,13 +86,38 @@ pub(in crate::card::sets) static FANATICAL_FIREBRAND: CardRecord = CardRecord::n
 );
 
 // FDN 200 — Goblin Surprise
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_SURPRISE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("527dd5d4-5f72-40bb-8a9d-1f5ac3f81e2e"),
     "Goblin Surprise",
-    crate::card::CardArt::new("527dd5d4-5f72-40bb-8a9d-1f5ac3f81e2e", "Kevin Sidharta"),
-    crate::card::CardSet::MagicFoundations,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("527dd5d4-5f72-40bb-8a9d-1f5ac3f81e2e", "Kevin Sidharta"),
+    CardSet::MagicFoundations,
+    // Held up as a combat trick either way: the tokens are the mode you
+    // take when the attack did not happen.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Creatures you control get +2/+0 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell(
+                "Create two 1/1 red Goblin creature tokens.",
+                EffectDef::create_creature_token(&["Goblin"], &[ManaColor::Red], 1, 1)
+                    .with_amount(2),
+            ),
+        ],
+    )),
 );
 
 // FDN 330 — Kellan, Planar Trailblazer

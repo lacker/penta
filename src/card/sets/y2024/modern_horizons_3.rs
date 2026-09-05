@@ -184,13 +184,36 @@ pub(in crate::card::sets) static DOG_UMBRA: CardRecord = CardRecord::new(
 );
 
 // MH3 34 — Mandibular Kite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MANDIBULAR_KITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6b922f71-18e6-4a74-b792-d477d4a1deca"),
     "Mandibular Kite",
-    crate::card::CardArt::new("6b922f71-18e6-4a74-b792-d477d4a1deca", "Bruno Biazotto"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6b922f71-18e6-4a74-b792-d477d4a1deca", "Bruno Biazotto"),
+    CardSet::ModernHorizons3,
+    // One mana for a 1/1 flier that is also an Equipment. The equip cost is
+    // deliberately steep: moving the wings onto something that matters is the
+    // expensive half, not getting them onto the board.
+    CardRules::new_artifact(mana_cost!("{W}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::living_weapon(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/+1 and has flying.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(1),
+                            ValueDef::Constant(1),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::flying()),
+                    ]),
+                },
+            ),
+            abilities::equip(
+                &[AbilityCostDef::Mana(mana_cost!("{3}{W}"))],
+                "Equip {3}{W}",
+            ),
+        ]),
 );
 
 // MH3 38 — Ocelot Pride

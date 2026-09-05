@@ -124,13 +124,30 @@ pub(in crate::card::sets) static SHEOLDRED_S_EDICT: CardRecord = CardRecord::new
 );
 
 // ONE 121 — Barbed Batterfist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("de1d02d1-91dc-47d6-bdbe-87602428abfb"),
     "Barbed Batterfist",
-    crate::card::CardArt::new("de1d02d1-91dc-47d6-bdbe-87602428abfb", "Randy Gallegos"),
-    crate::card::CardSet::PhyrexiaAllWillBeOne,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("de1d02d1-91dc-47d6-bdbe-87602428abfb", "Randy Gallegos"),
+    CardSet::PhyrexiaAllWillBeOne,
+    // A 3/1 for two that leaves the Equipment behind when it trades. The
+    // toughness penalty is what pays for that: it makes the Rebel worse at
+    // blocking than the 2/2 underneath it.
+    CardRules::new_artifact(mana_cost!("{1}{R}"))
+        .with_subtypes(&["Equipment"])
+        .with_abilities(&[
+            abilities::for_mirrodin(),
+            AbilityDef::static_ability(
+                "Equipped creature gets +1/-1.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(-1),
+                    ),
+                },
+            ),
+            abilities::equip(&[AbilityCostDef::Mana(mana_cost!("{1}"))], "Equip {1}"),
+        ]),
 );
 
 // ONE 133 — Furnace Strider

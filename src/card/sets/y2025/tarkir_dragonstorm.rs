@@ -1,15 +1,17 @@
 //! Tarkir: Dragonstorm cards cataloged for the Vintage Cube pool.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
+use crate::Binding;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
     EffectDef, EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef,
     InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -347,13 +349,72 @@ pub(in crate::card::sets) static TERSA_LIGHTSHATTER: CardRecord = CardRecord::ne
 );
 
 // TDM 134 — Ainok Wayfarer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AINOK_WAYFARER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("57695a9b-8f72-4ccc-a946-5d5037b09b8f"),
     "Ainok Wayfarer",
-    crate::card::CardArt::new("57695a9b-8f72-4ccc-a946-5d5037b09b8f", "Filipe Pagliuso"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("57695a9b-8f72-4ccc-a946-5d5037b09b8f", "Filipe Pagliuso"),
+    CardSet::TarkirDragonstorm,
+    // Never a blank: it finds a land when the draw is short and grows when
+    // it is not, which is what two mana is buying.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Dog", "Scout"], 1, 1).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, mill three cards. You may put a land card from among \
+             them into your hand. If you don't, put a +1/+1 counter on this creature. (To mill \
+             three cards, put the top three cards of your library into your graveyard.)",
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    effect: &EffectDef::Mill {
+                        player: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    binding: Binding!("milled_cards"),
+                },
+                // A minimum of zero is the "you may", and a pile with no land
+                // in it never asks.
+                EffectDef::Choose(ChooseDef {
+                    binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                    unchosen: None,
+                    chooser: PlayerRefDef::EffectController,
+                    // "From among them" is what this mill just put there,
+                    // not what the graveyard already held.
+                    candidates: ObjectSetDef::Matching {
+                        objects: &ObjectSetDef::Binding(Binding!("milled_cards")),
+                        object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::HasType(
+                            CardType::Land,
+                        )),
+                    },
+                    exclude: None,
+                    minimum: 0,
+                    maximum: 1,
+                    visibility: ChoiceVisibilityDef::Public,
+                    then: &EffectDef::Sequence(&[
+                        EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                        // "If you don't" is read off what was taken rather
+                        // than off what was offered: declining and having
+                        // nothing to take both leave the counter.
+                        EffectDef::IfCondition {
+                            condition: &TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                                left: ValueDef::BoundObjectCount(ParentBinding),
+                                comparison: ComparisonDef::LessOrEqual,
+                                right: ValueDef::Constant(0),
+                            }),
+                            then: &EffectDef::AddCounters {
+                                object: EffectRecipientDef::Source,
+                                kind: CounterKind::PlusOnePlusOne,
+                                amount: ValueDef::Constant(1),
+                            },
+                        },
+                    ]),
+                }),
+            ]),
+        ),
+    ),
 );
 
 // TDM 137 — Champion of Dusan

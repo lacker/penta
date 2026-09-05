@@ -7,7 +7,7 @@ use crate::card::sets::y2012::avacyn_restored as catalog_avr;
 use crate::card::sets::y2012::return_to_ravnica as catalog_rtr;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     ArrivalAttachmentDef, BasicLandType, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, PlayerRefDef,
     PlayerRelation, SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
@@ -1459,13 +1459,20 @@ pub(in crate::card::sets) static QUIRION_RANGER: CardRecord = CardRecord::new(
 );
 
 // VIS 118 — River Boa
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RIVER_BOA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2e9d5aaf-b7e8-4676-aec8-7d29a0169a2c"),
     "River Boa",
-    crate::card::CardArt::new("2e9d5aaf-b7e8-4676-aec8-7d29a0169a2c", "Steve White"),
-    crate::card::CardSet::Visions,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2e9d5aaf-b7e8-4676-aec8-7d29a0169a2c", "Steve White"),
+    CardSet::Visions,
+    // Unblockable against blue and hard to kill in combat, which is why a
+    // two-drop bear has been a sideboard card for thirty years.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Snake"], 2, 1).with_abilities(&[
+        abilities::landwalk(BasicLandType::Island),
+        abilities::regenerate_self(
+            "{G}: Regenerate this creature.",
+            &[AbilityCostDef::Mana(mana_cost!("{G}"))],
+        ),
+    ]),
 );
 
 // VIS 119 — Rowen

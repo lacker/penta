@@ -147,13 +147,41 @@ pub(in crate::card::sets) static THROUGH_THE_BREACH: CardRecord = CardRecord::ne
 );
 
 // CHK 239 — Sakura-Tribe Elder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAKURA_TRIBE_ELDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("91c7707a-bae0-4196-bf26-d276f57b7369"),
     "Sakura-Tribe Elder",
-    crate::card::CardArt::new("91c7707a-bae0-4196-bf26-d276f57b7369", "Carl Critchlow"),
-    crate::card::CardSet::ChampionsOfKamigawa,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("91c7707a-bae0-4196-bf26-d276f57b7369", "Carl Critchlow"),
+    CardSet::ChampionsOfKamigawa,
+    // The sacrifice is not part of a tap, which is the whole card: it blocks,
+    // and then it ramps after damage is already on the stack.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Snake", "Shaman"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "Sacrifice this creature: Search your library for a basic land card, put that card \
+             onto the battlefield tapped, then shuffle.",
+            &[AbilityCostDef::SacrificeSource],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                // "Search ... for a basic land card" is a may: an empty
+                // library, or a deck that wants to keep its basics, can find
+                // nothing.
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+    ),
 );
 
 // CHK 268 — Sensei's Divining Top

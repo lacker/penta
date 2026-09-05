@@ -397,13 +397,47 @@ pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
 );
 
 // NEO 211 — Tamiyo's Safekeeping
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TAMIYO_S_SAFEKEEPING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fd4b7ee2-de65-4288-872d-486065a4f226"),
     "Tamiyo's Safekeeping",
-    crate::card::CardArt::new("fd4b7ee2-de65-4288-872d-486065a4f226", "Aurore Folny"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fd4b7ee2-de65-4288-872d-486065a4f226", "Aurore Folny"),
+    CardSet::KamigawaNeonDynasty,
+    // One mana that answers removal and damage alike, and the two life is
+    // what keeps it from being dead when neither is coming.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Target permanent you control gains hexproof and indestructible until end of turn. You \
+         gain 2 life. (A permanent with hexproof and indestructible can't be the target of \
+         spells or abilities your opponents control. Damage and effects that say \"destroy\" \
+         don't destroy it.)",
+        // Any permanent, not just a creature: it protects a Vehicle or an
+        // enchantment the deck cares about just as well.
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::indestructible()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            // The life is unconditional: it still arrives when the target
+            // has already left in response.
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(2),
+            },
+        ]),
+    )),
 );
 
 // NEO 222 — Hinata, Dawn-Crowned

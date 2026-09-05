@@ -7,8 +7,8 @@ use crate::card::{
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, BlockRestrictionDef, CardArt,
     CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
     CardType, CharacteristicOperationDef, CostModificationDef, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellForm,
+    EffectRecipientDef, InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectSetDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellForm,
     SpellResolutionDestinationDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
     TurnStepDef, ValueDef, ZoneKind, abilities,
 };
@@ -49,6 +49,22 @@ pub(in crate::card::sets) static CANDY_GRAPPLE: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+/// The Rat this set's Rat deck keeps printing: a 1/1 body that attacks and
+/// never blocks. A static rather than a const fn, because the ability slice
+/// only gets a `'static` lifetime in a static initializer.
+static DEFENSELESS_RAT_TOKEN: EffectDef =
+    EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1).with_abilities(&[
+        AbilityDef::static_ability(
+            "This token can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
+                    BlockRestrictionDef::CANNOT_BLOCK,
+                )),
+            },
+        ),
+    ]);
+
 // WOE 116 — Voracious Vermin
 pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8059be65-3c73-49bb-a3b6-c346ce2f9fa4"),
@@ -60,17 +76,7 @@ pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
     CardRules::new_creature(mana_cost!("{2}{B}"), &["Rat"], 2, 1).with_abilities(&[
         abilities::enters_trigger(
             "When this creature enters, create a 1/1 black Rat creature token with \"This token can't block.\"",
-            EffectDef::create_creature_token(&["Rat"], &[ManaColor::Black], 1, 1).with_abilities(
-                &[AbilityDef::static_ability(
-                    "This token can't block.",
-                    EffectDef::StaticApply {
-                        recipient: EffectRecipientDef::Source,
-                        effect: AppliedEffectDef::Rule(AppliedRuleDef::BlockRestriction(
-                            BlockRestrictionDef::CANNOT_BLOCK,
-                        )),
-                    },
-                )],
-            ),
+            DEFENSELESS_RAT_TOKEN,
         ),
         AbilityDef::triggered(
             "Whenever another creature you control dies, put a +1/+1 counter on this creature.",
@@ -93,13 +99,51 @@ pub(in crate::card::sets) static VORACIOUS_VERMIN: CardRecord = CardRecord::new(
 );
 
 // WOE 131 — Gnawing Crescendo
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GNAWING_CRESCENDO: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("254fc64a-9734-44a6-8869-ab03512f1a99"),
     "Gnawing Crescendo",
-    crate::card::CardArt::new("254fc64a-9734-44a6-8869-ab03512f1a99", "Alexey Kruglov"),
-    crate::card::CardSet::WildsOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("254fc64a-9734-44a6-8869-ab03512f1a99", "Alexey Kruglov"),
+    CardSet::WildsOfEldraine,
+    // The pump is what wins the combat; the watcher is what stops the
+    // opponent from blocking profitably to answer it.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::spell(
+        "Creatures you control get +2/+0 until end of turn. Whenever a nontoken creature you \
+         control dies this turn, create a 1/1 black Rat creature token with \"This token can't \
+         block.\"",
+        EffectDef::Sequence(&[
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(2),
+                    ValueDef::Constant(0),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            // A watcher installed for the rest of the turn rather than a
+            // one-shot: every nontoken creature that dies makes its own Rat,
+            // and the Rats it makes are excluded from feeding it.
+            EffectDef::InstallTrigger(InstalledTriggerDef::this_turn(&const {
+                AbilityDef::triggered(
+                    "Whenever a nontoken creature you control dies this turn, create a 1/1 black \
+                     Rat creature token with \"This token can't block.\"",
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::Token),
+                        ]),
+                        Some(ZoneKind::Battlefield),
+                        Some(ZoneKind::Graveyard),
+                    ),
+                    DEFENSELESS_RAT_TOKEN,
+                )
+            })),
+        ]),
+    )),
 );
 
 // WOE 142 — Monstrous Rage

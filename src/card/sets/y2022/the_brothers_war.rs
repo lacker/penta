@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    CharacteristicOperationDef, CreatureTypeSetDef, EffectDef, EffectPaymentCostDef,
+    CharacteristicOperationDef, CounterKind, CreatureTypeSetDef, EffectDef, EffectPaymentCostDef,
     EffectPaymentDef, EffectRecipientDef, ManaColor, ManaRestrictionDef, ObjectPredicateDef,
     PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
     SetOperationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -112,13 +112,29 @@ pub(in crate::card::sets) static WEAKSTONE_S_SUBJUGATION: CardRecord = CardRecor
 );
 
 // BRO 98 — Gixian Infiltrator
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GIXIAN_INFILTRATOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c94a3317-7d1f-4f29-8353-180f1ab48d18"),
     "Gixian Infiltrator",
-    crate::card::CardArt::new("c94a3317-7d1f-4f29-8353-180f1ab48d18", "Peter Polach"),
-    crate::card::CardSet::TheBrothersWar,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c94a3317-7d1f-4f29-8353-180f1ab48d18", "Peter Polach"),
+    CardSet::TheBrothersWar,
+    // Any permanent, not just a creature, which is what makes it a payoff
+    // for the artifact deck this set is built around.
+    CardRules::new_creature(mana_cost!("{1}{B}"), &["Phyrexian", "Human"], 2, 1).with_ability(
+        AbilityDef::triggered(
+            "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature.",
+            TriggerEventDef::Sacrificed {
+                // "Another" excludes this creature, so sacrificing it to its
+                // own outlet never grows a body that has already left.
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                player: PlayerRelation::You,
+            },
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
 );
 
 // BRO 164 — Scrapwork Mutt

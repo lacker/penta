@@ -75,7 +75,7 @@ pub(in crate::card::sets) static LEDGER_SHREDDER: CardRecord = CardRecord::new_w
 );
 
 // SNC 66 — Witness Protection
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a layer-1 name-setting characteristic operation. CharacteristicOperationDef covers the abilities, colors, creature types, and base power and toughness this sets, but nothing sets a name, and dropping "named Legitimate Businessperson" would silently change how the legend rule and name matching see the creature.
 pub(in crate::card::sets) static WITNESS_PROTECTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a2be6f2c-8ad0-402d-a7ca-9fe817e83b72"),
     "Witness Protection",

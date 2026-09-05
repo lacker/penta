@@ -3213,7 +3213,7 @@ pub(in crate::card::sets) static WAITING_IN_THE_WEEDS: CardRecord = CardRecord::
 );
 
 // MIR 253 — Wall of Roots
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a cost that puts counters on the source. CostDef can only remove counters from it (RemoveCountersFromSource), and the -0/-1 payment is what rations this to one mana a turn, so no existing cost says it.
 pub(in crate::card::sets) static WALL_OF_ROOTS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aeb151d2-c313-44d2-972e-33487f070c23"),
     "Wall of Roots",

@@ -200,7 +200,7 @@ pub(in crate::card::sets) static ABHORRENT_OCULUS: CardRecord = CardRecord::new_
 );
 
 // DSK 78 — Unable to Scream
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a rule that stops a face-down permanent from being turned face up. The ability removal, added types, and base 0/2 all have operations; the last line has no rule to attach to.
 pub(in crate::card::sets) static UNABLE_TO_SCREAM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7c59e0cd-10a8-4a32-9c0a-a2c6ef1ed9a6"),
     "Unable to Scream",

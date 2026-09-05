@@ -5,10 +5,11 @@ use crate::card::CostQuantityDef;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ChoiceVisibilityDef, ChooseOneOfEachDef, CounterKind, EffectDef, EffectRecipientDef,
-    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
-    RandomizeObjectOrderDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
-    SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ChoiceVisibilityDef, ChooseOneOfEachDef, ComparisonDef, CounterKind, EffectDef,
+    EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, RandomizeObjectOrderDef, ReplacementEffectDef, ResolvedEffectDurationDef,
+    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, TriggerConditionDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -216,13 +217,42 @@ pub(in crate::card::sets) static CANKERBLOOM: CardRecord = CardRecord::new_with_
 );
 
 // ONE 164 — Contagious Vorrac
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTAGIOUS_VORRAC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("18af2c85-e58f-4043-99d3-e90121348aca"),
     "Contagious Vorrac",
-    crate::card::CardArt::new("18af2c85-e58f-4043-99d3-e90121348aca", "Maxime Minard"),
-    crate::card::CardSet::PhyrexiaAllWillBeOne,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("18af2c85-e58f-4043-99d3-e90121348aca", "Maxime Minard"),
+    CardSet::PhyrexiaAllWillBeOne,
+    // Never a blank: a land when the draw is short, and a counter on
+    // whatever the oil deck already has going when it is not.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Phyrexian", "Boar", "Beast"], 3, 3)
+        .with_ability(abilities::enters_trigger(
+            "When this creature enters, look at the top four cards of your library. You may \
+             reveal a land card from among them and put it into your hand. Put the rest on the \
+             bottom of your library in a random order. If you didn't put a card into your hand \
+             this way, proliferate. (Choose any number of permanents and/or players, then give \
+             each another counter of each kind already there.)",
+            EffectDef::Sequence(&[
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                    ValueDef::Constant(4),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    0,
+                    1,
+                ),
+                // "If you didn't put a card into your hand this way" is read
+                // off what the choice above bound, so declining and finding
+                // no land both reach the proliferate.
+                EffectDef::IfCondition {
+                    condition: &const {
+                        TriggerConditionDef::ValueComparison(&ValueComparisonDef {
+                            left: ValueDef::BoundObjectCount(Binding!("top_card_chosen")),
+                            comparison: ComparisonDef::LessOrEqual,
+                            right: ValueDef::Constant(0),
+                        })
+                    },
+                    then: &EffectDef::Proliferate,
+                },
+            ]),
+        )),
 );
 
 // ONE 196 — Atraxa, Grand Unifier

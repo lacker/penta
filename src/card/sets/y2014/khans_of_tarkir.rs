@@ -183,13 +183,31 @@ pub(in crate::card::sets) static UGINS_NEXUS: CardRecord = CardRecord::new_with_
 );
 
 // KTK 242 — Scoured Barrens
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCOURED_BARRENS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0824a960-dd89-45c5-90f0-3ec9eb47d9ce"),
     "Scoured Barrens",
-    crate::card::CardArt::new("0824a960-dd89-45c5-90f0-3ec9eb47d9ce", "Eytan Zana"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0824a960-dd89-45c5-90f0-3ec9eb47d9ce", "Eytan Zana"),
+    CardSet::KhansOfTarkir,
+    // A tapped dual with a life attached: the life is what a limited deck
+    // is paid for the turn it loses.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::enters_trigger(
+            "When this land enters, you gain 1 life.",
+            EffectDef::GainLife {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {W} or {B}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::White,
+                ManaColor::Black,
+            ])),
+        ),
+    ]),
 );
 
 // KTK 246 — Tranquil Cove

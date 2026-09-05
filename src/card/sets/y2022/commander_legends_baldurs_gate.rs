@@ -202,13 +202,46 @@ pub(in crate::card::sets) static GUT_TRUE_SOUL_ZEALOT: CardRecord = CardRecord::
 );
 
 // CLB 263 — You Meet in a Tavern
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOU_MEET_IN_A_TAVERN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("593aa59a-4025-4df8-9f27-188fc7712fde"),
     "You Meet in a Tavern",
-    crate::card::CardArt::new("9fddbd7a-799c-4432-810c-d839c5c354b9", "Zoltan Boros"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9fddbd7a-799c-4432-810c-d839c5c354b9", "Zoltan Boros"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // Refuel or finish, chosen on the turn it is cast, which is what four
+    // mana buys in a deck that is sometimes ahead and sometimes empty.
+    CardRules::new_sorcery(mana_cost!("{2}{G}{G}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Form a Party — Look at the top five cards of your library. You may reveal any \
+                 number of creature cards from among them and put them into your hand. Put the \
+                 rest on the bottom of your library in a random order.",
+                // "Any number" is nought through five, so a whiff takes
+                // nothing and still buries the five.
+                abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                    ValueDef::Constant(5),
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    0,
+                    5,
+                ),
+            ),
+            AbilityDef::spell(
+                "Start a Brawl — Creatures you control get +2/+2 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(2),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // CLB 285 — Minsc & Boo, Timeless Heroes

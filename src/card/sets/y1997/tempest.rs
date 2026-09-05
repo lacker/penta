@@ -15,11 +15,11 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
     CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
-    ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
-    ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
+    ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
+    ReplacementEffectDef, ReplacementEventDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2082,13 +2082,32 @@ pub(in crate::card::sets) static RENEGADE_WARLORD: CardRecord = CardRecord::new(
 );
 
 // TMP 198 — Rolling Thunder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ROLLING_THUNDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0bb07402-d526-4938-89a3-9174d5b5a4de"),
     "Rolling Thunder",
-    crate::card::CardArt::new("0bb07402-d526-4938-89a3-9174d5b5a4de", "Richard Thomas"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0bb07402-d526-4938-89a3-9174d5b5a4de", "Richard Thomas"),
+    CardSet::Tempest,
+    // The division is the card: X spread across a board is a sweeper, and
+    // all of it at one face is the last few points of a race.
+    CardRules::new_sorcery(mana_cost!("{X}{R}{R}")).with_ability(AbilityDef::spell_with_targets(
+        "Rolling Thunder deals X damage divided as you choose among any number of targets.",
+        &[AbilityTargetDef {
+            predicate: AbilityTargetPredicate::AnyTarget,
+            minimum: 1,
+            // Each target has to be dealt at least one, so X caps how many
+            // there can be as well as how much they share.
+            maximum: AbilityTargetDef::UNLIMITED,
+            exact_count: None,
+            divided_total: Some(DividedTotal::ChosenX),
+            another: false,
+            excludes_source: false,
+            chooser: TargetChooserDef::Controller,
+        }],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::DividedAmongTargets,
+        },
+    )),
 );
 
 // TMP 199 — Sandstone Warrior

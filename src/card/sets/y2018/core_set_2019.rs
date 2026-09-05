@@ -11,13 +11,32 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // M19 29 — Militia Bugler
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MILITIA_BUGLER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("43c5bf25-937c-4e17-9ed4-b4c4579fa9dc"),
     "Militia Bugler",
-    crate::card::CardArt::new("43c5bf25-937c-4e17-9ed4-b4c4579fa9dc", "David Gaillet"),
-    crate::card::CardSet::CoreSet2019,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("43c5bf25-937c-4e17-9ed4-b4c4579fa9dc", "David Gaillet"),
+    CardSet::CoreSet2019,
+    // The power restriction is what keeps this honest: it finds the small
+    // creatures a white deck is already full of, and none of the payoffs.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Soldier"], 2, 3).with_abilities(&[
+        abilities::vigilance(),
+        abilities::enters_trigger(
+            "When this creature enters, look at the top four cards of your library. You may \
+             reveal a creature card with power 2 or less from among them and put it into your \
+             hand. Put the rest on the bottom of your library in a random order.",
+            abilities::look_at_top_cards_reveal_choice_to_hand_rest_random_bottom(
+                ValueDef::Constant(4),
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    // "Power 2 or less" has to be written as a strict
+                    // comparison because power only reads upward here.
+                    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                ]),
+                0,
+                1,
+            ),
+        ),
+    ]),
 );
 
 // M19 125 — Vampire Sovereign

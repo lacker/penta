@@ -109,13 +109,15 @@ pub(in crate::card::sets) static SINISTER_HIDEOUT: CardRecord = CardRecord::new(
 );
 
 // OM1 185 — Suburban Sanctuary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUBURBAN_SANCTUARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("cabf021b-23e9-404d-90c6-eef629e1283e"),
     "Suburban Sanctuary",
-    crate::card::CardArt::new("cabf021b-23e9-404d-90c6-eef629e1283e", "Victor Sales"),
-    crate::card::CardSet::ThroughTheOmenpaths,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("cabf021b-23e9-404d-90c6-eef629e1283e", "Victor Sales"),
+    CardSet::ThroughTheOmenpaths,
+    surveilling_dual_land(
+        "{T}: Add {G} or {W}.",
+        &[ManaColor::Green, ManaColor::White],
+    ),
 );
 
 // OM1 186 — University Campus

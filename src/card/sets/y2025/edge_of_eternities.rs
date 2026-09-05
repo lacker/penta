@@ -304,13 +304,62 @@ pub(in crate::card::sets) static CONSULT_THE_STAR_CHARTS: CardRecord = CardRecor
 );
 
 // EOE 52 — Cryogen Relic
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7bfb33b6-e2bf-498f-8c58-ae21a840cf75"),
     "Cryogen Relic",
-    crate::card::CardArt::new("7bfb33b6-e2bf-498f-8c58-ae21a840cf75", "Eelis Kyttanen"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7bfb33b6-e2bf-498f-8c58-ae21a840cf75", "Eelis Kyttanen"),
+    CardSet::EdgeOfEternities,
+    // Sacrificing it draws the second card, so the tap-down costs nothing
+    // in cards -- only the two mana and the artifact itself.
+    CardRules::new_artifact(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::triggered(
+            "When this artifact enters or leaves the battlefield, draw a card.",
+            // One printed sentence with two ways in, so it is one ability
+            // watching both zone changes.
+            TriggerEventDef::AnyOf(&[
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    None,
+                    Some(ZoneKind::Battlefield),
+                ),
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::Source,
+                    Some(ZoneKind::Battlefield),
+                    None,
+                ),
+            ]),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_with_targets(
+            "{1}{U}, Sacrifice this artifact: Put a stun counter on up to one target tapped creature.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{U}")),
+                AbilityCostDef::SacrificeSource,
+            ],
+            // "Up to one", so it can be sacrificed purely for the leave
+            // trigger's card when nothing is tapped.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Tapped,
+                    ]),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: None,
+                    owner: None,
+                },
+                1,
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::Stun,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // EOE 53 — Cryoshatter

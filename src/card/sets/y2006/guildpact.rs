@@ -6,8 +6,8 @@ use crate::card::{
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     EffectDef, EffectPaymentDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, PayOrDef,
     PlayerRelation, PlayerSetDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -239,13 +239,44 @@ pub(in crate::card::sets) static LEYLINE_OF_LIFEFORCE: CardRecord = CardRecord::
 );
 
 // GPT 125 — Pillory of the Sleepless
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PILLORY_OF_THE_SLEEPLESS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("36964bbd-f068-4a69-8d6b-7e4e97938b98"),
     "Pillory of the Sleepless",
-    crate::card::CardArt::new("36964bbd-f068-4a69-8d6b-7e4e97938b98", "Mark Romanoski"),
-    crate::card::CardSet::Guildpact,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("36964bbd-f068-4a69-8d6b-7e4e97938b98", "Mark Romanoski"),
+    CardSet::Guildpact,
+    // A Pacifism that also closes the game, which is what the second colour
+    // and the extra mana are buying.
+    CardRules::new_enchantment(mana_cost!("{1}{W}{B}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enchanted_creature_pacified(),
+            AbilityDef::static_ability(
+                "Enchanted creature has \"At the beginning of your upkeep, you lose 1 life.\"",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    // Granted to the creature rather than kept on the Aura,
+                    // which is what the printed quotation marks mean: "your"
+                    // upkeep is the creature's controller's, and an effect
+                    // that strips the creature's abilities turns this off.
+                    effect: AppliedEffectDef::add_ability(
+                        &const {
+                            AbilityDef::triggered(
+                                "At the beginning of your upkeep, you lose 1 life.",
+                                TriggerEventDef::StepBegins {
+                                    step: TurnStepDef::Upkeep,
+                                    player: PlayerRelation::You,
+                                },
+                                EffectDef::LoseLife {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            )
+                        },
+                    ),
+                },
+            ),
+        ]),
 );
 
 // GPT 158 — Gruul Turf

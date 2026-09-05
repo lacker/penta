@@ -60,9 +60,9 @@ impl Game {
             // the spell that is currently resolving.
             ObjectRefDef::ResolvingObject => Some(Target::Spell(object.id)),
             ObjectRefDef::AdditionalCostObject(index) => object
-                .signature
-                .as_ref()
-                .and_then(|_| object.chosen_permanents.get(index.index()).copied())
+                .chosen_permanents
+                .get(index.index())
+                .copied()
                 .and_then(|paid| self.object_target_with_lki(paid)),
             ObjectRefDef::SourceOfTargetedStackObject(target) => self
                 .targeted_stack_object_source(target, object, scoped)
@@ -188,7 +188,7 @@ impl Game {
         cost
     }
 
-    fn object_reference_id(
+    pub(super) fn object_reference_id(
         &self,
         reference: ObjectRefDef,
         object: &StackObject,
@@ -223,10 +223,9 @@ impl Game {
                 })
             }
             ObjectRefDef::ResolvingObject => Some(object.id),
-            ObjectRefDef::AdditionalCostObject(index) => object
-                .signature
-                .as_ref()
-                .and_then(|_| object.chosen_permanents.get(index.index()).copied()),
+            ObjectRefDef::AdditionalCostObject(index) => {
+                object.chosen_permanents.get(index.index()).copied()
+            }
             ObjectRefDef::Binding(binding) => {
                 context
                     .single_object(binding)
@@ -418,32 +417,6 @@ impl Game {
         self.players_in_set(players, object, context, scoped)
     }
 
-    fn objects_sharing_name_with_reference(
-        &self,
-        reference: ObjectRefDef,
-        object: &StackObject,
-        context: &EffectResolutionContext,
-        scoped: ScopedEffect,
-    ) -> Vec<Target> {
-        if let ObjectRefDef::Target(target) = reference {
-            return self.objects_sharing_name_with_target(scoped.target_slot(target), object);
-        }
-        let Some(name) = self
-            .object_reference_id(reference, object, context, scoped)
-            .and_then(|referenced| self.object_card_name(referenced))
-        else {
-            return Vec::new();
-        };
-        self.battlefield
-            .iter()
-            .filter(|permanent| {
-                self.permanent_card_name(permanent.card.id)
-                    .is_some_and(|candidate| candidate == name)
-            })
-            .map(|permanent| Target::Permanent(permanent.card.id))
-            .collect()
-    }
-
     /// What an attacking permanent is attacking, as a target: the defending
     /// player, or the planeswalker the attack was declared against (CR
     /// 506.3b). Nothing when it is not attacking, or has already left.
@@ -551,8 +524,9 @@ impl Game {
         predicate: ObjectPredicateDef,
         source: GameObjectId,
     ) -> bool {
-        let (Target::Card(id) | Target::Permanent(id) | Target::Spell(id)) = bound else {
-            return false;
+        let id = match bound {
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => id,
+            Target::Player(_) => return false,
         };
         if let Some(permanent) = self
             .battlefield
@@ -565,6 +539,18 @@ impl Game {
                 source,
                 false,
             );
+        }
+        if let Some(stack_object) = self.stack.iter().find(|candidate| candidate.id == id) {
+            return self
+                .stack_trigger_event_object(stack_object)
+                .is_some_and(|object| {
+                    self.trigger_object_matches(
+                        predicate,
+                        &object,
+                        source,
+                        stack_object.kind == StackObjectKind::Spell,
+                    )
+                });
         }
         if let Some((zone, card)) = self.card_in_nonbattlefield_zone(id) {
             return self.card_object_matches(predicate, card, zone, source);
@@ -584,7 +570,17 @@ impl Game {
             Some(crate::game::RetiredObject::Card(card)) => {
                 self.card_object_matches(predicate, card, ZoneKind::Graveyard, source)
             }
-            Some(crate::game::RetiredObject::Stack(_)) | None => false,
+            Some(crate::game::RetiredObject::Stack(stack_object)) => self
+                .stack_trigger_event_object(stack_object)
+                .is_some_and(|object| {
+                    self.trigger_object_matches(
+                        predicate,
+                        &object,
+                        source,
+                        stack_object.kind == StackObjectKind::Spell,
+                    )
+                }),
+            None => false,
         }
     }
 
@@ -626,6 +622,17 @@ impl Game {
         source: GameObjectId,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::Union(sets) => {
+                let mut union = Vec::new();
+                for objects in sets {
+                    for target in self.source_object_set_targets(*objects, source) {
+                        if !union.contains(&target) {
+                            union.push(target);
+                        }
+                    }
+                }
+                union
+            }
             ObjectSetDef::Query(query) => self
                 .current_or_last_known_controller(source)
                 .or_else(|| self.current_or_last_known_owner(source))
@@ -654,7 +661,27 @@ impl Game {
                     self.bound_object_matches(*target, predicate.predicate(), source)
                 })
                 .collect(),
+            ObjectSetDef::ExceptObject { objects, object } => {
+                let excluded = match object {
+                    ObjectRefDef::Source => Some(source),
+                    ObjectRefDef::AttachedToSource => {
+                        self.current_or_last_known_attached_host(source)
+                    }
+                    _ => None,
+                };
+                self.source_object_set_targets(*objects, source)
+                    .into_iter()
+                    .filter(|target| Self::target_object_id(*target) != excluded)
+                    .collect()
+            }
             _ => Vec::new(),
+        }
+    }
+
+    pub(super) fn target_object_id(target: Target) -> Option<GameObjectId> {
+        match target {
+            Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => Some(id),
+            Target::Player(_) => None,
         }
     }
 
@@ -708,6 +735,17 @@ impl Game {
         scoped: ScopedEffect,
     ) -> Vec<Target> {
         match objects {
+            ObjectSetDef::Union(sets) => {
+                let mut union = Vec::new();
+                for objects in sets {
+                    for target in self.effect_objects(*objects, object, context, scoped) {
+                        if !union.contains(&target) {
+                            union.push(target);
+                        }
+                    }
+                }
+                union
+            }
             ObjectSetDef::One(reference) => self
                 .object_reference_target(reference, object, context, scoped)
                 .into_iter()
@@ -758,7 +796,11 @@ impl Game {
                 .object_group(binding)
                 .iter()
                 .copied()
-                .filter(|bound| self.bound_object_matches(*bound, predicate, object.id))
+                .filter(|bound| {
+                    self.effect_collection_target_matches(
+                        predicate, *bound, object, context, scoped,
+                    )
+                })
                 .collect(),
             ObjectSetDef::Matching {
                 objects,
@@ -767,7 +809,13 @@ impl Game {
                 .effect_objects(*objects, object, context, scoped)
                 .into_iter()
                 .filter(|bound| {
-                    self.bound_object_matches(*bound, predicate.predicate(), object.id)
+                    self.effect_collection_target_matches(
+                        predicate.predicate(),
+                        *bound,
+                        object,
+                        context,
+                        scoped,
+                    )
                 })
                 .collect(),
             ObjectSetDef::PermanentsTargetedBy(reference) => self
@@ -783,36 +831,12 @@ impl Game {
             ObjectSetDef::LegalAttachmentHosts(reference) => {
                 self.legal_attachment_hosts(reference, object, context, scoped)
             }
-            ObjectSetDef::SharingNameWith(reference) => {
-                self.objects_sharing_name_with_reference(reference, object, context, scoped)
-            }
-            ObjectSetDef::SharingNameWithBinding {
-                binding,
-                player,
-                zone,
-            } => {
-                let Some(player) = self.player_reference(player, object, context, scoped) else {
-                    return Vec::new();
-                };
-                let names: Vec<_> = context
-                    .object_group(binding)
-                    .iter()
-                    .filter_map(|bound| match bound {
-                        Target::Card(id) | Target::Permanent(id) | Target::Spell(id) => {
-                            self.object_card_name(*id)
-                        }
-                        Target::Player(_) => None,
-                    })
-                    .collect();
-                let mut found = Vec::new();
-                for name in names {
-                    for card in self.cards_named_in_zone(player, zone, name.as_ref()) {
-                        if !found.contains(&card) {
-                            found.push(card);
-                        }
-                    }
-                }
-                found
+            ObjectSetDef::ExceptObject { objects, object: excluded } => {
+                let excluded = self.object_reference_id(excluded, object, context, scoped);
+                self.effect_objects(*objects, object, context, scoped)
+                    .into_iter()
+                    .filter(|candidate| Self::target_object_id(*candidate) != excluded)
+                    .collect()
             }
             // The back of the vector is the newest card, which is the one on
             // top of the pile.

@@ -1,10 +1,79 @@
-use crate::ids::TargetIndex;
+use crate::ids::{Binding, TargetIndex};
 
 use super::{
     AbilityPredicateDef, BasicLandType, BattlefieldEntryChoiceDestinationDef, CardSet,
     CardSupertype, CardType, ComparisonDef, CounterKind, KeywordAbility, ManaColor, ObjectRefDef,
-    PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
+    ObjectSetDef, PlayerRelation, TargetPredicate, ValueDef, ZoneKind,
 };
+
+/// One card name read from rules text, an object, or a recorded choice.
+///
+/// This is a value rather than a predicate: callers decide whether to compare
+/// an object's name with it, collect it into a set, or use it elsewhere.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardNameDef {
+    Literal(&'static str),
+    /// The name of the referenced object, read with last-known information
+    /// after that object changes zones.
+    NameOf(ObjectRefDef),
+    /// A card name explicitly recorded under this authored binding.
+    Binding(Binding),
+}
+
+/// A declarative set of card names.
+///
+/// Object collections are projected to names explicitly. Multiplicity is
+/// normally discarded, except when a rule asks which names occur a minimum
+/// number of times.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum CardNameSetDef {
+    /// Every independently nameable nontoken card part in the catalog.
+    AllCardNames,
+    /// Every catalog card name whose named part is not a land.
+    NonlandCardNames,
+    /// Every catalog card name whose named part is a land.
+    LandCardNames,
+    /// Every catalog land-card name that is not basic.
+    NonbasicLandCardNames,
+    /// Every catalog card name except basic land-card names.
+    CardNamesOtherThanBasicLands,
+    NamesOf(&'static ObjectSetDef),
+    /// Every name in any of the listed sets.
+    Union(&'static [CardNameSetDef]),
+    NamesAppearingAtLeast {
+        objects: &'static ObjectSetDef,
+        count: u8,
+    },
+    /// The canonical names of basic land cards in the catalog.
+    BasicLandNames,
+}
+
+impl CardNameSetDef {
+    /// Whether this set is derived only from public catalog characteristics
+    /// and is therefore safe to expose as a name-choice vocabulary.
+    #[must_use]
+    pub const fn is_catalog_defined(self) -> bool {
+        match self {
+            Self::AllCardNames
+            | Self::NonlandCardNames
+            | Self::LandCardNames
+            | Self::NonbasicLandCardNames
+            | Self::CardNamesOtherThanBasicLands
+            | Self::BasicLandNames => true,
+            Self::Union(sets) => {
+                let mut index = 0;
+                while index < sets.len() {
+                    if !sets[index].is_catalog_defined() {
+                        return false;
+                    }
+                    index += 1;
+                }
+                true
+            }
+            Self::NamesOf(_) | Self::NamesAppearingAtLeast { .. } => false,
+        }
+    }
+}
 
 /// A composable predicate over a card or game object.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -132,26 +201,17 @@ pub enum ObjectPredicateDef {
     /// the card's debut set rather than the printing in front of you. Tokens
     /// were printed in no expansion, so they never match.
     DebutSet(CardSet),
-    /// Has the same name as the referenced object. The common printed "with
-    /// the same name as this" form uses [`ObjectRefDef::Source`].
-    HasName(ObjectRefDef),
+    /// Its effective name equals the resolved name value.
+    NameEquals(CardNameDef),
+    /// Its effective name belongs to the resolved set of names.
+    NameIn(&'static CardNameSetDef),
     /// A spell or ability on the stack whose chosen targets include an object
     /// matching this. "That targets a land you control" reads the targets it
     /// already has rather than what it could have taken.
     TargetsObjectMatching(&'static ObjectPredicateDef),
-    /// Bears exactly this name. Printed name matching is rare enough that the
-    /// name is written out; "bands with other creatures named X" is the one
-    /// place the rules ask for it without a source to compare against.
-    Named(&'static str),
-    /// Bears the card name chosen earlier in this resolution, by
-    /// [`super::EffectDef::ChooseCardName`]. Nothing matches when no name was
-    /// chosen, and nothing matches outside a resolution that chose one --
-    /// the name lives in the resolution rather than on the board.
-    HasChosenName,
-    /// Matches the scalar the ability's source chose as it entered: the card
-    /// name Meddling Mage locked out, or the creature type Engineered Plague
-    /// named. The axis is the same one the entry choice was recorded on, so
-    /// the two halves cannot drift apart.
+    /// Matches the non-name scalar the ability's source chose as it entered,
+    /// such as the creature type Engineered Plague named. Card names use
+    /// [`Self::NameEquals`] and [`CardNameDef::Binding`] instead.
     ///
     /// A source that never made its choice matches nothing rather than
     /// everything, which is the difference between a Plague that shrinks one

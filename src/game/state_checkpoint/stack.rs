@@ -351,37 +351,7 @@ pub(super) fn trigger_context_snapshot(context: TriggerContext) -> TriggerContex
     }
 }
 
-pub(super) fn effect_resolution_context_snapshot(
-    context: &EffectResolutionContext,
-) -> EffectResolutionContextSnapshot {
-    EffectResolutionContextSnapshot {
-        trigger: trigger_context_snapshot(context.trigger),
-        replaced_draw: context.replaced_draw.as_ref().map(replaced_draw_snapshot),
-        chosen_counter: context.chosen_counter.map(CounterKindSnapshot),
-        parent_object: context.parent_object().map(target_snapshot),
-        parent_objects: context
-            .parent_objects()
-            .iter()
-            .copied()
-            .map(target_snapshot)
-            .collect(),
-        bindings: context
-            .bindings()
-            .iter()
-            .map(|(label, binding)| {
-                let binding = match binding {
-                    EffectBindingValue::Object(object) => EffectBindingSnapshot::Object {
-                        object: object.map(target_snapshot),
-                    },
-                    EffectBindingValue::Objects(objects) => EffectBindingSnapshot::Objects {
-                        objects: objects.iter().copied().map(target_snapshot).collect(),
-                    },
-                };
-                (label.clone(), binding)
-            })
-            .collect(),
-    }
-}
+include!("stack/effect_resolution_context.rs");
 
 pub(super) fn binding_snapshot(binding: &RuntimeBinding) -> BindingSnapshot {
     match binding {
@@ -813,34 +783,6 @@ pub(super) fn parse_trigger_context(
     })
 }
 
-pub(super) fn parse_effect_resolution_context(
-    value: EffectResolutionContextSnapshot,
-) -> Result<EffectResolutionContext, String> {
-    let mut context = EffectResolutionContext::from_bindings(
-        parse_trigger_context(value.trigger)?,
-        value.parent_object.map(parse_target),
-        value.parent_objects.into_iter().map(parse_target).collect(),
-        value
-            .bindings
-            .into_iter()
-            .map(|(label, binding)| {
-                let binding = match binding {
-                    EffectBindingSnapshot::Object { object } => {
-                        EffectBindingValue::Object(object.map(parse_target))
-                    }
-                    EffectBindingSnapshot::Objects { objects } => {
-                        EffectBindingValue::Objects(objects.into_iter().map(parse_target).collect())
-                    }
-                };
-                (label, binding)
-            })
-            .collect(),
-    );
-    context.replaced_draw = value.replaced_draw.map(parse_replaced_draw).transpose()?;
-    context.chosen_counter = value.chosen_counter.map(|kind| kind.0);
-    Ok(context)
-}
-
 pub(super) fn parse_target_selection(
     value: &TargetSelectionSnapshot,
 ) -> Result<TargetSelection, String> {
@@ -889,7 +831,7 @@ mod tests {
     use crate::ParentBinding;
 
     #[test]
-    fn effect_resolution_context_round_trips_typed_objects_and_groups() {
+    fn effect_resolution_context_round_trips_typed_bindings() {
         let trigger = TriggerContext {
             object: Some(GameObjectId(10)),
             zone_change_result: Some(GameObjectId(12)),
@@ -909,6 +851,10 @@ mod tests {
                 Target::Card(GameObjectId(13)),
                 Target::Player(PlayerId::Two),
             ],
+        );
+        context.bind_runtime_card_name(
+            &RuntimeBinding::Label("cabal_therapy_name".into()),
+            "Lightning Bolt".into(),
         );
         context.bind_single_object(ParentBinding, Some(Target::Permanent(GameObjectId(17))));
         context.bind_object_group(

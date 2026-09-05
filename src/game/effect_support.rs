@@ -13,7 +13,7 @@ use super::{
     Target, TargetIndex, TargetSelection, TargetSlotId, TriggerConditionDef, TriggerContext,
     ZoneKind, abilities,
 };
-use crate::card::{PlayerAttachmentQueryDef, TargetChooserDef};
+use crate::card::{CardNameDef, CardNameSetDef, PlayerAttachmentQueryDef, TargetChooserDef};
 
 #[derive(Clone, Copy)]
 struct ResolvedAppliedEffect<'a> {
@@ -25,6 +25,7 @@ struct ResolvedAppliedEffect<'a> {
     component_order: u16,
 }
 
+mod names;
 mod queries;
 
 impl Game {

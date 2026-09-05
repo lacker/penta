@@ -4,6 +4,9 @@ fn validate_replacement_effect_target_references(
     scope: BindingScope<'_>,
 ) -> Result<(), GrantedAbilityValidationError> {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            validate_replacement_effect_target_references(*effect, target_count, scope)
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 validate_replacement_effect_target_references(*effect, target_count, scope)?;

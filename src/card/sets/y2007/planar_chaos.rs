@@ -3,12 +3,41 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef, AppliedEffectDef,
-    BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    ObjectValueAggregateDef, ObjectValueDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    abilities,
+    BasicLandType, CardArt, CardNameDef, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef, PlayerRelation, TriggerEventDef,
+    ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
+
+// PLC 21 — Voidstone Gargoyle
+pub(in crate::card::sets) static VOIDSTONE_GARGOYLE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("583741a1-0faf-4fb3-8536-b9b1cc8a3b6f"),
+    "Voidstone Gargoyle",
+    CardArt::new("583741a1-0faf-4fb3-8536-b9b1cc8a3b6f", "Terese Nielsen"),
+    CardSet::PlanarChaos,
+    CardRules::new_creature(mana_cost!("{3}{W}{W}"), &["Gargoyle"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::as_enters(
+            "As this creature enters, choose a nonland card name.",
+            crate::card::ReplacementEffectDef::BindOutput {
+                binding: Binding!("voidstone_gargoyle_name"),
+                effect: &abilities::choose_card_name_as_enters(
+                    crate::card::CardNameSetDef::NonlandCardNames,
+                ),
+            },
+        ),
+        abilities::cannot_cast_spells_with_name(
+            "Spells with the chosen name can't be cast.",
+            CardNameDef::Binding(Binding!("voidstone_gargoyle_name")),
+        ),
+        abilities::cannot_activate_abilities_with_name(
+            "Activated abilities of sources with the chosen name can't be activated.",
+            CardNameDef::Binding(Binding!("voidstone_gargoyle_name")),
+        ),
+    ]),
+);
 
 // PLC 25 — Mana Tithe
 pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_legacy_id(
@@ -53,6 +82,57 @@ pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
             amount: ValueDef::Constant(3),
         },
     )),
+);
+
+// PLC 71 — Extirpate
+pub(in crate::card::sets) static EXTIRPATE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("2608b5fc-3b58-4b02-aef1-35d885b16b01"),
+    "Extirpate",
+    CardArt::new("2608b5fc-3b58-4b02-aef1-35d885b16b01", "Jon Foster"),
+    CardSet::PlanarChaos,
+    CardRules::new_instant(mana_cost!("{B}")).with_abilities(&[
+        abilities::split_second(),
+        AbilityDef::spell_with_targets(
+            "Choose target card in a graveyard other than a basic land card. Search its owner's graveyard, hand, and library for all cards with the same name as that card and exile them. Then that player shuffles.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Not(&ObjectPredicateDef::Supertype(
+                    CardSupertype::Basic,
+                )),
+                zones: &[ZoneKind::Graveyard],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(Binding!("extirpate_target")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::Sequence(&[
+                    abilities::search_and_exile(
+                        ZoneKind::Graveyard,
+                        Binding!("extirpate_target"),
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Hand,
+                        Binding!("extirpate_target"),
+                    ),
+                    abilities::search_and_exile(
+                        ZoneKind::Library,
+                        Binding!("extirpate_target"),
+                    ),
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::player(PlayerRefDef::OwnerOf(
+                            ObjectRefDef::Binding(Binding!("extirpate_target")),
+                        )),
+                    },
+                ]),
+            }),
+        ),
+    ]),
 );
 
 // PLC 128 — Fungal Behemoth
@@ -138,8 +218,10 @@ pub(in crate::card::sets) static URBORG_TOMB_OF_YAWGMOTH: CardRecord =
     );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &VOIDSTONE_GARGOYLE,
     &MANA_TITHE,
     &SUNLANCE,
+    &EXTIRPATE,
     &FUNGAL_BEHEMOTH,
     &URBORG_TOMB_OF_YAWGMOTH,
 ];

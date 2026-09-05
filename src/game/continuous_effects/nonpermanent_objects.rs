@@ -55,6 +55,15 @@ impl Game {
             } => (characteristics.id, controller, owner, zone),
         };
         match recipient.0 {
+            EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets.iter().copied().any(
+                |objects| {
+                    self.static_recipient_matches(
+                        EffectRecipientDef::objects(objects),
+                        source,
+                        affected,
+                    )
+                },
+            ),
             EffectRecipientSetDef::Objects(ObjectSetDef::One(ObjectRefDef::Source)) => {
                 source.card.id == affected_id
             }
@@ -125,8 +134,7 @@ impl Game {
                 | ObjectSetDef::PermanentsControlledBy(_)
                 | ObjectSetDef::TokensCreatedBy(_)
                 | ObjectSetDef::BottomOfGraveyard(_)
-                | ObjectSetDef::SharingNameWith(_)
-                | ObjectSetDef::SharingNameWithBinding { .. }
+                | ObjectSetDef::ExceptObject { .. }
                 | ObjectSetDef::TopOfGraveyardMatching { .. },
             )
             // A static clause names what it affects outright; nothing static

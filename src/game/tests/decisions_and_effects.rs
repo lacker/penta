@@ -64,7 +64,9 @@ fn predicate_bounded_collection_includes_the_first_match_without_revealing_or_mo
         .effect_object_collection(
             ObjectCollectionSourceDef::TopCardsThroughFirstMatching {
                 player: PlayerRefDef::EffectController,
-                object: ObjectPredicateDef::Named("No Such Card"),
+                object: ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Literal(
+                    "No Such Card",
+                )),
             },
             &source,
             &EffectResolutionContext::empty(),

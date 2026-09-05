@@ -5,8 +5,8 @@ use crate::card::{
     AbilityTargetPredicate, AlternativeCastKindDef, AppliedEffectDef, AppliedRuleDef,
     ArrivalAttachmentDef, AttackDefenderScopeDef, AttackRestrictionDef,
     BattlefieldEntryChoiceDestinationDef, BlockRestrictionDef, BlockRestrictionMatchDef,
-    CharacteristicOperationDef, ConditionDef, CostAdjustmentDef, CostAmountDef,
-    CostModificationDef, DamageEventMatcherDef, DamagePreventionCapacityDef,
+    CardNameDef, CardNameSetDef, CharacteristicOperationDef, ConditionDef, CostAdjustmentDef,
+    CostAmountDef, CostModificationDef, DamageEventMatcherDef, DamagePreventionCapacityDef,
     DamageRecipientMatcherDef, DamageSourceMatcherDef, DeclarativeAbilityDef, EffectDef,
     EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, EffectRecipientSetDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PerPlayerSelectionDef,
@@ -48,6 +48,7 @@ fn duration_is_valid_for_applied_effect(
 }
 
 include!("targeting/shapes.rs");
+include!("targeting/restriction_shapes.rs");
 include!("targeting/target_predicate_zones.rs");
 include!("targeting/zone_move_shapes.rs");
 include!("targeting/created_token_continuations.rs");

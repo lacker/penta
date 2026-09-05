@@ -192,11 +192,12 @@ impl TargetIndex {
     }
 }
 
-/// Positional reference to an object paid for a spell's additional cost.
+/// Positional reference to an object paid for a spell or ability's object cost.
 ///
-/// The order is the order in which the cast's object costs were paid. Unlike
-/// a target, this names the paid object itself and therefore remains useful
-/// through last-known information after payment moves it to another zone.
+/// The order is the order in which the action's object costs were paid.
+/// Unlike a target, this names the paid object itself and therefore remains
+/// useful through last-known information after payment moves it to another
+/// zone, or while a revealed object remains in its hand.
 #[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct AdditionalCostObjectIndex(pub u8);
 
@@ -356,8 +357,29 @@ const BINDING_LABELS: &[&str] = &[
     "uncovered_clues_remainder",
     "wilderness_remainder",
     "wilds_land",
+    // New labels append so every established compact identifier stays stable.
     "winding_way_chosen",
     "winding_way_rest",
+    "alpine_moon_name",
+    "anointed_peacekeeper_name",
+    "booby_trap_name",
+    "counterbore_target",
+    "disruptor_flute_name",
+    "extirpate_target",
+    "meddling_mage_name",
+    "nevermore_name",
+    "petrified_hamlet_name",
+    "phyrexian_revoker_name",
+    "pithing_needle_name",
+    "search_and_exile_graveyard",
+    "search_and_exile_hand",
+    "search_and_exile_library",
+    "sorcerous_spyglass_name",
+    "surgical_extraction_target",
+    "voidstone_gargoyle_name",
+    "cabal_therapy_name",
+    "cursed_scroll_name",
+    "tamiyo_name",
 ];
 
 #[allow(non_upper_case_globals)]
@@ -386,6 +408,15 @@ impl Binding {
         } else {
             Some(BINDING_LABELS[self.0 as usize])
         }
+    }
+
+    #[must_use]
+    pub(crate) fn try_from_label(label: &str) -> Option<Self> {
+        BINDING_LABELS
+            .iter()
+            .position(|candidate| *candidate == label)
+            .and_then(|index| u8::try_from(index).ok())
+            .map(Self)
     }
 }
 

@@ -130,9 +130,13 @@ fn parse_battlefield_entry_continuation(
         } => {
             let context = parse_replacement_context(*context)?;
             validate_entry_decision_context(game, context, effect)?;
-            let ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)) =
-                catalog_replacement_effect(&game.catalog, effect)
-                    .ok_or("entry scalar choice locator is absent from this catalog")?
+            let authored_effect = catalog_replacement_effect(&game.catalog, effect)
+                .ok_or("entry scalar choice locator is absent from this catalog")?;
+            let (ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice))
+            | ReplacementEffectDef::BindOutput {
+                effect: &ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(choice)),
+                ..
+            }) = authored_effect
             else {
                 return Err("entry scalar choice locator is not a scalar choice".into());
             };
@@ -172,6 +176,7 @@ fn parse_battlefield_entry_continuation(
             )?;
             DecisionContinuation::BattlefieldEntryScalarChoice {
                 context,
+                authored_effect,
                 choice,
                 choices: choices.clone(),
             }

@@ -4149,7 +4149,7 @@ pub(in crate::card::sets) static THRAGTUSK: CardRecord = CardRecord::new_with_le
 static OTHER_TIMBERPACK_WOLVES: ObjectQueryDef = ObjectQueryDef::matching(
     ObjectPredicateDef::All(&[
         ObjectPredicateDef::HasType(CardType::Creature),
-        ObjectPredicateDef::HasName(ObjectRefDef::Source),
+        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(ObjectRefDef::Source)),
         ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
     ]),
     &[ZoneKind::Battlefield],

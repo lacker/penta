@@ -13,12 +13,12 @@ use crate::card::sets::y2016::eternal_masters as catalog_ema;
 use crate::card::sets::y2019::modern_horizons as catalog_mh1;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
-    KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AppliedEffectDef, CardArt, CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype,
+    CardType, ComparisonDef, CostQuantityDef, DiscardSelectionDef, EffectDef, EffectPaymentDef,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef,
+    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1320,13 +1320,31 @@ pub(in crate::card::sets) static CABAL_PATRIARCH: CardRecord = CardRecord::new(
 );
 
 // ODY 121 — Cabal Shrine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CABAL_SHRINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd376a52-5dfd-49f3-a520-537cd4527439"),
     "Cabal Shrine",
     crate::card::CardArt::new("dd376a52-5dfd-49f3-a520-537cd4527439", "Ben Thompson"),
     crate::card::CardSet::Odyssey,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{B}{B}")).with_ability(AbilityDef::triggered(
+        "Whenever a player casts a spell, that player discards X cards, where X is the number of cards in all graveyards with the same name as that spell.",
+        TriggerEventDef::spell_cast(ObjectPredicateDef::Any),
+        EffectDef::Discard {
+            recipient: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                ObjectRefDef::TriggeringObject,
+            )),
+            amount: ValueDef::CountObjects(&ObjectSetDef::Matching {
+                objects: &ObjectSetDef::Query(ObjectQueryDef::new(
+                    ObjectPredicateDef::Any,
+                    &[ZoneKind::Graveyard],
+                )),
+                object: ObjectSetFilterDef::Predicate(&ObjectPredicateDef::NameEquals(
+                    CardNameDef::NameOf(ObjectRefDef::TriggeringObject),
+                )),
+            }),
+            selection: DiscardSelectionDef::RecipientChooses,
+            then: None,
+        },
+    )),
 );
 
 // ODY 122 — Caustic Tar
@@ -1565,13 +1583,15 @@ pub(in crate::card::sets) static HAUNTING_ECHOES: CardRecord = CardRecord::new_w
                             placement: ZonePlacement::Top,
                         },
                         EffectDef::MoveToZone {
-                            object: EffectRecipientDef::objects(
-                                ObjectSetDef::SharingNameWithBinding {
-                                    binding: ParentBinding,
-                                    player: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                                    zone: ZoneKind::Library,
-                                },
-                            ),
+                            object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                                ObjectQueryDef::owned_by(
+                                    ObjectPredicateDef::NameIn(&CardNameSetDef::NamesOf(
+                                        &ObjectSetDef::Binding(ParentBinding),
+                                    )),
+                                    &[ZoneKind::Library],
+                                    PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                                ),
+                            )),
                             zone: ZoneKind::Exile,
                             placement: ZonePlacement::Top,
                         },

@@ -21,7 +21,9 @@ fn static_animation_predicate_supported(predicate: ObjectPredicateDef, creature:
         ObjectPredicateDef::Subtype(name) => !crate::card::BasicLandType::ALL
             .iter()
             .any(|land_type| land_type.subtype() == name),
-        ObjectPredicateDef::Any
+        ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
+        ObjectPredicateDef::NameIn(&CardNameSetDef::BasicLandNames)
+        | ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::AttachedToSource
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
@@ -53,6 +55,8 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::ControlledBy(relation) | ObjectPredicateDef::OwnedBy(relation) => {
             static_player_relation_supported(relation)
         }
+        ObjectPredicateDef::NameEquals(name) => static_card_name_supported(name),
+        ObjectPredicateDef::NameIn(names) => static_card_name_set_supported(*names),
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -66,20 +70,6 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::DeclaredTargetCount { .. }
         | ObjectPredicateDef::HasDeclaredTarget(_)
         | ObjectPredicateDef::HasDeclaredPlayerTarget(_)
-        | ObjectPredicateDef::HasName(
-            ObjectRefDef::AbilityGrantSource
-            | ObjectRefDef::CreatingSource
-            | ObjectRefDef::ZoneChangeSuccessor(_)
-            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-            | ObjectRefDef::ResolvingObject
-            | ObjectRefDef::AttachedToSource
-            | ObjectRefDef::Target(_)
-            | ObjectRefDef::TriggeringObject
-            | ObjectRefDef::DamagedObject
-            | ObjectRefDef::Binding(_)
-            | ObjectRefDef::AdditionalCostObject(_)
-            | ObjectRefDef::SourceOfTargetedStackObject(_),
-        )
         // A printed cost shape is only readable where the card's own
         // definition is in hand, which a static continuous effect does not
         // have; the zone-search path answers it instead.
@@ -98,8 +88,6 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::PowerAtLeast(_)
         | ObjectPredicateDef::PowerExactly(_)
@@ -110,7 +98,6 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::CounterCount { .. }
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(ObjectRefDef::Source)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -133,5 +120,33 @@ fn static_object_predicate_supported(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::ToughnessGreaterThanItsPower
         | ObjectPredicateDef::EnteredThisTurn
         | ObjectPredicateDef::AttackedDuringControllersLastTurn => true,
+    }
+}
+
+fn static_card_name_supported(name: CardNameDef) -> bool {
+    matches!(
+        name,
+        CardNameDef::Literal(_)
+            | CardNameDef::Binding(_)
+            | CardNameDef::NameOf(ObjectRefDef::Source | ObjectRefDef::AttachedToSource)
+    )
+}
+
+fn static_card_name_set_supported(names: CardNameSetDef) -> bool {
+    match names {
+        CardNameSetDef::Union(sets) => sets
+            .iter()
+            .copied()
+            .all(static_card_name_set_supported),
+        CardNameSetDef::NamesOf(objects)
+        | CardNameSetDef::NamesAppearingAtLeast { objects, .. } => {
+            static_condition_object_set_supported(*objects)
+        }
+        CardNameSetDef::AllCardNames
+        | CardNameSetDef::NonlandCardNames
+        | CardNameSetDef::LandCardNames
+        | CardNameSetDef::NonbasicLandCardNames
+        | CardNameSetDef::CardNamesOtherThanBasicLands
+        | CardNameSetDef::BasicLandNames => true,
     }
 }

@@ -119,14 +119,14 @@ pub const SIMULATION_FINGERPRINT_NUL: &str = concat!(env!("PENTA_SIMULATION_FING
 
 /// Named additive facilities emitted by this wire epoch. Consumers may ignore
 /// capabilities they do not use; hosted bots may require the subset they use.
-pub const PROTOCOL_CAPABILITIES: &[&str] = &["reconstruction.checkpoint.v11"];
+pub const PROTOCOL_CAPABILITIES: &[&str] = &["reconstruction.checkpoint.v13"];
 
 /// Capabilities every bot must understand before a host may assign it a game.
 /// The base indexed-action contract currently needs no optional facility.
 pub const REQUIRED_BOT_CAPABILITIES: &[&str] = &[];
 
 /// Version of the hidden-safe reconstruction payload nested at `checkpoint`.
-pub const CHECKPOINT_VERSION: u32 = 11;
+pub const CHECKPOINT_VERSION: u32 = 13;
 
 /// Undeclared hosted bots predate negotiation and therefore belong to the last
 /// wire epoch that could not make an explicit declaration. They do not

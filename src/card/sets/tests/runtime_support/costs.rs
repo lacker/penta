@@ -39,6 +39,7 @@ fn linked_card_mana_costs_supported(battlefield: bool, costs: &[AbilityCostDef])
                     | AbilityCostDef::TapPermanents { .. }
                     | AbilityCostDef::MoveToZone(_)
                     | AbilityCostDef::DiscardCardMatching(_)
+                    | AbilityCostDef::RevealCardFromHand(_)
                     | AbilityCostDef::ExileCardFromHand(_)
             )
         })
@@ -95,24 +96,27 @@ fn at_most_one_source_exit_cost(costs: &[AbilityCostDef]) -> bool {
         <= 1
 }
 
-pub(in super::super) fn shared_activated_costs(
-    source_zones: &[ZoneKind],
-    costs: &[AbilityCostDef],
-) -> bool {
-    let battlefield = source_zones == [ZoneKind::Battlefield];
-    let hand = source_zones == [ZoneKind::Hand];
-    let graveyard = source_zones == [ZoneKind::Graveyard];
-    let exile = source_zones == [ZoneKind::Exile];
-    let sacrifice_choices = costs
+fn at_most_one_sacrifice_of_each_kind(costs: &[AbilityCostDef]) -> bool {
+    let choices = costs
         .iter()
         .filter(|cost| matches!(cost, AbilityCostDef::SacrificePermanent { .. }))
         .count();
-    let fixed_sacrifices = costs
+    let fixed = costs
         .iter()
         .filter(|cost| matches!(cost, AbilityCostDef::SacrificeObject(_)))
         .count();
-    sacrifice_choices <= 1
-        && fixed_sacrifices <= 1
+    choices <= 1 && fixed <= 1
+}
+
+pub(in super::super) fn shared_activated_costs(
+    zones: &[ZoneKind],
+    costs: &[AbilityCostDef],
+) -> bool {
+    let battlefield = zones == [ZoneKind::Battlefield];
+    let hand = zones == [ZoneKind::Hand];
+    let graveyard = zones == [ZoneKind::Graveyard];
+    let exile = zones == [ZoneKind::Exile];
+    at_most_one_sacrifice_of_each_kind(costs)
         && at_most_one_source_exit_cost(costs)
         && at_most_one_deferred_activation_cost(costs)
         && multi_tap_cost_has_no_mana_component(costs)
@@ -137,6 +141,7 @@ pub(in super::super) fn shared_activated_costs(
             }
             AbilityCostDef::SacrificePermanents { object, .. }
             | AbilityCostDef::DiscardCardMatching(object)
+            | AbilityCostDef::RevealCardFromHand(object)
             | AbilityCostDef::ExileCardFromHand(object) => {
                 battlefield && shared_object_predicate(*object)
             }

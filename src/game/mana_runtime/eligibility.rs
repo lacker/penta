@@ -52,6 +52,7 @@ impl Game {
                 | AbilityCostDef::DiscardSource
                 | AbilityCostDef::DiscardCards(_)
                 | AbilityCostDef::DiscardCardMatching(_)
+                | AbilityCostDef::RevealCardFromHand(_)
                 | AbilityCostDef::ExileCardFromHand(_)
                 | AbilityCostDef::DiscardCardsAtRandom(_)
                 | AbilityCostDef::SacrificePermanent { .. }
@@ -151,6 +152,7 @@ impl Game {
             | AbilityCostDef::DiscardSource
             | AbilityCostDef::DiscardCards(_)
             | AbilityCostDef::DiscardCardMatching(_)
+            | AbilityCostDef::RevealCardFromHand(_)
             | AbilityCostDef::DiscardCardsAtRandom(_)
             | AbilityCostDef::MillCards(_)
             | AbilityCostDef::ReturnUnblockedAttackerToHand

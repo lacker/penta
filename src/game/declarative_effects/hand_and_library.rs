@@ -8,7 +8,7 @@ use super::super::{
     PlayerId, ScopedEffect, StackObject, Target, ZoneKind, ZoneMoveCause, public_cards,
     remove_card,
 };
-use crate::card::{ArrivalAttachmentDef, ObjectPredicateDef};
+use crate::card::{ArrivalAttachmentDef, ObjectPredicateDef, ObjectRefDef};
 
 impl Game {
     /// "Target opponent exiles the top card of their library, a card at
@@ -583,7 +583,7 @@ impl Game {
                 binding,
                 then,
             } => {
-                let source = object.source.unwrap_or(object.id);
+                let mut source = object.source.unwrap_or(object.id);
                 let attached_player = match attachment {
                     None => None,
                     Some(ArrivalAttachmentDef::ArrivalToPlayer(reference)) => {
@@ -608,6 +608,17 @@ impl Game {
                 // control" can use the full effect context before the hidden
                 // zone choices are filtered.
                 let predicate = match predicate {
+                    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(reference)) => {
+                        let Some(referenced) =
+                            self.effect_object_reference_id(reference, object, context, scoped)
+                        else {
+                            return;
+                        };
+                        source = referenced;
+                        ObjectPredicateDef::NameEquals(crate::card::CardNameDef::NameOf(
+                            ObjectRefDef::Source,
+                        ))
+                    }
                     ObjectPredicateDef::ManaValueAtMostValue(value) => {
                         ObjectPredicateDef::ManaValueAtMostValue(crate::card::ValueDef::Constant(
                             self.effect_value(value, object, context, scoped),

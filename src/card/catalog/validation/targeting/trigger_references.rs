@@ -50,6 +50,12 @@ fn validate_trigger_object_predicate(
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             validate_trigger_object_predicate(*predicate, event, target_count, scope)
         }
+        ObjectPredicateDef::NameEquals(name) => {
+            validate_card_name_references(name, target_count, scope)
+        }
+        ObjectPredicateDef::NameIn(names) => {
+            validate_card_name_set_references(*names, target_count, scope)
+        }
         ObjectPredicateDef::ManaValueEqualTo(value)
         | ObjectPredicateDef::ManaValueAtMostValue(value)
         | ObjectPredicateDef::ToughnessLessThan(value)
@@ -96,8 +102,6 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::PowerAtLeast(_)
         | ObjectPredicateDef::PowerExactly(_)
@@ -110,7 +114,6 @@ fn validate_trigger_object_predicate(
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(_)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -163,8 +166,8 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
+        | ObjectPredicateDef::NameEquals(_)
+        | ObjectPredicateDef::NameIn(_)
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -185,7 +188,6 @@ fn trigger_predicate_requires_live_battlefield(predicate: ObjectPredicateDef) ->
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(_)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking

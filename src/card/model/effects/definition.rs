@@ -189,10 +189,12 @@ pub enum EffectDef {
     /// Declare one string-labeled object-set binding and resolve an effect
     /// whose output may populate it. The declaration itself creates the empty
     /// set, so a conditional effect that produces nothing is distinct from a
-    /// reference to a label that was never declared.
+    /// reference to a label that was never declared. Keep `binding` first at
+    /// construction sites so its declaration lexically precedes every use in
+    /// the producer's continuation.
     BindOutput {
-        effect: &'static EffectDef,
         binding: Binding,
+        effect: &'static EffectDef,
     },
     /// Choose one distinct member for each of several predicates.
     ChooseOneOfEach(super::ChooseOneOfEachDef),
@@ -207,21 +209,12 @@ pub enum EffectDef {
         object: ObjectPredicateDef,
         amount: ValueDef,
     },
-    /// Names a card while this effect resolves, binds every card of that name
-    /// where it looks, and continues. "Discards all cards with that name" is
-    /// the follow-up naming that binding. Distinct from the entry choice a
-    /// permanent records, which outlives its resolution.
+    /// Names a card while this effect resolves and continues. Wrap it in
+    /// `BindOutput` so the follow-up can read the chosen name from an explicit
+    /// binding.
     ChooseCardName {
         chooser: PlayerRefDef,
-        nonland_only: bool,
-        /// Whose cards the name is matched against, and where.
-        matched_in: PlayerRefDef,
-        zone: ZoneKind,
-        /// Where the matching cards are saved for the rest of the effect.
-        /// Binding them as the name is chosen means the follow-up names a set
-        /// rather than re-deriving it from a name it cannot see.
-        binding: Binding,
-        then: &'static EffectDef,
+        names: CardNameSetDef,
     },
     /// Copies one or more named spells or abilities on the stack.
     CopyStackObject(&'static CopyStackObjectDef),

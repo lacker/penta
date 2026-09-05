@@ -14,13 +14,13 @@ use crate::card::sets::y2022::commander_legends_baldurs_gate as catalog_clb;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BattlefieldEntryModificationDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef,
-    CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
-    ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    CardNameDef, CardNameSetDef, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseDef, CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef,
+    EffectRecipientDef, ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -2894,9 +2894,12 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             "As this artifact enters, choose an opponent and a card name other than a basic land card name.",
             ReplacementEffectDef::Sequence(&[
                 ReplacementEffectDef::Choose(ReplacementChoiceDef::Player(PlayerRelation::Opponent)),
-                ReplacementEffectDef::Choose(ReplacementChoiceDef::Scalar(
-                    crate::card::BattlefieldEntryScalarChoiceDef::CARD_NAME_OTHER_THAN_BASIC_LAND,
-                )),
+                ReplacementEffectDef::BindOutput {
+                    binding: Binding!("booby_trap_name"),
+                    effect: &abilities::choose_card_name_as_enters(
+                        CardNameSetDef::CardNamesOtherThanBasicLands,
+                    ),
+                },
             ]),
         ),
         AbilityDef::static_ability(
@@ -2912,7 +2915,9 @@ pub(in crate::card::sets) static BOOBY_TRAP: CardRecord = CardRecord::new(
             "When the chosen player draws a card with the chosen name, sacrifice this artifact. If you do, it deals 10 damage to that player.",
             TriggerEventDef::DrewCard(DrawEventMatcherDef::matching(
                 PlayerRelation::ChosenPlayer,
-                abilities::SOURCES_CHOSEN_CARD_NAME,
+                ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                    "booby_trap_name"
+                ))),
             )),
             &TriggerConditionDef::SourceOnBattlefield,
             EffectDef::Sequence(&[
@@ -2959,10 +2964,6 @@ pub(in crate::card::sets) static COLD_STORAGE: CardRecord = CardRecord::new(
 );
 
 // TMP 281 — Cursed Scroll
-/// Naming a card is modelled as picking one of the cards in hand. Every name
-/// worth choosing is one of those -- naming something you do not hold can
-/// only fail -- and the choice is public either way, so nothing is hidden and
-/// nothing achievable is lost.
 pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_with_legacy_id(
     2037,
     "Cursed Scroll",
@@ -2971,8 +2972,8 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         "D. Alexander Gregory",
     ),
     CardSet::Tempest,
-    // An empty hand makes it a certainty, which is why the card belongs in a
-    // deck that has already spent everything.
+    // A one-card hand makes the random reveal deterministic, which is why the
+    // card belongs in a deck that has spent almost everything.
     CardRules::new_artifact(mana_cost!("{1}")).with_ability(AbilityDef::activated_with_targets(
         "{3}, {T}: Choose a card name, then reveal a card at random from your hand. If that card has the chosen name, this artifact deals 2 damage to any target.",
         &[
@@ -2982,38 +2983,35 @@ pub(in crate::card::sets) static CURSED_SCROLL: CardRecord = CardRecord::new_wit
         &[AbilityTargetDef::exactly_one(
             AbilityTargetPredicate::AnyTarget,
         )],
-        EffectDef::Choose(ChooseDef {
-            binding: ObjectChoiceBindingDef::Object(ParentBinding),
-            unchosen: None,
-            chooser: PlayerRefDef::EffectController,
-            candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
-                ObjectPredicateDef::Any,
-                &[ZoneKind::Hand],
-                PlayerSetDef::Related(PlayerRelation::You),
-            )),
-            exclude: None,
-            minimum: 1,
-            maximum: 1,
-            visibility: ChoiceVisibilityDef::Public,
-            then: &EffectDef::Sequence(&[
-                EffectDef::BindOutput {
-                    effect: &EffectDef::RevealAtRandomFromHand {
-                        player: EffectRecipientDef::Controller,
-                    },
-                    binding: Binding!("revealed_card"),
+        EffectDef::Sequence(&[
+            EffectDef::BindOutput {
+                binding: Binding!("cursed_scroll_name"),
+                effect: &EffectDef::ChooseCardName {
+                    chooser: PlayerRefDef::EffectController,
+                    names: CardNameSetDef::AllCardNames,
                 },
-                EffectDef::IfCondition {
-                    condition: &TriggerConditionDef::BoundObjectsShareName {
-                        first: &ObjectSetDef::One(ObjectRefDef::Binding(ParentBinding)),
-                        second: &ObjectSetDef::Binding(Binding!("revealed_card")),
-                    },
-                    then: &EffectDef::DealDamage {
-                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
-                        amount: ValueDef::Constant(2),
-                    },
+            },
+            EffectDef::BindOutput {
+                binding: Binding!("revealed_card"),
+                effect: &EffectDef::RevealAtRandomFromHand {
+                    player: EffectRecipientDef::Controller,
                 },
-            ]),
-        }),
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ObjectSetCount(&ObjectSetCountConditionDef {
+                    objects: &ObjectSetDef::Binding(Binding!("revealed_card")),
+                    predicate: ObjectSetPredicateDef::contains(
+                        &ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                            "cursed_scroll_name"
+                        ))),
+                    ),
+                }),
+                then: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(2),
+                },
+            },
+        ]),
     )),
 );
 

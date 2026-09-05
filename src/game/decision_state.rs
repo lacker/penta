@@ -11,7 +11,7 @@ use super::{
     AbilitySourceRef, ApplicableReplacement, ApplicableZoneMoveReplacement, CardInstance,
     CastOffer, CastOfferCost, CastSourceZone, DecisionObservation, DrawReplacement,
     EffectResolutionContext, Mana, ObjectCharacteristics, PendingActivation,
-    PendingActivationTargeting, PendingBattlefieldExitBatch, PendingTrigger,
+    PendingActivationTargeting, PendingBattlefieldExitBatch, PendingProcedure, PendingTrigger,
     ReplacementEffectContext, ResolvedEffectDurationDef, RuntimeBinding, SacrificeQuota,
     SacrificedAmountDef, ScopedEffect, StackObject, TapQuota, TriggerPlacementBatch,
 };
@@ -556,17 +556,12 @@ pub(super) enum DecisionContinuation {
         if_paid: Option<ScopedEffect>,
         otherwise: Option<ScopedEffect>,
     },
-    /// A card name chosen while an effect resolves, with the rest of that
-    /// effect waiting on the answer.
+    /// A card name chosen while an effect resolves, with the remaining
+    /// sequence waiting on the answer.
     CardNameChoice {
         choices: Vec<String>,
-        /// Whose cards the name is matched against, and where.
-        searched: PlayerId,
-        zone: ZoneKind,
         binding: RuntimeBinding,
-        object: Box<StackObject>,
-        context: EffectResolutionContext,
-        effect: ScopedEffect,
+        resume: Box<PendingProcedure>,
     },
     /// The first card a player drew this turn, waiting for one optional
     /// private draw-specific action. An empty answer takes no action.
@@ -651,6 +646,7 @@ pub(super) enum DecisionContinuation {
     },
     BattlefieldEntryScalarChoice {
         context: ReplacementEffectContext,
+        authored_effect: ReplacementEffectDef,
         choice: BattlefieldEntryScalarChoiceDef,
         choices: Vec<String>,
     },

@@ -6,11 +6,11 @@ use crate::card::sets::y1997::weatherlight as catalog_wth;
 use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef, CostQuantityDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef, PlayerRefDef,
-    PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
+    AggregateOperationDef, AlternativeCastKindDef, AppliedEffectDef, CardArt, CardNameDef,
+    CardRules, CardSet, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
+    CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef, ObjectValueDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementChoiceDef,
     ReplacementEffectDef, ResolvedEffectDurationDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
     ZonePlacement, abilities,
 };
@@ -678,23 +678,29 @@ pub(in crate::card::sets) static CABAL_THERAPY: CardRecord = CardRecord::new_wit
             &[AbilityTargetDef::exactly_one(
                 AbilityTargetPredicate::Player(PlayerRelation::Any),
             )],
-            EffectDef::ChooseCardName {
-                chooser: PlayerRefDef::EffectController,
-                nonland_only: true,
-                matched_in: PlayerRefDef::Target(TargetIndex::PRIMARY),
-                zone: ZoneKind::Hand,
-                binding: ParentBinding,
-                // Everything of the named card in the target's hand, revealed first so the
-                // choice is answered honestly and then taken all at once.
-                then: &EffectDef::Sequence(&[
-                    EffectDef::RevealHand {
-                        player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            EffectDef::Sequence(&[
+                EffectDef::BindOutput {
+                    binding: Binding!("cabal_therapy_name"),
+                    effect: &EffectDef::ChooseCardName {
+                        chooser: PlayerRefDef::EffectController,
+                        names: crate::card::CardNameSetDef::NonlandCardNames,
                     },
-                    EffectDef::DiscardCards {
-                        object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                    },
-                ]),
-            },
+                },
+                EffectDef::RevealHand {
+                    player: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                },
+                EffectDef::DiscardCards {
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::NameEquals(CardNameDef::Binding(Binding!(
+                                "cabal_therapy_name"
+                            ))),
+                            &[ZoneKind::Hand],
+                            PlayerSetDef::One(PlayerRefDef::Target(TargetIndex::PRIMARY)),
+                        ),
+                    )),
+                },
+            ]),
         ),
         AbilityDef::alternative_cast(
             mana_cost!("{0}"),

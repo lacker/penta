@@ -335,20 +335,20 @@ impl Game {
         controller: Option<PlayerId>,
     ) -> bool {
         match predicate {
-            ObjectPredicateDef::Named(name) => self
+            ObjectPredicateDef::NameEquals(name) => self
                 .object_card_name(object.id)
-                .is_some_and(|actual| actual == name),
-            // The chosen name lives in the resolution that chose it, which
-            // nothing here can see, so this matches nothing rather than
-            // everything. The one effect that reads it does so itself.
-            ObjectPredicateDef::HasChosenName => false,
+                .zip(self.source_card_name(name, source))
+                .is_some_and(|(actual, expected)| actual == expected),
+            ObjectPredicateDef::NameIn(names) => self
+                .object_card_name(object.id)
+                .is_some_and(|actual| self.source_card_name_set(*names, source).contains(actual.as_ref())),
             ObjectPredicateDef::TargetsObjectMatching(predicate) => {
                 self.stack_object_targets_match(object.id, *predicate, source, controller)
             }
             ObjectPredicateDef::HasSourcesChosenScalar(destination) => {
                 self.matches_chosen_scalar(destination, object, source)
             }
-            _ => unreachable!("only the three indirect predicates arrive here"),
+            _ => unreachable!("only indirect predicates arrive here"),
         }
     }
 
@@ -454,13 +454,8 @@ impl Game {
             // neither is matched as a scalar against an object here.
             BattlefieldEntryChoiceDestinationDef::Player
             | BattlefieldEntryChoiceDestinationDef::BasicLandType
-            | BattlefieldEntryChoiceDestinationDef::Color => false,
-            BattlefieldEntryChoiceDestinationDef::CardName => chooser
-                .and_then(|permanent| permanent.chosen_card_name.as_deref())
-                .is_some_and(|chosen| {
-                    self.object_card_name(object.id)
-                        .is_some_and(|actual| actual == chosen)
-                }),
+            | BattlefieldEntryChoiceDestinationDef::Color
+            | BattlefieldEntryChoiceDestinationDef::CardName => false,
             BattlefieldEntryChoiceDestinationDef::CreatureType => chooser
                 .and_then(|permanent| permanent.chosen_creature_type.as_deref())
                 .is_some_and(|chosen| {
@@ -547,20 +542,13 @@ impl Game {
                 .object_debut_set(object.id)
                 .is_some_and(|debut| debut == set),
             ObjectPredicateDef::AttackingOrBlocking => object.attacking_or_blocking,
-            ObjectPredicateDef::HasName(ObjectRefDef::Source) => {
-                let name = self.object_card_name(object.id);
-                name.is_some() && name == self.object_card_name(source)
-            }
-            // The four that read a value from somewhere other than the
-            // object's own characteristics: a printed name, a name chosen in
-            // a resolution, a scalar the source chose on entry, or the
-            // targets something else has.
-            ObjectPredicateDef::Named(_)
-            | ObjectPredicateDef::HasChosenName
+            // These read a value from somewhere other than the object's own
+            // characteristics.
+            ObjectPredicateDef::NameEquals(_)
+            | ObjectPredicateDef::NameIn(_)
             | ObjectPredicateDef::TargetsObjectMatching(_)
-            | ObjectPredicateDef::HasSourcesChosenScalar(_) => {
-                self.indirect_predicate_matches(predicate, object, source, controller)
-            }
+            | ObjectPredicateDef::HasSourcesChosenScalar(_)
+                => self.indirect_predicate_matches(predicate, object, source, controller),
             ObjectPredicateDef::HasKeyword(keyword) => keyword
                 .simple_index()
                 .is_some_and(|index| object.keywords & (1 << index) != 0),
@@ -643,9 +631,7 @@ impl Game {
             // hold the card's own definition and answer it there, and the
             // catalog boundary keeps the predicate out of trigger and static
             // contexts.
-            ObjectPredicateDef::GenericManaCostAtMost(_)
-            | ObjectPredicateDef::HasName(_)
-            | ObjectPredicateDef::Special(_) => false,
+            ObjectPredicateDef::GenericManaCostAtMost(_) | ObjectPredicateDef::Special(_) => false,
         }
     }
 

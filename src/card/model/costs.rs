@@ -228,6 +228,10 @@ pub enum CostDef {
     /// with the activation rather than being counted, which is what "discard
     /// a card" and "discard a land card" both need.
     DiscardCardMatching(ObjectPredicateDef),
+    /// Reveal one matching card from the payer's hand as the ability is
+    /// activated, without moving it. The chosen object travels with the
+    /// activation so its name can be read during resolution.
+    RevealCardFromHand(ObjectPredicateDef),
     /// Exile a matching card from the payer's own hand. Unlike discarding,
     /// the card never enters a graveyard; Cadaverous Bloom is the canonical
     /// mana-ability use.
@@ -353,6 +357,24 @@ pub const LAND_SUBTYPES: &[&str] = &[
     "Power-Plant",
     "Sphere",
     "Swamp",
+    "Tower",
+    "Town",
+    "Urza's",
+    "Urza’s",
+];
+
+/// Every nonbasic land subtype in [`LAND_SUBTYPES`]. Characteristic-defining
+/// abilities such as Planar Nexus use this vocabulary in every zone.
+pub const NONBASIC_LAND_SUBTYPES: &[&str] = &[
+    "Cave",
+    "Desert",
+    "Gate",
+    "Lair",
+    "Locus",
+    "Mine",
+    "Planet",
+    "Power-Plant",
+    "Sphere",
     "Tower",
     "Town",
     "Urza's",

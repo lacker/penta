@@ -17,6 +17,18 @@ impl Game {
         let Some(label) = binding.label() else {
             unreachable!("catalog validation rejected a parent binding on BindOutput")
         };
+        if let EffectDef::ChooseCardName { chooser, names } = *effect {
+            if let Some(player) = self.player_reference(chooser, object, &context, scoped) {
+                self.queue_card_name_choice(
+                    player,
+                    names,
+                    binding,
+                    object.clone(),
+                    context.fork_resolution(),
+                );
+            }
+            return context;
+        }
         context.declare_binding_group_label(label);
         let (mut context, output) =
             self.resolve_effect_output(scoped.with_effect(*effect), object, context);

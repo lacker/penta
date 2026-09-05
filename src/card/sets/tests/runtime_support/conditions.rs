@@ -102,7 +102,6 @@ pub(in super::super) fn shared_trigger_condition(condition: TriggerConditionDef)
         | TriggerConditionDef::ControllerHasCitysBlessing
         | TriggerConditionDef::ControllerGainedLifeThisTurn
         | TriggerConditionDef::CreatureDiedThisTurn
-        | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
         | TriggerConditionDef::SourceInZone(_)
@@ -181,7 +180,6 @@ pub(in super::super) fn shared_static_trigger_condition(condition: TriggerCondit
         // Counters live on the source, so a static clause can read them from
         // exactly the input it has.
         TriggerConditionDef::CreatureDiedThisTurn
-        | TriggerConditionDef::BoundObjectsShareName { .. }
         | TriggerConditionDef::SourceArrivedSinceControllersLastUpkeep
         | TriggerConditionDef::SourceOnBattlefield
             | TriggerConditionDef::SourceUntapped
@@ -213,6 +211,7 @@ pub(super) fn shared_source_object_set(objects: ObjectSetDef) -> bool {
         ObjectSetDef::Matching { objects, object } => {
             shared_source_object_set(*objects) && shared_object_predicate(object.predicate())
         }
+        ObjectSetDef::ExceptObject { objects, .. } => shared_source_object_set(*objects),
         ObjectSetDef::Query(query) => shared_query(query),
         _ => false,
     }

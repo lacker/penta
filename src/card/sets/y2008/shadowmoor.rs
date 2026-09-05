@@ -3,8 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardType, CopyStackObjectDef, CostQuantityDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef,
+    CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CopyStackObjectDef,
+    CostQuantityDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
     OptionalAdditionalCostAbilityDef, OptionalAdditionalCostKindDef, PlayerRefDef, PlayerRelation,
     ResolvedEffectDurationDef, SpellAdditionalCostDef, SpellResolutionDestinationDef,
     TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
@@ -44,6 +45,61 @@ const fn conspire(
         ),
     ]
 }
+
+// SHM 33 — Counterbore
+pub(in crate::card::sets) static COUNTERBORE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("f4228b80-d87d-4ebe-ae92-04e4a7d0dc43"),
+    "Counterbore",
+    CardArt::new("f4228b80-d87d-4ebe-ae92-04e4a7d0dc43", "Wayne England"),
+    CardSet::Shadowmoor,
+    CardRules::new_instant(mana_cost!("{3}{U}{U}")).with_ability(
+        AbilityDef::spell_with_targets(
+            "Counter target spell. Search its controller's graveyard, hand, and library for all cards with the same name as that spell and exile them. Then that player shuffles.",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Spell,
+                zones: &[ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::Choose(ChooseDef {
+                binding: ObjectChoiceBindingDef::Object(Binding!("counterbore_target")),
+                unchosen: None,
+                chooser: PlayerRefDef::EffectController,
+                candidates: ObjectSetDef::One(ObjectRefDef::Target(TargetIndex::PRIMARY)),
+                exclude: None,
+                minimum: 1,
+                maximum: 1,
+                visibility: ChoiceVisibilityDef::Public,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::Counter {
+                        object: EffectRecipientDef::object(ObjectRefDef::Binding(Binding!(
+                            "counterbore_target"
+                        ))),
+                        zone: ZoneKind::Graveyard,
+                        placement: ZonePlacement::Top,
+                    },
+                    abilities::search_controllers_zone_and_exile(
+                        ZoneKind::Graveyard,
+                        Binding!("counterbore_target"),
+                    ),
+                    abilities::search_controllers_zone_and_exile(
+                        ZoneKind::Hand,
+                        Binding!("counterbore_target"),
+                    ),
+                    abilities::search_controllers_zone_and_exile(
+                        ZoneKind::Library,
+                        Binding!("counterbore_target"),
+                    ),
+                    EffectDef::ShuffleLibrary {
+                        player: EffectRecipientDef::player(PlayerRefDef::ControllerOf(
+                            ObjectRefDef::Binding(Binding!("counterbore_target")),
+                        )),
+                    },
+                ]),
+            }),
+        ),
+    ),
+);
 
 // SHM 57 — Beseech the Queen
 pub(in crate::card::sets) static BESEECH_THE_QUEEN: CardRecord = CardRecord::new(
@@ -199,6 +255,7 @@ pub(in crate::card::sets) static BARKSHELL_BLESSING: CardRecord = CardRecord::ne
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &COUNTERBORE,
     &BESEECH_THE_QUEEN,
     &BURN_TRAIL,
     &WOODFALL_PRIMUS,

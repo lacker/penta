@@ -17,8 +17,8 @@ include!("casting/object_costs.rs");
 include!("casting/scalar_choices.rs");
 
 use crate::card::{
-    BattlefieldEntryScalarChoiceDef, CardSet, FaceDownCharacteristics, ScalarChoiceListDef,
-    SpellAdditionalCostDef,
+    BattlefieldEntryScalarChoiceDef, FaceDownCharacteristics, ReplacementEffectDef,
+    ScalarChoiceListDef, SpellAdditionalCostDef,
 };
 
 struct SpellCastProposal {
@@ -166,6 +166,7 @@ impl Game {
         &mut self,
         player: PlayerId,
         context: super::ReplacementEffectContext,
+        authored_effect: ReplacementEffectDef,
         choice: BattlefieldEntryScalarChoiceDef,
     ) {
         let (prompt, choices) = self.entry_scalar_choices(player, choice);
@@ -191,6 +192,7 @@ impl Game {
             options,
             DecisionContinuation::BattlefieldEntryScalarChoice {
                 context,
+                authored_effect,
                 choice,
                 choices,
             },

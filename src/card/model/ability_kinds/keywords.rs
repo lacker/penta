@@ -90,7 +90,7 @@ static LEGENDARY_CREATURE: ObjectPredicateDef = ObjectPredicateDef::All(&[
 
 static WOLF_OF_THE_HUNT: ObjectPredicateDef = ObjectPredicateDef::All(&[
     ObjectPredicateDef::HasType(CardType::Creature),
-    ObjectPredicateDef::Named("Wolves of the Hunt"),
+    ObjectPredicateDef::NameEquals(crate::card::CardNameDef::Literal("Wolves of the Hunt")),
 ]);
 
 /// A keyword ability carried as an ordinary, ordered rules clause.

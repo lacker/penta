@@ -494,11 +494,18 @@ impl HandcraftedPolicy {
         objects: crate::card::ObjectSetDef,
     ) -> Option<&'static crate::card::TargetConditionDef> {
         match objects {
+            crate::card::ObjectSetDef::Union(sets) => sets
+                .iter()
+                .copied()
+                .find_map(Self::target_condition_in_object_set),
             crate::card::ObjectSetDef::Query(query) => {
                 Self::target_condition_in_object_predicate(query.object)
             }
             crate::card::ObjectSetDef::PlayerAttachments(query) => {
                 Self::target_condition_in_object_predicate(query.object)
+            }
+            crate::card::ObjectSetDef::ExceptObject { objects, .. } => {
+                Self::target_condition_in_object_set(*objects)
             }
             crate::card::ObjectSetDef::One(_)
             | crate::card::ObjectSetDef::Binding(_)
@@ -513,8 +520,6 @@ impl HandcraftedPolicy {
             | crate::card::ObjectSetDef::TokensCreatedBy(_)
             | crate::card::ObjectSetDef::BottomOfGraveyard(_)
             | crate::card::ObjectSetDef::LegalTargets(_)
-            | crate::card::ObjectSetDef::SharingNameWith(_)
-            | crate::card::ObjectSetDef::SharingNameWithBinding { .. }
             | crate::card::ObjectSetDef::TopOfGraveyardMatching { .. } => None,
         }
     }

@@ -254,6 +254,7 @@ fn shared_entry_replacement_condition(condition: ConditionDef) -> bool {
 
 pub(super) fn shared_entry_replacement_effect(effect: ReplacementEffectDef) -> bool {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => shared_entry_replacement_effect(*effect),
         ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::Choose(_)
         | ReplacementEffectDef::LookAtHand(_)
@@ -327,6 +328,7 @@ pub(in super::super) fn shared_begin_turn_replacement_effect(effect: Replacement
                     .any(|effect| matches!(effect, ReplacementEffectDef::ReplaceEventWithNothing))
         }
         ReplacementEffectDef::MoveToZone(_)
+        | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::PlaceCountersOnMovedObject { .. }
         | ReplacementEffectDef::MultiplyEventAmount(_)
@@ -418,6 +420,7 @@ pub(in super::super) fn shared_battlefield_exit_replacement_effect(
                     .any(|effect| matches!(effect, ReplacementEffectDef::MoveToZone(_)))
         }
         ReplacementEffectDef::ReplaceEventWithNothing
+        | ReplacementEffectDef::BindOutput { .. }
         | ReplacementEffectDef::ModifyBattlefieldEntry(_)
         | ReplacementEffectDef::MultiplyEventAmount(_)
         | ReplacementEffectDef::AddToEventAmount(_)
@@ -533,6 +536,9 @@ pub(in super::super) fn assert_nested_replacement_definition_abilities(
     effect: ReplacementEffectDef,
 ) {
     match effect {
+        ReplacementEffectDef::BindOutput { effect, .. } => {
+            assert_nested_replacement_definition_abilities(card_name, *effect);
+        }
         ReplacementEffectDef::Sequence(effects) => {
             for effect in effects {
                 assert_nested_replacement_definition_abilities(card_name, *effect);

@@ -115,6 +115,35 @@ impl Game {
         )
     }
 
+    fn effect_object_set_count_condition_holds(
+        &self,
+        condition: crate::card::ObjectSetCountConditionDef,
+        objects: Vec<Target>,
+        object: &StackObject,
+        context: &EffectResolutionContext,
+        scoped: ScopedEffect,
+    ) -> bool {
+        let count = condition.predicate.filter.map_or(objects.len(), |filter| {
+            objects
+                .into_iter()
+                .filter(|target| {
+                    self.effect_collection_target_matches(
+                        filter.predicate(),
+                        *target,
+                        object,
+                        context,
+                        scoped,
+                    )
+                })
+                .count()
+        });
+        compare(
+            &count,
+            condition.predicate.comparison,
+            &usize::from(condition.predicate.amount),
+        )
+    }
+
     /// Whether one chosen target answers a characteristic predicate.
     ///
     /// What is read depends on what the slot named: a permanent on the
@@ -385,36 +414,16 @@ impl Game {
                 TriggerConditionDef::SourceInZone(zone) => self
                     .card_in_nonbattlefield_zone(source)
                     .is_some_and(|(actual, _)| actual == *zone),
-                // Names, not identities: a second copy of the named card is
-                // still the named card, so the definitions are compared.
-                TriggerConditionDef::BoundObjectsShareName { first, second } => {
-                    let named = |objects: &&'static ObjectSetDef| {
-                        object
-                            .and_then(|(object, scoped, context)| {
-                                self.effect_objects(**objects, object, context, scoped)
-                                    .into_iter()
-                                    .next()
-                            })
-                            .and_then(|target| match target {
-                                Target::Permanent(id) | Target::Card(id) | Target::Spell(id) => {
-                                    self.object_definition(id)
-                                }
-                                Target::Player(_) => None,
-                            })
-                    };
-                    match (named(first), named(second)) {
-                        (Some(first), Some(second)) => first == second,
-                        _ => false,
-                    }
-                }
                 // The card an earlier choice saved, read where it is now:
                 // the clause that asks is the same resolution that chose it.
                 TriggerConditionDef::BoundObjectMatches {
                     binding,
                     object: predicate,
-                } => object.is_some_and(|(_, _, context): (_, _, &EffectResolutionContext)| {
+                } => object.is_some_and(|(object, scoped, context)| {
                     context.single_object(*binding).is_some_and(|bound| {
-                        self.bound_object_matches(bound, *predicate, source)
+                        self.effect_collection_target_matches(
+                            *predicate, bound, object, context, scoped,
+                        )
                     })
                 }),
                 // The permanent records the controller's turn count as it
@@ -544,7 +553,9 @@ impl Game {
                         |(object, scoped, context)| {
                             let objects =
                                 self.effect_objects(*counting.objects, object, context, scoped);
-                            self.object_set_count_condition_holds(**counting, objects, source)
+                            self.effect_object_set_count_condition_holds(
+                                **counting, objects, object, context, scoped,
+                            )
                         },
                     )
                 }

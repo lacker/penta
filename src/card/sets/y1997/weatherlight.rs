@@ -7,8 +7,8 @@ use crate::card::sets::y2013::magic_2014 as catalog_m14;
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
-    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardType, CardTypeSet,
-    CastTimingPermissionDef, CombineObjectsDef, ComparisonDef, CostModificationDef,
+    BattlefieldEntryModificationDef, CardArt, CardNameDef, CardRules, CardSet, CardType,
+    CardTypeSet, CastTimingPermissionDef, CombineObjectsDef, ComparisonDef, CostModificationDef,
     CostQuantityDef, CounterKind, CreatureTypeSetDef, DiscardSelectionDef, EffectDef,
     EffectPaymentDef, EffectRecipientDef, HalvedValueDef, ManaColor, MoveObjectsDef,
     MoveToZoneCostDef, ObjectCollectionSourceDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
@@ -2752,7 +2752,9 @@ pub(in crate::card::sets) static LLANOWAR_SENTINEL: CardRecord = CardRecord::new
                 &EffectDef::SearchZone {
                     player: EffectRecipientDef::Controller,
                     source: ZoneKind::Library,
-                    object: ObjectPredicateDef::Named("Llanowar Sentinel"),
+                    object: ObjectPredicateDef::NameEquals(CardNameDef::Literal(
+                        "Llanowar Sentinel",
+                    )),
                     minimum: 0,
                     maximum: ValueDef::Constant(1),
                     reveal: false,

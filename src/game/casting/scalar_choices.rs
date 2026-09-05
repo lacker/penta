@@ -1,3 +1,5 @@
+use crate::card::CardNameSetDef;
+
 impl Game {
     pub(super) fn entry_scalar_choices(
         &self,
@@ -26,56 +28,27 @@ impl Game {
                     .collect::<Vec<_>>(),
                 crate::card::ManaColor::White.label(),
             ),
-            ScalarChoiceListDef::CardNames
-            | ScalarChoiceListDef::NonlandCardNames
-            | ScalarChoiceListDef::NonbasicLandCardNames
-            | ScalarChoiceListDef::CardNamesOtherThanBasicLands => {
-                let mut names = self
-                    .catalog
-                    .definitions()
+            ScalarChoiceListDef::CardNames(name_set) => {
+                let names = self
+                    .catalog_card_names(name_set)
+                    .unwrap_or_default()
                     .into_iter()
-                    .filter(|definition| definition.debut_set != CardSet::Token)
-                    .flat_map(|definition| definition.parts.iter())
-                    // A split card is nameable half by half, so the land test
-                    // belongs to the part rather than to the whole card.
-                    .filter(|part| match choice.list {
-                        ScalarChoiceListDef::CardNames => true,
-                        ScalarChoiceListDef::NonlandCardNames => {
-                            !part.rules.has_type(CardType::Land)
-                        }
-                        ScalarChoiceListDef::NonbasicLandCardNames => {
-                            part.rules.has_type(CardType::Land)
-                                && !part.rules.has_supertype(crate::card::CardSupertype::Basic)
-                        }
-                        ScalarChoiceListDef::CardNamesOtherThanBasicLands => {
-                            !part.rules.has_type(CardType::Land)
-                                || !part.rules.has_supertype(crate::card::CardSupertype::Basic)
-                        }
-                        ScalarChoiceListDef::Players
-                        | ScalarChoiceListDef::BasicLandTypes
-                        | ScalarChoiceListDef::Colors
-                        | ScalarChoiceListDef::CreatureTypes => false,
-                    })
-                    .map(|part| part.name.clone())
-                    .collect::<Vec<_>>();
-                names.sort();
-                names.dedup();
+                    .collect();
                 (
-                    match choice.list {
-                        ScalarChoiceListDef::NonlandCardNames => "Choose a nonland card name",
-                        ScalarChoiceListDef::NonbasicLandCardNames => {
+                    match name_set {
+                        CardNameSetDef::NonlandCardNames => "Choose a nonland card name",
+                        CardNameSetDef::LandCardNames => "Choose a land card name",
+                        CardNameSetDef::NonbasicLandCardNames => {
                             "Choose a nonbasic land card name"
                         }
-                        ScalarChoiceListDef::CardNamesOtherThanBasicLands => {
+                        CardNameSetDef::CardNamesOtherThanBasicLands => {
                             "Choose a card name other than a basic land card name"
                         }
-                        ScalarChoiceListDef::CardNames => "Choose a card name",
-                        ScalarChoiceListDef::Players
-                        | ScalarChoiceListDef::BasicLandTypes
-                        | ScalarChoiceListDef::Colors
-                        | ScalarChoiceListDef::CreatureTypes => unreachable!(
-                            "non-card-name scalar lists are handled by earlier match arms"
-                        ),
+                        CardNameSetDef::BasicLandNames => "Choose a basic land card name",
+                        CardNameSetDef::AllCardNames
+                        | CardNameSetDef::NamesOf(_)
+                        | CardNameSetDef::Union(_)
+                        | CardNameSetDef::NamesAppearingAtLeast { .. } => "Choose a card name",
                     },
                     names,
                     "Black Lotus",

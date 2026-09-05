@@ -37,6 +37,14 @@ impl Game {
         permanent: &Permanent,
     ) -> Vec<ManaAbilityActivation> {
         let mut activations = Vec::new();
+        // Name-based activation prohibitions cover mana abilities too, and
+        // mana abilities are enumerated separately from the rest.
+        if self.mana_ability_activation_of_object_is_prohibited(
+            permanent.controller,
+            &self.trigger_event_object(permanent),
+        ) {
+            return activations;
+        }
         self.for_each_effective_ability(permanent, |effective| {
             let ability = effective.ability;
             let DeclarativeAbilityDef::ActivatedMana(definition) = ability.definition else {

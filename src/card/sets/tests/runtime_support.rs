@@ -1,11 +1,13 @@
 mod conditions;
 mod costs;
+mod names;
 mod nested_definitions;
 mod stack_effects;
 mod static_effects;
 
 pub(super) use conditions::*;
 pub(super) use costs::*;
+use names::{shared_card_name, shared_card_name_set};
 pub(super) use static_effects::shared_static_effect;
 
 pub(super) use nested_definitions::*;
@@ -28,21 +30,9 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         ObjectPredicateDef::Not(predicate) | ObjectPredicateDef::AttachedTo(predicate) => {
             shared_object_predicate(*predicate)
         }
-        ObjectPredicateDef::HasName(
-            ObjectRefDef::AbilityGrantSource
-            | ObjectRefDef::CreatingSource
-            | ObjectRefDef::ZoneChangeSuccessor(_)
-            | ObjectRefDef::ZoneChangeResultOfTriggeringObject
-            | ObjectRefDef::ResolvingObject
-            | ObjectRefDef::AttachedToSource
-            | ObjectRefDef::Target(_)
-            | ObjectRefDef::TriggeringObject
-            | ObjectRefDef::DamagedObject
-            | ObjectRefDef::Binding(_)
-            | ObjectRefDef::AdditionalCostObject(_)
-            | ObjectRefDef::SourceOfTargetedStackObject(_),
-        )
-        | ObjectPredicateDef::Special(_) => false,
+        ObjectPredicateDef::NameEquals(name) => shared_card_name(name),
+        ObjectPredicateDef::NameIn(names) => shared_card_name_set(*names),
+        ObjectPredicateDef::Special(_) => false,
         ObjectPredicateDef::Any
         | ObjectPredicateDef::Source
         | ObjectPredicateDef::Token
@@ -59,8 +49,6 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::Color(_)
         | ObjectPredicateDef::ColorCount(_)
         | ObjectPredicateDef::Subtype(_)
-        | ObjectPredicateDef::Named(_)
-        | ObjectPredicateDef::HasChosenName
         | ObjectPredicateDef::ManaValueAtMost(_)
         | ObjectPredicateDef::GenericManaCostAtMost(_)
         | ObjectPredicateDef::ManaValueEqualTo(_)
@@ -80,7 +68,6 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
         | ObjectPredicateDef::OwnedBy(_)
         | ObjectPredicateDef::Supertype(_)
         | ObjectPredicateDef::DebutSet(_)
-        | ObjectPredicateDef::HasName(ObjectRefDef::Source)
         | ObjectPredicateDef::HasSourcesChosenScalar(_)
         | ObjectPredicateDef::TargetsObjectMatching(_)
         | ObjectPredicateDef::AttackingOrBlocking
@@ -110,6 +97,10 @@ pub(super) fn shared_object_predicate(predicate: ObjectPredicateDef) -> bool {
 
 pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
     match recipient.0 {
+        EffectRecipientSetDef::Objects(ObjectSetDef::Union(sets)) => sets
+            .iter()
+            .copied()
+            .all(|objects| shared_effect_recipient(EffectRecipientDef::objects(objects))),
         EffectRecipientSetDef::Objects(ObjectSetDef::Query(query)) => {
             let ObjectQueryDef { object, zones, .. } = query;
             !zones.is_empty()
@@ -143,8 +134,7 @@ pub(super) fn shared_effect_recipient(recipient: EffectRecipientDef) -> bool {
             | ObjectSetDef::PermanentsControlledBy(_)
             | ObjectSetDef::BottomOfGraveyard(_)
             | ObjectSetDef::LegalTargets(_)
-            | ObjectSetDef::SharingNameWith(_)
-            | ObjectSetDef::SharingNameWithBinding { .. }
+            | ObjectSetDef::ExceptObject { .. }
             | ObjectSetDef::TokensCreatedBy(_)
             | ObjectSetDef::TopOfGraveyardMatching { .. },
         )

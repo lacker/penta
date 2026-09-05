@@ -1,7 +1,11 @@
 //! TLA card records required by supported formats.
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
-use crate::card::{CardArt, CardRules, CardSet};
+use crate::card::{
+    AbilityCostDef, AbilityDef, AddManaEffectDef, BattlefieldEntryModificationDef, CardArt,
+    CardRules, CardSet, EffectDef, EffectRecipientDef, ManaColor, ReplacementEffectDef, ValueDef,
+};
+use crate::mana_cost;
 
 // TLA 144 — The Last Agni Kai
 pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new(
@@ -14,13 +18,39 @@ pub(in crate::card::sets) static THE_LAST_AGNI_KAI: CardRecord = CardRecord::new
 );
 
 // TLA 267 — Boiling Rock Prison
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BOILING_ROCK_PRISON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1c2e2220-54d1-4180-93a0-964e3b0ba8b8"),
     "Boiling Rock Prison",
-    crate::card::CardArt::new("1c2e2220-54d1-4180-93a0-964e3b0ba8b8", "Matteo Bassini"),
-    crate::card::CardSet::AvatarTheLastAirbender,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1c2e2220-54d1-4180-93a0-964e3b0ba8b8", "Matteo Bassini"),
+    CardSet::AvatarTheLastAirbender,
+    // Entering tapped is the price of the two colours; cashing it in later
+    // is what keeps it from being a dead draw once the mana is there.
+    CardRules::new_land(&[]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(BattlefieldEntryModificationDef::Tapped),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {B} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Black,
+                ManaColor::Red,
+            ])),
+        ),
+        AbilityDef::activated(
+            "{4}, {T}, Sacrifice this land: Draw a card.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{4}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // TLA 271 — Kyoshi Village

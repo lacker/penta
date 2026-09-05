@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardType, ComparisonDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, BasicLandType, CardArt, CardRules, CardSet, CardType, ComparisonDef,
+    EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // DFT 67 — Stock Up
 pub(in crate::card::sets) static STOCK_UP: CardRecord = CardRecord::new_with_legacy_id(
@@ -57,13 +57,46 @@ pub(in crate::card::sets) static CHITIN_GRAVESTALKER: CardRecord = CardRecord::n
 );
 
 // DFT 88 — Grim Bauble
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRIM_BAUBLE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9bfdf60a-6f67-4872-8961-d63776b192c3"),
     "Grim Bauble",
-    crate::card::CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
-    crate::card::CardSet::Aetherdrift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9bfdf60a-6f67-4872-8961-d63776b192c3", "Wero Gallo"),
+    CardSet::Aetherdrift,
+    // One mana kills an early creature and the artifact stays behind, which
+    // is what makes the four-mana surveil a bonus rather than the plan.
+    CardRules::new_artifact(mana_cost!("{B}")).with_abilities(&[
+        abilities::enters_trigger_with_targets(
+            "When this artifact enters, target creature an opponent controls gets -2/-2 until \
+             end of turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(-2),
+                    ValueDef::Constant(-2),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        AbilityDef::activated(
+            "{2}{B}, {T}, Sacrifice this artifact: Surveil 2. (Look at the top two cards of your \
+             library, then put any number of them into your graveyard and the rest on top of \
+             your library in any order.)",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            abilities::surveil(ValueDef::Constant(2)),
+        ),
+    ]),
 );
 
 // DFT 191 — Brightglass Gearhulk

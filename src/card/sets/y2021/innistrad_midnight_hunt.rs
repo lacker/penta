@@ -3,9 +3,9 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    CardArt, CardRules, CardSet, CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, PlayerRelation,
+    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -91,13 +91,40 @@ pub(in crate::card::sets) static CATHAR_COMMANDO: CardRecord = CardRecord::new_w
 );
 
 // MID 24 — Homestead Courage
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOMESTEAD_COURAGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73a9c49f-fcd3-4572-bac7-6eb06fdc0815"),
     "Homestead Courage",
-    crate::card::CardArt::new("73a9c49f-fcd3-4572-bac7-6eb06fdc0815", "Colin Boyer"),
-    crate::card::CardSet::InnistradMidnightHunt,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("73a9c49f-fcd3-4572-bac7-6eb06fdc0815", "Colin Boyer"),
+    CardSet::InnistradMidnightHunt,
+    // A counter is permanent where the vigilance is not, so the second cast
+    // out of the graveyard is what the card is really priced on.
+    CardRules::new_sorcery(mana_cost!("{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Put a +1/+1 counter on target creature you control. It gains vigilance until end of \
+             turn.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::vigilance()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{W}")),
+    ]),
 );
 
 // MID 32 — Search Party Captain

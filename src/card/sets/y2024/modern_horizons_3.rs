@@ -1931,13 +1931,32 @@ pub(in crate::card::sets) static PERILOUS_LANDSCAPE: CardRecord = CardRecord::ne
 );
 
 // MH3 225 — Seething Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEETHING_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("661fc907-7003-45c6-820c-9616e9a71c30"),
     "Seething Landscape",
-    crate::card::CardArt::new("661fc907-7003-45c6-820c-9616e9a71c30", "Piotr Dura"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("661fc907-7003-45c6-820c-9616e9a71c30", "Piotr Dura"),
+    CardSet::ModernHorizons3,
+    // The Grixis member of the cycle: colourless mana now, a tapped basic
+    // later, or a card when the deck has enough colours for the cycling.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Island, Swamp, or \
+             Mountain card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Island,
+                    BasicLandType::Swamp,
+                    BasicLandType::Mountain,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {U}{B}{R} ({U}{B}{R}, Discard this card: Draw a card.)",
+            mana_cost!("{U}{B}{R}"),
+        ),
+    ]),
 );
 
 // MH3 226 — Shattered Landscape

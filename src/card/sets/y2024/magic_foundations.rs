@@ -12,13 +12,47 @@ use crate::card::{
 use crate::{TargetIndex, mana_cost};
 
 // FDN 18 — Inspiring Paladin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static INSPIRING_PALADIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0763be06-25b2-4d6b-ab33-a1af85aeb443"),
     "Inspiring Paladin",
-    crate::card::CardArt::new("0763be06-25b2-4d6b-ab33-a1af85aeb443", "Valera Lutfullina"),
-    crate::card::CardSet::MagicFoundations,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("0763be06-25b2-4d6b-ab33-a1af85aeb443", "Valera Lutfullina"),
+    CardSet::MagicFoundations,
+    // First strike only while attacking, which is the trade for handing it
+    // out to the whole team: it never helps the blocks.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Human", "Knight"], 3, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "During your turn, this creature has first strike. (It deals combat damage before \
+             creatures without first strike.)",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                },
+            },
+        ),
+        // A second printed ability rather than a rider: it reaches every
+        // creature with a counter, and this one only if something has put a
+        // counter on it.
+        AbilityDef::static_ability(
+            "During your turn, creatures you control with +1/+1 counters on them have first \
+             strike.",
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::ActivePlayer(PlayerRelation::You),
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                        ]),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+                },
+            },
+        ),
+    ]),
 );
 
 // FDN 114 — Treetop Snarespinner

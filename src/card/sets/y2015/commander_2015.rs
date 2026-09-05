@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityDef, AbilityKindDef, AbilityPredicateDef, AbilityTargetDef, AbilityTargetPredicate,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType, EffectDef,
+    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -124,13 +125,49 @@ pub(in crate::card::sets) static CALLER_OF_THE_PACK: CardRecord = CardRecord::ne
 );
 
 // C15 69 — Faith's Fetters
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FAITH_S_FETTERS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5b8ffba3-44a9-41ce-a5a1-37413346db2f"),
     "Faith's Fetters",
-    crate::card::CardArt::new("fe653236-c5c1-4dcd-95cd-3c53f1e256ef", "Brian Despain"),
-    crate::card::CardSet::Commander2015,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fe653236-c5c1-4dcd-95cd-3c53f1e256ef", "Brian Despain"),
+    CardSet::Commander2015,
+    // Four mana and four life for an answer that reaches anything, which is
+    // what a slow deck pays for not having to guess what it will face.
+    CardRules::new_enchantment(mana_cost!("{3}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant permanent",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::Any,
+                    )]
+                },
+            ),
+            abilities::enters_trigger(
+                "When this Aura enters, you gain 4 life.",
+                EffectDef::GainLife {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(4),
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent can't attack or block, and its activated abilities can't be \
+                 activated unless they're mana abilities.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    // The mana exception is why this is NonManaActivated
+                    // rather than Any: a land or rock it lands on still taps
+                    // for mana.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Is(
+                            AbilityKindDef::NonManaActivated,
+                        )),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // C15 99 — Ninja of the Deep Hours

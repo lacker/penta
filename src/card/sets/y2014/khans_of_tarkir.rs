@@ -2,21 +2,54 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
-    TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
+    AbilityCostDef, AbilityDef, ActivationTimingDef, AddManaEffectDef, AppliedEffectDef, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
+    ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef, ReplacementEventDef,
+    ResolvedEffectDurationDef, TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    abilities,
 };
 use crate::mana_cost;
 
 // KTK 3 — Ainok Bond-Kin
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22d2a844-17fc-4628-9591-684555e98f7b"),
     "Ainok Bond-Kin",
-    crate::card::CardArt::new("22d2a844-17fc-4628-9591-684555e98f7b", "Chris Rahn"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("22d2a844-17fc-4628-9591-684555e98f7b", "Jeff Simpson"),
+    CardSet::KhansOfTarkir,
+    // Outlast is slow enough that the anthem is the reason to play it: a
+    // counters deck gets first strike on the whole board for free.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Dog", "Soldier"], 2, 1).with_abilities(&[
+        AbilityDef::activated(
+            "Outlast {1}{W} ({1}{W}, {T}: Put a +1/+1 counter on this creature. Outlast only as \
+             a sorcery.)",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+        AbilityDef::static_ability(
+            "Each creature you control with a +1/+1 counter on it has first strike.",
+            EffectDef::StaticApply {
+                // Itself included once it has outlasted, which is what makes
+                // the slow ability worth activating at all.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::first_strike()),
+            },
+        ),
+    ]),
 );
 
 // KTK 22 — Seeker of the Way

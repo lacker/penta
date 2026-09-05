@@ -3,11 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::sets::y2005::ravnica_city_of_guilds as catalog_rav;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ComparisonDef,
-    CounterKind, EffectChoiceDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ComparisonDef, CounterKind, EffectChoiceDef, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, ObjectQueryDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -305,13 +305,27 @@ pub(in crate::card::sets) static BUSHWHACK: CardRecord = CardRecord::new(
 );
 
 // J25 684 — Llanowar Visionary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static LLANOWAR_VISIONARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("880c9523-717e-4903-a09e-d6c47614383d"),
     "Llanowar Visionary",
-    crate::card::CardArt::new("c2635b0c-c990-4cce-9ac4-97602a757cf0", "Cristi Balanescu"),
-    crate::card::CardSet::FoundationsJumpstart,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c2635b0c-c990-4cce-9ac4-97602a757cf0", "Cristi Balanescu"),
+    CardSet::FoundationsJumpstart,
+    // A mana dork that costs three is only playable because it replaces
+    // itself first, so the ramp is pure profit if it survives.
+    CardRules::new_creature(mana_cost!("{2}{G}"), &["Elf", "Druid"], 2, 2).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, draw a card.",
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {G}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Green)),
+        ),
+    ]),
 );
 
 // J25 753 — Guardian Idol

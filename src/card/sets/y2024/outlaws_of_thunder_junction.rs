@@ -562,13 +562,21 @@ pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
 );
 
 // OTJ 256 — Eroded Canyon
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ERODED_CANYON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770"),
     "Eroded Canyon",
-    crate::card::CardArt::new("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770", "Piotr Dura"),
-    crate::card::CardSet::OutlawsOfThunderJunction,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5c9d080f-28d7-41d6-a4e0-5b3e3a5ed770", "Piotr Dura"),
+    CardSet::OutlawsOfThunderJunction,
+    // The blue-red Desert; only the two colours below are its own.
+    CardRules::new_land(&["Desert"]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        abilities::desert_entry_ping(),
+        AbilityDef::activated_mana(
+            "{T}: Add {U} or {R}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[ManaColor::Blue, ManaColor::Red])),
+        ),
+    ]),
 );
 
 // OTJ 335 — Slickshot Show-Off

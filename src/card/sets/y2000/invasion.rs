@@ -19,8 +19,8 @@ use crate::card::{
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
     ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, TriggerEventDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -2428,13 +2428,43 @@ pub(in crate::card::sets) static ANGELIC_SHIELD: CardRecord = CardRecord::new(
 );
 
 // INV 229 — Armadillo Cloak
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ARMADILLO_CLOAK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9d816f98-6cb6-432c-b0a4-a0eed21658ac"),
     "Armadillo Cloak",
-    crate::card::CardArt::new("9d816f98-6cb6-432c-b0a4-a0eed21658ac", "Paolo Parente"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9d816f98-6cb6-432c-b0a4-a0eed21658ac", "Paolo Parente"),
+    CardSet::Invasion,
+    // Trample plus lifegain on any damage, so the creature wearing it wins
+    // races even when the board is stalled.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +2/+2 and has trample.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::modify_power_toughness(
+                            ValueDef::Constant(2),
+                            ValueDef::Constant(2),
+                        ),
+                        AppliedEffectDef::add_ability(&abilities::trample()),
+                    ]),
+                },
+            ),
+            AbilityDef::triggered(
+                "Whenever enchanted creature deals damage, you gain that much life.",
+                // Any damage, not just combat: a creature that pings or
+                // fights while wearing this gains the life too.
+                TriggerEventDef::damage_dealt_by(ObjectPredicateDef::AttachedToSource),
+                EffectDef::GainLife {
+                    // The Aura's controller, which need not be the creature's:
+                    // this can be put on something across the table.
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::TriggerEventAmount,
+                },
+            ),
+        ]),
 );
 
 // INV 230 — Armored Guardian

@@ -25,6 +25,12 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **"Until the end of your next turn" is now a permission duration.**
+  `ExilePlayDurationDef::UntilEndOfYourNextTurn` grants play permission over
+  exiled cards through the holder's following turn. It is always a turn longer
+  than `UntilYourNextEndStep`, which lapses tonight when the cards were exiled
+  on the holder's own turn -- the case every impulse-draw spell is cast in.
+
 - **Morbid can price a spell, not just resolve one.**
   `ValueDef::IfCreatureDiedThisTurn` is now read when a card discounts itself
   from hand, so "this spell costs {3} less to cast if a creature died this

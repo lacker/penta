@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -168,13 +168,30 @@ pub(in crate::card::sets) static CONCEALING_CURTAINS: CardRecord = CardRecord::n
 );
 
 // VOW 174 — Reckless Impulse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_IMPULSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546"),
     "Reckless Impulse",
-    crate::card::CardArt::new("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546", "Mathias Kollros"),
-    crate::card::CardSet::InnistradCrimsonVow,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6943c07f-ab0d-4f5a-bbe9-c0a83dc98546", "Mathias Kollros"),
+    CardSet::InnistradCrimsonVow,
+    // Two cards for two mana in a colour that does not draw them. The extra
+    // turn is what makes it a real two-for-one: a red deck casting this on
+    // three still has the mana to spend both halves before they lapse.
+    CardRules::new_sorcery(mana_cost!("{1}{R}")).with_ability(AbilityDef::spell(
+        "Exile the top two cards of your library. Until the end of your next turn, you may play \
+         those cards.",
+        EffectDef::ExileTopOfLibraryToPlay {
+            player: EffectRecipientDef::Controller,
+            amount: ValueDef::Constant(2),
+            // "You may play those cards", not "without paying their mana
+            // costs": the cards are still bought at full price.
+            free: false,
+            face_down: false,
+            duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+            spend_any_color: false,
+            play_condition: None,
+            cast_only: false,
+        },
+    )),
 );
 
 // VOW 182 — Voldaren Epicure

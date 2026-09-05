@@ -427,6 +427,43 @@ impl Game {
         });
     }
 
+    /// "You may play that card until the end of your next turn."
+    ///
+    /// Always the holder's following turn, whoever is active: on their own
+    /// turn "your next turn" is the one after this, and on somebody else's
+    /// it is the one about to start. Both are one more turn than they have
+    /// begun, so the count is the same either way -- which is exactly what
+    /// separates this from [`Self::permit_play_until_your_next_end_step`],
+    /// where being active shortens the grant to tonight.
+    pub(super) fn permit_play_until_end_of_your_next_turn(
+        &mut self,
+        card: GameObjectId,
+        player: PlayerId,
+    ) {
+        self.exile_play_permissions.push(ExilePlayPermission {
+            card,
+            player,
+            cost: ExilePlayCost::Printed,
+            until_end_of_turn: None,
+            adventure_return_only: false,
+            surcharge: ManaCost::default(),
+            not_before_turn: None,
+            face_down: false,
+            hidden_only: false,
+            spend_any_color: false,
+            condition: None,
+            until_holder_end_step: Some((
+                player,
+                self.turns_started[player.index()].saturating_add(1),
+            )),
+            zone: ZoneKind::Exile,
+            group: None,
+            hidden_from_owner: false,
+            lands_may_be_played: true,
+            grants_haste: false,
+        });
+    }
+
     /// "You may cast that card." Unlike the free play above, the cost is
     /// still owed; what the permission grants is only that exile is a legal
     /// place to cast it from.

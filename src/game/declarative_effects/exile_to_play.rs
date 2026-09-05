@@ -46,6 +46,9 @@ impl Game {
                 (false, false, ExilePlayDurationDef::UntilYourNextEndStep) => {
                     self.permit_play_until_your_next_end_step(exiled, controller);
                 }
+                (false, false, ExilePlayDurationDef::UntilEndOfYourNextTurn) => {
+                    self.permit_play_until_end_of_your_next_turn(exiled, controller);
+                }
                 // Bounded by the exile rather than by a turn: what limits it
                 // is whatever the clause asks for each time it is played.
                 (false, false, ExilePlayDurationDef::WhileExiled) => {

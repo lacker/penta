@@ -457,6 +457,11 @@ pub enum ExilePlayDurationDef {
     /// "Until your next end step", which reaches into the holder's own turn
     /// when the card was exiled on somebody else's.
     UntilYourNextEndStep,
+    /// "Until the end of your next turn", which is always a turn further out
+    /// than [`Self::UntilYourNextEndStep`]: exiled on your own turn it runs
+    /// through the turn after this one rather than lapsing tonight, and
+    /// exiled on somebody else's the two happen to agree.
+    UntilEndOfYourNextTurn,
     /// For as long as the card is in exile. What bounds it is not a turn but
     /// whatever the clause granting it says: Robber of the Rich hands one
     /// out that only works on the turns you attacked with a Rogue.

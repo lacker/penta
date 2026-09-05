@@ -1543,32 +1543,16 @@ pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord
     // has enough colours to pay for the cycling.
     CardRules::new_land(&[]).with_abilities(&[
         abilities::tap_for(ManaColor::Colorless),
-        AbilityDef::activated(
+        abilities::landscape_fetch(
             "{T}, Sacrifice this land: Search your library for a basic Plains, Island, or Swamp card, put it onto the battlefield tapped, then shuffle.",
-            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
-            EffectDef::SearchZone {
-                player: EffectRecipientDef::Controller,
-                source: ZoneKind::Library,
-                object: ObjectPredicateDef::All(&[
-                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
-                    ObjectPredicateDef::HasAnyBasicLandType(&[
-                        BasicLandType::Plains,
-                        BasicLandType::Island,
-                        BasicLandType::Swamp,
-                    ]),
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Plains,
+                    BasicLandType::Island,
+                    BasicLandType::Swamp,
                 ]),
-                // A qualified library search may legally fail to find.
-                minimum: 0,
-                maximum: ValueDef::Constant(1),
-                reveal: false,
-                destination: ZoneKind::Battlefield,
-                placement: ZonePlacement::Top,
-                shuffle: true,
-                enters_tapped: true,
-                attachment: None,
-                binding: None,
-                then: None,
-            },
+            ]),
         ),
         abilities::cycling(
             "Cycling {W}{U}{B} ({W}{U}{B}, Discard this card: Draw a card.)",
@@ -1578,13 +1562,31 @@ pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord
 );
 
 // MH3 219 — Deceptive Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DECEPTIVE_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("2ae6828e-ff19-45db-8b59-61616353491f"),
     "Deceptive Landscape",
-    crate::card::CardArt::new("2ae6828e-ff19-45db-8b59-61616353491f", "Erikas Perl"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("2ae6828e-ff19-45db-8b59-61616353491f", "Erikas Perl"),
+    CardSet::ModernHorizons3,
+    // The white-black-green Landscape; only the three types and the cycling
+    // cost below are its own.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Plains, Swamp, or Forest card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Plains,
+                    BasicLandType::Swamp,
+                    BasicLandType::Forest,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {W}{B}{G} ({W}{B}{G}, Discard this card: Draw a card.)",
+            mana_cost!("{W}{B}{G}"),
+        ),
+    ]),
 );
 
 // MH3 221 — Foreboding Landscape

@@ -247,3 +247,38 @@ pub const fn desert_entry_ping() -> AbilityDef {
         },
     )
 }
+
+/// The Landscape cycle's shared search: "{T}, Sacrifice this land: Search
+/// your library for a basic <three types> card, put it onto the battlefield
+/// tapped, then shuffle."
+///
+/// Ten lands print it with only the three basic types changing, so what it
+/// may find is the parameter -- the same shape as `fetch_land_ability`
+/// above, which differs in charging a life and not entering tapped. The text
+/// comes from the caller because it names those types.
+#[must_use]
+pub const fn landscape_fetch(text: &'static str, object: ObjectPredicateDef) -> AbilityDef {
+    AbilityDef::activated(
+        text,
+        &LANDSCAPE_FETCH_COST,
+        EffectDef::SearchZone {
+            player: EffectRecipientDef::Controller,
+            source: ZoneKind::Library,
+            object,
+            // A qualified library search may legally fail to find.
+            minimum: 0,
+            maximum: ValueDef::Constant(1),
+            reveal: false,
+            destination: ZoneKind::Battlefield,
+            placement: ZonePlacement::Top,
+            shuffle: true,
+            enters_tapped: true,
+            attachment: None,
+            binding: None,
+            then: None,
+        },
+    )
+}
+
+static LANDSCAPE_FETCH_COST: [AbilityCostDef; 2] =
+    [AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource];

@@ -590,13 +590,81 @@ pub(in crate::card::sets) static STONECOIL_SERPENT: CardRecord = CardRecord::new
 );
 
 // ELD 247 — Mystic Sanctuary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MYSTIC_SANCTUARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("170e792c-80d5-4775-ad95-37614574ab84"),
     "Mystic Sanctuary",
-    crate::card::CardArt::new("170e792c-80d5-4775-ad95-37614574ab84", "Randy Vargas"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("170e792c-80d5-4775-ad95-37614574ab84", "Randy Vargas"),
+    CardSet::ThroneOfEldraine,
+    // An Island, so its mana ability is the subtype's rather than a printed
+    // clause -- which is why the card prints that line in parentheses.
+    //
+    // Written out rather than shared with Witch's Cottage below: the count
+    // it asks about names its own basic type, and a condition holding that
+    // as a parameter behind a reference cannot be promoted to `'static`.
+    CardRules::new_land(&["Island"]).with_abilities(&[
+        AbilityDef::as_enters(
+            "This land enters tapped unless you control three or more other Islands.",
+            ReplacementEffectDef::Conditional {
+                condition: ConditionDef::ObjectCount(
+                    &const {
+                        ObjectCountConditionDef {
+                            query: ObjectQueryDef::matching(
+                                ObjectPredicateDef::All(&[
+                                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                                        BasicLandType::Island,
+                                    ]),
+                                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                                ]),
+                                &[ZoneKind::Battlefield],
+                                PlayerRelation::You,
+                            ),
+                            comparison: ComparisonDef::GreaterOrEqual,
+                            amount: 3,
+                        }
+                    },
+                ),
+                if_true: &[],
+                if_false: &const {
+                    [ReplacementEffectDef::ModifyBattlefieldEntry(
+                        BattlefieldEntryModificationDef::Tapped,
+                    )]
+                },
+            },
+        ),
+        AbilityDef::triggered_if_with_targets(
+            "When this land enters untapped, you may put target instant or sorcery card from \
+             your graveyard on top of your library.",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::Source,
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            // The same entry the replacement above just decided about: it
+            // fires only on the turns the Island count let it come in ready.
+            &TriggerConditionDef::SourceUntapped,
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::AnyOf(&[
+                        ObjectPredicateDef::HasType(CardType::Instant),
+                        ObjectPredicateDef::HasType(CardType::Sorcery),
+                    ]),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Library,
+                        placement: ZonePlacement::Top,
+                    }
+                },
+            },
+        ),
+    ]),
 );
 
 // ELD 249 — Witch's Cottage

@@ -18,8 +18,9 @@ use crate::card::{
     CostModificationDef, DividedTotal, DrawEventMatcherDef, EffectDef, EffectRecipientDef,
     ManaColor, ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
     ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, TargetChooserDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, TargetChooserDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -455,13 +456,28 @@ pub(in crate::card::sets) static SOLTARI_PRIEST: CardRecord = CardRecord::new(
 );
 
 // TMP 47 — Soltari Trooper
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOLTARI_TROOPER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("32f74aa3-4003-4f53-b774-22b111935391"),
     "Soltari Trooper",
-    crate::card::CardArt::new("32f74aa3-4003-4f53-b774-22b111935391", "Kev Walker"),
-    crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("32f74aa3-4003-4f53-b774-22b111935391", "Kev Walker"),
+    CardSet::Tempest,
+    // Shadow makes it unblockable in practice, so the attack bonus is the
+    // whole of what two mana buys: two guaranteed damage a turn.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Soltari", "Soldier"], 1, 1).with_abilities(&[
+        abilities::shadow(),
+        AbilityDef::triggered(
+            "Whenever this creature attacks, it gets +1/+1 until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::Constant(1),
+                    ValueDef::Constant(1),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 48 — Spirit Mirror

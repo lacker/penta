@@ -113,13 +113,32 @@ pub(in crate::card::sets) static VISIONARY_S_DANCE: CardRecord = CardRecord::new
 );
 
 // SOS 255 — Fields of Strife
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIELDS_OF_STRIFE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3dc7a4c3-c356-4fba-bea0-e8788da3eb57"),
     "Fields of Strife",
-    crate::card::CardArt::new("3dc7a4c3-c356-4fba-bea0-e8788da3eb57", "Josu Solano"),
-    crate::card::CardSet::SecretsOfStrixhaven,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3dc7a4c3-c356-4fba-bea0-e8788da3eb57", "Josu Solano"),
+    CardSet::SecretsOfStrixhaven,
+    // Titan's Grave in red and white, and its sink costs both colours: the
+    // surveil is only reachable in the deck the land is already fixing for.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::enters_tapped(CardType::Land),
+        AbilityDef::activated_mana(
+            "{T}: Add {R} or {W}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::choice(&[
+                ManaColor::Red,
+                ManaColor::White,
+            ])),
+        ),
+        AbilityDef::activated(
+            "{2}{R}{W}, {T}: Surveil 1.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{R}{W}")),
+                AbilityCostDef::TapSource,
+            ],
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // SOS 256 — Forum of Amity

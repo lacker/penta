@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, CardArt, CardRules, CardSet,
-    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ObjectPredicateDef,
-    ResolvedEffectDurationDef, TriggerConditionDef, ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, CostQuantityDef, CreatureTypeSetDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, SpellAdditionalCostDef, TriggerConditionDef, ValueDef, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -35,13 +36,46 @@ pub(in crate::card::sets) static FLICKERWISP: CardRecord = CardRecord::new(
 );
 
 // EVE 41 — Raven's Crime
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAVEN_S_CRIME: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ced5797-5de0-43ca-9dc9-e48912333a70"),
     "Raven's Crime",
-    crate::card::CardArt::new("7ced5797-5de0-43ca-9dc9-e48912333a70", "Warren Mahy"),
-    crate::card::CardSet::Eventide,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7ced5797-5de0-43ca-9dc9-e48912333a70", "Warren Mahy"),
+    CardSet::Eventide,
+    // Retrace turns every excess land into another discard, which is why a
+    // land-heavy deck treats this one card as an engine.
+    CardRules::new_sorcery(mana_cost!("{B}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target player discards a card.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Player(PlayerRelation::Any),
+            )],
+            EffectDef::Discard {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(1),
+                selection: DiscardSelectionDef::RecipientChooses,
+                then: None,
+            },
+        ),
+        AbilityDef::alternative_cast_for_card_mana_cost(
+            AlternativeCastKindDef::Retrace,
+            Some(
+                "Retrace (You may cast this card from your graveyard by discarding a land card \
+                 in addition to paying its other costs.)",
+            ),
+            EffectDef::None,
+        )
+        // Retrace's own cost: the card's mana cost again, plus a land out of
+        // hand. Discarding is what an ordinary hand cost does, so nothing
+        // else has to be said about how the land is spent.
+        .with_alternative_additional_cost(
+            &const {
+                SpellAdditionalCostDef::discard(
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    CostQuantityDef::Fixed(1),
+                )
+            },
+        ),
+    ]),
 );
 
 // EVE 119 — Desecrator Hag

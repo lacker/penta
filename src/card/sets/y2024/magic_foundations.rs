@@ -6,7 +6,8 @@ use crate::card::{
     CardArt, CardRules, CardSet, CardSupertype, CardType, CharacteristicOperationDef,
     CreatureTypeSetDef, EffectDef, EffectRecipientDef, ExilePlayDurationDef, ManaColor,
     ObjectPredicateDef, PlayerRelation, PowerToughnessOperationDef, ResolvedEffectDurationDef,
-    SetOperationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    SetOperationDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -214,13 +215,40 @@ pub(in crate::card::sets) static UNDYING_MALICE: CardRecord = CardRecord::new(
 );
 
 // FDN 596 — Shipwreck Dowser
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHIPWRECK_DOWSER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("59d38ef7-5017-4ea3-b97f-a8fe12d03e98"),
     "Shipwreck Dowser",
-    crate::card::CardArt::new("1f20fe3d-792a-4030-a25c-e81b48b2bcb4", "Caroline Gariba"),
-    crate::card::CardSet::MagicFoundations,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1f20fe3d-792a-4030-a25c-e81b48b2bcb4", "Caroline Gariba"),
+    CardSet::MagicFoundations,
+    // Five mana is a lot for a 3/3, so the card it buys back has to be the
+    // reason to play it -- and prowess makes the body grow off that card.
+    CardRules::new_creature(mana_cost!("{3}{U}{U}"), &["Merfolk", "Wizard"], 3, 3).with_abilities(
+        &[
+            abilities::prowess(),
+            abilities::enters_trigger_with_targets(
+                "When this creature enters, return target instant or sorcery card from your \
+                 graveyard to your hand.",
+                &[AbilityTargetDef::exactly_one(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Instant),
+                            ObjectPredicateDef::HasType(CardType::Sorcery),
+                        ]),
+                        zones: &[ZoneKind::Graveyard],
+                        controller: None,
+                        // "Your graveyard" is about ownership, not who happens to
+                        // control the card there.
+                        owner: Some(PlayerRelation::You),
+                    },
+                )],
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ],
+    ),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

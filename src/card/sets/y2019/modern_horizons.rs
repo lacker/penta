@@ -497,13 +497,37 @@ pub(in crate::card::sets) static BOGARDAN_DRAGONHEART: CardRecord = CardRecord::
 );
 
 // MH1 144 — Reckless Charge
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RECKLESS_CHARGE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0938e686-345e-4411-b564-cf9324ec6b9d"),
     "Reckless Charge",
-    crate::card::CardArt::new("1754a8db-060e-470f-94c0-37f12d82978a", "Steve Argyle"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1754a8db-060e-470f-94c0-37f12d82978a", "Steve Argyle"),
+    CardSet::ModernHorizons1,
+    // Haste is what makes the +3/+0 matter on the turn a fatty lands, and
+    // the flashback means one card does it twice.
+    CardRules::new_sorcery(mana_cost!("{R}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Target creature gets +3/+0 and gains haste until end of turn.",
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Sequence(&[
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(0),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{2}{R}")),
+    ]),
 );
 
 // MH1 145 — Seasoned Pyromancer

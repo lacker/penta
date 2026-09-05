@@ -169,13 +169,51 @@ pub(in crate::card::sets) static DIREGRAF_HORDE: CardRecord = CardRecord::new(
 );
 
 // MID 100 — Ecstatic Awakener // Awoken Demon
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new(
+pub(in crate::card::sets) static ECSTATIC_AWAKENER: CardRecord = CardRecord::new_dfc(
     PrintingAnchor::scryfall("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9"),
-    "Ecstatic Awakener",
-    crate::card::CardArt::new("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9", "Tuan Duong Chu"),
-    crate::card::CardSet::InnistradMidnightHunt,
-    crate::card::CardRules::unsupported(),
+    "Ecstatic Awakener // Awoken Demon",
+    CardArt::new("bbdad18e-e262-41f9-b252-1cbdcdd1b5f9", "Tuan Duong Chu"),
+    CardSet::InnistradMidnightHunt,
+    // A one-drop that turns a spare body into a card and a 4/4, which is
+    // what a sacrifice deck wants from its cheapest slot.
+    &[
+        (
+            "Ecstatic Awakener",
+            CardRules::new_creature(mana_cost!("{B}"), &["Human", "Wizard"], 1, 1).with_ability(
+                AbilityDef::activated(
+                    "{2}{B}, Sacrifice another creature: Draw a card, then transform this \
+                     creature. Activate only once each turn.",
+                    &[
+                        AbilityCostDef::Mana(mana_cost!("{2}{B}")),
+                        // "Another creature": this one is transforming rather
+                        // than dying, so it cannot pay for its own ability.
+                        AbilityCostDef::SacrificePermanent {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                            ]),
+                            controller: PlayerRelation::You,
+                        },
+                    ],
+                    EffectDef::Sequence(&[
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::Transform {
+                            object: EffectRecipientDef::Source,
+                        },
+                    ]),
+                )
+                .once_each_turn(),
+            ),
+        ),
+        (
+            "Awoken Demon",
+            CardRules::new_creature_without_mana_cost(&["Demon"], 4, 4)
+                .printed_colors(&[ManaColor::Black]),
+        ),
+    ],
 );
 
 // MID 107 — Infernal Grasp

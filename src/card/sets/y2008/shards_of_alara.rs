@@ -4,8 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, DiscardSelectionDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRefDef, PlayerRelation,
-    ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, abilities, tokens,
+    EffectRecipientDef, KeywordAbility, ManaColor, ObjectPredicateDef, ObjectRefDef, PlayerRefDef,
+    PlayerRelation, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    tokens,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -127,13 +128,51 @@ pub(in crate::card::sets) static BLIGHTNING: CardRecord = CardRecord::new(
 );
 
 // ALA 158 — Branching Bolt
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BRANCHING_BOLT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e7468876-f401-4a75-81c0-bed09cdda3e1"),
     "Branching Bolt",
-    crate::card::CardArt::new("e7468876-f401-4a75-81c0-bed09cdda3e1", "Vance Kovacs"),
-    crate::card::CardSet::ShardsOfAlara,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e7468876-f401-4a75-81c0-bed09cdda3e1", "Vance Kovacs"),
+    CardSet::ShardsOfAlara,
+    // Three mana for three damage is a poor rate until both modes are live,
+    // which is the whole design: it is a two-for-one or it is overpriced.
+    CardRules::new_instant(mana_cost!("{1}{R}{G}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or both —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Branching Bolt deals 3 damage to target creature with flying.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasKeyword(KeywordAbility::Flying),
+                        ]),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(3),
+                    },
+                ),
+                AbilityDef::spell_with_targets(
+                    "Branching Bolt deals 3 damage to target creature without flying.",
+                    &[AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::All(&[
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                KeywordAbility::Flying,
+                            )),
+                        ]),
+                    )],
+                    EffectDef::DealDamage {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        amount: ValueDef::Constant(3),
+                    },
+                ),
+            ],
+        )
+        // Both modes may be chosen, and each carries its own target, so the
+        // two halves never land on the same creature.
+        .with_mode_selection(1, 2, false),
+    ),
 );
 
 // ALA 202 — Tidehollow Sculler

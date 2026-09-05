@@ -1016,6 +1016,39 @@ pub(in crate::card::sets) static ANCIENT_SPIDER: CardRecord = CardRecord::new(
     crate::card::CardRules::unsupported(),
 );
 
+/// "Return a <kind> creature you control to its owner's hand." Two
+/// Planeshift creatures print this arrival clause, differing only in which
+/// creatures qualify, so `object` carries the complete predicate rather than
+/// just the colours: a slice assembled from a parameter cannot be promoted
+/// to `'static`.
+const fn return_a_creature_you_control(object: ObjectPredicateDef) -> EffectDef {
+    EffectDef::Choose(ChooseDef {
+        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+        unchosen: None,
+        chooser: PlayerRefDef::EffectController,
+        // Chosen as the trigger resolves rather than targeted.
+        candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
+            object,
+            &[ZoneKind::Battlefield],
+            PlayerSetDef::Related(PlayerRelation::You),
+        )),
+        exclude: None,
+        minimum: 1,
+        maximum: 1,
+        visibility: ChoiceVisibilityDef::Public,
+        // A const block rather than a plain reference: the recipient is
+        // itself a const fn call, which a temporary inside a const fn body
+        // will not promote to `'static`.
+        then: &const {
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            }
+        },
+    })
+}
+
 // PLS 97 — Cavern Harpy
 pub(in crate::card::sets) static CAVERN_HARPY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("adfb0804-50d6-4bca-8733-72e01030a543"),
@@ -1028,33 +1061,15 @@ pub(in crate::card::sets) static CAVERN_HARPY: CardRecord = CardRecord::new(
         abilities::flying(),
         abilities::enters_trigger(
             "When this creature enters, return a blue or black creature you control to its owner's hand.",
-            // Chosen as this resolves rather than targeted, and the Harpy is
-            // itself blue and black, so it is always a legal answer.
-            EffectDef::Choose(ChooseDef {
-                binding: ObjectChoiceBindingDef::Objects(ParentBinding),
-                unchosen: None,
-                chooser: PlayerRefDef::EffectController,
-                candidates: ObjectSetDef::Query(ObjectQueryDef::controlled_by(
-                    ObjectPredicateDef::All(&[
-                        ObjectPredicateDef::HasType(CardType::Creature),
-                        ObjectPredicateDef::AnyOf(&[
-                            ObjectPredicateDef::Color(ManaColor::Blue),
-                            ObjectPredicateDef::Color(ManaColor::Black),
-                        ]),
-                    ]),
-                    &[ZoneKind::Battlefield],
-                    PlayerSetDef::Related(PlayerRelation::You),
-                )),
-                exclude: None,
-                minimum: 1,
-                maximum: 1,
-                visibility: ChoiceVisibilityDef::Public,
-                then: &EffectDef::MoveToZone {
-                    object: EffectRecipientDef::objects(ObjectSetDef::Binding(ParentBinding)),
-                    zone: ZoneKind::Hand,
-                    placement: ZonePlacement::Top,
-                },
-            }),
+            // The Harpy is itself blue and black, so it is always a legal
+            // answer to its own trigger.
+            return_a_creature_you_control(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                    ObjectPredicateDef::Color(ManaColor::Black),
+                ]),
+            ])),
         ),
         AbilityDef::activated(
             "Pay 1 life: Return this creature to its owner's hand.",
@@ -1353,13 +1368,29 @@ pub(in crate::card::sets) static SHIVAN_WURM: CardRecord = CardRecord::new(
 );
 
 // PLS 125 — Silver Drake
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SILVER_DRAKE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("726aa407-dadd-4575-aee2-b7888e67a722"),
     "Silver Drake",
-    crate::card::CardArt::new("ac35ee86-96b2-47aa-a1ba-2988737f11ee", "Alan Pollack"),
-    crate::card::CardSet::Planeshift,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ac35ee86-96b2-47aa-a1ba-2988737f11ee", "Alan Pollack"),
+    CardSet::Planeshift,
+    // Three mana for a 3/3 flier is a bargain, and the bounce is the bill:
+    // it is only free when there is an arrival trigger worth replaying.
+    CardRules::new_creature(mana_cost!("{1}{W}{U}"), &["Drake"], 3, 3).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, return a white or blue creature you control to its \
+             owner's hand.",
+            // The Drake is itself white and blue, so a board with nothing
+            // else still has a legal answer.
+            return_a_creature_you_control(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::White),
+                    ObjectPredicateDef::Color(ManaColor::Blue),
+                ]),
+            ])),
+        ),
+    ]),
 );
 
 // PLS 126 — Sparkcaster

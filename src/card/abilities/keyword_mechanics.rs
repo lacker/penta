@@ -297,6 +297,16 @@ pub const fn protection_from_multicolored() -> AbilityDef {
     )
 }
 
+/// "Protection from monocolored", the mirror of the clause above: exactly one
+/// colour, so a colourless source and a gold one both get through.
+#[must_use]
+pub const fn protection_from_monocolored() -> AbilityDef {
+    keyword(
+        "Protection from monocolored",
+        KeywordAbility::ProtectionFrom(&ObjectPredicateDef::ColorCount(1)),
+    )
+}
+
 /// The reminder text every detain clause prints, so the cards agree on it.
 pub const DETAIN_REMINDER: &str = "(Until your next turn, that permanent can't attack or block \
                                    and its activated abilities can't be activated.)";

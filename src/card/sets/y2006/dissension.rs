@@ -12,13 +12,15 @@ use crate::ids::{Binding, ParentBinding};
 use crate::mana_cost;
 
 // DIS 10 — Guardian of the Guildpact
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GUARDIAN_OF_THE_GUILDPACT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e"),
     "Guardian of the Guildpact",
-    crate::card::CardArt::new("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e", "Fred Hooper"),
-    crate::card::CardSet::Dissension,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c8dd004b-01e4-4fe1-a164-9f2ea8d7d88e", "Wayne England"),
+    CardSet::Dissension,
+    // Nearly unkillable and nearly unblockable in a two-colour format: only
+    // a gold or colourless source touches it, which is the whole card.
+    CardRules::new_creature(mana_cost!("{3}{W}"), &["Spirit"], 2, 3)
+        .with_ability(abilities::protection_from_monocolored()),
 );
 
 // DIS 99 — Utopia Sprawl

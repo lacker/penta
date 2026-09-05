@@ -893,13 +893,40 @@ pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new
 );
 
 // MH2 188 — Captured by Lagacs
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CAPTURED_BY_LAGACS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7ce1c2a8-688b-4f63-8d58-e325efc6052a"),
     "Captured by Lagacs",
-    crate::card::CardArt::new("7ce1c2a8-688b-4f63-8d58-e325efc6052a", "Andrew Mar"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7ce1c2a8-688b-4f63-8d58-e325efc6052a", "Andrew Mar"),
+    CardSet::ModernHorizons2,
+    // Three mana for a Pacifism is a poor rate on its own; the two counters
+    // are what pay the difference, and they stay after the Aura is gone.
+    CardRules::new_enchantment(mana_cost!("{1}{G}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            abilities::enchanted_creature_pacified(),
+            abilities::enters_trigger_with_targets(
+                "When this Aura enters, support 2. (Put a +1/+1 counter on each of up to two \
+                 target creatures.)",
+                // One slot holding up to two targets: "each of" is what makes
+                // them one group. No "other" here -- the Aura is not a
+                // creature, so nothing has to be excluded.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    2,
+                )],
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ]),
 );
 
 // MH2 202 — Grist, the Hunger Tide

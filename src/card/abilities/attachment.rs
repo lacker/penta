@@ -15,6 +15,27 @@ static ENCHANTED_PERMANENT_SUBDUED: [AppliedEffectDef; 3] = [
     AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
 ];
 
+/// The two prohibitions Pacifism prints. Nothing in the vocabulary bars
+/// combat wholesale, and nothing needs to: attacking and blocking are
+/// separate declarations, so barring each is barring both.
+static ENCHANTED_CREATURE_PACIFIED: [AppliedEffectDef; 2] = [
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+    AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+];
+
+/// "Enchanted creature can't attack or block." Printed verbatim on more than
+/// one Aura, which is why it is written once here.
+#[must_use]
+pub const fn enchanted_creature_pacified() -> AbilityDef {
+    AbilityDef::static_ability(
+        "Enchanted creature can't attack or block.",
+        EffectDef::StaticApply {
+            recipient: EffectRecipientDef::AttachedPermanent,
+            effect: AppliedEffectDef::Composite(&ENCHANTED_CREATURE_PACIFIED),
+        },
+    )
+}
+
 /// "Enchanted permanent can't attack or block, and its activated abilities
 /// can't be activated." Printed verbatim on more than one Aura, which is why
 /// it is written once here; the wording differs only in what each card is

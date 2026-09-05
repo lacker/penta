@@ -525,19 +525,7 @@ pub(in crate::card::sets) static PACIFISM: CardRecord = CardRecord::new_with_leg
         .with_subtypes(&["Aura"])
         .with_abilities(&[
             abilities::enchant_creature(),
-            AbilityDef::static_ability(
-                "Enchanted creature can't attack or block.",
-                EffectDef::StaticApply {
-                    recipient: EffectRecipientDef::AttachedPermanent,
-                    // Two prohibitions rather than one: nothing in the vocabulary bars combat
-                    // wholesale, and nothing needs to -- attacking and blocking are separate
-                    // declarations, so barring each is barring both.
-                    effect: AppliedEffectDef::Composite(&[
-                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
-                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
-                    ]),
-                },
-            ),
+            abilities::enchanted_creature_pacified(),
         ]),
 );
 

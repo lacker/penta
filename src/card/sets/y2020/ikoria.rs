@@ -4,10 +4,10 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
     AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CompanionConditionDef,
-    CostModificationDef, DeckConstructionDef, EffectDef, EffectRecipientDef,
-    GraveyardPlayPermissionDef, ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TriggerConditionDef, TriggerEventDef,
-    ValueDef, ZoneKind, abilities,
+    ComparisonDef, CostModificationDef, DeckConstructionDef, EffectDef, EffectRecipientDef,
+    GraveyardPlayPermissionDef, ObjectPredicateDef, ObjectQueryDef, PlayActionMatcherDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
+    TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -28,13 +28,41 @@ const fn triome(types: &'static [&'static str]) -> CardRules {
 }
 
 // IKO 137 — Spelleater Wolverine
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPELLEATER_WOLVERINE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22"),
     "Spelleater Wolverine",
-    crate::card::CardArt::new("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22", "Uriah Voth"),
-    crate::card::CardSet::Ikoria,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a5f03ffd-dcdb-441c-8dfc-4fe06a289b22", "Uriah Voth"),
+    CardSet::Ikoria,
+    // A vanilla 3/2 until the graveyard fills, then six damage a turn: the
+    // threshold is what a spells deck is being paid for.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Wolverine"], 3, 2).with_ability(
+        AbilityDef::static_ability(
+            "This creature has double strike as long as there are three or more instant and/or \
+             sorcery cards in your graveyard.",
+            EffectDef::IfCondition {
+                // One count over both types rather than two, since the
+                // printed clause adds them together.
+                condition: &const {
+                    TriggerConditionDef::ObjectCount {
+                        query: ObjectQueryDef::matching(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Instant),
+                                ObjectPredicateDef::HasType(CardType::Sorcery),
+                            ]),
+                            &[ZoneKind::Graveyard],
+                            PlayerRelation::You,
+                        ),
+                        comparison: ComparisonDef::GreaterOrEqual,
+                        amount: 3,
+                    }
+                },
+                then: &EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::Source,
+                    effect: AppliedEffectDef::add_ability(&abilities::double_strike()),
+                },
+            },
+        ),
+    ),
 );
 
 // IKO 170 — Ram Through

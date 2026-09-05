@@ -792,13 +792,32 @@ pub(in crate::card::sets) static RAINBOW_CROW: CardRecord = CardRecord::new(
 );
 
 // INV 70 — Repulse
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPULSE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a04e9be-48be-440e-9825-cfffd4c2b1a4"),
     "Repulse",
-    crate::card::CardArt::new("9a04e9be-48be-440e-9825-cfffd4c2b1a4", "Aaron Boyd"),
-    crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9a04e9be-48be-440e-9825-cfffd4c2b1a4", "Aaron Boyd"),
+    CardSet::Invasion,
+    // Bouncing at instant speed rarely answers anything permanently, so the
+    // cantrip is what pays for the card and makes three mana acceptable.
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target creature to its owner's hand. Draw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::HasType(CardType::Creature),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            // The draw is not conditional on the bounce: a target that has
+            // already left still leaves this a cantrip.
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // INV 71 — Sapphire Leech

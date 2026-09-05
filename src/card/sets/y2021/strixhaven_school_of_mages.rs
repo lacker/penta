@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
+    CounterKind, EffectDef, EffectRecipientDef, ManaColor, MoveObjectsDef, ObjectChoiceBindingDef,
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
     PlayerSetDef, TriggerConditionDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
     abilities, tokens,
@@ -270,16 +270,6 @@ pub(in crate::card::sets) static EXPRESSIVE_ITERATION: CardRecord = CardRecord::
     )),
 );
 
-// STX 219 — Quandrix Pledgemage
-// Audit: unsupported — Card rules have not been implemented.
-pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
-    "Quandrix Pledgemage",
-    crate::card::CardArt::new("07633b7f-4150-458b-89c3-d05dc0e3c4bd", "Caroline Gariba"),
-    crate::card::CardSet::StrixhavenSchoolOfMages,
-    crate::card::CardRules::unsupported(),
-);
-
 /// An instant or sorcery spell of yours, which is the whole of what
 /// magecraft watches: what the spell does is no part of the condition.
 static YOUR_INSTANT_OR_SORCERY: ObjectPredicateDef = ObjectPredicateDef::All(&[
@@ -297,6 +287,28 @@ static MAGECRAFT: TriggerEventDef = TriggerEventDef::AnyOf(&[
     TriggerEventDef::spell_cast(YOUR_INSTANT_OR_SORCERY),
     TriggerEventDef::spell_copied(YOUR_INSTANT_OR_SORCERY),
 ]);
+
+// STX 219 — Quandrix Pledgemage
+pub(in crate::card::sets) static QUANDRIX_PLEDGEMAGE: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("07633b7f-4150-458b-89c3-d05dc0e3c4bd"),
+    "Quandrix Pledgemage",
+    CardArt::new("07633b7f-4150-458b-89c3-d05dc0e3c4bd", "Caroline Gariba"),
+    CardSet::StrixhavenSchoolOfMages,
+    // Counters rather than a temporary pump, so a turn of cheap spells
+    // leaves a threat behind instead of a one-turn swing.
+    CardRules::new_creature(mana_cost!("{1}{G/U}{G/U}"), &["Merfolk", "Druid"], 2, 2).with_ability(
+        AbilityDef::triggered(
+            "Magecraft — Whenever you cast or copy an instant or sorcery spell, put a +1/+1 \
+             counter on this creature.",
+            MAGECRAFT,
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Source,
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ),
+);
 
 // STX 247 — Witherbloom Apprentice
 pub(in crate::card::sets) static WITHERBLOOM_APPRENTICE: CardRecord = CardRecord::new(

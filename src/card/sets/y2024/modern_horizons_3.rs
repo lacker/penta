@@ -1618,13 +1618,31 @@ pub(in crate::card::sets) static FOREBODING_LANDSCAPE: CardRecord = CardRecord::
 );
 
 // MH3 223 — Perilous Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PERILOUS_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b0bd07e-cf80-4d64-af29-f4cec6632b3e"),
     "Perilous Landscape",
-    crate::card::CardArt::new("4b0bd07e-cf80-4d64-af29-f4cec6632b3e", "Alayna Danner"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4b0bd07e-cf80-4d64-af29-f4cec6632b3e", "Alayna Danner"),
+    CardSet::ModernHorizons3,
+    // The blue-red-white Landscape; only the three types and the cycling
+    // cost below are its own.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Island, Mountain, or Plains card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Island,
+                    BasicLandType::Mountain,
+                    BasicLandType::Plains,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {U}{R}{W} ({U}{R}{W}, Discard this card: Draw a card.)",
+            mana_cost!("{U}{R}{W}"),
+        ),
+    ]),
 );
 
 // MH3 225 — Seething Landscape

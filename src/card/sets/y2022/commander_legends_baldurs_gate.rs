@@ -4,23 +4,123 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt, CardComposition,
+    CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype, CardType,
     CounterKind, DeckConstructionDef, EffectDef, EffectRecipientDef, KeywordAbility, ManaColor,
-    ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef,
-    TokenCharacteristics, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
-    abilities,
+    ObjectPredicateDef, PlayOptionDef, PlayerRelation, ResolvedEffectDurationDef,
+    SacrificedAmountDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
 };
+use crate::ids::{CardPartId, PlayOptionId};
 use crate::{TargetIndex, mana_cost};
 
 // CLB 11 — Blessed Hippogriff
-// Audit: unsupported — Card rules have not been implemented.
+const fn blessed_hippogriff_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{3}{W}"), &const { ["Hippogriff"] }, 2, 3).with_abilities(
+        &const {
+            [
+                abilities::flying(),
+                AbilityDef::triggered_with_targets(
+                    "Whenever this creature attacks, target attacking creature without flying \
+                     gains flying until end of turn.",
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                    // "Without flying" excludes the Hippogriff itself, which
+                    // already has it, so the trigger only ever helps another
+                    // attacker through.
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::All(
+                                &const {
+                                    [
+                                        ObjectPredicateDef::HasType(CardType::Creature),
+                                        ObjectPredicateDef::Attacking,
+                                        ObjectPredicateDef::Not(&ObjectPredicateDef::HasKeyword(
+                                            KeywordAbility::Flying,
+                                        )),
+                                    ]
+                                },
+                            ),
+                        )]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(&const { abilities::flying() }),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                ),
+            ]
+        },
+    )
+}
+
+fn blessed_hippogriff_composition() -> CardComposition {
+    let hippogriff = blessed_hippogriff_rules();
+    let blessing = const {
+        CardRules::new_instant(mana_cost!("{W}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Target creature gains indestructible until end of turn.",
+                    &const {
+                        [AbilityTargetDef::exactly_one_permanent(
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                        )]
+                    },
+                    EffectDef::Apply {
+                        recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        effect: AppliedEffectDef::add_ability(
+                            &const { abilities::indestructible() },
+                        ),
+                        duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                    },
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Blessed Hippogriff", hippogriff),
+            CardPart::new(CardPartId(1), "Tyr's Blessing", blessing),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Blessed Hippogriff",
+                SpellForm::Part(CardPartId::PRIMARY),
+                hippogriff
+                    .mana_cost()
+                    .expect("the Hippogriff has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Tyr's Blessing",
+                SpellForm::Part(CardPartId(1)),
+                blessing
+                    .mana_cost()
+                    .expect("Tyr's Blessing has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static BLESSED_HIPPOGRIFF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4590e53-ca8d-4896-a8cf-6af1e4bc456f"),
     "Blessed Hippogriff",
-    crate::card::CardArt::new("b4590e53-ca8d-4896-a8cf-6af1e4bc456f", "Leanna Crossan"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("b4590e53-ca8d-4896-a8cf-6af1e4bc456f", "Leanna Crossan"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // A one-mana combat trick early and a flier that carries the team over
+    // blockers later: the Adventure is why the body costs four.
+    blessed_hippogriff_rules(),
+)
+.with_composition(blessed_hippogriff_composition);
 
 // CLB 22 — Greatsword of Tyr
 pub(in crate::card::sets) static GREATSWORD_OF_TYR: CardRecord = CardRecord::new(

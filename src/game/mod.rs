@@ -27,9 +27,9 @@ use crate::card::{
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
     ResolvedEffectDurationDef, SacrificedAmountDef, SetOperationDef, SpellResolutionDestinationDef,
     StackObjectEventDef, StackTargetAggregationDef, StackTargetFilterDef, TapPurposeDef,
-    TargetPredicate, TargetSlotDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
-    TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef, ZonePlacement,
-    abilities, applicable_part_ids_ref,
+    TargetPredicate, TargetSlotDef, TextChangeKindDef, TokenCharacteristics, TriggerConditionDef,
+    TriggerEventDef, TurnKindDef, TurnPhaseDef, TurnStepDef, ValueDef, ZoneKind, ZoneMoveCauseDef,
+    ZonePlacement, abilities, applicable_part_ids_ref,
 };
 use crate::casting::{CastChoices, CastSignature, CostConfiguration, TargetSelection};
 use crate::deck::Deck;
@@ -135,6 +135,7 @@ mod static_animation;
 mod suspend;
 mod tap_payment;
 mod targeting;
+mod text_changes;
 mod tokens;
 mod trigger_capture;
 mod trigger_placement;
@@ -176,9 +177,9 @@ use casting_state::{
     cast_source_zone_from_label,
 };
 use characteristic_state::{
-    BasicLandTypeChange, BattlefieldExitSnapshot, CharacteristicSource, CopiableAbility,
-    CopiableCharacteristics, DoubleFacedCopiableCharacteristics, EffectiveAbility,
-    LandTypeOperation, PermanentLastKnownInformation,
+    BattlefieldExitSnapshot, CharacteristicSource, CopiableAbility, CopiableCharacteristics,
+    DoubleFacedCopiableCharacteristics, EffectiveAbility, LandTypeOperation,
+    PermanentLastKnownInformation, TextChange, TextWordChange,
 };
 use combat_state::CombatDamageStage;
 use continuous_state::{

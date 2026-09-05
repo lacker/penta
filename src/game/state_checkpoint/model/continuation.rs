@@ -8,13 +8,14 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot,
-    ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot, CounterKindSnapshot,
-    DeferredBeginTurnEffectSnapshot, DetachedCardSnapshot, DetachedStackSnapshot,
-    DiscardChoiceSnapshot, DrawReplacementSnapshot, EffectContinuationSnapshot,
-    EffectResolutionContextSnapshot, ManaSnapshot, PendingTriggerSnapshot,
-    ReplacementEffectContextSnapshot, ReplacementEffectLocator, ResolvedEffectPaymentSnapshot,
-    ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot, TriggerPlacementBatchSnapshot,
-    TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot, ZonePlacementSnapshot,
+    ApplicableBeginTurnReplacementSnapshot, ApplicableReplacementSnapshot,
+    ContinuousEffectExpirationSnapshot, CounterKindSnapshot, DeferredBeginTurnEffectSnapshot,
+    DetachedCardSnapshot, DetachedStackSnapshot, DiscardChoiceSnapshot, DrawReplacementSnapshot,
+    EffectContinuationSnapshot, EffectResolutionContextSnapshot, ManaSnapshot,
+    PendingTriggerSnapshot, ReplacementEffectContextSnapshot, ReplacementEffectLocator,
+    ResolvedEffectPaymentSnapshot, ScopedEffectSnapshot, TargetSelectionSnapshot, TargetSnapshot,
+    TriggerPlacementBatchSnapshot, TurnKindSnapshot, ZoneKindSnapshot, ZoneMoveCauseSnapshot,
+    ZonePlacementSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -93,8 +94,10 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         applied: Vec<AbilitySourceSnapshot>,
         replacements: Vec<DrawReplacementSnapshot>,
     },
-    BasicLandTypeTextChange {
+    TextChange {
         target: TargetSnapshot,
+        text_kind: TextChangeKindSnapshot,
+        expiration: ContinuousEffectExpirationSnapshot,
     },
     DiscardForEffect {
         player: usize,
@@ -234,6 +237,10 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         effect: ReplacementEffectLocator,
         choices: Vec<String>,
     },
+    BattlefieldEntryBasicLandTypePairChoice {
+        context: ReplacementEffectContextSnapshot,
+        effect: ReplacementEffectLocator,
+    },
     BattlefieldEntryCopy {
         choices: Vec<u32>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -363,6 +370,14 @@ pub(in crate::game::state_checkpoint) enum DecisionContinuationSnapshot {
         remaining: Vec<usize>,
         votes: Vec<u32>,
     },
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(in crate::game::state_checkpoint) enum TextChangeKindSnapshot {
+    BasicLandType,
+    ColorWord,
+    BasicLandTypeOrColorWord,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

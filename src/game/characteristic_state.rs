@@ -1,5 +1,7 @@
 use crate::action::AbilityOrigin;
-use crate::card::{AbilityDef, BasicLandType, CardSupertype, CardTypeSet, KeywordAbility};
+use crate::card::{
+    AbilityDef, BasicLandType, CardSupertype, CardTypeSet, KeywordAbility, ManaColor,
+};
 use crate::ids::{CardDefinitionId, MeldRecipeId};
 use crate::{
     EmblemCharacteristics, FaceDownCharacteristics, ObjectCharacteristics, TokenCharacteristics,
@@ -23,24 +25,42 @@ pub(super) enum CharacteristicSource {
     Meld(MeldRecipeId),
 }
 
-/// One indefinite text-changing effect in layer 3. These effects belong to
-/// the object, are applied in timestamp order, and are deliberately excluded
-/// from its copiable values.
+/// One resolving text-changing effect in layer 3. These effects belong to the
+/// object, are applied in insertion/timestamp order, and are deliberately
+/// excluded from its copiable values.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) struct BasicLandTypeChange {
-    pub(super) from: BasicLandType,
-    pub(super) to: BasicLandType,
+pub(super) struct TextChange {
+    pub(super) word: TextWordChange,
+    pub(super) expiration: super::ContinuousEffectExpiration,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum TextWordChange {
+    BasicLandType {
+        from: BasicLandType,
+        to: BasicLandType,
+    },
+    Color {
+        from: ManaColor,
+        to: ManaColor,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum LandTypeOperation {
-    SetTo(&'static [BasicLandType]),
+    SetTo([bool; BasicLandType::ALL.len()]),
     /// The same layer-4 set, for the one type a permanent was told to be as
     /// it entered. A chosen type is not something a card could have written
     /// down, so it cannot ride in the static slice above.
     SetToChosen(BasicLandType),
-    Add(&'static [BasicLandType]),
-    Remove(&'static [BasicLandType]),
+    /// If the land currently has `from` at this point in timestamp order,
+    /// replace all of its land types with `to`.
+    Substitute {
+        from: BasicLandType,
+        to: BasicLandType,
+    },
+    Add([bool; BasicLandType::ALL.len()]),
+    Remove([bool; BasicLandType::ALL.len()]),
 }
 
 /// An ability added as an exception while copying an object. Unlike an

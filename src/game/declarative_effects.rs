@@ -827,13 +827,17 @@ impl Game {
                     );
                 }
             }
-            EffectDef::ChangeTextBasicLandType { object: recipient } => {
+            EffectDef::ChangeText {
+                object: recipient,
+                kind,
+                duration,
+            } => {
                 if let Some(target) = self
                     .effect_recipients(recipient, object, &context, scoped)
                     .into_iter()
                     .next()
                 {
-                    self.queue_basic_land_type_text_change(object.controller, target);
+                    self.queue_text_change(object.controller, target, kind, duration);
                 }
             }
             EffectDef::BecomeCopyOf {
@@ -865,7 +869,7 @@ impl Game {
                 let Some(mut copy) = self.copiable_values_of(target) else {
                     return;
                 };
-                copy::apply_copy_exceptions(&mut copy, exceptions, object);
+                copy::apply_copy_exceptions(self, &mut copy, exceptions, object);
                 let expiration = duration.map(|duration| {
                     Self::continuous_effect_expiration(
                         duration,

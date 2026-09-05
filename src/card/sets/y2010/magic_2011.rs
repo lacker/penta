@@ -2,8 +2,8 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardType,
-    CastTimingPermissionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
+    AbilityDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
+    CardType, CastTimingPermissionDef, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     ObjectPredicateDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::mana_cost;
@@ -157,6 +157,28 @@ pub(in crate::card::sets) static LEYLINE_OF_PUNISHMENT: CardRecord = CardRecord:
     ]),
 );
 
+// M11 169 — Dryad's Favor
+pub(in crate::card::sets) static DRYADS_FAVOR: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("c259509e-9f95-4566-b78a-ba34107539f7"),
+    "Dryad's Favor",
+    CardArt::new("c259509e-9f95-4566-b78a-ba34107539f7", "Jesper Ejsing"),
+    CardSet::Magic2011,
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature has forestwalk. (It can't be blocked as long as defending player controls a Forest.)",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::add_ability(&abilities::landwalk(
+                        BasicLandType::Forest,
+                    )),
+                },
+            ),
+        ]),
+);
+
 // M11 177 — Garruk's Packleader
 // Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GARRUK_S_PACKLEADER: CardRecord = CardRecord::new(
@@ -265,6 +287,7 @@ pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &LILIANA_S_SPECTER,
     &PHYLACTERY_LICH,
     &LEYLINE_OF_PUNISHMENT,
+    &DRYADS_FAVOR,
     &GARRUK_S_PACKLEADER,
     &LEYLINE_OF_VITALITY,
     &PRIMEVAL_TITAN,

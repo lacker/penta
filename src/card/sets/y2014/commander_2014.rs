@@ -1,11 +1,11 @@
 //! Commander 2014 cards cataloged for the Vintage Cube pool.
 
-use super::{CardRecord, PrintingRecord};
+use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
-    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, TriggerEventDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, BasicLandType, CardArt,
+    CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef,
+    ReplacementEventDef, TriggerEventDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -35,6 +35,36 @@ pub(in crate::card::sets) static CONTAINMENT_PRIEST: CardRecord = CardRecord::ne
             ReplacementEffectDef::MoveToZone(ZoneKind::Exile),
         ),
     ]),
+);
+
+// C14 47 — Song of the Dryads
+pub(in crate::card::sets) static SONG_OF_THE_DRYADS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("94914c52-498d-4e15-89e5-7b23e02cf453"),
+    "Song of the Dryads",
+    CardArt::new("94914c52-498d-4e15-89e5-7b23e02cf453", "Lars Grant-West"),
+    CardSet::Commander2014,
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant permanent",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::Any,
+                )],
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent is a colorless Forest land.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::set_card_types(CardTypeSet::single(CardType::Land)),
+                        AppliedEffectDef::set_subtypes(&[]),
+                        AppliedEffectDef::set_basic_land_types(&[BasicLandType::Forest]),
+                        AppliedEffectDef::set_colors(ColorSet::empty()),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // C14 50 — Titania, Protector of Argoth
@@ -86,7 +116,10 @@ pub(in crate::card::sets) static TITANIA_PROTECTOR_OF_ARGOTH: CardRecord =
             ]),
     );
 
-pub(in crate::card::sets) static CARDS: &[&CardRecord] =
-    &[&CONTAINMENT_PRIEST, &TITANIA_PROTECTOR_OF_ARGOTH];
+pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
+    &CONTAINMENT_PRIEST,
+    &SONG_OF_THE_DRYADS,
+    &TITANIA_PROTECTOR_OF_ARGOTH,
+];
 
 pub(in crate::card::sets) static ADDITIONAL_PRINTINGS: &[PrintingRecord] = &[];

@@ -219,10 +219,7 @@ pub(super) fn permanent_snapshot(
         text_changes: permanent
             .text_changes
             .iter()
-            .map(|change| model::BasicLandTypeChangeSnapshot {
-                from: basic_land_type_snapshot(change.from),
-                to: basic_land_type_snapshot(change.to),
-            })
+            .map(text_change_snapshot)
             .collect(),
         has_dynamic_characteristics: has_unlocated_resolved_effect
             || has_unlocated_copy_ability
@@ -432,6 +429,9 @@ pub(super) fn detached_permanent_snapshot(
         chosen_basic_land_type: permanent
             .chosen_basic_land_type
             .map(basic_land_type_snapshot),
+        chosen_basic_land_type_substitution: permanent
+            .chosen_basic_land_type_substitution
+            .map(|(from, to)| [basic_land_type_snapshot(from), basic_land_type_snapshot(to)]),
         chosen_color: permanent.chosen_color.map(mana_color_snapshot),
         chosen_card_name: permanent.chosen_card_name.clone(),
     }

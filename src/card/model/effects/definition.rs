@@ -111,12 +111,8 @@ pub enum EffectDef {
     /// they choose to make themselves, as a cost of their own spell, is not
     /// something anyone caused them to do.
     CannotBeForcedToDiscard,
-    /// On resolution, choose two different basic land-type words and apply
-    /// the resulting indefinite, noncopiable text change to the object.
-    /// Ask a player to name a colour, then apply the named operation to the
-    /// recipients in that colour. The choice is made as the effect resolves,
-    /// so it cannot be a fixed colour in the declaration.
-    ///
+    /// Ask a player to name a colour, then apply the named operation to that
+    /// colour's recipients as the effect resolves.
     /// The recipients are resolved before the question is asked -- targets
     /// are already chosen by then, and a group is whatever it is at that
     /// moment -- so the decision only has to carry the answer.
@@ -125,8 +121,12 @@ pub enum EffectDef {
         operation: ColorChoiceOperationDef,
         duration: ResolvedEffectDurationDef,
     },
-    ChangeTextBasicLandType {
+    /// Choose two different permitted words and apply the noncopiable layer-3
+    /// text change to the object.
+    ChangeText {
         object: EffectRecipientDef,
+        kind: TextChangeKindDef,
+        duration: ResolvedEffectDurationDef,
     },
     /// Choose two basic land types, and make every land of the first the
     /// second until end of turn. Both types are chosen as this resolves, so

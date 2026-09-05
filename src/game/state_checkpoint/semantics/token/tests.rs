@@ -47,4 +47,21 @@ fn token_owned_abilities_can_locate_tokens_they_create() {
         catalog_token_characteristics(&catalog, &locator),
         Some(CHILD_TOKEN),
     );
+
+    let text_changed = CHILD_TOKEN.with_word_maps(
+        crate::card::BasicLandType::ALL,
+        [
+            crate::card::ManaColor::White,
+            crate::card::ManaColor::Blue,
+            crate::card::ManaColor::Red,
+            crate::card::ManaColor::Red,
+            crate::card::ManaColor::Green,
+        ],
+    );
+    let locator = token_characteristics_locator(&catalog, text_changed)
+        .expect("a creator text change remains rooted at the authored token");
+    assert_eq!(
+        catalog_token_characteristics(&catalog, &locator),
+        Some(text_changed),
+    );
 }

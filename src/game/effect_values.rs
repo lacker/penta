@@ -398,8 +398,11 @@ impl Game {
             // copy has nothing spent on it and counts zero, which is what
             // converge on a copied spell means.
             ValueDef::ColorsOfManaSpent => i32::from(object.colors_spent_count()),
-            ValueDef::DevotionTo(_)
-            | ValueDef::LibrarySize(_)
+            ValueDef::DevotionTo(color) => self.player_readable_value(
+                ValueDef::DevotionTo(self.text_changed_color_word(object.id, color)),
+                object.controller,
+            ),
+            ValueDef::LibrarySize(_)
             | ValueDef::SpellsCastThisGame(_)
             | ValueDef::BasicLandTypesControlled(_) => {
                 self.player_readable_value(value, object.controller)

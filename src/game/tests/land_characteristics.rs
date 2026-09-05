@@ -379,7 +379,6 @@ fn dryad_arbor_is_a_green_land_creature_with_summoning_sick_intrinsic_mana() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_changes_a_land_type_and_its_intrinsic_mana_but_preserves_dryad() {
     let mut game = ready_game();
     game.turns_started[PlayerId::One.index()] = 1;
@@ -418,7 +417,6 @@ fn magical_hack_changes_a_land_type_and_its_intrinsic_mana_but_preserves_dryad()
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_can_target_a_nonland_permanent_without_basic_land_type_words() {
     let mut game = ready_game();
     let lotus_id = CardInstanceId(10_000);
@@ -444,9 +442,12 @@ fn magical_hack_can_target_a_nonland_permanent_without_basic_land_type_words() {
         .expect("the unchanged target remains on the battlefield");
     assert_eq!(
         lotus.text_changes,
-        vec![BasicLandTypeChange {
-            from: BasicLandType::Forest,
-            to: BasicLandType::Island,
+        vec![TextChange {
+            word: TextWordChange::BasicLandType {
+                from: BasicLandType::Forest,
+                to: BasicLandType::Island,
+            },
+            expiration: ContinuousEffectExpiration::Never,
         }],
     );
     assert_eq!(
@@ -457,7 +458,6 @@ fn magical_hack_can_target_a_nonland_permanent_without_basic_land_type_words() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_can_change_a_permanent_spell_and_the_change_survives_resolution() {
     let mut game = ready_game();
     let lotus_id = StackObjectId(10_000);
@@ -479,9 +479,12 @@ fn magical_hack_can_change_a_permanent_spell_and_the_change_survives_resolution(
             .find(|object| object.id == lotus_id)
             .expect("the permanent spell remains on the stack")
             .text_changes,
-        vec![BasicLandTypeChange {
-            from: BasicLandType::Forest,
-            to: BasicLandType::Island,
+        vec![TextChange {
+            word: TextWordChange::BasicLandType {
+                from: BasicLandType::Forest,
+                to: BasicLandType::Island,
+            },
+            expiration: ContinuousEffectExpiration::Never,
         }],
     );
 
@@ -492,15 +495,17 @@ fn magical_hack_can_change_a_permanent_spell_and_the_change_survives_resolution(
             .find(|permanent| permanent.card.definition == cards::BLACK_LOTUS)
             .expect("the permanent spell resolved")
             .text_changes,
-        vec![BasicLandTypeChange {
-            from: BasicLandType::Forest,
-            to: BasicLandType::Island,
+        vec![TextChange {
+            word: TextWordChange::BasicLandType {
+                from: BasicLandType::Forest,
+                to: BasicLandType::Island,
+            },
+            expiration: ContinuousEffectExpiration::Never,
         }],
     );
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_fizzles_without_a_choice_when_its_permanent_target_leaves() {
     let mut game = ready_game();
     let land_id = CardInstanceId(10_000);
@@ -528,7 +533,6 @@ fn magical_hack_fizzles_without_a_choice_when_its_permanent_target_leaves() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_on_stage_applies_to_land_types_that_stage_later_copies() {
     let mut game = ready_game();
     game.turns_started[PlayerId::One.index()] = 1;
@@ -581,14 +585,16 @@ fn magical_hack_on_stage_applies_to_land_types_that_stage_later_copies() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_does_not_rewrite_land_types_added_by_presence() {
     let mut game = ready_game();
     let land_id = CardInstanceId(10_000);
     let mut land = creature(land_id.0, cards::MOUNTAIN, PlayerId::One);
-    land.text_changes.push(BasicLandTypeChange {
-        from: BasicLandType::Mountain,
-        to: BasicLandType::Island,
+    land.text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Mountain,
+            to: BasicLandType::Island,
+        },
+        expiration: ContinuousEffectExpiration::Never,
     });
     let mut presence = creature(10_001, cards::NYLEAS_PRESENCE, PlayerId::One);
     presence.attached_to = Some(land_id);
@@ -613,13 +619,15 @@ fn magical_hack_does_not_rewrite_land_types_added_by_presence() {
 }
 
 #[test]
-#[ignore = "card is unsupported"]
 fn magical_hack_deduplicates_basic_types_and_intrinsic_mana() {
     let mut game = ready_game();
     let mut taiga = creature(10_000, cards::TAIGA, PlayerId::One);
-    taiga.text_changes.push(BasicLandTypeChange {
-        from: BasicLandType::Forest,
-        to: BasicLandType::Mountain,
+    taiga.text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Forest,
+            to: BasicLandType::Mountain,
+        },
+        expiration: ContinuousEffectExpiration::Never,
     });
     game.battlefield.push(taiga);
 

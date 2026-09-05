@@ -197,6 +197,23 @@ impl Game {
         );
     }
 
+    pub(super) fn queue_entry_basic_land_type_pair_choice(
+        &mut self,
+        player: PlayerId,
+        context: super::ReplacementEffectContext,
+    ) {
+        self.queue_decision(
+            player,
+            "Choose two different basic land types",
+            DecisionVisibility::Public,
+            DecisionPreference::Neutral,
+            1..=1,
+            false,
+            Self::basic_land_type_pair_options(),
+            DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { context },
+        );
+    }
+
     pub(super) fn activate_mana_source(
         &mut self,
         player: PlayerId,

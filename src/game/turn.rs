@@ -683,6 +683,9 @@ impl Game {
             permanent.exile_instead_of_dying = false;
             permanent.deathtouch_damage = false;
             permanent.temporary_keywords.clear();
+            permanent
+                .text_changes
+                .retain(|change| change.expiration.survives_cleanup());
             permanent.resolved_continuous_effects.retain(|effect| {
                 effect.expiration.survives_cleanup()
                     && (!effect.expiration.requires_source_tapped()

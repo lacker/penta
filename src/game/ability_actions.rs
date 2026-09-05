@@ -139,6 +139,7 @@ impl Game {
             .flat_map(TargetSelection::targets)
             .copied()
             .collect::<Vec<_>>();
+        let text_changes = self.frozen_text_changes_for_source(source);
         self.stack.push(StackObject {
             id,
             kind: StackObjectKind::ActivatedAbility,
@@ -164,7 +165,7 @@ impl Game {
             signature: None,
             chosen_permanents,
             applied_effects: Vec::new(),
-            text_changes: Vec::new(),
+            text_changes,
             colors: None,
             cast: None,
             face_down: None,

@@ -56,6 +56,21 @@ distinguishes snapshots of the covered source and build inputs.
   grants use the additive `flanking` checkpoint tag; checkpoint format, replay
   format, and the bot-wire protocol are unchanged.
 
+- **Text-changing spells use one typed declarative layer-3 effect.** Magical
+  Hack, Sleight of Mind, Mind Bend, Crystal Spray, Whim of Volrath, and Alter
+  Reality now replace basic-land-type or color words in timestamp order while
+  preserving copy, granted-ability, target-revalidation, and duration rules.
+  The same source-aware words now drive landhome state triggers and attack
+  restrictions, landwalk, Aura attachment legality, land-counted values and
+  costs, triggered mana, and type-changing effects. Aspect of Wolf, Blanchwood
+  Armor, Dryad's Favor, Fortitude, Genju of the Cedars, Utopia Sprawl, Song of
+  the Dryads, Dandân, and Illusionary Terrain exercise those paths. Illusionary
+  Terrain's ordered as-enters choice is carried in the additive optional
+  `chosenBasicLandTypeSubstitution` permanent member.
+  Checkpoint format 12 stores the word domain and expiration and is advertised
+  as `reconstruction.checkpoint.v12`; replay version 2 and protocol 29 are
+  unchanged.
+
 - **A clause that exiles several cards at once is one exile event.** Moving a
   set of cards out of a graveyard, library, or hand into exile now publishes a
   single "one or more cards are put into exile" event rather than one per

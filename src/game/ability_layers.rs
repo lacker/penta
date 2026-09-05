@@ -126,14 +126,14 @@ impl Game {
             for attached in rules.indexed_abilities() {
                 abilities.push(EffectiveAbility {
                     origin: Self::authored_ability_origin(source, attached.id),
-                    ability: attached.definition,
+                    ability: self.text_changed_base_ability(characteristics, &attached.definition),
                 });
             }
             if let Some(copy) = characteristics.active_copy_values() {
                 for added in &copy.added_abilities {
                     abilities.push(EffectiveAbility {
                         origin: added.origin,
-                        ability: added.definition,
+                        ability: self.text_changed_base_ability(characteristics, &added.definition),
                     });
                 }
             }
@@ -269,7 +269,7 @@ impl Game {
                             Self::effective_rules_source(permanent),
                             grant,
                         ),
-                        ability,
+                        ability: self.text_changed_ability(effect.source.object, &ability),
                     }
                 }
                 ResolvedAbilityOperation::Remove(predicate) => {
@@ -318,7 +318,7 @@ impl Game {
             self.push_linked_exile_ability_grants(applied, operations);
             return;
         }
-        operations.extend(Self::static_ability_layer_operation(applied));
+        operations.extend(self.static_ability_layer_operation(applied));
     }
 
     /// One Add operation for each activated ability of each matching card
@@ -381,6 +381,7 @@ impl Game {
     }
 
     fn static_ability_layer_operation(
+        &self,
         applied: &StaticAppliedEffect,
     ) -> Option<AbilityLayerOperation> {
         let kind = match applied.effect {
@@ -395,7 +396,7 @@ impl Game {
                         .grant
                         .expect("a granted ability has a structural grant identity"),
                 ),
-                ability: *ability,
+                ability: self.text_changed_ability(applied.source, ability),
             },
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::Abilities(
                 AbilityOperationDef::Remove(predicate),

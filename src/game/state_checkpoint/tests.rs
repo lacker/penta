@@ -1,6 +1,6 @@
 use super::*;
 use crate::card::{
-    AbilityDef, AppliedRuleDef, CardComposition, CardDefinition, CardRules, CardSet,
+    AbilityDef, AppliedRuleDef, BasicLandType, CardComposition, CardDefinition, CardRules, CardSet,
     DamageEventMatcherDef, DamagePreventionDef, DamageSourceMatcherDef, EffectDef, KeywordAbility,
     ObjectPredicateDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRelation,
     ResolvedEffectDurationDef, ValueDef,
@@ -434,6 +434,86 @@ fn public_chosen_color_round_trips() {
             .expect("the Aura reconstructs")
             .chosen_color,
         Some(ManaColor::Blue),
+    );
+}
+
+#[test]
+fn public_basic_land_type_substitution_round_trips() {
+    let mut game = crate::game::tests::ready_game();
+    let mut terrain = crate::game::tests::creature(
+        90_120,
+        crate::card::cards::ILLUSIONARY_TERRAIN,
+        PlayerId::One,
+    );
+    let terrain_id = terrain.card.id;
+    terrain.chosen_basic_land_type_substitution =
+        Some((BasicLandType::Island, BasicLandType::Forest));
+    game.battlefield.push(terrain);
+
+    let (wire, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 90_121);
+    let shown = wire["battlefield"]
+        .as_array()
+        .expect("the observation has a battlefield")
+        .iter()
+        .find(|permanent| permanent["objectId"] == terrain_id.0)
+        .expect("Illusionary Terrain is observed");
+    assert_eq!(
+        shown["chosenBasicLandTypeSubstitution"],
+        json!(["Island", "Forest"])
+    );
+    assert_eq!(
+        rebuilt
+            .battlefield
+            .iter()
+            .find(|permanent| permanent.card.id == terrain_id)
+            .expect("Illusionary Terrain reconstructs")
+            .chosen_basic_land_type_substitution,
+        Some((BasicLandType::Island, BasicLandType::Forest)),
+    );
+}
+
+#[test]
+fn basic_land_type_pair_entry_choice_reconstructs_before_it_is_answered() {
+    let mut game = crate::game::tests::ready_game();
+    let terrain = crate::game::tests::card(
+        90_130,
+        crate::card::cards::ILLUSIONARY_TERRAIN,
+        PlayerId::One,
+    );
+    game.players[PlayerId::One.index()]
+        .hand
+        .push(terrain.clone());
+    game.players[PlayerId::One.index()].mana_pool.blue = 2;
+    game.apply(
+        PlayerId::One,
+        crate::game::tests::cast_action(terrain.id, Vec::new(), Vec::new(), 0),
+    )
+    .expect("Illusionary Terrain can be cast");
+    crate::game::tests::pass_priority_pair(&mut game);
+    assert!(matches!(
+        game.pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. })
+    ));
+
+    let (_, rebuilt) = rebuild_current_checkpoint(&game, PlayerId::One, 90_131);
+    assert!(matches!(
+        rebuilt
+            .pending_decisions
+            .first()
+            .map(|pending| &pending.continuation),
+        Some(DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. })
+    ));
+    let decision = rebuilt
+        .observe(PlayerId::One)
+        .decision
+        .expect("the reconstructed choice remains pending");
+    assert!(
+        decision
+            .options
+            .iter()
+            .any(|option| option.label == "Island → Forest")
     );
 }
 

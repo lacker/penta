@@ -517,7 +517,6 @@ fn simultaneous_triggers_waiting_to_be_ordered_reconstruct() {
 /// neither a characteristic nor an effect on a stack, and the permanent that
 /// carries it has to come back reading the same way.
 #[test]
-#[ignore = "card is unsupported"]
 fn an_indefinite_text_change_reconstructs_while_choosing_and_after() {
     let mut game = staged_game();
     let land_id = GameObjectId(12_000);
@@ -544,7 +543,7 @@ fn an_indefinite_text_change_reconstructs_while_choosing_and_after() {
             game.pending_decisions
                 .first()
                 .map(|pending| &pending.continuation),
-            Some(DecisionContinuation::BasicLandTypeTextChange { .. })
+            Some(DecisionContinuation::TextChange { .. })
         ),
         "Magical Hack must ask which word to rewrite, not {:?}",
         game.pending_decisions
@@ -560,7 +559,17 @@ fn an_indefinite_text_change_reconstructs_while_choosing_and_after() {
             .any(|permanent| !permanent.text_changes.is_empty()),
         "the choice must leave a rewritten permanent behind"
     );
-    assert_reconstructs(&game, "a permanent carrying an indefinite text change");
+    game.battlefield[0].text_changes.push(TextChange {
+        word: TextWordChange::Color {
+            from: ManaColor::Black,
+            to: ManaColor::Red,
+        },
+        expiration: ContinuousEffectExpiration::EndOfTurn,
+    });
+    assert_reconstructs(
+        &game,
+        "a permanent carrying typed indefinite and temporary text changes",
+    );
 }
 
 /// A phased-out permanent is public information, so it survives a checkpoint

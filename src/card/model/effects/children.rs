@@ -116,7 +116,7 @@ pub(crate) fn child_effects(effect: EffectDef) -> Vec<EffectDef> {
         | EffectDef::CannotBeForcedToSacrifice
         | EffectDef::CannotBeForcedToDiscard
         | EffectDef::ChooseColor { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
+        | EffectDef::ChangeText { .. }
         | EffectDef::SubstituteBasicLandTypeUntilEndOfTurn { .. }
         | EffectDef::ChooseCards { .. }
         | EffectDef::PutSpellIntoOwnersLibrary { .. }

@@ -7,7 +7,8 @@ use super::{
     PendingEvent, PendingReplacementEffect, Permanent, PlayerId, PlayerRelation, ReplaceableEvent,
     ReplacementChoiceDef, ReplacementConditionDef, ReplacementEffectContext, ReplacementEffectDef,
     ReplacementEventDef, ResolvedEffectDurationDef, ResolvedEffectPayment, RetiredObject,
-    ScopedEffect, StackObject, StackObjectKind, Target, TriggerContext, ZoneKind, public_cards,
+    ScopedEffect, StackObject, StackObjectKind, Target, TextChangeKindDef, TriggerContext,
+    ZoneKind, public_cards,
 };
 use crate::CharacteristicContext;
 
@@ -192,6 +193,12 @@ impl Game {
                 let player = Self::pending_event_controller(&pending);
                 self.pending_events.push_front(pending);
                 self.queue_entry_scalar_choice(player, context, choice);
+                None
+            }
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair) => {
+                let player = Self::pending_event_controller(&pending);
+                self.pending_events.push_front(pending);
+                self.queue_entry_basic_land_type_pair_choice(player, context);
                 None
             }
             ReplacementEffectDef::CopyEntering { object, exceptions } => {

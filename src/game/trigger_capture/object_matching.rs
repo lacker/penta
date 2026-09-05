@@ -198,6 +198,7 @@ impl Game {
         object: &TriggerEventObject,
         source: GameObjectId,
         controller: Option<PlayerId>,
+        text_source: Option<GameObjectId>,
     ) -> bool {
         match predicate {
             ObjectPredicateDef::HasNonManaActivatedAbility => self
@@ -269,12 +270,13 @@ impl Game {
                         .find(|candidate| candidate.card.id == host)
                 })
                 .is_some_and(|host| {
-                    self.trigger_object_matches_for_controller(
+                    self.trigger_object_matches_for_controller_with_text_source(
                         *predicate,
                         &self.trigger_event_object(host),
                         source,
                         false,
                         controller,
+                        text_source,
                     )
                 }),
             _ => unreachable!("only the battlefield-reading predicates arrive here"),
@@ -297,6 +299,25 @@ impl Game {
         )
     }
 
+    pub(super) fn trigger_object_matches_with_text_source(
+        &self,
+        predicate: ObjectPredicateDef,
+        object: &TriggerEventObject,
+        source: GameObjectId,
+        is_spell: bool,
+        controller: Option<PlayerId>,
+        text_source: GameObjectId,
+    ) -> bool {
+        self.trigger_object_matches_for_controller_with_text_source(
+            predicate,
+            object,
+            source,
+            is_spell,
+            controller,
+            Some(text_source),
+        )
+    }
+
     /// The three predicates built from other predicates, split out so the
     /// flat dispatch below stays one screen of enum arms.
     fn composite_matches(
@@ -306,10 +327,11 @@ impl Game {
         source: GameObjectId,
         is_spell: bool,
         controller: Option<PlayerId>,
+        text_source: Option<GameObjectId>,
     ) -> bool {
         let mut matches = |predicate: &ObjectPredicateDef| {
-            self.trigger_object_matches_for_controller(
-                *predicate, object, source, is_spell, controller,
+            self.trigger_object_matches_for_controller_with_text_source(
+                *predicate, object, source, is_spell, controller, text_source,
             )
         };
         match predicate {
@@ -333,6 +355,7 @@ impl Game {
         object: &TriggerEventObject,
         source: GameObjectId,
         controller: Option<PlayerId>,
+        text_source: Option<GameObjectId>,
     ) -> bool {
         match predicate {
             ObjectPredicateDef::Named(name) => self
@@ -343,7 +366,13 @@ impl Game {
             // everything. The one effect that reads it does so itself.
             ObjectPredicateDef::HasChosenName => false,
             ObjectPredicateDef::TargetsObjectMatching(predicate) => {
-                self.stack_object_targets_match(object.id, *predicate, source, controller)
+                self.stack_object_targets_match(
+                    object.id,
+                    *predicate,
+                    source,
+                    controller,
+                    text_source,
+                )
             }
             ObjectPredicateDef::HasSourcesChosenScalar(destination) => {
                 self.matches_chosen_scalar(destination, object, source)
@@ -405,6 +434,7 @@ impl Game {
         predicate: ObjectPredicateDef,
         source: GameObjectId,
         controller: Option<PlayerId>,
+        text_source: Option<GameObjectId>,
     ) -> bool {
         self.stack
             .iter()
@@ -422,12 +452,13 @@ impl Game {
                             // source: the source of a spell being targeted is
                             // still a card in hand, and "a land you control"
                             // is measured from whoever is doing the asking.
-                            self.trigger_object_matches_for_controller(
+                            self.trigger_object_matches_for_controller_with_text_source(
                                 predicate,
                                 &self.trigger_event_object(permanent),
                                 source,
                                 false,
                                 controller,
+                                text_source,
                             )
                         })
                 })
@@ -472,10 +503,6 @@ impl Game {
         }
     }
 
-    // Long because the predicate vocabulary is wide, not because the
-    // function does several things: every arm reads one property of one
-    // object. It is a table, and a table only grows.
-    #[allow(clippy::too_many_lines)]
     pub(in crate::game) fn trigger_object_matches_for_controller(
         &self,
         predicate: ObjectPredicateDef,
@@ -483,6 +510,29 @@ impl Game {
         source: GameObjectId,
         is_spell: bool,
         controller: Option<PlayerId>,
+    ) -> bool {
+        self.trigger_object_matches_for_controller_with_text_source(
+            predicate,
+            object,
+            source,
+            is_spell,
+            controller,
+            Some(source),
+        )
+    }
+
+    // Long because the predicate vocabulary is wide, not because the
+    // function does several things: every arm reads one property of one
+    // object. It is a table, and a table only grows.
+    #[allow(clippy::too_many_lines)]
+    fn trigger_object_matches_for_controller_with_text_source(
+        &self,
+        predicate: ObjectPredicateDef,
+        object: &TriggerEventObject,
+        source: GameObjectId,
+        is_spell: bool,
+        controller: Option<PlayerId>,
+        text_source: Option<GameObjectId>,
     ) -> bool {
         match predicate {
             ObjectPredicateDef::Any => true,
@@ -494,6 +544,11 @@ impl Game {
                 object.types.contains(CardType::Land)
                     && land_types
                         .iter()
+                        .map(|land_type| {
+                            text_source.map_or(*land_type, |text_source| {
+                                self.text_changed_basic_land_type(text_source, *land_type)
+                            })
+                        })
                         .any(|land_type| object.subtypes.contains(&land_type.subtype()))
             }
             ObjectPredicateDef::Spell => is_spell,
@@ -508,13 +563,25 @@ impl Game {
             | ObjectPredicateDef::HasDeclaredPlayerTarget(_) => {
                 self.stack_state_predicate_matches(predicate, object.id, controller)
             }
-            ObjectPredicateDef::Color(color) => color
+            ObjectPredicateDef::Color(color) => text_source
+                .map_or(color, |text_source| {
+                    self.text_changed_color_word(text_source, color)
+                })
                 .color_index()
                 .is_some_and(|index| object.colors[index]),
             ObjectPredicateDef::ColorCount(count) => {
                 object.colors.iter().filter(|present| **present).count() == usize::from(count)
             }
-            ObjectPredicateDef::Subtype(subtype) => object.subtypes.contains(&subtype),
+            ObjectPredicateDef::Subtype(subtype) => {
+                let subtype = BasicLandType::from_subtype(subtype)
+                    .map(|land_type| {
+                        text_source.map_or(land_type, |text_source| {
+                            self.text_changed_basic_land_type(text_source, land_type)
+                        })
+                    })
+                    .map_or(subtype, BasicLandType::subtype);
+                object.subtypes.contains(&subtype)
+            }
             ObjectPredicateDef::ManaValueAtMost(limit) => object.mana_value <= u16::from(limit),
             ObjectPredicateDef::ManaValueEqualTo(value) => self
                 .value_from_source(value, source)
@@ -559,7 +626,13 @@ impl Game {
             | ObjectPredicateDef::HasChosenName
             | ObjectPredicateDef::TargetsObjectMatching(_)
             | ObjectPredicateDef::HasSourcesChosenScalar(_) => {
-                self.indirect_predicate_matches(predicate, object, source, controller)
+                self.indirect_predicate_matches(
+                    predicate,
+                    object,
+                    source,
+                    controller,
+                    text_source,
+                )
             }
             ObjectPredicateDef::HasKeyword(keyword) => keyword
                 .simple_index()
@@ -630,13 +703,26 @@ impl Game {
             | ObjectPredicateDef::Unpaired
             | ObjectPredicateDef::PairedWithSource
             | ObjectPredicateDef::AttachedTo(_) => {
-                self.battlefield_relationship_matches(predicate, object, source, controller)
+                self.battlefield_relationship_matches(
+                    predicate,
+                    object,
+                    source,
+                    controller,
+                    text_source,
+                )
             }
             ObjectPredicateDef::Tapped => object.tapped,
             ObjectPredicateDef::All(_)
             | ObjectPredicateDef::AnyOf(_)
             | ObjectPredicateDef::Not(_) => {
-                self.composite_matches(predicate, object, source, is_spell, controller)
+                self.composite_matches(
+                    predicate,
+                    object,
+                    source,
+                    is_spell,
+                    controller,
+                    text_source,
+                )
             }
             // A printed cost shape is not in this snapshot, which carries
             // mana value alone. Only the zone paths in `card_object_matches`

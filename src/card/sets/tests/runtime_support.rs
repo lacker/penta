@@ -773,7 +773,7 @@ pub(super) fn shared_definition_ability(ability: &AbilityDef) -> bool {
                     | EffectDef::ChooseEffect { .. }
                     | EffectDef::ModifyCounters { .. }
                     | EffectDef::RemoveCounters { .. }
-                    | EffectDef::ChangeTextBasicLandType { .. }
+                    | EffectDef::ChangeText { .. }
                     | EffectDef::ChooseColor { .. }
                     | EffectDef::BecomeCopyOf { .. }
                     | EffectDef::CannotBeForcedToSacrifice

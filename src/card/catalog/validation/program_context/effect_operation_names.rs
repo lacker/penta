@@ -110,7 +110,7 @@ const fn effect_operation_name(effect: EffectDef) -> &'static str {
         EffectDef::DoubleCounters { .. } => "DoubleCounters",
         EffectDef::RemoveAllCounters { .. } => "RemoveAllCounters",
         EffectDef::SkipNextUntapSteps { .. } => "SkipNextUntapSteps",
-        EffectDef::ChangeTextBasicLandType { .. } => "ChangeTextBasicLandType",
+        EffectDef::ChangeText { .. } => "ChangeText",
         EffectDef::ChooseColor { .. } => "ChooseColor",
         EffectDef::BecomeCopyOf { .. } => "BecomeCopyOf",
         EffectDef::PutSourceOntoBattlefieldAttacking => "PutSourceOntoBattlefieldAttacking",

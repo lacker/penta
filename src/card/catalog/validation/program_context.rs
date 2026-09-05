@@ -466,7 +466,8 @@ fn static_object_characteristic_supported(
         // the same story.
         CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
         | CharacteristicOperationDef::Abilities(_)
-        | CharacteristicOperationDef::ChosenBasicLandType => true,
+        | CharacteristicOperationDef::ChosenBasicLandType
+        | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution => true,
         CharacteristicOperationDef::BasicLandTypes(operation) => match operation {
             SetOperationDef::Add(types)
             | SetOperationDef::Remove(types)
@@ -523,7 +524,7 @@ fn static_object_characteristic_supported(
         }
         CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
-        ) => false,
+        ) => static_direct_characteristic_recipient(recipient),
     }
 }
 

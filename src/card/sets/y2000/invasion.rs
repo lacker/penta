@@ -19,8 +19,8 @@ use crate::card::{
     AdditionalCostValueDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules,
     CardSet, CardType, ChoiceVisibilityDef, ChooseGroupDef, EffectDef, EffectRecipientDef,
     ManaColor, MoveObjectsDef, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, PartitionGroupDef,
-    PlayerRefDef, PlayerRelation, RevealObjectsDef, TriggerConditionDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, RevealObjectsDef, TextChangeKindDef,
+    TriggerConditionDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
@@ -495,13 +495,31 @@ pub(in crate::card::sets) static COLLECTIVE_RESTRAINT: CardRecord = CardRecord::
 );
 
 // INV 50 — Crystal Spray
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYSTAL_SPRAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8798a4f1-34bb-449d-a8cc-faf8bda8e0ab"),
     "Crystal Spray",
     crate::card::CardArt::new("8798a4f1-34bb-449d-a8cc-faf8bda8e0ab", "Jeff Miracola"),
     crate::card::CardSet::Invasion,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{2}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the text of target spell or permanent by replacing all instances of one color word with another or one basic land type with another until end of turn.\nDraw a card.",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Any,
+            zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::Sequence(&[
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::BasicLandTypeOrColorWord,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // INV 51 — Disrupt (reprint)

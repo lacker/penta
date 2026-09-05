@@ -91,6 +91,10 @@ struct Permanent {
     chosen_creature_type: Option<String>,
     /// The basic land type this permanent was told to be as it entered.
     pub(super) chosen_basic_land_type: Option<crate::card::BasicLandType>,
+    /// The ordered pair of basic land types this permanent chose as it
+    /// entered: find the first and replace it with the second.
+    pub(super) chosen_basic_land_type_substitution:
+        Option<(crate::card::BasicLandType, crate::card::BasicLandType)>,
     /// The color this permanent's controller chose as it entered.
     pub(super) chosen_color: Option<crate::card::ManaColor>,
     /// The card name a permanent named as it entered, for Pithing Needle.
@@ -162,7 +166,7 @@ struct Permanent {
     /// when determining mana value.
     copied_from: Option<ObjectCharacteristics>,
     /// Indefinite text changes applied to this object in timestamp order.
-    text_changes: Vec<BasicLandTypeChange>,
+    text_changes: Vec<TextChange>,
     regeneration_shields: u8,
     attacked_this_turn: bool,
     /// Exerted as it was declared as an attacker this turn (CR 701.38a).
@@ -285,6 +289,7 @@ impl Permanent {
             chosen_player: None,
             chosen_creature_type: None,
             chosen_basic_land_type: None,
+            chosen_basic_land_type_substitution: None,
             chosen_color: None,
             chosen_card_name: None,
             face_down: None,

@@ -14,8 +14,8 @@ use crate::card::{
     AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
     ChooseDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, ManaColor,
     ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PayOrDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef,
+    TextChangeKindDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -993,13 +993,25 @@ pub(in crate::card::sets) static MERFOLK_SEER: CardRecord = CardRecord::new(
 );
 
 // MIR 77 — Mind Bend
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MIND_BEND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("952eb6ae-a530-4f4f-92f0-a6602beaa7b2"),
     "Mind Bend",
     crate::card::CardArt::new("952eb6ae-a530-4f4f-92f0-a6602beaa7b2", "Mike Dringenberg"),
     crate::card::CardSet::Mirage,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another. (For example, you may change \"nonblack creature\" to \"nongreen creature\" or \"forestwalk\" to \"islandwalk.\" This effect lasts indefinitely.)",
+        &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+            object: ObjectPredicateDef::Any,
+            zones: &[ZoneKind::Battlefield],
+            controller: None,
+            owner: None,
+        })],
+        EffectDef::ChangeText {
+            object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            kind: TextChangeKindDef::BasicLandTypeOrColorWord,
+            duration: ResolvedEffectDurationDef::Permanent,
+        },
+    )),
 );
 
 // MIR 78 — Mind Harness

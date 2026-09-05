@@ -217,7 +217,7 @@ A clone forks the *true* state, hidden zones included. That is right for
 self-play but wrong for a search bot in a hosted match: its rollouts must use
 worlds consistent with its observation, not cards only the host knows.
 
-The optional `reconstruction.checkpoint.v11` capability advertises a hidden-safe
+The optional `reconstruction.checkpoint.v12` capability advertises a hidden-safe
 current-state checkpoint in each observation. The checkpoint was introduced in
 protocol 19, expanded in protocol 21 into the complete typed snapshot described
 below, and given its own nested format version in protocol 22. Protocol 26's
@@ -235,8 +235,10 @@ player responsible for the next stage, and the ordinary effect that follows
 it. Partition and group-choice stages retain their pile semantics. The format
 11 binding model uses one typed map for every durable labeled value and
 separate `parentObject` and `parentObjects` members for lexical values passed
-only to a producer's direct continuation.
-also stores Quicken-style cast-timing permissions in the same resolved
+only to a producer's direct continuation. Format 12 replaces the old
+basic-land-only text-change payload with typed color-word or basic-land-type
+changes and records each change's expiration. It also stores Quicken-style
+cast-timing permissions in the same resolved
 permission collection as every other duration-bound timing grant, including
 the composed end-of-turn-or-next-matching-cast expiration.
 Stack objects and permanents preserve additive cast-context fields: the source
@@ -415,7 +417,7 @@ world it can search.
 | field | meaning |
 | --- | --- |
 | `protocolVersion` | the breaking bot-wire epoch; protocol 30 objects are open-world, but an epoch mismatch requires migration |
-| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v11`; ignore unknown entries |
+| `protocolCapabilities` | optional named facilities emitted by this engine; currently includes `reconstruction.checkpoint.v12`; ignore unknown entries |
 | `simulationFingerprint` | a conservative identity of simulation source and build requirements; pin it for training and require it for reconstruction |
 | `engineVersion` | package-release provenance; it is not an exact simulation identity |
 | `format` | the rules/deck profile slug: `"old-school-93-94"`, `"premodern"`, `"isd-m14-standard"`, `"som-m13-standard"`, `"vintage-cube"`, or `"pauper-cube"` |
@@ -518,9 +520,12 @@ transform.
 
 Public choices remembered by a permanent use optional fields such as
 `chosenCardName`, `chosenCreatureType`, `chosenBasicLandType`, and
-`chosenColor`. `chosenColor` is a lower-case mana-color name and is absent or
-null when that permanent made no color choice. These fields belong to the
-permanent incarnation and therefore disappear when it changes zones.
+`chosenColor`. `chosenBasicLandTypeSubstitution` is an ordered two-element
+array of distinct basic-land-type names: the first is the type to find and the
+second is the type that replaces it. `chosenColor` is a lower-case mana-color
+name and is absent or null when that permanent made no color choice. These
+fields belong to the permanent incarnation and therefore disappear when it
+changes zones.
 
 A true zone change
 creates a new object ID, so a Goblin Balloon Brigade card in hand, its spell on
@@ -1097,6 +1102,19 @@ colorless hybrid (`C/W`). Treat the string as an open display value. Cast
 actions can also include the optional `choices.manaPayment` array described
 above. Replay version 2 is unchanged.
 
+### Migrating checkpoint format 11 to 12
+
+Protocol 29 and replay format 2 remain in place. Checkpoint format 12 replaces
+the basic-land-only `textChanges` entries on permanents and stack objects with
+a tagged `word` value that distinguishes basic land types from color words and
+adds the duration-derived `expiration`. The pending text-change continuation
+likewise records its word domain and expiration.
+
+Format 11 cannot reconstruct color-word changes or temporary text changes.
+Reconstruction consumers should require `reconstruction.checkpoint.v12`, keep
+checking the exact simulation fingerprint, and regenerate format-11
+checkpoints with the current engine.
+
 ### Migrating checkpoint format 10 to 11
 
 Protocol 29 and replay format 2 remain in place. Checkpoint format 11 replaces
@@ -1212,7 +1230,7 @@ Protocol 22 splits wire compatibility from conservative source identity:
   `requiredSimulationFingerprint` to refuse a different simulation before it
   is listed or assigned.
 
-The current optional capability is `reconstruction.checkpoint.v11`. An ordinary
+The current optional capability is `reconstruction.checkpoint.v12`. An ordinary
 hosted bot that only reads `legalActions` should declare an empty capability
 list; do not copy the server's advertised capabilities without implementing
 them.

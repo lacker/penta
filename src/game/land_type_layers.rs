@@ -4,11 +4,19 @@ use super::{
     AppliedEffectDef, BasicLandType, CREATURE_TYPES, CardType, CharacteristicContext,
     CharacteristicOperationDef, ContinuousEffectTimestamp, ControlFlow, Cow, CreatureTypeSetDef,
     DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EffectRecipientSetDef, Game,
-    LandTypeOperation, ObjectKind, ObjectPredicateDef, ObjectRefDef, ObjectSetDef, Permanent,
-    ResolvedContinuousEffectKind, SetOperationDef, StaticAffectedObject, TriggerContext,
-    TriggerEventObject, ZoneKind,
+    GameObjectId, LandTypeOperation, ObjectKind, ObjectPredicateDef, ObjectRefDef, ObjectSetDef,
+    Permanent, ResolvedContinuousEffectKind, SetOperationDef, StaticAffectedObject, TextWordChange,
+    TriggerContext, TriggerEventObject, ZoneKind,
 };
 use crate::card::LAND_SUBTYPES;
+
+#[derive(Clone, Copy)]
+struct AppliedLandTypeContext {
+    text_source: GameObjectId,
+    timestamp: ContinuousEffectTimestamp,
+    chosen: Option<BasicLandType>,
+    substitution: Option<(BasicLandType, BasicLandType)>,
+}
 
 impl Game {
     fn land_type_operations(
@@ -61,19 +69,7 @@ impl Game {
         let resolved = prospective
             .filter(|prospective| prospective.card.id == affected.card.id)
             .unwrap_or(affected);
-        let mut operations = resolved
-            .resolved_continuous_effects
-            .iter()
-            .filter(|effect| self.resolved_continuous_effect_is_active(effect))
-            .filter_map(|effect| match effect.kind {
-                ResolvedContinuousEffectKind::BasicLandTypes(operation) => Some((
-                    effect.timestamp,
-                    effect.component_order,
-                    Self::resolved_land_type_operation(operation),
-                )),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
+        let mut operations = self.resolved_land_type_operations(resolved);
         for (source, timestamp) in &sources {
             if self.resolved_land_type_set_applies(source)
                 || self.raw_land_type_set_applies(source, &sources)
@@ -91,14 +87,59 @@ impl Game {
         operations
     }
 
+    fn resolved_land_type_operations(
+        &self,
+        permanent: &Permanent,
+    ) -> Vec<(ContinuousEffectTimestamp, u16, LandTypeOperation)> {
+        permanent
+            .resolved_continuous_effects
+            .iter()
+            .filter(|effect| self.resolved_continuous_effect_is_active(effect))
+            .filter_map(|effect| match effect.kind {
+                ResolvedContinuousEffectKind::BasicLandTypes(operation) => Some((
+                    effect.timestamp,
+                    effect.component_order,
+                    Self::resolved_land_type_operation(operation),
+                )),
+                _ => None,
+            })
+            .collect()
+    }
+
     const fn resolved_land_type_operation(
         operation: SetOperationDef<&'static [BasicLandType]>,
     ) -> LandTypeOperation {
         match operation {
-            SetOperationDef::Add(types) => LandTypeOperation::Add(types),
-            SetOperationDef::Remove(types) => LandTypeOperation::Remove(types),
-            SetOperationDef::Set(types) => LandTypeOperation::SetTo(types),
+            SetOperationDef::Add(types) => LandTypeOperation::Add(Self::land_type_mask(types)),
+            SetOperationDef::Remove(types) => {
+                LandTypeOperation::Remove(Self::land_type_mask(types))
+            }
+            SetOperationDef::Set(types) => LandTypeOperation::SetTo(Self::land_type_mask(types)),
         }
+    }
+
+    const fn land_type_mask(types: &[BasicLandType]) -> [bool; BasicLandType::ALL.len()] {
+        let mut mask = [false; BasicLandType::ALL.len()];
+        let mut index = 0;
+        while index < types.len() {
+            mask[types[index].index()] = true;
+            index += 1;
+        }
+        mask
+    }
+
+    fn text_changed_land_type_mask(
+        &self,
+        source: GameObjectId,
+        types: &[BasicLandType],
+    ) -> [bool; BasicLandType::ALL.len()] {
+        let mut mask = [false; BasicLandType::ALL.len()];
+        for land_type in types {
+            mask[self
+                .text_changed_basic_land_type(source, *land_type)
+                .index()] = true;
+        }
+        mask
     }
 
     fn resolved_land_type_set_applies(&self, permanent: &Permanent) -> bool {
@@ -170,24 +211,20 @@ impl Game {
         affected: &Permanent,
         sources: &[(&Permanent, ContinuousEffectTimestamp)],
     ) -> bool {
-        sources
+        let mut operations = self.resolved_land_type_operations(affected);
+        for (source, timestamp) in sources
             .iter()
             .filter(|(source, _)| source.card.id != affected.card.id)
-            .any(|(source, timestamp)| {
-                let mut operations = Vec::new();
-                self.collect_land_type_operations_from_source(
-                    source,
-                    affected,
-                    *timestamp,
-                    &mut operations,
-                );
-                operations.iter().any(|(_, _, operation)| {
-                    matches!(
-                        operation,
-                        LandTypeOperation::SetTo(_) | LandTypeOperation::SetToChosen(_)
-                    )
-                })
-            })
+        {
+            self.collect_land_type_operations_from_source(
+                source,
+                affected,
+                *timestamp,
+                &mut operations,
+            );
+        }
+        operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
+        self.land_type_set_operation_applies(affected, &operations)
     }
 
     pub(super) fn rules_text_abilities_removed(&self, affected: &Permanent) -> bool {
@@ -213,29 +250,22 @@ impl Game {
         affected: &Permanent,
         sources: &[(&Permanent, ContinuousEffectTimestamp)],
     ) -> bool {
-        if self.resolved_land_type_set_applies(affected) {
-            return true;
-        }
-        sources.iter().any(|(source, timestamp)| {
+        let mut operations = self.resolved_land_type_operations(affected);
+        for (source, timestamp) in sources {
             if self.resolved_land_type_set_applies(source)
                 || self.raw_land_type_set_applies(source, sources)
             {
-                return false;
+                continue;
             }
-            let mut operations = Vec::new();
             self.collect_land_type_operations_from_source(
                 source,
                 affected,
                 *timestamp,
                 &mut operations,
             );
-            operations.iter().any(|(_, _, operation)| {
-                matches!(
-                    operation,
-                    LandTypeOperation::SetTo(_) | LandTypeOperation::SetToChosen(_)
-                )
-            })
-        })
+        }
+        operations.sort_by_key(|(timestamp, order, _)| (*timestamp, *order));
+        self.land_type_set_operation_applies(affected, &operations)
     }
 
     fn collect_land_type_operations_from_source(
@@ -333,10 +363,14 @@ impl Game {
                     affected,
                 ) =>
             {
-                Self::collect_applied_land_type_operations(
+                self.collect_applied_land_type_operations(
                     conditional.then.effect,
-                    source_timestamp,
-                    source.chosen_basic_land_type,
+                    AppliedLandTypeContext {
+                        text_source: source.card.id,
+                        timestamp: source_timestamp,
+                        chosen: source.chosen_basic_land_type,
+                        substitution: source.chosen_basic_land_type_substitution,
+                    },
                     component_order,
                     operations,
                 );
@@ -344,10 +378,14 @@ impl Game {
             EffectDef::StaticApply { recipient, effect }
                 if self.land_type_recipient_matches(recipient, source, affected) =>
             {
-                Self::collect_applied_land_type_operations(
+                self.collect_applied_land_type_operations(
                     effect,
-                    source_timestamp,
-                    source.chosen_basic_land_type,
+                    AppliedLandTypeContext {
+                        text_source: source.card.id,
+                        timestamp: source_timestamp,
+                        chosen: source.chosen_basic_land_type,
+                        substitution: source.chosen_basic_land_type_substitution,
+                    },
                     component_order,
                     operations,
                 );
@@ -357,19 +395,18 @@ impl Game {
     }
 
     fn collect_applied_land_type_operations(
+        &self,
         effect: AppliedEffectDef,
-        source: ContinuousEffectTimestamp,
-        chosen: Option<BasicLandType>,
+        context: AppliedLandTypeContext,
         component_order: &mut u16,
         operations: &mut Vec<(ContinuousEffectTimestamp, u16, LandTypeOperation)>,
     ) {
         match effect {
             AppliedEffectDef::Composite(effects) => {
                 for effect in effects {
-                    Self::collect_applied_land_type_operations(
+                    self.collect_applied_land_type_operations(
                         *effect,
-                        source,
-                        chosen,
+                        context,
                         component_order,
                         operations,
                     );
@@ -382,21 +419,55 @@ impl Game {
                 *component_order = component_order
                     .checked_add(1)
                     .expect("one static ability contains at most 65,536 components");
-                operations.push((source, order, Self::resolved_land_type_operation(operation)));
+                let operation = match operation {
+                    SetOperationDef::Add(types) => LandTypeOperation::Add(
+                        self.text_changed_land_type_mask(context.text_source, types),
+                    ),
+                    SetOperationDef::Remove(types) => LandTypeOperation::Remove(
+                        self.text_changed_land_type_mask(context.text_source, types),
+                    ),
+                    SetOperationDef::Set(types) => LandTypeOperation::SetTo(
+                        self.text_changed_land_type_mask(context.text_source, types),
+                    ),
+                };
+                operations.push((context.timestamp, order, operation));
             }
             // A permanent that was never told which type to be says nothing
             // at all, which is what a Multiversal Passage put onto the
             // battlefield without choosing comes to.
             AppliedEffectDef::Characteristic(CharacteristicOperationDef::ChosenBasicLandType) => {
-                if let Some(chosen) = chosen {
-                    let order = *component_order;
-                    *component_order = component_order
-                        .checked_add(1)
-                        .expect("one static ability contains at most 65,536 components");
-                    operations.push((source, order, LandTypeOperation::SetToChosen(chosen)));
+                let order = *component_order;
+                *component_order = component_order
+                    .checked_add(1)
+                    .expect("one static ability contains at most 65,536 components");
+                if let Some(chosen) = context.chosen {
+                    operations.push((
+                        context.timestamp,
+                        order,
+                        LandTypeOperation::SetToChosen(chosen),
+                    ));
                 }
             }
-            AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => {}
+            AppliedEffectDef::Characteristic(
+                CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
+            ) => {
+                let order = *component_order;
+                *component_order = component_order
+                    .checked_add(1)
+                    .expect("one static ability contains at most 65,536 components");
+                if let Some((from, to)) = context.substitution {
+                    operations.push((
+                        context.timestamp,
+                        order,
+                        LandTypeOperation::Substitute { from, to },
+                    ));
+                }
+            }
+            AppliedEffectDef::Characteristic(_) | AppliedEffectDef::Rule(_) => {
+                *component_order = component_order
+                    .checked_add(1)
+                    .expect("one static ability contains at most 65,536 components");
+            }
         }
     }
 
@@ -692,74 +763,6 @@ impl Game {
         }
     }
 
-    /// Applies the subtype layer's operations in timestamp order. Split
-    /// from the reader above because the two are different jobs: one works
-    /// out the starting line, and this one edits it.
-    /// One layer-4 land-subtype operation. Split out of the walk above for
-    /// the source-size budget; the three shapes are the ones CR 305.7 gives
-    /// a land's types.
-    fn apply_basic_land_subtype_operation(
-        subtypes: &mut Vec<&'static str>,
-        operation: LandTypeOperation,
-    ) {
-        fn is_land_subtype(subtype: &str) -> bool {
-            LAND_SUBTYPES.contains(&subtype)
-        }
-
-        match operation {
-            // One type or several, the set is the same operation: every land
-            // subtype it had goes, and these take their place.
-            LandTypeOperation::SetTo(_) | LandTypeOperation::SetToChosen(_) => {
-                let chosen = [match operation {
-                    LandTypeOperation::SetToChosen(chosen) => chosen,
-                    _ => BasicLandType::Plains,
-                }];
-                let types: &[BasicLandType] = match operation {
-                    LandTypeOperation::SetTo(types) => types,
-                    _ => &chosen,
-                };
-                let mut insertion = subtypes
-                    .iter()
-                    .position(|subtype| is_land_subtype(subtype))
-                    .unwrap_or(0);
-                subtypes.retain(|subtype| !is_land_subtype(subtype));
-                insertion = insertion.min(subtypes.len());
-                for land_type in types {
-                    if subtypes
-                        .iter()
-                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
-                    {
-                        continue;
-                    }
-                    subtypes.insert(insertion, land_type.subtype());
-                    insertion += 1;
-                }
-            }
-            LandTypeOperation::Add(types) => {
-                let mut insertion = subtypes
-                    .iter()
-                    .position(|subtype| !is_land_subtype(subtype))
-                    .unwrap_or(subtypes.len());
-                for land_type in types {
-                    if subtypes
-                        .iter()
-                        .any(|subtype| BasicLandType::from_subtype(subtype) == Some(*land_type))
-                    {
-                        continue;
-                    }
-                    subtypes.insert(insertion, land_type.subtype());
-                    insertion += 1;
-                }
-            }
-            LandTypeOperation::Remove(types) => {
-                subtypes.retain(|subtype| {
-                    BasicLandType::from_subtype(subtype)
-                        .is_none_or(|land_type| !types.contains(&land_type))
-                });
-            }
-        }
-    }
-
     fn apply_subtype_operations(
         subtypes: &mut Vec<&'static str>,
         operations: Vec<(ContinuousEffectTimestamp, u16, SubtypeLayerOperation)>,
@@ -854,15 +857,28 @@ impl Game {
         }
 
         let mut subtypes = rules.subtypes().to_vec();
+        if let Some(token) = Self::copiable_token_words(permanent) {
+            for subtype in &mut subtypes {
+                if let Some(land_type) = BasicLandType::from_subtype(subtype) {
+                    *subtype = token.basic_land_type_word(land_type).subtype();
+                }
+            }
+        }
         for subtype in retained {
             if !subtypes.contains(subtype) {
                 subtypes.push(subtype);
             }
         }
         for change in &permanent.text_changes {
+            if !self.continuous_effect_expiration_is_active(change.expiration, permanent.card.id) {
+                continue;
+            }
+            let TextWordChange::BasicLandType { from, to } = change.word else {
+                continue;
+            };
             for subtype in &mut subtypes {
-                if BasicLandType::from_subtype(subtype) == Some(change.from) {
-                    *subtype = change.to.subtype();
+                if BasicLandType::from_subtype(subtype) == Some(from) {
+                    *subtype = to.subtype();
                 }
             }
         }
@@ -964,4 +980,6 @@ impl Game {
 include!("land_type_layers/effect_inspection.rs");
 include!("land_type_layers/nonpermanent_objects.rs");
 include!("land_type_layers/prepared.rs");
+include!("land_type_layers/operations.rs");
+include!("land_type_layers/set_application.rs");
 include!("land_type_layers/query_memo.rs");

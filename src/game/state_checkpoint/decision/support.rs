@@ -306,12 +306,13 @@ pub(in crate::game::state_checkpoint) fn decision_referenced_object_ids(
         | DecisionContinuation::DiscardForEffect {
             follow_up: None, ..
         }
-        | DecisionContinuation::BasicLandTypeTextChange { .. }
+        | DecisionContinuation::TextChange { .. }
         | DecisionContinuation::SpellLibraryEnd { .. }
         | DecisionContinuation::SacrificeOfChoice { followup: None, .. }
         | DecisionContinuation::SearchZonesAndExileRest { .. }
         | DecisionContinuation::Vote { .. }
         | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
+        | DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. }
         | DecisionContinuation::BattlefieldEntryCopy { .. } => {}
     }
     ids

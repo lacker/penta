@@ -5,9 +5,10 @@ mod triggers;
 
 use super::decision_search_resolution::SearchResolution;
 use super::{
-    BasicLandType, BasicLandTypeChange, BattlefieldArrival, BattlefieldExitCompletion,
-    DecisionContinuation, DecisionOption, Game, GameEvent, ManaCost, PlayerId, ReplaceableEvent,
-    Target, TargetSelection, ZoneKind, ZoneMoveCause, ZonePlacement, remove_card,
+    BasicLandType, BattlefieldArrival, BattlefieldExitCompletion, DecisionContinuation,
+    DecisionOption, Game, GameEvent, ManaCost, PlayerId, ReplaceableEvent, Target, TargetSelection,
+    TextChange, TextChangeKindDef, TextWordChange, ZoneKind, ZoneMoveCause, ZonePlacement,
+    remove_card,
 };
 use crate::card::{BattlefieldEntryChoiceDestinationDef, EffectDef, ReplacementEffectDef};
 
@@ -188,28 +189,69 @@ impl Game {
                     self.resolve_basic_land_type_substitution(&object, &context, effect, option);
                 }
             }
-            DecisionContinuation::BasicLandTypeTextChange { target } => {
+            DecisionContinuation::TextChange {
+                target,
+                kind,
+                expiration,
+            } => {
                 let Some(option) = options.first().copied() else {
                     return;
                 };
-                let width = u32::try_from(BasicLandType::ALL.len())
+                let land_width = u32::try_from(BasicLandType::ALL.len())
                     .expect("the basic-land-type count fits u32");
-                let Some(from) = usize::try_from(option / width)
-                    .ok()
-                    .and_then(BasicLandType::from_index)
-                else {
+                let color_offset = land_width * land_width;
+                let word = if option < color_offset
+                    && matches!(
+                        kind,
+                        TextChangeKindDef::BasicLandType
+                            | TextChangeKindDef::BasicLandTypeOrColorWord
+                    ) {
+                    let Some(from) = usize::try_from(option / land_width)
+                        .ok()
+                        .and_then(BasicLandType::from_index)
+                    else {
+                        return;
+                    };
+                    let Some(to) = usize::try_from(option % land_width)
+                        .ok()
+                        .and_then(BasicLandType::from_index)
+                    else {
+                        return;
+                    };
+                    TextWordChange::BasicLandType { from, to }
+                } else if matches!(
+                    kind,
+                    TextChangeKindDef::ColorWord | TextChangeKindDef::BasicLandTypeOrColorWord
+                ) {
+                    let color_width = u32::try_from(Self::CHOOSABLE_COLORS.len())
+                        .expect("the color count fits u32");
+                    let color_option = option.saturating_sub(color_offset);
+                    let Some(from) = usize::try_from(color_option / color_width)
+                        .ok()
+                        .and_then(|index| Self::CHOOSABLE_COLORS.get(index))
+                        .copied()
+                    else {
+                        return;
+                    };
+                    let Some(to) = usize::try_from(color_option % color_width)
+                        .ok()
+                        .and_then(|index| Self::CHOOSABLE_COLORS.get(index))
+                        .copied()
+                    else {
+                        return;
+                    };
+                    TextWordChange::Color { from, to }
+                } else {
                     return;
                 };
-                let Some(to) = usize::try_from(option % width)
-                    .ok()
-                    .and_then(BasicLandType::from_index)
-                else {
-                    return;
-                };
-                if from == to {
+                if matches!(
+                    word,
+                    TextWordChange::BasicLandType { from, to } if from == to
+                ) || matches!(word, TextWordChange::Color { from, to } if from == to)
+                {
                     return;
                 }
-                let change = BasicLandTypeChange { from, to };
+                let change = TextChange { word, expiration };
                 match target {
                     Target::Permanent(id) => {
                         if let Some(permanent) = self
@@ -234,7 +276,10 @@ impl Game {
             | DecisionContinuation::BattlefieldExitReplacement { .. }
             | DecisionContinuation::BattlefieldEntryPayment { .. }
             | DecisionContinuation::BattlefieldEntryCopy { .. }
-            | DecisionContinuation::BattlefieldEntryScalarChoice { .. }) => {
+            | DecisionContinuation::BattlefieldEntryScalarChoice { .. }
+            | DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice {
+                ..
+            }) => {
                 self.resolve_battlefield_entry_decision(continuation, &pending_options, options);
             }
             DecisionContinuation::BattlefieldExitOrder { batch, remaining } => {

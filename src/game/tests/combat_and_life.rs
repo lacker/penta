@@ -218,9 +218,12 @@ fn flinthoof_boar_grows_for_a_mountain_you_control_and_only_once() {
         .push(creature(10_002, cards::MOUNTAIN, PlayerId::One));
     assert_eq!(stats(&game), (Some(3), Some(3)));
 
-    game.battlefield[2].text_changes.push(BasicLandTypeChange {
-        from: BasicLandType::Mountain,
-        to: BasicLandType::Island,
+    game.battlefield[2].text_changes.push(TextChange {
+        word: TextWordChange::BasicLandType {
+            from: BasicLandType::Mountain,
+            to: BasicLandType::Island,
+        },
+        expiration: ContinuousEffectExpiration::Never,
     });
     assert_eq!(
         stats(&game),

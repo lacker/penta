@@ -505,6 +505,16 @@ pub(super) fn parse_battlefield(
                         .get("chosenBasicLandType")
                         .and_then(Value::as_str)
                         .and_then(BasicLandType::from_subtype),
+                    chosen_basic_land_type_substitution: shown
+                        .get("chosenBasicLandTypeSubstitution")
+                        .and_then(Value::as_array)
+                        .filter(|pair| pair.len() == 2)
+                        .and_then(|pair| {
+                            Some((
+                                BasicLandType::from_subtype(pair[0].as_str()?)?,
+                                BasicLandType::from_subtype(pair[1].as_str()?)?,
+                            ))
+                        }),
                     chosen_color: shown
                         .get("chosenColor")
                         .and_then(Value::as_str)
@@ -547,6 +557,7 @@ struct PermanentPresentation {
     activated_loyalty_this_turn: bool,
     chosen_creature_type: Option<String>,
     chosen_basic_land_type: Option<BasicLandType>,
+    chosen_basic_land_type_substitution: Option<(BasicLandType, BasicLandType)>,
     chosen_color: Option<ManaColor>,
     chosen_card_name: Option<String>,
 }
@@ -776,6 +787,7 @@ fn parse_permanent(
     });
     permanent.chosen_creature_type = shown.chosen_creature_type;
     permanent.chosen_basic_land_type = shown.chosen_basic_land_type;
+    permanent.chosen_basic_land_type_substitution = shown.chosen_basic_land_type_substitution;
     permanent.chosen_color = shown.chosen_color;
     permanent.chosen_card_name = shown.chosen_card_name;
     permanent.face_down = state.face_down.map(face_down_characteristics_from_snapshot);
@@ -846,11 +858,8 @@ fn parse_permanent(
     permanent.text_changes = state
         .text_changes
         .iter()
-        .map(|change| BasicLandTypeChange {
-            from: parse_basic_land_type(change.from),
-            to: parse_basic_land_type(change.to),
-        })
-        .collect();
+        .map(parse_text_change)
+        .collect::<Result<Vec<_>, _>>()?;
     permanent.destroy_at_end = state.destroy_at_end;
     permanent.counters = counters;
     permanent.attached_to = state.attached_to.map(GameObjectId);
@@ -926,6 +935,9 @@ pub(super) fn parse_detached_permanent(
             activated_loyalty_this_turn: snapshot.activated_loyalty_this_turn,
             chosen_creature_type: snapshot.chosen_creature_type.clone(),
             chosen_basic_land_type: snapshot.chosen_basic_land_type.map(parse_basic_land_type),
+            chosen_basic_land_type_substitution: snapshot
+                .chosen_basic_land_type_substitution
+                .map(|[from, to]| (parse_basic_land_type(from), parse_basic_land_type(to))),
             chosen_color: snapshot.chosen_color.map(parse_mana_color),
             chosen_card_name: snapshot.chosen_card_name.clone(),
         },

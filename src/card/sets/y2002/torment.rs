@@ -9,8 +9,9 @@ use crate::card::{
     CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef,
     ConditionDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
     ObjectCountConditionDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
-    PlayerRefDef, PlayerRelation, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef,
-    ZoneKind, ZonePlacement, abilities,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, TextChangeKindDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -238,13 +239,28 @@ pub(in crate::card::sets) static VENGEFUL_DREAMS: CardRecord = CardRecord::new(
 );
 
 // TOR 22 — Alter Reality
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ALTER_REALITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("64cd68be-6e6a-4577-8465-a892463b6d6c"),
     "Alter Reality",
     crate::card::CardArt::new("64cd68be-6e6a-4577-8465-a892463b6d6c", "Justin Sweet"),
     crate::card::CardSet::Torment,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{1}{U}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Change the text of target spell or permanent by replacing all instances of one color word with another. (This effect lasts indefinitely.)",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield, ZoneKind::Stack],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::ColorWord,
+                duration: ResolvedEffectDurationDef::Permanent,
+            },
+        ),
+        abilities::flashback(mana_cost!("{1}{U}")),
+    ]),
 );
 
 // TOR 23 — Ambassador Laquatus

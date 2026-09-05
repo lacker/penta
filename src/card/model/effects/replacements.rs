@@ -245,6 +245,11 @@ impl BattlefieldEntryScalarChoiceDef {
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum ReplacementChoiceDef {
     Scalar(BattlefieldEntryScalarChoiceDef),
+    /// An ordered pair of different basic land types, remembered by the
+    /// entering permanent. The first is the type to find and the second is
+    /// the type that replaces it; keeping the pair typed lets a later static
+    /// layer-4 operation read both without interpreting labels.
+    BasicLandTypePair,
     Player(PlayerRelation),
     /// Any number of matching cards in the entering permanent's controller's
     /// graveyard, exiled and linked to it as it arrives. The link is the

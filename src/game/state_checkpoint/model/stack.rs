@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 
 use super::{
     AbilityLocator, AbilityOriginSnapshot, AbilitySourceSnapshot, AppliedEffectLocator,
-    BasicLandTypeSnapshot, DecisionCardOriginSnapshot, EffectResolutionContextSnapshot,
-    FaceDownCharacteristicsSnapshot, ManaSourceSnapshot, ObjectCharacteristicsSnapshot,
-    ObjectKindSnapshot, TargetSelectionSnapshot,
+    BasicLandTypeSnapshot, ContinuousEffectExpirationSnapshot, DecisionCardOriginSnapshot,
+    EffectResolutionContextSnapshot, FaceDownCharacteristicsSnapshot, ManaColorSnapshot,
+    ManaSourceSnapshot, ObjectCharacteristicsSnapshot, ObjectKindSnapshot, TargetSelectionSnapshot,
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -24,7 +24,7 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
     pub(in crate::game::state_checkpoint) requires_retired_object: bool,
     pub(in crate::game::state_checkpoint) has_runtime_overrides: bool,
     pub(in crate::game::state_checkpoint) applied_effects: Vec<AppliedStackEffectSnapshot>,
-    pub(in crate::game::state_checkpoint) text_changes: Vec<BasicLandTypeChangeSnapshot>,
+    pub(in crate::game::state_checkpoint) text_changes: Vec<TextChangeSnapshot>,
     pub(in crate::game::state_checkpoint) colors: Option<[bool; 5]>,
     /// Which colours paid for this spell, for converge. Additive: a payload
     /// written before converge existed carries none, and reconstructs as a
@@ -67,10 +67,27 @@ pub(in crate::game::state_checkpoint) struct StackSnapshot {
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
+pub(in crate::game::state_checkpoint) enum TextWordChangeSnapshot {
+    BasicLandType {
+        from: BasicLandTypeSnapshot,
+        to: BasicLandTypeSnapshot,
+    },
+    Color {
+        from: ManaColorSnapshot,
+        to: ManaColorSnapshot,
+    },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(in crate::game::state_checkpoint) struct BasicLandTypeChangeSnapshot {
-    pub(in crate::game::state_checkpoint) from: BasicLandTypeSnapshot,
-    pub(in crate::game::state_checkpoint) to: BasicLandTypeSnapshot,
+pub(in crate::game::state_checkpoint) struct TextChangeSnapshot {
+    pub(in crate::game::state_checkpoint) word: TextWordChangeSnapshot,
+    pub(in crate::game::state_checkpoint) expiration: ContinuousEffectExpirationSnapshot,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -117,7 +134,7 @@ pub(in crate::game::state_checkpoint) struct DetachedStackSnapshot {
     pub(in crate::game::state_checkpoint) chosen_permanents: Vec<u32>,
     pub(in crate::game::state_checkpoint) has_runtime_overrides: bool,
     pub(in crate::game::state_checkpoint) applied_effects: Vec<AppliedStackEffectSnapshot>,
-    pub(in crate::game::state_checkpoint) text_changes: Vec<BasicLandTypeChangeSnapshot>,
+    pub(in crate::game::state_checkpoint) text_changes: Vec<TextChangeSnapshot>,
     pub(in crate::game::state_checkpoint) colors: Option<[bool; 5]>,
     /// Which colours paid for this spell, for converge. Additive: a payload
     /// written before converge existed carries none, and reconstructs as a

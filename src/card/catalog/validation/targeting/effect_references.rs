@@ -615,7 +615,7 @@ fn validate_effect_references(
         | EffectDef::SacrificeYours { object }
         | EffectDef::PermitCastFromGraveyardThisTurn { object }
         | EffectDef::DiscardCards { object }
-        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChangeText { object, .. }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }

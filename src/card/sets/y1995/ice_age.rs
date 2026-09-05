@@ -8,11 +8,13 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
     CardSupertype, CardType, ComparisonDef, ConditionalStaticEffectDef, ControlDurationDef,
-    CounterKind, DividedTotal, EffectChoiceDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
-    ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetCountConditionDef,
-    ObjectSetDef, ObjectSetPredicateDef, PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef,
-    SpellAdditionalCostDef, StaticApplyDef, TargetChooserDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, abilities,
+    CounterKind, DividedTotal, EffectChoiceDef, EffectDef, EffectPaymentDef, EffectRecipientDef,
+    InstalledTriggerDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
+    ObjectSetCountConditionDef, ObjectSetDef, ObjectSetPredicateDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ReplacementChoiceDef, ReplacementEffectDef,
+    ResolvedEffectDurationDef, ScaledValueDef, SpellAdditionalCostDef, StaticApplyDef,
+    TargetChooserDef, TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -935,13 +937,57 @@ pub(in crate::card::sets) static ILLUSIONARY_PRESENCE: CardRecord = CardRecord::
 );
 
 // ICE 77 — Illusionary Terrain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static ILLUSIONARY_TERRAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("691f4a1b-4706-41aa-82da-ae920739f036"),
     "Illusionary Terrain",
     crate::card::CardArt::new("691f4a1b-4706-41aa-82da-ae920739f036", "Rob Alexander"),
     crate::card::CardSet::IceAge,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{U}{U}")).with_abilities(&[
+        AbilityDef::triggered(
+            "Cumulative upkeep {2} (At the beginning of your upkeep, put an age counter on this permanent, then sacrifice it unless you pay its upkeep cost for each age counter on it.)",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::IfCondition {
+                condition: &TriggerConditionDef::SourceOnBattlefield,
+                then: &EffectDef::Sequence(&[
+                    EffectDef::AddCounters {
+                        object: EffectRecipientDef::Source,
+                        kind: CounterKind::named("age"),
+                        amount: ValueDef::Constant(1),
+                    },
+                    EffectDef::PayOr(PayOrDef::unless(
+                        EffectPaymentDef::generic_mana(
+                            PlayerSetDef::One(PlayerRefDef::EffectController),
+                            ValueDef::Scaled(&ScaledValueDef::new(
+                                ValueDef::CountersOnSource(CounterKind::named("age")),
+                                2,
+                            )),
+                        ),
+                        &EffectDef::Sacrifice {
+                            object: EffectRecipientDef::Source,
+                        },
+                    )),
+                ]),
+            },
+        ),
+        AbilityDef::as_enters(
+            "As this enchantment enters, choose two basic land types.",
+            ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair),
+        ),
+        AbilityDef::static_ability(
+            "Basic lands of the first chosen type are the second chosen type.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::Any,
+                ),
+                effect: AppliedEffectDef::substitute_chosen_basic_land_types(),
+            },
+        ),
+    ]),
 );
 
 // ICE 78 — Illusionary Wall

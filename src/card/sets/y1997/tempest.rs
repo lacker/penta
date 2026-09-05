@@ -18,8 +18,9 @@ use crate::card::{
     CostModificationDef, DrawEventMatcherDef, EffectDef, EffectRecipientDef, ManaColor,
     ManaTypeSetDef, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef,
     ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementChoiceDef,
-    ReplacementEffectDef, ReplacementEventDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
-    ValueDef, ZoneKind, ZonePlacement, abilities,
+    ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef, TextChangeKindDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -1059,13 +1060,28 @@ pub(in crate::card::sets) static VOLRATH_S_CURSE: CardRecord = CardRecord::new(
 );
 
 // TMP 102 — Whim of Volrath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WHIM_OF_VOLRATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e259da60-c8bc-4a77-98ed-e529dc067732"),
     "Whim of Volrath",
     crate::card::CardArt::new("e259da60-c8bc-4a77-98ed-e529dc067732", "Anthony S. Waters"),
     crate::card::CardSet::Tempest,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_instant(mana_cost!("{U}")).with_abilities(&[
+        abilities::buyback(mana_cost!("{2}")),
+        AbilityDef::spell_with_targets(
+            "Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another until end of turn. (For example, you may change \"nonred creature\" to \"nongreen creature\" or \"plainswalk\" to \"swampwalk.\")",
+            &[AbilityTargetDef::exactly_one(AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::Any,
+                zones: &[ZoneKind::Battlefield],
+                controller: None,
+                owner: None,
+            })],
+            EffectDef::ChangeText {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: TextChangeKindDef::BasicLandTypeOrColorWord,
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // TMP 103 — Whispers of the Muse

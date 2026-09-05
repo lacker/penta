@@ -322,6 +322,9 @@ pub(in crate::game) fn attach_constant_resolved_characteristics(
             | CharacteristicOperationDef::SetChosenCreatureType => {
                 panic!("a chosen subtype is read live rather than resolved")
             }
+            CharacteristicOperationDef::ChosenBasicLandTypeSubstitution => {
+                panic!("a chosen land-type substitution is static rather than resolved")
+            }
             CharacteristicOperationDef::BasicLandTypes(operation) => {
                 ResolvedContinuousEffectKind::BasicLandTypes(operation)
             }

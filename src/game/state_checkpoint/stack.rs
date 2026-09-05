@@ -1,9 +1,9 @@
 use super::model::{
-    AppliedStackEffectSnapshot, BasicLandTypeChangeSnapshot, BindingSnapshot,
-    CastSignatureSnapshot, CounterKindSnapshot, DecisionCardOriginSnapshot, DetachedStackSnapshot,
-    EffectBindingSnapshot, EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot,
-    SpellFormSnapshot, StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot,
-    TargetSelectionSnapshot, TargetSnapshot, TriggerContextSnapshot,
+    AppliedStackEffectSnapshot, BindingSnapshot, CastSignatureSnapshot, CounterKindSnapshot,
+    DecisionCardOriginSnapshot, DetachedStackSnapshot, EffectBindingSnapshot,
+    EffectResolutionContextSnapshot, ManaSourceSnapshot, SeatSnapshot, SpellFormSnapshot,
+    StackAbilitySnapshot, StackObjectKindSnapshot, StackSnapshot, TargetSelectionSnapshot,
+    TargetSnapshot, TriggerContextSnapshot,
 };
 use super::semantics::{
     ability_locator_for_origin, applied_effect_locator, catalog_applied_effect,
@@ -11,19 +11,18 @@ use super::semantics::{
 };
 use super::{
     AbilityId, AbilityOrigin, AbilitySourceRef, AdditionalCostId, AlternativeCostId,
-    AppliedStackEffect, BasicLandType, BasicLandTypeChange, CardPartId, CastChoices, CastContext,
-    CastSignature, CharacteristicSource, CostConfiguration, DeclarativeAbilityDef,
-    EffectResolutionContext, Game, GameObjectId, GameStack, GrantId, ManaSource, ModeId,
-    ObjectBacking, ObjectCharacteristics, ObjectInstance, ObjectKind, PlayOptionId, PlayerId,
-    RetiredObject, SpellForm, StackAbilityPayload, StackObject, StackObjectKind, Target,
-    TargetSelection, TriggerContext, Value, ability_locator, ability_origin_from_snapshot,
-    ability_origin_snapshot, ability_target_defs, array, basic_land_type_snapshot, card,
-    card_definition_id_field, cast_source_zone_from_label, catalog_ability,
-    face_down_characteristics_from_snapshot, face_down_characteristics_snapshot, field,
-    object_characteristics_from_snapshot, object_characteristics_snapshot,
-    object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_basic_land_type,
-    parse_cast_signature, parse_ids, parse_zone_kind, seat_value, str_field, u8_field, u32_field,
-    usize_field, zone_kind_snapshot,
+    AppliedStackEffect, BasicLandType, CardPartId, CastChoices, CastContext, CastSignature,
+    CharacteristicSource, CostConfiguration, DeclarativeAbilityDef, EffectResolutionContext, Game,
+    GameObjectId, GameStack, GrantId, ManaSource, ModeId, ObjectBacking, ObjectCharacteristics,
+    ObjectInstance, ObjectKind, PlayOptionId, PlayerId, RetiredObject, SpellForm,
+    StackAbilityPayload, StackObject, StackObjectKind, Target, TargetSelection, TriggerContext,
+    Value, ability_locator, ability_origin_from_snapshot, ability_origin_snapshot,
+    ability_target_defs, array, card, card_definition_id_field, cast_source_zone_from_label,
+    catalog_ability, face_down_characteristics_from_snapshot, face_down_characteristics_snapshot,
+    field, object_characteristics_from_snapshot, object_characteristics_snapshot,
+    object_kind_from_snapshot, object_kind_snapshot, optional_id, parse_cast_signature, parse_ids,
+    parse_zone_kind, seat_value, str_field, text_change_snapshot, u8_field, u32_field, usize_field,
+    zone_kind_snapshot,
 };
 use crate::card::{AlternativeCastKindDef, ColorSet, ManaColor};
 use crate::game::trigger_state::{EffectBindingValue, RuntimeBinding};
@@ -183,10 +182,7 @@ pub(super) fn detached_stack_snapshot_allowing(
         text_changes: object
             .text_changes
             .iter()
-            .map(|change| super::model::BasicLandTypeChangeSnapshot {
-                from: super::basic_land_type_snapshot(change.from),
-                to: super::basic_land_type_snapshot(change.to),
-            })
+            .map(text_change_snapshot)
             .collect(),
         colors: object.colors.map(ColorSet::to_flags),
         colors_of_mana_spent: object
@@ -558,7 +554,7 @@ pub(super) fn parse_stack(
             signature,
             chosen_permanents: parse_ids(field(shown, "chosenPermanents")?)?,
             applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
-            text_changes: parse_text_changes(&state.text_changes),
+            text_changes: parse_text_changes(&state.text_changes)?,
             colors: state.colors.map(color_set_from_flags),
             cast,
             face_down: state.face_down.map(face_down_characteristics_from_snapshot),
@@ -648,7 +644,7 @@ pub(super) fn parse_detached_stack(
             .map(GameObjectId)
             .collect(),
         applied_effects: parse_applied_stack_effects(&state.applied_effects, game)?,
-        text_changes: parse_text_changes(&state.text_changes),
+        text_changes: parse_text_changes(&state.text_changes)?,
         colors: state.colors.map(color_set_from_flags),
         cast,
         face_down: state.face_down.map(face_down_characteristics_from_snapshot),
@@ -678,15 +674,9 @@ fn ability_object(
 }
 
 fn parse_text_changes(
-    changes: &[super::model::BasicLandTypeChangeSnapshot],
-) -> Vec<BasicLandTypeChange> {
-    changes
-        .iter()
-        .map(|change| BasicLandTypeChange {
-            from: parse_basic_land_type(change.from),
-            to: parse_basic_land_type(change.to),
-        })
-        .collect()
+    changes: &[super::model::TextChangeSnapshot],
+) -> Result<Vec<super::TextChange>, String> {
+    changes.iter().map(super::parse_text_change).collect()
 }
 
 pub(super) fn color_set_from_flags(flags: [bool; 5]) -> ColorSet {

@@ -135,6 +135,18 @@ pub enum CounterOperationDef {
     Remove,
 }
 
+/// Which family of words a text-changing effect may replace.
+///
+/// The values are semantic rather than strings: a color word is distinct
+/// from a mana symbol, and a basic land type in a type line is distinct from
+/// the same spelling inside a card name.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+pub enum TextChangeKindDef {
+    BasicLandType,
+    ColorWord,
+    BasicLandTypeOrColorWord,
+}
+
 /// Where a counter-modification effect gets the counter kind it changes.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum CounterKindDef {

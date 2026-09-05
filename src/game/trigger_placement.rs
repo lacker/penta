@@ -472,6 +472,7 @@ impl Game {
     pub(super) fn put_trigger_on_stack(&mut self, trigger: PendingTrigger) {
         let card = self.unbacked_ability_object(trigger.presentation, trigger.owner);
         let object = card.id;
+        let text_changes = self.frozen_text_changes_for_source(trigger.source.object);
         self.stack.push(StackObject {
             id: object,
             kind: StackObjectKind::TriggeredAbility,
@@ -496,7 +497,7 @@ impl Game {
             signature: None,
             chosen_permanents: Vec::new(),
             applied_effects: Vec::new(),
-            text_changes: Vec::new(),
+            text_changes,
             colors: None,
             cast: None,
             face_down: None,

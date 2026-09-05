@@ -43,12 +43,14 @@ pub(in crate::game::state_checkpoint) use triggers::*;
 
 pub(super) use continuation::DecisionContinuationSnapshot;
 pub(super) use continuation::PregameAbilityActionSnapshot;
+pub(super) use continuation::TextChangeKindSnapshot;
 pub(in crate::game::state_checkpoint) use continuous::*;
 pub(super) use copy::{
     CopiableCharacteristicsSnapshot, DoubleFacedCopiableCharacteristicsSnapshot,
 };
 pub(super) use objects::{
-    AbilityLocator, EmblemCharacteristicsLocator, FaceDownCharacteristicsSnapshot,
+    AbilityLocator, AttackDefenderSnapshot, CombatDamageAssignmentSnapshot,
+    DetachedPermanentSnapshot, EmblemCharacteristicsLocator, FaceDownCharacteristicsSnapshot,
     ObjectCharacteristicsSnapshot, ObjectKindSnapshot, TokenCharacteristicsLocator,
 };
 
@@ -248,7 +250,7 @@ const fn default_nonbattlefield_grant_expiration() -> ContinuousEffectExpiration
     ContinuousEffectExpirationSnapshot::EndOfTurn
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum ManaColorSnapshot {
     White,
@@ -334,7 +336,7 @@ pub(super) enum AbilityOriginSnapshot {
     },
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) enum BasicLandTypeSnapshot {
     Plains,
@@ -539,7 +541,7 @@ pub(super) struct PermanentSnapshot {
     pub(super) copy_effect: Option<CopiableCharacteristicsSnapshot>,
     pub(super) copy_expiration: Option<ContinuousEffectExpirationSnapshot>,
     pub(super) copied_from: Option<CopiedFromSnapshot>,
-    pub(super) text_changes: Vec<BasicLandTypeChangeSnapshot>,
+    pub(super) text_changes: Vec<TextChangeSnapshot>,
     pub(super) has_dynamic_characteristics: bool,
 }
 
@@ -585,57 +587,6 @@ pub(super) enum RetiredObjectSnapshot {
         mana_value: u16,
         keywords: Vec<KeywordSnapshot>,
     },
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-#[allow(clippy::struct_excessive_bools)]
-pub(super) struct DetachedPermanentSnapshot {
-    pub(super) state: PermanentSnapshot,
-    pub(super) controller: usize,
-    pub(super) tapped: bool,
-    pub(super) damage: u16,
-    pub(super) attacking: bool,
-    pub(super) attack_defender: Option<AttackDefenderSnapshot>,
-    pub(super) blocked: bool,
-    /// Every attacker this creature is blocking. A list because a band is
-    /// blocked as a group and one creature may be allowed several blocks.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub(super) blocking: Vec<u32>,
-    /// Whether it blocked something that has since left combat, which the
-    /// list above can no longer say. Absent from a payload written before the
-    /// distinction existed, and from the ordinary case where the list answers.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) blocking_this_combat: Option<bool>,
-    /// The attacking band this creature is in, shared by every member.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) attacking_band: Option<u8>,
-    pub(super) activated_loyalty_this_turn: bool,
-    pub(super) chosen_creature_type: Option<String>,
-    /// The basic land type this permanent was told to be as it entered.
-    pub(super) chosen_basic_land_type: Option<BasicLandTypeSnapshot>,
-    /// The color this permanent was told to remember as it entered.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub(super) chosen_color: Option<ManaColorSnapshot>,
-    pub(super) chosen_card_name: Option<String>,
-}
-
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-#[serde(
-    tag = "kind",
-    rename_all = "camelCase",
-    rename_all_fields = "camelCase"
-)]
-pub(super) enum AttackDefenderSnapshot {
-    Player { seat: usize },
-    Planeswalker { object_id: u32 },
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct CombatDamageAssignmentSnapshot {
-    pub(super) recipient: TargetSnapshot,
-    pub(super) amount: u16,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

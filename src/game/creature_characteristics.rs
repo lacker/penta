@@ -767,8 +767,12 @@ impl Game {
                 matches!(
                     effective.ability.definition,
                     DeclarativeAbilityDef::Static(_)
-                ) && effective.ability.declarative_effect()
-                    == Some(EffectDef::LandwalkCanBeBlocked(land_type))
+                ) && matches!(
+                    effective.ability.declarative_effect(),
+                    Some(EffectDef::LandwalkCanBeBlocked(authored))
+                        if self.text_changed_basic_land_type(permanent.card.id, authored)
+                            == land_type
+                )
             })
             .is_some()
         })

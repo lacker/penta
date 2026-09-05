@@ -185,9 +185,15 @@ fn parse_continuation(
                 })
                 .transpose()?,
         },
-        DecisionContinuationSnapshot::BasicLandTypeTextChange { target } => {
-            DecisionContinuation::BasicLandTypeTextChange {
+        DecisionContinuationSnapshot::TextChange {
+            target,
+            text_kind,
+            expiration,
+        } => {
+            DecisionContinuation::TextChange {
                 target: parse_target(*target),
+                kind: parse_text_change_kind(*text_kind),
+                expiration: parse_expiration(expiration)?,
             }
         }
         DecisionContinuationSnapshot::SacrificeToTotalPower {

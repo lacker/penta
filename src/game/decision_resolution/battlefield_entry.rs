@@ -184,6 +184,20 @@ impl Game {
                     self.continue_pending_events();
                 }
             }
+            DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { .. } => {
+                let Some((from, to)) = options
+                    .first()
+                    .and_then(|option| Self::basic_land_type_pair(*option))
+                else {
+                    return;
+                };
+                if let Some(mut pending) = self.pending_events.pop_front() {
+                    let ReplaceableEvent::BattlefieldEntry(entry) = &mut pending.event;
+                    entry.permanent.chosen_basic_land_type_substitution = Some((from, to));
+                    self.pending_events.push_front(pending);
+                    self.continue_pending_events();
+                }
+            }
             _ => unreachable!("only battlefield-entry continuations reach this resolver"),
         }
     }

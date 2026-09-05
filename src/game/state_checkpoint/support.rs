@@ -96,6 +96,76 @@ const fn parse_mana_color(color: ManaColorSnapshot) -> crate::ManaColor {
     }
 }
 
+fn text_change_snapshot(change: &TextChange) -> model::TextChangeSnapshot {
+    let word = match change.word {
+        TextWordChange::BasicLandType { from, to } => {
+            model::TextWordChangeSnapshot::BasicLandType {
+                from: basic_land_type_snapshot(from),
+                to: basic_land_type_snapshot(to),
+            }
+        }
+        TextWordChange::Color { from, to } => model::TextWordChangeSnapshot::Color {
+            from: mana_color_snapshot(from),
+            to: mana_color_snapshot(to),
+        },
+    };
+    model::TextChangeSnapshot {
+        word,
+        expiration: expiration_snapshot(change.expiration),
+    }
+}
+
+fn parse_text_change(change: &model::TextChangeSnapshot) -> Result<TextChange, String> {
+    let word = match change.word {
+        model::TextWordChangeSnapshot::BasicLandType { from, to } => {
+            TextWordChange::BasicLandType {
+                from: parse_basic_land_type(from),
+                to: parse_basic_land_type(to),
+            }
+        }
+        model::TextWordChangeSnapshot::Color { from, to } => TextWordChange::Color {
+            from: parse_mana_color(from),
+            to: parse_mana_color(to),
+        },
+    };
+    Ok(TextChange {
+        word,
+        expiration: parse_expiration(&change.expiration)?,
+    })
+}
+
+const fn text_change_kind_snapshot(
+    kind: crate::card::TextChangeKindDef,
+) -> model::TextChangeKindSnapshot {
+    match kind {
+        crate::card::TextChangeKindDef::BasicLandType => {
+            model::TextChangeKindSnapshot::BasicLandType
+        }
+        crate::card::TextChangeKindDef::ColorWord => {
+            model::TextChangeKindSnapshot::ColorWord
+        }
+        crate::card::TextChangeKindDef::BasicLandTypeOrColorWord => {
+            model::TextChangeKindSnapshot::BasicLandTypeOrColorWord
+        }
+    }
+}
+
+const fn parse_text_change_kind(
+    kind: model::TextChangeKindSnapshot,
+) -> crate::card::TextChangeKindDef {
+    match kind {
+        model::TextChangeKindSnapshot::BasicLandType => {
+            crate::card::TextChangeKindDef::BasicLandType
+        }
+        model::TextChangeKindSnapshot::ColorWord => {
+            crate::card::TextChangeKindDef::ColorWord
+        }
+        model::TextChangeKindSnapshot::BasicLandTypeOrColorWord => {
+            crate::card::TextChangeKindDef::BasicLandTypeOrColorWord
+        }
+    }
+}
+
 fn expiration_snapshot(
     expiration: ContinuousEffectExpiration,
 ) -> ContinuousEffectExpirationSnapshot {

@@ -445,7 +445,7 @@ fn shared_static_effect_at(source_zones: &[ZoneKind], effect: EffectDef, root: b
         | EffectDef::ChooseEffect { .. }
         | EffectDef::ModifyCounters { .. }
         | EffectDef::RemoveCounters { .. }
-        | EffectDef::ChangeTextBasicLandType { .. }
+        | EffectDef::ChangeText { .. }
         | EffectDef::ChooseColor { .. }
         | EffectDef::BecomeCopyOf { .. }
         | EffectDef::PutIntoLibraryBeneathTop { .. }
@@ -623,7 +623,7 @@ pub(in super::super) fn shared_static_applied_effect(
         ) => shared_static_creature_type_query(recipient),
         AppliedEffectDef::Characteristic(CharacteristicOperationDef::CardTypes(
             SetOperationDef::Remove(_) | SetOperationDef::Set(_),
-        )) => false,
+        )) => shared_direct_characteristic_recipient(recipient),
         // A blocking restriction is read off the ordinary static-effect walk
         // over whichever participant carries it, so a group recipient works
         // exactly as a self-applied one does.
@@ -641,7 +641,8 @@ pub(in super::super) fn shared_static_applied_effect(
         AppliedEffectDef::Characteristic(
             CharacteristicOperationDef::Abilities(AbilityOperationDef::Remove(_))
             | CharacteristicOperationDef::PowerToughness(PowerToughnessOperationDef::Switch)
-            | CharacteristicOperationDef::ChosenBasicLandType,
+            | CharacteristicOperationDef::ChosenBasicLandType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution,
         ) => true,
     }
 }

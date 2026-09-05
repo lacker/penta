@@ -3110,13 +3110,32 @@ pub(in crate::card::sets) static ARGOTHIAN_WURM: CardRecord = CardRecord::new(
 );
 
 // USG 237 — Blanchwood Armor
-// Audit: unsupported — Card rules have not been implemented.
+static BLANCHWOOD_ARMOR_FORESTS: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
+);
+
 pub(in crate::card::sets) static BLANCHWOOD_ARMOR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9b5f3776-74f4-4626-833b-e1b0921d3cbc"),
     "Blanchwood Armor",
     crate::card::CardArt::new("9b5f3776-74f4-4626-833b-e1b0921d3cbc", "Paolo Parente"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{2}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets +1/+1 for each Forest you control.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::CountMatchingObjects(&BLANCHWOOD_ARMOR_FORESTS),
+                        ValueDef::CountMatchingObjects(&BLANCHWOOD_ARMOR_FORESTS),
+                    ),
+                },
+            ),
+        ]),
 );
 
 // USG 238 — Blanchwood Treefolk
@@ -3326,13 +3345,34 @@ pub(in crate::card::sets) static FERTILE_GROUND: CardRecord = CardRecord::new(
 );
 
 // USG 253 — Fortitude
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FORTITUDE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d54d5240-8afc-4c61-aaf6-a78d2b92e5c9"),
     "Fortitude",
     crate::card::CardArt::new("d54d5240-8afc-4c61-aaf6-a78d2b92e5c9", "Daren Bader"),
     crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::activated(
+                "Sacrifice a Forest: Regenerate enchanted creature.",
+                &[AbilityCostDef::SacrificePermanent {
+                    object: ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    controller: PlayerRelation::You,
+                }],
+                EffectDef::Regenerate {
+                    object: EffectRecipientDef::AttachedPermanent,
+                },
+            ),
+            abilities::dies_trigger(
+                "When this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
+                EffectDef::MoveToZone {
+                    object: EffectRecipientDef::TriggeringZoneChangeResult,
+                    zone: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ]),
 );
 
 // USG 254 — Gaea's Bounty

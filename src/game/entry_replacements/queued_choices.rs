@@ -6,10 +6,19 @@
 // imports here are that module's.
 
 impl Game {
-    pub(super) fn queue_basic_land_type_text_change(&mut self, player: PlayerId, target: Target) {
-        let options = BasicLandType::ALL
-            .into_iter()
-            .flat_map(|from| {
+    pub(super) fn queue_text_change(
+        &mut self,
+        player: PlayerId,
+        target: Target,
+        kind: TextChangeKindDef,
+        duration: ResolvedEffectDurationDef,
+    ) {
+        let mut options = Vec::new();
+        if matches!(
+            kind,
+            TextChangeKindDef::BasicLandType | TextChangeKindDef::BasicLandTypeOrColorWord
+        ) {
+            options.extend(BasicLandType::ALL.into_iter().flat_map(|from| {
                 BasicLandType::ALL
                     .into_iter()
                     .filter(move |to| from != *to)
@@ -22,18 +31,59 @@ impl Game {
                         ability_text: None,
                         zone: DecisionZone::None,
                     })
-            })
-            .collect();
+            }));
+        }
+        if matches!(
+            kind,
+            TextChangeKindDef::ColorWord | TextChangeKindDef::BasicLandTypeOrColorWord
+        ) {
+            let offset = u32::try_from(BasicLandType::ALL.len().pow(2))
+                .expect("the text-change choice offset fits u32");
+            options.extend(Self::CHOOSABLE_COLORS.into_iter().flat_map(|from| {
+                Self::CHOOSABLE_COLORS
+                    .into_iter()
+                    .filter(move |to| from != *to)
+                    .map(move |to| DecisionOption {
+                        id: offset
+                            + u32::try_from(
+                                Self::color_index(from) * Self::CHOOSABLE_COLORS.len()
+                                    + Self::color_index(to),
+                            )
+                            .expect("the color-word choice id fits u32"),
+                        label: format!("{} → {}", from.label(), to.label()),
+                        card: None,
+                        members: Vec::new(),
+                        ability_text: None,
+                        zone: DecisionZone::None,
+                    })
+            }));
+        }
+        let expiration = Self::continuous_effect_expiration(
+            duration,
+            player,
+            self.turns_started[player.index()],
+        );
         self.queue_decision(
             player,
-            "Replace one basic land type with another",
+            "Replace one word with another",
             DecisionVisibility::Public,
             DecisionPreference::Neutral,
             1..=1,
             false,
             options,
-            DecisionContinuation::BasicLandTypeTextChange { target },
+            DecisionContinuation::TextChange {
+                target,
+                kind,
+                expiration,
+            },
         );
+    }
+
+    fn color_index(color: ManaColor) -> usize {
+        Self::CHOOSABLE_COLORS
+            .iter()
+            .position(|candidate| *candidate == color)
+            .expect("a text-change color is one of the five colors")
     }
 
     /// The five colours a card can name. Colourless is not among them: "the

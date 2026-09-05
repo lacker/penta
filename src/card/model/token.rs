@@ -4,8 +4,8 @@ use std::hash::{Hash, Hasher};
 use crate::ids::CardPartId;
 
 use super::{
-    AbilityDef, CardArt, CardRules, CardSupertype, CardType, CardTypeSet, CreatureStats, ManaColor,
-    ObjectPredicateDef, ValueDef, inline_rules::InlineRules,
+    AbilityDef, BasicLandType, CardArt, CardRules, CardSupertype, CardType, CardTypeSet,
+    CreatureStats, ManaColor, ObjectPredicateDef, ValueDef, inline_rules::InlineRules,
 };
 
 fn derived_token_name(
@@ -220,6 +220,43 @@ impl TokenCharacteristics {
         self.rules = self
             .rules
             .with_creature_stats(CreatureStats { power, toughness });
+        self
+    }
+
+    #[must_use]
+    pub(crate) const fn with_color_set(mut self, colors: super::ColorSet) -> Self {
+        self.rules = self.rules.with_color_set(colors);
+        self
+    }
+
+    #[must_use]
+    pub(crate) const fn basic_land_type_word(self, word: BasicLandType) -> BasicLandType {
+        self.rules.basic_land_type_word(word)
+    }
+
+    #[must_use]
+    pub(crate) const fn color_word(self, word: ManaColor) -> ManaColor {
+        self.rules.color_word(word)
+    }
+
+    pub(crate) const fn basic_land_type_word_map(
+        self,
+    ) -> [BasicLandType; BasicLandType::ALL.len()] {
+        self.rules.basic_land_type_word_map()
+    }
+
+    pub(crate) const fn color_word_map(self) -> [ManaColor; ManaColor::COLORS.len()] {
+        self.rules.color_word_map()
+    }
+
+    pub(crate) const fn with_word_maps(
+        mut self,
+        basic_land_type_words: [BasicLandType; BasicLandType::ALL.len()],
+        color_words: [ManaColor; ManaColor::COLORS.len()],
+    ) -> Self {
+        self.rules = self
+            .rules
+            .with_word_maps(basic_land_type_words, color_words);
         self
     }
 

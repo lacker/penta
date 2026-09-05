@@ -118,6 +118,10 @@ pub enum CharacteristicOperationDef {
     /// layer-4 set with the same rules consequences and a subject nothing
     /// could have written down.
     ChosenBasicLandType,
+    /// On a source that chose an ordered pair of basic land types as it
+    /// entered, replace the first with the second. Applied to basic lands as
+    /// a layer-4 Set, so timestamp order and CR 305.7 remain shared rules.
+    ChosenBasicLandTypeSubstitution,
     CardTypes(SetOperationDef<CardTypeSet>),
     /// Supertype operations in layer 4. A set value preserves combinations
     /// such as Basic Snow rather than treating the type line as one choice.
@@ -675,6 +679,11 @@ impl AppliedEffectDef {
     }
 
     #[must_use]
+    pub const fn substitute_chosen_basic_land_types() -> Self {
+        Self::Characteristic(CharacteristicOperationDef::ChosenBasicLandTypeSubstitution)
+    }
+
+    #[must_use]
     pub const fn set_basic_land_types(types: &'static [BasicLandType]) -> Self {
         Self::Characteristic(CharacteristicOperationDef::BasicLandTypes(
             SetOperationDef::Set(types),
@@ -742,6 +751,16 @@ impl AppliedEffectDef {
     pub const fn remove_subtypes(types: &'static [&'static str]) -> Self {
         Self::Characteristic(CharacteristicOperationDef::Subtypes(
             SetOperationDef::Remove(types),
+        ))
+    }
+
+    /// Replace the complete subtype line. This is distinct from setting one
+    /// subtype family: a type-changing effect that leaves only one card type
+    /// also removes subtypes belonging to every type it removed.
+    #[must_use]
+    pub const fn set_subtypes(types: &'static [&'static str]) -> Self {
+        Self::Characteristic(CharacteristicOperationDef::Subtypes(
+            SetOperationDef::Set(types),
         ))
     }
 

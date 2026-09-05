@@ -284,7 +284,7 @@ impl Game {
                     let operation = match applied.effect {
                         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Colors(
                             operation,
-                        )) => operation,
+                        )) => self.text_changed_color_operation(applied.source, operation),
                         AppliedEffectDef::Characteristic(CharacteristicOperationDef::Color(
                             operation,
                         )) => {
@@ -380,12 +380,18 @@ impl Game {
             else {
                 return false;
             };
-            self.trigger_object_matches_for_controller(
+            let controller = Some(permanent.controller);
+            let text_source = Self::text_source_for_ability_origin(
+                permanent.card.id,
+                effective.origin,
+            );
+            self.trigger_object_matches_with_text_source(
                 *predicate,
                 source,
                 permanent.card.id,
                 source_is_spell,
-                Some(permanent.controller),
+                controller,
+                text_source,
             )
         })
         .is_some()

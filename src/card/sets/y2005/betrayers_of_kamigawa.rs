@@ -2,10 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef, EffectRecipientDef,
-    ObjectPredicateDef, PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef,
-    ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AppliedEffectDef, AppliedRuleDef, BasicLandType,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, ColorSet, CounterKind,
+    CreatureTypeSetDef, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRuleDef, PlayerSetDef, ResolvedEffectDurationDef, TriggerEventDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::mana_cost;
@@ -54,6 +55,62 @@ pub(in crate::card::sets) static FUMIKO_THE_LOWBLOOD: CardRecord =
                 ),
             ]),
     );
+// BOK 126 — Genju of the Cedars
+pub(in crate::card::sets) static GENJU_OF_THE_CEDARS: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("9d621b82-c863-437b-b42c-31a0872be6d4"),
+    "Genju of the Cedars",
+    CardArt::new("9d621b82-c863-437b-b42c-31a0872be6d4", "Arnie Swekel"),
+    CardSet::BetrayersOfKamigawa,
+    CardRules::new_enchantment(mana_cost!("{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant Forest",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                )],
+            ),
+            AbilityDef::activated(
+                "{2}: Enchanted Forest becomes a 4/4 green Spirit creature until end of turn. It's still a land.",
+                &[AbilityCostDef::Mana(mana_cost!("{2}"))],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::add_card_types(CardTypeSet::single(CardType::Creature)),
+                        AppliedEffectDef::set_creature_types(CreatureTypeSetDef::named(&[
+                            "Spirit",
+                        ])),
+                        AppliedEffectDef::set_colors(ColorSet::from_colors(&[ManaColor::Green])),
+                        AppliedEffectDef::set_base_power_toughness(
+                            ValueDef::Constant(4),
+                            ValueDef::Constant(4),
+                        ),
+                    ]),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::triggered(
+                "When enchanted Forest is put into a graveyard, you may return this card from your graveyard to your hand.",
+                TriggerEventDef::zone_changed(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::AttachedToSource,
+                        ObjectPredicateDef::HasAnyBasicLandType(&[BasicLandType::Forest]),
+                    ]),
+                    Some(ZoneKind::Battlefield),
+                    Some(ZoneKind::Graveyard),
+                ),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::MoveToZone {
+                        object: EffectRecipientDef::SourceZoneChangeSuccessor,
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                },
+            ),
+        ]),
+);
+
 // BOK 154 — Mirror Gallery
 pub(in crate::card::sets) static MIRROR_GALLERY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("00beba34-54cc-4a30-8424-71a1215647a6"),
@@ -145,6 +202,7 @@ pub(in crate::card::sets) static UMEZAWAS_JITTE: CardRecord = CardRecord::new_wi
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[
     &OKIBA_GANG_SHINOBI,
     &FUMIKO_THE_LOWBLOOD,
+    &GENJU_OF_THE_CEDARS,
     &MIRROR_GALLERY,
     &UMEZAWAS_JITTE,
 ];

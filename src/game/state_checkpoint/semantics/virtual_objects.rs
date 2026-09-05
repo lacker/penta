@@ -128,6 +128,9 @@ fn collect_effects(
                 TokenCharacteristicsLocator::EffectPath {
                     creator: Box::new(creator.clone()),
                     effect_path: path.clone(),
+                    colors: None,
+                    basic_land_type_words: None,
+                    color_words: None,
                 },
             ));
         }

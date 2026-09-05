@@ -575,6 +575,12 @@ impl Game {
             }
             return;
         }
+        let operation = match operation {
+            CharacteristicOperationDef::Colors(operation) => CharacteristicOperationDef::Colors(
+                self.text_changed_color_operation(resolution.object.id, operation),
+            ),
+            operation => operation,
+        };
         if let CharacteristicOperationDef::Abilities(AbilityOperationDef::Add(ability)) = operation
             && matches!(target, Target::Card(_))
         {
@@ -680,6 +686,7 @@ impl Game {
             | CharacteristicOperationDef::ChosenBasicLandType
             | CharacteristicOperationDef::AddChosenCreatureType
             | CharacteristicOperationDef::SetChosenCreatureType
+            | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution
             | CharacteristicOperationDef::Color(_) => return None,
             CharacteristicOperationDef::BasicLandTypes(operation) => {
                 ResolvedContinuousEffectKind::BasicLandTypes(operation)

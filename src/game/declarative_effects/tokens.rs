@@ -96,7 +96,7 @@ impl Game {
                 // The exceptions ride on the copy rather than being
                 // applied to the token afterwards: each is itself a
                 // copiable value.
-                super::copy::apply_copy_exceptions(&mut copy, exceptions, object);
+                super::copy::apply_copy_exceptions(self, &mut copy, exceptions, object);
                 let permanent = match target {
                     Target::Permanent(id) => self
                         .battlefield
@@ -246,6 +246,7 @@ impl Game {
                 });
                 // "An X/X blue Illusion": the size is worked out once, here,
                 // and the tokens arrive that size rather than growing into it.
+                let token = self.text_changed_token(object.id, token);
                 let token = self.resolved_token_stats(token, object, context, scoped);
                 let mut minted = Vec::new();
                 let count =
@@ -294,6 +295,7 @@ impl Game {
                 }
             }
             EffectDef::CreateAttachedToken { token, host } => {
+                let token = self.text_changed_token(object.id, token);
                 self.resolve_attached_token_effect(token, host, scoped, object, context);
             }
             _ => unreachable!("the caller admits only token-making clauses"),

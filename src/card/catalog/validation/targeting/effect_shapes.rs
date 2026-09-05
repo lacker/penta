@@ -432,7 +432,7 @@ fn validate_effect_target_shapes(
         | EffectDef::SkipNextUntapSteps { object, .. }
         | EffectDef::Sacrifice { object }
         | EffectDef::SacrificeYours { object }
-        | EffectDef::ChangeTextBasicLandType { object }
+        | EffectDef::ChangeText { object, .. }
         | EffectDef::ChooseColor { object, .. }
         | EffectDef::BecomeCopyOf { object, .. }
         | EffectDef::ExileGrantingOwnerPlay { object, .. }
@@ -750,7 +750,8 @@ fn validate_replacement_effect_target_shapes(
         | ReplacementEffectDef::LookAtHand(_)
         | ReplacementEffectDef::Choose(
             ReplacementChoiceDef::Player(_)
-            | ReplacementChoiceDef::ExileMatchingFromGraveyard(_),
+            | ReplacementChoiceDef::ExileMatchingFromGraveyard(_)
+            | ReplacementChoiceDef::BasicLandTypePair,
         )
         | ReplacementEffectDef::CopyEntering { .. } => Ok(()),
     }

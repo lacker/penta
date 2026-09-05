@@ -176,6 +176,37 @@ fn parse_battlefield_entry_continuation(
                 choices: choices.clone(),
             }
         }
+        DecisionContinuationSnapshot::BattlefieldEntryBasicLandTypePairChoice {
+            context,
+            effect,
+        } => {
+            let context = parse_replacement_context(*context)?;
+            validate_entry_decision_context(game, context, effect)?;
+            let Some(ReplacementEffectDef::Choose(ReplacementChoiceDef::BasicLandTypePair)) =
+                catalog_replacement_effect(&game.catalog, effect)
+            else {
+                return Err(
+                    "entry basic-land-type pair locator is not a pair choice".into(),
+                );
+            };
+            let pending = game
+                .pending_events
+                .front()
+                .ok_or("entry basic-land-type pair choice lacks its pending event")?;
+            let owner = Game::pending_event_controller(pending);
+            validate_authored_decision(
+                observation,
+                owner,
+                "Choose two different basic land types",
+                DecisionVisibility::Public,
+                DecisionPreference::Neutral,
+                1,
+                1,
+                &Game::basic_land_type_pair_options(),
+                "entry basic-land-type pair choice",
+            )?;
+            DecisionContinuation::BattlefieldEntryBasicLandTypePairChoice { context }
+        }
         DecisionContinuationSnapshot::BattlefieldEntryCopy {
             choices,
             name,

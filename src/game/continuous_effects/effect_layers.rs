@@ -9,6 +9,7 @@ impl Game {
                 .any(Self::applied_effect_starts_in_type_layer),
             AppliedEffectDef::Characteristic(
                 CharacteristicOperationDef::ChosenBasicLandType
+                | CharacteristicOperationDef::ChosenBasicLandTypeSubstitution
                 | CharacteristicOperationDef::BasicLandTypes(_)
                 | CharacteristicOperationDef::CardTypes(_)
                 | CharacteristicOperationDef::Supertypes(_)

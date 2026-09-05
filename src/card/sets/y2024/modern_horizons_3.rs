@@ -1556,13 +1556,42 @@ pub(in crate::card::sets) static SNAPPING_VOIDCRAW: CardRecord = CardRecord::new
 );
 
 // MH3 208 — Writhing Chrysalis
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static WRITHING_CHRYSALIS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f54dbeb1-51f8-40e2-912a-ec25457de5a2"),
     "Writhing Chrysalis",
-    crate::card::CardArt::new("f54dbeb1-51f8-40e2-912a-ec25457de5a2", "Domenico Cava"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f54dbeb1-51f8-40e2-912a-ec25457de5a2", "Domenico Cava"),
+    CardSet::ModernHorizons3,
+    // Four mana for three bodies and a sacrifice engine to feed on them,
+    // which is what makes the small stats beside the point.
+    CardRules::new_creature(mana_cost!("{2}{R}{G}"), &["Eldrazi", "Drone"], 2, 3).with_abilities(
+        &[
+            abilities::devoid(),
+            AbilityDef::triggered(
+                "When you cast this spell, create two 0/1 colorless Eldrazi Spawn creature tokens \
+             with \"Sacrifice this token: Add {C}.\"",
+                // A cast trigger, so the Spawn arrive while this is still on the
+                // stack and can help pay for whatever follows it.
+                TriggerEventDef::spell_cast(ObjectPredicateDef::Source),
+                ELDRAZI_SPAWN_TOKEN.with_amount(2),
+            ),
+            abilities::reach(),
+            AbilityDef::triggered(
+                "Whenever you sacrifice another Eldrazi, put a +1/+1 counter on this creature.",
+                TriggerEventDef::Sacrificed {
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::Subtype("Eldrazi"),
+                        ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    ]),
+                    player: PlayerRelation::You,
+                },
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+            ),
+        ],
+    ),
 );
 
 // MH3 209 — Disruptor Flute

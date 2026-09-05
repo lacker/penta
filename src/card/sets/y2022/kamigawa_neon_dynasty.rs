@@ -4,12 +4,13 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityCostList, AbilityDef, AbilityTargetDef, AbilityTargetPredicate,
     AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet,
-    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, CopyAbilityDef, CopyExceptionsDef,
-    CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellCostConditionDef, TriggerConditionDef, TriggerEventDef,
-    TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
+    CardSupertype, CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CopyAbilityDef,
+    CopyExceptionsDef, CostAdjustmentDef, CostAmountDef, CounterKind, CreatedTokensDef,
+    DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef, ManaColor,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellCostConditionDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -310,13 +311,62 @@ pub(in crate::card::sets) static MIRRORSHELL_CRAB: CardRecord = CardRecord::new(
 );
 
 // NEO 67 — Moon-Circuit Hacker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOON_CIRCUIT_HACKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("75c43923-7280-4ccb-810b-e8c38dd8a26f"),
     "Moon-Circuit Hacker",
-    crate::card::CardArt::new("c6e466d1-943d-41e6-a47d-c9d951ca4262", "Tia Masic"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c6e466d1-943d-41e6-a47d-c9d951ca4262", "Tia Masic"),
+    CardSet::KamigawaNeonDynasty,
+    // One blue mana for a 2/1 that arrives attacking and draws a card. The
+    // discard is what the turn it lands is exempt from, so the reward for
+    // ninjutsu is a clean card and the reward for leaving it out is a loot.
+    CardRules::new_enchantment_creature(mana_cost!("{1}{U}"), &["Human", "Ninja"], 2, 1)
+        .with_abilities(&[
+            abilities::ninjutsu(
+                "Ninjutsu {U} ({U}, Return an unblocked attacker you control to hand: Put this \
+                 card onto the battlefield from your hand tapped and attacking.)",
+                mana_cost!("{U}"),
+            ),
+            AbilityDef::triggered(
+                "Whenever this creature deals combat damage to a player, you may draw a card. If \
+                 you do, discard a card unless this creature entered this turn.",
+                TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+                EffectDef::May {
+                    player: EffectRecipientDef::Controller,
+                    effect: &EffectDef::Sequence(&[
+                        EffectDef::DrawCards {
+                            recipient: EffectRecipientDef::Controller,
+                            amount: ValueDef::Constant(1),
+                        },
+                        EffectDef::IfCondition {
+                            // "Unless this creature entered this turn" asks about
+                            // the source itself, which is a count of one: the
+                            // condition vocabulary tests queries rather than
+                            // matching a single object against a predicate.
+                            condition: &TriggerConditionDef::Not(
+                                &TriggerConditionDef::ObjectCount {
+                                    query: ObjectQueryDef::matching(
+                                        ObjectPredicateDef::All(&[
+                                            ObjectPredicateDef::Source,
+                                            ObjectPredicateDef::EnteredThisTurn,
+                                        ]),
+                                        &[ZoneKind::Battlefield],
+                                        PlayerRelation::You,
+                                    ),
+                                    comparison: ComparisonDef::GreaterOrEqual,
+                                    amount: 1,
+                                },
+                            ),
+                            then: &EffectDef::Discard {
+                                recipient: EffectRecipientDef::Controller,
+                                amount: ValueDef::Constant(1),
+                                selection: DiscardSelectionDef::RecipientChooses,
+                                then: None,
+                            },
+                        },
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // NEO 91 — Clawing Torment

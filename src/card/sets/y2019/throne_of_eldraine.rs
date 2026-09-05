@@ -19,14 +19,88 @@ use crate::ids::ParentBinding;
 use crate::{CardPartId, PlayOptionId, TargetIndex, mana_cost};
 
 // ELD 5 — Ardenvale Tactician
-// Audit: unsupported — Card rules have not been implemented.
+const fn ardenvale_tactician_rules() -> CardRules {
+    CardRules::new_creature(
+        mana_cost!("{1}{W}{W}"),
+        &const { ["Human", "Knight"] },
+        2,
+        3,
+    )
+    .with_ability(abilities::flying())
+}
+
+fn ardenvale_tactician_composition() -> CardComposition {
+    let knight = ardenvale_tactician_rules();
+    let swoop = const {
+        CardRules::new_instant(mana_cost!("{1}{W}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell_with_targets(
+                    "Tap up to two target creatures.",
+                    // One slot holding up to two, so the Adventure is still
+                    // castable with a single creature on the board.
+                    &const {
+                        [AbilityTargetDef::up_to(
+                            AbilityTargetPredicate::Object {
+                                object: ObjectPredicateDef::HasType(CardType::Creature),
+                                zones: &const { [ZoneKind::Battlefield] },
+                                controller: None,
+                                owner: None,
+                            },
+                            2,
+                        )]
+                    },
+                    EffectDef::Tap {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    },
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Ardenvale Tactician", knight),
+            CardPart::new(CardPartId(1), "Dizzying Swoop", swoop),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Ardenvale Tactician",
+                SpellForm::Part(CardPartId::PRIMARY),
+                knight
+                    .mana_cost()
+                    .expect("the Knight has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Dizzying Swoop",
+                SpellForm::Part(CardPartId(1)),
+                swoop
+                    .mana_cost()
+                    .expect("Dizzying Swoop has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static ARDENVALE_TACTICIAN: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("bd6ccd0b-5279-431f-b65a-7fdbdffd1a90"),
+    PrintingAnchor::scryfall("c7d5e394-8e41-442e-ae97-a478a61e1b9d"),
     "Ardenvale Tactician",
-    crate::card::CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
-    crate::card::CardSet::ThroneOfEldraine,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("c7d5e394-8e41-442e-ae97-a478a61e1b9d", "Jason Rainville"),
+    CardSet::ThroneOfEldraine,
+    // Clear two blockers now and cast the flier later: one card that buys a
+    // turn of tempo and then a body.
+    ardenvale_tactician_rules(),
+)
+.with_composition(ardenvale_tactician_composition);
 
 // ELD 11 — Faerie Guidemother
 const fn faerie_guidemother_rules() -> CardRules {

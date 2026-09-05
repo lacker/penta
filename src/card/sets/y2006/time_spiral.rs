@@ -49,13 +49,47 @@ pub(in crate::card::sets) static CAVALRY_MASTER: CardRecord = CardRecord::new(
 );
 
 // TSP 29 — Momentary Blink
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOMENTARY_BLINK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("032e072a-0630-472b-9106-5df554dff785"),
     "Momentary Blink",
-    crate::card::CardArt::new("032e072a-0630-472b-9106-5df554dff785", "Anthony S. Waters"),
-    crate::card::CardSet::TimeSpiral,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("032e072a-0630-472b-9106-5df554dff785", "Anthony S. Waters"),
+    CardSet::TimeSpiral,
+    // Two enters triggers for four mana across two casts, and the blue
+    // flashback is why a white deck splashes for it at all.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_abilities(&[
+        AbilityDef::spell_with_targets(
+            "Exile target creature you control, then return it to the battlefield under its \
+             owner's control.",
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            // Exiled linked to this spell and returned by the same
+            // resolution, so it comes back as a new object with its enters
+            // triggers armed.
+            EffectDef::Sequence(&[
+                EffectDef::ExileLinkedToSource {
+                    until_source_leaves: false,
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    face_down: false,
+                    then: None,
+                },
+                EffectDef::ReturnLinkedExiles {
+                    object: ObjectPredicateDef::Any,
+                    counters: None,
+                    zone: ZoneKind::Battlefield,
+                    grant: None,
+                    controller: None,
+                    transformed: false,
+                },
+            ]),
+        ),
+        abilities::flashback(mana_cost!("{3}{U}")),
+    ]),
 );
 
 // TSP 40 — Serra Avenger

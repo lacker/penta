@@ -1960,13 +1960,32 @@ pub(in crate::card::sets) static SEETHING_LANDSCAPE: CardRecord = CardRecord::ne
 );
 
 // MH3 226 — Shattered Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHATTERED_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b3da28c7-6e92-439d-a163-91682d4f11dc"),
     "Shattered Landscape",
-    crate::card::CardArt::new("b3da28c7-6e92-439d-a163-91682d4f11dc", "Erikas Perl"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b3da28c7-6e92-439d-a163-91682d4f11dc", "Erikas Perl"),
+    CardSet::ModernHorizons3,
+    // The Mardu member of the cycle: colourless mana now, a tapped basic
+    // later, or a card when the deck has enough colours for the cycling.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        abilities::landscape_fetch(
+            "{T}, Sacrifice this land: Search your library for a basic Mountain, Plains, or \
+             Swamp card, put it onto the battlefield tapped, then shuffle.",
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ObjectPredicateDef::HasAnyBasicLandType(&[
+                    BasicLandType::Mountain,
+                    BasicLandType::Plains,
+                    BasicLandType::Swamp,
+                ]),
+            ]),
+        ),
+        abilities::cycling(
+            "Cycling {R}{W}{B} ({R}{W}{B}, Discard this card: Draw a card.)",
+            mana_cost!("{R}{W}{B}"),
+        ),
+    ]),
 );
 
 // MH3 227 — Sheltering Landscape

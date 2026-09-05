@@ -7,7 +7,7 @@ use crate::card::{
     CardType, ComparisonDef, CounterKind, DiscardSelectionDef, EffectDef, EffectRecipientDef,
     ExilePlayDurationDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
     PlayerRefDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities, tokens,
+    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -189,13 +189,35 @@ pub(in crate::card::sets) static UNRULY_KRASIS: CardRecord = CardRecord::new_wit
 );
 
 // CLU 94 — Repeal
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static REPEAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9e7dd929-4bba-46a6-86c9-b8ed853eb721"),
     "Repeal",
-    crate::card::CardArt::new("265b80cd-2e9c-4e4b-a065-eafb29b3e07a", "Dan Murayama Scott"),
-    crate::card::CardSet::RavnicaClueEdition,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("265b80cd-2e9c-4e4b-a065-eafb29b3e07a", "Dan Murayama Scott"),
+    CardSet::RavnicaClueEdition,
+    // X is paid to match what it answers rather than to make it bigger, so
+    // the cantrip is what keeps a one-mana mode from being a wasted card.
+    CardRules::new_instant(mana_cost!("{X}{U}")).with_ability(AbilityDef::spell_with_targets(
+        "Return target nonland permanent with mana value X to its owner's hand. Draw a card.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::Not(&ObjectPredicateDef::HasType(CardType::Land)),
+                ObjectPredicateDef::ManaValueEqualTo(ValueDef::ChosenX),
+            ]),
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+            // The draw is unconditional: it still happens when the target
+            // has left before this resolves.
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ]),
+    )),
 );
 
 // CLU 186 — Dimir Guildmage

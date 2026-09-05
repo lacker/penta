@@ -5,13 +5,14 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AlternativeCastKindDef,
     AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
     CardTypeSet, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatureTypeSetDef,
-    DeclarativeAbilityDef, EffectDef, EffectRecipientDef, EmblemCharacteristics,
-    GraveyardPlayPermissionDef, HalvedValueDef, ManaColor, ModalSpellDef, MoveObjectsDef,
-    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, QuantifierDef, RandomizeObjectOrderDef,
-    ReplacementAbilityDef, ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef,
-    ResolvedEffectDurationDef, RoundingDef, TriggerConditionDef, TriggerEventDef,
-    TriggeredAbilityDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    DamageEventMatcherDef, DamageRecipientMatcherDef, DeclarativeAbilityDef, EffectDef,
+    EffectRecipientDef, EmblemCharacteristics, GraveyardPlayPermissionDef, HalvedValueDef,
+    ManaColor, ModalSpellDef, MoveObjectsDef, ObjectChoiceBindingDef, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, PlayActionMatcherDef, PlayRestrictionDef, PlayerRefDef,
+    PlayerRelation, QuantifierDef, RandomizeObjectOrderDef, ReplacementAbilityDef,
+    ReplacementConditionDef, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    RoundingDef, TriggerConditionDef, TriggerEventDef, TriggeredAbilityDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
 use crate::{ParentBinding, TargetIndex, mana_cost};
 
@@ -363,13 +364,47 @@ pub(in crate::card::sets) static CRYOGEN_RELIC: CardRecord = CardRecord::new(
 );
 
 // EOE 53 — Cryoshatter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CRYOSHATTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7b62b1e2-9e43-4a66-a647-7e5de2871f2a"),
     "Cryoshatter",
-    crate::card::CardArt::new("7b62b1e2-9e43-4a66-a647-7e5de2871f2a", "Jeremy Wilson"),
-    crate::card::CardSet::EdgeOfEternities,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7b62b1e2-9e43-4a66-a647-7e5de2871f2a", "Jeremy Wilson"),
+    CardSet::EdgeOfEternities,
+    // One mana blanks the creature immediately and kills it the moment it
+    // is used for anything, which is what makes the -5/-0 half enough.
+    CardRules::new_enchantment(mana_cost!("{U}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_creature(),
+            AbilityDef::static_ability(
+                "Enchanted creature gets -5/-0.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(-5),
+                        ValueDef::Constant(0),
+                    ),
+                },
+            ),
+            AbilityDef::triggered(
+                "When enchanted creature becomes tapped or is dealt damage, destroy it.",
+                // Two ways into one printed sentence, both read against the
+                // creature this Aura is on rather than the Aura itself.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::tapped(ObjectPredicateDef::AttachedToSource),
+                    TriggerEventDef::DamageDealt(DamageEventMatcherDef {
+                        recipient: DamageRecipientMatcherDef::Recipients(
+                            EffectRecipientDef::AttachedPermanent,
+                        ),
+                        ..DamageEventMatcherDef::ANY
+                    }),
+                ]),
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::AttachedPermanent,
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+        ]),
 );
 
 // EOE 66 — Mechanozoa

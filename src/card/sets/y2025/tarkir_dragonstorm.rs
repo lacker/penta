@@ -3,16 +3,17 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
-    AddManaEffectDef, AppliedEffectDef, AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype,
+    AddManaEffectDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt,
+    CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
     EffectDef, EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef,
     InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayRestrictionDef,
-    PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef,
+    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
+    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TriggerConditionDef,
+    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::ids::{ParentBinding, TargetIndex};
+use crate::ids::{CardPartId, ParentBinding, PlayOptionId, TargetIndex};
 use crate::mana_cost;
 
 // TDM 1 — Ugin, Eye of the Storms
@@ -489,14 +490,103 @@ pub(in crate::card::sets) static CHAMPION_OF_DUSAN: CardRecord = CardRecord::new
 );
 
 // TDM 157 — Sagu Wildling
-// Audit: unsupported — Card rules have not been implemented.
+const fn sagu_wildling_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{4}{G}"), &const { ["Dragon"] }, 3, 3).with_abilities(
+        &const {
+            [
+                abilities::flying(),
+                abilities::enters_trigger(
+                    "When this creature enters, you gain 3 life.",
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                ),
+            ]
+        },
+    )
+}
+
+fn sagu_wildling_composition() -> CardComposition {
+    let wildling = sagu_wildling_rules();
+    let seek =
+        const {
+            CardRules::new_sorcery(mana_cost!("{G}"))
+            .with_subtypes(&const { ["Omen"] })
+            .with_ability(
+                AbilityDef::spell(
+                    "Search your library for a basic land card, reveal it, put it into your hand, \
+                     then shuffle.",
+                    EffectDef::SearchZone {
+                        player: EffectRecipientDef::Controller,
+                        source: ZoneKind::Library,
+                        object: ObjectPredicateDef::All(&const {
+                            [
+                                ObjectPredicateDef::HasType(CardType::Land),
+                                ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                            ]
+                        }),
+                        minimum: 0,
+                        maximum: ValueDef::Constant(1),
+                        reveal: true,
+                        destination: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                        shuffle: true,
+                        enters_tapped: false,
+                        attachment: None,
+                        binding: None,
+                        then: None,
+                    },
+                )
+                // An Omen shuffles itself back in rather than exiling, which
+                // is the whole difference from an Adventure: the creature is
+                // drawn again later instead of waiting in exile.
+                .with_resolution_destination(SpellResolutionDestinationDef::LibraryShuffled),
+            )
+        };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Sagu Wildling", wildling),
+            CardPart::new(CardPartId(1), "Roost Seek", seek),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Omen,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Sagu Wildling",
+                SpellForm::Part(CardPartId::PRIMARY),
+                wildling
+                    .mana_cost()
+                    .expect("the Dragon has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Roost Seek",
+                SpellForm::Part(CardPartId(1)),
+                seek.mana_cost()
+                    .expect("Roost Seek has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static SAGU_WILDLING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b72ee8f9-5e79-4f77-ae7e-e4c274f78187"),
     "Sagu Wildling",
-    crate::card::CardArt::new("d8b43b00-f4d1-436c-bf3f-6d414cd4ce38", "Gaboleps"),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("d8b43b00-f4d1-436c-bf3f-6d414cd4ce38", "Gaboleps"),
+    CardSet::TarkirDragonstorm,
+    // A land on turn one and a five-drop later out of the same card, which
+    // is what an Omen buys over a plain fetch spell.
+    sagu_wildling_rules(),
+)
+.with_composition(sagu_wildling_composition);
 
 // TDM 343 — Cori-Steel Cutter
 pub(in crate::card::sets) static CORI_STEEL_CUTTER: CardRecord = CardRecord::new(

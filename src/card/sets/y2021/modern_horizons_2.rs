@@ -6,10 +6,10 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
     AlternativeCastKindDef, AppliedEffectDef, BasicLandType, BattlefieldEntryModificationDef,
     CardArt, CardRules, CardSet, CardSupertype, CardType, CardTypeSet, CharacteristicOperationDef,
-    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, DamageEventMatcherDef,
-    DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef, DiscardFollowUpDef,
-    DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
-    EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
+    ChoiceVisibilityDef, ChooseDef, ComparisonDef, CostModificationDef, CounterKind,
+    DamageEventMatcherDef, DamageKindDef, DamageRecipientMatcherDef, DamageSourceMatcherDef,
+    DiscardFollowUpDef, DiscardSelectionDef, DividedTotal, EffectDef, EffectPaymentCostDef,
+    EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef, FreePlayDurationDef,
     GraveyardTypeConditionDef, ManaColor, MillLoopDef, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayerRefDef,
     PlayerRelation, PlayerSetDef, PowerToughnessOperationDef, ReplacementEffectDef,
@@ -1300,13 +1300,28 @@ pub(in crate::card::sets) static URZA_S_SAGA: CardRecord = CardRecord::new(
 );
 
 // MH2 421 — Goblin Anarchomancer
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GOBLIN_ANARCHOMANCER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("633a3423-501d-4b22-95a6-743233be521e"),
     "Goblin Anarchomancer",
-    crate::card::CardArt::new("f7f07a80-05b5-4108-9e68-f8da05866acc", "Joe Slucher"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f7f07a80-05b5-4108-9e68-f8da05866acc", "Joe Slucher"),
+    CardSet::ModernHorizons2,
+    // A two-mana body that pays for itself from the third spell on, in a
+    // deck whose spells are nearly all one of its two colours.
+    CardRules::new_creature(mana_cost!("{R}{G}"), &["Goblin", "Shaman"], 2, 2).with_ability(
+        AbilityDef::static_ability(
+            "Each spell you cast that's red or green costs {1} less to cast.",
+            // Read off the spell's colour rather than its cost, so a
+            // colourless artifact you cast gets nothing even in this deck.
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::Color(ManaColor::Red),
+                    ObjectPredicateDef::Color(ManaColor::Green),
+                ]),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+    ),
 );
 
 // MH2 450 — Dauthi Voidwalker

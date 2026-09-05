@@ -141,13 +141,25 @@ pub(in crate::card::sets) static MEETING_OF_MINDS: CardRecord = CardRecord::new(
 );
 
 // MOM 73 — Preening Champion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44178ece-af31-4a94-88bc-c9ce43bb4573"),
     "Preening Champion",
-    crate::card::CardArt::new("44178ece-af31-4a94-88bc-c9ce43bb4573", "Alix Branwyn"),
-    crate::card::CardSet::MarchOfTheMachine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("44178ece-af31-4a94-88bc-c9ce43bb4573", "Alix Branwyn"),
+    CardSet::MarchOfTheMachine,
+    // Three mana for three power across two bodies, one of them in the air,
+    // which is the rate a limited deck plays it at.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Bird", "Knight"], 2, 2).with_abilities(&[
+        abilities::flying(),
+        abilities::enters_trigger(
+            "When this creature enters, create a 1/1 blue and red Elemental creature token.",
+            EffectDef::create_creature_token(
+                &["Elemental"],
+                &[ManaColor::Blue, ManaColor::Red],
+                1,
+                1,
+            ),
+        ),
+    ]),
 );
 
 // MOM 173 — Wrenn's Resolve

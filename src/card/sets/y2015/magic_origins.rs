@@ -154,13 +154,24 @@ pub(in crate::card::sets) static JACE_VRYN_S_PRODIGY: CardRecord = CardRecord::n
 );
 
 // ORI 62 — Jhessian Thief
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JHESSIAN_THIEF: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("33b8553d-d326-4280-bc3a-2fffdd377cd2"),
     "Jhessian Thief",
-    crate::card::CardArt::new("33b8553d-d326-4280-bc3a-2fffdd377cd2", "Miles Johnston"),
-    crate::card::CardSet::MagicOrigins,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("33b8553d-d326-4280-bc3a-2fffdd377cd2", "Miles Johnston"),
+    CardSet::MagicOrigins,
+    // A 1/3 that gets through on its own rarely, so prowess is what turns a
+    // spell-heavy turn into both a bigger body and a card.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Human", "Rogue"], 1, 3).with_abilities(&[
+        abilities::prowess(),
+        AbilityDef::triggered(
+            "Whenever this creature deals combat damage to a player, draw a card.",
+            TriggerEventDef::combat_damage_to_player(ObjectPredicateDef::Source),
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // ORI 171 — Conclave Naturalists

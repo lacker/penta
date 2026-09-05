@@ -3,22 +3,53 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
-    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef,
-    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityPredicateDef, AbilityTargetDef, AppliedEffectDef,
+    AppliedRuleDef, CardArt, CardRules, CardSet, CardSupertype, CardType, ChoiceVisibilityDef,
+    ChooseOneOfEachDef, EffectDef, EffectRecipientDef, MoveObjectsDef, ObjectPredicateDef,
+    ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef, RevealObjectsDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::{Binding, ParentBinding, mana_cost};
 
 // ONE 28 — Planar Disruption
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8ee69a1f-aeed-4eb4-8987-fa720fc99715"),
     "Planar Disruption",
-    crate::card::CardArt::new("8ee69a1f-aeed-4eb4-8987-fa720fc99715", "Campbell White"),
-    crate::card::CardSet::PhyrexiaAllWillBeOne,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8ee69a1f-aeed-4eb4-8987-fa720fc99715", "Campbell White"),
+    CardSet::PhyrexiaAllWillBeOne,
+    // Two mana answers a creature, a mana rock, or a planeswalker, which is
+    // what a Pacifism that reads wider is worth in a format full of both.
+    CardRules::new_enchantment(mana_cost!("{1}{W}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::aura_spell(
+                "Enchant artifact, creature, or planeswalker",
+                &const {
+                    [AbilityTargetDef::exactly_one_permanent(
+                        ObjectPredicateDef::AnyOf(&[
+                            ObjectPredicateDef::HasType(CardType::Artifact),
+                            ObjectPredicateDef::HasType(CardType::Creature),
+                            ObjectPredicateDef::HasType(CardType::Planeswalker),
+                        ]),
+                    )]
+                },
+            ),
+            AbilityDef::static_ability(
+                "Enchanted permanent can't attack or block, and its activated abilities can't be \
+                 activated.",
+                EffectDef::StaticApply {
+                    recipient: EffectRecipientDef::AttachedPermanent,
+                    // One printed sentence, so all three halves share a
+                    // duration: the Aura leaving gives back attacking,
+                    // blocking, and activations together.
+                    effect: AppliedEffectDef::Composite(&[
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_ATTACK),
+                        AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+                        AppliedEffectDef::cannot_activate_abilities(AbilityPredicateDef::Any),
+                    ]),
+                },
+            ),
+        ]),
 );
 
 // ONE 80 — Annihilating Glare

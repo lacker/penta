@@ -3,8 +3,9 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, PlayerRelation, ValueDef, ZoneKind, abilities,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
+    CardSet, CardType, EffectDef, EffectRecipientDef, ObjectPredicateDef, PlayerRelation,
+    ResolvedEffectDurationDef, ValueDef, ZoneKind, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -41,13 +42,46 @@ pub(in crate::card::sets) static PORTABLE_HOLE: CardRecord = CardRecord::new_wit
 );
 
 // AFR 42 — You Hear Something on Watch
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static YOU_HEAR_SOMETHING_ON_WATCH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("76e939ab-9d0c-4685-805c-c8bc4e6af163"),
     "You Hear Something on Watch",
-    crate::card::CardArt::new("76e939ab-9d0c-4685-805c-c8bc4e6af163", "Zezhou Chen"),
-    crate::card::CardSet::AdventuresInTheForgottenRealms,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("76e939ab-9d0c-4685-805c-c8bc4e6af163", "Zezhou Chen"),
+    CardSet::AdventuresInTheForgottenRealms,
+    // A combat trick or a removal spell for the same two mana, chosen after
+    // blockers, which is what makes holding it up rarely wrong.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Rouse the Party — Creatures you control get +1/+1 until end of turn.",
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::matching_objects(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        &[ZoneKind::Battlefield],
+                        PlayerRelation::You,
+                    ),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Set Off Traps — This spell deals 5 damage to target attacking creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::Attacking,
+                    ]),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(5),
+                },
+            ),
+        ],
+    )),
 );
 
 // AFR 198 — Owlbear

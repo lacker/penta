@@ -347,13 +347,44 @@ pub(in crate::card::sets) static RABBIT_BATTERY: CardRecord = CardRecord::new_wi
 );
 
 // NEO 189 — Greater Tanuki
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GREATER_TANUKI: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27"),
     "Greater Tanuki",
-    crate::card::CardArt::new("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27", "Ilse Gort"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("b4fbaee3-a10f-4b2d-b07e-d041a96a7e27", "Ilse Gort"),
+    CardSet::KamigawaNeonDynasty,
+    // Six mana for the body or three for a land: channel is what makes a
+    // top-heavy creature a reasonable card to draw on turn three.
+    CardRules::new_enchantment_creature(mana_cost!("{4}{G}{G}"), &["Dog"], 6, 5).with_abilities(&[
+        abilities::trample(),
+        AbilityDef::activated(
+            "Channel — {2}{G}, Discard this card: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}{G}")),
+                AbilityCostDef::DiscardSource,
+            ],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Land),
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                ]),
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        )
+        // Activated from hand, which is the only place a card can be
+        // discarded from.
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // NEO 211 — Tamiyo's Safekeeping

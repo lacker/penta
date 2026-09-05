@@ -48,25 +48,26 @@ pub(in crate::card::sets) static MULTIVERSAL_PASSAGE: CardRecord = CardRecord::n
     ]),
 );
 
-// OM1 182 — Ominous Asylum
-pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
-    PrintingAnchor::scryfall("371b03a1-7707-4a8a-8c0e-0272418c801f"),
-    "Ominous Asylum",
-    CardArt::new("371b03a1-7707-4a8a-8c0e-0272418c801f", "Daniel Ljunggren"),
-    CardSet::ThroughTheOmenpaths,
-    // Entering tapped is the price of the two colours, and the surveil is
-    // what a flooded late game does with the land instead of drawing it.
-    CardRules::new_land(&[]).with_abilities(&[
-        abilities::enters_tapped(CardType::Land),
-        AbilityDef::activated_mana(
-            "{T}: Add {B} or {R}.",
+/// The OM1 cycle of tapped duals that surveil late: lands that differ only
+/// in which two colours they make, so the clauses are written once here.
+/// Entering tapped is the price of the two colours, and the surveil is what
+/// a flooded late game does with the land instead of drawing it.
+///
+/// `colors` is a promoted literal at each call site, and the abilities are
+/// added one at a time in printed order: an array holding the parameterized
+/// mana ability could not be given a `'static` lifetime.
+///
+/// Spectacle Summit prints the same shape but is not in this cycle -- its
+/// surveil costs {2}{U}{R} rather than {4}.
+const fn surveilling_dual_land(mana_text: &'static str, colors: &'static [ManaColor]) -> CardRules {
+    CardRules::new_land(&[])
+        .with_ability(abilities::enters_tapped(CardType::Land))
+        .with_ability(AbilityDef::activated_mana(
+            mana_text,
             &[AbilityCostDef::TapSource],
-            EffectDef::AddMana(AddManaEffectDef::choice(&[
-                ManaColor::Black,
-                ManaColor::Red,
-            ])),
-        ),
-        AbilityDef::activated(
+            EffectDef::AddMana(AddManaEffectDef::choice(colors)),
+        ))
+        .with_ability(AbilityDef::activated(
             "{4}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
              your graveyard.)",
             &[
@@ -74,18 +75,25 @@ pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
                 AbilityCostDef::TapSource,
             ],
             abilities::surveil(ValueDef::Constant(1)),
-        ),
-    ]),
+        ))
+}
+
+// OM1 182 — Ominous Asylum
+pub(in crate::card::sets) static OMINOUS_ASYLUM: CardRecord = CardRecord::new(
+    PrintingAnchor::scryfall("371b03a1-7707-4a8a-8c0e-0272418c801f"),
+    "Ominous Asylum",
+    CardArt::new("371b03a1-7707-4a8a-8c0e-0272418c801f", "Daniel Ljunggren"),
+    CardSet::ThroughTheOmenpaths,
+    surveilling_dual_land("{T}: Add {B} or {R}.", &[ManaColor::Black, ManaColor::Red]),
 );
 
 // OM1 183 — Savage Mansion
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SAVAGE_MANSION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("c172cdb5-aa2c-419d-b8ab-4795f4b7e160"),
     "Savage Mansion",
-    crate::card::CardArt::new("c172cdb5-aa2c-419d-b8ab-4795f4b7e160", "Vincent Proce"),
-    crate::card::CardSet::ThroughTheOmenpaths,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("c172cdb5-aa2c-419d-b8ab-4795f4b7e160", "Vincent Proce"),
+    CardSet::ThroughTheOmenpaths,
+    surveilling_dual_land("{T}: Add {R} or {G}.", &[ManaColor::Red, ManaColor::Green]),
 );
 
 // OM1 184 — Sinister Hideout

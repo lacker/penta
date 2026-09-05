@@ -3,10 +3,11 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind,
-    DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef,
-    ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef, PlayerRelation,
-    PlayerSetDef, TargetChooserDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AppliedEffectDef, AttackEventMatcherDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    CounterKind, DiscardSelectionDef, EffectDef, EffectPaymentCostDef, EffectPaymentDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectSetDef, PayOrDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, TargetChooserDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -218,13 +219,35 @@ pub(in crate::card::sets) static FILIGREE_FAMILIAR: CardRecord = CardRecord::new
 );
 
 // KLD 230 — Renegade Freighter
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RENEGADE_FREIGHTER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7a10e2c3-0132-4eb2-94f0-5915caca2a17"),
     "Renegade Freighter",
-    crate::card::CardArt::new("7a10e2c3-0132-4eb2-94f0-5915caca2a17", "Izzy"),
-    crate::card::CardSet::Kaladesh,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7a10e2c3-0132-4eb2-94f0-5915caca2a17", "Izzy"),
+    CardSet::Kaladesh,
+    // A 5/4 trampler for three that any two power can turn on, which is what
+    // made it the limited card of its format.
+    CardRules::new_vehicle(mana_cost!("{3}"), 4, 3).with_abilities(&[
+        AbilityDef::triggered(
+            "Whenever this Vehicle attacks, it gets +1/+1 and gains trample until end of turn.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(1),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+        abilities::crew(
+            "Crew 2 (Tap any number of creatures you control with total power 2 or more: This \
+             Vehicle becomes an artifact creature until end of turn.)",
+            2,
+        ),
+    ]),
 );
 
 // KLD 235 — Smuggler's Copter

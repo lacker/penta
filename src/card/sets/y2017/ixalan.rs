@@ -10,13 +10,30 @@ use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
 
 // XLN 41 — Territorial Hammerskull
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TERRITORIAL_HAMMERSKULL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("af5a237a-31e7-43ee-8d47-3eb12dd1a60c"),
     "Territorial Hammerskull",
-    crate::card::CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
-    crate::card::CardSet::Ixalan,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("af5a237a-31e7-43ee-8d47-3eb12dd1a60c", "Lars Grant-West"),
+    CardSet::Ixalan,
+    // The tap happens on the declaration, so it clears a blocker before
+    // blockers are chosen: a 2/3 that attacks as if it were much larger.
+    CardRules::new_creature(mana_cost!("{2}{W}"), &["Dinosaur"], 2, 3).with_ability(
+        AbilityDef::triggered_with_targets(
+            "Whenever this creature attacks, tap target creature an opponent controls.",
+            TriggerEventDef::attacks(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::Opponent),
+                    owner: None,
+                },
+            )],
+            EffectDef::Tap {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ),
 );
 
 // XLN 110 — Kitesail Freebooter

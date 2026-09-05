@@ -4,7 +4,7 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
     AddManaEffectDef, AggregateOperationDef, AlternativeCastKindDef, AlternativeCastManaCostDef,
-    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType,
+    AppliedEffectDef, AppliedRuleDef, AttackEventMatcherDef, BasicLandType, BattlefieldArrivalDef,
     BattlefieldEntryModificationDef, CardArt, CardChoiceSourceDef, CardRules, CardSet,
     CardSupertype, CardType, CharacteristicOperationDef, ChoiceVisibilityDef, ChooseDef,
     ChooseForEachPlayerDef, ClassifyObjectsDef, ComparisonDef, ControlDurationDef,
@@ -673,13 +673,40 @@ pub(in crate::card::sets) static NETHERGOYF: CardRecord = CardRecord::new(
 );
 
 // MH3 106 — Retrofitted Transmogrant
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("12c1b83d-710b-4680-855a-02ba1f72abf0"),
     "Retrofitted Transmogrant",
-    crate::card::CardArt::new("12c1b83d-710b-4680-855a-02ba1f72abf0", "Kekai Kotaki"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("12c1b83d-710b-4680-855a-02ba1f72abf0", "Kekai Kotaki"),
+    CardSet::ModernHorizons3,
+    // A one-drop that comes back as a 3/3, which is what makes trading it
+    // away early a fine outcome rather than a loss.
+    CardRules::new_artifact_creature(mana_cost!("{B}"), &["Zombie"], 1, 1).with_ability(
+        AbilityDef::activated(
+            "{3}{B}: Return this card from your graveyard to the battlefield tapped with two \
+             +1/+1 counters on it.",
+            &[AbilityCostDef::Mana(mana_cost!("{3}{B}"))],
+            EffectDef::WithBattlefieldArrival {
+                effect: &const {
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Source,
+                        zone: ZoneKind::Battlefield,
+                        placement: ZonePlacement::Top,
+                    }
+                },
+                arrival: BattlefieldArrivalDef {
+                    modifications: &[BattlefieldEntryModificationDef::Tapped],
+                    counters: Some(TokenCountersDef {
+                        kind: CounterKind::PlusOnePlusOne,
+                        amount: ValueDef::Constant(2),
+                    }),
+                    ..BattlefieldArrivalDef::DEFAULT
+                },
+            },
+        )
+        // Activated from the graveyard, which is the only place this can be
+        // returned from.
+        .with_source_zones(&[ZoneKind::Graveyard]),
+    ),
 );
 
 // MH3 108 — Scurrilous Sentry

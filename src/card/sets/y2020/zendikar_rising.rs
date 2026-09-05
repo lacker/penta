@@ -3,9 +3,10 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AlternativeCastKindDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
-    ComparisonDef, ControlDurationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    AlternativeCastKindDef, AppliedEffectDef, BattlefieldEntryModificationDef, CardArt, CardRules,
+    CardSet, CardSupertype, CardType, ComparisonDef, ControlDurationDef, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef,
+    PlayerRefDef, PlayerRelation, ReplacementConditionDef, ReplacementEffectDef,
     ResolvedEffectDurationDef, TokenStatsDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
     ValueDef, ZoneKind, abilities,
 };
@@ -252,13 +253,48 @@ pub(in crate::card::sets) static BLOODCHIEFS_THIRST: CardRecord = CardRecord::ne
 );
 
 // ZNR 185 — Gnarlid Colony
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GNARLID_COLONY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("7327289d-eed8-44b1-8495-7172e2b49d5f"),
     "Gnarlid Colony",
-    crate::card::CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
-    crate::card::CardSet::ZendikarRising,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("7327289d-eed8-44b1-8495-7172e2b49d5f", "Izzy"),
+    CardSet::ZendikarRising,
+    // A two-drop early or a four-power trampler late, and the anthem is what
+    // pays a counters deck for playing it at either end.
+    CardRules::new_creature(mana_cost!("{1}{G}"), &["Beast"], 2, 2).with_abilities(&[
+        AbilityDef::alternative_cast(
+            mana_cost!("{3}{G}{G}"),
+            AlternativeCastKindDef::Kicked,
+            Some("Kicker {2}{G} (You may pay an additional {2}{G} as you cast this spell.)"),
+            EffectDef::None,
+        ),
+        AbilityDef::as_enters_if(
+            "If this creature was kicked, it enters with two +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Kicked),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::static_ability(
+            "Each creature you control with a +1/+1 counter on it has trample. (It can deal \
+             excess combat damage to the player or planeswalker it's attacking.)",
+            EffectDef::StaticApply {
+                // Itself included once it is kicked, which is what makes the
+                // kicked mode a trampler rather than just a bigger body.
+                recipient: EffectRecipientDef::matching_objects(
+                    ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                        ObjectPredicateDef::HasCounter(CounterKind::PlusOnePlusOne),
+                    ]),
+                    &[ZoneKind::Battlefield],
+                    PlayerRelation::You,
+                ),
+                effect: AppliedEffectDef::add_ability(&abilities::trample()),
+            },
+        ),
+    ]),
 );
 
 // ZNR 232 — Omnath, Locus of Creation

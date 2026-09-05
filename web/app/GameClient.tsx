@@ -53,17 +53,15 @@ import {
   groupTargetedActionsByOrigin,
   targetActionsAreUnambiguous,
 } from "./targeted-action-groups.mjs";
+import { maxSeed, parseSeed, seedTextIsInvalid } from "./match-seed.mjs";
 
 const randomSeed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 
-const initialSeed = () => {
-  const requested = new URLSearchParams(window.location.search).get("seed");
-  if (requested !== null && /^\d+$/.test(requested)) {
-    const parsed = Number(requested);
-    if (Number.isSafeInteger(parsed) && parsed <= 0xffff_ffff) return parsed;
-  }
-  return randomSeed();
-};
+/// The seed the address bar asks for, if it asks for one the engine can deal.
+const requestedSeed = () =>
+  parseSeed(new URLSearchParams(window.location.search).get("seed"));
+
+const initialSeed = () => requestedSeed() ?? randomSeed();
 
 /// Turns a setup choice into a deck the engine can build. Every choice but
 /// `randomDeck` is already one.
@@ -221,6 +219,11 @@ export function GameClient({
   const [draftPolicy, setDraftPolicy] = useState("Handcrafted");
   const [draftHumanFirst, setDraftHumanFirst] = useState(true);
   const [draftCardArtMode, setDraftCardArtMode] = useState<CardArtMode>(defaultCardArtMode);
+  /**
+   * The seed field as typed. Blank means "roll one", so it is text rather
+   * than a number: a number could not tell an empty field from zero.
+   */
+  const [draftSeed, setDraftSeed] = useState("");
   // `pregame` banners announce the opening hand rather than a turn, since
   // turn one has not started while anyone is still deciding to mulligan.
   type TurnBanner = { active: string; turn: number; pregame?: boolean };
@@ -600,6 +603,10 @@ export function GameClient({
         const startingBotDeck = resolveDeck(startingFormat, startingChoices.botDeck);
         const startingHumanFirst = initialHumanFirst();
         setSeed(startingSeed);
+        // A seed on the address bar was asked for, so the first deal keeps it
+        // and the form shows that it will. A rolled one stays out of the
+        // field: the next deal should roll again, not repeat it.
+        if (requestedSeed() !== null) setDraftSeed(String(startingSeed));
         setFormat(startingFormat);
         setDraftFormat(startingFormat);
         setHumanDeckChoice(startingChoices.humanDeck);
@@ -1577,13 +1584,20 @@ export function GameClient({
     setDraftPolicy(policy);
     setDraftHumanFirst(humanFirst);
     setDraftCardArtMode(cardArtMode);
+    // Reopening the form asks for a new game, and a new game rolls a new deal
+    // unless the player types one. The seed that just played is in the menu.
+    setDraftSeed("");
     setSetupOpen(true);
   };
 
+  const draftSeedInvalid = seedTextIsInvalid(draftSeed);
+
   const startConfiguredGame = () => {
-    if (!wasmReady.current) return;
+    if (!wasmReady.current || draftSeedInvalid) return;
+    // A typed seed deals exactly that game. A blank field deals the game
+    // already behind a first-visit form, and rolls fresh on any later deal.
     const started = newGame(
-      setupDismissible ? randomSeed() : seed,
+      parseSeed(draftSeed) ?? (setupDismissible ? randomSeed() : seed),
       draftHumanDeck,
       draftBotDeck,
       draftPolicy,
@@ -1667,6 +1681,24 @@ export function GameClient({
                     : "Do not request card images."}
               </small>
             </label>
+            <label className="setup-format setup-seed">
+              <span>Seed</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Random"
+                value={draftSeed}
+                onChange={(event) => setDraftSeed(event.target.value)}
+                aria-invalid={draftSeedInvalid || undefined}
+              />
+              <small className={draftSeedInvalid ? "setup-seed-invalid" : undefined}>
+                {draftSeedInvalid
+                  ? `Use a whole number from 0 to ${maxSeed}.`
+                  : draftPolicy.startsWith(LIVE_BOT_PREFIX)
+                    ? "A live opponent's game rolls its own seed so neither side can see the deal coming."
+                    : "Leave blank for a random deal. The same seed and decks deal the same game."}
+              </small>
+            </label>
             <div className="setup-fields">
               <div className="setup-primary-choice">
                 <label>
@@ -1742,7 +1774,7 @@ export function GameClient({
               <button
                 className="setup-start"
                 onClick={startConfiguredGame}
-                disabled={!engineReady}
+                disabled={!engineReady || draftSeedInvalid}
               >
                 {loading ? "Loading engine…" : "Deal game"}
               </button>

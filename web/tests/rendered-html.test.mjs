@@ -26,6 +26,11 @@ test("server renders the Penta application shell", async () => {
   assert.match(html, /Standard: ISD-M14/);
   assert.match(html, /Card images/);
   assert.match(html, /<option value="full" selected="">Full cards<\/option>/);
+  // The seed is part of the deal, so the shell offers it before the engine
+  // is even awake, blank so a first visit still rolls one.
+  assert.match(html, /Seed/);
+  assert.match(html, /placeholder="Random"/);
+  assert.match(html, /Leave blank for a random deal/);
   assert.match(html, /Waking the Rust engine/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });

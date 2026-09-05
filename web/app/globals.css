@@ -164,8 +164,34 @@ button {
   font-size: 10px;
 }
 
-.setup-art-mode {
+.setup-art-mode,
+.setup-seed {
   margin-top: 10px;
+}
+
+.setup-seed input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #806d50;
+  border-radius: 0;
+  color: #2a241c;
+  background: #fff7e4;
+  font-family: Georgia, serif;
+  font-size: 16px;
+}
+
+.setup-seed input::placeholder {
+  color: #847762;
+  font-style: italic;
+}
+
+.setup-seed input[aria-invalid="true"] {
+  border-color: #a24435;
+  background: #efd1c4;
+}
+
+.setup-seed-invalid {
+  color: #74291f !important;
 }
 
 .setup-fields {

@@ -453,13 +453,25 @@ pub(in crate::card::sets) static BRAINSURGE: CardRecord = CardRecord::new(
 );
 
 // MH3 69 — Serum Visionary
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERUM_VISIONARY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("08a587f5-5910-405e-8982-c889dbbc7f98"),
     "Serum Visionary",
-    crate::card::CardArt::new("08a587f5-5910-405e-8982-c889dbbc7f98", "Warren Mahy"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("08a587f5-5910-405e-8982-c889dbbc7f98", "Warren Mahy"),
+    CardSet::ModernHorizons3,
+    // Serum Visions on a body: the same draw-then-scry, so the smoothing
+    // shapes the two draws after this one rather than this one.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Vedalken", "Wizard"], 2, 2).with_ability(
+        abilities::enters_trigger(
+            "When this creature enters, draw a card, then scry 2.",
+            EffectDef::Sequence(&[
+                EffectDef::DrawCards {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(1),
+                },
+                abilities::scry(ValueDef::Constant(2)),
+            ]),
+        ),
+    ),
 );
 
 // MH3 80 — Accursed Marauder

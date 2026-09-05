@@ -2,11 +2,11 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AddManaEffectDef, AppliedEffectDef, CardArt,
-    CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef, CostQuantityDef, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
-    PlayerRelation, SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
-    abilities, tokens,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
+    AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype, CardType, CopyExceptionsDef,
+    CostQuantityDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    ObjectQueryDef, ObjectSetDef, PlayerRelation, ResolvedEffectDurationDef,
+    SpellAdditionalCostDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -204,13 +204,40 @@ pub(in crate::card::sets) static SARULF_S_PACKMATE: CardRecord = CardRecord::new
 );
 
 // KHM 194 — Snakeskin Veil
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNAKESKIN_VEIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e692c208-c171-4964-9207-43c2cbc62845"),
     "Snakeskin Veil",
-    crate::card::CardArt::new("e692c208-c171-4964-9207-43c2cbc62845", "Matt Stewart"),
-    crate::card::CardSet::Kaldheim,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e692c208-c171-4964-9207-43c2cbc62845", "Matt Stewart"),
+    CardSet::Kaldheim,
+    // One mana that answers removal and leaves the creature bigger, so it is
+    // never a blank the way a pure protection spell is.
+    CardRules::new_instant(mana_cost!("{G}")).with_ability(AbilityDef::spell_with_targets(
+        "Put a +1/+1 counter on target creature you control. It gains hexproof until end of \
+         turn. (It can't be the target of spells or abilities your opponents control.)",
+        &[AbilityTargetDef::exactly_one(
+            AbilityTargetPredicate::Object {
+                object: ObjectPredicateDef::HasType(CardType::Creature),
+                zones: &[ZoneKind::Battlefield],
+                controller: Some(PlayerRelation::You),
+                owner: None,
+            },
+        )],
+        EffectDef::Sequence(&[
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+            // The hexproof arrives too late to stop what this was cast in
+            // response to, which is why the counter is what saves the
+            // creature and the hexproof only stops the next spell.
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::hexproof()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ]),
+    )),
 );
 
 // KHM 315 — Esika's Chariot

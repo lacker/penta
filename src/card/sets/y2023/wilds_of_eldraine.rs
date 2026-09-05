@@ -6,22 +6,37 @@ use crate::card::{
     AbilityCostDef, AbilityDef, AbilityOperationDef, AbilityTargetDef, AbilityTargetPredicate,
     AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, BlockRestrictionDef, CardArt,
     CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
-    CardType, CharacteristicOperationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TokenCharacteristics,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    CardType, CharacteristicOperationDef, CostModificationDef, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SpellForm,
+    SpellResolutionDestinationDef, TokenCharacteristics, TriggerConditionDef, TriggerEventDef,
+    TurnStepDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::TargetIndex;
 use crate::{CardPartId, PlayOptionId, mana_cost};
 
 // WOE 62 — Mocking Sprite
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MOCKING_SPRITE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e595014d-4ff4-4561-b7f2-a9bd56300b01"),
     "Mocking Sprite",
-    crate::card::CardArt::new("e595014d-4ff4-4561-b7f2-a9bd56300b01", "Ben Hill"),
-    crate::card::CardSet::WildsOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e595014d-4ff4-4561-b7f2-a9bd56300b01", "Ben Hill"),
+    CardSet::WildsOfEldraine,
+    // The discount is read off the battlefield, so an evasive body that
+    // survives is what makes it pay -- and flying is why it does.
+    CardRules::new_creature(mana_cost!("{2}{U}"), &["Faerie", "Rogue"], 2, 1).with_abilities(&[
+        abilities::flying(),
+        AbilityDef::static_ability(
+            "Instant and sorcery spells you cast cost {1} less to cast.",
+            EffectDef::ModifyCost(CostModificationDef::reduce_spell(
+                ObjectPredicateDef::AnyOf(&[
+                    ObjectPredicateDef::HasType(CardType::Instant),
+                    ObjectPredicateDef::HasType(CardType::Sorcery),
+                ]),
+                PlayerRelation::You,
+                ValueDef::Constant(1),
+            )),
+        ),
+    ]),
 );
 
 // WOE 83 — Candy Grapple

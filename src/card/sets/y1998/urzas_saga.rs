@@ -3316,13 +3316,28 @@ pub(in crate::card::sets) static FECUNDITY: CardRecord = CardRecord::new(
 );
 
 // USG 252 — Fertile Ground
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FERTILE_GROUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("091dda35-59e5-456d-8804-61513a610aed"),
     "Fertile Ground",
-    crate::card::CardArt::new("091dda35-59e5-456d-8804-61513a610aed", "Heather Hudson"),
-    crate::card::CardSet::UrzasSaga,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("091dda35-59e5-456d-8804-61513a610aed", "Heather Hudson"),
+    CardSet::UrzasSaga,
+    // Wild Growth that fixes as well as ramps, which is the whole reason a
+    // three-colour deck pays the extra mana for it.
+    CardRules::new_enchantment(mana_cost!("{1}{G}"))
+        .with_subtypes(&["Aura"])
+        .with_abilities(&[
+            abilities::enchant_land(),
+            AbilityDef::triggered_mana(
+                "Whenever enchanted land is tapped for mana, its controller adds an additional \
+                 one mana of any color.",
+                TriggerEventDef::tapped_for_mana(ObjectPredicateDef::AttachedToSource),
+                // The land's controller, not the Aura's: this may be sitting
+                // on something an opponent controls.
+                EffectDef::AddMana(
+                    AddManaEffectDef::any_color().to_triggering_objects_controller(),
+                ),
+            ),
+        ]),
 );
 
 // USG 253 — Fortitude

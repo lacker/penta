@@ -6,12 +6,13 @@ use crate::card::{
     AddManaEffectDef, AlternateSpellKind, AppliedEffectDef, AppliedRuleDef, CardArt,
     CardComposition, CardEffectStatus, CardPart, CardRules, CardSet, CardStructure, CardSupertype,
     CardType, ChoiceVisibilityDef, ChooseDef, ComparisonDef, CounterKind, CreatedTokensDef,
-    EffectDef, EffectPaymentDef, EffectRecipientDef, FreePlayDef, FreePlayDurationDef,
-    InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef,
-    ObjectSetDef, ObjectSetFilterDef, PayOrDef, PlayActionMatcherDef, PlayOptionDef,
-    PlayRestrictionDef, PlayerRefDef, PlayerRelation, PlayerSetDef, QuantifierDef,
-    ResolvedEffectDurationDef, SpellForm, SpellResolutionDestinationDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    EffectDef, EffectPaymentDef, EffectRecipientDef, ExilePlayDurationDef, FreePlayDef,
+    FreePlayDurationDef, InstalledTriggerDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectSetFilterDef, PayOrDef,
+    PlayActionMatcherDef, PlayOptionDef, PlayRestrictionDef, PlayerRefDef, PlayerRelation,
+    PlayerSetDef, QuantifierDef, ResolvedEffectDurationDef, SpellForm,
+    SpellResolutionDestinationDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::{CardPartId, ParentBinding, PlayOptionId, TargetIndex};
 use crate::mana_cost;
@@ -381,16 +382,57 @@ pub(in crate::card::sets) static VOICE_OF_VICTORY: CardRecord = CardRecord::new_
 );
 
 // TDM 119 — Seize Opportunity
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEIZE_OPPORTUNITY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f7818d28-b9a5-4341-9adc-666070b8878d"),
     "Seize Opportunity",
-    crate::card::CardArt::new(
+    CardArt::new(
         "f7818d28-b9a5-4341-9adc-666070b8878d",
         "Josiah \"Jo\" Cameron",
     ),
-    crate::card::CardSet::TarkirDragonstorm,
-    crate::card::CardRules::unsupported(),
+    CardSet::TarkirDragonstorm,
+    // Cards when the board is empty, reach when it is not. Neither half is
+    // worth three mana alone; being able to pick at instant speed is.
+    CardRules::new_instant(mana_cost!("{2}{R}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell(
+                "Exile the top two cards of your library. Until the end of your next turn, you \
+                 may play those cards.",
+                EffectDef::ExileTopOfLibraryToPlay {
+                    player: EffectRecipientDef::Controller,
+                    amount: ValueDef::Constant(2),
+                    free: false,
+                    face_down: false,
+                    duration: ExilePlayDurationDef::UntilEndOfYourNextTurn,
+                    spend_any_color: false,
+                    play_condition: None,
+                    cast_only: false,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Up to two target creatures each get +2/+1 until end of turn.",
+                // "Up to two" and not "two": cast for this half with a single
+                // creature on the board, it still resolves on that one.
+                &[AbilityTargetDef::up_to(
+                    AbilityTargetPredicate::Object {
+                        object: ObjectPredicateDef::HasType(CardType::Creature),
+                        zones: &[ZoneKind::Battlefield],
+                        controller: None,
+                        owner: None,
+                    },
+                    2,
+                )],
+                EffectDef::Apply {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    effect: AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(2),
+                        ValueDef::Constant(1),
+                    ),
+                    duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+                },
+            ),
+        ],
+    )),
 );
 
 // TDM 120 — Shock Brigade

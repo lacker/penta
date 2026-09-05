@@ -883,13 +883,25 @@ pub(in crate::card::sets) static ENDURANCE: CardRecord = CardRecord::new(
 );
 
 // MH2 181 — Urban Daggertooth
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static URBAN_DAGGERTOOTH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4ab83a39-d90d-403e-b74d-fe99c8b2aacd"),
     "Urban Daggertooth",
-    crate::card::CardArt::new("4ab83a39-d90d-403e-b74d-fe99c8b2aacd", "Randy Vargas"),
-    crate::card::CardSet::ModernHorizons2,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4ab83a39-d90d-403e-b74d-fe99c8b2aacd", "Randy Vargas"),
+    CardSet::ModernHorizons2,
+    // Vigilance is what makes the enrage reliable: it attacks and is still
+    // back to be blocked, so the deck chooses when to be dealt damage.
+    CardRules::new_creature(mana_cost!("{2}{G}{G}"), &["Dinosaur"], 4, 3).with_abilities(&[
+        abilities::vigilance(),
+        AbilityDef::triggered(
+            "Enrage — Whenever this creature is dealt damage, proliferate. (Choose any number of \
+             permanents and/or players, then give each another counter of each kind already \
+             there.)",
+            // Any damage at all, not just combat damage, and once per damage
+            // event rather than once per point.
+            TriggerEventDef::damage_to_source(),
+            EffectDef::Proliferate,
+        ),
+    ]),
 );
 
 // MH2 188 — Captured by Lagacs

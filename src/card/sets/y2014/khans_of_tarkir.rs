@@ -79,13 +79,16 @@ pub(in crate::card::sets) static MONASTERY_SWIFTSPEAR: CardRecord = CardRecord::
 );
 
 // KTK 137 — Hooting Mandrills
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HOOTING_MANDRILLS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("090d678c-f0e4-4757-8900-93dfe67aefe9"),
     "Hooting Mandrills",
-    crate::card::CardArt::new("090d678c-f0e4-4757-8900-93dfe67aefe9", "Mike Bierek"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("090d678c-f0e4-4757-8900-93dfe67aefe9", "Mike Bierek"),
+    CardSet::KhansOfTarkir,
+    // Trample is what separates this from the other delve fatties: a
+    // graveyard deck casts it early, when nothing on the far side blocks it
+    // profitably anyway.
+    CardRules::new_creature(mana_cost!("{5}{G}"), &["Ape"], 4, 4)
+        .with_abilities(&[abilities::delve(), abilities::trample()]),
 );
 
 // KTK 227 — Ugin's Nexus

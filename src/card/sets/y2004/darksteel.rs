@@ -27,7 +27,7 @@ pub(in crate::card::sets) static DARKSTEEL_INGOT: CardRecord = CardRecord::new_w
 );
 
 // DST 127 — Leonin Bola
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs unattaching the Equipment as an activation cost. EffectDef::Unattach exists but only as an effect, and AbilityCostDef has no unattach variant; Special is a marker the runtime rejects rather than a general escape hatch. Paying only the tap would make the ability repeatable, which is the opposite of what the card does.
 pub(in crate::card::sets) static LEONIN_BOLA: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a7eab112-20a6-414f-84c9-678580485420"),
     "Leonin Bola",

@@ -265,7 +265,7 @@ pub(in crate::card::sets) static FEED_THE_CYCLE: CardRecord = CardRecord::new(
 );
 
 // BLB 208 — Cindering Cutthroat
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an "an opponent lost life this turn" replacement condition. ReplacementConditionDef offers only OpponentWasDealtDamageThisTurn, which is bloodthirst's damage reading: life lost to a payment, a drain, or an effect that says "loses life" would not count, so the counter would be missing in cases the printed card grants it.
 pub(in crate::card::sets) static CINDERING_CUTTHROAT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("b2ea10dd-21ea-4622-be27-79d03a802b85"),
     "Cindering Cutthroat",

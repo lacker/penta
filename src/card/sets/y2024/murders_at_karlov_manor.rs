@@ -2,12 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
-    AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, ColorSet,
-    ComparisonDef, CostModificationDef, CounterKind, EffectDef, EffectRecipientDef, ManaColor,
-    ObjectPredicateDef, PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SumValueDef,
-    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities, tokens,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AppliedEffectDef, AppliedRuleDef, BasicLandType, CardArt, CardRules, CardSet, CardSupertype,
+    CardType, ColorSet, ComparisonDef, CostModificationDef, CounterKind, EffectDef,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, PlayerSetDef,
+    ResolvedEffectDurationDef, SumValueDef, TriggerConditionDef, TriggerEventDef, TurnStepDef,
+    ValueComparisonDef, ValueDef, ZoneKind, ZonePlacement, abilities, tokens,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -114,13 +114,41 @@ pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::ne
 );
 
 // MKM 174 — Rubblebelt Maverick
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RUBBLEBELT_MAVERICK: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b"),
     "Rubblebelt Maverick",
-    crate::card::CardArt::new("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b", "Carissa Susilo"),
-    crate::card::CardSet::MurdersAtKarlovManor,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("81c7ff67-b9e1-4d2e-b1ae-da9b946da00b", "Carissa Susilo"),
+    CardSet::MurdersAtKarlovManor,
+    // A one-drop that fills the graveyard on the way in and cashes itself
+    // out of it later, so trading it away costs the deck almost nothing.
+    CardRules::new_creature(mana_cost!("{G}"), &["Human", "Detective"], 1, 1).with_abilities(&[
+        abilities::enters_trigger(
+            "When this creature enters, surveil 2. (Look at the top two cards of your library, \
+             then put any number of them into your graveyard and the rest on top of your library \
+             in any order.)",
+            abilities::surveil(ValueDef::Constant(2)),
+        ),
+        AbilityDef::activated_with_targets(
+            "{G}, Exile this card from your graveyard: Put a +1/+1 counter on target creature. \
+             Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{G}")),
+                AbilityCostDef::ExileSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        )
+        // Activated from the graveyard rather than the battlefield, and at
+        // sorcery speed.
+        .with_source_zones(&[ZoneKind::Graveyard])
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
 );
 
 // MKM 197 — Dog Walker

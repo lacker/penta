@@ -3,11 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    InstalledTriggerDef, ObjectPredicateDef, PlayerRelation, SpellAdditionalCostDef,
+    AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
+    EffectDef, EffectPaymentCostDef, EffectPaymentDef, EffectRecipientDef, InstalledTriggerDef,
+    ObjectPredicateDef, PayOrDef, PlayerRelation, PlayerSetDef, SpellAdditionalCostDef,
     TriggerEventDef, TurnStepDef, ValueDef, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 static SPHINX_OPENING_TRIGGER: AbilityDef = AbilityDef::triggered(
     "At the beginning of your first upkeep, scry 3.",
@@ -83,13 +84,45 @@ pub(in crate::card::sets) static FINAL_PAYMENT: CardRecord = CardRecord::new(
 );
 
 // RNA 172 — Fireblade Artist
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FIREBLADE_ARTIST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("21e1161f-bd2c-45a7-a86b-3b2e5210f148"),
     "Fireblade Artist",
-    crate::card::CardArt::new("21e1161f-bd2c-45a7-a86b-3b2e5210f148", "Steve Argyle"),
-    crate::card::CardSet::RavnicaAllegiance,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("21e1161f-bd2c-45a7-a86b-3b2e5210f148", "Steve Argyle"),
+    CardSet::RavnicaAllegiance,
+    // Two damage every upkeep for a spare creature, and haste means the
+    // Artist itself can be the first thing fed to it after it attacks.
+    CardRules::new_creature(mana_cost!("{B}{R}"), &["Human", "Shaman"], 2, 2).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered(
+            "At the beginning of your upkeep, you may sacrifice a creature.",
+            TriggerEventDef::StepBegins {
+                step: TurnStepDef::Upkeep,
+                player: PlayerRelation::You,
+            },
+            EffectDef::PayOr(PayOrDef::optional(
+                EffectPaymentDef {
+                    payer: PlayerSetDef::Related(PlayerRelation::You),
+                    cost: EffectPaymentCostDef::SacrificePermanentMatching(
+                        ObjectPredicateDef::HasType(CardType::Creature),
+                    ),
+                },
+                &EffectDef::None,
+            )),
+        ),
+        AbilityDef::triggered_with_targets(
+            "When you do, this creature deals 2 damage to target opponent or planeswalker.",
+            // The reflexive half: it goes on the stack by itself once the
+            // sacrifice is taken, and names its target only then.
+            TriggerEventDef::OptionalEffectTaken(ObjectPredicateDef::Source),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Opponent),
+            )],
+            EffectDef::DealDamage {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                amount: ValueDef::Constant(2),
+            },
+        ),
+    ]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -310,7 +310,7 @@ pub(in crate::card::sets) static FIELD_OF_THE_DEAD: CardRecord = CardRecord::new
 );
 
 // M20 297 — Wildfire Elemental
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a noncombat damage matcher. DamageKindDef offers only Any and Combat, so "whenever an opponent is dealt noncombat damage" cannot be said; using Any would also fire on every attack, which is the opposite of what the card rewards.
 pub(in crate::card::sets) static WILDFIRE_ELEMENTAL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("272e317c-55c4-43b2-91aa-3e0009cfd7d5"),
     "Wildfire Elemental",

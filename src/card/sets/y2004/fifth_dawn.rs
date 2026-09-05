@@ -21,13 +21,24 @@ pub(in crate::card::sets) static CONDESCEND: CardRecord = CardRecord::new(
 );
 
 // 5DN 36 — Serum Visions
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERUM_VISIONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("77e241f0-4cdc-4e37-b5b1-6f47f385d381"),
     "Serum Visions",
-    crate::card::CardArt::new("4bc61952-88ba-447a-835a-f1e9643fcd0d", "Ben Thompson"),
-    crate::card::CardSet::FifthDawn,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4bc61952-88ba-447a-835a-f1e9643fcd0d", "Ben Thompson"),
+    CardSet::FifthDawn,
+    // The draw comes first and the scry second, which is the whole
+    // difference from Preordain: this fixes the next two draws, not this one.
+    CardRules::new_sorcery(mana_cost!("{U}")).with_ability(AbilityDef::spell(
+        "Draw a card. Scry 2. (Look at the top two cards of your library, then put any number of \
+         them on the bottom and the rest on top in any order.)",
+        EffectDef::Sequence(&[
+            EffectDef::DrawCards {
+                recipient: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(1),
+            },
+            abilities::scry(ValueDef::Constant(2)),
+        ]),
+    )),
 );
 
 // 5DN 55 — Night's Whisper

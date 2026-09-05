@@ -90,7 +90,7 @@ pub(in crate::card::sets) static SHIMMERWILDS_GROWTH: CardRecord = CardRecord::n
 );
 
 // ECL 251 — Wary Farmer
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an event-tracked "a creature entered under your control this turn" condition. The only available reading is ObjectPredicateDef::EnteredThisTurn over the battlefield, which misses a creature that entered and left before the end step -- the printed intervening-if would still be satisfied. The condition vocabulary already tracks comparable events (CreatureDiedThisTurn, ControllerHadPermanentLeaveThisTurn) but not this one.
 pub(in crate::card::sets) static WARY_FARMER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("22d20c0d-176d-49c9-aa0b-2c5778548cc5"),
     "Wary Farmer",

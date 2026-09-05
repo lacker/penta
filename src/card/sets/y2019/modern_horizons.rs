@@ -817,13 +817,47 @@ pub(in crate::card::sets) static HEXDRINKER: CardRecord = CardRecord::new(
 );
 
 // MH1 169 — Krosan Tusker
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static KROSAN_TUSKER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("0b872f85-60c5-44c4-956d-a8aa8132908b"),
     "Krosan Tusker",
-    crate::card::CardArt::new("6391ba8b-7d9a-4077-8eeb-1b2ced14d973", "Kev Walker"),
-    crate::card::CardSet::ModernHorizons1,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("6391ba8b-7d9a-4077-8eeb-1b2ced14d973", "Kev Walker"),
+    CardSet::ModernHorizons1,
+    // Nobody casts the Boar; cycling it for a land and a card is the card,
+    // and the seven-mana body is there so the cycling costs three.
+    CardRules::new_creature(mana_cost!("{5}{G}{G}"), &["Boar", "Beast"], 6, 5).with_abilities(&[
+        abilities::cycling(
+            "Cycling {2}{G} ({2}{G}, Discard this card: Draw a card.)",
+            mana_cost!("{2}{G}"),
+        ),
+        AbilityDef::triggered(
+            "When you cycle this card, you may search your library for a basic land card, reveal \
+             that card, put it into your hand, then shuffle. (Do this before you draw.)",
+            // The trigger goes on the stack above the cycling draw, which is
+            // what the reminder text means by "before you draw".
+            TriggerEventDef::Cycled,
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::SearchZone {
+                    player: EffectRecipientDef::Controller,
+                    source: ZoneKind::Library,
+                    object: ObjectPredicateDef::All(&[
+                        ObjectPredicateDef::HasType(CardType::Land),
+                        ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ]),
+                    minimum: 0,
+                    maximum: ValueDef::Constant(1),
+                    reveal: true,
+                    destination: ZoneKind::Hand,
+                    placement: ZonePlacement::Top,
+                    shuffle: true,
+                    enters_tapped: false,
+                    attachment: None,
+                    binding: None,
+                    then: None,
+                },
+            },
+        ),
+    ]),
 );
 
 // MH1 171 — Mother Bear

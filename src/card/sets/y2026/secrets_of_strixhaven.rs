@@ -205,13 +205,18 @@ pub(in crate::card::sets) static PARADOX_GARDENS: CardRecord = CardRecord::new(
 );
 
 // SOS 262 — Spectacle Summit
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SPECTACLE_SUMMIT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("a0a66f7b-eab4-45da-8895-c2c2c7eb05f8"),
     "Spectacle Summit",
-    crate::card::CardArt::new("a0a66f7b-eab4-45da-8895-c2c2c7eb05f8", "Andreas Zafiratos"),
-    crate::card::CardSet::SecretsOfStrixhaven,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("a0a66f7b-eab4-45da-8895-c2c2c7eb05f8", "Andreas Zafiratos"),
+    CardSet::SecretsOfStrixhaven,
+    guildhall_surveil_land(
+        "{T}: Add {U} or {R}.",
+        &[ManaColor::Blue, ManaColor::Red],
+        "{2}{U}{R}, {T}: Surveil 1. (Look at the top card of your library. You may put it into \
+         your graveyard.)",
+        mana_cost!("{2}{U}{R}"),
+    ),
 );
 
 // SOS 266 — Titan's Grave

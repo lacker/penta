@@ -4,18 +4,25 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardType, EffectDef,
     EffectRecipientDef, ObjectPredicateDef, PlayerRelation, PlayerSetDef, TriggerEventDef,
-    ValueDef,
+    ValueDef, abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
 // HOU 48 — Striped Riverwinder
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static STRIPED_RIVERWINDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a"),
     "Striped Riverwinder",
-    crate::card::CardArt::new("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a", "Craig J Spearing"),
-    crate::card::CardSet::HourOfDevastation,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bbeef9ef-487c-400b-bcee-1c0e8ec94b6a", "Craig J Spearing"),
+    CardSet::HourOfDevastation,
+    // Seven mana is never the plan, which is the point: a one-mana cantrip
+    // that is still a real threat in the games that go long.
+    CardRules::new_creature(mana_cost!("{6}{U}"), &["Serpent"], 5, 5).with_abilities(&[
+        abilities::hexproof(),
+        abilities::cycling(
+            "Cycling {U} ({U}, Discard this card: Draw a card.)",
+            mana_cost!("{U}"),
+        ),
+    ]),
 );
 
 // HOU 83 — Abrade

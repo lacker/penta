@@ -436,7 +436,7 @@ pub(in crate::card::sets) static TAMIYO_COMPLEATED_SAGE: CardRecord = CardRecord
 );
 
 // NEO 248 — Iron Apprentice
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a kind-agnostic counter transfer. "Put those counters on target creature" moves every kind the dying creature had, in the amounts it had, but AddCounters always names one kind and only removal has a kind-agnostic form. Narrowing it to +1/+1 would silently drop any other counter that reached this creature.
 pub(in crate::card::sets) static IRON_APPRENTICE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("13d6d9fc-509b-42db-8ac1-85066eb6e9c4"),
     "Iron Apprentice",

@@ -15,13 +15,22 @@ use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
 
 // NEO 17 — Imperial Oath
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IMPERIAL_OATH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d6750dd-2303-493b-885d-1bfb5787b16c"),
     "Imperial Oath",
-    crate::card::CardArt::new("3d6750dd-2303-493b-885d-1bfb5787b16c", "Nicholas Elias"),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3d6750dd-2303-493b-885d-1bfb5787b16c", "Nicholas Elias"),
+    CardSet::KamigawaNeonDynasty,
+    // Six power that can attack and still block, plus three cards deep of
+    // smoothing -- a limited finisher rather than anything a cube wants.
+    CardRules::new_sorcery(mana_cost!("{5}{W}")).with_ability(AbilityDef::spell(
+        "Create three 2/2 white Samurai creature tokens with vigilance. Scry 3.",
+        EffectDef::Sequence(&[
+            EffectDef::create_creature_token(&["Samurai"], &[ManaColor::White], 2, 2)
+                .with_abilities(&[abilities::vigilance()])
+                .with_amount(3),
+            abilities::scry(ValueDef::Constant(3)),
+        ]),
+    )),
 );
 
 // NEO 26 — Lion Sash

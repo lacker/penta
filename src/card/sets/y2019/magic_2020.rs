@@ -22,13 +22,17 @@ pub(in crate::card::sets) static ANCESTRAL_BLADE: CardRecord = CardRecord::new(
 );
 
 // M20 34 — Raise the Alarm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAISE_THE_ALARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4be510c8-fc01-4374-ac04-7968d24480fe"),
     "Raise the Alarm",
-    crate::card::CardArt::new("764a7a53-314e-4b1f-aa33-0f312d06df71", "Zoltan Boros"),
-    crate::card::CardSet::Magic2020,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("764a7a53-314e-4b1f-aa33-0f312d06df71", "Zoltan Boros"),
+    CardSet::Magic2020,
+    // Two bodies at instant speed, which is what a token deck pays the extra
+    // mana for: it holds up the trick and still develops the board.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::spell(
+        "Create two 1/1 white Soldier creature tokens.",
+        EffectDef::create_creature_token(&["Soldier"], &[ManaColor::White], 1, 1).with_amount(2),
+    )),
 );
 
 // M20 54 — Cloudkin Seer

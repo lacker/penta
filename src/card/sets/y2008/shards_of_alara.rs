@@ -87,13 +87,35 @@ pub(in crate::card::sets) static ELSPETH_KNIGHT_ERRANT: CardRecord = CardRecord:
 );
 
 // ALA 104 — Hissing Iguanar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static HISSING_IGUANAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c"),
     "Hissing Iguanar",
-    crate::card::CardArt::new("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c", "Brandon Kitkouski"),
-    crate::card::CardSet::ShardsOfAlara,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("4b8b8b90-cb6e-4910-bc40-d96b78b0d70c", "Brandon Kitkouski"),
+    CardSet::ShardsOfAlara,
+    // Every trade on the board becomes a point of reach, which is what makes
+    // a fragile 3/1 worth playing in a deck that is already racing.
+    CardRules::new_creature(mana_cost!("{2}{R}"), &["Lizard"], 3, 1).with_ability(
+        abilities::dies_trigger_matching_with_targets(
+            "Whenever another creature dies, you may have this creature deal 1 damage to target \
+             player or planeswalker.",
+            // "Another": its own death does not feed it, so a board wipe
+            // gives it one fewer ping than it looks like.
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+            ]),
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::PlayerOrPlaneswalker(PlayerRelation::Any),
+            )],
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::Constant(1),
+                },
+            },
+        ),
+    ),
 );
 
 // ALA 156 — Blightning

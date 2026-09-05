@@ -362,7 +362,7 @@ pub(in crate::card::sets) static CLAWING_TORMENT: CardRecord = CardRecord::new(
 );
 
 // NEO 117 — Okiba Reckoner Raid // Nezumi Road Captain
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a Saga clause shared across chapters. Every piece is present -- saga_chapter, exile_and_return_transformed, and the transforming two-face record -- but "I, II" is one printed clause on two chapters, and a chapter is one ability per lore counter. Repeating the text prints the line twice and leaving the second empty is rejected outright.
 pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4f0582b4-d951-4450-b158-4a34109e48cd"),
     "Okiba Reckoner Raid",

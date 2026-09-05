@@ -325,7 +325,7 @@ pub(in crate::card::sets) static RIFT_BOLT: CardRecord = CardRecord::new(
 );
 
 // TSP 180 — Sulfurous Blast
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a "cast during your main phase" condition. The closest is SourceCastAtInstantSpeed, and its negation is not the same question: a spell cast in your own main phase in response to something was cast when a sorcery could not have been, so the negation would report the smaller amount where the printed card gives the larger one.
 pub(in crate::card::sets) static SULFUROUS_BLAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("67511e0e-be09-4f4e-9949-b9ecbdc7f536"),
     "Sulfurous Blast",

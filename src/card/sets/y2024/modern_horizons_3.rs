@@ -15,10 +15,10 @@ use crate::card::{
     ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
     ObjectSetValueAtLeastDef, ObjectSetValueDef, ObjectValueDef, PayOrDef, PerPlayerSelectionDef,
     PileExileDef, PlayerRefDef, PlayerRelation, PlayerSetDef, ReplacementEffectDef,
-    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef, SetOperationDef,
-    SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef, TriggerConditionDef,
-    TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind, ZonePickDef,
-    ZonePlacement, abilities, tokens,
+    ResolvedEffectDurationDef, RevealObjectsDef, RoundingDef, SacrificedAmountDef, ScaledValueDef,
+    SetOperationDef, SpellAdditionalCostDef, SumValueDef, TargetConditionDef, TokenCountersDef,
+    TriggerConditionDef, TriggerEventDef, TurnStepDef, ValueComparisonDef, ValueDef, ZoneKind,
+    ZonePickDef, ZonePlacement, abilities, tokens,
 };
 use crate::ids::{Binding, ParentBinding};
 use crate::{TargetIndex, mana_cost};
@@ -407,16 +407,82 @@ pub(in crate::card::sets) static STATIC_PRISON: CardRecord = CardRecord::new_wit
 );
 
 // MH3 45 — Thraben Charm
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static THRABEN_CHARM: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd28a646-f38f-4cdf-948c-969cd979e5e6"),
     "Thraben Charm",
-    crate::card::CardArt::new(
+    CardArt::new(
         "dd28a646-f38f-4cdf-948c-969cd979e5e6",
         "Carlos Palma Cruchaga",
     ),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardSet::ModernHorizons3,
+    // Removal that scales with the board, an answer to an enchantment, and
+    // graveyard hate: two mana that is never quite dead.
+    CardRules::new_instant(mana_cost!("{1}{W}")).with_ability(AbilityDef::modal_spell(
+        "Choose one —",
+        &[
+            AbilityDef::spell_with_targets(
+                "Thraben Charm deals damage equal to twice the number of creatures you control \
+                 to target creature.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                )],
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    // Counted as this resolves, and the target itself counts
+                    // when it is one of yours.
+                    amount: ValueDef::Scaled(
+                        &const {
+                            ScaledValueDef {
+                                value: ValueDef::CountMatchingObjects(
+                                    &const {
+                                        ObjectQueryDef::matching(
+                                            ObjectPredicateDef::HasType(CardType::Creature),
+                                            &[ZoneKind::Battlefield],
+                                            PlayerRelation::You,
+                                        )
+                                    },
+                                ),
+                                factor: 2,
+                            }
+                        },
+                    ),
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Destroy target enchantment.",
+                &[AbilityTargetDef::exactly_one_permanent(
+                    ObjectPredicateDef::HasType(CardType::Enchantment),
+                )],
+                EffectDef::Destroy {
+                    object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    can_regenerate: true,
+                    then: None,
+                },
+            ),
+            AbilityDef::spell_with_targets(
+                "Exile any number of target players' graveyards.",
+                // "Any number" includes none, so this mode is castable with
+                // an empty board and no graveyards worth touching.
+                &[AbilityTargetDef::any_number(
+                    AbilityTargetPredicate::Player(PlayerRelation::Any),
+                )],
+                EffectDef::MoveToZone {
+                    // Every player the slot chose, not just one: the singular
+                    // cards_owned_by_target helper names a single target and
+                    // this slot holds any number of them.
+                    object: EffectRecipientDef::objects(ObjectSetDef::Query(
+                        ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::Any,
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::LegalTargets(TargetIndex::PRIMARY),
+                        ),
+                    )),
+                    zone: ZoneKind::Exile,
+                    placement: ZonePlacement::Top,
+                },
+            ),
+        ],
+    )),
 );
 
 // MH3 53 — Brainsurge

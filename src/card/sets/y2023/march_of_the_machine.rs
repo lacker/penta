@@ -173,7 +173,7 @@ pub(in crate::card::sets) static PREENING_CHAMPION: CardRecord = CardRecord::new
 );
 
 // MOM 173 — Wrenn's Resolve
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs an exile-play permission lasting until the end of your next turn. ExilePlayDurationDef offers ThisTurn, UntilYourNextEndStep and WhileExiled, and FreePlayDurationDef only WhileResolving and UntilEndOfTurn; none of them reaches the end of the following turn, and UntilYourNextEndStep expires a turn early when the spell is cast on your own turn.
 pub(in crate::card::sets) static WRENN_S_RESOLVE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9a47999c-12d5-4e1a-a9c1-40a1757007f1"),
     "Wrenn's Resolve",

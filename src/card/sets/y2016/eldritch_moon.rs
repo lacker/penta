@@ -3,10 +3,12 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef, CardArt, CardRules,
-    CardSet, CardType, CostQuantityDef, CounterKind, DiscardFollowUpDef, DiscardSelectionDef,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRefDef,
-    PlayerRelation, ResolvedEffectDurationDef, SacrificedAmountDef, SpellAdditionalCostDef,
-    TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    CardSet, CardType, ChoiceVisibilityDef, ChooseDef, CostQuantityDef, CounterKind,
+    DiscardFollowUpDef, DiscardSelectionDef, EffectDef, EffectRecipientDef, InstalledTriggerDef,
+    ObjectChoiceBindingDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, PlayerRefDef,
+    PlayerRelation, PlayerSetDef, ResolvedEffectDurationDef, SacrificedAmountDef,
+    SpellAdditionalCostDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -486,13 +488,53 @@ pub(in crate::card::sets) static SAVAGE_ALLIANCE: CardRecord = CardRecord::new(
 );
 
 // EMN 160 — Grapple with the Past
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static GRAPPLE_WITH_THE_PAST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("d44a77a6-e8a1-4706-886f-8ab3af56b342"),
     "Grapple with the Past",
-    crate::card::CardArt::new("d44a77a6-e8a1-4706-886f-8ab3af56b342", "Howard Lyon"),
-    crate::card::CardSet::EldritchMoon,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("d44a77a6-e8a1-4706-886f-8ab3af56b342", "Howard Lyon"),
+    CardSet::EldritchMoon,
+    // The mill happens first, so the three cards it just buried are part of
+    // what the choice may take back.
+    CardRules::new_instant(mana_cost!("{1}{G}")).with_ability(AbilityDef::spell(
+        "Mill three cards, then you may return a creature or land card from your graveyard to your hand.",
+        EffectDef::Sequence(&[
+            EffectDef::Mill {
+                player: EffectRecipientDef::Controller,
+                amount: ValueDef::Constant(3),
+            },
+            // Chosen as this resolves rather than targeted, which is why the
+            // spell can be cast with an empty graveyard at all.
+            EffectDef::May {
+                player: EffectRecipientDef::Controller,
+                effect: &const {
+                    EffectDef::Choose(ChooseDef {
+                        binding: ObjectChoiceBindingDef::Objects(ParentBinding),
+                        unchosen: None,
+                        chooser: PlayerRefDef::EffectController,
+                        candidates: ObjectSetDef::Query(ObjectQueryDef::owned_by(
+                            ObjectPredicateDef::AnyOf(&[
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                                ObjectPredicateDef::HasType(CardType::Land),
+                            ]),
+                            &[ZoneKind::Graveyard],
+                            PlayerSetDef::Related(PlayerRelation::You),
+                        )),
+                        exclude: None,
+                        minimum: 1,
+                        maximum: 1,
+                        visibility: ChoiceVisibilityDef::Public,
+                        then: &EffectDef::MoveToZone {
+                            object: EffectRecipientDef::objects(ObjectSetDef::Binding(
+                                ParentBinding,
+                            )),
+                            zone: ZoneKind::Hand,
+                            placement: ZonePlacement::Top,
+                        },
+                    })
+                },
+            },
+        ]),
+    )),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

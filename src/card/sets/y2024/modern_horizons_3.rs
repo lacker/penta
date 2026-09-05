@@ -710,13 +710,33 @@ pub(in crate::card::sets) static RETROFITTED_TRANSMOGRANT: CardRecord = CardReco
 );
 
 // MH3 108 — Scurrilous Sentry
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SCURRILOUS_SENTRY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("29e2805f-59fa-4a6d-97bc-266191b2aa8d"),
     "Scurrilous Sentry",
-    crate::card::CardArt::new("29e2805f-59fa-4a6d-97bc-266191b2aa8d", "Leonardo Santanna"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("29e2805f-59fa-4a6d-97bc-266191b2aa8d", "Leonardo Santanna"),
+    CardSet::ModernHorizons3,
+    // Menace is what makes the attack half reliable, so the two clauses
+    // feed each other: it connives on the way in and again every swing.
+    CardRules::new_creature(mana_cost!("{3}{B}"), &["Human", "Knight", "Rogue"], 3, 3)
+        .with_abilities(&[
+            abilities::menace(),
+            AbilityDef::triggered(
+                "Whenever this creature enters or attacks, it connives. (Draw a card, then \
+                 discard a card. If you discarded a nonland card, put a +1/+1 counter on this \
+                 creature.)",
+                // Entering and attacking are two ways for one printed ability
+                // to fire, so what it does is written once.
+                TriggerEventDef::AnyOf(&[
+                    TriggerEventDef::zone_changed(
+                        ObjectPredicateDef::Source,
+                        None,
+                        Some(ZoneKind::Battlefield),
+                    ),
+                    TriggerEventDef::attacks(ObjectPredicateDef::Source),
+                ]),
+                abilities::connive(),
+            ),
+        ]),
 );
 
 // MH3 111 — Wither and Bloom

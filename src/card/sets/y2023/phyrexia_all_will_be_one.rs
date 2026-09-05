@@ -3,13 +3,14 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::CostQuantityDef;
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, ChoiceVisibilityDef, ChooseOneOfEachDef, EffectDef, EffectRecipientDef,
-    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, RandomizeObjectOrderDef,
-    RevealObjectsDef, SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind,
-    ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    BattlefieldEntryModificationDef, CardArt, CardRules, CardSet, CardSupertype, CardType,
+    ChoiceVisibilityDef, ChooseOneOfEachDef, CounterKind, EffectDef, EffectRecipientDef,
+    MoveObjectsDef, ObjectPredicateDef, ObjectSetDef, PlayerRefDef, PlayerRelation,
+    RandomizeObjectOrderDef, ReplacementEffectDef, ResolvedEffectDurationDef, RevealObjectsDef,
+    SacrificedAmountDef, SpellAdditionalCostDef, ValueDef, ZoneKind, ZonePlacement, abilities,
 };
-use crate::{Binding, ParentBinding, mana_cost};
+use crate::{Binding, ParentBinding, TargetIndex, mana_cost};
 
 // ONE 28 — Planar Disruption
 pub(in crate::card::sets) static PLANAR_DISRUPTION: CardRecord = CardRecord::new(
@@ -132,13 +133,47 @@ pub(in crate::card::sets) static BARBED_BATTERFIST: CardRecord = CardRecord::new
 );
 
 // ONE 133 — Furnace Strider
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static FURNACE_STRIDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aa625ab0-1e79-4497-a5da-98fe1abfd024"),
     "Furnace Strider",
-    crate::card::CardArt::new("aa625ab0-1e79-4497-a5da-98fe1abfd024", "Denis Zhbankov"),
-    crate::card::CardSet::PhyrexiaAllWillBeOne,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("aa625ab0-1e79-4497-a5da-98fe1abfd024", "Denis Zhbankov"),
+    CardSet::PhyrexiaAllWillBeOne,
+    // Two free haste grants attached to a body that blocks well, which is
+    // what makes five mana acceptable in a deck built to go wide.
+    CardRules::new_creature(mana_cost!("{4}{R}"), &["Phyrexian", "Beast"], 4, 5).with_abilities(&[
+        AbilityDef::as_enters(
+            "This creature enters with two oil counters on it.",
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::named("oil"),
+                    amount: 2,
+                },
+            ),
+        ),
+        AbilityDef::activated_with_targets(
+            "Remove an oil counter from this creature: Target creature you control gains haste \
+             until end of turn.",
+            // The counter is the whole cost, so this is free twice and then
+            // never again.
+            &[AbilityCostDef::RemoveCountersFromSource {
+                kind: CounterKind::named("oil"),
+                amount: 1,
+            }],
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::add_ability(&abilities::haste()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // ONE 161 — Cankerbloom

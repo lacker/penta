@@ -1534,13 +1534,47 @@ pub(in crate::card::sets) static BOUNTIFUL_LANDSCAPE: CardRecord = CardRecord::n
 );
 
 // MH3 218 — Contaminated Landscape
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONTAMINATED_LANDSCAPE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("e2312c49-1627-47ad-8113-78a999a97d8d"),
     "Contaminated Landscape",
-    crate::card::CardArt::new("e2312c49-1627-47ad-8113-78a999a97d8d", "Donato Giancola"),
-    crate::card::CardSet::ModernHorizons3,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("e2312c49-1627-47ad-8113-78a999a97d8d", "Donato Giancola"),
+    CardSet::ModernHorizons3,
+    // Colourless mana now, a tapped basic later, or a card when the deck
+    // has enough colours to pay for the cycling.
+    CardRules::new_land(&[]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated(
+            "{T}, Sacrifice this land: Search your library for a basic Plains, Island, or Swamp card, put it onto the battlefield tapped, then shuffle.",
+            &[AbilityCostDef::TapSource, AbilityCostDef::SacrificeSource],
+            EffectDef::SearchZone {
+                player: EffectRecipientDef::Controller,
+                source: ZoneKind::Library,
+                object: ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ObjectPredicateDef::HasAnyBasicLandType(&[
+                        BasicLandType::Plains,
+                        BasicLandType::Island,
+                        BasicLandType::Swamp,
+                    ]),
+                ]),
+                // A qualified library search may legally fail to find.
+                minimum: 0,
+                maximum: ValueDef::Constant(1),
+                reveal: false,
+                destination: ZoneKind::Battlefield,
+                placement: ZonePlacement::Top,
+                shuffle: true,
+                enters_tapped: true,
+                attachment: None,
+                binding: None,
+                then: None,
+            },
+        ),
+        abilities::cycling(
+            "Cycling {W}{U}{B} ({W}{U}{B}, Discard this card: Draw a card.)",
+            mana_cost!("{W}{U}{B}"),
+        ),
+    ]),
 );
 
 // MH3 219 — Deceptive Landscape

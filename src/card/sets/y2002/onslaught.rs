@@ -2603,13 +2603,43 @@ pub(in crate::card::sets) static SOLAR_BLAST: CardRecord = CardRecord::new(
 );
 
 // ONS 235 — Sparksmith
-// Audit: unsupported — Card rules have not been implemented.
+/// "The number of Goblins on the battlefield" counts both sides, which is
+/// what makes this hurt more in the mirror than against anything else.
+static GOBLINS_ON_THE_BATTLEFIELD: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Goblin"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::Any,
+);
+
 pub(in crate::card::sets) static SPARKSMITH: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("15a4460d-3fe8-4b1f-9990-0a19c3345367"),
     "Sparksmith",
-    crate::card::CardArt::new("15a4460d-3fe8-4b1f-9990-0a19c3345367", "Jim Nelson"),
-    crate::card::CardSet::Onslaught,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("15a4460d-3fe8-4b1f-9990-0a19c3345367", "Jim Nelson"),
+    CardSet::Onslaught,
+    // Sparksmith is itself a Goblin, so it always deals at least one, and a
+    // wide goblin board makes the recoil as large as the shot.
+    CardRules::new_creature(mana_cost!("{1}{R}"), &["Goblin"], 1, 1).with_ability(
+        AbilityDef::activated_with_targets(
+            "{T}: This creature deals X damage to target creature and X damage to you, where X \
+             is the number of Goblins on the battlefield.",
+            &[AbilityCostDef::TapSource],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            // Both halves read the same count once, at resolution: nothing
+            // between them can change how many Goblins there are.
+            EffectDef::Sequence(&[
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
+                },
+                EffectDef::DealDamage {
+                    recipient: EffectRecipientDef::Controller,
+                    amount: ValueDef::CountMatchingObjects(&GOBLINS_ON_THE_BATTLEFIELD),
+                },
+            ]),
+        ),
+    ),
 );
 
 // ONS 236 — Spitfire Handler

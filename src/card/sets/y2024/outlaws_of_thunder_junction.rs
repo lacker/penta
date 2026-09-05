@@ -532,13 +532,33 @@ pub(in crate::card::sets) static BRISTLING_BACKWOODS: CardRecord = CardRecord::n
 );
 
 // OTJ 254 — Conduit Pylons
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CONDUIT_PYLONS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("5ffa48cc-b991-4d47-b7ec-cf678915c758"),
     "Conduit Pylons",
-    crate::card::CardArt::new("5ffa48cc-b991-4d47-b7ec-cf678915c758", "Raymond Bonilla"),
-    crate::card::CardSet::OutlawsOfThunderJunction,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("5ffa48cc-b991-4d47-b7ec-cf678915c758", "Raymond Bonilla"),
+    CardSet::OutlawsOfThunderJunction,
+    // Untapped and colourless by default, so the fixing costs a mana rather
+    // than a turn: the Desert deck plays it as a land that is never dead.
+    CardRules::new_land(&["Desert"]).with_abilities(&[
+        abilities::enters_trigger(
+            "When this land enters, surveil 1. (Look at the top card of your library. You may put \
+             it into your graveyard.)",
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+        AbilityDef::activated_mana(
+            "{T}: Add {C}.",
+            &[AbilityCostDef::TapSource],
+            EffectDef::AddMana(AddManaEffectDef::one(ManaColor::Colorless)),
+        ),
+        AbilityDef::activated_mana(
+            "{1}, {T}: Add one mana of any color.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}")),
+                AbilityCostDef::TapSource,
+            ],
+            EffectDef::AddMana(AddManaEffectDef::any_color()),
+        ),
+    ]),
 );
 
 // OTJ 256 — Eroded Canyon

@@ -178,14 +178,80 @@ pub(in crate::card::sets) static SWORD_COAST_SERPENT: CardRecord = CardRecord::n
 );
 
 // CLB 106 — Young Blue Dragon
-// Audit: unsupported — Card rules have not been implemented.
+const fn young_blue_dragon_rules() -> CardRules {
+    CardRules::new_creature(mana_cost!("{4}{U}"), &const { ["Dragon"] }, 3, 3)
+        .with_ability(abilities::flying())
+}
+
+fn young_blue_dragon_composition() -> CardComposition {
+    let dragon = young_blue_dragon_rules();
+    let augury = const {
+        CardRules::new_sorcery(mana_cost!("{1}{U}"))
+            .with_subtypes(&const { ["Adventure"] })
+            .with_ability(
+                AbilityDef::spell(
+                    "Scry 1, then draw a card.",
+                    // Scry before the draw, unlike Serum Visions: this one
+                    // shapes the card it is about to give you.
+                    EffectDef::Sequence(
+                        &const {
+                            [
+                                abilities::scry(ValueDef::Constant(1)),
+                                EffectDef::DrawCards {
+                                    recipient: EffectRecipientDef::Controller,
+                                    amount: ValueDef::Constant(1),
+                                },
+                            ]
+                        },
+                    ),
+                )
+                .with_resolution_destination(SpellResolutionDestinationDef::ExileOnAdventure),
+            )
+    };
+    CardComposition {
+        parts: vec![
+            CardPart::new(CardPartId::PRIMARY, "Young Blue Dragon", dragon),
+            CardPart::new(CardPartId(1), "Sand Augury", augury),
+        ],
+        structure: CardStructure::AlternateSpell {
+            main: CardPartId::PRIMARY,
+            alternate: CardPartId(1),
+            kind: AlternateSpellKind::Adventure,
+        },
+        play_options: vec![
+            PlayOptionDef::cast(
+                PlayOptionId::DEFAULT,
+                "Young Blue Dragon",
+                SpellForm::Part(CardPartId::PRIMARY),
+                dragon
+                    .mana_cost()
+                    .expect("the Dragon has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+            PlayOptionDef::cast(
+                PlayOptionId(1),
+                "Sand Augury",
+                SpellForm::Part(CardPartId(1)),
+                augury
+                    .mana_cost()
+                    .expect("Sand Augury has a printed mana cost"),
+                CardEffectStatus::Implemented,
+            ),
+        ],
+    }
+    .with_derived_spell_targets()
+}
+
 pub(in crate::card::sets) static YOUNG_BLUE_DRAGON: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("56b0f66b-dca9-4a01-9394-20a513c2b225"),
     "Young Blue Dragon",
-    crate::card::CardArt::new("56b0f66b-dca9-4a01-9394-20a513c2b225", "Tuan Duong Chu"),
-    crate::card::CardSet::CommanderLegendsBattleForBaldursGate,
-    crate::card::CardRules::unsupported(),
-);
+    CardArt::new("56b0f66b-dca9-4a01-9394-20a513c2b225", "Tuan Duong Chu"),
+    CardSet::CommanderLegendsBattleForBaldursGate,
+    // A cantrip early and a flier later, which is the deal the whole
+    // Adventure cycle offers: two cards' worth of turns from one card.
+    young_blue_dragon_rules(),
+)
+.with_composition(young_blue_dragon_composition);
 
 // CLB 113 — Arms of Hadar
 pub(in crate::card::sets) static ARMS_OF_HADAR: CardRecord = CardRecord::new(

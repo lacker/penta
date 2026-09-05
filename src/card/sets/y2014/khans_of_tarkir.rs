@@ -2,9 +2,10 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AddManaEffectDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, EffectDef, EffectRecipientDef, ManaColor, PlayerRelation, ReplacementEffectDef,
-    ReplacementEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
+    AbilityCostDef, AbilityDef, AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet,
+    CardSupertype, CardType, EffectDef, EffectRecipientDef, ManaColor, ObjectPredicateDef,
+    PlayerRelation, ReplacementEffectDef, ReplacementEventDef, ResolvedEffectDurationDef,
+    TriggerEventDef, TurnKindDef, ValueDef, ZoneKind, ZoneMoveCauseDef, abilities,
 };
 use crate::mana_cost;
 
@@ -19,13 +20,32 @@ pub(in crate::card::sets) static AINOK_BOND_KIN: CardRecord = CardRecord::new(
 );
 
 // KTK 22 — Seeker of the Way
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SEEKER_OF_THE_WAY: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3c17e350-44f7-4413-ad24-7c5d6616effd"),
     "Seeker of the Way",
-    crate::card::CardArt::new("3c17e350-44f7-4413-ad24-7c5d6616effd", "Craig J Spearing"),
-    crate::card::CardSet::KhansOfTarkir,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("3c17e350-44f7-4413-ad24-7c5d6616effd", "Craig J Spearing"),
+    CardSet::KhansOfTarkir,
+    // Prowess and lifelink on the same trigger is what turns one cheap spell
+    // into a four-point life swing, which is why this ends races.
+    CardRules::new_creature(mana_cost!("{1}{W}"), &["Human", "Warrior"], 2, 2).with_abilities(&[
+        abilities::prowess(),
+        // A second printed ability watching the same event, not a rider on
+        // prowess: two spells in a turn grant lifelink twice, harmlessly,
+        // and each grows the body separately.
+        AbilityDef::triggered(
+            "Whenever you cast a noncreature spell, this creature gains lifelink until end of \
+             turn.",
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::NoncreatureSpell,
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ])),
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::add_ability(&abilities::lifelink()),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        ),
+    ]),
 );
 
 // KTK 59 — Treasure Cruise

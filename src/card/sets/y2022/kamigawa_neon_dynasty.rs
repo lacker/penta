@@ -375,16 +375,45 @@ pub(in crate::card::sets) static OKIBA_RECKONER_RAID: CardRecord = CardRecord::n
 );
 
 // NEO 148 — Ironhoof Boar
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static IRONHOOF_BOAR: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("73abe574-6fb8-4809-9c18-0cf989f986f5"),
     "Ironhoof Boar",
-    crate::card::CardArt::new(
+    CardArt::new(
         "73abe574-6fb8-4809-9c18-0cf989f986f5",
         "Antonio José Manzanedo",
     ),
-    crate::card::CardSet::KamigawaNeonDynasty,
-    crate::card::CardRules::unsupported(),
+    CardSet::KamigawaNeonDynasty,
+    // Six mana for the body or two for a trick: channel is what keeps a
+    // top-heavy creature from being a dead card in the early turns.
+    CardRules::new_artifact_creature(mana_cost!("{5}{R}"), &["Boar"], 5, 4).with_abilities(&[
+        abilities::trample(),
+        abilities::haste(),
+        AbilityDef::activated_with_targets(
+            "Channel — {1}{R}, Discard this card: Target creature gets +3/+1 and gains trample \
+             until end of turn.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{1}{R}")),
+                AbilityCostDef::DiscardSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                effect: AppliedEffectDef::Composite(&[
+                    AppliedEffectDef::modify_power_toughness(
+                        ValueDef::Constant(3),
+                        ValueDef::Constant(1),
+                    ),
+                    AppliedEffectDef::add_ability(&abilities::trample()),
+                ]),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        // Activated from hand, which is the only place a card can be
+        // discarded from.
+        .with_source_zones(&[ZoneKind::Hand]),
+    ]),
 );
 
 // NEO 157 — Rabbit Battery

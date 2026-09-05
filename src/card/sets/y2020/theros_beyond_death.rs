@@ -184,13 +184,33 @@ pub(in crate::card::sets) static MIRE_TRITON: CardRecord = CardRecord::new(
 );
 
 // THB 120 — Underworld Charger
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static UNDERWORLD_CHARGER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9"),
     "Underworld Charger",
-    crate::card::CardArt::new("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9", "Johann Bodin"),
-    crate::card::CardSet::TherosBeyondDeath,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("f2dd847f-0db2-4f6a-bdfb-5c88ce7802f9", "Johann Bodin"),
+    CardSet::TherosBeyondDeath,
+    // A body that only ever attacks, sold twice: the escape copy is a 5/5,
+    // which is what pays for five mana and three cards of graveyard.
+    CardRules::new_creature(mana_cost!("{2}{B}"), &["Nightmare", "Horse"], 3, 3).with_abilities(&[
+        AbilityDef::static_ability(
+            "This creature can't block.",
+            EffectDef::StaticApply {
+                recipient: EffectRecipientDef::Source,
+                effect: AppliedEffectDef::Rule(AppliedRuleDef::CANNOT_BLOCK),
+            },
+        ),
+        escape(AlternativeCastManaCostDef::Fixed(mana_cost!("{4}{B}")), 3),
+        AbilityDef::as_enters_if(
+            "This creature escapes with two +1/+1 counters on it.",
+            ReplacementConditionDef::SourceCastWith(AlternativeCastKindDef::Escape),
+            ReplacementEffectDef::ModifyBattlefieldEntry(
+                BattlefieldEntryModificationDef::AddCounters {
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: 2,
+                },
+            ),
+        ),
+    ]),
 );
 
 // THB 128 — Blood Aspirant

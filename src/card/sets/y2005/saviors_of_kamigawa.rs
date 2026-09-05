@@ -2,12 +2,13 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardSupertype,
-    CardType, CopyAbilityDef, CopyExceptionsDef, EffectDef, EffectRecipientDef,
-    InstalledTriggerDef, ObjectPredicateDef, PlayerRelation, ReplacementEffectDef,
-    ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef, ZoneKind, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardSupertype, CardType, CopyAbilityDef, CopyExceptionsDef,
+    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, PlayerRelation,
+    ReplacementEffectDef, ResolvedEffectDurationDef, TriggerEventDef, TurnStepDef, ValueDef,
+    ZoneKind, ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // SOK 2 — Araba Mothrider
 pub(in crate::card::sets) static ARABA_MOTHRIDER: CardRecord = CardRecord::new(
@@ -62,13 +63,34 @@ pub(in crate::card::sets) static SAKASHIMA_THE_IMPOSTOR: CardRecord = CardRecord
 );
 
 // SOK 63 — Death Denied
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static DEATH_DENIED: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("8f66ddc5-f5e6-44de-8189-87b6521d1fea"),
     "Death Denied",
-    crate::card::CardArt::new("8f66ddc5-f5e6-44de-8189-87b6521d1fea", "Greg Hildebrandt"),
-    crate::card::CardSet::SaviorsOfKamigawa,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("8f66ddc5-f5e6-44de-8189-87b6521d1fea", "Greg Hildebrandt"),
+    CardSet::SaviorsOfKamigawa,
+    // Two black on top of X is a real tax, which is why this is a late-game
+    // rebuild rather than a way to buy back one creature.
+    CardRules::new_instant(mana_cost!("{X}{B}{B}"))
+        .with_subtypes(&["Arcane"])
+        .with_ability(AbilityDef::spell_with_targets(
+            "Return X target creature cards from your graveyard to your hand.",
+            // Exactly X, not up to X: a graveyard with fewer creatures than
+            // the X paid for cannot legally cast it.
+            &[AbilityTargetDef::exactly_value(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                ValueDef::ChosenX,
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        )),
 );
 
 // SOK 104 — Iizuka the Ruthless

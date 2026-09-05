@@ -519,16 +519,38 @@ pub(in crate::card::sets) static TEFERI_TIME_RAVELER: CardRecord = CardRecord::n
 );
 
 // WAR 222 — Tenth District Legionnaire
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static TENTH_DISTRICT_LEGIONNAIRE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("44f3090b-917b-4122-b522-27c30dca8e69"),
     "Tenth District Legionnaire",
-    crate::card::CardArt::new(
+    CardArt::new(
         "44f3090b-917b-4122-b522-27c30dca8e69",
         "Victor Adame Minguez",
     ),
-    crate::card::CardSet::WarOfTheSpark,
-    crate::card::CardRules::unsupported(),
+    CardSet::WarOfTheSpark,
+    // Haste plus a counter for every trick aimed at it, so the two-drop
+    // that ate a pump spell is bigger next turn as well as this one.
+    CardRules::new_creature(mana_cost!("{R}{W}"), &["Human", "Soldier"], 2, 2).with_abilities(&[
+        abilities::haste(),
+        AbilityDef::triggered(
+            "Whenever you cast a spell that targets this creature, put a +1/+1 counter on this \
+             creature, then scry 1.",
+            // Read off what the spell already targets rather than what it
+            // could take, and only spells you cast: an opponent's removal
+            // aimed at this does not grow it.
+            TriggerEventDef::spell_cast(ObjectPredicateDef::All(&[
+                ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ObjectPredicateDef::TargetsObjectMatching(&ObjectPredicateDef::Source),
+            ])),
+            EffectDef::Sequence(&[
+                EffectDef::AddCounters {
+                    object: EffectRecipientDef::Source,
+                    kind: CounterKind::PlusOnePlusOne,
+                    amount: ValueDef::Constant(1),
+                },
+                abilities::scry(ValueDef::Constant(1)),
+            ]),
+        ),
+    ]),
 );
 
 // WAR 234 — Saheeli, Sublime Artificer

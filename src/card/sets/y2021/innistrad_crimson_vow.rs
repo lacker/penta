@@ -6,7 +6,8 @@ use crate::card::{
     AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
     EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
     ObjectQueryDef, ObjectRefDef, ObjectSetDef, PlayerRefDef, PlayerRelation, PlayerSetDef,
-    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    ResolvedEffectDurationDef, ScaledValueDef, TriggerEventDef, ValueDef, ZoneKind, ZonePlacement,
+    abilities, tokens,
 };
 use crate::ids::{ParentBinding, TargetIndex};
 use crate::mana_cost;
@@ -35,13 +36,45 @@ pub(in crate::card::sets) static CRUEL_WITNESS: CardRecord = CardRecord::new(
 );
 
 // VOW 95 — Blood Fountain
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BLOOD_FOUNTAIN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("dd03651e-ada0-41dc-8722-0eba476943e3"),
     "Blood Fountain",
-    crate::card::CardArt::new("dd03651e-ada0-41dc-8722-0eba476943e3", "Evyn Fong"),
-    crate::card::CardSet::InnistradCrimsonVow,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("dd03651e-ada0-41dc-8722-0eba476943e3", "Evyn Fong"),
+    CardSet::InnistradCrimsonVow,
+    // One mana smooths the draw now; the same card buys back two creatures
+    // later, which is why a graveyard deck runs it over a plain rummage.
+    CardRules::new_artifact(mana_cost!("{B}")).with_abilities(&[
+        abilities::enters_trigger(
+            "When this artifact enters, create a Blood token. (It's an artifact with \"{1}, {T}, \
+             Discard a card, Sacrifice this token: Draw a card.\")",
+            EffectDef::create_token(tokens::blood()),
+        ),
+        AbilityDef::activated_with_targets(
+            "{3}{B}, {T}, Sacrifice this artifact: Return up to two target creature cards from \
+             your graveyard to your hand.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{3}{B}")),
+                AbilityCostDef::TapSource,
+                AbilityCostDef::SacrificeSource,
+            ],
+            // One slot holding up to two, so a graveyard with a single
+            // creature in it still activates.
+            &[AbilityTargetDef::up_to(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::HasType(CardType::Creature),
+                    zones: &[ZoneKind::Graveyard],
+                    controller: None,
+                    owner: Some(PlayerRelation::You),
+                },
+                2,
+            )],
+            EffectDef::MoveToZone {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                zone: ZoneKind::Hand,
+                placement: ZonePlacement::Top,
+            },
+        ),
+    ]),
 );
 
 // VOW 101 — Concealing Curtains // Revealing Eye

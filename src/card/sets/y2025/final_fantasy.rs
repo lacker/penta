@@ -102,13 +102,28 @@ pub(in crate::card::sets) static CECIL_DARK_KNIGHT: CardRecord = CardRecord::new
 );
 
 // FIN 114 — Resentful Revelation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RESENTFUL_REVELATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("945006ea-c6a1-4ee5-abb2-387c2b6d3123"),
     "Resentful Revelation",
-    crate::card::CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
-    crate::card::CardSet::FinalFantasy,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("945006ea-c6a1-4ee5-abb2-387c2b6d3123", "Justyna Dura"),
+    CardSet::FinalFantasy,
+    // The two cards it buries are the point as often as the one it keeps,
+    // and the flashback is what the graveyard deck is really paying for.
+    CardRules::new_sorcery(mana_cost!("{1}{B}")).with_abilities(&[
+        AbilityDef::spell(
+            "Look at the top three cards of your library. Put one of them into your hand and the \
+             rest into your graveyard.",
+            // Exactly one, not up to one: the card is mandatory, and any of
+            // the three qualifies.
+            abilities::look_at_top_cards_choose_to_hand_rest_graveyard(
+                ValueDef::Constant(3),
+                ObjectPredicateDef::Any,
+                1,
+                1,
+            ),
+        ),
+        abilities::flashback(mana_cost!("{6}{B}")),
+    ]),
 );
 
 // FIN 164 — Suplex

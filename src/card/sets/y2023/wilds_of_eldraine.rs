@@ -252,13 +252,43 @@ pub(in crate::card::sets) static AGATHAS_SOUL_CAULDRON: CardRecord = CardRecord:
 );
 
 // WOE 243 — Candy Trail
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static CANDY_TRAIL: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("1a860925-d912-49e5-9ddc-41ab26916bb3"),
     "Candy Trail",
-    crate::card::CardArt::new("1a860925-d912-49e5-9ddc-41ab26916bb3", "Alix Branwyn"),
-    crate::card::CardSet::WildsOfEldraine,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("1a860925-d912-49e5-9ddc-41ab26916bb3", "Alix Branwyn"),
+    CardSet::WildsOfEldraine,
+    // A one-mana artifact that smooths the draw now and replaces itself
+    // later, which is what makes it a fine card in a deck that just wants
+    // its land drops.
+    CardRules::new_artifact(mana_cost!("{1}"))
+        // Food and Clue are printed types here rather than granted rules:
+        // the sacrifice ability this card wants is its own, not either
+        // token's.
+        .with_subtypes(&["Food", "Clue"])
+        .with_abilities(&[
+            abilities::enters_trigger(
+                "When this artifact enters, scry 2.",
+                abilities::scry(ValueDef::Constant(2)),
+            ),
+            AbilityDef::activated(
+                "{2}, {T}, Sacrifice this artifact: You gain 3 life and draw a card.",
+                &[
+                    AbilityCostDef::Mana(mana_cost!("{2}")),
+                    AbilityCostDef::TapSource,
+                    AbilityCostDef::SacrificeSource,
+                ],
+                EffectDef::Sequence(&[
+                    EffectDef::GainLife {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(3),
+                    },
+                    EffectDef::DrawCards {
+                        recipient: EffectRecipientDef::Controller,
+                        amount: ValueDef::Constant(1),
+                    },
+                ]),
+            ),
+        ]),
 );
 
 // WOE 277 — Virtue of Loyalty

@@ -4,8 +4,9 @@ use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AggregateOperationDef, AppliedEffectDef,
     BasicLandType, CardArt, CardRules, CardSet, CardSupertype, CardType, CounterKind, EffectDef,
-    EffectRecipientDef, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef, ObjectValueAggregateDef,
-    ObjectValueDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
+    EffectRecipientDef, ManaColor, ObjectPredicateDef, ObjectQueryDef, ObjectSetDef,
+    ObjectValueAggregateDef, ObjectValueDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind,
+    abilities,
 };
 use crate::{TargetIndex, mana_cost};
 
@@ -30,13 +31,28 @@ pub(in crate::card::sets) static MANA_TITHE: CardRecord = CardRecord::new_with_l
 );
 
 // PLC 31 — Sunlance
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SUNLANCE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("46144ca5-aa81-4314-a1e5-1716f8565d70"),
     "Sunlance",
-    crate::card::CardArt::new("46144ca5-aa81-4314-a1e5-1716f8565d70", "Volkan Baǵa"),
-    crate::card::CardSet::PlanarChaos,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("46144ca5-aa81-4314-a1e5-1716f8565d70", "Volkan Baǵa"),
+    CardSet::PlanarChaos,
+    // One white mana for three damage, priced by the one thing white removal
+    // is never allowed to answer: the mirror.
+    CardRules::new_sorcery(mana_cost!("{W}")).with_ability(AbilityDef::spell_with_targets(
+        "Sunlance deals 3 damage to target nonwhite creature.",
+        &[AbilityTargetDef::exactly_one_permanent(
+            ObjectPredicateDef::All(&[
+                ObjectPredicateDef::HasType(CardType::Creature),
+                // "Nonwhite" is the absence of white, not the presence of
+                // another colour: a colourless creature is a legal target.
+                ObjectPredicateDef::Not(&ObjectPredicateDef::Color(ManaColor::White)),
+            ]),
+        )],
+        EffectDef::DealDamage {
+            recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            amount: ValueDef::Constant(3),
+        },
+    )),
 );
 
 // PLC 128 — Fungal Behemoth

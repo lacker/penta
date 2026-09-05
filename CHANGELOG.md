@@ -25,6 +25,13 @@ distinguishes snapshots of the covered source and build inputs.
 
 ### Added
 
+- **A watching permanent can name what an attacker is attacking.**
+  `EffectRecipientDef::DefenderOfTriggeringObject` resolves the player or
+  planeswalker the triggering attacker was declared against, so a permanent
+  that is not itself in combat no longer has to approximate "the player or
+  planeswalker it's attacking" as the defending player. Raid Bombardment uses
+  it; nothing about the existing `DefenderOfSource` changes.
+
 - **Blocking restrictions share one declaration model.** Pairwise blocker
   eligibility and costs remain `BlockRestrictionDef::Pair`, while "can't be
   blocked except by N or more creatures" is now the declaration-wide

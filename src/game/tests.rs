@@ -25,6 +25,7 @@ mod enumerated_apply;
 mod fixtures;
 pub(super) use fixtures::*;
 
+mod raid_bombardment;
 mod token_fixtures;
 pub(super) use token_fixtures::*;
 

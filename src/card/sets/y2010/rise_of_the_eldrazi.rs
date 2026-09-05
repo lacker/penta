@@ -196,13 +196,28 @@ pub(in crate::card::sets) static FLAME_SLASH: CardRecord = CardRecord::new_with_
 );
 
 // ROE 161 — Raid Bombardment
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static RAID_BOMBARDMENT: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9c2d1a48-efde-4134-95f0-b23f6cf85259"),
     "Raid Bombardment",
-    crate::card::CardArt::new("9c2d1a48-efde-4134-95f0-b23f6cf85259", "Matt Cavotta"),
-    crate::card::CardSet::RiseOfTheEldrazi,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9c2d1a48-efde-4134-95f0-b23f6cf85259", "Matt Cavotta"),
+    CardSet::RiseOfTheEldrazi,
+    // The power cap is the deckbuilding cost: this pays a token deck and
+    // nothing else, and it turns chump attackers into reach.
+    CardRules::new_enchantment(mana_cost!("{2}{R}")).with_ability(AbilityDef::triggered(
+        "Whenever a creature you control with power 2 or less attacks, this enchantment deals 1 \
+         damage to the player or planeswalker that creature is attacking.",
+        TriggerEventDef::attacks(ObjectPredicateDef::All(&[
+            ObjectPredicateDef::HasType(CardType::Creature),
+            ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+            ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+        ])),
+        EffectDef::DealDamage {
+            // Read off the attacker rather than off this enchantment, which
+            // is not in combat and defends nothing.
+            recipient: EffectRecipientDef::DefenderOfTriggeringObject,
+            amount: ValueDef::Constant(1),
+        },
+    )),
 );
 
 // ROE 201 — Nest Invader

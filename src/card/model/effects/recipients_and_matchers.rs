@@ -257,6 +257,12 @@ impl EffectRecipientDef {
     /// What the source is attacking, which is a player or a planeswalker.
     pub const DefenderOfSource: Self =
         Self(EffectRecipientSetDef::DefenderOf(ObjectRefDef::Source));
+    /// What the creature that triggered this is attacking. A permanent that
+    /// watches other creatures attack has to read the defender off the
+    /// attacker, not off itself: it is not in combat at all.
+    pub const DefenderOfTriggeringObject: Self = Self(EffectRecipientSetDef::DefenderOf(
+        ObjectRefDef::TriggeringObject,
+    ));
 
     #[must_use]
     pub const fn object(object: ObjectRefDef) -> Self {

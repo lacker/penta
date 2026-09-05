@@ -84,13 +84,33 @@ pub(in crate::card::sets) static FORENSIC_GADGETEER: CardRecord = CardRecord::ne
 );
 
 // MKM 105 — Snarling Gorehound
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SNARLING_GOREHOUND: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("93ab3e11-8584-406f-b9ae-9e1df4396cbc"),
     "Snarling Gorehound",
-    crate::card::CardArt::new("93ab3e11-8584-406f-b9ae-9e1df4396cbc", "John Tedrick"),
-    crate::card::CardSet::MurdersAtKarlovManor,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("93ab3e11-8584-406f-b9ae-9e1df4396cbc", "John Tedrick"),
+    CardSet::MurdersAtKarlovManor,
+    // A one-drop that keeps paying in a deck full of other one-drops, which
+    // is exactly the deck that wants a menace body this cheap.
+    CardRules::new_creature(mana_cost!("{B}"), &["Dog"], 1, 1).with_abilities(&[
+        abilities::menace(),
+        AbilityDef::triggered(
+            "Whenever another creature you control with power 2 or less enters, surveil 1. (Look \
+             at the top card of your library. You may put it into your graveyard.)",
+            TriggerEventDef::zone_changed(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                    ObjectPredicateDef::Not(&ObjectPredicateDef::Source),
+                    // "Power 2 or less" has to be a strict comparison because
+                    // power only reads upward here.
+                    ObjectPredicateDef::PowerLessThan(ValueDef::Constant(3)),
+                ]),
+                None,
+                Some(ZoneKind::Battlefield),
+            ),
+            abilities::surveil(ValueDef::Constant(1)),
+        ),
+    ]),
 );
 
 // MKM 174 — Rubblebelt Maverick

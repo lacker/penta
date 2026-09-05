@@ -82,13 +82,30 @@ pub(in crate::card::sets) static SCYTHECAT_CUB: CardRecord = CardRecord::new(
 );
 
 // J25 28 — Shardless Outlander
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SHARDLESS_OUTLANDER: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("fccb51a4-cb78-4437-b9ab-cc77736af561"),
     "Shardless Outlander",
-    crate::card::CardArt::new("fccb51a4-cb78-4437-b9ab-cc77736af561", "Leon Tukker"),
-    crate::card::CardSet::FoundationsJumpstart,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("fccb51a4-cb78-4437-b9ab-cc77736af561", "Leon Tukker"),
+    CardSet::FoundationsJumpstart,
+    // Seven mana buys a 6/5 trampler almost nobody casts. The cycling half is
+    // what earns the slot: a two-mana land fixer early, and a real threat in
+    // the games that go long enough to want one.
+    CardRules::new_artifact_creature(mana_cost!("{7}"), &["Construct", "Scout"], 6, 5)
+        .with_abilities(&[
+            abilities::trample(),
+            abilities::typecycling(
+                "Basic landcycling {2} ({2}, Discard this card: Search your library for a basic \
+                 land card, reveal it, put it into your hand, then shuffle.)",
+                mana_cost!("{2}"),
+                // "Basic land card" is the conjunction, not the Basic supertype
+                // alone: a basic Snow-Covered land qualifies and a legendary
+                // land does not.
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::Supertype(CardSupertype::Basic),
+                    ObjectPredicateDef::HasType(CardType::Land),
+                ]),
+            ),
+        ]),
 );
 
 // J25 37 — Plagon, Lord of the Beach

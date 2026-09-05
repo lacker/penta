@@ -3,8 +3,8 @@
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
     AbilityDef, AbilityTargetDef, AbilityTargetPredicate, CardArt, CardRules, CardSet, CardType,
-    EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef, ObjectRefDef,
-    PlayerRefDef, PlayerRelation, TriggerEventDef, ZoneKind, abilities,
+    CounterKind, EffectDef, EffectRecipientDef, InstalledTriggerDef, ObjectPredicateDef,
+    ObjectRefDef, PlayerRefDef, PlayerRelation, TriggerEventDef, ValueDef, ZoneKind, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -91,13 +91,34 @@ pub(in crate::card::sets) static KITESAIL_FREEBOOTER: CardRecord = CardRecord::n
 );
 
 // XLN 194 — Jade Guardian
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static JADE_GUARDIAN: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("aca83e48-6e32-477f-8714-6103e77c06df"),
     "Jade Guardian",
-    crate::card::CardArt::new("aca83e48-6e32-477f-8714-6103e77c06df", "Chris Seaman"),
-    crate::card::CardSet::Ixalan,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("aca83e48-6e32-477f-8714-6103e77c06df", "Chris Seaman"),
+    CardSet::Ixalan,
+    // Hexproof is what makes the counter safe to spend on itself: a 3/3 the
+    // opponent cannot answer with a spell.
+    CardRules::new_creature(mana_cost!("{3}{G}"), &["Merfolk", "Shaman"], 2, 2).with_abilities(&[
+        abilities::hexproof(),
+        abilities::enters_trigger_with_targets(
+            "When this creature enters, put a +1/+1 counter on target Merfolk you control.",
+            // It is itself a Merfolk, so a board with no other one still has
+            // a legal target.
+            &[AbilityTargetDef::exactly_one(
+                AbilityTargetPredicate::Object {
+                    object: ObjectPredicateDef::Subtype("Merfolk"),
+                    zones: &[ZoneKind::Battlefield],
+                    controller: Some(PlayerRelation::You),
+                    owner: None,
+                },
+            )],
+            EffectDef::AddCounters {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                kind: CounterKind::PlusOnePlusOne,
+                amount: ValueDef::Constant(1),
+            },
+        ),
+    ]),
 );
 
 // XLN 248 — Sorcerous Spyglass

@@ -100,7 +100,7 @@ pub(in crate::card::sets) static THORN_OF_THE_BLACK_ROSE: CardRecord = CardRecor
 );
 
 // CN2 64 — Entourage of Trest
-// Audit: unsupported — Card rules have not been implemented.
+// Audit: unsupported — Needs a "you are the monarch" state condition. Becoming the monarch and blocking an additional creature both exist (EffectDef::BecomeMonarch, AppliedRuleDef::MayBlockAdditionalCreatures), but nothing can ask whether the ability's controller currently holds the crown, and granting the extra block unconditionally would keep it after the crown is taken away.
 pub(in crate::card::sets) static ENTOURAGE_OF_TREST: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("3d7ee777-6113-43f8-883e-c7569eefb872"),
     "Entourage of Trest",

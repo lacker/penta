@@ -2,20 +2,62 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, EffectDef,
-    EffectRecipientDef, ManaColor, ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef,
-    ValueDef, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AppliedEffectDef,
+    CardArt, CardRules, CardSet, CardType, EffectDef, EffectRecipientDef, ManaColor,
+    ObjectPredicateDef, PlayerRelation, ResolvedEffectDurationDef, ValueDef, ZoneKind,
+    ZonePlacement, abilities,
 };
-use crate::mana_cost;
+use crate::{TargetIndex, mana_cost};
 
 // ARB 29 — Soul Manipulation
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SOUL_MANIPULATION: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb"),
     "Soul Manipulation",
-    crate::card::CardArt::new("bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb", "Carl Critchlow"),
-    crate::card::CardSet::AlaraReborn,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("bcd3cb05-c6f9-435a-a0e7-1f85da4a36eb", "Carl Critchlow"),
+    CardSet::AlaraReborn,
+    // Three mana for a counterspell is a poor rate and three for a regrowth
+    // is worse; taking both at once is the whole card.
+    CardRules::new_instant(mana_cost!("{1}{U}{B}")).with_ability(
+        AbilityDef::modal_spell(
+            "Choose one or both —",
+            &[
+                AbilityDef::spell_with_targets(
+                    "Counter target creature spell.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::All(&[
+                                ObjectPredicateDef::Spell,
+                                ObjectPredicateDef::HasType(CardType::Creature),
+                            ]),
+                            zones: &[ZoneKind::Stack],
+                            controller: None,
+                            owner: None,
+                        },
+                    )],
+                    EffectDef::counter_target(TargetIndex::PRIMARY),
+                ),
+                AbilityDef::spell_with_targets(
+                    "Return target creature card from your graveyard to your hand.",
+                    &[AbilityTargetDef::exactly_one(
+                        AbilityTargetPredicate::Object {
+                            object: ObjectPredicateDef::HasType(CardType::Creature),
+                            zones: &[ZoneKind::Graveyard],
+                            controller: None,
+                            owner: Some(PlayerRelation::You),
+                        },
+                    )],
+                    EffectDef::MoveToZone {
+                        object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                        zone: ZoneKind::Hand,
+                        placement: ZonePlacement::Top,
+                    },
+                ),
+            ],
+        )
+        // Each mode carries its own target, so taking both counters one
+        // spell and buys back a different creature.
+        .with_mode_selection(1, 2, false),
+    ),
 );
 
 // ARB 95 — Putrid Leech

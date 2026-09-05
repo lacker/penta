@@ -2,11 +2,12 @@
 
 use super::{CardRecord, PrintingAnchor, PrintingRecord};
 use crate::card::{
-    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, AddManaEffectDef,
-    AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef, ChooseDef,
-    EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef, ObjectPredicateDef,
-    ObjectRefDef, ObjectSetDef, ObjectSetFilterDef, PlayerRefDef, PlayerRelation, SumValueDef,
-    TriggerEventDef, ValueDef, ZoneKind, ZonePlacement, abilities,
+    AbilityCostDef, AbilityDef, AbilityTargetDef, AbilityTargetPredicate, ActivationTimingDef,
+    AddManaEffectDef, AppliedEffectDef, CardArt, CardRules, CardSet, CardType, ChoiceVisibilityDef,
+    ChooseDef, EffectDef, EffectRecipientDef, ManaColor, ObjectChoiceBindingDef,
+    ObjectPredicateDef, ObjectQueryDef, ObjectRefDef, ObjectSetDef, ObjectSetFilterDef,
+    PlayerRefDef, PlayerRelation, ResolvedEffectDurationDef, SumValueDef, TriggerEventDef,
+    ValueDef, ZoneKind, ZonePlacement, abilities,
 };
 use crate::ids::ParentBinding;
 use crate::{TargetIndex, mana_cost};
@@ -218,13 +219,46 @@ pub(in crate::card::sets) static TALON_GATES_OF_MADARA: CardRecord = CardRecord:
 );
 
 // M3C 320 — Basilisk Gate
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static BASILISK_GATE: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("4a306025-d429-4006-b7ed-bdb287e83f57"),
     "Basilisk Gate",
-    crate::card::CardArt::new("935f3dfa-7d8d-459a-8ac2-37892cb9545f", "Jorge Jacinto"),
-    crate::card::CardSet::ModernHorizons3Commander,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("935f3dfa-7d8d-459a-8ac2-37892cb9545f", "Jorge Jacinto"),
+    CardSet::ModernHorizons3Commander,
+    // A colourless land that ends games once the Gates deck has enough of
+    // them, which is the whole reason to run the worse lands beside it.
+    CardRules::new_land(&["Gate"]).with_abilities(&[
+        abilities::tap_for(ManaColor::Colorless),
+        AbilityDef::activated_with_targets(
+            "{2}, {T}: Target creature gets +X/+X until end of turn, where X is the number of \
+             Gates you control. Activate only as a sorcery.",
+            &[
+                AbilityCostDef::Mana(mana_cost!("{2}")),
+                AbilityCostDef::TapSource,
+            ],
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::HasType(CardType::Creature),
+            )],
+            EffectDef::Apply {
+                recipient: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+                // This land is itself a Gate, so the count is never zero
+                // while the ability can be activated at all.
+                effect: AppliedEffectDef::modify_power_toughness(
+                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
+                    ValueDef::CountMatchingObjects(&GATES_YOU_CONTROL),
+                ),
+                duration: ResolvedEffectDurationDef::UntilEndOfTurn,
+            },
+        )
+        .with_activation_timing(ActivationTimingDef::SorcerySpeed),
+    ]),
+);
+
+/// "The number of Gates you control", read twice by the pump above: once for
+/// power and once for toughness.
+static GATES_YOU_CONTROL: ObjectQueryDef = ObjectQueryDef::matching(
+    ObjectPredicateDef::Subtype("Gate"),
+    &[ZoneKind::Battlefield],
+    PlayerRelation::You,
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

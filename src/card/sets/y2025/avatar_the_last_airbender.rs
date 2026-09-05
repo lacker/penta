@@ -73,13 +73,12 @@ pub(in crate::card::sets) static KYOSHI_VILLAGE: CardRecord = CardRecord::new(
 );
 
 // TLA 279 — Serpent's Pass
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static SERPENT_S_PASS: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("ad87bff5-9b8c-44e4-a6d3-8cc71be9640a"),
     "Serpent's Pass",
-    crate::card::CardArt::new("ad87bff5-9b8c-44e4-a6d3-8cc71be9640a", "Matteo Bassini"),
-    crate::card::CardSet::AvatarTheLastAirbender,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("ad87bff5-9b8c-44e4-a6d3-8cc71be9640a", "Matteo Bassini"),
+    CardSet::AvatarTheLastAirbender,
+    cashable_dual_land("{T}: Add {U} or {B}.", &[ManaColor::Blue, ManaColor::Black]),
 );
 
 pub(in crate::card::sets) static CARDS: &[&CardRecord] = &[

@@ -26,6 +26,7 @@ mod fixtures;
 pub(super) use fixtures::*;
 
 mod guildsworn_prowler;
+mod miners_guidewing;
 mod moon_circuit_hacker;
 mod raid_bombardment;
 mod token_fixtures;

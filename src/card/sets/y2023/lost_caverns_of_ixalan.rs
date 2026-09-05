@@ -56,13 +56,33 @@ pub(in crate::card::sets) static GET_LOST: CardRecord = CardRecord::new_with_leg
 );
 
 // LCI 24 — Miner's Guidewing
-// Audit: unsupported — Card rules have not been implemented.
 pub(in crate::card::sets) static MINER_S_GUIDEWING: CardRecord = CardRecord::new(
     PrintingAnchor::scryfall("9048cd9d-df3f-4705-a5f4-e5b09760c631"),
     "Miner's Guidewing",
-    crate::card::CardArt::new("9048cd9d-df3f-4705-a5f4-e5b09760c631", "Allen Douglas"),
-    crate::card::CardSet::LostCavernsOfIxalan,
-    crate::card::CardRules::unsupported(),
+    CardArt::new("9048cd9d-df3f-4705-a5f4-e5b09760c631", "Allen Douglas"),
+    CardSet::LostCavernsOfIxalan,
+    // A one-drop flier that pays again when it trades. Vigilance is what
+    // makes the trade happen on their turn as well as yours, so the explore
+    // is rarely far away.
+    CardRules::new_creature(mana_cost!("{W}"), &["Bird"], 1, 1).with_abilities(&[
+        abilities::flying(),
+        abilities::vigilance(),
+        abilities::dies_trigger_with_targets(
+            "When this creature dies, target creature you control explores.",
+            // The Bird is already in the graveyard when this resolves, so
+            // "creature you control" never includes it: the target is chosen
+            // from whatever is left.
+            &[AbilityTargetDef::exactly_one_permanent(
+                ObjectPredicateDef::All(&[
+                    ObjectPredicateDef::HasType(CardType::Creature),
+                    ObjectPredicateDef::ControlledBy(PlayerRelation::You),
+                ]),
+            )],
+            EffectDef::Explore {
+                object: EffectRecipientDef::Target(TargetIndex::PRIMARY),
+            },
+        ),
+    ]),
 );
 
 // LCI 30 — Petrify
